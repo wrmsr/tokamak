@@ -14,6 +14,6 @@
 package com.wrmsr.tokamak.materialization.node;
 
 public final class ScanNode
-        extends AbstractNode<ScanNode>
+        extends Node
 {
 }

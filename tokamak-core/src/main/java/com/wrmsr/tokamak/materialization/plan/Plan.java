@@ -13,21 +13,56 @@
  */
 package com.wrmsr.tokamak.materialization.plan;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.materialization.api.NodeId;
 import com.wrmsr.tokamak.materialization.api.NodeName;
 import com.wrmsr.tokamak.materialization.node.Node;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkState;
 
 public final class Plan
 {
     private final Node root;
 
+    private final Set<Node> nodes;
+    private final Map<NodeName, Node> nodesByName;
+    private final Map<NodeId, Node> nodesByNodeId;
+
     public Plan(Node root)
     {
         this.root = root;
+
+        Set<Node> nodes = new HashSet<>();
+        Map<NodeName, Node> nodesByName = new HashMap<>();
+        Map<NodeId, Node> nodesByNodeId = new HashMap<>();
+
+        List<Node> nodeStack = new ArrayList<>();
+        nodeStack.add(root);
+        while (!nodeStack.isEmpty()) {
+            Node cur = nodeStack.remove(nodeStack.size() - 1);
+            checkState(!nodes.contains(cur));
+            checkArgument(!nodesByName.containsKey(cur.getName()));
+            checkArgument(!nodesByNodeId.containsKey(cur.getNodeId()));
+            nodes.add(cur);
+            nodesByName.put(cur.getName(), cur);
+            nodesByNodeId.put(cur.getNodeId(), cur);
+            cur.getChildren().stream()
+                    .filter(n -> !nodes.contains(n))
+                    .forEach(nodeStack::add);
+        }
+
+        this.nodes = ImmutableSet.copyOf(nodes);
+        this.nodesByName = ImmutableMap.copyOf(nodesByName);
+        this.nodesByNodeId = ImmutableMap.copyOf(nodesByNodeId);
     }
 
     public Node getRoot()
@@ -37,17 +72,17 @@ public final class Plan
 
     public Set<Node> getNodes()
     {
-        throw new IllegalStateException();
+        return nodes;
     }
 
     public Map<NodeName, Node> getNodesByName()
     {
-        throw new IllegalStateException();
+        return nodesByName;
     }
 
     public Map<NodeId, Node> getNodesByNodeId()
     {
-        throw new IllegalStateException();
+        return nodesByNodeId;
     }
 
     public List<Node> getNameSortedNodes()

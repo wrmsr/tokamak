@@ -13,6 +13,40 @@
  */
 package com.wrmsr.tokamak.materialization.node;
 
-public interface Node
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.wrmsr.tokamak.materialization.api.NodeId;
+import com.wrmsr.tokamak.materialization.api.NodeName;
+
+import java.util.List;
+
+@JsonTypeInfo(
+        use = JsonTypeInfo.Id.NAME,
+        include = JsonTypeInfo.As.WRAPPER_OBJECT)
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = ProjectNode.class, name = "project")
+})
+public abstract class Node
 {
+    // private final NodeName name;
+
+    // public Node(NodeName name)
+    // {
+    //     this.name = name;
+    // }
+
+    public NodeName getName()
+    {
+        throw new IllegalStateException();
+    }
+
+    public NodeId getNodeId()
+    {
+        throw new IllegalStateException();
+    }
+
+    public List<Node> getChildren()
+    {
+        throw new IllegalStateException();
+    }
 }
