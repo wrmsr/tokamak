@@ -11,20 +11,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.materialization.api;
+package com.wrmsr.tokamak.util;
 
-import com.google.common.collect.ImmutableMap;
-
-import java.util.Map;
 import java.util.Objects;
 
-public final class Attributes
+public class LongBox
 {
-    private final Map<FieldName, Object> map;
+    public final long value;
 
-    public Attributes(Map<FieldName, Object> map)
+    public LongBox(long value)
     {
-        this.map = ImmutableMap.copyOf(map);
+        this.value = value;
+    }
+
+    public long getValue()
+    {
+        return value;
     }
 
     @Override
@@ -32,18 +34,19 @@ public final class Attributes
     {
         if (this == o) { return true; }
         if (o == null || getClass() != o.getClass()) { return false; }
-        Attributes that = (Attributes) o;
-        return Objects.equals(map, that.map);
+        LongBox longBox = (LongBox) o;
+        return value == longBox.value;
     }
 
     @Override
     public int hashCode()
     {
-        return Objects.hash(map);
+        return Objects.hash(value);
     }
 
-    public Map<FieldName, Object> getMap()
+    @Override
+    public String toString()
     {
-        return map;
+        return getClass().getSimpleName() + "{value=" + value + '}';
     }
 }

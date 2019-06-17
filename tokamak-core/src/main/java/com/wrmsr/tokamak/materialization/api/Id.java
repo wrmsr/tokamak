@@ -13,10 +13,10 @@
  */
 package com.wrmsr.tokamak.materialization.api;
 
-import com.wrmsr.tokamak.util.IntBox;
+import com.wrmsr.tokamak.util.LongBox;
 
 public final class Id
-        extends IntBox
+        extends LongBox
 {
     public Id(int value)
     {
