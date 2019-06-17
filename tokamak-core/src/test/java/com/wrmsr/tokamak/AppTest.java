@@ -22,7 +22,6 @@ import com.google.inject.Key;
 import com.google.inject.PrivateModule;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
-import io.airlift.tpch.TpchTable;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -35,8 +34,6 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.function.Supplier;
-
-import static com.google.common.base.Preconditions.checkState;
 
 public class AppTest
         extends TestCase

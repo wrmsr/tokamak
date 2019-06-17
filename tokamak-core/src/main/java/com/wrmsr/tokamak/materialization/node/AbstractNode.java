@@ -13,8 +13,6 @@
  */
 package com.wrmsr.tokamak.materialization.node;
 
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.wrmsr.tokamak.materialization.api.FieldName;
 import com.wrmsr.tokamak.materialization.api.NodeId;
 import com.wrmsr.tokamak.materialization.api.NodeName;
@@ -24,22 +22,43 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-@JsonTypeInfo(
-        use = JsonTypeInfo.Id.NAME,
-        include = JsonTypeInfo.As.WRAPPER_OBJECT)
-@JsonSubTypes({
-        @JsonSubTypes.Type(value = ProjectNode.class, name = "project")
-})
-public interface Node
+public abstract class AbstractNode
+        implements Node
 {
-    NodeName getName();
+    // private final NodeName name;
 
-    NodeId getNodeId();
+    // public Node(NodeName name)
+    // {
+    //     this.name = name;
+    // }
 
-    List<Node> getChildren();
+    @Override
+    public NodeName getName()
+    {
+        throw new IllegalStateException();
+    }
 
-    Set<FieldName> getIdFields();
+    @Override
+    public NodeId getNodeId()
+    {
+        throw new IllegalStateException();
+    }
 
-    Map<FieldName, Type> getTypesByField();
+    @Override
+    public List<Node> getChildren()
+    {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public Set<FieldName> getIdFields()
+    {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public Map<FieldName, Type> getTypesByField()
+    {
+        throw new IllegalStateException();
+    }
 }
-

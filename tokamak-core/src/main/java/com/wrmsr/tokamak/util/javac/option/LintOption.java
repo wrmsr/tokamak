@@ -21,7 +21,7 @@ import java.util.List;
 
 @Immutable
 public enum LintOption
-    implements JavacOption
+        implements JavacOption
 {
     RECOMMENDED("-Xlint"),
     ALL("-Xlint:all");

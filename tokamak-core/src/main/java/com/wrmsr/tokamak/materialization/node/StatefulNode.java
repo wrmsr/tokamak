@@ -6,7 +6,7 @@ import com.wrmsr.tokamak.materialization.api.NodeName;
 import java.util.Map;
 
 public abstract class StatefulNode
-        extends Node
+        extends AbstractNode
 {
     private final Map<NodeName, Invalidation> invalidations;
     private final Map<NodeName, LinkageMask> linkageMasks;

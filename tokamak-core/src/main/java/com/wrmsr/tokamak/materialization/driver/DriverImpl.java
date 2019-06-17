@@ -11,9 +11,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.materialization.node;
+package com.wrmsr.tokamak.materialization.driver;
 
-public final class ProjectNode
-        extends AbstractNode
+public class DriverImpl
 {
 }
