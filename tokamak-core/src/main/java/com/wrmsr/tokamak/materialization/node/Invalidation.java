@@ -1,5 +1,5 @@
 package com.wrmsr.tokamak.materialization.node;
 
-public class Invalidation
+public final class Invalidation
 {
 }
