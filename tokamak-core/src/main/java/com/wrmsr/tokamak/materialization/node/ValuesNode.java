@@ -13,7 +13,20 @@
  */
 package com.wrmsr.tokamak.materialization.node;
 
+import com.wrmsr.tokamak.materialization.api.NodeName;
+import com.wrmsr.tokamak.materialization.node.visitor.Visitor;
+
 public final class ValuesNode
         extends AbstractNode
 {
+    public ValuesNode(NodeName name)
+    {
+        super(name);
+    }
+
+    @Override
+    public <C, R> R accept(Visitor<C, R> visitor, C context)
+    {
+        return visitor.visitValuesNode(this, context);
+    }
 }

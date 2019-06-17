@@ -25,12 +25,12 @@ import java.util.Set;
 public abstract class AbstractNode
         implements Node
 {
-    // private final NodeName name;
+    private final NodeName name;
 
-    // public Node(NodeName name)
-    // {
-    //     this.name = name;
-    // }
+    public AbstractNode(NodeName name)
+    {
+        this.name = name;
+    }
 
     @Override
     public NodeName getName()

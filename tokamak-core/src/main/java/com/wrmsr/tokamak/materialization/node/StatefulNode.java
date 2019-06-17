@@ -12,10 +12,11 @@ public abstract class StatefulNode
     private final Map<NodeName, LinkageMask> linkageMasks;
 
     public StatefulNode(
+            NodeName name,
             Map<NodeName, Invalidation> invalidations,
             Map<NodeName, LinkageMask> linkageMasks)
     {
-        super();
+        super(name);
         this.invalidations = ImmutableMap.copyOf(invalidations);
         this.linkageMasks = ImmutableMap.copyOf(linkageMasks);
     }

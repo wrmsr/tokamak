@@ -18,6 +18,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.wrmsr.tokamak.materialization.api.FieldName;
 import com.wrmsr.tokamak.materialization.api.NodeId;
 import com.wrmsr.tokamak.materialization.api.NodeName;
+import com.wrmsr.tokamak.materialization.node.visitor.Visitor;
 import com.wrmsr.tokamak.materialization.type.Type;
 
 import java.util.List;
@@ -41,5 +42,7 @@ public interface Node
     Set<FieldName> getIdFields();
 
     Map<FieldName, Type> getTypesByField();
+
+    <C, R> R accept(Visitor<C, R> visitor, C context);
 }
 

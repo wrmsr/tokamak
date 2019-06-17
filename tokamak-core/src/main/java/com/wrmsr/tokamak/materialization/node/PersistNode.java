@@ -13,7 +13,25 @@
  */
 package com.wrmsr.tokamak.materialization.node;
 
+import com.wrmsr.tokamak.materialization.api.NodeName;
+import com.wrmsr.tokamak.materialization.node.visitor.Visitor;
+
+import java.util.Map;
+
 public final class PersistNode
-        extends AbstractNode
+        extends StatefulNode
 {
+    public PersistNode(
+            NodeName name,
+            Map<NodeName, Invalidation> invalidations,
+            Map<NodeName, LinkageMask> linkageMasks)
+    {
+        super(name, invalidations, linkageMasks);
+    }
+
+    @Override
+    public <C, R> R accept(Visitor<C, R> visitor, C context)
+    {
+        return visitor.visitPersistNode(this, context);
+    }
 }
