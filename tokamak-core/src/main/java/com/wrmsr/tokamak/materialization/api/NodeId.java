@@ -18,8 +18,23 @@ import com.wrmsr.tokamak.util.IntBox;
 public final class NodeId
         extends IntBox
 {
+    private final String string;
+
     public NodeId(int value)
     {
         super(value);
+
+        string = String.format("%08x", value);
+    }
+
+    @Override
+    public String toString()
+    {
+        return string;
+    }
+
+    public static NodeId parse(String string)
+    {
+        return new NodeId(Integer.parseInt(string, 16));
     }
 }

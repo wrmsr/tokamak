@@ -15,10 +15,14 @@ package com.wrmsr.tokamak.materialization.node;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.wrmsr.tokamak.materialization.api.FieldName;
 import com.wrmsr.tokamak.materialization.api.NodeId;
 import com.wrmsr.tokamak.materialization.api.NodeName;
+import com.wrmsr.tokamak.materialization.type.Type;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
@@ -46,6 +50,16 @@ public abstract class Node
     }
 
     public List<Node> getChildren()
+    {
+        throw new IllegalStateException();
+    }
+
+    public Set<FieldName> getIdFields()
+    {
+        throw new IllegalStateException();
+    }
+
+    public Map<FieldName, Type> getTypesByField()
     {
         throw new IllegalStateException();
     }
