@@ -1,0 +1,88 @@
+version: '2'
+
+services:
+
+  tokamak-mysql-master:
+    build: '.'
+    image: 'wrmsr/tokamak-mysql:latest'
+    restart: 'always'
+    environment:
+      MYSQL_USER: 'tokamak'
+      MYSQL_PASSWORD: 'tokamak'
+      MYSQL_ROOT_PASSWORD: 'tokamak'
+    expose:
+      - '3306'
+    ports:
+      - '21210:3306'
+
+  tokamak-mysql-slave:
+    build: '.'
+    image: 'wrmsr/tokamak-mysql:latest'
+    restart: 'always'
+    environment:
+      MYSQL_USER: 'tokamak'
+      MYSQL_PASSWORD: 'tokamak'
+      MYSQL_ROOT_PASSWORD: 'tokamak'
+      REPLICATE_FROM: 'tokamak-mysql-master'
+    links:
+      - 'tokamak-mysql-master'
+    expose:
+      - '3306'
+    ports:
+      - '21211:3306'
+    depends_on:
+      - 'tokamak-mysql-master'
+
+  tokamak-postgres-master:
+    build: '.'
+    image: 'wrmsr/tokamak-postgres:latest'
+    restart: 'always'
+    environment:
+      POSTGRES_USER: 'tokamak'
+      POSTGRES_PASSWORD: 'tokamak'
+      PGDATA: '/var/lib/postgresql/data/pgdata'
+    expose:
+    - '5432'
+    ports:
+    - '21212:5432'
+
+  tokamak-postgres-slave:
+    build: '.'
+    image: 'wrmsr/tokamak-postgres:latest'
+    restart: 'always'
+    environment:
+      POSTGRES_USER: 'tokamak'
+      POSTGRES_PASSWORD: 'tokamak'
+      PGDATA: '/var/lib/postgresql/data/pgdata'
+      REPLICATE_FROM: 'tokamak-postgres-master'
+    links:
+    - 'tokamak-postgres-master'
+    expose:
+    - '5432'
+    ports:
+    - '21213:5432'
+    depends_on:
+    - 'tokamak-postgres-master'
+
+  tokamak-redis:
+    build: '.'
+    image: 'wrmsr/tokamak-redis:latest'
+    restart: 'always'
+    expose:
+      - '6379'
+    ports:
+      - '21214:6379'
+
+  tokamak-elasticsearch:
+    build: '.'
+    image: 'wrmsr/tokamak-elasticsearch:latest'
+    restart: 'always'
+    environment:
+      ES_JAVA_OPTS: '-Xms750m -Xmx750m'
+      discovery.type: 'single-node'
+      xpack.security.enabled: 'false'
+    expose:
+    - '9200'
+    ports:
+    - '21215:9200'
+

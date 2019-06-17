@@ -1,0 +1,7 @@
+.env
+.git
+.idea
+target
+
+!.git/HEAD
+!.git/refs
