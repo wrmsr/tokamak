@@ -22,4 +22,9 @@ public final class Txid
     {
         super(value);
     }
+
+    public static Txid of(long value)
+    {
+        return new Txid(value);
+    }
 }

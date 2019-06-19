@@ -22,4 +22,9 @@ public final class Id
     {
         super(value);
     }
+
+    public static Id of(byte[] value)
+    {
+        return new Id(value);
+    }
 }

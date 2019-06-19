@@ -11,20 +11,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.materialization.api;
+package com.wrmsr.tokamak.materialization.driver.queue;
 
-import com.wrmsr.tokamak.util.Box;
+import java.util.Optional;
 
-public final class FieldName
-        extends Box<String>
+public interface Dequeuer
 {
-    public FieldName(String value)
-    {
-        super(value);
-    }
-
-    public static FieldName of(String value)
-    {
-        return new FieldName(value);
-    }
+    Optional<QueueEntry> pop(boolean noTransaction);
 }

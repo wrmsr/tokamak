@@ -36,7 +36,7 @@ public interface StateStorage
             boolean linkage,
             boolean attributes,
             boolean share,
-            boolean nolock
+            boolean noLock
     )
             throws IOException;
 

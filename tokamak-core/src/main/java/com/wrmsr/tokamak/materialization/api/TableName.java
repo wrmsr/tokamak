@@ -22,4 +22,9 @@ public final class TableName
     {
         super(value);
     }
+
+    public static TableName of(String value)
+    {
+        return new TableName(value);
+    }
 }

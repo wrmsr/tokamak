@@ -13,6 +13,13 @@
  */
 package com.wrmsr.tokamak.materialization.driver.queue;
 
+import java.io.IOException;
+import java.sql.Connection;
+import java.util.List;
+import java.util.Optional;
+
 public interface QueueStorage
 {
+    Optional<List<QueueEntry>> insert(Connection conn, Iterable<QueueInsertion> insertions, boolean returnEntries, boolean coalesce)
+            throws IOException;
 }

@@ -24,8 +24,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.StreamSupport;
 
 import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
+import static java.util.function.Function.identity;
 
 @Immutable
 public final class Projection
@@ -72,7 +74,7 @@ public final class Projection
             if (entry.getValue() instanceof FieldInput) {
                 FieldName field = ((FieldInput) entry.getValue()).getValue();
                 inputFieldsByOutput.put(entry.getKey(), field);
-                outputSetsByInputField.computeIfAbsent(field, (v) -> ImmutableSet.builder()).add(entry.getKey());
+                outputSetsByInputField.computeIfAbsent(field, v -> ImmutableSet.builder()).add(entry.getKey());
             }
         }
 
@@ -94,5 +96,12 @@ public final class Projection
     public Map<FieldName, Set<FieldName>> getOutputSetsByInputField()
     {
         return outputSetsByInputField;
+    }
+
+    public static Projection only(Iterable<FieldName> fields)
+    {
+        return new Projection(
+                StreamSupport.stream(fields.spliterator(), false)
+                        .collect(toImmutableMap(identity(), FieldInput::new)));
     }
 }

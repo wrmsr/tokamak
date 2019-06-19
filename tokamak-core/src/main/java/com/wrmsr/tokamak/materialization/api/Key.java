@@ -15,4 +15,18 @@ package com.wrmsr.tokamak.materialization.api;
 
 public interface Key
 {
+    static AllKey all()
+    {
+        return AllKey.INSTANCE;
+    }
+
+    static <V> FieldKey<V> of(FieldName field, V value)
+    {
+        return new FieldKey<>(field, value);
+    }
+
+    static IdKey of(Id id)
+    {
+        return new IdKey(id);
+    }
 }
