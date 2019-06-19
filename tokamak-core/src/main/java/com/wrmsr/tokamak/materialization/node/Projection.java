@@ -14,13 +14,18 @@
 package com.wrmsr.tokamak.materialization.node;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.materialization.api.FieldName;
 import com.wrmsr.tokamak.util.Box;
 
 import javax.annotation.concurrent.Immutable;
 
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
+
+import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 
 @Immutable
 public final class Projection
@@ -51,15 +56,43 @@ public final class Projection
         }
     }
 
-    private final Map<FieldName, Input> map;
+    private final Map<FieldName, Input> inputsByOutput;
 
-    public Projection(Map<FieldName, Input> map)
+    private final Map<FieldName, FieldName> inputFieldsByOutput;
+    private final Map<FieldName, Set<FieldName>> outputSetsByInputField;
+
+    public Projection(Map<FieldName, Input> inputsByOutput)
     {
-        this.map = ImmutableMap.copyOf(map);
+        this.inputsByOutput = ImmutableMap.copyOf(inputsByOutput);
+
+        ImmutableMap.Builder<FieldName, FieldName> inputFieldsByOutput = ImmutableMap.builder();
+        Map<FieldName, ImmutableSet.Builder<FieldName>> outputSetsByInputField = new HashMap<>();
+
+        for (Map.Entry<FieldName, Input> entry : inputsByOutput.entrySet()) {
+            if (entry.getValue() instanceof FieldInput) {
+                FieldName field = ((FieldInput) entry.getValue()).getValue();
+                inputFieldsByOutput.put(entry.getKey(), field);
+                outputSetsByInputField.computeIfAbsent(field, (v) -> ImmutableSet.builder()).add(entry.getKey());
+            }
+        }
+
+        this.inputFieldsByOutput = inputFieldsByOutput.build();
+        this.outputSetsByInputField = outputSetsByInputField.entrySet().stream()
+                .collect(toImmutableMap(Map.Entry::getKey, e -> e.getValue().build()));
     }
 
-    public Map<FieldName, Input> getMap()
+    public Map<FieldName, Input> getInputsByOutput()
     {
-        return map;
+        return inputsByOutput;
+    }
+
+    public Map<FieldName, FieldName> getInputFieldsByOutput()
+    {
+        return inputFieldsByOutput;
+    }
+
+    public Map<FieldName, Set<FieldName>> getOutputSetsByInputField()
+    {
+        return outputSetsByInputField;
     }
 }

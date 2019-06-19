@@ -13,7 +13,35 @@
  */
 package com.wrmsr.tokamak.materialization.api;
 
+import java.util.Objects;
+
 public final class IdKey
-    implements Key
+        implements Key
 {
+    private final Id id;
+
+    public IdKey(Id id)
+    {
+        this.id = id;
+    }
+
+    @Override
+    public boolean equals(Object o)
+    {
+        if (this == o) { return true; }
+        if (o == null || getClass() != o.getClass()) { return false; }
+        IdKey idKey = (IdKey) o;
+        return Objects.equals(id, idKey.id);
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return Objects.hash(id);
+    }
+
+    public Id getId()
+    {
+        return id;
+    }
 }
