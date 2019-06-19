@@ -13,6 +13,9 @@
  */
 package com.wrmsr.tokamak.materialization.node;
 
+import javax.annotation.concurrent.Immutable;
+
+@Immutable
 public final class LinkageMask
 {
 }

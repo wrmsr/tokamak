@@ -13,8 +13,11 @@
  */
 package com.wrmsr.tokamak.util;
 
+import javax.annotation.concurrent.Immutable;
+
 import java.util.Objects;
 
+@Immutable
 public class IntBox
 {
     public final int value;

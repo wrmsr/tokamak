@@ -15,8 +15,11 @@ package com.wrmsr.tokamak.materialization.api;
 
 import com.google.common.collect.ImmutableMap;
 
+import javax.annotation.concurrent.Immutable;
+
 import java.util.Map;
 
+@Immutable
 public abstract class OutputTarget
 {
     private final OutputName name;

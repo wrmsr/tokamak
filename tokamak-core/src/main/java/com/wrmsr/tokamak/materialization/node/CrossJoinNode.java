@@ -16,6 +16,9 @@ package com.wrmsr.tokamak.materialization.node;
 import com.wrmsr.tokamak.materialization.api.NodeName;
 import com.wrmsr.tokamak.materialization.node.visitor.NodeVisitor;
 
+import javax.annotation.concurrent.Immutable;
+
+@Immutable
 public final class CrossJoinNode
         extends AbstractNode
         implements JoinNode

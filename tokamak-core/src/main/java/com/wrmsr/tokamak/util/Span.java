@@ -22,7 +22,7 @@ public class Span<T>
     {
         BELOW,
         EXACTLY,
-        ABOVE;
+        ABOVE
     }
 
     @Immutable

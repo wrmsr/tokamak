@@ -13,6 +13,9 @@
  */
 package com.wrmsr.tokamak.materialization.api;
 
+import javax.annotation.concurrent.Immutable;
+
+@Immutable
 public class AllKey
         implements Key
 {

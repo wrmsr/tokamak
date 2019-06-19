@@ -13,8 +13,11 @@
  */
 package com.wrmsr.tokamak.util;
 
+import javax.annotation.concurrent.Immutable;
+
 import java.util.Optional;
 
+@Immutable
 public class Box<T>
 {
     public final T value;

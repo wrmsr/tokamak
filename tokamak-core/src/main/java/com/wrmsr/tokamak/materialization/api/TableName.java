@@ -15,6 +15,9 @@ package com.wrmsr.tokamak.materialization.api;
 
 import com.wrmsr.tokamak.util.Box;
 
+import javax.annotation.concurrent.Immutable;
+
+@Immutable
 public final class TableName
         extends Box<String>
 {

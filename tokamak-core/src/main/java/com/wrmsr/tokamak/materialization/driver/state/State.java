@@ -15,4 +15,12 @@ package com.wrmsr.tokamak.materialization.driver.state;
 
 public class State
 {
+    public enum Mode
+    {
+        INVALID,
+        PHANTOM,
+        SHARED,
+        EXCLUSIVE,
+        MODIFIED
+    }
 }

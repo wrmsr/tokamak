@@ -19,9 +19,12 @@ import com.wrmsr.tokamak.materialization.api.NodeName;
 import com.wrmsr.tokamak.materialization.api.TableName;
 import com.wrmsr.tokamak.materialization.node.visitor.NodeVisitor;
 
+import javax.annotation.concurrent.Immutable;
+
 import java.util.List;
 import java.util.Map;
 
+@Immutable
 public final class ScanNode
         extends StatefulNode
         implements GeneratorNode

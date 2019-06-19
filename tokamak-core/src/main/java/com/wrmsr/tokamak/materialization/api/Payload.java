@@ -14,7 +14,9 @@
 package com.wrmsr.tokamak.materialization.api;
 
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.Immutable;
 
+@Immutable
 public final class Payload
 {
     private final Id id;

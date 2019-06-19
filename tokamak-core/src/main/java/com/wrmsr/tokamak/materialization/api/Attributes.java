@@ -15,9 +15,12 @@ package com.wrmsr.tokamak.materialization.api;
 
 import com.google.common.collect.ImmutableMap;
 
+import javax.annotation.concurrent.Immutable;
+
 import java.util.Map;
 import java.util.Objects;
 
+@Immutable
 public final class Attributes
 {
     private final Map<FieldName, Object> map;

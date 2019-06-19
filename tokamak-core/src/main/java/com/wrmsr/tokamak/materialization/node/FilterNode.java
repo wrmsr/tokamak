@@ -17,25 +17,28 @@ import com.wrmsr.tokamak.materialization.api.NodeName;
 import com.wrmsr.tokamak.materialization.function.Function;
 import com.wrmsr.tokamak.materialization.node.visitor.NodeVisitor;
 
+import javax.annotation.concurrent.Immutable;
+
+@Immutable
 public final class FilterNode
         extends AbstractNode
         implements SingleSourceNode
 {
     private final Node source;
     private final Function function;
-    private final boolean unlink;
+    private final boolean unlinked;
 
     public FilterNode(
             NodeName name,
             Node source,
             Function function,
-            boolean unlink)
+            boolean unlinked)
     {
         super(name);
 
         this.source = source;
         this.function = function;
-        this.unlink = unlink;
+        this.unlinked = unlinked;
     }
 
     @Override
@@ -49,9 +52,9 @@ public final class FilterNode
         return function;
     }
 
-    public boolean isUnlink()
+    public boolean isUnlinked()
     {
-        return unlink;
+        return unlinked;
     }
 
     @Override

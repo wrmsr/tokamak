@@ -13,8 +13,11 @@
  */
 package com.wrmsr.tokamak.materialization.api;
 
+import javax.annotation.concurrent.Immutable;
+
 import java.util.Objects;
 
+@Immutable
 public final class IdKey
         implements Key
 {

@@ -56,31 +56,6 @@ public final class MoreCollectors
     {
     }
 
-    public static <T> Collector<T, ?, ImmutableList<T>> toImmutableList()
-    {
-        return Collector.<T, ImmutableList.Builder<T>, ImmutableList<T>>of(
-                ImmutableList.Builder::new,
-                ImmutableList.Builder::add,
-                (left, right) -> {
-                    left.addAll(right.build());
-                    return left;
-                },
-                ImmutableList.Builder::build);
-    }
-
-    public static <T> Collector<T, ?, ImmutableSet<T>> toImmutableSet()
-    {
-        return Collector.<T, ImmutableSet.Builder<T>, ImmutableSet<T>>of(
-                ImmutableSet.Builder::new,
-                ImmutableSet.Builder::add,
-                (left, right) -> {
-                    left.addAll(right.build());
-                    return left;
-                },
-                ImmutableSet.Builder::build,
-                Collector.Characteristics.UNORDERED);
-    }
-
     public static <T> Collector<T, ?, ImmutableMultiset<T>> toImmutableMultiset()
     {
         return Collector.<T, ImmutableMultiset.Builder<T>, ImmutableMultiset<T>>of(

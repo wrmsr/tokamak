@@ -16,8 +16,11 @@ package com.wrmsr.tokamak.materialization.node;
 import com.wrmsr.tokamak.materialization.api.NodeName;
 import com.wrmsr.tokamak.materialization.node.visitor.NodeVisitor;
 
+import javax.annotation.concurrent.Immutable;
+
 import java.util.Map;
 
+@Immutable
 public final class PersistNode
         extends StatefulNode
 {
