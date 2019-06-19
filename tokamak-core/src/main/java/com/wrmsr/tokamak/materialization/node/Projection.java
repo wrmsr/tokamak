@@ -16,6 +16,7 @@ package com.wrmsr.tokamak.materialization.node;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.materialization.api.FieldName;
+import com.wrmsr.tokamak.materialization.function.Function;
 import com.wrmsr.tokamak.util.Box;
 
 import javax.annotation.concurrent.Immutable;
@@ -23,7 +24,6 @@ import javax.annotation.concurrent.Immutable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.StreamSupport;
 
 import static com.google.common.collect.ImmutableMap.toImmutableMap;

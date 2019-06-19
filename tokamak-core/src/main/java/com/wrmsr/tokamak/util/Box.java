@@ -33,6 +33,7 @@ public class Box<T>
     }
 
     @Override
+    @SuppressWarnings({"unchecked"})
     public boolean equals(Object o)
     {
         if (this == o) { return true; }

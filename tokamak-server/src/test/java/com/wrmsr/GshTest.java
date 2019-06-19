@@ -13,10 +13,9 @@
  */
 package com.wrmsr;
 
+import com.google.common.collect.ImmutableMap;
 import me.bazhenov.groovysh.GroovyShellService;
 import org.junit.Test;
-
-import java.util.HashMap;
 
 public class GshTest
 {
@@ -26,10 +25,10 @@ public class GshTest
     {
         GroovyShellService service = new GroovyShellService();
         service.setPort(6789);
-        service.setBindings(new HashMap<String, Object>() {{
-            put("foo", 420);
-            put("bar", "bong");
-        }});
+        service.setBindings(ImmutableMap.of(
+                "foo", 420,
+                "bar", "bong"
+        ));
 
         service.start();
         // Thread.currentThread().sleep(60000);
