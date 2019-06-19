@@ -27,10 +27,12 @@ public abstract class AbstractNode
         implements Node
 {
     private final NodeName name;
+    private final NodeId nodeId;
 
     public AbstractNode(NodeName name)
     {
         this.name = name;
+        this.nodeId = NodeId.compute(name);
 
         checkUnique(getChildren());
         checkUnique(getFields());
@@ -45,7 +47,7 @@ public abstract class AbstractNode
     @Override
     public NodeId getNodeId()
     {
-        throw new IllegalStateException();
+        return nodeId;
     }
 
     @Override

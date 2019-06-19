@@ -20,7 +20,7 @@ import java.util.Optional;
 @Immutable
 public class Box<T>
 {
-    public final T value;
+    protected final T value;
 
     public Box(T value)
     {

@@ -13,9 +13,13 @@
  */
 package com.wrmsr.tokamak.materialization.api;
 
+import com.google.common.hash.Hashing;
 import com.wrmsr.tokamak.util.IntBox;
 
 import javax.annotation.concurrent.Immutable;
+
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 
 @Immutable
 public final class NodeId
@@ -39,5 +43,12 @@ public final class NodeId
     public static NodeId parse(String string)
     {
         return new NodeId(Integer.parseInt(string, 16));
+    }
+
+    public static NodeId compute(NodeName name)
+    {
+        ByteBuffer bytes = StandardCharsets.UTF_8.encode(name.getValue());
+        int hash = Hashing.murmur3_32().newHasher().putBytes(bytes).hash().asInt();
+        return new NodeId(hash);
     }
 }
