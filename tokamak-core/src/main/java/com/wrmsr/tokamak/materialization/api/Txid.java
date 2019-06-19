@@ -18,7 +18,7 @@ import com.wrmsr.tokamak.util.LongBox;
 public final class Txid
         extends LongBox
 {
-    public Txid(int value)
+    public Txid(long value)
     {
         super(value);
     }

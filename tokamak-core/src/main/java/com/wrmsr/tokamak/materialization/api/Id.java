@@ -13,12 +13,12 @@
  */
 package com.wrmsr.tokamak.materialization.api;
 
-import com.wrmsr.tokamak.util.LongBox;
+import com.wrmsr.tokamak.util.Box;
 
 public final class Id
-        extends LongBox
+        extends Box<byte[]>
 {
-    public Id(int value)
+    public Id(byte[] value)
     {
         super(value);
     }

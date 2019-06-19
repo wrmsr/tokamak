@@ -18,7 +18,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.wrmsr.tokamak.materialization.api.FieldName;
 import com.wrmsr.tokamak.materialization.api.NodeId;
 import com.wrmsr.tokamak.materialization.api.NodeName;
-import com.wrmsr.tokamak.materialization.node.visitor.Visitor;
+import com.wrmsr.tokamak.materialization.node.visitor.NodeVisitor;
 import com.wrmsr.tokamak.materialization.type.Type;
 
 import java.util.List;
@@ -29,7 +29,17 @@ import java.util.Set;
         use = JsonTypeInfo.Id.NAME,
         include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = ProjectNode.class, name = "project")
+        @JsonSubTypes.Type(value = CrossJoinNode.class, name = "cross_join"),
+        @JsonSubTypes.Type(value = EquijoinNode.class, name = "equijoin"),
+        @JsonSubTypes.Type(value = FilterNode.class, name = "filter "),
+        @JsonSubTypes.Type(value = ListAggregateNode.class, name = "list_aggregate"),
+        @JsonSubTypes.Type(value = LookupJoinNode.class, name = "lookup_join"),
+        @JsonSubTypes.Type(value = PersistNode.class, name = "persist"),
+        @JsonSubTypes.Type(value = ProjectNode.class, name = "project"),
+        @JsonSubTypes.Type(value = ScanNode.class, name = "scan"),
+        @JsonSubTypes.Type(value = UnionNode.class, name = "union"),
+        @JsonSubTypes.Type(value = UnnestNode.class, name = "unnest"),
+        @JsonSubTypes.Type(value = ValuesNode.class, name = "values"),
 })
 public interface Node
 {
@@ -43,6 +53,5 @@ public interface Node
 
     Map<FieldName, Type> getTypesByField();
 
-    <C, R> R accept(Visitor<C, R> visitor, C context);
+    <C, R> R accept(NodeVisitor<C, R> visitor, C context);
 }
-

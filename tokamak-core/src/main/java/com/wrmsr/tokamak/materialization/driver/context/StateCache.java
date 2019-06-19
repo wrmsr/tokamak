@@ -11,22 +11,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.materialization.node;
+package com.wrmsr.tokamak.materialization.driver.context;
 
-import com.wrmsr.tokamak.materialization.api.NodeName;
-import com.wrmsr.tokamak.materialization.node.visitor.NodeVisitor;
-
-public final class UnnestNode
-        extends AbstractNode
+public class StateCache
 {
-    public UnnestNode(NodeName name)
-    {
-        super(name);
-    }
-
-    @Override
-    public <C, R> R accept(NodeVisitor<C, R> visitor, C context)
-    {
-        return visitor.visitUnnestNode(this, context);
-    }
 }

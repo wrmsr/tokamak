@@ -22,12 +22,11 @@ import com.wrmsr.tokamak.materialization.node.Node;
 import com.wrmsr.tokamak.materialization.node.PersistNode;
 import com.wrmsr.tokamak.materialization.node.ProjectNode;
 import com.wrmsr.tokamak.materialization.node.ScanNode;
-import com.wrmsr.tokamak.materialization.node.StatefulNode;
 import com.wrmsr.tokamak.materialization.node.UnionNode;
 import com.wrmsr.tokamak.materialization.node.UnnestNode;
 import com.wrmsr.tokamak.materialization.node.ValuesNode;
 
-public abstract class Visitor<C, R>
+public abstract class NodeVisitor<C, R>
 {
     protected R visitNode(Node node, C context)
     {
@@ -61,7 +60,7 @@ public abstract class Visitor<C, R>
 
     public R visitPersistNode(PersistNode node, C context)
     {
-        return visitStatefulNode(node, context);
+        return visitNode(node, context);
     }
 
     public R visitProjectNode(ProjectNode node, C context)
@@ -70,11 +69,6 @@ public abstract class Visitor<C, R>
     }
 
     public R visitScanNode(ScanNode node, C context)
-    {
-        return visitStatefulNode(node, context);
-    }
-
-    public R visitStatefulNode(StatefulNode node, C context)
     {
         return visitNode(node, context);
     }
