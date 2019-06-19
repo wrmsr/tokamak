@@ -8,6 +8,9 @@ PIP_ARGS:=$(shell if ! [ -z "$$CIRCLECI" ]; then echo '--quiet --progress-bar=of
 
 ALL: clean package test
 
+
+# Java
+
 .PHONY: java_home
 java_home:
 ifndef JAVA_HOME
@@ -19,10 +22,6 @@ endif
 .PHONY: clean
 clean: java_home
 	./mvnw clean
-
-.PHONY: fix-copyright
-fix-copyright:
-	find tokamak-* -name '*.java' | xargs -P8 -n1 perl -i -p0e 's/\*\/\n\npackage com\./\*\/\npackage com./s'
 
 .PHONY: package
 package: java_home
@@ -40,10 +39,13 @@ dep-tree: java_home
 dependency-updates: java_home
 	./mvnw versions:display-dependency-updates
 
+
+# Python
+
 .PHONY: clean-python
 clean-python:
-	rm -rf .pyenv
 	rm -rf .venv
+	rm -rf .pyenv
 
 .PHONY: venv
 venv:
@@ -52,15 +54,21 @@ ifeq ($(SYSTEM_PYENV),0)
 		git clone https://github.com/pyenv/pyenv .pyenv ; \
 	fi
 
-	export PATH="$(shell pwd)/.pyenv/bin:$(PATH)"
+	export PATH="$(shell pwd)/.pyenv/libexec:$(PATH)"
 	pyenv install -s $(PYTHON_VERSION)
 endif
 
 	if [ ! -d ".venv" ]; then \
 		".pyenv/versions/$(PYTHON_VERSION)/bin/python" -m venv .venv ; \
 	fi
-
 	source .venv/bin/activate
 
 	pip install $(PIP_ARGS) \
 		sqlalchemy \
+
+
+# Utilities
+
+.PHONY: fix-copyright
+fix-copyright:
+	find tokamak-* -name '*.java' | xargs -P8 -n1 perl -i -p0e 's/\*\/\n\npackage com\./\*\/\npackage com./s'

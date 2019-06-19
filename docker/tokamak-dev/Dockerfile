@@ -1,6 +1,9 @@
 FROM ubuntu:14.04
 COPY .dockertimestamp /
 
+
+# Packages
+
 RUN apt-get update && apt-get install -y apt-utils
 
 RUN ( \
@@ -9,6 +12,7 @@ RUN ( \
         dnsutils \
         gcc \
         gdb \
+        git \
         htop \
         jq \
         less \
@@ -33,6 +37,9 @@ RUN ( \
 \
 )
 
+
+# Innotop
+
 RUN ( \
     export INNOTOP_VERSION='1.12.0' && \
     export INNOTOP_INST_DIR=$(mktemp -d) && \
@@ -44,6 +51,9 @@ RUN ( \
     make install && \
     rm -rf "$INNOTOP_INST_DIR" \
 )
+
+
+# Percona Tools
 
 RUN ( \
     apt-get install -y \
@@ -64,11 +74,23 @@ RUN ( \
     rm -rf "$PERCONA_INST_DIR" \
 )
 
+
+# JDK
+
 RUN ( \
     sudo add-apt-repository ppa:openjdk-r/ppa && \
     sudo apt-get update && \
     sudo apt-get install -y openjdk-8-jdk \
 )
+
+RUN ( \
+    # https://stackoverflow.com/questions/6784463/error-trustanchors-parameter-must-be-non-empty \
+    /usr/bin/printf '\xfe\xed\xfe\xed\x00\x00\x00\x02\x00\x00\x00\x00\xe2\x68\x6e\x45\xfb\x43\xdf\xa4\xd9\x92\xdd\x41\xce\xb6\xb2\x1c\x63\x30\xd7\x92' > /etc/ssl/certs/java/cacerts && \
+    /var/lib/dpkg/info/ca-certificates-java.postinst configure \
+)
+
+
+# Configuration files
 
 RUN echo "\
 setw -g mode-keys vi \n\
@@ -88,6 +110,9 @@ TERM=screen-256color \n\
 " > ~/.bashrc
 
 RUN echo 'if [ -f ~/.bashrc ]; then source ~/.bashrc ; fi' > ~/.bash_profile
+
+
+# Entrypoint
 
 WORKDIR /tokamak
 
