@@ -34,7 +34,7 @@ public class Box<T>
     {
         if (this == o) { return true; }
         if (o == null || getClass() != o.getClass()) { return false; }
-        Box box = (Box) o;
+        Box<T> box = (Box<T>) o;
         if (value != null ? !value.equals(box.value) : box.value != null) { return false; }
         return true;
     }

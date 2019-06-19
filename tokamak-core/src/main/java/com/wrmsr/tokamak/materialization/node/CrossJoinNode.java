@@ -18,6 +18,7 @@ import com.wrmsr.tokamak.materialization.node.visitor.NodeVisitor;
 
 public final class CrossJoinNode
         extends AbstractNode
+        implements JoinNode
 {
     public CrossJoinNode(NodeName name)
     {

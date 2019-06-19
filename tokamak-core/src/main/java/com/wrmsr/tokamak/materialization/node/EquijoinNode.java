@@ -18,6 +18,7 @@ import com.wrmsr.tokamak.materialization.node.visitor.NodeVisitor;
 
 public final class EquijoinNode
         extends AbstractNode
+        implements JoinNode
 {
     public EquijoinNode(NodeName name)
     {

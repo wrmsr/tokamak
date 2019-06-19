@@ -13,21 +13,15 @@
  */
 package com.wrmsr.tokamak.materialization.node;
 
-import com.wrmsr.tokamak.materialization.api.NodeName;
-import com.wrmsr.tokamak.materialization.node.visitor.NodeVisitor;
+import com.google.common.collect.ImmutableList;
 
-public final class ListAggregateNode
-        extends AbstractNode
-        implements AggregateNode
+import java.util.List;
+
+public interface GeneratorNode
+        extends Node
 {
-    public ListAggregateNode(NodeName name)
+    default List<Node> getChildren()
     {
-        super(name);
-    }
-
-    @Override
-    public <C, R> R accept(NodeVisitor<C, R> visitor, C context)
-    {
-        return visitor.visitListAggregateNode(this, context);
+        return ImmutableList.of();
     }
 }

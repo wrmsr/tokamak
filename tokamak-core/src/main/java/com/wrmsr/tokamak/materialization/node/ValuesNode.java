@@ -18,6 +18,7 @@ import com.wrmsr.tokamak.materialization.node.visitor.NodeVisitor;
 
 public final class ValuesNode
         extends AbstractNode
+        implements GeneratorNode
 {
     public ValuesNode(NodeName name)
     {

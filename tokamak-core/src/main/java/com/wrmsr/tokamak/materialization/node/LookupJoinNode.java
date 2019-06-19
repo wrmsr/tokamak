@@ -18,7 +18,7 @@ import com.wrmsr.tokamak.materialization.node.visitor.NodeVisitor;
 
 public final class LookupJoinNode
         extends AbstractNode
-        implements InternalNode
+        implements InternalNode, JoinNode
 {
     public LookupJoinNode(NodeName name)
     {

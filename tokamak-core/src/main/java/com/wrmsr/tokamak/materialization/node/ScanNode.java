@@ -13,20 +13,43 @@
  */
 package com.wrmsr.tokamak.materialization.node;
 
+import com.google.common.collect.ImmutableList;
+import com.wrmsr.tokamak.materialization.api.FieldName;
 import com.wrmsr.tokamak.materialization.api.NodeName;
+import com.wrmsr.tokamak.materialization.api.TableName;
 import com.wrmsr.tokamak.materialization.node.visitor.NodeVisitor;
 
+import java.util.List;
 import java.util.Map;
 
 public final class ScanNode
         extends StatefulNode
+        implements GeneratorNode
 {
+    private final TableName table;
+    private final List<FieldName> fields;
+
     public ScanNode(
             NodeName name,
+            TableName table,
+            List<FieldName> fields,
             Map<NodeName, Invalidation> invalidations,
             Map<NodeName, LinkageMask> linkageMasks)
     {
         super(name, invalidations, linkageMasks);
+
+        this.table = table;
+        this.fields = ImmutableList.copyOf(fields);
+    }
+
+    public TableName getTable()
+    {
+        return table;
+    }
+
+    public List<FieldName> getFields()
+    {
+        return fields;
     }
 
     @Override

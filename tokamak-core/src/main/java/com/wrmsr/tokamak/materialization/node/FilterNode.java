@@ -14,14 +14,44 @@
 package com.wrmsr.tokamak.materialization.node;
 
 import com.wrmsr.tokamak.materialization.api.NodeName;
+import com.wrmsr.tokamak.materialization.function.Function;
 import com.wrmsr.tokamak.materialization.node.visitor.NodeVisitor;
 
 public final class FilterNode
         extends AbstractNode
+        implements SingleSourceNode
 {
-    public FilterNode(NodeName name)
+    private final Node source;
+    private final Function function;
+    private final boolean unlink;
+
+    public FilterNode(
+            NodeName name,
+            Node source,
+            Function function,
+            boolean unlink)
     {
         super(name);
+
+        this.source = source;
+        this.function = function;
+        this.unlink = unlink;
+    }
+
+    @Override
+    public Node getSource()
+    {
+        return source;
+    }
+
+    public Function getFunction()
+    {
+        return function;
+    }
+
+    public boolean isUnlink()
+    {
+        return unlink;
     }
 
     @Override

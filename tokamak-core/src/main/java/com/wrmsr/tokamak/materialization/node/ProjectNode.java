@@ -18,10 +18,28 @@ import com.wrmsr.tokamak.materialization.node.visitor.NodeVisitor;
 
 public final class ProjectNode
         extends AbstractNode
+        implements SingleSourceNode
 {
-    public ProjectNode(NodeName name)
+    private final Node source;
+    private final Projection projection;
+
+    public ProjectNode(NodeName name, Node source, Projection projection)
     {
         super(name);
+
+        this.source = source;
+        this.projection = projection;
+    }
+
+    @Override
+    public Node getSource()
+    {
+        return source;
+    }
+
+    public Projection getProjection()
+    {
+        return projection;
     }
 
     @Override

@@ -35,7 +35,7 @@ public abstract class AbstractNode
     @Override
     public NodeName getName()
     {
-        throw new IllegalStateException();
+        return name;
     }
 
     @Override
