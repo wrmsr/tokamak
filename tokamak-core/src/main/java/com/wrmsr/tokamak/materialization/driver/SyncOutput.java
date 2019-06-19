@@ -13,26 +13,27 @@
  */
 package com.wrmsr.tokamak.materialization.driver;
 
-import com.wrmsr.tokamak.materialization.api.FieldValue;
-import com.wrmsr.tokamak.materialization.api.Id;
 import com.wrmsr.tokamak.materialization.api.Payload;
-import com.wrmsr.tokamak.materialization.driver.context.DriverContext;
 import com.wrmsr.tokamak.materialization.node.Node;
 
-import java.io.IOException;
-import java.sql.Connection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-public interface Driver
+public final class SyncOutput
 {
-    DriverContext createContext(Connection conn)
-            throws IOException;
+    private final Node node;
+    private final Payload payload;
 
-    List<Payload> build(DriverContext context, Node node, FieldValue fieldValue)
-            throws IOException;
+    public SyncOutput(Node node, Payload payload)
+    {
+        this.node = node;
+        this.payload = payload;
+    }
 
-    List<SyncOutput> sync(DriverContext context, Map<Node, Set<Id>> idSetsByNode)
-            throws IOException;
+    public Node getNode()
+    {
+        return node;
+    }
+
+    public Payload getPayload()
+    {
+        return payload;
+    }
 }

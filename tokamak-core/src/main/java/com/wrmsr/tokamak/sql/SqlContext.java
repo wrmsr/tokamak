@@ -11,8 +11,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.materialization.driver.context;
+package com.wrmsr.tokamak.sql;
 
-public interface Context
+import java.sql.Connection;
+
+public class SqlContext
 {
+    // dialect, options
 }
