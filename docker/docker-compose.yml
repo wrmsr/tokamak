@@ -13,7 +13,7 @@ services:
     expose:
       - '3306'
     ports:
-      - '21210:3306'
+      - '21211:3306'
 
   tokamak-mysql-slave:
     build: '.'
@@ -29,7 +29,7 @@ services:
     expose:
       - '3306'
     ports:
-      - '21211:3306'
+      - '21212:3306'
     depends_on:
       - 'tokamak-mysql-master'
 
@@ -44,7 +44,7 @@ services:
     expose:
     - '5432'
     ports:
-    - '21212:5432'
+    - '21213:5432'
 
   tokamak-postgres-slave:
     build: '.'
@@ -60,7 +60,7 @@ services:
     expose:
     - '5432'
     ports:
-    - '21213:5432'
+    - '21214:5432'
     depends_on:
     - 'tokamak-postgres-master'
 
@@ -71,7 +71,7 @@ services:
     expose:
       - '6379'
     ports:
-      - '21214:6379'
+      - '21215:6379'
 
   tokamak-elasticsearch:
     build: '.'
@@ -84,5 +84,33 @@ services:
     expose:
     - '9200'
     ports:
-    - '21215:9200'
+    - '21216:9200'
 
+  tokamak-dev:
+    build: '.'
+    image: 'wrmsr/tokamak-dev:latest'
+    restart: 'always'
+    cap_add:
+      - 'SYS_PTRACE'
+    security_opt:
+      - 'apparmor:unconfined'
+    volumes:
+      - '..:/tokamak'
+    expose:
+      - '8000'
+    ports:
+      - '21210:8000'
+    depends_on:
+      - 'tokamak-elasticsearch'
+      - 'tokamak-mysql-master'
+      - 'tokamak-mysql-slave'
+      - 'tokamak-postgres-master'
+      - 'tokamak-postgres-slave'
+      - 'tokamak-redis'
+    links:
+      - 'tokamak-elasticsearch'
+      - 'tokamak-mysql-master'
+      - 'tokamak-mysql-slave'
+      - 'tokamak-postgres-master'
+      - 'tokamak-postgres-slave'
+      - 'tokamak-redis'

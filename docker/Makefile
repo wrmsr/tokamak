@@ -8,6 +8,7 @@ DOCKER_DB_IMAGES:= \
 
 DOCKER_IMAGES:= \
 	$(DOCKER_DB_IMAGES) \
+	tokamak-dev \
 
 DOCKER_COMPOSE_DB_SERVICES:= \
 	tokamak-elasticsearch \
@@ -19,6 +20,7 @@ DOCKER_COMPOSE_DB_SERVICES:= \
 
 DOCKER_COMPOSE_SERVICES:= \
 	$(DOCKER_COMPOSE_DB_SERVICES) \
+	tokamak-dev \
 
 .PHONY: all
 all: clean dev_images
@@ -43,6 +45,7 @@ db_images:
 
 .PHONY: dev_images
 dev_images: db_images
+	(cd .. && docker build --tag "$(DOCKER_USER)/tokamak-dev" -f docker/tokamak-dev/Dockerfile .)
 
 .PHONY: stop
 stop:

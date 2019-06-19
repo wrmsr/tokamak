@@ -2,6 +2,7 @@
 *.swp
 .DS_Store
 .idea
+.pyenv/
 .venv/
 __pycache__/
 target/
