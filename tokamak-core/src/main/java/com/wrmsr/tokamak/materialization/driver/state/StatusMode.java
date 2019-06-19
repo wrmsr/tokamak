@@ -13,7 +13,7 @@
  */
 package com.wrmsr.tokamak.materialization.driver.state;
 
-public enum Mode
+public enum StatusMode
 {
     INVALID,
     PHANTOM,

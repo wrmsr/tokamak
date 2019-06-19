@@ -13,6 +13,18 @@
  */
 package com.wrmsr.tokamak.materialization.driver;
 
+import com.wrmsr.tokamak.materialization.api.Payload;
+import com.wrmsr.tokamak.materialization.driver.context.Context;
+import com.wrmsr.tokamak.materialization.node.Node;
+
+import java.io.IOException;
+import java.sql.Connection;
+import java.util.List;
+
 public interface Driver
 {
+    Context createContext(Connection conn)
+            throws IOException;
+
+    List<Payload> build(Context context, Node node, FieldValue fieldValue) throws IOException;
 }

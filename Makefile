@@ -32,7 +32,7 @@ test: java_home
 	./mvnw test
 
 .PHONY: dependency-tree
-dep-tree: java_home
+dependency-tree: java_home
 	./mvnw dependency:tree
 
 .PHONY: dependency-updates
