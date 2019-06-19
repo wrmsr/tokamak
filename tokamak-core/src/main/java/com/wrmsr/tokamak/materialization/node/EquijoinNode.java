@@ -22,13 +22,15 @@ import com.wrmsr.tokamak.materialization.node.visitor.NodeVisitor;
 import javax.annotation.concurrent.Immutable;
 
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-import static com.google.common.collect.ImmutableList.toImmutableList;
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
+import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static java.util.function.Function.identity;
 
 @Immutable
@@ -89,10 +91,12 @@ public final class EquijoinNode
     private final Map<FieldName, Set<Node>> nodeSetsByField;
     private final Map<FieldName, Node> nodesByUniqueField;
     private final Set<FieldName> guaranteedUniqueFields;
+    private final Set<FieldName> fields;
+    private final Set<FieldName> idFields;
 
     public EquijoinNode(
             NodeName name,
-            List<Branch> branches,
+            Iterable<Branch> branches,
             Mode mode)
     {
         super(name);
@@ -109,9 +113,26 @@ public final class EquijoinNode
             }
         }
         this.nodeSetsByField = nodeSetsByField.entrySet().stream().collect(toImmutableMap(Map.Entry::getKey, e -> e.getValue().build()));
-        this.nodesByUniqueField = this.nodeSetsByField.entrySet().stream()
+        nodesByUniqueField = this.nodeSetsByField.entrySet().stream()
                 .filter(e -> e.getValue().size() == 1)
                 .collect(toImmutableMap(Map.Entry::getKey, e -> e.getValue().stream().findFirst().get()));
+        guaranteedUniqueFields = this.nodeSetsByField.entrySet().stream()
+                .filter(e -> e.getValue().stream().allMatch(n -> this.branchesByNode.get(n).field == e.getKey()))
+                .map(Map.Entry::getKey)
+                .collect(toImmutableSet());
+
+        Set<FieldName> fields = new LinkedHashSet<>();
+        for (Branch branch : this.branches) {
+            checkArgument(branch.node.getFields().contains(branch.getField()));
+            for (FieldName field : branch.getNode().getFields()) {
+                if (!fields.add(field)) {
+                    checkArgument(guaranteedUniqueFields.contains(field));
+                }
+            }
+        }
+        this.fields = ImmutableSet.copyOf(fields);
+
+        idFields = this.branches.stream().map(Branch::getField).collect(toImmutableSet());
     }
 
     public List<Branch> getBranches()
@@ -145,9 +166,21 @@ public final class EquijoinNode
     }
 
     @Override
-    public List<Node> getChildren()
+    public Set<FieldName> getFields()
     {
-        return branches.stream().map(b -> b.node).collect(toImmutableList());
+        return fields;
+    }
+
+    @Override
+    public Set<FieldName> getIdFields()
+    {
+        return idFields;
+    }
+
+    @Override
+    public Set<Node> getChildren()
+    {
+        return branches.stream().map(b -> b.node).collect(toImmutableSet());
     }
 
     @Override

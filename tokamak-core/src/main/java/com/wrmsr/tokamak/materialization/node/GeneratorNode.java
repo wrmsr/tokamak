@@ -13,15 +13,15 @@
  */
 package com.wrmsr.tokamak.materialization.node;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 
-import java.util.List;
+import java.util.Set;
 
 public interface GeneratorNode
         extends Node
 {
-    default List<Node> getChildren()
+    default Set<Node> getChildren()
     {
-        return ImmutableList.of();
+        return ImmutableSet.of();
     }
 }

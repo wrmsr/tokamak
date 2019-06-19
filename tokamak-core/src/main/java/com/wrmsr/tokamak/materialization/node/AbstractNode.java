@@ -18,7 +18,6 @@ import com.wrmsr.tokamak.materialization.api.NodeId;
 import com.wrmsr.tokamak.materialization.api.NodeName;
 import com.wrmsr.tokamak.materialization.type.Type;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -50,13 +49,13 @@ public abstract class AbstractNode
     }
 
     @Override
-    public List<Node> getChildren()
+    public Set<Node> getChildren()
     {
         throw new IllegalStateException();
     }
 
     @Override
-    public List<FieldName> getFields()
+    public Set<FieldName> getFields()
     {
         throw new IllegalStateException();
     }

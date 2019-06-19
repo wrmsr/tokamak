@@ -47,9 +47,9 @@ public interface Node
 
     NodeId getNodeId();
 
-    List<Node> getChildren();
+    Set<Node> getChildren();
 
-    List<FieldName> getFields();
+    Set<FieldName> getFields();
 
     Set<FieldName> getIdFields();
 

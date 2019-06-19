@@ -13,7 +13,7 @@
  */
 package com.wrmsr.tokamak.materialization.node;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.materialization.api.FieldName;
 import com.wrmsr.tokamak.materialization.api.NodeName;
 import com.wrmsr.tokamak.materialization.api.TableName;
@@ -21,8 +21,8 @@ import com.wrmsr.tokamak.materialization.node.visitor.NodeVisitor;
 
 import javax.annotation.concurrent.Immutable;
 
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Immutable
 public final class ScanNode
@@ -30,19 +30,19 @@ public final class ScanNode
         implements GeneratorNode
 {
     private final TableName table;
-    private final List<FieldName> fields;
+    private final Set<FieldName> fields;
 
     public ScanNode(
             NodeName name,
             TableName table,
-            List<FieldName> fields,
+            Iterable<FieldName> fields,
             Map<NodeName, Invalidation> invalidations,
             Map<NodeName, LinkageMask> linkageMasks)
     {
         super(name, invalidations, linkageMasks);
 
         this.table = table;
-        this.fields = ImmutableList.copyOf(fields);
+        this.fields = ImmutableSet.copyOf(fields);
     }
 
     public TableName getTable()
@@ -50,7 +50,7 @@ public final class ScanNode
         return table;
     }
 
-    public List<FieldName> getFields()
+    public Set<FieldName> getFields()
     {
         return fields;
     }
