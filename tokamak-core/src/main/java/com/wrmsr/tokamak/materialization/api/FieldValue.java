@@ -13,42 +13,8 @@
  */
 package com.wrmsr.tokamak.materialization.api;
 
-import java.util.Objects;
-
-public final class FieldValue<V>
+public interface FieldValue<F, V>
 {
-    private final FieldName field;
-    private final V value;
-
-    public FieldValue(FieldName field, V value)
-    {
-        this.field = field;
-        this.value = value;
-    }
-
-    @Override
-    public boolean equals(Object o)
-    {
-        if (this == o) { return true; }
-        if (o == null || getClass() != o.getClass()) { return false; }
-        FieldValue<?> that = (FieldValue<?>) o;
-        return Objects.equals(field, that.field) &&
-                Objects.equals(value, that.value);
-    }
-
-    @Override
-    public int hashCode()
-    {
-        return Objects.hash(field, value);
-    }
-
-    public FieldName getField()
-    {
-        return field;
-    }
-
-    public V getValue()
-    {
-        return value;
-    }
+    F getField();
+    V getValue();
 }
