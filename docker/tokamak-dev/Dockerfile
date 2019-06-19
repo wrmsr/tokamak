@@ -70,7 +70,7 @@ RUN ( \
     sudo apt-get install -y openjdk-8-jdk \
 )
 
-RUN echo -e "\
+RUN echo "\
 setw -g mode-keys vi \n\
 set -g status-keys vi \n\
 set -sg escape-time 0 \n\
@@ -78,16 +78,16 @@ set -g status-fg black \n\
 set-option -g history-limit 20000 \n\
 " > ~/.tmux.conf
 
-RUN echo -e "\
+RUN echo "\
 set number \n\
 syntax on \n\
 " > ~/.vimrc
 
-RUN echo -e "\
+RUN echo "\
 TERM=screen-256color \n\
 " > ~/.bashrc
 
-RUN echo 'if [ -f ~/.bashrc ]; then source ~/.bashrc fi' > ~/.bash_profile
+RUN echo 'if [ -f ~/.bashrc ]; then source ~/.bashrc ; fi' > ~/.bash_profile
 
 WORKDIR /tokamak
 
