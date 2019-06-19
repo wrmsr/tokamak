@@ -13,8 +13,8 @@
  */
 package com.wrmsr.tokamak.materialization.driver;
 
-import com.wrmsr.tokamak.materialization.api.FieldValue;
 import com.wrmsr.tokamak.materialization.api.Id;
+import com.wrmsr.tokamak.materialization.api.Key;
 import com.wrmsr.tokamak.materialization.api.Payload;
 import com.wrmsr.tokamak.materialization.driver.context.DriverContext;
 import com.wrmsr.tokamak.materialization.node.Node;
@@ -30,7 +30,7 @@ public interface Driver
     DriverContext createContext(Connection conn)
             throws IOException;
 
-    List<Payload> build(DriverContext context, Node node, FieldValue fieldValue)
+    List<Payload> build(DriverContext context, Node node, Key key)
             throws IOException;
 
     List<SyncOutput> sync(DriverContext context, Map<Node, Set<Id>> idSetsByNode)

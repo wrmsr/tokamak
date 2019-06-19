@@ -13,8 +13,6 @@
  */
 package com.wrmsr.tokamak.materialization.api;
 
-public interface FieldValue<F, V>
+public interface Key
 {
-    F getField();
-    V getValue();
 }

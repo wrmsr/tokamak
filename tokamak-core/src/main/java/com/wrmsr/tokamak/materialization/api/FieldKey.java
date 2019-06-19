@@ -15,13 +15,13 @@ package com.wrmsr.tokamak.materialization.api;
 
 import java.util.Objects;
 
-public final class NamedFieldValue<V>
-        implements FieldValue<FieldName, V>
+public final class FieldKey<V>
+        implements Key
 {
     private final FieldName field;
     private final V value;
 
-    public NamedFieldValue(FieldName field, V value)
+    public FieldKey(FieldName field, V value)
     {
         this.field = field;
         this.value = value;
@@ -32,7 +32,7 @@ public final class NamedFieldValue<V>
     {
         if (this == o) { return true; }
         if (o == null || getClass() != o.getClass()) { return false; }
-        NamedFieldValue<?> that = (NamedFieldValue<?>) o;
+        FieldKey<?> that = (FieldKey<?>) o;
         return Objects.equals(field, that.field) &&
                 Objects.equals(value, that.value);
     }
