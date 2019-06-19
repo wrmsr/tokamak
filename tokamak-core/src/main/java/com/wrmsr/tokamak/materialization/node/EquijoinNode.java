@@ -14,16 +14,22 @@
 package com.wrmsr.tokamak.materialization.node;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.materialization.api.FieldName;
 import com.wrmsr.tokamak.materialization.api.NodeName;
 import com.wrmsr.tokamak.materialization.node.visitor.NodeVisitor;
 
 import javax.annotation.concurrent.Immutable;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
+import static com.google.common.collect.ImmutableMap.toImmutableMap;
+import static java.util.function.Function.identity;
 
 @Immutable
 public final class EquijoinNode
@@ -79,6 +85,11 @@ public final class EquijoinNode
     private final List<Branch> branches;
     private final Mode mode;
 
+    private final Map<Node, Branch> branchesByNode;
+    private final Map<FieldName, Set<Node>> nodeSetsByField;
+    private final Map<FieldName, Node> nodesByUniqueField;
+    private final Set<FieldName> guaranteedUniqueFields;
+
     public EquijoinNode(
             NodeName name,
             List<Branch> branches,
@@ -88,6 +99,19 @@ public final class EquijoinNode
 
         this.branches = ImmutableList.copyOf(branches);
         this.mode = mode;
+
+        this.branchesByNode = this.branches.stream().collect(toImmutableMap(Branch::getNode, identity()));
+
+        Map<FieldName, ImmutableSet.Builder<Node>> nodeSetsByField = new HashMap<>();
+        for (Branch branch : this.branches) {
+            for (FieldName field : branch.node.getFields()) {
+                nodeSetsByField.computeIfAbsent(field, n -> ImmutableSet.builder()).add(branch.node);
+            }
+        }
+        this.nodeSetsByField = nodeSetsByField.entrySet().stream().collect(toImmutableMap(Map.Entry::getKey, e -> e.getValue().build()));
+        this.nodesByUniqueField = this.nodeSetsByField.entrySet().stream()
+                .filter(e -> e.getValue().size() == 1)
+                .collect(toImmutableMap(Map.Entry::getKey, e -> e.getValue().stream().findFirst().get()));
     }
 
     public List<Branch> getBranches()
@@ -98,6 +122,26 @@ public final class EquijoinNode
     public Mode getMode()
     {
         return mode;
+    }
+
+    public Map<Node, Branch> getBranchesByNode()
+    {
+        return branchesByNode;
+    }
+
+    public Map<FieldName, Set<Node>> getNodeSetsByField()
+    {
+        return nodeSetsByField;
+    }
+
+    public Map<FieldName, Node> getNodesByUniqueField()
+    {
+        return nodesByUniqueField;
+    }
+
+    public Set<FieldName> getGuaranteedUniqueFields()
+    {
+        return guaranteedUniqueFields;
     }
 
     @Override

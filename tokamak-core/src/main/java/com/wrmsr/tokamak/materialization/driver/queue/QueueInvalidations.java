@@ -20,7 +20,7 @@ import com.wrmsr.tokamak.materialization.api.NodeId;
 import java.util.Map;
 import java.util.Set;
 
-import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
+import static com.google.common.collect.ImmutableMap.toImmutableMap;
 
 public class QueueInvalidations
 {

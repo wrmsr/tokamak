@@ -69,20 +69,6 @@ public final class MoreCollectors
                 Collector.Characteristics.UNORDERED);
     }
 
-    public static <I, K, V> Collector<I, ImmutableMap.Builder<K, V>, ImmutableMap<K, V>> toImmutableMap(Function<I, K> keyMapper, Function<I, V> valueMapper)
-    {
-        return Collector.of(
-                ImmutableMap::builder,
-                (builder, in) -> builder.put(keyMapper.apply(in), valueMapper.apply(in)),
-                (ImmutableMap.Builder<K, V> left, ImmutableMap.Builder<K, V> right) -> left.putAll(right.build()),
-                ImmutableMap.Builder::build);
-    }
-
-    public static <K, V> Collector<Map.Entry<K, V>, ImmutableMap.Builder<K, V>, ImmutableMap<K, V>> toImmutableMap()
-    {
-        return toImmutableMap(Map.Entry::getKey, Map.Entry::getValue);
-    }
-
     public static <I, K, V> Collector<I, ImmutableMultimap.Builder<K, V>, ImmutableMultimap<K, V>> toImmutableMultimap(Function<I, K> keyMapper, Function<I, V> valueMapper)
     {
         return Collector.of(

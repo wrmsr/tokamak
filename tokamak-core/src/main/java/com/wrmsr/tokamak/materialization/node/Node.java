@@ -49,6 +49,8 @@ public interface Node
 
     List<Node> getChildren();
 
+    List<FieldName> getFields();
+
     Set<FieldName> getIdFields();
 
     Map<FieldName, Type> getTypesByField();

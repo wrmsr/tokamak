@@ -61,8 +61,8 @@ endif
 endif
 
 	if [ ! -d ".venv" ]; then \
-		"$$PYENV_HOME/bin/pyenv" install -s $(PYTHON_VERSION) ; \
-		"$$PYENV_HOME/versions/$$PYENV_INSTALL_DIR/bin/python" -m venv .venv ; \
+		"$(PYENV_HOME)/bin/pyenv" install -s $(PYTHON_VERSION) ; \
+		"$(PYENV_HOME)/versions/$$PYENV_INSTALL_DIR/bin/python" -m venv .venv ; \
 	fi
 	source .venv/bin/activate
 

@@ -26,7 +26,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.StreamSupport;
 
-import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
+import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static java.util.function.Function.identity;
 
 @Immutable

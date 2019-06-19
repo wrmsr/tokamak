@@ -22,6 +22,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static com.wrmsr.tokamak.util.MorePreconditions.checkUnique;
+
 public abstract class AbstractNode
         implements Node
 {
@@ -30,6 +32,9 @@ public abstract class AbstractNode
     public AbstractNode(NodeName name)
     {
         this.name = name;
+
+        checkUnique(getChildren());
+        checkUnique(getFields());
     }
 
     @Override
@@ -46,6 +51,12 @@ public abstract class AbstractNode
 
     @Override
     public List<Node> getChildren()
+    {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public List<FieldName> getFields()
     {
         throw new IllegalStateException();
     }
