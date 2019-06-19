@@ -12,6 +12,7 @@ RUN ( \
         htop \
         jq \
         less \
+        make \
         man \
         moreutils \
         ncdu \
@@ -27,6 +28,7 @@ RUN ( \
         tmux \
         unzip \
         vim \
+        wget \
         zip \
 \
 )
@@ -44,14 +46,28 @@ RUN ( \
 )
 
 RUN ( \
+    apt-get install -y \
+        libdbd-mysql-perl \
+        libdbi-perl \
+        libio-socket-ssl-perl \
+        libterm-readkey-perl \
+)
+
+RUN ( \
     export PERCONA_VERSION='3.0.13' && \
     export PERCONA_SUFFIX='-1.trusty_amd64' && \
     export PERCONA_INST_DIR=$(mktemp -d) && \
     cd "$PERCONA_INST_DIR" && \
-    wget "https://www.percona.com/downloads/percona-toolkit/${PERCONA_VERSION}/binary/debian/jessie/x86_64/percona-toolkit_${PERCONA_VERSION}${PERCONA_SUFFIX}.deb" && \
+    wget "https://www.percona.com/downloads/percona-toolkit/${PERCONA_VERSION}/binary/debian/trusty/x86_64/percona-toolkit_${PERCONA_VERSION}${PERCONA_SUFFIX}.deb" && \
     dpkg -i "percona-toolkit_${PERCONA_VERSION}${PERCONA_SUFFIX}.deb" && \
     rm -f "percona-toolkit_${PERCONA_VERSION}${PERCONA_SUFFIX}.deb" && \
     rm -rf "$PERCONA_INST_DIR" \
+)
+
+RUN ( \
+    sudo add-apt-repository ppa:openjdk-r/ppa && \
+    sudo apt-get update && \
+    sudo apt-get install -y openjdk-8-jdk \
 )
 
 RUN echo -e "\
@@ -72,12 +88,6 @@ TERM=screen-256color \n\
 " > ~/.bashrc
 
 RUN echo 'if [ -f ~/.bashrc ]; then source ~/.bashrc fi' > ~/.bash_profile
-
-RUN ( \
-    sudo add-apt-repository ppa:openjdk-r/ppa && \
-    sudo apt-get update && \
-    sudo apt-get install -y openjdk-8-jdk \
-)
 
 WORKDIR /tokamak
 

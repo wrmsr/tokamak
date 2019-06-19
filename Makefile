@@ -10,8 +10,6 @@ ALL: clean package test
 
 .PHONY: java_home
 java_home:
-	@true
-
 ifndef JAVA_HOME
 ifeq ($(UNAME), Darwin)
 	export JAVA_HOME=$(shell find /Library/Java/JavaVirtualMachines -name 'jdk1.8.0_*' -type d -maxdepth 1 | sort | tail -n1)
