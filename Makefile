@@ -3,7 +3,7 @@ UNAME:=$(shell uname)
 
 PYTHON_VERSION=3.7.3
 
-SYSTEM_PYENV:=$(shell if command -v pyenv ; then echo 1 ; else echo 0 ; fi)
+SYSTEM_PYENV:=$(shell if command -v pyenv > /dev/null ; then echo 1 ; else echo 0 ; fi)
 PIP_ARGS:=$(shell if ! [ -z "$$CIRCLECI" ]; then echo '--quiet --progress-bar=off' ; fi)
 
 ALL: clean package test
@@ -49,17 +49,20 @@ clean-python:
 
 .PHONY: venv
 venv:
-ifeq ($(SYSTEM_PYENV),0)
+ifndef PYENV_HOME
+ifeq ($(SYSTEM_PYENV),1)
+	export PYENV_HOME=$(shell bash -c 'dirname $$(dirname $$(command -v pyenv))')
+else
 	if [ ! -d ".pyenv" ]; then \
 		git clone https://github.com/pyenv/pyenv .pyenv ; \
 	fi
-
-	export PATH="$(shell pwd)/.pyenv/libexec:$(PATH)"
-	pyenv install -s $(PYTHON_VERSION)
+	export PYENV_HOME=$(shell pwd)/.pyenv
+endif
 endif
 
 	if [ ! -d ".venv" ]; then \
-		".pyenv/versions/$(PYTHON_VERSION)/bin/python" -m venv .venv ; \
+		"$$PYENV_HOME/bin/pyenv" install -s $(PYTHON_VERSION) ; \
+		"$$PYENV_HOME/versions/$$PYENV_INSTALL_DIR/bin/python" -m venv .venv ; \
 	fi
 	source .venv/bin/activate
 
