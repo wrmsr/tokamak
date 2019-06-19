@@ -402,6 +402,22 @@
             </dependency>
             -->
 
+            <!--
+            <dependency>
+                <groupId>com.arakelian</groupId>
+                <artifactId>java-jq</artifactId>
+                <version>0.10.1</version>
+            </dependency>
+            -->
+
+            <!--
+            <dependency>
+                <groupId>net.thisptr</groupId>
+                <artifactId>jackson-jq</artifactId>
+                <version>0.0.10</version>
+            </dependency>
+            -->
+
             <dependency>
                 <groupId>com.github.java-json-tools</groupId>
                 <artifactId>json-patch</artifactId>
