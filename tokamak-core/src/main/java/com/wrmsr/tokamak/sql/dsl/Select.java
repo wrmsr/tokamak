@@ -11,9 +11,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.sql;
 
-public class SqlContext
+package com.wrmsr.tokamak.sql.dsl;
+
+import com.google.common.collect.ImmutableList;
+
+import java.util.List;
+
+public class Select
+        extends SelectBase
 {
-    // dialect, options
+    private final List<Selectable> columns;
+
+    public Select(List<Selectable> columns)
+    {
+        this.columns = ImmutableList.copyOf(columns);
+    }
+
+    public List<Selectable> getColumns()
+    {
+        return columns;
+    }
 }

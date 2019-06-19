@@ -21,7 +21,6 @@ import com.wrmsr.tokamak.materialization.api.NodeName;
 import com.wrmsr.tokamak.materialization.node.visitor.NodeVisitor;
 import com.wrmsr.tokamak.materialization.type.Type;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
