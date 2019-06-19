@@ -1,0 +1,2 @@
+#!/bin/bash
+docker exec --detach-keys 'ctrl-o,ctrl-d' -it docker_tokamak-dev_1 bash --login -c "$*"

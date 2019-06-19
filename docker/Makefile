@@ -59,11 +59,11 @@ clean: stop
 
 .PHONY: dev_start
 dev_start: dev_images
-	docker-compose start $(DOCKER_COMPOSE_DB_SERVICES)
+	docker-compose start $(DOCKER_COMPOSE_DB_SERVICES) tokamak-dev
 
 .PHONY: dev_up
 dev_up: dev_images
-	docker-compose up $(DOCKER_COMPOSE_DB_SERVICES)
+	docker-compose up $(DOCKER_COMPOSE_DB_SERVICES) tokamak-dev
 
 .PHONY: dev_reup
 dev_reup: clean dev_up
