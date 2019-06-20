@@ -30,7 +30,7 @@ import java.util.Set;
 @JsonSubTypes({
         @JsonSubTypes.Type(value = CrossJoinNode.class, name = "cross_join"),
         @JsonSubTypes.Type(value = EquijoinNode.class, name = "equijoin"),
-        @JsonSubTypes.Type(value = FilterNode.class, name = "filter "),
+        @JsonSubTypes.Type(value = FilterNode.class, name = "filter"),
         @JsonSubTypes.Type(value = ListAggregateNode.class, name = "list_aggregate"),
         @JsonSubTypes.Type(value = LookupJoinNode.class, name = "lookup_join"),
         @JsonSubTypes.Type(value = PersistNode.class, name = "persist"),
