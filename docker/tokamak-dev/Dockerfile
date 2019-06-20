@@ -4,11 +4,13 @@ COPY .dockertimestamp /
 
 # Packages
 
+RUN sed -i 's/^# deb-src/deb-src/' /etc/apt/sources.list
 RUN apt-get update && apt-get install -y apt-utils
 
 RUN ( \
     apt-get install -y \
 \
+        build-essential \
         dnsutils \
         gcc \
         gdb \
@@ -36,6 +38,27 @@ RUN ( \
         zip \
 \
 )
+
+# RUN ( \
+#     apt-get install -y \
+# \
+#     libbz2-dev \
+#     libdb5.3-dev \
+#     libexpat1-dev \
+#     libffi-dev \
+#     libgdbm-dev \
+#     liblzma-dev \
+#     libncurses5-dev \
+#     libncursesw5-dev \
+#     libreadline-dev \
+#     libsqlite3-dev \
+#     libssl-dev \
+#     uuid-dev \
+#     zlib1g-dev \
+# \
+# )
+
+RUN apt-get build-dep python3
 
 
 # Innotop
