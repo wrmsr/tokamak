@@ -117,6 +117,17 @@ RUN ( \
 )
 
 
+# pyenv
+
+RUN ( \
+    cd ~ && git clone https://github.com/pyenv/pyenv .pyenv && \
+	echo "\
+        PYENV_ROOT=~/.pyenv \n\
+        PATH=\"~/.pyenv/bin:$PATH\" \n\
+    " >> ~/.bashrc \
+)
+
+
 # Configuration files
 
 RUN echo "\
@@ -125,18 +136,18 @@ set -g status-keys vi \n\
 set -sg escape-time 0 \n\
 set -g status-fg black \n\
 set-option -g history-limit 20000 \n\
-" > ~/.tmux.conf
+" >> ~/.tmux.conf
 
 RUN echo "\
 set number \n\
 syntax on \n\
-" > ~/.vimrc
+" >> ~/.vimrc
 
 RUN echo "\
 TERM=screen-256color \n\
-" > ~/.bashrc
+" >> ~/.bashrc
 
-RUN echo 'if [ -f ~/.bashrc ]; then source ~/.bashrc ; fi' > ~/.bash_profile
+RUN echo 'source ~/.bashrc' >> ~/.bash_profile
 
 
 # Entrypoint

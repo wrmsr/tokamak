@@ -13,6 +13,14 @@
  */
 package com.wrmsr.tokamak.materialization.driver.state;
 
+import com.wrmsr.tokamak.materialization.api.Attributes;
+import com.wrmsr.tokamak.materialization.api.Id;
+import com.wrmsr.tokamak.materialization.api.Txid;
+
+import java.util.Optional;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+
 public class State
 {
     public enum Mode
@@ -24,5 +32,40 @@ public class State
         MODIFIED
     }
 
+    private final Id id;
+    private Mode mode;
+    private Optional<Txid> txid = Optional.empty();
+    private Optional<Linkage> linkage = Optional.empty();
+    private Optional<Attributes> attributes = Optional.empty();
 
+    public State(Id id, Mode mode)
+    {
+        this.id = checkNotNull(id);
+        this.mode = checkNotNull(mode);
+    }
+
+    public Id getId()
+    {
+        return id;
+    }
+
+    public Mode getMode()
+    {
+        return mode;
+    }
+
+    public Optional<Txid> getTxid()
+    {
+        return txid;
+    }
+
+    public Optional<Linkage> getLinkage()
+    {
+        return linkage;
+    }
+
+    public Optional<Attributes> getAttributes()
+    {
+        return attributes;
+    }
 }
