@@ -18,6 +18,8 @@ import com.wrmsr.tokamak.materialization.node.visitor.NodeVisitor;
 
 import javax.annotation.concurrent.Immutable;
 
+import java.util.Set;
+
 @Immutable
 public final class CrossJoinNode
         extends AbstractNode
@@ -26,6 +28,14 @@ public final class CrossJoinNode
     public CrossJoinNode(NodeName name)
     {
         super(name);
+
+        checkInvariants();
+    }
+
+    @Override
+    public Set<Node> getChildren()
+    {
+        throw new IllegalStateException();
     }
 
     @Override

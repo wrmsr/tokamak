@@ -13,23 +13,55 @@
  */
 package com.wrmsr.tokamak.materialization.node;
 
+import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.materialization.api.NodeName;
+import com.wrmsr.tokamak.materialization.api.OutputTarget;
 import com.wrmsr.tokamak.materialization.node.visitor.NodeVisitor;
 
 import javax.annotation.concurrent.Immutable;
 
+import java.util.List;
 import java.util.Map;
 
 @Immutable
 public final class PersistNode
         extends StatefulNode
+        implements SingleSourceNode
 {
+    private final Node source;
+    private final List<OutputTarget> outputTargets;
+    private final boolean denormalized;
+
     public PersistNode(
             NodeName name,
+            Node source,
+            Iterable<OutputTarget> outputTargets,
+            boolean denormalized,
             Map<NodeName, Invalidation> invalidations,
             Map<NodeName, LinkageMask> linkageMasks)
     {
         super(name, invalidations, linkageMasks);
+        this.source = source;
+        this.outputTargets = ImmutableList.copyOf(outputTargets);
+        this.denormalized = denormalized;
+
+        checkInvariants();
+    }
+
+    @Override
+    public Node getSource()
+    {
+        return source;
+    }
+
+    public List<OutputTarget> getOutputTargets()
+    {
+        return outputTargets;
+    }
+
+    public boolean isDenormalized()
+    {
+        return denormalized;
     }
 
     @Override

@@ -43,6 +43,8 @@ public final class ScanNode
 
         this.table = table;
         this.fields = ImmutableSet.copyOf(fields);
+
+        checkInvariants();
     }
 
     public TableName getTable()

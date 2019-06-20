@@ -13,10 +13,13 @@
  */
 package com.wrmsr.tokamak.materialization.node;
 
+import com.wrmsr.tokamak.materialization.api.FieldName;
 import com.wrmsr.tokamak.materialization.api.NodeName;
 import com.wrmsr.tokamak.materialization.node.visitor.NodeVisitor;
 
 import javax.annotation.concurrent.Immutable;
+
+import java.util.Set;
 
 @Immutable
 public final class ProjectNode
@@ -32,6 +35,8 @@ public final class ProjectNode
 
         this.source = source;
         this.projection = projection;
+
+        checkInvariants();
     }
 
     @Override
@@ -43,6 +48,12 @@ public final class ProjectNode
     public Projection getProjection()
     {
         return projection;
+    }
+
+    @Override
+    public Set<FieldName> getFields()
+    {
+        return projection.getInputsByOutput().keySet();
     }
 
     @Override

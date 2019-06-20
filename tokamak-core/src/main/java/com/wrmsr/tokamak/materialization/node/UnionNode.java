@@ -13,18 +13,39 @@
  */
 package com.wrmsr.tokamak.materialization.node;
 
+import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.materialization.api.NodeName;
 import com.wrmsr.tokamak.materialization.node.visitor.NodeVisitor;
 
 import javax.annotation.concurrent.Immutable;
 
+import java.util.Set;
+
 @Immutable
 public final class UnionNode
         extends AbstractNode
 {
-    public UnionNode(NodeName name)
+    private final Set<Node> sources;
+
+    public UnionNode(
+            NodeName name,
+            Iterable<Node> sources)
     {
         super(name);
+        this.sources = ImmutableSet.copyOf(sources);
+
+        checkInvariants();
+    }
+
+    public Set<Node> getSources()
+    {
+        return sources;
+    }
+
+    @Override
+    public Set<Node> getChildren()
+    {
+        return sources;
     }
 
     @Override

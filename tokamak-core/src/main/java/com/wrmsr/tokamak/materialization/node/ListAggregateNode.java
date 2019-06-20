@@ -13,19 +13,52 @@
  */
 package com.wrmsr.tokamak.materialization.node;
 
+import com.google.common.collect.ImmutableSet;
+import com.wrmsr.tokamak.materialization.api.FieldName;
 import com.wrmsr.tokamak.materialization.api.NodeName;
 import com.wrmsr.tokamak.materialization.node.visitor.NodeVisitor;
 
 import javax.annotation.concurrent.Immutable;
 
+import java.util.Set;
+
 @Immutable
 public final class ListAggregateNode
         extends AbstractNode
-        implements AggregateNode
+        implements AggregateNode, SingleSourceNode
 {
-    public ListAggregateNode(NodeName name)
+    private final Node source;
+    private final FieldName groupField;
+    private final Set<FieldName> listFields;
+
+    public ListAggregateNode(
+            NodeName name,
+            Node source,
+            FieldName groupField,
+            Iterable<FieldName> listFields)
     {
         super(name);
+        this.source = source;
+        this.groupField = groupField;
+        this.listFields = ImmutableSet.copyOf(listFields);
+
+        checkInvariants();
+    }
+
+    @Override
+    public Node getSource()
+    {
+        return source;
+    }
+
+    public FieldName getGroupField()
+    {
+        return groupField;
+    }
+
+    public Set<FieldName> getListFields()
+    {
+        return listFields;
     }
 
     @Override

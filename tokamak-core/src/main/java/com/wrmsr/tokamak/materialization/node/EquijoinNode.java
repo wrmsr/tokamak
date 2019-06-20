@@ -133,6 +133,8 @@ public final class EquijoinNode
         this.fields = ImmutableSet.copyOf(fields);
 
         idFields = this.branches.stream().map(Branch::getField).collect(toImmutableSet());
+
+        checkInvariants();
     }
 
     public List<Branch> getBranches()

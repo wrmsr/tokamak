@@ -26,6 +26,8 @@ public final class ValuesNode
     public ValuesNode(NodeName name)
     {
         super(name);
+
+        checkInvariants();
     }
 
     @Override

@@ -39,6 +39,8 @@ public final class FilterNode
         this.source = source;
         this.function = function;
         this.unlinked = unlinked;
+
+        checkInvariants();
     }
 
     @Override

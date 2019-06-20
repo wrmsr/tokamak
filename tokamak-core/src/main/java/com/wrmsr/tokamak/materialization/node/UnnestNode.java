@@ -13,18 +13,52 @@
  */
 package com.wrmsr.tokamak.materialization.node;
 
+import com.google.common.collect.ImmutableSet;
+import com.wrmsr.tokamak.materialization.api.FieldName;
 import com.wrmsr.tokamak.materialization.api.NodeName;
 import com.wrmsr.tokamak.materialization.node.visitor.NodeVisitor;
 
 import javax.annotation.concurrent.Immutable;
 
+import java.util.Set;
+
 @Immutable
 public final class UnnestNode
         extends AbstractNode
+        implements SingleSourceNode
 {
-    public UnnestNode(NodeName name)
+    private final Node source;
+    private final FieldName listField;
+    private final Set<FieldName> unnestedFields;
+
+    public UnnestNode(
+            NodeName name,
+            Node source,
+            FieldName listField,
+            Iterable<FieldName> unnestedFields)
     {
         super(name);
+        this.source = source;
+        this.listField = listField;
+        this.unnestedFields = ImmutableSet.copyOf(unnestedFields);
+
+        checkInvariants();
+    }
+
+    @Override
+    public Node getSource()
+    {
+        return source;
+    }
+
+    public FieldName getListField()
+    {
+        return listField;
+    }
+
+    public Set<FieldName> getUnnestedFields()
+    {
+        return unnestedFields;
     }
 
     @Override

@@ -33,7 +33,10 @@ public abstract class AbstractNode
     {
         this.name = name;
         this.nodeId = NodeId.compute(name);
+    }
 
+    protected void checkInvariants()
+    {
         checkUnique(getChildren());
         checkUnique(getFields());
     }
@@ -48,12 +51,6 @@ public abstract class AbstractNode
     public NodeId getNodeId()
     {
         return nodeId;
-    }
-
-    @Override
-    public Set<Node> getChildren()
-    {
-        throw new IllegalStateException();
     }
 
     @Override
