@@ -15,29 +15,33 @@ ALL: clean package test
 java_home:
 ifndef JAVA_HOME
 ifeq ($(UNAME), Darwin)
-	export JAVA_HOME=$(shell find /Library/Java/JavaVirtualMachines -name 'jdk1.8.0_*' -type d -maxdepth 1 | sort | tail -n1)
+	$(eval JAVA_HOME=$(shell find /Library/Java/JavaVirtualMachines -name 'jdk1.8.0_*' -type d -maxdepth 1 | sort | tail -n1)/Contents/Home)
 endif
 endif
+
+.PHONY: mvn-version
+mvn-version: java_home
+	JAVA_HOME=$(JAVA_HOME) ./mvnw --version
 
 .PHONY: clean
 clean: java_home
-	./mvnw clean
+	JAVA_HOME=$(JAVA_HOME) ./mvnw clean
 
 .PHONY: package
 package: java_home
-	./mvnw package -DskipTests
+	JAVA_HOME=$(JAVA_HOME) ./mvnw package -DskipTests
 
 .PHONY: test
 test: java_home
-	./mvnw test
+	JAVA_HOME=$(JAVA_HOME) ./mvnw test
 
 .PHONY: dependency-tree
 dependency-tree: java_home
-	./mvnw dependency:tree
+	JAVA_HOME=$(JAVA_HOME) ./mvnw dependency:tree
 
 .PHONY: dependency-updates
 dependency-updates: java_home
-	./mvnw versions:display-dependency-updates
+	JAVA_HOME=$(JAVA_HOME) ./mvnw versions:display-dependency-updates
 
 
 # Python
@@ -51,22 +55,24 @@ clean-python:
 venv:
 ifndef PYENV_HOME
 ifeq ($(SYSTEM_PYENV),1)
-	export PYENV_HOME=$(shell bash -c 'dirname $$(dirname $$(command -v pyenv))')
+	$(eval PYENV_HOME=$(shell bash -c 'dirname $$(dirname $$(command -v pyenv))'))
 else
 	if [ ! -d ".pyenv" ]; then \
 		git clone https://github.com/pyenv/pyenv .pyenv ; \
 	fi
-	export PYENV_HOME=$(shell pwd)/.pyenv
+	$(eval PYENV_HOME=$(shell pwd)/.pyenv)
 endif
 endif
 
 	if [ ! -d ".venv" ]; then \
-		"$(PYENV_HOME)/bin/pyenv" install -s $(PYTHON_VERSION) ; \
-		"$(PYENV_HOME)/versions/$$PYENV_INSTALL_DIR/bin/python" -m venv .venv ; \
+		"$(PYENV_HOME)/bin/pyenv" install -s $(PYTHON_VERSION) && \
+		"$(PYENV_HOME)/versions/$(PYTHON_VERSION)/bin/python" -m venv .venv && \
+		.venv/bin/python -m pip install $(PIP_ARGS) --upgrade pip ; \
 	fi
-	source .venv/bin/activate
 
-	pip install $(PIP_ARGS) \
+	$(eval PYTHON=$(shell pwd)/.venv/bin/python)
+
+	$(PYTHON) -m pip install $(PIP_ARGS) \
 		sqlalchemy \
 
 
