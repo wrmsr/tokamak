@@ -65,7 +65,7 @@ endif
 endif
 
 	if [ ! -d ".venv" ]; then \
-		PYENV_ROOT=$(PYENV_ROOT) "$(PYENV_ROOT)/bin/pyenv" install -s $(PYTHON_VERSION) && \
+		PYENV_ROOT=$(PYENV_ROOT) "$(PYENV_ROOT)/bin/pyenv" install -s -v $(PYTHON_VERSION) && \
 		"$(PYENV_ROOT)/versions/$(PYTHON_VERSION)/bin/python" -m venv .venv && \
 		.venv/bin/python -m pip install $(PIP_ARGS) --upgrade pip ; \
 	fi
