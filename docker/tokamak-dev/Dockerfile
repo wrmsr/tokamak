@@ -30,6 +30,7 @@ RUN ( \
         socat \
         software-properties-common \
         strace \
+        sudo \
         tcpdump \
         tmux \
         unzip \
@@ -94,7 +95,7 @@ RUN ( \
     export PERCONA_SUFFIX='-1.xenial_amd64' && \
     export PERCONA_INST_DIR=$(mktemp -d) && \
     cd "$PERCONA_INST_DIR" && \
-    wget "https://www.percona.com/downloads/percona-toolkit/${PERCONA_VERSION}/binary/debian/xenial64/percona-toolkit_${PERCONA_VERSION}${PERCONA_SUFFIX}.deb" && \
+    wget "https://www.percona.com/downloads/percona-toolkit/${PERCONA_VERSION}/binary/debian/xenial/x86_64/percona-toolkit_${PERCONA_VERSION}${PERCONA_SUFFIX}.deb" && \
     dpkg -i "percona-toolkit_${PERCONA_VERSION}${PERCONA_SUFFIX}.deb" && \
     rm -f "percona-toolkit_${PERCONA_VERSION}${PERCONA_SUFFIX}.deb" && \
     rm -rf "$PERCONA_INST_DIR" \
