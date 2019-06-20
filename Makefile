@@ -67,13 +67,16 @@ endif
 	if [ ! -d ".venv" ]; then \
 		PYENV_ROOT=$(PYENV_ROOT) "$(PYENV_ROOT)/bin/pyenv" install -s -v $(PYTHON_VERSION) && \
 		"$(PYENV_ROOT)/versions/$(PYTHON_VERSION)/bin/python" -m venv .venv && \
-		.venv/bin/python -m pip install $(PIP_ARGS) --upgrade pip ; \
+		.venv/bin/python -m pip install $(PIP_ARGS) --upgrade pip && \
+		.venv/bin/python -m pip install $(PIP_ARGS) \
+\
+			ipython \
+			sqlalchemy \
+\
+		; \
 	fi
 
 	$(eval PYTHON=$(shell pwd)/.venv/bin/python)
-
-	$(PYTHON) -m pip install $(PIP_ARGS) \
-		sqlalchemy \
 
 
 # Utilities
