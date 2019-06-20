@@ -48,19 +48,19 @@ RUN apt-get build-dep -y python3
 RUN ( \
     apt-get install -y \
 \
-    libbz2-dev \
-    libdb5.3-dev \
-    libexpat1-dev \
-    libffi-dev \
-    libgdbm-dev \
-    liblzma-dev \
-    libncurses5-dev \
-    libncursesw5-dev \
-    libreadline-dev \
-    libsqlite3-dev \
-    libssl-dev \
-    uuid-dev \
-    zlib1g-dev \
+        libbz2-dev \
+        libdb5.3-dev \
+        libexpat1-dev \
+        libffi-dev \
+        libgdbm-dev \
+        liblzma-dev \
+        libncurses5-dev \
+        libncursesw5-dev \
+        libreadline-dev \
+        libsqlite3-dev \
+        libssl-dev \
+        uuid-dev \
+        zlib1g-dev \
 \
 )
 
@@ -84,10 +84,12 @@ RUN ( \
 
 RUN ( \
     apt-get install -y \
+\
         libdbd-mysql-perl \
         libdbi-perl \
         libio-socket-ssl-perl \
         libterm-readkey-perl \
+\
 )
 
 RUN ( \
