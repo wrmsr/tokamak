@@ -53,20 +53,20 @@ clean-python:
 
 .PHONY: venv
 venv:
-ifndef PYENV_HOME
+ifndef PYENV_ROOT
 ifeq ($(SYSTEM_PYENV),1)
-	$(eval PYENV_HOME=$(shell bash -c 'dirname $$(dirname $$(command -v pyenv))'))
+	$(eval PYENV_ROOT=$(shell bash -c 'dirname $$(dirname $$(command -v pyenv))'))
 else
 	if [ ! -d ".pyenv" ]; then \
 		git clone https://github.com/pyenv/pyenv .pyenv ; \
 	fi
-	$(eval PYENV_HOME=$(shell pwd)/.pyenv)
+	$(eval PYENV_ROOT=$(shell pwd)/.pyenv)
 endif
 endif
 
 	if [ ! -d ".venv" ]; then \
-		"$(PYENV_HOME)/bin/pyenv" install -s $(PYTHON_VERSION) && \
-		"$(PYENV_HOME)/versions/$(PYTHON_VERSION)/bin/python" -m venv .venv && \
+		PYENV_ROOT=$(PYENV_ROOT) "$(PYENV_ROOT)/bin/pyenv" install -s $(PYTHON_VERSION) && \
+		"$(PYENV_ROOT)/versions/$(PYTHON_VERSION)/bin/python" -m venv .venv && \
 		.venv/bin/python -m pip install $(PIP_ARGS) --upgrade pip ; \
 	fi
 
