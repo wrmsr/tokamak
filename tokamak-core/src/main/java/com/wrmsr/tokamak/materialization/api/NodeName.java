@@ -25,4 +25,9 @@ public final class NodeName
     {
         super(value);
     }
+
+    public static NodeName of(String value)
+    {
+        return new NodeName(value);
+    }
 }
