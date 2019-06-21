@@ -13,6 +13,8 @@
  */
 package com.wrmsr.tokamak.materialization.api;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.google.common.hash.Hashing;
 import com.wrmsr.tokamak.util.IntBox;
 
@@ -20,6 +22,8 @@ import javax.annotation.concurrent.Immutable;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+
+import static com.wrmsr.tokamak.util.StringPrefixing.stripPrefix;
 
 @Immutable
 public final class NodeId
@@ -50,5 +54,19 @@ public final class NodeId
         ByteBuffer bytes = StandardCharsets.UTF_8.encode(name.getValue());
         int hash = Hashing.murmur3_32().newHasher().putBytes(bytes).hash().asInt();
         return new NodeId(hash);
+    }
+
+    public static final String PREFIX = "nodeid:";
+
+    @JsonCreator
+    public static NodeId parsePrefixed(String string)
+    {
+        return parse(stripPrefix(PREFIX, string));
+    }
+
+    @JsonValue
+    public String toPrefixedString()
+    {
+        return PREFIX + toString();
     }
 }

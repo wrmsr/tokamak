@@ -13,6 +13,7 @@
  */
 package com.wrmsr.tokamak.materialization.node;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.materialization.api.FieldName;
 import com.wrmsr.tokamak.materialization.api.NodeName;
@@ -33,9 +34,9 @@ public final class ScanNode
     private final Set<FieldName> fields;
 
     public ScanNode(
-            NodeName name,
-            TableName table,
-            Iterable<FieldName> fields,
+            @JsonProperty("name") NodeName name,
+            @JsonProperty("table") TableName table,
+            @JsonProperty("fields") Iterable<FieldName> fields,
             Map<NodeName, Invalidation> invalidations,
             Map<NodeName, LinkageMask> linkageMasks)
     {
@@ -47,11 +48,13 @@ public final class ScanNode
         checkInvariants();
     }
 
+    @JsonProperty("table")
     public TableName getTable()
     {
         return table;
     }
 
+    @JsonProperty("fields")
     public Set<FieldName> getFields()
     {
         return fields;

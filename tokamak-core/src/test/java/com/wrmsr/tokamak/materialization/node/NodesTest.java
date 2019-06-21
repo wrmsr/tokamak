@@ -16,6 +16,7 @@ package com.wrmsr.tokamak.materialization.node;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.materialization.api.FieldName;
+import com.wrmsr.tokamak.materialization.api.NodeId;
 import com.wrmsr.tokamak.materialization.api.NodeName;
 import com.wrmsr.tokamak.materialization.api.TableName;
 import com.wrmsr.tokamak.util.Json;
@@ -23,6 +24,16 @@ import org.junit.Test;
 
 public class NodesTest
 {
+    @Test
+    public void testJsonStuff()
+            throws Throwable
+    {
+        String s = Json.toJson(NodeId.compute(NodeName.of("hi there")));
+        System.out.println(s);
+        NodeId i = Json.OBJECT_MAPPER_THREAD_LOCAL.get().readValue(s, NodeId.class);
+        System.out.println(i);
+    }
+
     @Test
     public void testNodes()
             throws Throwable
