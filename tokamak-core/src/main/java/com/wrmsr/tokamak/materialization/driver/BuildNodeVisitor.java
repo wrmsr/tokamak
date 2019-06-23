@@ -27,77 +27,77 @@ import com.wrmsr.tokamak.materialization.node.UnnestNode;
 import com.wrmsr.tokamak.materialization.node.ValuesNode;
 import com.wrmsr.tokamak.materialization.node.visitor.NodeVisitor;
 
-public class BuildVisitor
-        extends NodeVisitor<NodeOutput, Object>
+public class BuildNodeVisitor
+        extends NodeVisitor<NodeOutput, Void>
 {
     @Override
-    protected Object visitNode(Node node, NodeOutput context)
+    protected Void visitNode(Node node, NodeOutput context)
     {
-        return super.visitNode(node, context);
+        throw new IllegalStateException();
     }
 
     @Override
-    public Object visitCrossJoinNode(CrossJoinNode node, NodeOutput context)
+    public Void visitCrossJoinNode(CrossJoinNode node, NodeOutput context)
     {
         return super.visitCrossJoinNode(node, context);
     }
 
     @Override
-    public Object visitEquijoinNode(EquijoinNode node, NodeOutput context)
+    public Void visitEquijoinNode(EquijoinNode node, NodeOutput context)
     {
         return super.visitEquijoinNode(node, context);
     }
 
     @Override
-    public Object visitFilterNode(FilterNode node, NodeOutput context)
+    public Void visitFilterNode(FilterNode node, NodeOutput context)
     {
         return super.visitFilterNode(node, context);
     }
 
     @Override
-    public Object visitListAggregateNode(ListAggregateNode node, NodeOutput context)
+    public Void visitListAggregateNode(ListAggregateNode node, NodeOutput context)
     {
         return super.visitListAggregateNode(node, context);
     }
 
     @Override
-    public Object visitLookupJoinNode(LookupJoinNode node, NodeOutput context)
+    public Void visitLookupJoinNode(LookupJoinNode node, NodeOutput context)
     {
         return super.visitLookupJoinNode(node, context);
     }
 
     @Override
-    public Object visitPersistNode(PersistNode node, NodeOutput context)
+    public Void visitPersistNode(PersistNode node, NodeOutput context)
     {
         return super.visitPersistNode(node, context);
     }
 
     @Override
-    public Object visitProjectNode(ProjectNode node, NodeOutput context)
+    public Void visitProjectNode(ProjectNode node, NodeOutput context)
     {
         return super.visitProjectNode(node, context);
     }
 
     @Override
-    public Object visitScanNode(ScanNode node, NodeOutput context)
+    public Void visitScanNode(ScanNode node, NodeOutput context)
     {
         return super.visitScanNode(node, context);
     }
 
     @Override
-    public Object visitUnionNode(UnionNode node, NodeOutput context)
+    public Void visitUnionNode(UnionNode node, NodeOutput context)
     {
         return super.visitUnionNode(node, context);
     }
 
     @Override
-    public Object visitUnnestNode(UnnestNode node, NodeOutput context)
+    public Void visitUnnestNode(UnnestNode node, NodeOutput context)
     {
         return super.visitUnnestNode(node, context);
     }
 
     @Override
-    public Object visitValuesNode(ValuesNode node, NodeOutput context)
+    public Void visitValuesNode(ValuesNode node, NodeOutput context)
     {
         return super.visitValuesNode(node, context);
     }

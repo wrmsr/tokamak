@@ -13,6 +13,9 @@
  */
 package com.wrmsr.tokamak.materialization.api;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import javax.annotation.concurrent.Immutable;
 
 import java.util.Objects;
@@ -24,7 +27,10 @@ public final class FieldKey<V>
     private final FieldName field;
     private final V value;
 
-    public FieldKey(FieldName field, V value)
+    @JsonCreator
+    public FieldKey(
+            @JsonProperty("field") FieldName field,
+            @JsonProperty("value") V value)
     {
         this.field = field;
         this.value = value;
@@ -46,11 +52,13 @@ public final class FieldKey<V>
         return Objects.hash(field, value);
     }
 
+    @JsonProperty("field")
     public FieldName getField()
     {
         return field;
     }
 
+    @JsonProperty("value")
     public V getValue()
     {
         return value;

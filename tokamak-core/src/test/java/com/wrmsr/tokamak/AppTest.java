@@ -25,6 +25,7 @@ import com.google.inject.name.Names;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import org.jdbi.v3.core.Jdbi;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
@@ -121,6 +122,16 @@ public class AppTest
         }
 
         // TpchTable.SUPPLIER
+    }
+
+    public void testJdbi() throws Throwable
+    {
+        Jdbi jdbi = Jdbi.create("jdbc:mysql://0.0.0.0:21211", "root", "tokamak");
+
+        jdbi.withHandle(handle -> {
+            handle.execute("create database `tokamak`");
+            return null;
+        });
     }
 
     public void testV8()

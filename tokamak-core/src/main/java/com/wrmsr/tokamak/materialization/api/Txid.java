@@ -13,9 +13,13 @@
  */
 package com.wrmsr.tokamak.materialization.api;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.wrmsr.tokamak.util.LongBox;
 
 import javax.annotation.concurrent.Immutable;
+
+import static com.wrmsr.tokamak.util.StringPrefixing.stripPrefix;
 
 @Immutable
 public final class Txid
@@ -29,5 +33,19 @@ public final class Txid
     public static Txid of(long value)
     {
         return new Txid(value);
+    }
+
+    public static String PREFIX = "txid:";
+
+    @JsonCreator
+    public static Txid parsePrefixed(String string)
+    {
+        return new Txid(Long.parseLong(stripPrefix(PREFIX, string)));
+    }
+
+    @JsonValue
+    public String toPrefixedString()
+    {
+        return PREFIX + value;
     }
 }

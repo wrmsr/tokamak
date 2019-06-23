@@ -13,6 +13,17 @@
  */
 package com.wrmsr.tokamak.materialization.api;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
+@JsonTypeInfo(
+        use = JsonTypeInfo.Id.NAME,
+        include = JsonTypeInfo.As.WRAPPER_OBJECT)
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = AllKey.class, name = "all"),
+        @JsonSubTypes.Type(value = FieldKey.class, name = "field"),
+        @JsonSubTypes.Type(value = IdKey.class, name = "id")
+})
 public interface Key
 {
     static AllKey all()

@@ -13,9 +13,15 @@
  */
 package com.wrmsr.tokamak.materialization.api;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.wrmsr.tokamak.util.Box;
 
 import javax.annotation.concurrent.Immutable;
+
+import static com.wrmsr.tokamak.util.StringPrefixing.stripPrefix;
+import static com.wrmsr.tokamak.util.subprocess.MoreBytes.fromHex;
+import static com.wrmsr.tokamak.util.subprocess.MoreBytes.toHex;
 
 @Immutable
 public final class Id
@@ -29,5 +35,19 @@ public final class Id
     public static Id of(byte[] value)
     {
         return new Id(value);
+    }
+
+    public static String PREFIX = "id:";
+
+    @JsonCreator
+    public static Id parsePrefixed(String string)
+    {
+        return new Id(fromHex(stripPrefix(PREFIX, string)));
+    }
+
+    @JsonValue
+    public String toPrefixedString()
+    {
+        return PREFIX + toHex(value);
     }
 }

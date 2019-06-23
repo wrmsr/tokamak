@@ -13,13 +13,20 @@
  */
 package com.wrmsr.tokamak.materialization.api;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+
 import javax.annotation.concurrent.Immutable;
 
 @Immutable
-public class AllKey
+public final class AllKey
         implements Key
 {
     public static final AllKey INSTANCE = new AllKey();
+
+    @JsonCreator
+    public AllKey()
+    {
+    }
 
     @Override
     public boolean equals(Object o)

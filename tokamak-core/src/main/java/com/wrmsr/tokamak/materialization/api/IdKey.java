@@ -13,6 +13,9 @@
  */
 package com.wrmsr.tokamak.materialization.api;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import javax.annotation.concurrent.Immutable;
 
 import java.util.Objects;
@@ -23,7 +26,9 @@ public final class IdKey
 {
     private final Id id;
 
-    public IdKey(Id id)
+    @JsonCreator
+    public IdKey(
+            @JsonProperty("id") Id id)
     {
         this.id = id;
     }
@@ -43,6 +48,7 @@ public final class IdKey
         return Objects.hash(id);
     }
 
+    @JsonProperty("id")
     public Id getId()
     {
         return id;

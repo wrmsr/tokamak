@@ -13,9 +13,13 @@
  */
 package com.wrmsr.tokamak.materialization.api;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.wrmsr.tokamak.util.Box;
 
 import javax.annotation.concurrent.Immutable;
+
+import static com.wrmsr.tokamak.util.StringPrefixing.stripPrefix;
 
 @Immutable
 public final class OutputName
@@ -24,5 +28,24 @@ public final class OutputName
     public OutputName(String value)
     {
         super(value);
+    }
+
+    public static String PREFIX = "output:";
+
+    public static OutputName of(String value)
+    {
+        return new OutputName(value);
+    }
+
+    @JsonCreator
+    public static OutputName parsePrefixed(String string)
+    {
+        return new OutputName(stripPrefix(PREFIX, string));
+    }
+
+    @JsonValue
+    public String toPrefixedString()
+    {
+        return PREFIX + value;
     }
 }
