@@ -11,9 +11,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.materialization.function;
+package com.wrmsr.tokamak.materialization.type;
 
-public interface Function
+import javax.annotation.concurrent.Immutable;
+
+@Immutable
+public final class PrimitiveType<T>
+        implements Type
 {
+    private final Class<T> cls;
 
+    public PrimitiveType(Class<T> cls)
+    {
+        this.cls = cls;
+    }
+
+    public Class<T> getCls()
+    {
+        return cls;
+    }
 }

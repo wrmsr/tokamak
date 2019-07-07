@@ -39,7 +39,7 @@ public final class LookupJoinNode
     }
 
     @Override
-    public <C, R> R accept(NodeVisitor<C, R> visitor, C context)
+    public <R, C> R accept(NodeVisitor<R, C> visitor, C context)
     {
         return visitor.visitLookupJoinNode(this, context);
     }

@@ -13,7 +13,25 @@
  */
 package com.wrmsr.tokamak.materialization.type;
 
+import com.google.common.collect.ImmutableList;
+
+import javax.annotation.concurrent.Immutable;
+
+import java.util.List;
+
+@Immutable
 public final class TupleType
-        extends AbstractType
+        implements Type
 {
+    private final List<Type> itemTypes;
+
+    public TupleType(List<Type> itemTypes)
+    {
+        this.itemTypes = ImmutableList.copyOf(itemTypes);
+    }
+
+    public List<Type> getItemTypes()
+    {
+        return itemTypes;
+    }
 }

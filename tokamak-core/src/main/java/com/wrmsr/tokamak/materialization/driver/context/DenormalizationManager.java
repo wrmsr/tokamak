@@ -11,9 +11,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.materialization.function;
+package com.wrmsr.tokamak.materialization.driver.context;
 
-public interface Function
+public class DenormalizationManager
 {
-
 }

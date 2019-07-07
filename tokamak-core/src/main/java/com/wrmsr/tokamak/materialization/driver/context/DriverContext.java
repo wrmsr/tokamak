@@ -13,6 +13,15 @@
  */
 package com.wrmsr.tokamak.materialization.driver.context;
 
+import com.wrmsr.tokamak.materialization.api.Key;
+import com.wrmsr.tokamak.materialization.api.Payload;
+import com.wrmsr.tokamak.materialization.node.Node;
+
+import java.util.List;
+
 public interface DriverContext
 {
+    List<Payload> build(Node node, Key key);
+
+    void commit();
 }

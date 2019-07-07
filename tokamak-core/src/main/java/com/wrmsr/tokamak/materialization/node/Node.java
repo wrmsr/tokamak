@@ -54,5 +54,5 @@ public interface Node
 
     Map<FieldName, Type> getTypesByField();
 
-    <C, R> R accept(NodeVisitor<C, R> visitor, C context);
+    <R, C> R accept(NodeVisitor<R, C> visitor, C context);
 }

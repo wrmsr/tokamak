@@ -13,7 +13,25 @@
  */
 package com.wrmsr.tokamak.materialization.type;
 
+import com.google.common.collect.ImmutableMap;
+
+import javax.annotation.concurrent.Immutable;
+
+import java.util.Map;
+
+@Immutable
 public final class StructType
-        extends AbstractType
+        implements Type
 {
+    private final Map<String, Type> fields;
+
+    public StructType(Map<String, Type> fields)
+    {
+        this.fields = ImmutableMap.copyOf(fields);
+    }
+
+    public Map<String, Type> getFields()
+    {
+        return fields;
+    }
 }

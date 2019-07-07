@@ -13,6 +13,30 @@
  */
 package com.wrmsr.tokamak.materialization.type;
 
+import javax.annotation.concurrent.Immutable;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+
+@Immutable
 public final class MapType
+        implements Type
 {
+    private final Type keyType;
+    private final Type valueType;
+
+    public MapType(Type keyType, Type valueType)
+    {
+        this.keyType = checkNotNull(keyType);
+        this.valueType = checkNotNull(valueType);
+    }
+
+    public Type getKeyType()
+    {
+        return keyType;
+    }
+
+    public Type getValueType()
+    {
+        return valueType;
+    }
 }

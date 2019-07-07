@@ -11,9 +11,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.materialization.type;
+package com.wrmsr.tokamak.materialization.driver.context;
 
-public abstract class AbstractType
-        implements Type
+import com.wrmsr.tokamak.materialization.api.Key;
+import com.wrmsr.tokamak.materialization.api.Payload;
+import com.wrmsr.tokamak.materialization.node.Node;
+
+import java.util.List;
+
+public final class DriverContextImpl
+        implements DriverContext
 {
+    @Override
+    public List<Payload> build(Node node, Key key)
+    {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void commit()
+    {
+        throw new IllegalStateException();
+    }
 }

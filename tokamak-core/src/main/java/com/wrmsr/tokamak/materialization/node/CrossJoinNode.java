@@ -13,11 +13,13 @@
  */
 package com.wrmsr.tokamak.materialization.node;
 
+import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.materialization.api.NodeName;
 import com.wrmsr.tokamak.materialization.node.visitor.NodeVisitor;
 
 import javax.annotation.concurrent.Immutable;
 
+import java.util.List;
 import java.util.Set;
 
 @Immutable
@@ -25,9 +27,13 @@ public final class CrossJoinNode
         extends AbstractNode
         implements JoinNode
 {
-    public CrossJoinNode(NodeName name)
+    private final List<Node> sources;
+
+    public CrossJoinNode(NodeName name, Iterable<Node> sources)
     {
         super(name);
+
+        this.sources = ImmutableList.copyOf(sources);
 
         checkInvariants();
     }
@@ -39,7 +45,7 @@ public final class CrossJoinNode
     }
 
     @Override
-    public <C, R> R accept(NodeVisitor<C, R> visitor, C context)
+    public <R, C> R accept(NodeVisitor<R, C> visitor, C context)
     {
         return visitor.visitCrossJoinNode(this, context);
     }

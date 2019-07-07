@@ -126,6 +126,8 @@ public class AppTest
 
     public void testJdbi() throws Throwable
     {
+        // DataSource ds = JdbcConnectionPool.create("jdbc:h2:mem:test", "username", "password");
+
         Jdbi jdbi = Jdbi.create("jdbc:mysql://0.0.0.0:21211", "root", "tokamak");
 
         jdbi.withHandle(handle -> {

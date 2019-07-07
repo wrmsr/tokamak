@@ -13,6 +13,23 @@
  */
 package com.wrmsr.tokamak.materialization.type;
 
+import javax.annotation.concurrent.Immutable;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+
+@Immutable
 public final class SetType
+        implements Type
 {
+    private final Type itemType;
+
+    public SetType(Type itemType)
+    {
+        this.itemType = checkNotNull(itemType);
+    }
+
+    public Type getItemType()
+    {
+        return itemType;
+    }
 }

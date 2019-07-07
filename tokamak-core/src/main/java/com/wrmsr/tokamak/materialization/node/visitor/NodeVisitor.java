@@ -26,7 +26,7 @@ import com.wrmsr.tokamak.materialization.node.UnionNode;
 import com.wrmsr.tokamak.materialization.node.UnnestNode;
 import com.wrmsr.tokamak.materialization.node.ValuesNode;
 
-public abstract class NodeVisitor<C, R>
+public abstract class NodeVisitor<R, C>
 {
     protected R visitNode(Node node, C context)
     {
