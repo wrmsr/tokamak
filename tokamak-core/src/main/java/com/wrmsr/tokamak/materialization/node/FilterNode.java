@@ -13,11 +13,13 @@
  */
 package com.wrmsr.tokamak.materialization.node;
 
+import com.wrmsr.tokamak.materialization.api.Attributes;
 import com.wrmsr.tokamak.materialization.api.NodeName;
-import com.wrmsr.tokamak.materialization.function.Function;
 import com.wrmsr.tokamak.materialization.node.visitor.NodeVisitor;
 
 import javax.annotation.concurrent.Immutable;
+
+import java.util.function.Predicate;
 
 @Immutable
 public final class FilterNode
@@ -25,19 +27,19 @@ public final class FilterNode
         implements SingleSourceNode
 {
     private final Node source;
-    private final Function function;
+    private final Predicate<Attributes> predicate;
     private final boolean unlinked;
 
     public FilterNode(
             NodeName name,
             Node source,
-            Function function,
+            Predicate<Attributes> predicate,
             boolean unlinked)
     {
         super(name);
 
         this.source = source;
-        this.function = function;
+        this.predicate = predicate;
         this.unlinked = unlinked;
 
         checkInvariants();
@@ -49,9 +51,9 @@ public final class FilterNode
         return source;
     }
 
-    public Function getFunction()
+    public Predicate<Attributes> getPredicate()
     {
-        return function;
+        return predicate;
     }
 
     public boolean isUnlinked()

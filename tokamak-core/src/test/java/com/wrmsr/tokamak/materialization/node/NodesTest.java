@@ -29,6 +29,8 @@ public class NodesTest
     public void testJsonStuff()
             throws Throwable
     {
+        Object obj = Json.OBJECT_MAPPER_SUPPLIER.get().readValue("{\"a\": [420]}", Object.class);
+
         String s = Json.toJson(NodeId.compute(NodeName.of("hi there")));
         System.out.println(s);
         NodeId nid = Json.OBJECT_MAPPER_THREAD_LOCAL.get().readValue(s, NodeId.class);

@@ -10,38 +10,36 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
+
 package com.wrmsr.tokamak.materialization.driver;
 
-import com.google.common.collect.ImmutableList;
-import com.wrmsr.tokamak.materialization.api.Payload;
-import com.wrmsr.tokamak.materialization.api.Txid;
+import com.wrmsr.tokamak.materialization.api.Key;
+import com.wrmsr.tokamak.materialization.driver.context.DriverContext;
 
-import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
-import java.util.List;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
-public final class NodeOutput
+public final class BuildContext
 {
-    private final Payload payload;
-    private final List<Payload> lineage;
+    private final DriverContext driverContext;
+    private final Key key;
 
-    public NodeOutput(Payload payload, List<Payload> lineage)
+    public BuildContext(DriverContext driverContext, Key key)
     {
-        this.payload = payload;
-        this.lineage = ImmutableList.copyOf(lineage);
+        this.driverContext = checkNotNull(driverContext);
+        this.key = checkNotNull(key);
     }
 
-    public Payload getPayload()
+    public DriverContext getDriverContext()
     {
-        return payload;
+        return driverContext;
     }
 
-    public List<Payload> getLineage()
+    public Key getKey()
     {
-        return lineage;
+        return key;
     }
 }

@@ -11,14 +11,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.materialization.function;
 
-import com.wrmsr.tokamak.materialization.api.Attributes;
+package com.wrmsr.tokamak.materialization.schema;
 
-import javax.annotation.Nullable;
+import com.wrmsr.tokamak.materialization.type.Type;
 
-@FunctionalInterface
-public interface Function
+public final class Column
 {
-    Attributes evaluate(@Nullable Attributes attributes);
+    private final String name;
+    private final Type type;
+
+    public Column(String name, Type type)
+    {
+        this.name = name;
+        this.type = type;
+    }
+
+    public String getName()
+    {
+        return name;
+    }
+
+    public Type getType()
+    {
+        return type;
+    }
 }

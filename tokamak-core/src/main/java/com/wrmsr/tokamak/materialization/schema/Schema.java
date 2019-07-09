@@ -11,18 +11,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.materialization.function;
 
-import com.wrmsr.tokamak.materialization.api.Attributes;
+package com.wrmsr.tokamak.materialization.schema;
 
-import javax.annotation.Nullable;
+import java.util.Map;
+import java.util.stream.StreamSupport;
 
-public final class FunctionImpl
-        implements Function
+import static com.google.common.collect.ImmutableMap.toImmutableMap;
+import static java.util.function.Function.identity;
+
+public final class Schema
 {
-    @Override
-    public Attributes evaluate(@Nullable Attributes attributes)
+    private final Map<String, Table> tablesByName;
+
+    public Schema(Iterable<Table> tables)
     {
-        throw new IllegalStateException();
+        this.tablesByName = StreamSupport.stream(tables.spliterator(), false).collect(toImmutableMap(Table::getName, identity()));
+    }
+
+    public Map<String, Table> getTablesByName()
+    {
+        return tablesByName;
     }
 }
