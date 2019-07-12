@@ -11,28 +11,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.materialization.schema;
+package com.wrmsr.tokamak;
 
-import com.wrmsr.tokamak.materialization.type.Type;
-
-public final class Column
+public class App
 {
-    private final String name;
-    private final Type type;
-
-    public Column(String name, Type type)
+    public static void main(String[] args)
+            throws Throwable
     {
-        this.name = name;
-        this.type = type;
-    }
-
-    public String getName()
-    {
-        return name;
-    }
-
-    public Type getType()
-    {
-        return type;
     }
 }

@@ -11,12 +11,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak;
+package com.wrmsr;
 
-import com.eclipsesource.v8.V8;
-import com.eclipsesource.v8.V8Object;
-import com.google.common.base.Charsets;
-import com.google.common.io.CharStreams;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
@@ -27,17 +23,17 @@ import com.google.inject.name.Names;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import org.jdbi.v3.core.Jdbi;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 
-import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.function.Supplier;
+
+import static com.google.common.base.Preconditions.checkState;
 
 public class AppTest
         extends TestCase
@@ -114,55 +110,14 @@ public class AppTest
             throws Throwable
     {
         Class.forName("com.mysql.cj.jdbc.Driver");
-        try (Connection conn = DriverManager.getConnection("jdbc:mysql://0.0.0.0:21210", "tokamak", "tokamak")) {
+        try (Connection conn = DriverManager.getConnection("jdbc:mysql://0.0.0.0:11210", "tokamak", "tokamak")) {
             try (Statement stmt = conn.createStatement()) {
-                try (ResultSet rs = stmt.executeQuery("select 420")) {
+                try (ResultSet rs = stmt.executeQuery("select 1")) {
                     while (rs.next()) {
-                        System.out.println(rs.getLong(1));
+                        System.out.println(rs);
                     }
                 }
             }
         }
-
-        // TpchTable.SUPPLIER
-    }
-
-    public void testJdbi() throws Throwable
-    {
-        // DataSource ds = JdbcConnectionPool.create("jdbc:h2:mem:test", "username", "password");
-
-        Jdbi jdbi = Jdbi.create("jdbc:mysql://0.0.0.0:21211", "root", "tokamak");
-
-        jdbi.withHandle(handle -> {
-            handle.execute("create database `tokamak`");
-            return null;
-        });
-    }
-
-    public void testV8()
-            throws Throwable
-    {
-        V8 v8 = V8.createV8Runtime();
-        V8Object object = v8.executeObjectScript("foo = {key: 'bar'}");
-
-        String stringScript = v8.executeStringScript("'f'");
-        System.out.println("Hello from Java! " + stringScript);
-
-        Object result = object.get("key");
-        assertTrue(result instanceof String);
-        assertEquals("bar", result);
-        object.release();
-
-        v8.release();
-    }
-
-    public void testV8Blob() throws Throwable
-    {
-        String src = CharStreams.toString(new InputStreamReader(AppTest.class.getResourceAsStream("blob.js")));
-        V8 v8 = V8.createV8Runtime();
-        V8Object ret = v8.executeObjectScript(src);
-        System.out.println(ret);
-        String strRet = v8.executeStringScript("main()");
-        System.out.println(strRet);
     }
 }

@@ -2,9 +2,11 @@ DOCKER_USER=wrmsr
 
 DOCKER_DB_IMAGES:= \
 	tokamak-elasticsearch \
+	tokamak-kafka \
 	tokamak-mysql \
 	tokamak-postgres \
 	tokamak-redis \
+	tokamak-zookeeper \
 
 DOCKER_IMAGES:= \
 	$(DOCKER_DB_IMAGES) \
@@ -12,11 +14,13 @@ DOCKER_IMAGES:= \
 
 DOCKER_COMPOSE_DB_SERVICES:= \
 	tokamak-elasticsearch \
+	tokamak-kafka \
 	tokamak-mysql-master \
 	tokamak-mysql-slave \
 	tokamak-postgres-master \
 	tokamak-postgres-slave \
 	tokamak-redis \
+	tokamak-zookeeper \
 
 DOCKER_COMPOSE_SERVICES:= \
 	$(DOCKER_COMPOSE_DB_SERVICES) \

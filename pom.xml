@@ -25,6 +25,7 @@
 
     <modules>
         <module>tokamak-core</module>
+        <module>tokamak-parser</module>
         <module>tokamak-server</module>
         <module>tokamak-spark</module>
     </modules>
