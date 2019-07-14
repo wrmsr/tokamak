@@ -165,4 +165,22 @@ public class AppTest
         String strRet = v8.executeStringScript("main()");
         System.out.println(strRet);
     }
+
+    public void testTpch() throws Throwable
+    {
+        String ddl = CharStreams.toString(new InputStreamReader(AppTest.class.getResourceAsStream("tpch_ddl.sql")));
+
+        Jdbi jdbi = Jdbi.create("jdbc:h2:mem:test", "username", "password");
+        jdbi.withHandle(handle -> {
+            // handle.execute("create database `tokamak`");
+            for (String line : ddl.split(";")) {
+                line = line.trim();
+                if (line.startsWith("--")) {
+                    continue;
+                }
+                handle.execute(line);
+            }
+            return null;
+        });
+    }
 }
