@@ -371,6 +371,27 @@
 
             <!--
             <dependency>
+                <groupId>io.reactivex.rxjava3</groupId>
+                <artifactId>rxjava</artifactId>
+                <version>3.0.0-RC1</version>
+            </dependency>
+            -->
+
+            <!--
+            <dependency>
+                <groupId>com.github.jasync-sql</groupId>
+                <artifactId>jasync-mysql</artifactId>
+                <version>1.0.5</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.jasync-sql</groupId>
+                <artifactId>jasync-postgresql</artifactId>
+                <version>1.0.5</version>
+            </dependency>
+            -->
+
+            <!--
+            <dependency>
                 <groupId>com.github.ben-manes.caffeine</groupId>
                 <artifactId>caffeine</artifactId>
                 <version>2.7.0</version>
