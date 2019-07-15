@@ -13,9 +13,25 @@ import sqlalchemy as sa
 
 
 def main():
-    sa.select([
-        sa.column('a')
-    ])
+    engine: sa.engine.Engine = sa.create_engine('sqlite://')
+    with engine.connect() as conn:
+        stmt = sa.select([
+            sa.literal_column('1')
+        ])
+        ret = conn.scalar(stmt)
+        print(ret)
+
+        conn.execute("""create table t(id integer primary key, i integer, s varchar(1024))""")
+
+        stmt = sa.select([
+            sa.column('i')
+        ]).select_from(
+            sa.table('t')
+        ).where(
+            sa.column('id') == 420
+        )
+        ret = conn.scalar(stmt)
+        print(ret)
 
 
 if __name__ == '__main__':

@@ -22,7 +22,14 @@ public class Select
 {
     private final List<Selectable> columns;
 
-    public Select(List<Selectable> columns)
+    public Select(
+            List<Selectable> columns,
+            Object from,
+            Object where,
+            Object having,
+            boolean isDistinct,
+            List<String> prefixes,
+            List<String> suffixes)
     {
         this.columns = ImmutableList.copyOf(columns);
     }

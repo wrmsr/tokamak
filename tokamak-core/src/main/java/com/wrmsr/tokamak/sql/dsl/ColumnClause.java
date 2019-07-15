@@ -21,10 +21,18 @@ public class ColumnClause
 {
     private final String text;
     private final @Nullable Selectable table;
+    private final @Nullable TypeEngine type;
+    private final boolean isLiteral;
 
-    public ColumnClause(String text, @Nullable Selectable table)
+    public ColumnClause(
+            String text,
+            @Nullable Selectable table,
+            @Nullable TypeEngine type,
+            boolean isLiteral)
     {
         this.text = text;
         this.table = table;
+        this.type = type;
+        this.isLiteral = isLiteral;
     }
 }

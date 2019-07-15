@@ -15,7 +15,6 @@ package com.wrmsr.tokamak;
 
 import com.eclipsesource.v8.V8;
 import com.eclipsesource.v8.V8Object;
-import com.google.common.base.Charsets;
 import com.google.common.io.CharStreams;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
@@ -24,6 +23,8 @@ import com.google.inject.Key;
 import com.google.inject.PrivateModule;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
+import io.airlift.tpch.LineItem;
+import io.airlift.tpch.LineItemGenerator;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -180,6 +181,47 @@ public class AppTest
                 }
                 handle.execute(line);
             }
+
+            for (LineItem lineItem : new LineItemGenerator(0.01, 1, 1)) {
+                handle.execute(
+                        "insert into lineitem (" +
+                                "l_orderkey, " +
+                                "l_partkey, " +
+                                "l_suppkey, " +
+                                "l_linenumber, " +
+                                "l_quantity, " +
+                                "l_extendedprice, " +
+                                "l_discount, " +
+                                "l_tax, " +
+                                "l_returnflag, " +
+                                "l_linestatus, " +
+                                "l_shipdate, " +
+                                "l_commitdate, " +
+                                "l_receiptdate, " +
+                                "l_shipinstruct, " +
+                                "l_shipmode, " +
+                                "l_comment, " +
+                                ") " +
+                                "values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                        lineItem.getOrderKey(),
+                        lineItem.getPartKey(),
+                        lineItem.getSupplierKey(),
+                        lineItem.getLineNumber(),
+                        lineItem.getQuantity(),
+                        lineItem.getExtendedPrice(),
+                        lineItem.getDiscount(),
+                        lineItem.getTax(),
+                        lineItem.getReturnFlag(),
+                        lineItem.getStatus(),
+                        lineItem.getShipDate(),
+                        lineItem.getCommitDate(),
+                        lineItem.getReceiptDate(),
+                        lineItem.getShipInstructions(),
+                        lineItem.getShipMode(),
+                        lineItem.getComment()
+                );
+            }
+
             return null;
         });
     }
