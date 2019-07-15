@@ -11,10 +11,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.sql.dsl;
+package com.wrmsr.tokamak.sql.dsl.ele;
 
-public abstract class ColumnElement
-        extends ClauseElement
-        implements Selectable
+import com.wrmsr.tokamak.sql.dsl.Visitable;
+
+public interface Element
+        extends Visitable
 {
 }
