@@ -22,7 +22,9 @@ import com.wrmsr.tokamak.materialization.node.visitor.NodeVisitor;
 
 import javax.annotation.concurrent.Immutable;
 
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 @Immutable
@@ -36,9 +38,10 @@ public final class ScanNode
     public ScanNode(
             @JsonProperty("name") NodeName name,
             @JsonProperty("table") TableName table,
-            @JsonProperty("fields") Iterable<FieldName> fields,
-            Map<NodeName, Invalidation> invalidations,
-            Map<NodeName, LinkageMask> linkageMasks)
+            @JsonProperty("fields") List<FieldName> fields,
+            Optional<Map<NodeName, Invalidation>> invalidations,
+            Optional<Map<NodeName, LinkageMask>> linkageMasks,
+            Optional<List<NodeName>> idNodes)
     {
         super(name, invalidations, linkageMasks);
 

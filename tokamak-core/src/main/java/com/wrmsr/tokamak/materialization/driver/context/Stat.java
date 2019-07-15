@@ -13,25 +13,45 @@
  */
 package com.wrmsr.tokamak.materialization.driver.context;
 
-import com.wrmsr.tokamak.materialization.api.Key;
-import com.wrmsr.tokamak.materialization.api.Payload;
-import com.wrmsr.tokamak.materialization.driver.DriverContext;
 import com.wrmsr.tokamak.materialization.node.Node;
 
-import java.util.List;
-
-public final class DriverContextImpl
-        implements DriverContext
+public enum Stat
 {
-    @Override
-    public List<Payload> build(Node node, Key key)
-    {
-        throw new IllegalStateException();
-    }
+    PAYLOAD,
+    PAYLOAD_CACHE_HIT,
+    PAYLOAD_CACHE_MISS,
 
-    @Override
-    public void commit()
+    STATE,
+    STATE_CACHE_HIT,
+    STATE_CACHE_MISS,
+    STATE_CACHE_LOAD_TIME,
+    STATE_INVALIDATION,
+    STATE_FLUSH,
+    STATE_PHANTOM_UPGRADE,
+
+    SCAN_QUERY,
+    SCAN_ROW,
+    SCAN_METADATA_ROW,
+    SCAN_LOAD_TIME,
+
+    OUTPUT_WRITE,
+    OUTPUT_PAYLOAD,
+
+    DENORMALIZED_SRC,
+    DENORMALIZED_SRC_PAYLOAD,
+    DENORMALIZED_DST,
+    DENORMALIZED_DST_PAYLOAD,
+
+    QUEUE_SPILL,
+
+    ;
+
+    public interface Updater
     {
-        throw new IllegalStateException();
+        void update(Node node, Stat stat);
+
+        void update(Node node, Stat stat, long num);
+
+        void update(Node node, Stat stat, double num);
     }
 }

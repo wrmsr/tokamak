@@ -13,17 +13,28 @@
  */
 package com.wrmsr.tokamak.materialization.node;
 
+import com.wrmsr.tokamak.materialization.api.FieldName;
 import com.wrmsr.tokamak.materialization.api.NodeName;
 import com.wrmsr.tokamak.materialization.node.visitor.NodeVisitor;
+import com.wrmsr.tokamak.materialization.type.Type;
 
 import javax.annotation.concurrent.Immutable;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Immutable
 public final class ValuesNode
         extends AbstractNode
         implements GeneratorNode
 {
-    public ValuesNode(NodeName name)
+    public ValuesNode(
+            NodeName name,
+            List<Object> values,
+            Optional<FieldName> indexField,
+            Optional<Map<FieldName, Type>> typesByField,
+            Optional<Boolean> isStrict)
     {
         super(name);
 

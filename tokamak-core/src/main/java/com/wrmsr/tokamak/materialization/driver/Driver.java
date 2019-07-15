@@ -16,7 +16,6 @@ package com.wrmsr.tokamak.materialization.driver;
 import com.wrmsr.tokamak.materialization.api.Id;
 import com.wrmsr.tokamak.materialization.api.Key;
 import com.wrmsr.tokamak.materialization.api.Payload;
-import com.wrmsr.tokamak.materialization.driver.context.DriverContext;
 import com.wrmsr.tokamak.materialization.node.Node;
 
 import java.io.IOException;

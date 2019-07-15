@@ -26,6 +26,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -96,13 +97,13 @@ public final class EquijoinNode
 
     public EquijoinNode(
             NodeName name,
-            Iterable<Branch> branches,
-            Mode mode)
+            List<Branch> branches,
+            Optional<Mode> mode)
     {
         super(name);
 
         this.branches = ImmutableList.copyOf(branches);
-        this.mode = mode;
+        this.mode = mode.orElse(Mode.FULL);
 
         this.branchesByNode = this.branches.stream().collect(toImmutableMap(Branch::getNode, identity()));
 

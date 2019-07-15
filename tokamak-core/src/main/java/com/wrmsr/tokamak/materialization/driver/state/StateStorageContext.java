@@ -11,13 +11,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.materialization.type;
+package com.wrmsr.tokamak.materialization.driver.state;
 
-public interface Type
+public interface StateStorageContext
 {
-    PrimitiveType BOOLEN = new PrimitiveType<>(Boolean.class);
-    PrimitiveType LONG = new PrimitiveType<>(Long.class);
-    PrimitiveType DOUBLE = new PrimitiveType<>(Double.class);
-    PrimitiveType STRING = new PrimitiveType<>(String.class);
-    PrimitiveType BYTES = new PrimitiveType<>(byte[].class);
 }

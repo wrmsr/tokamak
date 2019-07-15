@@ -17,9 +17,13 @@ import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.materialization.api.FieldName;
 import com.wrmsr.tokamak.materialization.api.NodeName;
 import com.wrmsr.tokamak.materialization.node.visitor.NodeVisitor;
+import com.wrmsr.tokamak.materialization.type.Type;
 
 import javax.annotation.concurrent.Immutable;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 @Immutable
@@ -35,7 +39,9 @@ public final class UnnestNode
             NodeName name,
             Node source,
             FieldName listField,
-            Iterable<FieldName> unnestedFields)
+            List<FieldName> unnestedFields,
+            Optional<FieldName> indexField,
+            Optional<Map<FieldName, Type>> typesByField)
     {
         super(name);
         this.source = source;

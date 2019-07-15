@@ -20,6 +20,7 @@ import com.wrmsr.tokamak.materialization.node.visitor.NodeVisitor;
 
 import javax.annotation.concurrent.Immutable;
 
+import java.util.List;
 import java.util.Set;
 
 @Immutable
@@ -35,7 +36,7 @@ public final class ListAggregateNode
             NodeName name,
             Node source,
             FieldName groupField,
-            Iterable<FieldName> listFields)
+            List<FieldName> listFields)
     {
         super(name);
         this.source = source;

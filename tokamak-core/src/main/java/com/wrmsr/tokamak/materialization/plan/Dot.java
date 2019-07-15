@@ -11,27 +11,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.materialization.driver.context;
+package com.wrmsr.tokamak.materialization.plan;
 
-import com.wrmsr.tokamak.materialization.api.Key;
-import com.wrmsr.tokamak.materialization.api.Payload;
-import com.wrmsr.tokamak.materialization.driver.DriverContext;
-import com.wrmsr.tokamak.materialization.node.Node;
-
-import java.util.List;
-
-public final class DriverContextImpl
-        implements DriverContext
+public final class Dot
 {
-    @Override
-    public List<Payload> build(Node node, Key key)
+    private Dot()
     {
-        throw new IllegalStateException();
-    }
-
-    @Override
-    public void commit()
-    {
-        throw new IllegalStateException();
     }
 }

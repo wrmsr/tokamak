@@ -20,6 +20,7 @@ import com.wrmsr.tokamak.materialization.node.visitor.NodeVisitor;
 import javax.annotation.concurrent.Immutable;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Immutable
@@ -27,9 +28,18 @@ public final class CrossJoinNode
         extends AbstractNode
         implements JoinNode
 {
+    public enum Mode
+    {
+        INNER,
+        FULL
+    }
+
     private final List<Node> sources;
 
-    public CrossJoinNode(NodeName name, Iterable<Node> sources)
+    public CrossJoinNode(
+            NodeName name,
+            List<Node> sources,
+            Optional<Mode> mode)
     {
         super(name);
 

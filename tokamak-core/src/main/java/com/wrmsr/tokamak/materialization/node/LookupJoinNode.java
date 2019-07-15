@@ -13,11 +13,14 @@
  */
 package com.wrmsr.tokamak.materialization.node;
 
+import com.wrmsr.tokamak.materialization.api.FieldName;
 import com.wrmsr.tokamak.materialization.api.NodeName;
 import com.wrmsr.tokamak.materialization.node.visitor.NodeVisitor;
 
 import javax.annotation.concurrent.Immutable;
 
+import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Immutable
@@ -25,7 +28,34 @@ public final class LookupJoinNode
         extends AbstractNode
         implements InternalNode, JoinNode
 {
-    public LookupJoinNode(NodeName name)
+    @Immutable
+    public static final class Branch
+    {
+        private final Node node;
+        private final FieldName field;
+
+        public Branch(Node node, FieldName field)
+        {
+            this.node = node;
+            this.field = field;
+        }
+
+        public Node getNode()
+        {
+            return node;
+        }
+
+        public FieldName getField()
+        {
+            return field;
+        }
+    }
+
+    public LookupJoinNode(
+            NodeName name,
+            Node source,
+            List<Branch> branches,
+            Optional<FieldName> sourceIdField)
     {
         super(name);
 

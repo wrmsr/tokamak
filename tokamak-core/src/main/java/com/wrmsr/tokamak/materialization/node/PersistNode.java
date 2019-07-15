@@ -22,6 +22,7 @@ import javax.annotation.concurrent.Immutable;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Immutable
 public final class PersistNode
@@ -35,15 +36,15 @@ public final class PersistNode
     public PersistNode(
             NodeName name,
             Node source,
-            Iterable<OutputTarget> outputTargets,
-            boolean denormalized,
-            Map<NodeName, Invalidation> invalidations,
-            Map<NodeName, LinkageMask> linkageMasks)
+            Optional<List<OutputTarget>> outputTargets,
+            Optional<Boolean> denormalized,
+            Optional<Map<NodeName, Invalidation>> invalidations,
+            Optional<Map<NodeName, LinkageMask>> linkageMasks)
     {
         super(name, invalidations, linkageMasks);
         this.source = source;
-        this.outputTargets = ImmutableList.copyOf(outputTargets);
-        this.denormalized = denormalized;
+        this.outputTargets = ImmutableList.copyOf(outputTargets.get());
+        this.denormalized = denormalized.get();
 
         checkInvariants();
     }

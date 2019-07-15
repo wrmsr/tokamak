@@ -14,7 +14,6 @@
 package com.wrmsr.tokamak.materialization.driver;
 
 import com.wrmsr.tokamak.materialization.api.Key;
-import com.wrmsr.tokamak.materialization.driver.context.DriverContext;
 
 import javax.annotation.concurrent.Immutable;
 

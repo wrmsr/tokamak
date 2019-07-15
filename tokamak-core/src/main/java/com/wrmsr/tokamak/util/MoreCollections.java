@@ -11,17 +11,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.materialization.driver.context;
+package com.wrmsr.tokamak.util;
 
-import com.wrmsr.tokamak.materialization.api.Key;
-import com.wrmsr.tokamak.materialization.api.Payload;
-import com.wrmsr.tokamak.materialization.node.Node;
+import java.util.Set;
 
-import java.util.List;
+import static com.google.common.collect.Sets.newIdentityHashSet;
 
-public interface DriverContext
+public final class MoreCollections
 {
-    List<Payload> build(Node node, Key key);
+    private MoreCollections()
+    {
+    }
 
-    void commit();
+    public static <E> Set<E> newIdentityHashSetOf(Iterable<E> src)
+    {
+        Set<E> set = newIdentityHashSet();
+        for (E item : src) {
+            set.add(item);
+        }
+        return set;
+    }
 }

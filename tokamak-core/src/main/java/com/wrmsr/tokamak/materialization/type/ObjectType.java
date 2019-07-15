@@ -13,11 +13,7 @@
  */
 package com.wrmsr.tokamak.materialization.type;
 
-public interface Type
+public final class ObjectType
+        implements Type
 {
-    PrimitiveType BOOLEN = new PrimitiveType<>(Boolean.class);
-    PrimitiveType LONG = new PrimitiveType<>(Long.class);
-    PrimitiveType DOUBLE = new PrimitiveType<>(Double.class);
-    PrimitiveType STRING = new PrimitiveType<>(String.class);
-    PrimitiveType BYTES = new PrimitiveType<>(byte[].class);
 }

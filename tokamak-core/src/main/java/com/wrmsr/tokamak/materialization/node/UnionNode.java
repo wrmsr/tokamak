@@ -19,6 +19,7 @@ import com.wrmsr.tokamak.materialization.node.visitor.NodeVisitor;
 
 import javax.annotation.concurrent.Immutable;
 
+import java.util.List;
 import java.util.Set;
 
 @Immutable
@@ -29,7 +30,7 @@ public final class UnionNode
 
     public UnionNode(
             NodeName name,
-            Iterable<Node> sources)
+            List<Node> sources)
     {
         super(name);
         this.sources = ImmutableSet.copyOf(sources);
