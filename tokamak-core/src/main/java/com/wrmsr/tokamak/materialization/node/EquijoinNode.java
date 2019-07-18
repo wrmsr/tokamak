@@ -14,14 +14,17 @@
 package com.wrmsr.tokamak.materialization.node;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.materialization.api.FieldName;
 import com.wrmsr.tokamak.materialization.api.NodeName;
 import com.wrmsr.tokamak.materialization.node.visitor.NodeVisitor;
+import com.wrmsr.tokamak.materialization.type.Type;
 
 import javax.annotation.concurrent.Immutable;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -92,7 +95,7 @@ public final class EquijoinNode
     private final Map<FieldName, Set<Node>> nodeSetsByField;
     private final Map<FieldName, Node> nodesByUniqueField;
     private final Set<FieldName> guaranteedUniqueFields;
-    private final Set<FieldName> fields;
+    private final Map<FieldName, Type> fields;
     private final Set<FieldName> idFields;
 
     public EquijoinNode(
@@ -109,7 +112,7 @@ public final class EquijoinNode
 
         Map<FieldName, ImmutableSet.Builder<Node>> nodeSetsByField = new HashMap<>();
         for (Branch branch : this.branches) {
-            for (FieldName field : branch.node.getFields()) {
+            for (FieldName field : branch.node.getFields().keySet()) {
                 nodeSetsByField.computeIfAbsent(field, n -> ImmutableSet.builder()).add(branch.node);
             }
         }
@@ -122,16 +125,20 @@ public final class EquijoinNode
                 .map(Map.Entry::getKey)
                 .collect(toImmutableSet());
 
-        Set<FieldName> fields = new LinkedHashSet<>();
+        Map<FieldName, Type> fields = new LinkedHashMap<>();
         for (Branch branch : this.branches) {
-            checkArgument(branch.node.getFields().contains(branch.getField()));
-            for (FieldName field : branch.getNode().getFields()) {
-                if (!fields.add(field)) {
-                    checkArgument(guaranteedUniqueFields.contains(field));
+            checkArgument(branch.node.getFields().containsKey(branch.getField()));
+            for (Map.Entry<FieldName, Type> entry : branch.getNode().getFields().entrySet()) {
+                if (!fields.containsKey(entry.getKey())) {
+                    fields.put(entry.getKey(), entry.getValue());
+                }
+                else {
+                    checkArgument(guaranteedUniqueFields.contains(entry.getKey()));
+                    checkArgument(fields.get(entry.getKey()).equals(entry.getValue()));
                 }
             }
         }
-        this.fields = ImmutableSet.copyOf(fields);
+        this.fields = ImmutableMap.copyOf(fields);
 
         idFields = this.branches.stream().map(Branch::getField).collect(toImmutableSet());
 
@@ -169,7 +176,7 @@ public final class EquijoinNode
     }
 
     @Override
-    public Set<FieldName> getFields()
+    public Map<FieldName, Type> getFields()
     {
         return fields;
     }

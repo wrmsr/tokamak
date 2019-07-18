@@ -14,13 +14,18 @@
 package com.wrmsr.tokamak.materialization.node;
 
 import com.google.common.collect.ImmutableSet;
+import com.wrmsr.tokamak.materialization.api.FieldName;
 import com.wrmsr.tokamak.materialization.api.NodeName;
 import com.wrmsr.tokamak.materialization.node.visitor.NodeVisitor;
+import com.wrmsr.tokamak.materialization.type.Type;
 
 import javax.annotation.concurrent.Immutable;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+
+import static com.google.common.base.Preconditions.checkArgument;
 
 @Immutable
 public final class UnionNode
@@ -33,6 +38,13 @@ public final class UnionNode
             List<Node> sources)
     {
         super(name);
+
+        checkArgument(!sources.isEmpty());
+        Map<FieldName, Type> fields = sources.get(0).getFields();
+        for (int i = 1; i < sources.size(); ++i) {
+            checkArgument(fields.equals(sources.get(i).getFields()));
+        }
+
         this.sources = ImmutableSet.copyOf(sources);
 
         checkInvariants();

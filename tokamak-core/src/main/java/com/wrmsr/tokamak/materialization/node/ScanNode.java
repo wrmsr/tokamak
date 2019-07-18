@@ -14,18 +14,19 @@
 package com.wrmsr.tokamak.materialization.node;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.materialization.api.FieldName;
 import com.wrmsr.tokamak.materialization.api.NodeName;
 import com.wrmsr.tokamak.materialization.api.TableName;
 import com.wrmsr.tokamak.materialization.node.visitor.NodeVisitor;
+import com.wrmsr.tokamak.materialization.type.Type;
 
 import javax.annotation.concurrent.Immutable;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
 @Immutable
 public final class ScanNode
@@ -33,12 +34,12 @@ public final class ScanNode
         implements GeneratorNode
 {
     private final TableName table;
-    private final Set<FieldName> fields;
+    private final Map<FieldName, Type> fields;
 
     public ScanNode(
             @JsonProperty("name") NodeName name,
             @JsonProperty("table") TableName table,
-            @JsonProperty("fields") List<FieldName> fields,
+            @JsonProperty("fields") Map<FieldName, Type> fields,
             Optional<Map<NodeName, Invalidation>> invalidations,
             Optional<Map<NodeName, LinkageMask>> linkageMasks,
             Optional<List<NodeName>> idNodes)
@@ -46,7 +47,7 @@ public final class ScanNode
         super(name, invalidations, linkageMasks);
 
         this.table = table;
-        this.fields = ImmutableSet.copyOf(fields);
+        this.fields = ImmutableMap.copyOf(fields);
 
         checkInvariants();
     }
@@ -58,7 +59,7 @@ public final class ScanNode
     }
 
     @JsonProperty("fields")
-    public Set<FieldName> getFields()
+    public Map<FieldName, Type> getFields()
     {
         return fields;
     }

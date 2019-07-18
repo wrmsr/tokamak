@@ -17,6 +17,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.materialization.api.FieldName;
 import com.wrmsr.tokamak.materialization.function.Function;
+import com.wrmsr.tokamak.materialization.type.Type;
 import com.wrmsr.tokamak.util.Box;
 
 import javax.annotation.concurrent.Immutable;
@@ -38,23 +39,42 @@ public final class Projection
 
     @Immutable
     public static final class FieldInput
-            extends Box<FieldName>
             implements Input
     {
-        public FieldInput(FieldName value)
+        private final FieldName field;
+
+        public FieldInput(FieldName field)
         {
-            super(value);
+            this.field = field;
+        }
+
+        public FieldName getField()
+        {
+            return field;
         }
     }
 
     @Immutable
     public static final class FunctionInput
-            extends Box<Function>
             implements Input
     {
-        public FunctionInput(Function value)
+        private final Function value;
+        private final Type type;
+
+        public FunctionInput(Function value, Type type)
         {
-            super(value);
+            this.value = value;
+            this.type = type;
+        }
+
+        public Function getValue()
+        {
+            return value;
+        }
+
+        public Type getType()
+        {
+            return type;
         }
     }
 
@@ -72,7 +92,7 @@ public final class Projection
 
         for (Map.Entry<FieldName, Input> entry : inputsByOutput.entrySet()) {
             if (entry.getValue() instanceof FieldInput) {
-                FieldName field = ((FieldInput) entry.getValue()).getValue();
+                FieldName field = ((FieldInput) entry.getValue()).getField();
                 inputFieldsByOutput.put(entry.getKey(), field);
                 outputSetsByInputField.computeIfAbsent(field, v -> ImmutableSet.builder()).add(entry.getKey());
             }

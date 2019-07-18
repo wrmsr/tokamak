@@ -38,7 +38,6 @@ public abstract class AbstractNode
     protected void checkInvariants()
     {
         checkUnique(getChildren());
-        checkUnique(getFields());
     }
 
     @Override
@@ -54,19 +53,13 @@ public abstract class AbstractNode
     }
 
     @Override
-    public Set<FieldName> getFields()
+    public Map<FieldName, Type> getFields()
     {
         throw new IllegalStateException();
     }
 
     @Override
     public Set<FieldName> getIdFields()
-    {
-        throw new IllegalStateException();
-    }
-
-    @Override
-    public Map<FieldName, Type> getTypesByField()
     {
         throw new IllegalStateException();
     }

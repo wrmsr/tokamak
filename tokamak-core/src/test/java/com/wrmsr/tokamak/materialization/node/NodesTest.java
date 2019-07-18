@@ -20,8 +20,11 @@ import com.wrmsr.tokamak.materialization.api.Id;
 import com.wrmsr.tokamak.materialization.api.NodeId;
 import com.wrmsr.tokamak.materialization.api.NodeName;
 import com.wrmsr.tokamak.materialization.api.TableName;
+import com.wrmsr.tokamak.materialization.type.Type;
 import com.wrmsr.tokamak.util.Json;
 import org.junit.Test;
+
+import java.util.Optional;
 
 public class NodesTest
 {
@@ -49,9 +52,10 @@ public class NodesTest
         Node node = new ScanNode(
                 NodeName.of("hi"),
                 TableName.of("hi"),
-                ImmutableList.of(FieldName.of("id"), FieldName.of("thing")),
-                ImmutableMap.of(),
-                ImmutableMap.of()
+                ImmutableMap.of(FieldName.of("id"), Type.LONG, FieldName.of("thing"), Type.STRING),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty()
         );
 
         System.out.println(Json.toJson(node));

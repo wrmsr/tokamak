@@ -48,11 +48,9 @@ public interface Node
 
     Set<Node> getChildren();
 
-    Set<FieldName> getFields();
+    Map<FieldName, Type> getFields();
 
     Set<FieldName> getIdFields();
-
-    Map<FieldName, Type> getTypesByField();
 
     <R, C> R accept(NodeVisitor<R, C> visitor, C context);
 }
