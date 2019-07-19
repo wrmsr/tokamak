@@ -202,13 +202,22 @@ public class AppTest
         Jdbi jdbi = Jdbi.create("jdbc:h2:mem:test", "username", "password");
         jdbi.withHandle(handle -> {
             // handle.execute("create database `tokamak`");
-            for (String line : ddl.split(";")) {
-                line = line.trim();
-                if (line.startsWith("--")) {
-                    continue;
+
+            StringBuilder sb = new StringBuilder();
+            for (String line : ddl.split("\n")) {
+                String part = line.split("--")[0].trim();
+                if (part.contains(";")) {
+                    int pos = part.indexOf(';')
+                    sb.append(part.substring(0, pos));
+                    handle.execute(sb.toString());
+                    sb = new StringBuilder();
+                    sb.append(part.substring(pos + 1));
                 }
-                handle.execute(line);
+                else {
+                    sb.append(line);
+                }
             }
+            handle.execute(sb.toString());
 
             for (TpchTable<?> table : TpchTable.getTables()) {
                 for (TpchEntity entity : table.createGenerator(0.01, 1, 1)) {
