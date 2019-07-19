@@ -24,6 +24,7 @@ import com.google.inject.Key;
 import com.google.inject.PrivateModule;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
+import io.airlift.tpch.GenerateUtils;
 import io.airlift.tpch.LineItem;
 import io.airlift.tpch.LineItemGenerator;
 import io.airlift.tpch.TpchColumn;
@@ -185,7 +186,7 @@ public class AppTest
             case IDENTIFIER:
                 return column.getIdentifier(entity);
             case DATE:
-                return column.getDate(entity);
+                return GenerateUtils.formatDate(column.getDate(entity));
             case DOUBLE:
                 return column.getDouble(entity);
             case VARCHAR:
@@ -226,7 +227,7 @@ public class AppTest
                         .map(c -> AppTest.getColumnValue(c, entity))
                         .collect(toImmutableList());
 
-                handle.execute(stmt, f);
+                handle.execute(stmt, f.toArray());
             }
 
             return null;
