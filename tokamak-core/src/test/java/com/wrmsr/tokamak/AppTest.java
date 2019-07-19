@@ -15,6 +15,7 @@ package com.wrmsr.tokamak;
 
 import com.eclipsesource.v8.V8;
 import com.eclipsesource.v8.V8Object;
+import com.google.common.base.Joiner;
 import com.google.common.io.CharStreams;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
@@ -25,6 +26,9 @@ import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
 import io.airlift.tpch.LineItem;
 import io.airlift.tpch.LineItemGenerator;
+import io.airlift.tpch.TpchColumn;
+import io.airlift.tpch.TpchEntity;
+import io.airlift.tpch.TpchTable;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -38,7 +42,11 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.List;
 import java.util.function.Supplier;
+import java.util.stream.IntStream;
+
+import static com.google.common.collect.ImmutableList.toImmutableList;
 
 public class AppTest
         extends TestCase
@@ -128,7 +136,8 @@ public class AppTest
         // TpchTable.SUPPLIER
     }
 
-    public void testJdbi() throws Throwable
+    public void testJdbi()
+            throws Throwable
     {
         // DataSource ds = JdbcConnectionPool.create("jdbc:h2:mem:test", "username", "password");
 
@@ -157,7 +166,8 @@ public class AppTest
         v8.release();
     }
 
-    public void testV8Blob() throws Throwable
+    public void testV8Blob()
+            throws Throwable
     {
         String src = CharStreams.toString(new InputStreamReader(AppTest.class.getResourceAsStream("blob.js")));
         V8 v8 = V8.createV8Runtime();
@@ -167,7 +177,26 @@ public class AppTest
         System.out.println(strRet);
     }
 
-    public void testTpch() throws Throwable
+    public static <E extends TpchEntity> Object getColumnValue(TpchColumn column, E entity)
+    {
+        switch (column.getType().getBase()) {
+            case INTEGER:
+                return column.getInteger(entity);
+            case IDENTIFIER:
+                return column.getIdentifier(entity);
+            case DATE:
+                return column.getDate(entity);
+            case DOUBLE:
+                return column.getDouble(entity);
+            case VARCHAR:
+                return column.getString(entity);
+            default:
+                throw new IllegalArgumentException(column.getType().toString());
+        }
+    }
+
+    public void testTpch()
+            throws Throwable
     {
         String ddl = CharStreams.toString(new InputStreamReader(AppTest.class.getResourceAsStream("tpch_ddl.sql")));
 
@@ -182,44 +211,22 @@ public class AppTest
                 handle.execute(line);
             }
 
-            for (LineItem lineItem : new LineItemGenerator(0.01, 1, 1)) {
-                handle.execute(
-                        "insert into lineitem (" +
-                                "l_orderkey, " +
-                                "l_partkey, " +
-                                "l_suppkey, " +
-                                "l_linenumber, " +
-                                "l_quantity, " +
-                                "l_extendedprice, " +
-                                "l_discount, " +
-                                "l_tax, " +
-                                "l_returnflag, " +
-                                "l_linestatus, " +
-                                "l_shipdate, " +
-                                "l_commitdate, " +
-                                "l_receiptdate, " +
-                                "l_shipinstruct, " +
-                                "l_shipmode, " +
-                                "l_comment, " +
-                                ") " +
-                                "values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
-                        lineItem.getOrderKey(),
-                        lineItem.getPartKey(),
-                        lineItem.getSupplierKey(),
-                        lineItem.getLineNumber(),
-                        lineItem.getQuantity(),
-                        lineItem.getExtendedPrice(),
-                        lineItem.getDiscount(),
-                        lineItem.getTax(),
-                        lineItem.getReturnFlag(),
-                        lineItem.getStatus(),
-                        lineItem.getShipDate(),
-                        lineItem.getCommitDate(),
-                        lineItem.getReceiptDate(),
-                        lineItem.getShipInstructions(),
-                        lineItem.getShipMode(),
-                        lineItem.getComment()
-                );
+            TpchTable table = TpchTable.LINE_ITEM;
+
+            for (LineItem entity : new LineItemGenerator(0.01, 1, 1)) {
+                String stmt = String.format(
+                        "insert into %s (%s) values (%s)",
+                        table.getTableName(),
+                        Joiner.on(", ").join(
+                                TpchTable.LINE_ITEM.getColumns().stream().map(TpchColumn::getColumnName).collect(toImmutableList())),
+                        Joiner.on(", ").join(
+                                IntStream.range(0, TpchTable.LINE_ITEM.getColumns().size()).mapToObj(i -> "?").collect(toImmutableList())));
+
+                List<Object> f = TpchTable.LINE_ITEM.getColumns().stream()
+                        .map(c -> AppTest.getColumnValue(c, entity))
+                        .collect(toImmutableList());
+
+                handle.execute(stmt, f);
             }
 
             return null;
