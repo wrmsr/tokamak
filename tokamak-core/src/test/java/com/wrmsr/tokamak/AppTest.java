@@ -25,8 +25,6 @@ import com.google.inject.PrivateModule;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
 import io.airlift.tpch.GenerateUtils;
-import io.airlift.tpch.LineItem;
-import io.airlift.tpch.LineItemGenerator;
 import io.airlift.tpch.TpchColumn;
 import io.airlift.tpch.TpchEntity;
 import io.airlift.tpch.TpchTable;
@@ -212,22 +210,22 @@ public class AppTest
                 handle.execute(line);
             }
 
-            TpchTable table = TpchTable.LINE_ITEM;
+            for (TpchTable<?> table : TpchTable.getTables()) {
+                for (TpchEntity entity : table.createGenerator(0.01, 1, 1)) {
+                    String stmt = String.format(
+                            "insert into %s (%s) values (%s)",
+                            table.getTableName(),
+                            Joiner.on(", ").join(
+                                    table.getColumns().stream().map(TpchColumn::getColumnName).collect(toImmutableList())),
+                            Joiner.on(", ").join(
+                                    IntStream.range(0, table.getColumns().size()).mapToObj(i -> "?").collect(toImmutableList())));
 
-            for (LineItem entity : new LineItemGenerator(0.01, 1, 1)) {
-                String stmt = String.format(
-                        "insert into %s (%s) values (%s)",
-                        table.getTableName(),
-                        Joiner.on(", ").join(
-                                TpchTable.LINE_ITEM.getColumns().stream().map(TpchColumn::getColumnName).collect(toImmutableList())),
-                        Joiner.on(", ").join(
-                                IntStream.range(0, TpchTable.LINE_ITEM.getColumns().size()).mapToObj(i -> "?").collect(toImmutableList())));
+                    List<Object> f = table.getColumns().stream()
+                            .map(c -> AppTest.getColumnValue(c, entity))
+                            .collect(toImmutableList());
 
-                List<Object> f = TpchTable.LINE_ITEM.getColumns().stream()
-                        .map(c -> AppTest.getColumnValue(c, entity))
-                        .collect(toImmutableList());
-
-                handle.execute(stmt, f.toArray());
+                    handle.execute(stmt, f.toArray());
+                }
             }
 
             return null;
