@@ -16,6 +16,8 @@ package com.wrmsr.tokamak;
 import com.eclipsesource.v8.V8;
 import com.eclipsesource.v8.V8Object;
 import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.CharStreams;
 import com.google.inject.Guice;
@@ -43,13 +45,17 @@ import javax.script.ScriptEngineManager;
 
 import java.io.InputStreamReader;
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.Statement;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
+import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 
 public class AppTest
@@ -140,6 +146,58 @@ public class AppTest
         // TpchTable.SUPPLIER
     }
 
+    public static Map<String, Object> readRow(ResultSet rs)
+            throws Throwable
+    {
+        ResultSetMetaData rmd = rs.getMetaData();
+        ImmutableMap.Builder<String, Object> ret = ImmutableMap.builder();
+        for (int i = 1; i <= rmd.getColumnCount(); ++i) {
+            ret.put(rmd.getColumnName(i), rs.getObject(i));
+        }
+        return ret.build();
+    }
+
+    public static List<Map<String, Object>> readRows(ResultSet rs)
+            throws Throwable
+    {
+        ImmutableList.Builder<Map<String, Object>> ret = ImmutableList.builder();
+        while (rs.next()) {
+            ret.add(readRow(rs));
+        }
+        return ret.build();
+    }
+
+    public static List<Map<String, Object>> execute(Connection conn, String sql)
+            throws Throwable
+    {
+        try (Statement stmt = conn.createStatement()) {
+            try (ResultSet rs = stmt.executeQuery(sql)) {
+                return readRows(rs);
+            }
+        }
+    }
+
+    public static Object scalar(Connection conn, String sql)
+            throws Throwable
+    {
+        try (Statement stmt = conn.createStatement()) {
+            try (ResultSet rs = stmt.executeQuery(sql)) {
+                checkState(rs.next());
+                checkState(rs.getMetaData().getColumnCount() == 1);
+                return rs.getObject(1);
+            }
+        }
+    }
+
+
+    public void testJdbc2()
+            throws Throwable
+    {
+        try (Connection conn = DriverManager.getConnection("jdbc:h2:mem:test", "root", "tokamak")) {
+            assertEquals(scalar(conn, "select 420"), 420);
+        }
+    }
+
     public void testJdbi()
             throws Throwable
     {
@@ -207,6 +265,15 @@ public class AppTest
         Jdbi jdbi = Jdbi.create("jdbc:h2:mem:test", "username", "password");
         jdbi.withHandle(handle -> {
             // handle.execute("create database `tokamak`");
+
+            DatabaseMetaData meta = handle.getConnection().getMetaData();
+            try (ResultSet rs = meta.getTables("tokamak", ".*", ".*", null)) {
+                while (rs.next()) {
+                    System.out.println(rs);
+                }
+            }
+
+            // meta.getPrimaryKeys("tokamak", "nation")
 
             // jdbi stmt.script
             StringBuilder sb = new StringBuilder();

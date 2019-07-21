@@ -31,6 +31,7 @@ public final class DriverContextImpl
         this.jdbiHandle = jdbiHandle;
     }
 
+    @Override
     public Handle getJdbiHandle()
     {
         return jdbiHandle;

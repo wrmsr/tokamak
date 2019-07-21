@@ -30,11 +30,14 @@ package com.wrmsr.tokamak.materialization.driver;
 import com.wrmsr.tokamak.materialization.api.Key;
 import com.wrmsr.tokamak.materialization.api.Payload;
 import com.wrmsr.tokamak.materialization.node.Node;
+import org.jdbi.v3.core.Handle;
 
 import java.util.List;
 
 public interface DriverContext
 {
+    Handle getJdbiHandle();
+
     List<Payload> build(Node node, Key key);
 
     void commit();

@@ -14,6 +14,7 @@
 package com.wrmsr.tokamak.materialization.driver;
 
 import com.google.common.collect.ImmutableList;
+import com.wrmsr.tokamak.materialization.api.IdKey;
 import com.wrmsr.tokamak.materialization.api.Payload;
 import com.wrmsr.tokamak.materialization.node.CrossJoinNode;
 import com.wrmsr.tokamak.materialization.node.EquijoinNode;
@@ -94,6 +95,13 @@ public class BuildNodeVisitor
     @Override
     public List<NodeOutput> visitScanNode(ScanNode node, BuildContext context)
     {
+        Scanner scanner = new Scanner(node.getTable(), node.getFields().keySet());
+        if (context.getKey() instanceof IdKey) {
+
+        }
+        // scanner.scan(
+        //         context.getDriverContext().getJdbiHandle(),
+        //         context.getKey().)
         return super.visitScanNode(node, context);
     }
 

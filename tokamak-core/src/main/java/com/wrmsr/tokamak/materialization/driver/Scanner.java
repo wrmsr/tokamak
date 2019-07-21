@@ -40,7 +40,7 @@ public class Scanner
         this.fields = ImmutableSet.copyOf(fields);
     }
 
-    public List<Payload> scan(Handle handle, FieldName field, int id)
+    public List<Payload> scan(Handle handle, FieldName field, int value)
     {
         String stmt = "" +
                 "select " +
@@ -49,17 +49,17 @@ public class Scanner
                 table.getValue() +
                 " where " +
                 field.getValue() +
-                " = :id";
+                " = :value";
 
         List<Map<String, Object>> rows = handle
-                .createQuery(stmt).bind("id", id)
+                .createQuery(stmt).bind("value", value)
                 .mapToMap()
                 .list();
 
         return rows
                 .stream()
                 .map(row -> new Payload(
-                        Id.of(id),
+                        Id.of(value),
                         new Attributes(
                                 row
                                         .entrySet()
