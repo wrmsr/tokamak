@@ -15,10 +15,14 @@ package com.wrmsr.tokamak.materialization.api;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.google.common.base.Charsets;
 import com.wrmsr.tokamak.util.Box;
 
 import javax.annotation.concurrent.Immutable;
 
+import java.nio.ByteBuffer;
+
+import static com.google.common.base.Preconditions.checkState;
 import static com.wrmsr.tokamak.util.StringPrefixing.stripPrefix;
 import static com.wrmsr.tokamak.util.subprocess.MoreBytes.fromHex;
 import static com.wrmsr.tokamak.util.subprocess.MoreBytes.toHex;
@@ -35,6 +39,38 @@ public final class Id
     public static Id of(byte[] value)
     {
         return new Id(value);
+    }
+
+    public static Id of(int value)
+    {
+        return of(ByteBuffer.allocate(4).putInt(value).array());
+    }
+
+    public static Id of(long value)
+    {
+        return of(ByteBuffer.allocate(8).putLong(value).array());
+    }
+
+    public static Id of(String value)
+    {
+        return of(value.getBytes(Charsets.UTF_8));
+    }
+
+    public int asInt()
+    {
+        checkState(value.length == 4);
+        return ByteBuffer.wrap(value).getInt();
+    }
+
+    public long asLong()
+    {
+        checkState(value.length == 8);
+        return ByteBuffer.wrap(value).getLong();
+    }
+
+    public String asString()
+    {
+        return new String(value, Charsets.UTF_8);
     }
 
     public static String PREFIX = "id:";

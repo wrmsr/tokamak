@@ -17,12 +17,25 @@ import com.wrmsr.tokamak.materialization.api.Key;
 import com.wrmsr.tokamak.materialization.api.Payload;
 import com.wrmsr.tokamak.materialization.driver.DriverContext;
 import com.wrmsr.tokamak.materialization.node.Node;
+import org.jdbi.v3.core.Handle;
 
 import java.util.List;
 
 public final class DriverContextImpl
         implements DriverContext
 {
+    private final Handle jdbiHandle;
+
+    public DriverContextImpl(Handle jdbiHandle)
+    {
+        this.jdbiHandle = jdbiHandle;
+    }
+
+    public Handle getJdbiHandle()
+    {
+        return jdbiHandle;
+    }
+
     @Override
     public List<Payload> build(Node node, Key key)
     {

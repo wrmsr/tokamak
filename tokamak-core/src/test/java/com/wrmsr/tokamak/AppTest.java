@@ -16,6 +16,7 @@ package com.wrmsr.tokamak;
 import com.eclipsesource.v8.V8;
 import com.eclipsesource.v8.V8Object;
 import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.io.CharStreams;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
@@ -24,6 +25,10 @@ import com.google.inject.Key;
 import com.google.inject.PrivateModule;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
+import com.wrmsr.tokamak.materialization.api.FieldName;
+import com.wrmsr.tokamak.materialization.api.Payload;
+import com.wrmsr.tokamak.materialization.api.TableName;
+import com.wrmsr.tokamak.materialization.driver.Scanner;
 import io.airlift.tpch.GenerateUtils;
 import io.airlift.tpch.TpchColumn;
 import io.airlift.tpch.TpchEntity;
@@ -203,21 +208,26 @@ public class AppTest
         jdbi.withHandle(handle -> {
             // handle.execute("create database `tokamak`");
 
+            // jdbi stmt.script
             StringBuilder sb = new StringBuilder();
             for (String line : ddl.split("\n")) {
-                String part = line.split("--")[0].trim();
-                if (part.contains(";")) {
-                    int pos = part.indexOf(';')
-                    sb.append(part.substring(0, pos));
+                if (line.contains("--")) {
+                    line = line.split("--")[0].trim();
+                }
+                if (line.contains(";")) {
+                    int pos = line.indexOf(';');
+                    sb.append(line.substring(0, pos));
                     handle.execute(sb.toString());
                     sb = new StringBuilder();
-                    sb.append(part.substring(pos + 1));
+                    sb.append(line.substring(pos + 1));
                 }
                 else {
                     sb.append(line);
                 }
             }
-            handle.execute(sb.toString());
+            if (sb.length() > 0) {
+                handle.execute(sb.toString());
+            }
 
             for (TpchTable<?> table : TpchTable.getTables()) {
                 for (TpchEntity entity : table.createGenerator(0.01, 1, 1)) {
@@ -236,6 +246,15 @@ public class AppTest
                     handle.execute(stmt, f.toArray());
                 }
             }
+
+            Scanner scanner = new Scanner(
+                    TableName.of("nation"),
+                    ImmutableSet.of(
+                            FieldName.of("n_nationkey"),
+                            FieldName.of("n_name")));
+
+            List<Payload> payloads = scanner.scan(handle, FieldName.of("n_nationkey"), 10);
+            System.out.println(payloads);
 
             return null;
         });
