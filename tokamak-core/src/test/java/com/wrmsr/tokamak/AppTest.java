@@ -43,13 +43,16 @@ import org.jdbi.v3.core.Jdbi;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -147,18 +150,18 @@ public class AppTest
     }
 
     public static Map<String, Object> readRow(ResultSet rs)
-            throws Throwable
+            throws SQLException
     {
         ResultSetMetaData rmd = rs.getMetaData();
-        ImmutableMap.Builder<String, Object> ret = ImmutableMap.builder();
+        Map<String, Object> ret = new LinkedHashMap<>();
         for (int i = 1; i <= rmd.getColumnCount(); ++i) {
             ret.put(rmd.getColumnName(i), rs.getObject(i));
         }
-        return ret.build();
+        return ret;
     }
 
     public static List<Map<String, Object>> readRows(ResultSet rs)
-            throws Throwable
+            throws SQLException
     {
         ImmutableList.Builder<Map<String, Object>> ret = ImmutableList.builder();
         while (rs.next()) {
@@ -168,7 +171,7 @@ public class AppTest
     }
 
     public static List<Map<String, Object>> execute(Connection conn, String sql)
-            throws Throwable
+            throws SQLException
     {
         try (Statement stmt = conn.createStatement()) {
             try (ResultSet rs = stmt.executeQuery(sql)) {
@@ -178,7 +181,7 @@ public class AppTest
     }
 
     public static Object scalar(Connection conn, String sql)
-            throws Throwable
+            throws SQLException
     {
         try (Statement stmt = conn.createStatement()) {
             try (ResultSet rs = stmt.executeQuery(sql)) {
@@ -188,7 +191,6 @@ public class AppTest
             }
         }
     }
-
 
     public void testJdbc2()
             throws Throwable
@@ -266,13 +268,6 @@ public class AppTest
         jdbi.withHandle(handle -> {
             // handle.execute("create database `tokamak`");
 
-            DatabaseMetaData meta = handle.getConnection().getMetaData();
-            try (ResultSet rs = meta.getTables("tokamak", ".*", ".*", null)) {
-                while (rs.next()) {
-                    System.out.println(rs);
-                }
-            }
-
             // meta.getPrimaryKeys("tokamak", "nation")
 
             // jdbi stmt.script
@@ -294,6 +289,12 @@ public class AppTest
             }
             if (sb.length() > 0) {
                 handle.execute(sb.toString());
+            }
+
+            List<Map<String, Object>> tableRows;
+            DatabaseMetaData meta = handle.getConnection().getMetaData();
+            try (ResultSet rs = meta.getTables(null, null, "%", new String[] {"TABLE"})) {
+                tableRows = readRows(rs);
             }
 
             for (TpchTable<?> table : TpchTable.getTables()) {
