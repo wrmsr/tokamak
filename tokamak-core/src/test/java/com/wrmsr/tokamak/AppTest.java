@@ -17,7 +17,6 @@ import com.eclipsesource.v8.V8;
 import com.eclipsesource.v8.V8Object;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.CharStreams;
 import com.google.inject.Guice;
@@ -43,7 +42,6 @@ import org.jdbi.v3.core.Jdbi;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -295,6 +293,14 @@ public class AppTest
             DatabaseMetaData meta = handle.getConnection().getMetaData();
             try (ResultSet rs = meta.getTables(null, null, "%", new String[] {"TABLE"})) {
                 tableRows = readRows(rs);
+            }
+            for (Map<String, Object> row : tableRows) {
+                List<Map<String, Object>> pkRows = readRows(
+                        meta.getPrimaryKeys(
+                                (String) row.get("TABLE_CATALOG"),
+                                (String) row.get("TABLE_SCHEMA"),
+                                (String) row.get("TABLE_NAME")));
+                System.out.println(pkRows);
             }
 
             for (TpchTable<?> table : TpchTable.getTables()) {
