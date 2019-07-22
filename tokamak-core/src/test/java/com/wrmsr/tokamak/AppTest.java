@@ -106,12 +106,8 @@ public class AppTest
         protected void configure()
         {
             bind(Integer.class).toInstance(value);
-            bind(new TypeLiteral<Supplier<Integer>>()
-            {
-            }).annotatedWith(Names.named(name)).to(IntForwarder.class);
-            expose(new TypeLiteral<Supplier<Integer>>()
-            {
-            }).annotatedWith(Names.named(name));
+            bind(new TypeLiteral<Supplier<Integer>>() {}).annotatedWith(Names.named(name)).to(IntForwarder.class);
+            expose(new TypeLiteral<Supplier<Integer>>() {}).annotatedWith(Names.named(name));
         }
     }
 
@@ -301,6 +297,15 @@ public class AppTest
                                 (String) row.get("TABLE_SCHEMA"),
                                 (String) row.get("TABLE_NAME")));
                 System.out.println(pkRows);
+
+                List<Map<String, Object>> idxRows = readRows(
+                        meta.getIndexInfo(
+                                (String) row.get("TABLE_CATALOG"),
+                                (String) row.get("TABLE_SCHEMA"),
+                                (String) row.get("TABLE_NAME"),
+                                false,
+                                false));
+                System.out.println(idxRows);
             }
 
             for (TpchTable<?> table : TpchTable.getTables()) {

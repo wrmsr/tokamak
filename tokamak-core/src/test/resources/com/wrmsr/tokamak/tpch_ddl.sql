@@ -1,95 +1,118 @@
+-- noinspection SqlNoDataSourceInspectionForFile
+
 -- https://raw.githubusercontent.com/xinglin/tpch/master/dss.ddl
 -- Sccsid:     @(#)dss.ddl	2.1.8.1
 
 CREATE TABLE nation
 (
-    n_nationkey INTEGER  NOT NULL,
-    n_name      CHAR(25) NOT NULL,
-    n_regionkey INTEGER  NOT NULL,
-    n_comment   VARCHAR(152)
+    N_NATIONKEY INTEGER  NOT NULL,
+    N_NAME      CHAR(25) NOT NULL,
+    N_REGIONKEY INTEGER  NOT NULL,
+    N_COMMENT   VARCHAR(152),
+    PRIMARY KEY (N_NATIONKEY)
 );
+
+CREATE INDEX nation_regionkey_index on nation (N_REGIONKEY);
 
 CREATE TABLE region
 (
-    r_regionkey INTEGER  NOT NULL,
-    r_name      CHAR(25) NOT NULL,
-    r_comment   VARCHAR(152)
+    R_REGIONKEY INTEGER  NOT NULL,
+    R_NAME      CHAR(25) NOT NULL,
+    R_COMMENT   VARCHAR(152),
+    PRIMARY KEY (R_REGIONKEY)
 );
 
 CREATE TABLE part
 (
-    p_partkey     INTEGER        NOT NULL,
-    p_name        VARCHAR(55)    NOT NULL,
-    p_mfgr        CHAR(25)       NOT NULL,
-    p_brand       CHAR(10)       NOT NULL,
-    p_type        VARCHAR(25)    NOT NULL,
-    p_size        INTEGER        NOT NULL,
-    p_container   CHAR(10)       NOT NULL,
-    p_retailprice DECIMAL(15, 2) NOT NULL,
-    p_comment     VARCHAR(23)    NOT NULL
+    P_PARTKEY     INTEGER        NOT NULL,
+    P_NAME        VARCHAR(55)    NOT NULL,
+    P_MFGR        CHAR(25)       NOT NULL,
+    P_BRAND       CHAR(10)       NOT NULL,
+    P_TYPE        VARCHAR(25)    NOT NULL,
+    P_SIZE        INTEGER        NOT NULL,
+    P_CONTAINER   CHAR(10)       NOT NULL,
+    P_RETAILPRICE DECIMAL(15, 2) NOT NULL,
+    P_COMMENT     VARCHAR(23)    NOT NULL,
+    PRIMARY KEY   (P_PARTKEY)
 );
 
 CREATE TABLE supplier
 (
-    s_suppkey   INTEGER        NOT NULL,
-    s_name      CHAR(25)       NOT NULL,
-    s_address   VARCHAR(40)    NOT NULL,
-    s_nationkey INTEGER        NOT NULL,
-    s_phone     CHAR(15)       NOT NULL,
-    s_acctbal   DECIMAL(15, 2) NOT NULL,
-    s_comment   VARCHAR(101)   NOT NULL
+    S_SUPPKEY   INTEGER        NOT NULL,
+    S_NAME      CHAR(25)       NOT NULL,
+    S_ADDRESS   VARCHAR(40)    NOT NULL,
+    S_NATIONKEY INTEGER        NOT NULL,
+    S_PHONE     CHAR(15)       NOT NULL,
+    S_ACCTBAL   DECIMAL(15, 2) NOT NULL,
+    S_COMMENT   VARCHAR(101)   NOT NULL,
+    PRIMARY KEY (S_SUPPKEY)
 );
+
+CREATE INDEX supplier_nationkey_index on supplier (S_NATIONKEY);
 
 CREATE TABLE partsupp
 (
-    ps_partkey    INTEGER        NOT NULL,
-    ps_suppkey    INTEGER        NOT NULL,
-    ps_availqty   INTEGER        NOT NULL,
-    ps_supplycost DECIMAL(15, 2) NOT NULL,
-    ps_comment    VARCHAR(199)   NOT NULL
+    PS_PARTKEY    INTEGER        NOT NULL,
+    PS_SUPPKEY    INTEGER        NOT NULL,
+    PS_AVAILQTY   INTEGER        NOT NULL,
+    PS_SUPPLYCOST DECIMAL(15, 2) NOT NULL,
+    PS_COMMENT    VARCHAR(199)   NOT NULL,
+    PRIMARY KEY   (PS_PARTKEY, PS_SUPPKEY)
 );
+
+CREATE INDEX partsupp_suppkey_partkey_index on partsupp (PS_SUPPKEY, PS_PARTKEY);
 
 CREATE TABLE customer
 (
-    c_custkey    INTEGER        NOT NULL,
-    c_name       VARCHAR(25)    NOT NULL,
-    c_address    VARCHAR(40)    NOT NULL,
-    c_nationkey  INTEGER        NOT NULL,
-    c_phone      CHAR(15)       NOT NULL,
-    c_acctbal    DECIMAL(15, 2) NOT NULL,
-    c_mktsegment CHAR(10)       NOT NULL,
-    c_comment    VARCHAR(117)   NOT NULL
+    C_CUSTKEY    INTEGER        NOT NULL,
+    C_NAME       VARCHAR(25)    NOT NULL,
+    C_ADDRESS    VARCHAR(40)    NOT NULL,
+    C_NATIONKEY  INTEGER        NOT NULL,
+    C_PHONE      CHAR(15)       NOT NULL,
+    C_ACCTBAL    DECIMAL(15, 2) NOT NULL,
+    C_MKTSEGMENT CHAR(10)       NOT NULL,
+    C_COMMENT    VARCHAR(117)   NOT NULL,
+    PRIMARY KEY  (C_CUSTKEY)
 );
+
+CREATE INDEX customer_nationkey_index on customer (C_NATIONKEY);
 
 CREATE TABLE orders
 (
-    o_orderkey      INTEGER        NOT NULL,
-    o_custkey       INTEGER        NOT NULL,
-    o_orderstatus   CHAR(1)        NOT NULL,
-    o_totalprice    DECIMAL(15, 2) NOT NULL,
-    o_orderdate     DATE           NOT NULL,
-    o_orderpriority CHAR(15)       NOT NULL,
-    o_clerk         CHAR(15)       NOT NULL,
-    o_shippriority  INTEGER        NOT NULL,
-    o_comment       VARCHAR(79)    NOT NULL
+    O_ORDERKEY      INTEGER        NOT NULL,
+    O_CUSTKEY       INTEGER        NOT NULL,
+    O_ORDERSTATUS   CHAR(1)        NOT NULL,
+    O_TOTALPRICE    DECIMAL(15, 2) NOT NULL,
+    O_ORDERDATE     DATE           NOT NULL,
+    O_ORDERPRIORITY CHAR(15)       NOT NULL,
+    O_CLERK         CHAR(15)       NOT NULL,
+    O_SHIPPRIORITY  INTEGER        NOT NULL,
+    O_COMMENT       VARCHAR(79)    NOT NULL,
+    PRIMARY KEY     (O_ORDERKEY)
 );
+
+CREATE INDEX orders_custkey_index on orders (O_CUSTKEY);
 
 CREATE TABLE lineitem
 (
-    l_orderkey      INTEGER        NOT NULL,
-    l_partkey       INTEGER        NOT NULL,
-    l_suppkey       INTEGER        NOT NULL,
-    l_linenumber    INTEGER        NOT NULL,
-    l_quantity      DECIMAL(15, 2) NOT NULL,
-    l_extendedprice DECIMAL(15, 2) NOT NULL,
-    l_discount      DECIMAL(15, 2) NOT NULL,
-    l_tax           DECIMAL(15, 2) NOT NULL,
-    l_returnflag    CHAR(1)        NOT NULL,
-    l_linestatus    CHAR(1)        NOT NULL,
-    l_shipdate      DATE           NOT NULL,
-    l_commitdate    DATE           NOT NULL,
-    l_receiptdate   DATE           NOT NULL,
-    l_shipinstruct  CHAR(25)       NOT NULL,
-    l_shipmode      CHAR(10)       NOT NULL,
-    l_comment       VARCHAR(44)    NOT NULL
+    L_ORDERKEY      INTEGER        NOT NULL,
+    L_PARTKEY       INTEGER        NOT NULL,
+    L_SUPPKEY       INTEGER        NOT NULL,
+    L_LINENUMBER    INTEGER        NOT NULL,
+    L_QUANTITY      DECIMAL(15, 2) NOT NULL,
+    L_EXTENDEDPRICE DECIMAL(15, 2) NOT NULL,
+    L_DISCOUNT      DECIMAL(15, 2) NOT NULL,
+    L_TAX           DECIMAL(15, 2) NOT NULL,
+    L_RETURNFLAG    CHAR(1)        NOT NULL,
+    L_LINESTATUS    CHAR(1)        NOT NULL,
+    L_SHIPDATE      DATE           NOT NULL,
+    L_COMMITDATE    DATE           NOT NULL,
+    L_RECEIPTDATE   DATE           NOT NULL,
+    L_SHIPINSTRUCT  CHAR(25)       NOT NULL,
+    L_SHIPMODE      CHAR(10)       NOT NULL,
+    L_COMMENT       VARCHAR(44)    NOT NULL,
+    PRIMARY KEY     (L_ORDERKEY, L_LINENUMBER)
 );
+
+CREATE INDEX lineitem_partkey_index on lineitem (L_PARTKEY);
+CREATE INDEX lineitem_suppkey_index on lineitem (L_SUPPKEY);
