@@ -224,6 +224,8 @@ public class AppTest
         v8.release();
     }
 
+    // https://docs.oracle.com/javase/tutorial/jdbc/basics/prepared.html
+
     public void testV8Blob()
             throws Throwable
     {
