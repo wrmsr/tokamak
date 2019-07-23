@@ -11,27 +11,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.sqlrefl;
+package com.wrmsr.tokamak.jdbc.metadata;
 
 import java.util.Map;
 
-public final class PrimaryKeyMetaData
+public final class TableMetaData
 {
     private final String tableCatalog;
     private final String tableSchema;
     private final String tableName;
-    private final String columnName;
-    private final Short ordinalPosition;
-    private final String pkName;
+    private final String tableType;
+    private final String remarks;
+    private final String typeName;
+    private final String sql;
 
-    public PrimaryKeyMetaData(Map<String, Object> map)
+    public TableMetaData(Map<String, Object> map)
     {
         tableCatalog = (String) map.get("TABLE_CATALOG");
         tableSchema = (String) map.get("TABLE_SCHEMA");
         tableName = (String) map.get("TABLE_NAME");
-        columnName = (String) map.get("COLUMN_NAME");
-        ordinalPosition = (Short) map.get("ORDINAL_POSITION");
-        pkName = (String) map.get("PK_NAME");
+        tableType = (String) map.get("TABLE_TYPE");
+        remarks = (String) map.get("REMARKS");
+        typeName = (String) map.get("TYPE_NAME");
+        sql = (String) map.get("SQL");
     }
 
     public String getTableCatalog()
@@ -49,18 +51,23 @@ public final class PrimaryKeyMetaData
         return tableName;
     }
 
-    public String getColumnName()
+    public String getTableType()
     {
-        return columnName;
+        return tableType;
     }
 
-    public Short getOrdinalPosition()
+    public String getRemarks()
     {
-        return ordinalPosition;
+        return remarks;
     }
 
-    public String getPkName()
+    public String getTypeName()
     {
-        return pkName;
+        return typeName;
+    }
+
+    public String getSql()
+    {
+        return sql;
     }
 }

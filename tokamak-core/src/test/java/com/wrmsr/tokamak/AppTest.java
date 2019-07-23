@@ -16,7 +16,6 @@ package com.wrmsr.tokamak;
 import com.eclipsesource.v8.V8;
 import com.eclipsesource.v8.V8Object;
 import com.google.common.base.Joiner;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.CharStreams;
 import com.google.inject.Guice;
@@ -26,6 +25,7 @@ import com.google.inject.Key;
 import com.google.inject.PrivateModule;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
+import com.wrmsr.tokamak.jdbc.JdbcUtils;
 import com.wrmsr.tokamak.materialization.api.FieldName;
 import com.wrmsr.tokamak.materialization.api.Payload;
 import com.wrmsr.tokamak.materialization.api.TableName;
@@ -47,17 +47,12 @@ import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
-import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 
 public class AppTest
@@ -144,54 +139,11 @@ public class AppTest
         // TpchTable.SUPPLIER
     }
 
-    public static Map<String, Object> readRow(ResultSet rs)
-            throws SQLException
-    {
-        ResultSetMetaData rmd = rs.getMetaData();
-        Map<String, Object> ret = new LinkedHashMap<>();
-        for (int i = 1; i <= rmd.getColumnCount(); ++i) {
-            ret.put(rmd.getColumnName(i), rs.getObject(i));
-        }
-        return ret;
-    }
-
-    public static List<Map<String, Object>> readRows(ResultSet rs)
-            throws SQLException
-    {
-        ImmutableList.Builder<Map<String, Object>> ret = ImmutableList.builder();
-        while (rs.next()) {
-            ret.add(readRow(rs));
-        }
-        return ret.build();
-    }
-
-    public static List<Map<String, Object>> execute(Connection conn, String sql)
-            throws SQLException
-    {
-        try (Statement stmt = conn.createStatement()) {
-            try (ResultSet rs = stmt.executeQuery(sql)) {
-                return readRows(rs);
-            }
-        }
-    }
-
-    public static Object scalar(Connection conn, String sql)
-            throws SQLException
-    {
-        try (Statement stmt = conn.createStatement()) {
-            try (ResultSet rs = stmt.executeQuery(sql)) {
-                checkState(rs.next());
-                checkState(rs.getMetaData().getColumnCount() == 1);
-                return rs.getObject(1);
-            }
-        }
-    }
-
     public void testJdbc2()
             throws Throwable
     {
         try (Connection conn = DriverManager.getConnection("jdbc:h2:mem:test", "root", "tokamak")) {
-            assertEquals(scalar(conn, "select 420"), 420);
+            assertEquals(JdbcUtils.scalar(conn, "select 420"), 420);
         }
     }
 
@@ -256,31 +208,6 @@ public class AppTest
         }
     }
 
-    public static List<String> splitSql(String sql)
-    {
-        List<String> ret = new ArrayList<>();
-        StringBuilder sb = new StringBuilder();
-        for (String line : sql.split("\n")) {
-            if (line.contains("--")) {
-                line = line.split("--")[0].trim();
-            }
-            if (line.contains(";")) {
-                int pos = line.indexOf(';');
-                sb.append(line.substring(0, pos));
-                ret.add(sb.toString());
-                sb = new StringBuilder();
-                sb.append(line.substring(pos + 1));
-            }
-            else {
-                sb.append(line);
-            }
-        }
-        if (sb.length() > 0) {
-            ret.add(sb.toString());
-        }
-        return ret;
-    }
-
     public void testTpch()
             throws Throwable
     {
@@ -288,17 +215,17 @@ public class AppTest
 
         Jdbi jdbi = Jdbi.create("jdbc:h2:mem:test", "username", "password");
         jdbi.withHandle(handle -> {
-            for (String stmt : splitSql(ddl)) {
+            for (String stmt : JdbcUtils.splitSql(ddl)) {
                 handle.execute(stmt);
             }
 
             List<Map<String, Object>> tableRows;
             DatabaseMetaData meta = handle.getConnection().getMetaData();
             try (ResultSet rs = meta.getTables(null, null, "%", new String[] {"TABLE"})) {
-                tableRows = readRows(rs);
+                tableRows = JdbcUtils.readRows(rs);
             }
             for (Map<String, Object> row : tableRows) {
-                List<Map<String, Object>> colRows = readRows(
+                List<Map<String, Object>> colRows = JdbcUtils.readRows(
                         meta.getColumns(
                                 (String) row.get("TABLE_CATALOG"),
                                 (String) row.get("TABLE_SCHEMA"),
@@ -306,14 +233,14 @@ public class AppTest
                                 "%"));
                 System.out.println(colRows);
 
-                List<Map<String, Object>> pkRows = readRows(
+                List<Map<String, Object>> pkRows = JdbcUtils.readRows(
                         meta.getPrimaryKeys(
                                 (String) row.get("TABLE_CATALOG"),
                                 (String) row.get("TABLE_SCHEMA"),
                                 (String) row.get("TABLE_NAME")));
                 System.out.println(pkRows);
 
-                List<Map<String, Object>> idxRows = readRows(
+                List<Map<String, Object>> idxRows = JdbcUtils.readRows(
                         meta.getIndexInfo(
                                 (String) row.get("TABLE_CATALOG"),
                                 (String) row.get("TABLE_SCHEMA"),
