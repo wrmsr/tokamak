@@ -13,10 +13,20 @@
  */
 package com.wrmsr.tokamak.jdbc.metadata;
 
+import com.google.common.collect.ImmutableMap;
+
+import java.sql.DatabaseMetaData;
 import java.util.Map;
 
 public final class IndexMetaData
 {
+    public static final Map<Short, String> INDEX_TYPES = ImmutableMap.of(
+            DatabaseMetaData.tableIndexStatistic, "TABLE_INDEX_STATISTIC",
+            DatabaseMetaData.tableIndexClustered, "TABLE_INDEX_CLUSTERED",
+            DatabaseMetaData.tableIndexHashed, "TABLE_INDEX_HASHED",
+            DatabaseMetaData.tableIndexOther, "TABLE_INDEX_OTHER"
+    );
+
     private final String tableCatalog;
     private final String tableSchema;
     private final String tableName;

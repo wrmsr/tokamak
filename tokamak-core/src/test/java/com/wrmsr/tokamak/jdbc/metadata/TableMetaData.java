@@ -13,10 +13,23 @@
  */
 package com.wrmsr.tokamak.jdbc.metadata;
 
+import com.google.common.collect.ImmutableSet;
+
 import java.util.Map;
+import java.util.Set;
 
 public final class TableMetaData
 {
+    public static final Set<String> TABLE_TYPES = ImmutableSet.of(
+            "TABLE",
+            "VIEW",
+            "SYSTEM TABLE",
+            "GLOBAL TEMPORARY",
+            "LOCAL TEMPORARY",
+            "ALIAS",
+            "SYNONYM"
+    );
+
     private final String tableCatalog;
     private final String tableSchema;
     private final String tableName;

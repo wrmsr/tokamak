@@ -13,10 +13,39 @@
  */
 package com.wrmsr.tokamak.jdbc.metadata;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+
+import java.sql.DatabaseMetaData;
 import java.util.Map;
+import java.util.Set;
 
 public final class ColumnMetaData
 {
+    public static final Map<Integer, String> NULLABLES = ImmutableMap.of(
+            DatabaseMetaData.columnNoNulls, "COLUMN_NO_NULLS",
+            DatabaseMetaData.columnNullable, "COLUMN_NULLABLE",
+            DatabaseMetaData.columnNullableUnknown, "COLUMN_NULLABILITY_UNKNOWN"
+    );
+
+    public static final Set<String> IS_NULLABLES = ImmutableSet.of(
+            "YES",
+            "NO",
+            ""
+    );
+
+    public static final Set<String> IS_AUTO_INCREMENTS = ImmutableSet.of(
+            "YES",
+            "NO",
+            ""
+    );
+
+    public static final Set<String> IS_GENERATED_COLUMNS = ImmutableSet.of(
+            "YES",
+            "NO",
+            ""
+    );
+
     private final String tableCatalog;
     private final String tableSchema;
     private final String tableName;
