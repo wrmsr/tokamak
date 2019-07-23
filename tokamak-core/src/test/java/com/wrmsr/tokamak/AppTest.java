@@ -50,6 +50,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -255,6 +256,31 @@ public class AppTest
         }
     }
 
+    public static List<String> splitSql(String sql)
+    {
+        List<String> ret = new ArrayList<>();
+        StringBuilder sb = new StringBuilder();
+        for (String line : sql.split("\n")) {
+            if (line.contains("--")) {
+                line = line.split("--")[0].trim();
+            }
+            if (line.contains(";")) {
+                int pos = line.indexOf(';');
+                sb.append(line.substring(0, pos));
+                ret.add(sb.toString());
+                sb = new StringBuilder();
+                sb.append(line.substring(pos + 1));
+            }
+            else {
+                sb.append(line);
+            }
+        }
+        if (sb.length() > 0) {
+            ret.add(sb.toString());
+        }
+        return ret;
+    }
+
     public void testTpch()
             throws Throwable
     {
@@ -262,29 +288,8 @@ public class AppTest
 
         Jdbi jdbi = Jdbi.create("jdbc:h2:mem:test", "username", "password");
         jdbi.withHandle(handle -> {
-            // handle.execute("create database `tokamak`");
-
-            // meta.getPrimaryKeys("tokamak", "nation")
-
-            // jdbi stmt.script
-            StringBuilder sb = new StringBuilder();
-            for (String line : ddl.split("\n")) {
-                if (line.contains("--")) {
-                    line = line.split("--")[0].trim();
-                }
-                if (line.contains(";")) {
-                    int pos = line.indexOf(';');
-                    sb.append(line.substring(0, pos));
-                    handle.execute(sb.toString());
-                    sb = new StringBuilder();
-                    sb.append(line.substring(pos + 1));
-                }
-                else {
-                    sb.append(line);
-                }
-            }
-            if (sb.length() > 0) {
-                handle.execute(sb.toString());
+            for (String stmt : splitSql(ddl)) {
+                handle.execute(stmt);
             }
 
             List<Map<String, Object>> tableRows;
@@ -293,6 +298,14 @@ public class AppTest
                 tableRows = readRows(rs);
             }
             for (Map<String, Object> row : tableRows) {
+                List<Map<String, Object>> colRows = readRows(
+                        meta.getColumns(
+                                (String) row.get("TABLE_CATALOG"),
+                                (String) row.get("TABLE_SCHEMA"),
+                                (String) row.get("TABLE_NAME"),
+                                "%"));
+                System.out.println(colRows);
+
                 List<Map<String, Object>> pkRows = readRows(
                         meta.getPrimaryKeys(
                                 (String) row.get("TABLE_CATALOG"),

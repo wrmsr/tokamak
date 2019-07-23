@@ -64,9 +64,7 @@ public class Scanner
                                 row
                                         .entrySet()
                                         .stream()
-                                        .collect(toImmutableMap(e -> FieldName.of(e.getKey()), Map.Entry::getValue))
-                        )
-                ))
+                                        .collect(toImmutableMap(e -> FieldName.of(e.getKey()), Map.Entry::getValue)))))
                 .collect(toImmutableList());
     }
 }
