@@ -18,7 +18,10 @@ import com.wrmsr.tokamak.jdbc.TableIdentifier;
 
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
 
@@ -65,6 +68,21 @@ public final class MetaDataReflection
                 .stream().map(IndexMetaData::new).collect(toImmutableList());
     }
 
+    public static List<CompositeIndexMetaData> getCompositeIndexMetaData(DatabaseMetaData metaData, TableIdentifier tableIdentifier)
+            throws SQLException
+    {
+        Map<String, List<IndexMetaData>> idxMdsByName = getIndexMetaData(metaData, tableIdentifier).stream()
+                .sorted(Comparator.comparing(IndexMetaData::getIndexName))
+                .collect(Collectors.groupingBy(IndexMetaData::getIndexName));
+        return idxMdsByName.values().stream()
+                .map(l -> {
+                    l.sort(Comparator.comparing(IndexMetaData::getOrdinalPosition));
+                    return l;
+                })
+                .map(CompositeIndexMetaData::new)
+                .collect(toImmutableList());
+    }
+
     public static List<PrimaryKeyMetaData> getPrimaryKeyMetaData(DatabaseMetaData metaData, TableIdentifier tableIdentifier)
             throws SQLException
     {
@@ -74,5 +92,14 @@ public final class MetaDataReflection
                         tableIdentifier.getSchema(),
                         tableIdentifier.getName()))
                 .stream().map(PrimaryKeyMetaData::new).collect(toImmutableList());
+    }
+
+    public static CompositePrimaryKeyMetaData getCompositePrimaryKeyMetaData(DatabaseMetaData metaData, TableIdentifier tableIdentifier)
+            throws SQLException
+    {
+        return new CompositePrimaryKeyMetaData(
+                getPrimaryKeyMetaData(metaData, tableIdentifier).stream()
+                        .sorted(Comparator.comparing(PrimaryKeyMetaData::getOrdinalPosition))
+                        .collect(toImmutableList()));
     }
 }
