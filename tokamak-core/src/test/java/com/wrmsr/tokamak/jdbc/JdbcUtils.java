@@ -27,7 +27,7 @@ import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkState;
 
-public class JdbcUtils
+public final class JdbcUtils
 {
     private JdbcUtils()
     {

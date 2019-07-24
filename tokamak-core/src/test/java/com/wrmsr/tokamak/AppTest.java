@@ -26,10 +26,6 @@ import com.google.inject.PrivateModule;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
 import com.wrmsr.tokamak.jdbc.JdbcUtils;
-import com.wrmsr.tokamak.jdbc.metadata.ColumnMetaData;
-import com.wrmsr.tokamak.jdbc.metadata.IndexMetaData;
-import com.wrmsr.tokamak.jdbc.metadata.PrimaryKeyMetaData;
-import com.wrmsr.tokamak.jdbc.metadata.TableMetaData;
 import com.wrmsr.tokamak.materialization.api.FieldName;
 import com.wrmsr.tokamak.materialization.api.Payload;
 import com.wrmsr.tokamak.materialization.api.TableName;
@@ -41,6 +37,7 @@ import io.airlift.tpch.TpchTable;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 
 import javax.script.ScriptEngine;
@@ -48,14 +45,11 @@ import javax.script.ScriptEngineManager;
 
 import java.io.InputStreamReader;
 import java.sql.Connection;
-import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
@@ -120,12 +114,6 @@ public class AppTest
         System.out.println(injector.getInstance(Key.get(new TypeLiteral<Supplier<Integer>>() {}, Names.named("b"))).get());
     }
 
-    public void testJs()
-            throws Throwable
-    {
-        ScriptEngine engine = new ScriptEngineManager().getEngineByName("nashorn");
-        engine.eval("print('Hello World!');");
-    }
 
     public void testJdbc()
             throws Throwable
@@ -165,53 +153,7 @@ public class AppTest
         });
     }
 
-    public void testV8()
-            throws Throwable
-    {
-        V8 v8 = V8.createV8Runtime();
-        V8Object object = v8.executeObjectScript("foo = {key: 'bar'}");
-
-        String stringScript = v8.executeStringScript("'f'");
-        System.out.println("Hello from Java! " + stringScript);
-
-        Object result = object.get("key");
-        assertTrue(result instanceof String);
-        assertEquals("bar", result);
-        object.release();
-
-        v8.release();
-    }
-
     // https://docs.oracle.com/javase/tutorial/jdbc/basics/prepared.html
-
-    public void testV8Blob()
-            throws Throwable
-    {
-        String src = CharStreams.toString(new InputStreamReader(AppTest.class.getResourceAsStream("blob.js")));
-        V8 v8 = V8.createV8Runtime();
-        V8Object ret = v8.executeObjectScript(src);
-        System.out.println(ret);
-        String strRet = v8.executeStringScript("main()");
-        System.out.println(strRet);
-    }
-
-    public static <E extends TpchEntity> Object getColumnValue(TpchColumn column, E entity)
-    {
-        switch (column.getType().getBase()) {
-            case INTEGER:
-                return column.getInteger(entity);
-            case IDENTIFIER:
-                return column.getIdentifier(entity);
-            case DATE:
-                return GenerateUtils.formatDate(column.getDate(entity));
-            case DOUBLE:
-                return column.getDouble(entity);
-            case VARCHAR:
-                return column.getString(entity);
-            default:
-                throw new IllegalArgumentException(column.getType().toString());
-        }
-    }
 
     public void testTpch()
             throws Throwable
@@ -224,44 +166,8 @@ public class AppTest
                 handle.execute(stmt);
             }
 
-            List<TableMetaData> tblMds;
-            DatabaseMetaData meta = handle.getConnection().getMetaData();
-            try (ResultSet rs = meta.getTables(null, null, "%", new String[] {"TABLE"})) {
-                List<Map<String, Object>> tableRows = JdbcUtils.readRows(rs);
-                tblMds = tableRows.stream().map(TableMetaData::new).collect(toImmutableList());
-            }
-            for (TableMetaData tblMd : tblMds) {
-                List<Map<String, Object>> colRows = JdbcUtils.readRows(
-                        meta.getColumns(tblMd.getTableCatalog(), tblMd.getTableSchema(), tblMd.getTableName(), "%"));
-                List<ColumnMetaData> colMds = colRows.stream().map(ColumnMetaData::new).collect(toImmutableList());
-
-                List<Map<String, Object>> pkRows = JdbcUtils.readRows(
-                        meta.getPrimaryKeys(tblMd.getTableCatalog(), tblMd.getTableSchema(), tblMd.getTableName()));
-                List<PrimaryKeyMetaData> pkMds = pkRows.stream().map(PrimaryKeyMetaData::new).collect(toImmutableList());
-
-                List<Map<String, Object>> idxRows = JdbcUtils.readRows(
-                        meta.getIndexInfo(tblMd.getTableCatalog(), tblMd.getTableSchema(), tblMd.getTableName(), false, false));
-                List<IndexMetaData> idxMds = idxRows.stream().map(IndexMetaData::new).collect(toImmutableList());
-
-                System.out.println(idxMds);
-            }
-
-            for (TpchTable<?> table : TpchTable.getTables()) {
-                for (TpchEntity entity : table.createGenerator(0.01, 1, 1)) {
-                    String stmt = String.format(
-                            "insert into %s (%s) values (%s)",
-                            table.getTableName(),
-                            Joiner.on(", ").join(
-                                    table.getColumns().stream().map(TpchColumn::getColumnName).collect(toImmutableList())),
-                            Joiner.on(", ").join(
-                                    IntStream.range(0, table.getColumns().size()).mapToObj(i -> "?").collect(toImmutableList())));
-
-                    List<Object> f = table.getColumns().stream()
-                            .map(c -> AppTest.getColumnValue(c, entity))
-                            .collect(toImmutableList());
-
-                    handle.execute(stmt, f.toArray());
-                }
+            for (TpchTable table : TpchTable.getTables()) {
+                TpchUtils.insertEntities(handle, table, table.createGenerator(0.01, 1, 1));
             }
 
             Scanner scanner = new Scanner(

@@ -29,6 +29,7 @@ public final class MetaDataReflection
     }
 
     public static List<TableMetaData> getTableMetadata(DatabaseMetaData metaData)
+            throws SQLException
     {
         return JdbcUtils.readRows(
                 metaData.getTables(

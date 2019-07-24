@@ -21,7 +21,7 @@ import java.util.Objects;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
-public class TableIdentifier
+public final class TableIdentifier
 {
     private final @Nullable String catalog;
     private final @Nullable String schema;
