@@ -29,14 +29,12 @@ package com.wrmsr.tokamak.jdbc.metadata;
 
 import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.jdbc.TableIdentifier;
-import com.wrmsr.tokamak.jdbc.metadata.ColumnMetaData;
-import com.wrmsr.tokamak.jdbc.metadata.CompositeIndexMetaData;
-import com.wrmsr.tokamak.jdbc.metadata.CompositePrimaryKeyMetaData;
-import com.wrmsr.tokamak.jdbc.metadata.TableMetaData;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
+import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static java.util.function.UnaryOperator.identity;
 
@@ -57,7 +55,7 @@ public class TableDescription
             List<CompositeIndexMetaData> compositeIndexMetaDatas)
     {
         this.tableMetaData = tableMetaData;
-        this.columnMetaDatas = ImmutableList.copyOf(columnMetaDatas);
+        this.columnMetaDatas = columnMetaDatas.stream().sorted(Comparator.comparing(ColumnMetaData::getOrdinalPosition)).collect(toImmutableList());
         this.compositePrimaryKeyMetaData = compositePrimaryKeyMetaData;
         this.compositeIndexMetaDatas = ImmutableList.copyOf(compositeIndexMetaDatas);
 

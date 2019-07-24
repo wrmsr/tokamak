@@ -13,11 +13,13 @@
  */
 package com.wrmsr.tokamak.jdbc.metadata;
 
+import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.jdbc.JdbcUtils;
 import com.wrmsr.tokamak.jdbc.TableIdentifier;
 
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +29,54 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 
 public final class MetaDataReflection
 {
+    public static final Map<Integer, String> DATA_TYPES;
+
+    static {
+        ImmutableMap.Builder<Integer, String> builder = ImmutableMap.builder();
+
+        builder.put(Types.BIT, "BIT");
+        builder.put(Types.TINYINT, "TINYINT");
+        builder.put(Types.SMALLINT, "SMALLINT");
+        builder.put(Types.INTEGER, "INTEGER");
+        builder.put(Types.BIGINT, "BIGINT");
+        builder.put(Types.FLOAT, "FLOAT");
+        builder.put(Types.REAL, "REAL");
+        builder.put(Types.DOUBLE, "DOUBLE");
+        builder.put(Types.NUMERIC, "NUMERIC");
+        builder.put(Types.DECIMAL, "DECIMAL");
+        builder.put(Types.CHAR, "CHAR");
+        builder.put(Types.VARCHAR, "VARCHAR");
+        builder.put(Types.LONGVARCHAR, "LONGVARCHAR");
+        builder.put(Types.DATE, "DATE");
+        builder.put(Types.TIME, "TIME");
+        builder.put(Types.TIMESTAMP, "TIMESTAMP");
+        builder.put(Types.BINARY, "BINARY");
+        builder.put(Types.VARBINARY, "VARBINARY");
+        builder.put(Types.LONGVARBINARY, "LONGVARBINARY");
+        builder.put(Types.NULL, "NULL");
+        builder.put(Types.OTHER, "OTHER");
+        builder.put(Types.JAVA_OBJECT, "JAVA_OBJECT");
+        builder.put(Types.DISTINCT, "DISTINCT");
+        builder.put(Types.STRUCT, "STRUCT");
+        builder.put(Types.ARRAY, "ARRAY");
+        builder.put(Types.BLOB, "BLOB");
+        builder.put(Types.CLOB, "CLOB");
+        builder.put(Types.REF, "REF");
+        builder.put(Types.DATALINK, "DATALINK");
+        builder.put(Types.BOOLEAN, "BOOLEAN");
+        builder.put(Types.ROWID, "ROWID");
+        builder.put(Types.NCHAR, "NCHAR");
+        builder.put(Types.NVARCHAR, "NVARCHAR");
+        builder.put(Types.LONGNVARCHAR, "LONGNVARCHAR");
+        builder.put(Types.NCLOB, "NCLOB");
+        builder.put(Types.SQLXML, "SQLXML");
+        builder.put(Types.REF_CURSOR, "REF_CURSOR");
+        builder.put(Types.TIME_WITH_TIMEZONE, "TIME_WITH_TIMEZONE");
+        builder.put(Types.TIMESTAMP_WITH_TIMEZONE, "TIMESTAMP_WITH_TIMEZONE");
+
+        DATA_TYPES = builder.build();
+    }
+
     private MetaDataReflection()
     {
     }

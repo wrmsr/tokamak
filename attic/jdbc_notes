@@ -166,3 +166,47 @@ pages = (Integer) map.get("PAGES");
 filterCondition = (String) map.get("FILTER_CONDITION");
 sortType = (Integer) map.get("SORT_TYPE");
 
+
+
+
+
+
+builder.put(BIT, "BIT");
+builder.put(TINYINT, "TINYINT");
+builder.put(SMALLINT, "SMALLINT");
+builder.put(INTEGER, "INTEGER");
+builder.put(BIGINT, "BIGINT");
+builder.put(FLOAT, "FLOAT");
+builder.put(REAL, "REAL");
+builder.put(DOUBLE, "DOUBLE");
+builder.put(NUMERIC, "NUMERIC");
+builder.put(DECIMAL, "DECIMAL");
+builder.put(CHAR, "CHAR");
+builder.put(VARCHAR, "VARCHAR");
+builder.put(LONGVARCHAR, "LONGVARCHAR");
+builder.put(DATE, "DATE");
+builder.put(TIME, "TIME");
+builder.put(TIMESTAMP, "TIMESTAMP");
+builder.put(BINARY, "BINARY");
+builder.put(VARBINARY, "VARBINARY");
+builder.put(LONGVARBINARY, "LONGVARBINARY");
+builder.put(NULL, "NULL");
+builder.put(OTHER, "OTHER");
+builder.put(JAVA_OBJECT, "JAVA_OBJECT");
+builder.put(DISTINCT, "DISTINCT");
+builder.put(STRUCT, "STRUCT");
+builder.put(ARRAY, "ARRAY");
+builder.put(BLOB, "BLOB");
+builder.put(CLOB, "CLOB");
+builder.put(REF, "REF");
+builder.put(DATALINK, "DATALINK");
+builder.put(BOOLEAN, "BOOLEAN");
+builder.put(ROWID, "ROWID");
+builder.put(NCHAR, "NCHAR");
+builder.put(NVARCHAR, "NVARCHAR");
+builder.put(LONGNVARCHAR, "LONGNVARCHAR");
+builder.put(NCLOB, "NCLOB");
+builder.put(SQLXML, "SQLXML");
+builder.put(REF_CURSOR, "REF_CURSOR");
+builder.put(TIME_WITH_TIMEZONE, "TIME_WITH_TIMEZONE");
+builder.put(TIMESTAMP_WITH_TIMEZONE, "TIMESTAMP_WITH_TIMEZONE");

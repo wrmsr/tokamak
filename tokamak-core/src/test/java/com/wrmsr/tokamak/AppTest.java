@@ -27,6 +27,7 @@ import com.wrmsr.tokamak.jdbc.metadata.ColumnMetaData;
 import com.wrmsr.tokamak.jdbc.metadata.IndexMetaData;
 import com.wrmsr.tokamak.jdbc.metadata.MetaDataReflection;
 import com.wrmsr.tokamak.jdbc.metadata.PrimaryKeyMetaData;
+import com.wrmsr.tokamak.jdbc.metadata.TableDescription;
 import com.wrmsr.tokamak.jdbc.metadata.TableMetaData;
 import com.wrmsr.tokamak.api.FieldName;
 import com.wrmsr.tokamak.api.Payload;
@@ -160,9 +161,8 @@ public class AppTest
 
             DatabaseMetaData metaData = handle.getConnection().getMetaData();
             for (TableMetaData tblMd : MetaDataReflection.getTableMetadatas(metaData)) {
-                List<ColumnMetaData> colMds = MetaDataReflection.getColumnMetaData(metaData, tblMd.getTableIdentifier());
-                List<PrimaryKeyMetaData> pkMds = MetaDataReflection.getPrimaryKeyMetaData(metaData, tblMd.getTableIdentifier());
-                List<IndexMetaData> idxMds = MetaDataReflection.getIndexMetaData(metaData, tblMd.getTableIdentifier());
+                TableDescription td = MetaDataReflection.getTableDescription(metaData, tblMd.getTableIdentifier());
+                System.out.println(td);
             }
 
             for (TpchTable table : TpchTable.getTables()) {
