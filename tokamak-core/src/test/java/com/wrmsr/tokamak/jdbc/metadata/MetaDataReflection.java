@@ -31,7 +31,22 @@ public final class MetaDataReflection
     {
     }
 
-    public static List<TableMetaData> getTableMetadata(DatabaseMetaData metaData)
+    public static TableMetaData getTableMetadata(DatabaseMetaData metaData, TableIdentifier tableIdentifier)
+            throws SQLException
+    {
+        return JdbcUtils.readRows(
+                metaData.getTables(
+                        tableIdentifier.getCatalog(),
+                        tableIdentifier.getSchema(),
+                        tableIdentifier.getName(),
+                        new String[] {"TABLE"}))
+                .stream()
+                .findFirst()
+                .map(TableMetaData::new)
+                .orElseThrow(RuntimeException::new);
+    }
+
+    public static List<TableMetaData> getTableMetadatas(DatabaseMetaData metaData)
             throws SQLException
     {
         return JdbcUtils.readRows(
@@ -40,7 +55,9 @@ public final class MetaDataReflection
                         null,
                         "%",
                         new String[] {"TABLE"}))
-                .stream().map(TableMetaData::new).collect(toImmutableList());
+                .stream()
+                .map(TableMetaData::new)
+                .collect(toImmutableList());
     }
 
     public static List<ColumnMetaData> getColumnMetaData(DatabaseMetaData metaData, TableIdentifier tableIdentifier)
@@ -52,7 +69,9 @@ public final class MetaDataReflection
                         tableIdentifier.getSchema(),
                         tableIdentifier.getName(),
                         "%"))
-                .stream().map(ColumnMetaData::new).collect(toImmutableList());
+                .stream()
+                .map(ColumnMetaData::new)
+                .collect(toImmutableList());
     }
 
     public static List<IndexMetaData> getIndexMetaData(DatabaseMetaData metaData, TableIdentifier tableIdentifier)
@@ -65,10 +84,12 @@ public final class MetaDataReflection
                         tableIdentifier.getName(),
                         false,
                         false))
-                .stream().map(IndexMetaData::new).collect(toImmutableList());
+                .stream()
+                .map(IndexMetaData::new)
+                .collect(toImmutableList());
     }
 
-    public static List<CompositeIndexMetaData> getCompositeIndexMetaData(DatabaseMetaData metaData, TableIdentifier tableIdentifier)
+    public static List<CompositeIndexMetaData> getCompositeIndexMetaDatas(DatabaseMetaData metaData, TableIdentifier tableIdentifier)
             throws SQLException
     {
         Map<String, List<IndexMetaData>> idxMdsByName = getIndexMetaData(metaData, tableIdentifier).stream()
@@ -101,5 +122,16 @@ public final class MetaDataReflection
                 getPrimaryKeyMetaData(metaData, tableIdentifier).stream()
                         .sorted(Comparator.comparing(PrimaryKeyMetaData::getOrdinalPosition))
                         .collect(toImmutableList()));
+    }
+
+    public static TableDescription getTableDescription(DatabaseMetaData metaData, TableIdentifier tableIdentifier)
+            throws SQLException
+    {
+        return new TableDescription(
+                getTableMetadata(metaData, tableIdentifier),
+                getColumnMetaData(metaData, tableIdentifier),
+                getCompositePrimaryKeyMetaData(metaData, tableIdentifier),
+                getCompositeIndexMetaDatas(metaData, tableIdentifier)
+        );
     }
 }

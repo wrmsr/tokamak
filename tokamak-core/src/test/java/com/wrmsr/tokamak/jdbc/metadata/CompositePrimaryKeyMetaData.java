@@ -14,11 +14,8 @@
 package com.wrmsr.tokamak.jdbc.metadata;
 
 import com.google.common.collect.ImmutableList;
-import com.wrmsr.tokamak.jdbc.TableIdentifier;
 
 import java.util.List;
-
-import static com.google.common.base.Preconditions.checkArgument;
 
 public class CompositePrimaryKeyMetaData
 {
@@ -27,12 +24,6 @@ public class CompositePrimaryKeyMetaData
     public CompositePrimaryKeyMetaData(List<PrimaryKeyMetaData> components)
     {
         this.components = ImmutableList.copyOf(components);
-        checkArgument(!this.components.isEmpty());
-    }
-
-    public TableIdentifier getTableIdentifier()
-    {
-        return components.get(0).getTableIdentifier();
     }
 
     public List<PrimaryKeyMetaData> getComponents()

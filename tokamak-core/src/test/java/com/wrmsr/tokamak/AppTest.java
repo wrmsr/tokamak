@@ -159,7 +159,7 @@ public class AppTest
             }
 
             DatabaseMetaData metaData = handle.getConnection().getMetaData();
-            for (TableMetaData tblMd : MetaDataReflection.getTableMetadata(metaData)) {
+            for (TableMetaData tblMd : MetaDataReflection.getTableMetadatas(metaData)) {
                 List<ColumnMetaData> colMds = MetaDataReflection.getColumnMetaData(metaData, tblMd.getTableIdentifier());
                 List<PrimaryKeyMetaData> pkMds = MetaDataReflection.getPrimaryKeyMetaData(metaData, tblMd.getTableIdentifier());
                 List<IndexMetaData> idxMds = MetaDataReflection.getIndexMetaData(metaData, tblMd.getTableIdentifier());
