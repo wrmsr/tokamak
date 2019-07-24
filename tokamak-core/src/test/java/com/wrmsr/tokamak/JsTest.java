@@ -26,7 +26,6 @@ import java.io.InputStreamReader;
 public class JsTest
         extends TestCase
 {
-
     public void testJs()
             throws Throwable
     {

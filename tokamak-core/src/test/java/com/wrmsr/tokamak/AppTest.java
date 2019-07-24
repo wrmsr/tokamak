@@ -13,9 +13,6 @@
  */
 package com.wrmsr.tokamak;
 
-import com.eclipsesource.v8.V8;
-import com.eclipsesource.v8.V8Object;
-import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.CharStreams;
 import com.google.inject.Guice;
@@ -30,18 +27,11 @@ import com.wrmsr.tokamak.materialization.api.FieldName;
 import com.wrmsr.tokamak.materialization.api.Payload;
 import com.wrmsr.tokamak.materialization.api.TableName;
 import com.wrmsr.tokamak.materialization.driver.Scanner;
-import io.airlift.tpch.GenerateUtils;
-import io.airlift.tpch.TpchColumn;
-import io.airlift.tpch.TpchEntity;
 import io.airlift.tpch.TpchTable;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
-
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
 
 import java.io.InputStreamReader;
 import java.sql.Connection;
@@ -50,9 +40,6 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.List;
 import java.util.function.Supplier;
-import java.util.stream.IntStream;
-
-import static com.google.common.collect.ImmutableList.toImmutableList;
 
 public class AppTest
         extends TestCase
@@ -113,7 +100,6 @@ public class AppTest
         System.out.println(injector.getInstance(Key.get(new TypeLiteral<Supplier<Integer>>() {}, Names.named("a"))).get());
         System.out.println(injector.getInstance(Key.get(new TypeLiteral<Supplier<Integer>>() {}, Names.named("b"))).get());
     }
-
 
     public void testJdbc()
             throws Throwable
