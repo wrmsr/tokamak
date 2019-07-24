@@ -26,6 +26,10 @@ import com.google.inject.PrivateModule;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
 import com.wrmsr.tokamak.jdbc.JdbcUtils;
+import com.wrmsr.tokamak.jdbc.metadata.ColumnMetaData;
+import com.wrmsr.tokamak.jdbc.metadata.IndexMetaData;
+import com.wrmsr.tokamak.jdbc.metadata.PrimaryKeyMetaData;
+import com.wrmsr.tokamak.jdbc.metadata.TableMetaData;
 import com.wrmsr.tokamak.materialization.api.FieldName;
 import com.wrmsr.tokamak.materialization.api.Payload;
 import com.wrmsr.tokamak.materialization.api.TableName;
@@ -51,6 +55,7 @@ import java.sql.Statement;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
@@ -219,35 +224,26 @@ public class AppTest
                 handle.execute(stmt);
             }
 
-            List<Map<String, Object>> tableRows;
+            List<TableMetaData> tblMds;
             DatabaseMetaData meta = handle.getConnection().getMetaData();
             try (ResultSet rs = meta.getTables(null, null, "%", new String[] {"TABLE"})) {
-                tableRows = JdbcUtils.readRows(rs);
+                List<Map<String, Object>> tableRows = JdbcUtils.readRows(rs);
+                tblMds = tableRows.stream().map(TableMetaData::new).collect(toImmutableList());
             }
-            for (Map<String, Object> row : tableRows) {
+            for (TableMetaData tblMd : tblMds) {
                 List<Map<String, Object>> colRows = JdbcUtils.readRows(
-                        meta.getColumns(
-                                (String) row.get("TABLE_CATALOG"),
-                                (String) row.get("TABLE_SCHEMA"),
-                                (String) row.get("TABLE_NAME"),
-                                "%"));
-                System.out.println(colRows);
+                        meta.getColumns(tblMd.getTableCatalog(), tblMd.getTableSchema(), tblMd.getTableName(), "%"));
+                List<ColumnMetaData> colMds = colRows.stream().map(ColumnMetaData::new).collect(toImmutableList());
 
                 List<Map<String, Object>> pkRows = JdbcUtils.readRows(
-                        meta.getPrimaryKeys(
-                                (String) row.get("TABLE_CATALOG"),
-                                (String) row.get("TABLE_SCHEMA"),
-                                (String) row.get("TABLE_NAME")));
-                System.out.println(pkRows);
+                        meta.getPrimaryKeys(tblMd.getTableCatalog(), tblMd.getTableSchema(), tblMd.getTableName()));
+                List<PrimaryKeyMetaData> pkMds = pkRows.stream().map(PrimaryKeyMetaData::new).collect(toImmutableList());
 
                 List<Map<String, Object>> idxRows = JdbcUtils.readRows(
-                        meta.getIndexInfo(
-                                (String) row.get("TABLE_CATALOG"),
-                                (String) row.get("TABLE_SCHEMA"),
-                                (String) row.get("TABLE_NAME"),
-                                false,
-                                false));
-                System.out.println(idxRows);
+                        meta.getIndexInfo(tblMd.getTableCatalog(), tblMd.getTableSchema(), tblMd.getTableName(), false, false));
+                List<IndexMetaData> idxMds = idxRows.stream().map(IndexMetaData::new).collect(toImmutableList());
+
+                System.out.println(idxMds);
             }
 
             for (TpchTable<?> table : TpchTable.getTables()) {

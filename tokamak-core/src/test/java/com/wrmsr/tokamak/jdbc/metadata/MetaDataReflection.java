@@ -13,9 +13,65 @@
  */
 package com.wrmsr.tokamak.jdbc.metadata;
 
+import com.wrmsr.tokamak.jdbc.JdbcUtils;
+import com.wrmsr.tokamak.jdbc.TableIdentifier;
+
+import java.sql.DatabaseMetaData;
+import java.sql.SQLException;
+import java.util.List;
+
+import static com.google.common.collect.ImmutableList.toImmutableList;
+
 public final class MetaDataReflection
 {
     private MetaDataReflection()
     {
+    }
+
+    public static List<TableMetaData> getTableMetadata(DatabaseMetaData metaData)
+    {
+        return JdbcUtils.readRows(
+                metaData.getTables(
+                        null,
+                        null,
+                        "%",
+                        new String[] {"TABLE"}))
+                .stream().map(TableMetaData::new).collect(toImmutableList());
+    }
+
+    public static List<ColumnMetaData> getColumnMetaData(DatabaseMetaData metaData, TableIdentifier tableIdentifier)
+            throws SQLException
+    {
+        return JdbcUtils.readRows(
+                metaData.getColumns(
+                        tableIdentifier.getCatalog(),
+                        tableIdentifier.getSchema(),
+                        tableIdentifier.getName(),
+                        "%"))
+                .stream().map(ColumnMetaData::new).collect(toImmutableList());
+    }
+
+    public static List<IndexMetaData> getIndexMetaData(DatabaseMetaData metaData, TableIdentifier tableIdentifier)
+            throws SQLException
+    {
+        return JdbcUtils.readRows(
+                metaData.getIndexInfo(
+                        tableIdentifier.getCatalog(),
+                        tableIdentifier.getSchema(),
+                        tableIdentifier.getName(),
+                        false,
+                        false))
+                .stream().map(IndexMetaData::new).collect(toImmutableList());
+    }
+
+    public static List<PrimaryKeyMetaData> getPrimaryKeyMetaData(DatabaseMetaData metaData, TableIdentifier tableIdentifier)
+            throws SQLException
+    {
+        return JdbcUtils.readRows(
+                metaData.getPrimaryKeys(
+                        tableIdentifier.getCatalog(),
+                        tableIdentifier.getSchema(),
+                        tableIdentifier.getName()))
+                .stream().map(PrimaryKeyMetaData::new).collect(toImmutableList());
     }
 }

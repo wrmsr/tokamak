@@ -14,6 +14,7 @@
 package com.wrmsr.tokamak.jdbc.metadata;
 
 import com.google.common.collect.ImmutableMap;
+import com.wrmsr.tokamak.jdbc.TableIdentifier;
 
 import java.sql.DatabaseMetaData;
 import java.util.Map;
@@ -57,6 +58,25 @@ public final class IndexMetaData
         filterCondition = (String) map.get("FILTER_CONDITION");
         sortType = (Integer) map.get("SORT_TYPE");
     }
+
+    @Override
+    public String toString()
+    {
+        return "IndexMetaData{" +
+                "tableCatalog='" + tableCatalog + '\'' +
+                ", tableSchema='" + tableSchema + '\'' +
+                ", tableName='" + tableName + '\'' +
+                ", indexName='" + indexName + '\'' +
+                ", ordinalPosition=" + ordinalPosition +
+                ", columnName='" + columnName + '\'' +
+                '}';
+    }
+
+    public TableIdentifier getTableIdentifier()
+    {
+        return new TableIdentifier(tableCatalog, tableSchema, tableName);
+    }
+
 
     public String getTableCatalog()
     {

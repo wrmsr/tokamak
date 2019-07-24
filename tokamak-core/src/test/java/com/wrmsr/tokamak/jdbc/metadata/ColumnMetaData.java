@@ -15,6 +15,7 @@ package com.wrmsr.tokamak.jdbc.metadata;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.wrmsr.tokamak.jdbc.TableIdentifier;
 
 import java.sql.DatabaseMetaData;
 import java.util.Map;
@@ -97,6 +98,22 @@ public final class ColumnMetaData
         sourceDataType = (Short) map.get("SOURCE_DATA_TYPE");
         isAutoIncrement = (String) map.get("IS_AUTOINCREMENT");
         isGeneratedColumn = (String) map.get("IS_GENERATEDCOLUMN");
+    }
+
+    @Override
+    public String toString()
+    {
+        return "ColumnMetaData{" +
+                "tableCatalog='" + tableCatalog + '\'' +
+                ", tableSchema='" + tableSchema + '\'' +
+                ", tableName='" + tableName + '\'' +
+                ", columnName='" + columnName + '\'' +
+                '}';
+    }
+
+    public TableIdentifier getTableIdentifier()
+    {
+        return new TableIdentifier(tableCatalog, tableSchema, tableName);
     }
 
     public String getTableCatalog()

@@ -13,6 +13,8 @@
  */
 package com.wrmsr.tokamak.jdbc.metadata;
 
+import com.wrmsr.tokamak.jdbc.TableIdentifier;
+
 import java.util.Map;
 
 public final class PrimaryKeyMetaData
@@ -32,6 +34,23 @@ public final class PrimaryKeyMetaData
         columnName = (String) map.get("COLUMN_NAME");
         ordinalPosition = (Short) map.get("ORDINAL_POSITION");
         pkName = (String) map.get("PK_NAME");
+    }
+
+    @Override
+    public String toString()
+    {
+        return "PrimaryKeyMetaData{" +
+                "tableCatalog='" + tableCatalog + '\'' +
+                ", tableSchema='" + tableSchema + '\'' +
+                ", tableName='" + tableName + '\'' +
+                ", columnName='" + columnName + '\'' +
+                ", ordinalPosition=" + ordinalPosition +
+                '}';
+    }
+
+    public TableIdentifier getTableIdentifier()
+    {
+        return new TableIdentifier(tableCatalog, tableSchema, tableName);
     }
 
     public String getTableCatalog()

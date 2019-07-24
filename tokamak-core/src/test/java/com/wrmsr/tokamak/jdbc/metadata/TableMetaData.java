@@ -14,6 +14,7 @@
 package com.wrmsr.tokamak.jdbc.metadata;
 
 import com.google.common.collect.ImmutableSet;
+import com.wrmsr.tokamak.jdbc.TableIdentifier;
 
 import java.util.Map;
 import java.util.Set;
@@ -47,6 +48,21 @@ public final class TableMetaData
         remarks = (String) map.get("REMARKS");
         typeName = (String) map.get("TYPE_NAME");
         sql = (String) map.get("SQL");
+    }
+
+    @Override
+    public String toString()
+    {
+        return "TableMetaData{" +
+                "tableCatalog='" + tableCatalog + '\'' +
+                ", tableSchema='" + tableSchema + '\'' +
+                ", tableName='" + tableName + '\'' +
+                '}';
+    }
+
+    public TableIdentifier getTableIdentifier()
+    {
+        return new TableIdentifier(tableCatalog, tableSchema, tableName);
     }
 
     public String getTableCatalog()
