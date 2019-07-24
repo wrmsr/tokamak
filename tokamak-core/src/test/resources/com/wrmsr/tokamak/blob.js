@@ -1923,7 +1923,7 @@
                                 while (++iterIndex < iterLength) {
                                     var data = iteratees[iterIndex],
                                         iteratee = data.iteratee,
-                                        type = data.type,
+                                        type = com.wrmsr.tokamak.type,
                                         computed = iteratee(value);
 
                                     if (type == LAZY_MAP_FLAG) {
@@ -6186,7 +6186,7 @@
                             var data = transforms[index],
                                 size = data.size;
 
-                            switch (data.type) {
+                            switch (com.wrmsr.tokamak.type) {
                                 case 'drop':
                                     start += size;
                                     break;

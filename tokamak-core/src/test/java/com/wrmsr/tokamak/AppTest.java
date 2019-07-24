@@ -23,10 +23,15 @@ import com.google.inject.PrivateModule;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
 import com.wrmsr.tokamak.jdbc.JdbcUtils;
-import com.wrmsr.tokamak.materialization.api.FieldName;
-import com.wrmsr.tokamak.materialization.api.Payload;
-import com.wrmsr.tokamak.materialization.api.TableName;
-import com.wrmsr.tokamak.materialization.driver.Scanner;
+import com.wrmsr.tokamak.jdbc.metadata.ColumnMetaData;
+import com.wrmsr.tokamak.jdbc.metadata.IndexMetaData;
+import com.wrmsr.tokamak.jdbc.metadata.MetaDataReflection;
+import com.wrmsr.tokamak.jdbc.metadata.PrimaryKeyMetaData;
+import com.wrmsr.tokamak.jdbc.metadata.TableMetaData;
+import com.wrmsr.tokamak.api.FieldName;
+import com.wrmsr.tokamak.api.Payload;
+import com.wrmsr.tokamak.api.TableName;
+import com.wrmsr.tokamak.driver.Scanner;
 import io.airlift.tpch.TpchTable;
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -35,6 +40,7 @@ import org.jdbi.v3.core.Jdbi;
 
 import java.io.InputStreamReader;
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
@@ -150,6 +156,13 @@ public class AppTest
         jdbi.withHandle(handle -> {
             for (String stmt : JdbcUtils.splitSql(ddl)) {
                 handle.execute(stmt);
+            }
+
+            DatabaseMetaData metaData = handle.getConnection().getMetaData();
+            for (TableMetaData tblMd : MetaDataReflection.getTableMetadata(metaData)) {
+                List<ColumnMetaData> colMds = MetaDataReflection.getColumnMetaData(metaData, tblMd.getTableIdentifier());
+                List<PrimaryKeyMetaData> pkMds = MetaDataReflection.getPrimaryKeyMetaData(metaData, tblMd.getTableIdentifier());
+                List<IndexMetaData> idxMds = MetaDataReflection.getIndexMetaData(metaData, tblMd.getTableIdentifier());
             }
 
             for (TpchTable table : TpchTable.getTables()) {
