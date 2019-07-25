@@ -96,8 +96,8 @@ services:
       ZOO_PORT: '2181'
       ZOO_SERVERS: 'server.1=tokamak-zookeeper:2888:3888'
     volumes:
-      - '../zookeeper/data:/data'
-      - '../zookeeper/datalog:/datalog'
+      - '../temp/zookeeper/data:/data'
+      - '../temp/zookeeper/datalog:/datalog'
 
   tokamak-kafka:
     image: 'wrmsr/tokamak-kafka:latest'
@@ -113,7 +113,7 @@ services:
       KAFKA_LOG4J_LOGGERS: 'kafka.controller=INFO,kafka.producer.async.DefaultEventHandler=INFO,state.change.logger=INFO'
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
     volumes:
-      - '../kafka/data:/var/lib/kafka/data'
+      - '../temp/kafka/data:/var/lib/kafka/data'
     depends_on:
       - 'tokamak-zookeeper'
 

@@ -15,24 +15,14 @@ package com.wrmsr.tokamak;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.CharStreams;
-import com.google.inject.Guice;
-import com.google.inject.Inject;
-import com.google.inject.Injector;
-import com.google.inject.Key;
-import com.google.inject.PrivateModule;
-import com.google.inject.TypeLiteral;
-import com.google.inject.name.Names;
-import com.wrmsr.tokamak.jdbc.JdbcUtils;
-import com.wrmsr.tokamak.jdbc.metadata.ColumnMetaData;
-import com.wrmsr.tokamak.jdbc.metadata.IndexMetaData;
-import com.wrmsr.tokamak.jdbc.metadata.MetaDataReflection;
-import com.wrmsr.tokamak.jdbc.metadata.PrimaryKeyMetaData;
-import com.wrmsr.tokamak.jdbc.metadata.TableDescription;
-import com.wrmsr.tokamak.jdbc.metadata.TableMetaData;
 import com.wrmsr.tokamak.api.FieldName;
 import com.wrmsr.tokamak.api.Payload;
 import com.wrmsr.tokamak.api.TableName;
 import com.wrmsr.tokamak.driver.Scanner;
+import com.wrmsr.tokamak.jdbc.JdbcUtils;
+import com.wrmsr.tokamak.jdbc.metadata.MetaDataReflection;
+import com.wrmsr.tokamak.jdbc.metadata.TableDescription;
+import com.wrmsr.tokamak.jdbc.metadata.TableMetaData;
 import io.airlift.tpch.TpchTable;
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -46,7 +36,6 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.List;
-import java.util.function.Supplier;
 
 public class AppTest
         extends TestCase
@@ -61,54 +50,7 @@ public class AppTest
         return new TestSuite(AppTest.class);
     }
 
-    public static final class IntForwarder
-            implements Supplier<Integer>
-    {
-        private final Integer value;
-
-        @Inject
-        public IntForwarder(Integer value)
-        {
-            this.value = value;
-        }
-
-        @Override
-        public Integer get()
-        {
-            return value;
-        }
-    }
-
-    public static final class IntForwarderModule
-            extends PrivateModule
-    {
-        private final String name;
-        private final Integer value;
-
-        public IntForwarderModule(String name, Integer value)
-        {
-            this.name = name;
-            this.value = value;
-        }
-
-        @Override
-        protected void configure()
-        {
-            bind(Integer.class).toInstance(value);
-            bind(new TypeLiteral<Supplier<Integer>>() {}).annotatedWith(Names.named(name)).to(IntForwarder.class);
-            expose(new TypeLiteral<Supplier<Integer>>() {}).annotatedWith(Names.named(name));
-        }
-    }
-
-    public void testThing()
-            throws Throwable
-    {
-        Injector injector = Guice.createInjector(new IntForwarderModule("a", 1), new IntForwarderModule("b", 2));
-        System.out.println(injector.getInstance(Key.get(new TypeLiteral<Supplier<Integer>>() {}, Names.named("a"))).get());
-        System.out.println(injector.getInstance(Key.get(new TypeLiteral<Supplier<Integer>>() {}, Names.named("b"))).get());
-    }
-
-    public void testJdbc()
+    public void testJdbcMySql()
             throws Throwable
     {
         Class.forName("com.mysql.cj.jdbc.Driver");
@@ -121,8 +63,21 @@ public class AppTest
                 }
             }
         }
+    }
 
-        // TpchTable.SUPPLIER
+    public void testJdbcPostgres()
+            throws Throwable
+    {
+        Class.forName("org.postgresql.Driver");
+        try (Connection conn = DriverManager.getConnection("jdbc:postgresql://0.0.0.0:21213/", "tokamak", "tokamak")) {
+            try (Statement stmt = conn.createStatement()) {
+                try (ResultSet rs = stmt.executeQuery("select 420")) {
+                    while (rs.next()) {
+                        System.out.println(rs.getLong(1));
+                    }
+                }
+            }
+        }
     }
 
     public void testJdbc2()
@@ -153,7 +108,9 @@ public class AppTest
     {
         String ddl = CharStreams.toString(new InputStreamReader(AppTest.class.getResourceAsStream("tpch_ddl.sql")));
 
-        Jdbi jdbi = Jdbi.create("jdbc:h2:mem:test", "username", "password");
+        // String url = "jdbc:h2:mem:test";
+        String url = "jdbc:h2:file:./temp/test.db";
+        Jdbi jdbi = Jdbi.create(url, "username", "password");
         jdbi.withHandle(handle -> {
             for (String stmt : JdbcUtils.splitSql(ddl)) {
                 handle.execute(stmt);
@@ -177,6 +134,8 @@ public class AppTest
 
             List<Payload> payloads = scanner.scan(handle, FieldName.of("n_nationkey"), 10);
             System.out.println(payloads);
+
+            handle.commit();
 
             return null;
         });
