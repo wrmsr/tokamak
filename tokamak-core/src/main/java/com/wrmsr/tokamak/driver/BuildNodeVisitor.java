@@ -58,7 +58,7 @@ public class BuildNodeVisitor
     {
         ImmutableList.Builder<NodeOutput> ret = ImmutableList.builder();
         for (Row row : context.getDriverContext().build(node.getSource(), context.getKey())) {
-            if (node.getPredicate().test(row.getAttributes())) {
+            if (node.getPredicate().test(row)) {
                 ret.add(new NodeOutput(new Row(row.getId(), row.getAttributes()), ImmutableList.of(row)));
             }
             else {

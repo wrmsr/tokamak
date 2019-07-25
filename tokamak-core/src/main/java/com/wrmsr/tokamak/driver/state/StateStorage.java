@@ -13,8 +13,8 @@
  */
 package com.wrmsr.tokamak.driver.state;
 
-import com.wrmsr.tokamak.api.Attributes;
 import com.wrmsr.tokamak.api.Id;
+import com.wrmsr.tokamak.api.Row;
 import com.wrmsr.tokamak.node.StatefulNode;
 import com.wrmsr.tokamak.util.Span;
 
@@ -43,7 +43,7 @@ public interface StateStorage
     State createPhantom(
             StatefulNode node,
             Id id,
-            Attributes attributes
+            Row row
     )
             throws IOException;
 

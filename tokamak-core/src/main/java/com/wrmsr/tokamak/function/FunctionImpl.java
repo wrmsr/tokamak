@@ -13,15 +13,13 @@
  */
 package com.wrmsr.tokamak.function;
 
-import com.wrmsr.tokamak.api.Attributes;
-
-import javax.annotation.Nullable;
+import com.wrmsr.tokamak.api.Row;
 
 public final class FunctionImpl
         implements Function
 {
     @Override
-    public Attributes evaluate(@Nullable Attributes attributes)
+    public Row evaluate(Row row)
     {
         throw new IllegalStateException();
     }

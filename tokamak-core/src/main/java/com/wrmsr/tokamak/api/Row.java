@@ -19,21 +19,21 @@ import javax.annotation.concurrent.Immutable;
 @Immutable
 public final class Row
 {
-    private final Id id;
-    private final Attributes attributes;
+    private final @Nullable Id id;
+    private final @Nullable Object[] attributes;
 
-    public Row(Id id, @Nullable Attributes attributes)
+    public Row(@Nullable Id id, @Nullable Object[] attributes)
     {
         this.id = id;
         this.attributes = attributes;
     }
 
-    public Id getId()
+    public @Nullable Id getId()
     {
         return id;
     }
 
-    public Attributes getAttributes()
+    public @Nullable Object[] getAttributes()
     {
         return attributes;
     }

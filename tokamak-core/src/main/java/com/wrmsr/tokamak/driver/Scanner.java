@@ -15,7 +15,6 @@ package com.wrmsr.tokamak.driver;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableSet;
-import com.wrmsr.tokamak.api.Attributes;
 import com.wrmsr.tokamak.api.FieldName;
 import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.api.Row;
@@ -27,7 +26,6 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
-import static com.google.common.collect.ImmutableMap.toImmutableMap;
 
 public class Scanner
 {
@@ -60,11 +58,7 @@ public class Scanner
                 .stream()
                 .map(row -> new Row(
                         Id.of(value),
-                        new Attributes(
-                                row
-                                        .entrySet()
-                                        .stream()
-                                        .collect(toImmutableMap(e -> FieldName.of(e.getKey()), Map.Entry::getValue)))))
+                        row.values().stream().toArray(Object[]::new)))
                 .collect(toImmutableList());
     }
 }

@@ -13,8 +13,8 @@
  */
 package com.wrmsr.tokamak.driver.state;
 
-import com.wrmsr.tokamak.api.Attributes;
 import com.wrmsr.tokamak.api.Id;
+import com.wrmsr.tokamak.api.Row;
 import com.wrmsr.tokamak.api.Txid;
 
 import java.util.Optional;
@@ -36,7 +36,7 @@ public class State
     private Mode mode;
     private Optional<Txid> txid = Optional.empty();
     private Optional<Linkage> linkage = Optional.empty();
-    private Optional<Attributes> attributes = Optional.empty();
+    private Optional<Row> row = Optional.empty();
 
     public State(Id id, Mode mode)
     {
@@ -64,8 +64,8 @@ public class State
         return linkage;
     }
 
-    public Optional<Attributes> getAttributes()
+    public Optional<Row> getRow()
     {
-        return attributes;
+        return row;
     }
 }

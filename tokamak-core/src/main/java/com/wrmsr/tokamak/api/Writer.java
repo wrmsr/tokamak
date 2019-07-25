@@ -23,9 +23,9 @@ public interface Writer<T extends OutputTarget>
 {
     T getTarget();
 
-    void write(List<OutputItem> items)
+    void write(List<Row> rows)
             throws IOException;
 
-    void writeRange(Span<Id> idSpan, List<OutputItem> items)
+    void writeRange(Span<Id> idSpan, List<Row> rows)
             throws IOException;
 }

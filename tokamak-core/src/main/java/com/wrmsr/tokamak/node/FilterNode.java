@@ -13,8 +13,8 @@
  */
 package com.wrmsr.tokamak.node;
 
-import com.wrmsr.tokamak.api.Attributes;
 import com.wrmsr.tokamak.api.NodeName;
+import com.wrmsr.tokamak.api.Row;
 import com.wrmsr.tokamak.node.visitor.NodeVisitor;
 
 import javax.annotation.concurrent.Immutable;
@@ -28,13 +28,13 @@ public final class FilterNode
         implements SingleSourceNode
 {
     private final Node source;
-    private final Predicate<Attributes> predicate;
+    private final Predicate<Row> predicate;
     private final boolean unlinked;
 
     public FilterNode(
             NodeName name,
             Node source,
-            Predicate<Attributes> predicate,
+            Predicate<Row> predicate,
             Optional<Boolean> unlinked)
     {
         super(name);
@@ -52,7 +52,7 @@ public final class FilterNode
         return source;
     }
 
-    public Predicate<Attributes> getPredicate()
+    public Predicate<Row> getPredicate()
     {
         return predicate;
     }

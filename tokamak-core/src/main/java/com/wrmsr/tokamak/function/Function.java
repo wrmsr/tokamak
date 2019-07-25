@@ -13,12 +13,10 @@
  */
 package com.wrmsr.tokamak.function;
 
-import com.wrmsr.tokamak.api.Attributes;
-
-import javax.annotation.Nullable;
+import com.wrmsr.tokamak.api.Row;
 
 @FunctionalInterface
 public interface Function
 {
-    Attributes evaluate(@Nullable Attributes attributes);
+    Row evaluate(Row attributes);
 }

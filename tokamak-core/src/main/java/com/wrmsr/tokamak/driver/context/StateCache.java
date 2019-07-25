@@ -14,8 +14,8 @@
 package com.wrmsr.tokamak.driver.context;
 
 import com.google.common.collect.ImmutableList;
-import com.wrmsr.tokamak.api.Attributes;
 import com.wrmsr.tokamak.api.Id;
+import com.wrmsr.tokamak.api.Row;
 import com.wrmsr.tokamak.driver.state.State;
 import com.wrmsr.tokamak.driver.state.StateStorage;
 import com.wrmsr.tokamak.driver.state.StateStorageContext;
@@ -128,7 +128,7 @@ public class StateCache
         throw new IllegalStateException();
     }
 
-    public State setPhantomAttributes(StatefulNode node, Id id, Optional<Attributes> attributes)
+    public State setPhantomAttributes(StatefulNode node, Id id, Optional<Row> row)
     {
         throw new IllegalStateException();
     }

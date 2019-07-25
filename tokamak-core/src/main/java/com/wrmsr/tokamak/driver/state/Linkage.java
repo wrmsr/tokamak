@@ -15,9 +15,9 @@ package com.wrmsr.tokamak.driver.state;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.wrmsr.tokamak.api.Attributes;
 import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.api.NodeId;
+import com.wrmsr.tokamak.api.Row;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -68,11 +68,11 @@ public final class Linkage
     public static final class DenormalizedLinks
             implements Links
     {
-        private final Map<Id, Attributes> attributesById;
+        private final Map<Id, Row> rowsById;
 
-        public DenormalizedLinks(Map<Id, Attributes> attributesById)
+        public DenormalizedLinks(Map<Id, Row> attributesById)
         {
-            this.attributesById = ImmutableMap.copyOf(attributesById);
+            this.rowsById = ImmutableMap.copyOf(attributesById);
         }
 
         @Override
@@ -81,18 +81,18 @@ public final class Linkage
             if (this == o) { return true; }
             if (o == null || getClass() != o.getClass()) { return false; }
             DenormalizedLinks that = (DenormalizedLinks) o;
-            return Objects.equals(attributesById, that.attributesById);
+            return Objects.equals(rowsById, that.rowsById);
         }
 
         @Override
         public int hashCode()
         {
-            return Objects.hash(attributesById);
+            return Objects.hash(rowsById);
         }
 
-        public Map<Id, Attributes> getAttributesById()
+        public Map<Id, Row> getRowsById()
         {
-            return attributesById;
+            return rowsById;
         }
     }
 

@@ -27,7 +27,7 @@ import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static java.util.function.Function.identity;
 
 @Immutable
-public class RowLayout
+public final class RowLayout
 {
     private final List<String> fields;
     private final Map<String, Type> typesByField;
