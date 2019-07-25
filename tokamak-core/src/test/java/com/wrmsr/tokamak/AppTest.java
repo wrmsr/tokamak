@@ -143,7 +143,7 @@ public class AppTest
                             FieldName.of("n_name")));
 
             // Codec
-            TableDescription td = MetaDataReflection.getTableDescription(metaData, TableIdentifier.of("nation"));
+            TableDescription td = MetaDataReflection.getTableDescription(metaData, TableIdentifier.of("TEST.DB", "PUBLIC", "NATION"));
             // td.getCompositePrimaryKeyMetaData().getComponents()
 
             List<Row> rows = scanner.scan(handle, FieldName.of("n_nationkey"), 10);

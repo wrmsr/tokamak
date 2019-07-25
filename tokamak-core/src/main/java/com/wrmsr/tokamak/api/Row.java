@@ -16,6 +16,9 @@ package com.wrmsr.tokamak.api;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
+import java.util.Arrays;
+import java.util.Objects;
+
 @Immutable
 public final class Row
 {
@@ -26,6 +29,33 @@ public final class Row
     {
         this.id = id;
         this.attributes = attributes;
+    }
+
+    @Override
+    public boolean equals(Object o)
+    {
+        if (this == o) { return true; }
+        if (o == null || getClass() != o.getClass()) { return false; }
+        Row row = (Row) o;
+        return Objects.equals(id, row.id) &&
+                Arrays.equals(attributes, row.attributes);
+    }
+
+    @Override
+    public int hashCode()
+    {
+        int result = Objects.hash(id);
+        result = 31 * result + Arrays.hashCode(attributes);
+        return result;
+    }
+
+    @Override
+    public String toString()
+    {
+        return "Row{" +
+                "id=" + id +
+                ", attributes=" + Arrays.toString(attributes) +
+                '}';
     }
 
     public @Nullable Id getId()
