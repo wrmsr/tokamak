@@ -13,6 +13,53 @@
  */
 package com.wrmsr.tokamak;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.wrmsr.tokamak.type.Type;
+
+import javax.annotation.concurrent.Immutable;
+
+import java.util.List;
+import java.util.Map;
+import java.util.stream.IntStream;
+
+import static com.google.common.collect.ImmutableMap.toImmutableMap;
+import static java.util.function.Function.identity;
+
+@Immutable
 public class RowLayout
 {
+    private final List<String> fields;
+    private final Map<String, Type> typesByField;
+    private final Map<String, Integer> positionsByField;
+
+    public RowLayout(Map<String, Type> typesByField)
+    {
+        this.typesByField = ImmutableMap.copyOf(typesByField);
+        fields = ImmutableList.copyOf(typesByField.keySet());
+        positionsByField = IntStream.range(0, fields.size()).boxed().collect(toImmutableMap(fields::get, identity()));
+    }
+
+    @Override
+    public String toString()
+    {
+        return "RowLayout{" +
+                "typesByField=" + typesByField +
+                '}';
+    }
+
+    public List<String> getFields()
+    {
+        return fields;
+    }
+
+    public Map<String, Type> getTypesByField()
+    {
+        return typesByField;
+    }
+
+    public Map<String, Integer> getPositionsByField()
+    {
+        return positionsByField;
+    }
 }
