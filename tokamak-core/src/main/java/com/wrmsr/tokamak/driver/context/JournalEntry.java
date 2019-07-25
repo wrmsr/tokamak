@@ -70,7 +70,7 @@ public abstract class JournalEntry
 
     }
 
-    public final class PayloadCachedBuildOutput
+    public final class RowCachedBuildOutput
             extends JournalEntry
     {
 

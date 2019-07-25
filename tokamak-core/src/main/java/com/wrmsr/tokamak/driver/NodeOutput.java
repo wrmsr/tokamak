@@ -15,8 +15,7 @@
 package com.wrmsr.tokamak.driver;
 
 import com.google.common.collect.ImmutableList;
-import com.wrmsr.tokamak.api.Payload;
-import com.wrmsr.tokamak.api.Txid;
+import com.wrmsr.tokamak.api.Row;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -25,21 +24,21 @@ import java.util.List;
 @Immutable
 public final class NodeOutput
 {
-    private final Payload payload;
-    private final List<Payload> lineage;
+    private final Row row;
+    private final List<Row> lineage;
 
-    public NodeOutput(Payload payload, List<Payload> lineage)
+    public NodeOutput(Row row, List<Row> lineage)
     {
-        this.payload = payload;
+        this.row = row;
         this.lineage = ImmutableList.copyOf(lineage);
     }
 
-    public Payload getPayload()
+    public Row getRow()
     {
-        return payload;
+        return row;
     }
 
-    public List<Payload> getLineage()
+    public List<Row> getLineage()
     {
         return lineage;
     }

@@ -14,7 +14,7 @@
 package com.wrmsr.tokamak.driver.context;
 
 import com.wrmsr.tokamak.api.Key;
-import com.wrmsr.tokamak.api.Payload;
+import com.wrmsr.tokamak.api.Row;
 import com.wrmsr.tokamak.driver.DriverContext;
 import com.wrmsr.tokamak.node.Node;
 import org.jdbi.v3.core.Handle;
@@ -38,7 +38,7 @@ public final class DriverContextImpl
     }
 
     @Override
-    public List<Payload> build(Node node, Key key)
+    public List<Row> build(Node node, Key key)
     {
         throw new IllegalStateException();
     }

@@ -17,9 +17,9 @@ import com.wrmsr.tokamak.node.Node;
 
 public enum Stat
 {
-    PAYLOAD,
-    PAYLOAD_CACHE_HIT,
-    PAYLOAD_CACHE_MISS,
+    ROW,
+    ROW_CACHE_HIT,
+    ROW_CACHE_MISS,
 
     STATE,
     STATE_CACHE_HIT,
@@ -35,12 +35,12 @@ public enum Stat
     SCAN_LOAD_TIME,
 
     OUTPUT_WRITE,
-    OUTPUT_PAYLOAD,
+    OUTPUT_ROW,
 
     DENORMALIZED_SRC,
-    DENORMALIZED_SRC_PAYLOAD,
+    DENORMALIZED_SRC_ROW,
     DENORMALIZED_DST,
-    DENORMALIZED_DST_PAYLOAD,
+    DENORMALIZED_DST_ROW,
 
     QUEUE_SPILL,
 

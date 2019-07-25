@@ -14,7 +14,7 @@
 package com.wrmsr.tokamak.driver.context;
 
 import com.google.common.collect.ImmutableList;
-import com.wrmsr.tokamak.api.Payload;
+import com.wrmsr.tokamak.api.Row;
 import com.wrmsr.tokamak.node.GeneratorNode;
 import com.wrmsr.tokamak.node.Node;
 import com.wrmsr.tokamak.node.StatefulNode;
@@ -33,83 +33,83 @@ public class LineageTracker
 {
     private final boolean noState;
 
-    private final Map<Payload, Set<Payload>> lineagesByPayload;
+    private final Map<Row, Set<Row>> lineagesByRow;
 
-    private final Map<Payload, Set<Payload>> statefulOutputLineageSetsByPayload;
-    private final Map<Payload, Set<Payload>> statefulIntermediateLineageSetsByPayload;
-    private final Map<Payload, Set<Payload>> statefulInputLineageSetsByPayload;
+    private final Map<Row, Set<Row>> statefulOutputLineageSetsByRow;
+    private final Map<Row, Set<Row>> statefulIntermediateLineageSetsByRow;
+    private final Map<Row, Set<Row>> statefulInputLineageSetsByRow;
 
-    private static final Set<Payload> EMPTY_LINEAGE = unmodifiableSet(newIdentityHashSetOf(ImmutableList.of()));
+    private static final Set<Row> EMPTY_LINEAGE = unmodifiableSet(newIdentityHashSetOf(ImmutableList.of()));
 
     public LineageTracker(boolean noState)
     {
         this.noState = noState;
 
-        lineagesByPayload = new IdentityHashMap<>();
+        lineagesByRow = new IdentityHashMap<>();
 
         if (noState) {
-            statefulOutputLineageSetsByPayload = null;
-            statefulIntermediateLineageSetsByPayload = null;
-            statefulInputLineageSetsByPayload = null;
+            statefulOutputLineageSetsByRow = null;
+            statefulIntermediateLineageSetsByRow = null;
+            statefulInputLineageSetsByRow = null;
         }
         else {
-            statefulOutputLineageSetsByPayload = new IdentityHashMap<>();
-            statefulIntermediateLineageSetsByPayload = new IdentityHashMap<>();
-            statefulInputLineageSetsByPayload = new IdentityHashMap<>();
+            statefulOutputLineageSetsByRow = new IdentityHashMap<>();
+            statefulIntermediateLineageSetsByRow = new IdentityHashMap<>();
+            statefulInputLineageSetsByRow = new IdentityHashMap<>();
         }
     }
 
-    public boolean contains(Payload payload)
+    public boolean contains(Row row)
     {
-        return lineagesByPayload.containsKey(payload);
+        return lineagesByRow.containsKey(row);
     }
 
     private void trackInternal(
             Node node,
-            Payload payload,
-            Set<Payload> lineage)
+            Row row,
+            Set<Row> lineage)
     {
-        checkState(!lineagesByPayload.containsKey(payload));
+        checkState(!lineagesByRow.containsKey(row));
 
         if (node instanceof GeneratorNode) {
             checkArgument(lineage.isEmpty());
             lineage = EMPTY_LINEAGE;
         } else {
-            lineage.forEach(lp -> checkArgument(lineagesByPayload.containsKey(lp)));
+            lineage.forEach(lp -> checkArgument(lineagesByRow.containsKey(lp)));
         }
 
-        lineagesByPayload.put(payload, lineage);
+        lineagesByRow.put(row, lineage);
 
         if (!noState) {
-            Set<Payload> statefulLineage = newIdentityHashSet();
-            for (Payload lp : lineage) {
-                statefulLineage.addAll(statefulIntermediateLineageSetsByPayload.get(lp));
+            Set<Row> statefulLineage = newIdentityHashSet();
+            for (Row lp : lineage) {
+                statefulLineage.addAll(statefulIntermediateLineageSetsByRow.get(lp));
             }
 
             if (node instanceof StatefulNode) {
                 // FIXME
             }
             else {
-                statefulIntermediateLineageSetsByPayload.put(payload, statefulLineage);
+                statefulIntermediateLineageSetsByRow.put(row, statefulLineage);
             }
         }
     }
 
     public void track(
             Node node,
-            Payload payload,
-            Iterable<Payload> lineage)
+            Row row,
+            Iterable<Row> lineage)
     {
-        Set<Payload> lineageSet = unmodifiableSet(newIdentityHashSetOf(lineage));
+        Set<Row> lineageSet = unmodifiableSet(newIdentityHashSetOf(lineage));
         checkArgument(!lineageSet.isEmpty());
-        trackInternal(node, payload, lineageSet);
+        trackInternal(node, row, lineageSet);
     }
 
     public void trackBlackHole(
             Node node,
-            Payload payload,
-            Iterable<Payload> lineage)
+            Row row,
+            Iterable<Row> lineage)
     {
-        trackInternal(node, payload, EMPTY_LINEAGE);
+        trackInternal(node, row, EMPTY_LINEAGE);
     }
 }

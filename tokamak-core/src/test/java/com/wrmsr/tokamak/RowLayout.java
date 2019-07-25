@@ -11,29 +11,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.driver;
+package com.wrmsr.tokamak;
 
-import com.wrmsr.tokamak.api.Row;
-import com.wrmsr.tokamak.node.Node;
-
-public final class SyncOutput
+public class RowLayout
 {
-    private final Node node;
-    private final Row row;
-
-    public SyncOutput(Node node, Row row)
-    {
-        this.node = node;
-        this.row = row;
-    }
-
-    public Node getNode()
-    {
-        return node;
-    }
-
-    public Row getRow()
-    {
-        return row;
-    }
 }

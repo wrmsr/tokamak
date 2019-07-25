@@ -11,30 +11,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.api;
+package com.wrmsr.tokamak.driver.context;
 
-import javax.annotation.Nullable;
-import javax.annotation.concurrent.Immutable;
-
-@Immutable
-public final class Payload
+public class RowCache
 {
-    private final Id id;
-    private final Attributes attributes;
-
-    public Payload(Id id, @Nullable Attributes attributes)
-    {
-        this.id = id;
-        this.attributes = attributes;
-    }
-
-    public Id getId()
-    {
-        return id;
-    }
-
-    public Attributes getAttributes()
-    {
-        return attributes;
-    }
 }

@@ -28,7 +28,7 @@
 package com.wrmsr.tokamak.driver;
 
 import com.wrmsr.tokamak.api.Key;
-import com.wrmsr.tokamak.api.Payload;
+import com.wrmsr.tokamak.api.Row;
 import com.wrmsr.tokamak.node.Node;
 import org.jdbi.v3.core.Handle;
 
@@ -38,7 +38,7 @@ public interface DriverContext
 {
     Handle getJdbiHandle();
 
-    List<Payload> build(Node node, Key key);
+    List<Row> build(Node node, Key key);
 
     void commit();
 }

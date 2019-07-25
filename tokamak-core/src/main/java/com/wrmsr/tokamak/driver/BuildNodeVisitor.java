@@ -15,7 +15,7 @@ package com.wrmsr.tokamak.driver;
 
 import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.api.IdKey;
-import com.wrmsr.tokamak.api.Payload;
+import com.wrmsr.tokamak.api.Row;
 import com.wrmsr.tokamak.node.CrossJoinNode;
 import com.wrmsr.tokamak.node.EquijoinNode;
 import com.wrmsr.tokamak.node.FilterNode;
@@ -57,12 +57,12 @@ public class BuildNodeVisitor
     public List<NodeOutput> visitFilterNode(FilterNode node, BuildContext context)
     {
         ImmutableList.Builder<NodeOutput> ret = ImmutableList.builder();
-        for (Payload payload : context.getDriverContext().build(node.getSource(), context.getKey())) {
-            if (node.getPredicate().test(payload.getAttributes())) {
-                ret.add(new NodeOutput(new Payload(payload.getId(), payload.getAttributes()), ImmutableList.of(payload)));
+        for (Row row : context.getDriverContext().build(node.getSource(), context.getKey())) {
+            if (node.getPredicate().test(row.getAttributes())) {
+                ret.add(new NodeOutput(new Row(row.getId(), row.getAttributes()), ImmutableList.of(row)));
             }
             else {
-                ret.add(new NodeOutput(new Payload(payload.getId(), null), ImmutableList.of(payload)));
+                ret.add(new NodeOutput(new Row(row.getId(), null), ImmutableList.of(row)));
             }
         }
         return ret.build();

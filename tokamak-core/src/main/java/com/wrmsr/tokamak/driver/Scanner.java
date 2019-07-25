@@ -18,7 +18,7 @@ import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.api.Attributes;
 import com.wrmsr.tokamak.api.FieldName;
 import com.wrmsr.tokamak.api.Id;
-import com.wrmsr.tokamak.api.Payload;
+import com.wrmsr.tokamak.api.Row;
 import com.wrmsr.tokamak.api.TableName;
 import org.jdbi.v3.core.Handle;
 
@@ -40,7 +40,7 @@ public class Scanner
         this.fields = ImmutableSet.copyOf(fields);
     }
 
-    public List<Payload> scan(Handle handle, FieldName field, int value)
+    public List<Row> scan(Handle handle, FieldName field, int value)
     {
         String stmt = "" +
                 "select " +
@@ -58,7 +58,7 @@ public class Scanner
 
         return rows
                 .stream()
-                .map(row -> new Payload(
+                .map(row -> new Row(
                         Id.of(value),
                         new Attributes(
                                 row

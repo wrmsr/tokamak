@@ -15,7 +15,7 @@ package com.wrmsr.tokamak.driver;
 
 import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.api.Key;
-import com.wrmsr.tokamak.api.Payload;
+import com.wrmsr.tokamak.api.Row;
 import com.wrmsr.tokamak.node.Node;
 
 import java.io.IOException;
@@ -29,7 +29,7 @@ public interface Driver
     DriverContext createContext(Connection conn)
             throws IOException;
 
-    List<Payload> build(DriverContext context, Node node, Key key)
+    List<Row> build(DriverContext context, Node node, Key key)
             throws IOException;
 
     List<SyncOutput> sync(DriverContext context, Map<Node, Set<Id>> idSetsByNode)
