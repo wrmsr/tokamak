@@ -13,7 +13,6 @@
  */
 package com.wrmsr.tokamak;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.CharStreams;
 import com.wrmsr.tokamak.api.FieldName;
@@ -26,7 +25,6 @@ import com.wrmsr.tokamak.jdbc.metadata.ColumnMetaData;
 import com.wrmsr.tokamak.jdbc.metadata.MetaDataReflection;
 import com.wrmsr.tokamak.jdbc.metadata.TableDescription;
 import com.wrmsr.tokamak.jdbc.metadata.TableMetaData;
-import com.wrmsr.tokamak.util.codec.Codec;
 import io.airlift.tpch.TpchTable;
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -43,10 +41,9 @@ import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
-import java.sql.Types;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
+
+import static com.google.common.collect.ImmutableList.toImmutableList;
 
 public class AppTest
         extends TestCase
@@ -114,45 +111,6 @@ public class AppTest
 
     // https://docs.oracle.com/javase/tutorial/jdbc/basics/prepared.html
 
-    public interface RowIdCodec
-            extends Codec<Map<String, Object>, byte[]>
-    {
-    }
-
-    private static final class CompositeRowIdCodec
-            implements RowIdCodec, Iterable<RowIdCodec>
-    {
-        private final List<RowIdCodec> components;
-
-        public CompositeRowIdCodec(List<RowIdCodec> components)
-        {
-            this.components = ImmutableList.copyOf(components);
-        }
-
-        public List<RowIdCodec> getComponents()
-        {
-            return components;
-        }
-
-        @Override
-        public Iterator<RowIdCodec> iterator()
-        {
-            return components.iterator();
-        }
-
-        @Override
-        public Map<String, Object> decode(byte[] data)
-        {
-            return null;
-        }
-
-        @Override
-        public byte[] encode(Map<String, Object> data)
-        {
-            return new byte[0];
-        }
-    }
-
     public void testTpch()
             throws Throwable
     {
@@ -191,13 +149,11 @@ public class AppTest
             TableDescription td = MetaDataReflection.getTableDescription(metaData, TableIdentifier.of("TEST.DB", "PUBLIC", "NATION"));
             // td.getCompositePrimaryKeyMetaData().getComponents()
 
-            td.getCompositePrimaryKeyMetaData().getComponents().stream().map(pkmd -> {
+            List<IdCodecs.RowIdCodec> idcp = td.getCompositePrimaryKeyMetaData().getComponents().stream().map(pkmd -> {
                 ColumnMetaData cmd = td.getColumnMetaDatasByName().get(pkmd.getColumnName());
-                switch (cmd.getDataType()) {
-                    case Types.INTEGER:
-                        return
-                }
-            })
+                return new IdCodecs.ScalarRowIdCodec(cmd.getColumnName(), IdCodecs.getColumnIdCodec(cmd));
+            }).collect(toImmutableList());
+            IdCodecs.RowIdCodec idc = new IdCodecs.CompositeRowIdCodec(idcp);
 
             List<Row> rows = scanner.scan(handle, FieldName.of("n_nationkey"), 10);
             System.out.println(rows);
