@@ -177,13 +177,4 @@ public final class IdCodecs
         CODECS_BY_TYPE = builder.build();
     }
 
-    public static final Codec<?, byte[]> getColumnIdCodec(ColumnMetaData cmd)
-    {
-        switch (cmd.getDataType()) {
-            // case Types.VARCHAR:
-            //     return new ScalarRowIdCodec(cmd.getColumnName(), STRING_CODEC);
-            default:
-                throw new IllegalArgumentException(cmd.toString());
-        }
-    }
 }

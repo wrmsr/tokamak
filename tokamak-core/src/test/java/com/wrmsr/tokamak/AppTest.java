@@ -25,7 +25,6 @@ import com.wrmsr.tokamak.jdbc.metadata.ColumnMetaData;
 import com.wrmsr.tokamak.jdbc.metadata.MetaDataReflection;
 import com.wrmsr.tokamak.jdbc.metadata.TableDescription;
 import com.wrmsr.tokamak.jdbc.metadata.TableMetaData;
-import com.wrmsr.tokamak.type.Type;
 import io.airlift.tpch.TpchTable;
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -42,7 +41,6 @@ import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
-import java.sql.Types;
 import java.util.List;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
@@ -113,38 +111,6 @@ public class AppTest
 
     // https://docs.oracle.com/javase/tutorial/jdbc/basics/prepared.html
 
-    public static Type getTypeForColumn(ColumnMetaData cmd)
-    {
-        switch (cmd.getDataType()) {
-            case Types.BIT:
-                return Type.BOOLEAN;
-
-            case Types.SMALLINT:
-            case Types.INTEGER:
-            case Types.BIGINT:
-                return Type.LONG;
-
-            case Types.FLOAT:
-            case Types.DOUBLE:
-                return Type.DOUBLE;
-
-            case Types.CLOB:
-            case Types.VARCHAR:
-            case Types.LONGNVARCHAR:
-            case Types.LONGVARCHAR:
-            case Types.NCLOB:
-            case Types.NVARCHAR:
-                return Type.STRING;
-
-            case Types.BLOB:
-            case Types.VARBINARY:
-                return Type.BYTES;
-
-            default:
-                throw new IllegalArgumentException(cmd.toString());
-        }
-    }
-
     public void testTpch()
             throws Throwable
     {
@@ -183,9 +149,10 @@ public class AppTest
             TableDescription td = MetaDataReflection.getTableDescription(metaData, TableIdentifier.of("TEST.DB", "PUBLIC", "NATION"));
             // td.getCompositePrimaryKeyMetaData().getComponents()
 
-            List<IdCodecs.RowIdCodec> idcp = td.getCompositePrimaryKeyMetaData().getComponents().stream().map(pkmd ->
-                    (IdCodecs.RowIdCodec) IdCodecs.getColumnIdCodec(td.getColumnMetaDatasByName().get(pkmd.getColumnName()))
-            ).collect(toImmutableList());
+            List<IdCodecs.RowIdCodec> idcp = td.getCompositePrimaryKeyMetaData().getComponents().stream().map(pkmd -> {
+                ColumnMetaData cmd = td.getColumnMetaDatasByName().get(pkmd.getColumnName());
+                return new IdCodecs.ScalarRowIdCodec(cmd.getColumnName(), IdCodecs.CODECS_BY_TYPE.get(TypeUtils.getTypeForColumn(cmd)));
+            }).collect(toImmutableList());
             IdCodecs.RowIdCodec idc = new IdCodecs.CompositeRowIdCodec(idcp);
 
             List<Row> rows = scanner.scan(handle, FieldName.of("n_nationkey"), 10);
