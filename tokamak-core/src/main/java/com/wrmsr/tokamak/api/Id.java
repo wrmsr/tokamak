@@ -21,6 +21,7 @@ import com.wrmsr.tokamak.util.Box;
 import javax.annotation.concurrent.Immutable;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 import static com.google.common.base.Preconditions.checkState;
 import static com.wrmsr.tokamak.util.StringPrefixing.stripPrefix;
@@ -29,16 +30,40 @@ import static com.wrmsr.tokamak.util.subprocess.MoreBytes.toHex;
 
 @Immutable
 public final class Id
-        extends Box<byte[]>
 {
+    private final byte[] value;
+
     public Id(byte[] value)
     {
-        super(value);
+        this.value = value;
     }
 
-    public static Id of(byte[] value)
+    public byte[] getValue()
     {
-        return new Id(value);
+        return value;
+    }
+
+    @Override
+    public boolean equals(Object o)
+    {
+        if (this == o) { return true; }
+        if (o == null || getClass() != o.getClass()) { return false; }
+        Id id = (Id) o;
+        return Arrays.equals(value, id.value);
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return Arrays.hashCode(value);
+    }
+
+    @Override
+    public String toString()
+    {
+        return "Id{" +
+                "value=" + toHex(value) +
+                '}';
     }
 
     public static Id of(long value)
@@ -51,10 +76,9 @@ public final class Id
         return of(value.getBytes(Charsets.UTF_8));
     }
 
-    public int asInt()
+    public static Id of(byte[] value)
     {
-        checkState(value.length == 4);
-        return ByteBuffer.wrap(value).getInt();
+        return new Id(value);
     }
 
     public long asLong()
