@@ -104,9 +104,11 @@ public class BuildNodeVisitor
             throw new IllegalArgumentException(context.getKey().toString());
         }
 
-        scanner.scan(
-                context.getDriverContext().getJdbiHandle(),
-                context.getKey().)
+        // scanner.scan(
+        //         context.getDriverContext().getJdbiHandle(),
+        //         context.getKey().)
+
+        throw new UnsupportedOperationException();
     }
 
     @Override

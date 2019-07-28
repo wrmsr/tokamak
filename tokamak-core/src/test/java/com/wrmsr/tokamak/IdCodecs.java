@@ -176,5 +176,4 @@ public final class IdCodecs
 
         CODECS_BY_TYPE = builder.build();
     }
-
 }
