@@ -96,13 +96,17 @@ public class BuildNodeVisitor
     public List<NodeOutput> visitScanNode(ScanNode node, BuildContext context)
     {
         Scanner scanner = new Scanner(node.getTable(), node.getFields().keySet());
+
         if (context.getKey() instanceof IdKey) {
 
         }
-        // scanner.scan(
-        //         context.getDriverContext().getJdbiHandle(),
-        //         context.getKey().)
-        return super.visitScanNode(node, context);
+        else {
+            throw new IllegalArgumentException(context.getKey().toString());
+        }
+
+        scanner.scan(
+                context.getDriverContext().getJdbiHandle(),
+                context.getKey().)
     }
 
     @Override

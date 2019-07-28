@@ -54,7 +54,6 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.List;
-import java.util.Optional;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
@@ -158,7 +157,8 @@ public class AppTest
                     TableName.of("NATION"),
                     ImmutableSet.of(
                             FieldName.of("N_NATIONKEY"),
-                            FieldName.of("N_NAME")));
+                            FieldName.of("N_NAME")
+                    ));
 
             // Codec
             TableDescription td = MetaDataReflection.getTableDescription(
@@ -190,8 +190,7 @@ public class AppTest
                     ),
                     ImmutableMap.of(),
                     ImmutableMap.of(),
-                    ImmutableList.of()
-            );
+                    ImmutableList.of());
 
             List<NodeOutput> out = scanNode.accept(
                     new BuildNodeVisitor(),
