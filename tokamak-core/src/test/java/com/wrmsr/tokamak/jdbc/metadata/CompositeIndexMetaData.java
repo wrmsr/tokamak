@@ -16,11 +16,13 @@ package com.wrmsr.tokamak.jdbc.metadata;
 import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.jdbc.TableIdentifier;
 
+import java.util.Iterator;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
 public class CompositeIndexMetaData
+        implements Iterable<IndexMetaData>
 {
     private final List<IndexMetaData> components;
 
@@ -43,5 +45,11 @@ public class CompositeIndexMetaData
     public List<IndexMetaData> getComponents()
     {
         return components;
+    }
+
+    @Override
+    public Iterator<IndexMetaData> iterator()
+    {
+        return components.iterator();
     }
 }

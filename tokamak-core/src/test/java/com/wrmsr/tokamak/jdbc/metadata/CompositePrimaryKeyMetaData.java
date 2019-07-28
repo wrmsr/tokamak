@@ -15,9 +15,11 @@ package com.wrmsr.tokamak.jdbc.metadata;
 
 import com.google.common.collect.ImmutableList;
 
+import java.util.Iterator;
 import java.util.List;
 
 public class CompositePrimaryKeyMetaData
+        implements Iterable<PrimaryKeyMetaData>
 {
     private final List<PrimaryKeyMetaData> components;
 
@@ -29,5 +31,11 @@ public class CompositePrimaryKeyMetaData
     public List<PrimaryKeyMetaData> getComponents()
     {
         return components;
+    }
+
+    @Override
+    public Iterator<PrimaryKeyMetaData> iterator()
+    {
+        return components.iterator();
     }
 }
