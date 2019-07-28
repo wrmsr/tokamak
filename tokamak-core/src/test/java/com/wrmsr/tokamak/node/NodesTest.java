@@ -13,6 +13,7 @@
  */
 package com.wrmsr.tokamak.node;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.api.FieldName;
 import com.wrmsr.tokamak.api.Id;
@@ -22,8 +23,6 @@ import com.wrmsr.tokamak.api.TableName;
 import com.wrmsr.tokamak.type.Type;
 import com.wrmsr.tokamak.util.Json;
 import org.junit.Test;
-
-import java.util.Optional;
 
 public class NodesTest
 {
@@ -38,7 +37,7 @@ public class NodesTest
         NodeId nid = Json.OBJECT_MAPPER_THREAD_LOCAL.get().readValue(s, NodeId.class);
         System.out.println(nid);
 
-        s = Json.toJson(Id.of(new byte[]{ (byte) 0x12, (byte) 0x14 }));
+        s = Json.toJson(Id.of(new byte[] {(byte) 0x12, (byte) 0x14}));
         System.out.println(s);
         Id id = Json.OBJECT_MAPPER_THREAD_LOCAL.get().readValue(s, Id.class);
         System.out.println(id);
@@ -52,9 +51,9 @@ public class NodesTest
                 NodeName.of("hi"),
                 TableName.of("hi"),
                 ImmutableMap.of(FieldName.of("id"), Type.LONG, FieldName.of("thing"), Type.STRING),
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty()
+                ImmutableMap.of(),
+                ImmutableMap.of(),
+                ImmutableList.of()
         );
 
         System.out.println(Json.toJson(node));
