@@ -41,11 +41,6 @@ public final class Id
         return new Id(value);
     }
 
-    public static Id of(int value)
-    {
-        return of(ByteBuffer.allocate(4).putInt(value).array());
-    }
-
     public static Id of(long value)
     {
         return of(ByteBuffer.allocate(8).putLong(value).array());

@@ -33,6 +33,11 @@ public final class IdKey
         this.id = id;
     }
 
+    public static IdKey of(Id id)
+    {
+        return new IdKey(id);
+    }
+
     @Override
     public boolean equals(Object o)
     {

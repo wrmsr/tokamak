@@ -14,18 +14,29 @@
 package com.wrmsr.tokamak;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.CharStreams;
 import com.wrmsr.tokamak.api.FieldName;
+import com.wrmsr.tokamak.api.Id;
+import com.wrmsr.tokamak.api.IdKey;
+import com.wrmsr.tokamak.api.NodeName;
 import com.wrmsr.tokamak.api.Row;
 import com.wrmsr.tokamak.api.TableName;
+import com.wrmsr.tokamak.driver.BuildContext;
+import com.wrmsr.tokamak.driver.BuildNodeVisitor;
+import com.wrmsr.tokamak.driver.NodeOutput;
 import com.wrmsr.tokamak.driver.Scanner;
+import com.wrmsr.tokamak.driver.context.DriverContextImpl;
 import com.wrmsr.tokamak.jdbc.JdbcUtils;
 import com.wrmsr.tokamak.jdbc.TableIdentifier;
 import com.wrmsr.tokamak.jdbc.metadata.ColumnMetaData;
 import com.wrmsr.tokamak.jdbc.metadata.MetaDataReflection;
 import com.wrmsr.tokamak.jdbc.metadata.TableDescription;
 import com.wrmsr.tokamak.jdbc.metadata.TableMetaData;
+import com.wrmsr.tokamak.node.Node;
+import com.wrmsr.tokamak.node.ScanNode;
+import com.wrmsr.tokamak.type.Type;
 import io.airlift.tpch.TpchTable;
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -43,6 +54,7 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.List;
+import java.util.Optional;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
@@ -143,13 +155,14 @@ public class AppTest
             }
 
             Scanner scanner = new Scanner(
-                    TableName.of("nation"),
+                    TableName.of("NATION"),
                     ImmutableSet.of(
-                            FieldName.of("n_nationkey"),
-                            FieldName.of("n_name")));
+                            FieldName.of("N_NATIONKEY"),
+                            FieldName.of("N_NAME")));
 
             // Codec
-            TableDescription td = MetaDataReflection.getTableDescription(metaData, TableIdentifier.of("TEST.DB", "PUBLIC", "NATION"));
+            TableDescription td = MetaDataReflection.getTableDescription(
+                    metaData, TableIdentifier.of("TEST.DB", "PUBLIC", "NATION"));
             // td.getCompositePrimaryKeyMetaData().getComponents()
 
             RowLayout rl = new RowLayout(
@@ -163,10 +176,28 @@ public class AppTest
             }).collect(toImmutableList());
             IdCodecs.RowIdCodec idc = new IdCodecs.CompositeRowIdCodec(idcp);
 
-            List<Row> rows = scanner.scan(handle, FieldName.of("n_nationkey"), 10);
+            List<Row> rows = scanner.scan(handle, FieldName.of("N_NATIONKEY"), 10);
             System.out.println(rows);
 
             byte[] id = idc.encode(new RowView(rl, rows.get(0).getAttributes()));
+
+            Node scanNode = new ScanNode(
+                    NodeName.of("scan"),
+                    TableName.of("NATION"),
+                    ImmutableMap.of(
+                            FieldName.of("N_NATIONKEY"), Type.LONG,
+                            FieldName.of("N_NAME"), Type.STRING
+                    ),
+                    ImmutableMap.of(),
+                    ImmutableMap.of(),
+                    ImmutableList.of()
+            );
+
+            List<NodeOutput> out = scanNode.accept(
+                    new BuildNodeVisitor(),
+                    new BuildContext(
+                            new DriverContextImpl(handle),
+                            IdKey.of(Id.of(10))));
 
             handle.commit();
 

@@ -25,7 +25,6 @@ import javax.annotation.concurrent.Immutable;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @Immutable
 public final class ScanNode
@@ -39,9 +38,9 @@ public final class ScanNode
             @JsonProperty("name") NodeName name,
             @JsonProperty("table") TableName table,
             @JsonProperty("fields") Map<FieldName, Type> fields,
-            Optional<Map<NodeName, Invalidation>> invalidations,
-            Optional<Map<NodeName, LinkageMask>> linkageMasks,
-            Optional<List<NodeName>> idNodes)
+            Map<NodeName, Invalidation> invalidations,
+            Map<NodeName, LinkageMask> linkageMasks,
+            List<NodeName> idNodes)
     {
         super(name, invalidations, linkageMasks);
 

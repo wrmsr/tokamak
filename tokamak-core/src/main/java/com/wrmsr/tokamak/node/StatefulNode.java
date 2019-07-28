@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.api.NodeName;
 
 import java.util.Map;
-import java.util.Optional;
 
 public abstract class StatefulNode
         extends AbstractNode
@@ -14,12 +13,12 @@ public abstract class StatefulNode
 
     public StatefulNode(
             NodeName name,
-            Optional<Map<NodeName, Invalidation>> invalidations,
-            Optional<Map<NodeName, LinkageMask>> linkageMasks)
+            Map<NodeName, Invalidation> invalidations,
+            Map<NodeName, LinkageMask> linkageMasks)
     {
         super(name);
-        this.invalidations = ImmutableMap.copyOf(invalidations.get());
-        this.linkageMasks = ImmutableMap.copyOf(linkageMasks.get());
+        this.invalidations = ImmutableMap.copyOf(invalidations);
+        this.linkageMasks = ImmutableMap.copyOf(linkageMasks);
     }
 
     public Map<NodeName, Invalidation> getInvalidations()

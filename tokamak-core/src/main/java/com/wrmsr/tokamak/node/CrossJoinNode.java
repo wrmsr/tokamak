@@ -39,7 +39,7 @@ public final class CrossJoinNode
     public CrossJoinNode(
             NodeName name,
             List<Node> sources,
-            Optional<Mode> mode)
+            Mode mode)
     {
         super(name);
 

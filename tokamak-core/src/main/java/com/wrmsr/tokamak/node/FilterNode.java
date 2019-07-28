@@ -19,7 +19,6 @@ import com.wrmsr.tokamak.node.visitor.NodeVisitor;
 
 import javax.annotation.concurrent.Immutable;
 
-import java.util.Optional;
 import java.util.function.Predicate;
 
 @Immutable
@@ -35,13 +34,13 @@ public final class FilterNode
             NodeName name,
             Node source,
             Predicate<Row> predicate,
-            Optional<Boolean> unlinked)
+            boolean unlinked)
     {
         super(name);
 
         this.source = source;
         this.predicate = predicate;
-        this.unlinked = unlinked.get();
+        this.unlinked = unlinked;
 
         checkInvariants();
     }
