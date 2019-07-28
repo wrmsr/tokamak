@@ -13,6 +13,7 @@
  */
 package com.wrmsr.tokamak;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.CharStreams;
 import com.wrmsr.tokamak.api.FieldName;
@@ -44,6 +45,8 @@ import java.sql.Statement;
 import java.util.List;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
+import static com.google.common.collect.ImmutableMap.toImmutableMap;
+import static java.util.function.Function.identity;
 
 public class AppTest
         extends TestCase
@@ -149,6 +152,11 @@ public class AppTest
             TableDescription td = MetaDataReflection.getTableDescription(metaData, TableIdentifier.of("TEST.DB", "PUBLIC", "NATION"));
             // td.getCompositePrimaryKeyMetaData().getComponents()
 
+            RowLayout rl = new RowLayout(
+                    ImmutableList.of("N_NATIONKEY", "N_NAME").stream().collect(toImmutableMap(
+                            identity(),
+                            f -> TypeUtils.getTypeForColumn(td.getColumnMetaDatasByName().get(f)))));
+
             List<IdCodecs.RowIdCodec> idcp = td.getCompositePrimaryKeyMetaData().getComponents().stream().map(pkmd -> {
                 ColumnMetaData cmd = td.getColumnMetaDatasByName().get(pkmd.getColumnName());
                 return new IdCodecs.ScalarRowIdCodec(cmd.getColumnName(), IdCodecs.CODECS_BY_TYPE.get(TypeUtils.getTypeForColumn(cmd)));
@@ -157,6 +165,8 @@ public class AppTest
 
             List<Row> rows = scanner.scan(handle, FieldName.of("n_nationkey"), 10);
             System.out.println(rows);
+
+            byte[] id = idc.encode(new RowView(rl, rows.get(0).getAttributes()));
 
             handle.commit();
 

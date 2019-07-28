@@ -144,7 +144,7 @@ public final class IdCodecs
     );
 
     public static final Codec<Object, byte[]> LONG_CODEC = Codec.of(
-            v -> ByteBuffer.allocate(8).putLong((long) v).array(),
+            v -> ByteBuffer.allocate(8).putLong(((Number) v).longValue()).array(),
             b -> ByteBuffer.wrap(b).getLong()
     );
 

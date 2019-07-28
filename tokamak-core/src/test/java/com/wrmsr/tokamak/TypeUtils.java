@@ -31,25 +31,36 @@ public final class TypeUtils
             case Types.BIT:
                 return Type.BOOLEAN;
 
+            case Types.TINYINT:
             case Types.SMALLINT:
             case Types.INTEGER:
             case Types.BIGINT:
                 return Type.LONG;
 
             case Types.FLOAT:
+            case Types.REAL:
+
             case Types.DOUBLE:
                 return Type.DOUBLE;
 
-            case Types.CLOB:
+            case Types.CHAR:
             case Types.VARCHAR:
-            case Types.LONGNVARCHAR:
             case Types.LONGVARCHAR:
-            case Types.NCLOB:
+
+            case Types.CLOB:
+
+            case Types.NCHAR:
             case Types.NVARCHAR:
+            case Types.LONGNVARCHAR:
+
+            case Types.NCLOB:
                 return Type.STRING;
 
-            case Types.BLOB:
+            case Types.BINARY:
             case Types.VARBINARY:
+            case Types.LONGVARBINARY:
+
+            case Types.BLOB:
                 return Type.BYTES;
 
             default:
