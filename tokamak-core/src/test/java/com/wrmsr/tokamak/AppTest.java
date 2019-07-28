@@ -21,7 +21,6 @@ import com.wrmsr.tokamak.api.TableName;
 import com.wrmsr.tokamak.driver.Scanner;
 import com.wrmsr.tokamak.jdbc.JdbcUtils;
 import com.wrmsr.tokamak.jdbc.TableIdentifier;
-import com.wrmsr.tokamak.jdbc.metadata.ColumnMetaData;
 import com.wrmsr.tokamak.jdbc.metadata.MetaDataReflection;
 import com.wrmsr.tokamak.jdbc.metadata.TableDescription;
 import com.wrmsr.tokamak.jdbc.metadata.TableMetaData;
@@ -149,10 +148,9 @@ public class AppTest
             TableDescription td = MetaDataReflection.getTableDescription(metaData, TableIdentifier.of("TEST.DB", "PUBLIC", "NATION"));
             // td.getCompositePrimaryKeyMetaData().getComponents()
 
-            List<IdCodecs.RowIdCodec> idcp = td.getCompositePrimaryKeyMetaData().getComponents().stream().map(pkmd -> {
-                ColumnMetaData cmd = td.getColumnMetaDatasByName().get(pkmd.getColumnName());
-                return new IdCodecs.ScalarRowIdCodec(cmd.getColumnName(), IdCodecs.getColumnIdCodec(cmd));
-            }).collect(toImmutableList());
+            List<IdCodecs.RowIdCodec> idcp = td.getCompositePrimaryKeyMetaData().getComponents().stream().map(pkmd ->
+                    (IdCodecs.RowIdCodec) IdCodecs.getColumnIdCodec(td.getColumnMetaDatasByName().get(pkmd.getColumnName()))
+            ).collect(toImmutableList());
             IdCodecs.RowIdCodec idc = new IdCodecs.CompositeRowIdCodec(idcp);
 
             List<Row> rows = scanner.scan(handle, FieldName.of("n_nationkey"), 10);

@@ -15,12 +15,14 @@ package com.wrmsr.tokamak;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.type.Type;
 
 import javax.annotation.concurrent.Immutable;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.IntStream;
 
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
@@ -30,6 +32,7 @@ import static java.util.function.Function.identity;
 public final class RowLayout
 {
     private final List<String> fields;
+    private final Set<String> fieldSet;
     private final Map<String, Type> typesByField;
     private final Map<String, Integer> positionsByField;
 
@@ -37,6 +40,7 @@ public final class RowLayout
     {
         this.typesByField = ImmutableMap.copyOf(typesByField);
         fields = ImmutableList.copyOf(typesByField.keySet());
+        fieldSet = ImmutableSet.copyOf(fields);
         positionsByField = IntStream.range(0, fields.size()).boxed().collect(toImmutableMap(fields::get, identity()));
     }
 
@@ -51,6 +55,11 @@ public final class RowLayout
     public List<String> getFields()
     {
         return fields;
+    }
+
+    public Set<String> getFieldSet()
+    {
+        return fieldSet;
     }
 
     public Map<String, Type> getTypesByField()
