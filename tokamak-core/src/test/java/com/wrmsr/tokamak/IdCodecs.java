@@ -17,13 +17,13 @@ import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.jdbc.metadata.ColumnMetaData;
+import com.wrmsr.tokamak.type.Type;
 import com.wrmsr.tokamak.util.codec.Codec;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.sql.Types;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -135,28 +135,53 @@ public final class IdCodecs
         }
     }
 
-    public static final Codec<Integer, byte[]> INTEGER_CODEC = Codec.of(
-            v -> ByteBuffer.allocate(4).putInt(v).array(),
-            b -> ByteBuffer.wrap(b).getInt()
+    private static final byte[] BYTES_ZERO = new byte[] {(byte) 0};
+    private static final byte[] BYTES_ONE = new byte[] {(byte) 1};
+
+    public static final Codec<Object, byte[]> BOOLEAN_CODEC = Codec.of(
+            v -> ((Boolean) v) ? BYTES_ONE : BYTES_ZERO,
+            b -> ByteBuffer.wrap(b).get() != 0
     );
 
-    public static final Codec<Long, byte[]> LONG_CODEC = Codec.of(
-            v -> ByteBuffer.allocate(8).putLong(v).array(),
+    public static final Codec<Object, byte[]> LONG_CODEC = Codec.of(
+            v -> ByteBuffer.allocate(8).putLong((long) v).array(),
             b -> ByteBuffer.wrap(b).getLong()
     );
 
-    public static final Codec<String, byte[]> STRING_CODEC = Codec.of(
-            v -> v.getBytes(Charsets.UTF_8),
+    public static final Codec<Object, byte[]> DOUBLE_CODEC = Codec.of(
+            v -> ByteBuffer.allocate(8).putDouble((double) v).array(),
+            b -> ByteBuffer.wrap(b).getLong()
+    );
+
+    public static final Codec<Object, byte[]> STRING_CODEC = Codec.of(
+            v -> ((String) v).getBytes(Charsets.UTF_8),
             b -> new String(b, 0, b.length, Charsets.UTF_8)
     );
+
+    public static final Codec<Object, byte[]> BYTES_CODEC = Codec.of(
+            v -> (byte[]) v,
+            b -> b
+    );
+
+    public static final Map<Type, Codec<Object, byte[]>> CODECS_BY_TYPE;
+
+    static {
+        ImmutableMap.Builder<Type, Codec<Object, byte[]>> builder = ImmutableMap.builder();
+
+        builder.put(Type.BOOLEAN, BOOLEAN_CODEC);
+        builder.put(Type.LONG, LONG_CODEC);
+        builder.put(Type.DOUBLE, DOUBLE_CODEC);
+        builder.put(Type.STRING, STRING_CODEC);
+        builder.put(Type.BYTES, BYTES_CODEC);
+
+        CODECS_BY_TYPE = builder.build();
+    }
 
     public static final Codec<?, byte[]> getColumnIdCodec(ColumnMetaData cmd)
     {
         switch (cmd.getDataType()) {
-            case Types.INTEGER:
-                return new ScalarRowIdCodec(cmd.getColumnName(), LONG_CODEC);
-            case Types.VARCHAR:
-                return new ScalarRowIdCodec(cmd.getColumnName(), STRING_CODEC);
+            // case Types.VARCHAR:
+            //     return new ScalarRowIdCodec(cmd.getColumnName(), STRING_CODEC);
             default:
                 throw new IllegalArgumentException(cmd.toString());
         }
