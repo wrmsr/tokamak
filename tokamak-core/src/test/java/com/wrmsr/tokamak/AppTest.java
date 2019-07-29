@@ -151,10 +151,10 @@ public class AppTest
             }
 
             Scanner scanner = new Scanner(
-                    TableName.of("NATION"),
+                    "NATION",
                     ImmutableSet.of(
-                            FieldName.of("N_NATIONKEY"),
-                            FieldName.of("N_NAME")
+                            "N_NATIONKEY",
+                            "N_NAME"
                     ));
 
             // Codec
@@ -173,17 +173,17 @@ public class AppTest
             }).collect(toImmutableList());
             IdCodecs.RowIdCodec idc = new IdCodecs.CompositeRowIdCodec(idcp);
 
-            List<Row> rows = scanner.scan(handle, FieldName.of("N_NATIONKEY"), 10);
+            List<Row> rows = scanner.scan(handle, "N_NATIONKEY", 10);
             System.out.println(rows);
 
             byte[] id = idc.encode(new RowView(rl, rows.get(0).getAttributes()));
 
             Node scanNode = new ScanNode(
-                    NodeName.of("scan"),
-                    TableName.of("NATION"),
+                    "scan",
+                    "NATION",
                     ImmutableMap.of(
-                            FieldName.of("N_NATIONKEY"), Type.LONG,
-                            FieldName.of("N_NAME"), Type.STRING
+                            "N_NATIONKEY", Type.LONG,
+                            "N_NAME", Type.STRING
                     ),
                     ImmutableMap.of(),
                     ImmutableMap.of(),
