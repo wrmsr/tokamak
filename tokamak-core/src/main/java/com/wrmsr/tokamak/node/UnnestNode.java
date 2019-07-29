@@ -14,8 +14,6 @@
 package com.wrmsr.tokamak.node;
 
 import com.google.common.collect.ImmutableMap;
-import com.wrmsr.tokamak.api.FieldName;
-import com.wrmsr.tokamak.api.NodeName;
 import com.wrmsr.tokamak.node.visitor.NodeVisitor;
 import com.wrmsr.tokamak.type.Type;
 
@@ -33,22 +31,22 @@ public final class UnnestNode
         implements SingleSourceNode
 {
     private final Node source;
-    private final FieldName listField;
-    private final Map<FieldName, Type> unnestedFields;
-    private final Optional<FieldName> indexField;
+    private final String listField;
+    private final Map<String, Type> unnestedFields;
+    private final Optional<String> indexField;
 
-    private final Map<FieldName, Type> fields;
+    private final Map<String, Type> fields;
 
     public UnnestNode(
-            NodeName name,
+            String name,
             Node source,
-            FieldName listField,
-            Map<FieldName, Type> unnestedFields,
-            Optional<FieldName> indexField)
+            String listField,
+            Map<String, Type> unnestedFields,
+            Optional<String> indexField)
     {
         super(name);
 
-        Map<FieldName, Type> fields = source.getFields();
+        Map<String, Type> fields = source.getFields();
         checkArgument(fields.containsKey(listField));
         if (indexField.isPresent()) {
             if (fields.containsKey(indexField.get())) {
@@ -59,7 +57,7 @@ public final class UnnestNode
                 fields.put(indexField.get(), Type.LONG);
             }
         }
-        for (Map.Entry<FieldName, Type> entry : unnestedFields.entrySet()) {
+        for (Map.Entry<String, Type> entry : unnestedFields.entrySet()) {
             checkArgument(!fields.containsKey(entry.getKey()));
             fields.put(entry.getKey(), entry.getValue());
         }
@@ -80,23 +78,23 @@ public final class UnnestNode
         return source;
     }
 
-    public FieldName getListField()
+    public String getListField()
     {
         return listField;
     }
 
-    public Map<FieldName, Type> getUnnestedFields()
+    public Map<String, Type> getUnnestedFields()
     {
         return unnestedFields;
     }
 
-    public Optional<FieldName> getIndexField()
+    public Optional<String> getIndexField()
     {
         return indexField;
     }
 
     @Override
-    public Map<FieldName, Type> getFields()
+    public Map<String, Type> getFields()
     {
         return fields;
     }

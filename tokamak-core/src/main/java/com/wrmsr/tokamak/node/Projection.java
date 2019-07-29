@@ -15,7 +15,6 @@ package com.wrmsr.tokamak.node;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.wrmsr.tokamak.api.FieldName;
 import com.wrmsr.tokamak.function.Function;
 import com.wrmsr.tokamak.type.Type;
 
@@ -40,14 +39,14 @@ public final class Projection
     public static final class FieldInput
             implements Input
     {
-        private final FieldName field;
+        private final String field;
 
-        public FieldInput(FieldName field)
+        public FieldInput(String field)
         {
             this.field = field;
         }
 
-        public FieldName getField()
+        public String getField()
         {
             return field;
         }
@@ -77,21 +76,21 @@ public final class Projection
         }
     }
 
-    private final Map<FieldName, Input> inputsByOutput;
+    private final Map<String, Input> inputsByOutput;
 
-    private final Map<FieldName, FieldName> inputFieldsByOutput;
-    private final Map<FieldName, Set<FieldName>> outputSetsByInputField;
+    private final Map<String, String> inputFieldsByOutput;
+    private final Map<String, Set<String>> outputSetsByInputField;
 
-    public Projection(Map<FieldName, Input> inputsByOutput)
+    public Projection(Map<String, Input> inputsByOutput)
     {
         this.inputsByOutput = ImmutableMap.copyOf(inputsByOutput);
 
-        ImmutableMap.Builder<FieldName, FieldName> inputFieldsByOutput = ImmutableMap.builder();
-        Map<FieldName, ImmutableSet.Builder<FieldName>> outputSetsByInputField = new HashMap<>();
+        ImmutableMap.Builder<String, String> inputFieldsByOutput = ImmutableMap.builder();
+        Map<String, ImmutableSet.Builder<String>> outputSetsByInputField = new HashMap<>();
 
-        for (Map.Entry<FieldName, Input> entry : inputsByOutput.entrySet()) {
+        for (Map.Entry<String, Input> entry : inputsByOutput.entrySet()) {
             if (entry.getValue() instanceof FieldInput) {
-                FieldName field = ((FieldInput) entry.getValue()).getField();
+                String field = ((FieldInput) entry.getValue()).getField();
                 inputFieldsByOutput.put(entry.getKey(), field);
                 outputSetsByInputField.computeIfAbsent(field, v -> ImmutableSet.builder()).add(entry.getKey());
             }
@@ -102,22 +101,22 @@ public final class Projection
                 .collect(toImmutableMap(Map.Entry::getKey, e -> e.getValue().build()));
     }
 
-    public Map<FieldName, Input> getInputsByOutput()
+    public Map<String, Input> getInputsByOutput()
     {
         return inputsByOutput;
     }
 
-    public Map<FieldName, FieldName> getInputFieldsByOutput()
+    public Map<String, String> getInputFieldsByOutput()
     {
         return inputFieldsByOutput;
     }
 
-    public Map<FieldName, Set<FieldName>> getOutputSetsByInputField()
+    public Map<String, Set<String>> getOutputSetsByInputField()
     {
         return outputSetsByInputField;
     }
 
-    public static Projection only(Iterable<FieldName> fields)
+    public static Projection only(Iterable<String> fields)
     {
         return new Projection(
                 StreamSupport.stream(fields.spliterator(), false)

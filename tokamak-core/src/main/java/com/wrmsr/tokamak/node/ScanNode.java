@@ -15,9 +15,6 @@ package com.wrmsr.tokamak.node;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
-import com.wrmsr.tokamak.api.FieldName;
-import com.wrmsr.tokamak.api.NodeName;
-import com.wrmsr.tokamak.api.TableName;
 import com.wrmsr.tokamak.node.visitor.NodeVisitor;
 import com.wrmsr.tokamak.type.Type;
 
@@ -31,16 +28,16 @@ public final class ScanNode
         extends StatefulNode
         implements GeneratorNode
 {
-    private final TableName table;
-    private final Map<FieldName, Type> fields;
+    private final String table;
+    private final Map<String, Type> fields;
 
     public ScanNode(
-            @JsonProperty("name") NodeName name,
-            @JsonProperty("table") TableName table,
-            @JsonProperty("fields") Map<FieldName, Type> fields,
-            Map<NodeName, Invalidation> invalidations,
-            Map<NodeName, LinkageMask> linkageMasks,
-            List<NodeName> idNodes)
+            @JsonProperty("name") String name,
+            @JsonProperty("table") String table,
+            @JsonProperty("fields") Map<String, Type> fields,
+            Map<String, Invalidation> invalidations,
+            Map<String, LinkageMask> linkageMasks,
+            List<String> idNodes)
     {
         super(name, invalidations, linkageMasks);
 
@@ -51,13 +48,13 @@ public final class ScanNode
     }
 
     @JsonProperty("table")
-    public TableName getTable()
+    public String getTable()
     {
         return table;
     }
 
     @JsonProperty("fields")
-    public Map<FieldName, Type> getFields()
+    public Map<String, Type> getFields()
     {
         return fields;
     }

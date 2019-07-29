@@ -13,7 +13,70 @@
  */
 package com.wrmsr.tokamak;
 
+import com.google.common.collect.ImmutableList;
+
+import javax.annotation.concurrent.Immutable;
+
+import java.util.Iterator;
+import java.util.List;
+
+@Immutable
 public class TableLayout
 {
-    private final
+    @Immutable
+    public static final class Key
+            implements Iterable<String>
+    {
+        private final List<String> fields;
+
+        public Key(List<String> fields)
+        {
+            this.fields = ImmutableList.copyOf(fields);
+        }
+
+        @Override
+        public String toString()
+        {
+            return "Key{" +
+                    "fields=" + fields +
+                    '}';
+        }
+
+        public List<String> getFields()
+        {
+            return fields;
+        }
+
+        @Override
+        public Iterator<String> iterator()
+        {
+            return fields.iterator();
+        }
+    }
+
+    private final RowLayout rowLayout;
+    private final Key primaryKey;
+    private final List<Key> secondaryKeys;
+
+    public TableLayout(RowLayout rowLayout, Key primaryKey, List<Key> secondaryKeys)
+    {
+        this.rowLayout = rowLayout;
+        this.primaryKey = primaryKey;
+        this.secondaryKeys = ImmutableList.copyOf(secondaryKeys);
+    }
+
+    public RowLayout getRowLayout()
+    {
+        return rowLayout;
+    }
+
+    public Key getPrimaryKey()
+    {
+        return primaryKey;
+    }
+
+    public List<Key> getSecondaryKeys()
+    {
+        return secondaryKeys;
+    }
 }

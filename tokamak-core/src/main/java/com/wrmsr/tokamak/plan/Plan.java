@@ -16,7 +16,6 @@ package com.wrmsr.tokamak.plan;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.api.NodeId;
-import com.wrmsr.tokamak.api.NodeName;
 import com.wrmsr.tokamak.node.Node;
 
 import java.util.ArrayList;
@@ -34,7 +33,7 @@ public final class Plan
     private final Node root;
 
     private final Set<Node> nodes;
-    private final Map<NodeName, Node> nodesByName;
+    private final Map<String, Node> nodesByName;
     private final Map<NodeId, Node> nodesByNodeId;
 
     public Plan(Node root)
@@ -42,7 +41,7 @@ public final class Plan
         this.root = root;
 
         Set<Node> nodes = new HashSet<>();
-        Map<NodeName, Node> nodesByName = new HashMap<>();
+        Map<String, Node> nodesByName = new HashMap<>();
         Map<NodeId, Node> nodesByNodeId = new HashMap<>();
 
         List<Node> nodeStack = new ArrayList<>();
@@ -75,7 +74,7 @@ public final class Plan
         return nodes;
     }
 
-    public Map<NodeName, Node> getNodesByName()
+    public Map<String, Node> getNodesByName()
     {
         return nodesByName;
     }

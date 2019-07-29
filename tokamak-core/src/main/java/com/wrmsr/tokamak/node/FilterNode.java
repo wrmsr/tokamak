@@ -13,7 +13,6 @@
  */
 package com.wrmsr.tokamak.node;
 
-import com.wrmsr.tokamak.api.NodeName;
 import com.wrmsr.tokamak.api.Row;
 import com.wrmsr.tokamak.node.visitor.NodeVisitor;
 
@@ -31,7 +30,7 @@ public final class FilterNode
     private final boolean unlinked;
 
     public FilterNode(
-            NodeName name,
+            String name,
             Node source,
             Predicate<Row> predicate,
             boolean unlinked)

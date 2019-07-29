@@ -13,8 +13,6 @@
  */
 package com.wrmsr.tokamak.node;
 
-import com.wrmsr.tokamak.api.FieldName;
-import com.wrmsr.tokamak.api.NodeName;
 import com.wrmsr.tokamak.node.visitor.NodeVisitor;
 
 import javax.annotation.concurrent.Immutable;
@@ -32,9 +30,9 @@ public final class LookupJoinNode
     public static final class Branch
     {
         private final Node node;
-        private final FieldName field;
+        private final String field;
 
-        public Branch(Node node, FieldName field)
+        public Branch(Node node, String field)
         {
             this.node = node;
             this.field = field;
@@ -45,17 +43,17 @@ public final class LookupJoinNode
             return node;
         }
 
-        public FieldName getField()
+        public String getField()
         {
             return field;
         }
     }
 
     public LookupJoinNode(
-            NodeName name,
+            String name,
             Node source,
             List<Branch> branches,
-            Optional<FieldName> sourceIdField)
+            Optional<String> sourceIdField)
     {
         super(name);
 

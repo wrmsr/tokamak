@@ -14,8 +14,6 @@
 package com.wrmsr.tokamak.node;
 
 import com.google.common.collect.ImmutableSet;
-import com.wrmsr.tokamak.api.FieldName;
-import com.wrmsr.tokamak.api.NodeName;
 import com.wrmsr.tokamak.node.visitor.NodeVisitor;
 
 import javax.annotation.concurrent.Immutable;
@@ -29,14 +27,14 @@ public final class ListAggregateNode
         implements AggregateNode, SingleSourceNode
 {
     private final Node source;
-    private final FieldName groupField;
-    private final Set<FieldName> listFields;
+    private final String groupField;
+    private final Set<String> listFields;
 
     public ListAggregateNode(
-            NodeName name,
+            String name,
             Node source,
-            FieldName groupField,
-            List<FieldName> listFields)
+            String groupField,
+            List<String> listFields)
     {
         super(name);
         this.source = source;
@@ -52,12 +50,12 @@ public final class ListAggregateNode
         return source;
     }
 
-    public FieldName getGroupField()
+    public String getGroupField()
     {
         return groupField;
     }
 
-    public Set<FieldName> getListFields()
+    public Set<String> getListFields()
     {
         return listFields;
     }

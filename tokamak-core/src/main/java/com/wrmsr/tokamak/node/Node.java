@@ -15,9 +15,7 @@ package com.wrmsr.tokamak.node;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.wrmsr.tokamak.api.FieldName;
 import com.wrmsr.tokamak.api.NodeId;
-import com.wrmsr.tokamak.api.NodeName;
 import com.wrmsr.tokamak.node.visitor.NodeVisitor;
 import com.wrmsr.tokamak.type.Type;
 
@@ -42,15 +40,15 @@ import java.util.Set;
 })
 public interface Node
 {
-    NodeName getName();
+    String getName();
 
     NodeId getNodeId();
 
     Set<Node> getChildren();
 
-    Map<FieldName, Type> getFields();
+    Map<String, Type> getFields();
 
-    Set<FieldName> getIdFields();
+    Set<String> getIdFields();
 
     <R, C> R accept(NodeVisitor<R, C> visitor, C context);
 }

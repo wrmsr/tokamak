@@ -14,7 +14,6 @@
 package com.wrmsr.tokamak.node;
 
 import com.google.common.collect.ImmutableList;
-import com.wrmsr.tokamak.api.NodeName;
 import com.wrmsr.tokamak.api.OutputTarget;
 import com.wrmsr.tokamak.node.visitor.NodeVisitor;
 
@@ -33,12 +32,12 @@ public final class PersistNode
     private final boolean denormalized;
 
     public PersistNode(
-            NodeName name,
+            String name,
             Node source,
             List<OutputTarget> outputTargets,
             boolean denormalized,
-            Map<NodeName, Invalidation> invalidations,
-            Map<NodeName, LinkageMask> linkageMasks)
+            Map<String, Invalidation> invalidations,
+            Map<String, LinkageMask> linkageMasks)
     {
         super(name, invalidations, linkageMasks);
         this.source = source;

@@ -13,9 +13,7 @@
  */
 package com.wrmsr.tokamak.node;
 
-import com.wrmsr.tokamak.api.FieldName;
 import com.wrmsr.tokamak.api.NodeId;
-import com.wrmsr.tokamak.api.NodeName;
 import com.wrmsr.tokamak.type.Type;
 
 import java.util.Map;
@@ -26,13 +24,13 @@ import static com.wrmsr.tokamak.util.MorePreconditions.checkUnique;
 public abstract class AbstractNode
         implements Node
 {
-    private final NodeName name;
+    private final String name;
     private final NodeId nodeId;
 
-    public AbstractNode(NodeName name)
+    public AbstractNode(String name)
     {
         this.name = name;
-        this.nodeId = NodeId.compute(name);
+        this.nodeId = NodeId.of(name);
     }
 
     protected void checkInvariants()
@@ -41,7 +39,7 @@ public abstract class AbstractNode
     }
 
     @Override
-    public NodeName getName()
+    public String getName()
     {
         return name;
     }
@@ -53,13 +51,13 @@ public abstract class AbstractNode
     }
 
     @Override
-    public Map<FieldName, Type> getFields()
+    public Map<String, Type> getFields()
     {
         throw new IllegalStateException();
     }
 
     @Override
-    public Set<FieldName> getIdFields()
+    public Set<String> getIdFields()
     {
         throw new IllegalStateException();
     }

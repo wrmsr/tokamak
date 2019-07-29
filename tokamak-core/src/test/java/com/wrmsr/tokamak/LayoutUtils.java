@@ -11,33 +11,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.api;
+package com.wrmsr.tokamak;
 
-import com.google.common.collect.ImmutableMap;
-
-import javax.annotation.concurrent.Immutable;
-
-import java.util.Map;
-
-@Immutable
-public abstract class OutputTarget
+public final class LayoutUtils
 {
-    private final String name;
-    private final Map<String, Object> options;
-
-    public OutputTarget(String name, Map<String, Object> options)
+    private LayoutUtils()
     {
-        this.name = name;
-        this.options = ImmutableMap.copyOf(options);
-    }
-
-    public String getName()
-    {
-        return name;
-    }
-
-    public Map<String, Object> getOptions()
-    {
-        return options;
     }
 }

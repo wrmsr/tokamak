@@ -16,8 +16,6 @@ package com.wrmsr.tokamak.node;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.wrmsr.tokamak.api.FieldName;
-import com.wrmsr.tokamak.api.NodeName;
 import com.wrmsr.tokamak.node.visitor.NodeVisitor;
 import com.wrmsr.tokamak.type.Type;
 
@@ -51,9 +49,9 @@ public final class EquijoinNode
     public static final class Branch
     {
         private final Node node;
-        private final FieldName field;
+        private final String field;
 
-        public Branch(Node node, FieldName field)
+        public Branch(Node node, String field)
         {
             this.node = node;
             this.field = field;
@@ -80,7 +78,7 @@ public final class EquijoinNode
             return node;
         }
 
-        public FieldName getField()
+        public String getField()
         {
             return field;
         }
@@ -90,14 +88,14 @@ public final class EquijoinNode
     private final Mode mode;
 
     private final Map<Node, Branch> branchesByNode;
-    private final Map<FieldName, Set<Node>> nodeSetsByField;
-    private final Map<FieldName, Node> nodesByUniqueField;
-    private final Set<FieldName> guaranteedUniqueFields;
-    private final Map<FieldName, Type> fields;
-    private final Set<FieldName> idFields;
+    private final Map<String, Set<Node>> nodeSetsByField;
+    private final Map<String, Node> nodesByUniqueField;
+    private final Set<String> guaranteedUniqueFields;
+    private final Map<String, Type> fields;
+    private final Set<String> idFields;
 
     public EquijoinNode(
-            NodeName name,
+            String name,
             List<Branch> branches,
             Mode mode)
     {
@@ -108,9 +106,9 @@ public final class EquijoinNode
 
         this.branchesByNode = this.branches.stream().collect(toImmutableMap(Branch::getNode, identity()));
 
-        Map<FieldName, ImmutableSet.Builder<Node>> nodeSetsByField = new HashMap<>();
+        Map<String, ImmutableSet.Builder<Node>> nodeSetsByField = new HashMap<>();
         for (Branch branch : this.branches) {
-            for (FieldName field : branch.node.getFields().keySet()) {
+            for (String field : branch.node.getFields().keySet()) {
                 nodeSetsByField.computeIfAbsent(field, n -> ImmutableSet.builder()).add(branch.node);
             }
         }
@@ -119,14 +117,14 @@ public final class EquijoinNode
                 .filter(e -> e.getValue().size() == 1)
                 .collect(toImmutableMap(Map.Entry::getKey, e -> e.getValue().stream().findFirst().get()));
         guaranteedUniqueFields = this.nodeSetsByField.entrySet().stream()
-                .filter(e -> e.getValue().stream().allMatch(n -> this.branchesByNode.get(n).field == e.getKey()))
+                .filter(e -> e.getValue().stream().allMatch(n -> this.branchesByNode.get(n).field.equals(e.getKey())))
                 .map(Map.Entry::getKey)
                 .collect(toImmutableSet());
 
-        Map<FieldName, Type> fields = new LinkedHashMap<>();
+        Map<String, Type> fields = new LinkedHashMap<>();
         for (Branch branch : this.branches) {
             checkArgument(branch.node.getFields().containsKey(branch.getField()));
-            for (Map.Entry<FieldName, Type> entry : branch.getNode().getFields().entrySet()) {
+            for (Map.Entry<String, Type> entry : branch.getNode().getFields().entrySet()) {
                 if (!fields.containsKey(entry.getKey())) {
                     fields.put(entry.getKey(), entry.getValue());
                 }
@@ -158,29 +156,29 @@ public final class EquijoinNode
         return branchesByNode;
     }
 
-    public Map<FieldName, Set<Node>> getNodeSetsByField()
+    public Map<String, Set<Node>> getNodeSetsByField()
     {
         return nodeSetsByField;
     }
 
-    public Map<FieldName, Node> getNodesByUniqueField()
+    public Map<String, Node> getNodesByUniqueField()
     {
         return nodesByUniqueField;
     }
 
-    public Set<FieldName> getGuaranteedUniqueFields()
+    public Set<String> getGuaranteedUniqueFields()
     {
         return guaranteedUniqueFields;
     }
 
     @Override
-    public Map<FieldName, Type> getFields()
+    public Map<String, Type> getFields()
     {
         return fields;
     }
 
     @Override
-    public Set<FieldName> getIdFields()
+    public Set<String> getIdFields()
     {
         return idFields;
     }

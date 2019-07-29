@@ -15,10 +15,8 @@ package com.wrmsr.tokamak.driver;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableSet;
-import com.wrmsr.tokamak.api.FieldName;
 import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.api.Row;
-import com.wrmsr.tokamak.api.TableName;
 import org.jdbi.v3.core.Handle;
 
 import java.util.List;
@@ -29,24 +27,24 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 
 public class Scanner
 {
-    private final TableName table;
-    private final Set<FieldName> fields;
+    private final String table;
+    private final Set<String> fields;
 
-    public Scanner(TableName table, Set<FieldName> fields)
+    public Scanner(String table, Set<String> fields)
     {
         this.table = table;
         this.fields = ImmutableSet.copyOf(fields);
     }
 
-    public List<Row> scan(Handle handle, FieldName field, int value)
+    public List<Row> scan(Handle handle, String field, int value)
     {
         String stmt = "" +
                 "select " +
-                Joiner.on(", ").join(fields.stream().map(FieldName::getValue).collect(toImmutableList())) +
+                Joiner.on(", ").join(fields.stream().collect(toImmutableList())) +
                 " from " +
-                table.getValue() +
+                table +
                 " where " +
-                field.getValue() +
+                field +
                 " = :value";
 
         List<Map<String, Object>> rows = handle

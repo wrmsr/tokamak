@@ -14,8 +14,6 @@
 package com.wrmsr.tokamak.node;
 
 import com.google.common.collect.ImmutableMap;
-import com.wrmsr.tokamak.api.FieldName;
-import com.wrmsr.tokamak.api.NodeName;
 import com.wrmsr.tokamak.node.visitor.NodeVisitor;
 import com.wrmsr.tokamak.type.Type;
 
@@ -33,17 +31,17 @@ public final class ProjectNode
     private final Node source;
     private final Projection projection;
 
-    private final Map<FieldName, Type> fields;
+    private final Map<String, Type> fields;
 
-    public ProjectNode(NodeName name, Node source, Projection projection)
+    public ProjectNode(String name, Node source, Projection projection)
     {
         super(name);
 
-        ImmutableMap.Builder<FieldName, Type> fields = ImmutableMap.builder();
+        ImmutableMap.Builder<String, Type> fields = ImmutableMap.builder();
 
-        for (Map.Entry<FieldName, Projection.Input> entry : projection.getInputsByOutput().entrySet()) {
+        for (Map.Entry<String, Projection.Input> entry : projection.getInputsByOutput().entrySet()) {
             if (entry.getValue() instanceof Projection.FieldInput) {
-                FieldName inputField = ((Projection.FieldInput) entry.getValue()).getField();
+                String inputField = ((Projection.FieldInput) entry.getValue()).getField();
                 checkArgument(source.getFields().containsKey(inputField));
                 fields.put(entry.getKey(), source.getFields().get(inputField));
             }
@@ -75,7 +73,7 @@ public final class ProjectNode
     }
 
     @Override
-    public Map<FieldName, Type> getFields()
+    public Map<String, Type> getFields()
     {
         return fields;
     }

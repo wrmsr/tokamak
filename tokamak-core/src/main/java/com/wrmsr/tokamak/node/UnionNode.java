@@ -14,8 +14,6 @@
 package com.wrmsr.tokamak.node;
 
 import com.google.common.collect.ImmutableSet;
-import com.wrmsr.tokamak.api.FieldName;
-import com.wrmsr.tokamak.api.NodeName;
 import com.wrmsr.tokamak.node.visitor.NodeVisitor;
 import com.wrmsr.tokamak.type.Type;
 
@@ -34,13 +32,13 @@ public final class UnionNode
     private final Set<Node> sources;
 
     public UnionNode(
-            NodeName name,
+            String name,
             List<Node> sources)
     {
         super(name);
 
         checkArgument(!sources.isEmpty());
-        Map<FieldName, Type> fields = sources.get(0).getFields();
+        Map<String, Type> fields = sources.get(0).getFields();
         for (int i = 1; i < sources.size(); ++i) {
             checkArgument(fields.equals(sources.get(i).getFields()));
         }

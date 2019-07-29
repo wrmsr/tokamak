@@ -15,8 +15,6 @@ package com.wrmsr.tokamak.node;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.wrmsr.tokamak.api.FieldName;
-import com.wrmsr.tokamak.api.NodeName;
 import com.wrmsr.tokamak.node.visitor.NodeVisitor;
 import com.wrmsr.tokamak.type.Type;
 
@@ -34,16 +32,16 @@ public final class ValuesNode
         extends AbstractNode
         implements GeneratorNode
 {
-    private final Map<FieldName, Type> fields;
+    private final Map<String, Type> fields;
     private final List<Object> values;
-    private final Optional<FieldName> indexField;
+    private final Optional<String> indexField;
     private final boolean isStrict;
 
     public ValuesNode(
-            NodeName name,
-            Map<FieldName, Type> fields,
+            String name,
+            Map<String, Type> fields,
             List<Object> values,
-            Optional<FieldName> indexField,
+            Optional<String> indexField,
             Optional<Boolean> isStrict)
     {
         super(name);
@@ -72,12 +70,12 @@ public final class ValuesNode
     }
 
     @Override
-    public Map<FieldName, Type> getFields()
+    public Map<String, Type> getFields()
     {
         return fields;
     }
 
-    public Optional<FieldName> getIndexField()
+    public Optional<String> getIndexField()
     {
         return indexField;
     }

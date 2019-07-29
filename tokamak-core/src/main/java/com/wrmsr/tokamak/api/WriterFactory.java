@@ -19,7 +19,7 @@ public interface WriterFactory<T extends OutputTarget>
 {
     Class<? extends T> getTargetType();
 
-    OutputName getName();
+    String getName();
 
     T build(T target)
             throws IOException;

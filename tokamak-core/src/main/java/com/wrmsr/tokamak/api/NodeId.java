@@ -49,9 +49,9 @@ public final class NodeId
         return new NodeId(Integer.parseInt(string, 16));
     }
 
-    public static NodeId compute(NodeName name)
+    public static NodeId of(String name)
     {
-        ByteBuffer bytes = StandardCharsets.UTF_8.encode(name.getValue());
+        ByteBuffer bytes = StandardCharsets.UTF_8.encode(name);
         int hash = Hashing.murmur3_32().newHasher().putBytes(bytes).hash().asInt();
         return new NodeId(hash);
     }

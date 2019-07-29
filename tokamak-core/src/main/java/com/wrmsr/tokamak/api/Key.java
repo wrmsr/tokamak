@@ -31,7 +31,7 @@ public interface Key
         return AllKey.INSTANCE;
     }
 
-    static <V> FieldKey<V> of(FieldName field, V value)
+    static <V> FieldKey<V> of(String field, V value)
     {
         return new FieldKey<>(field, value);
     }

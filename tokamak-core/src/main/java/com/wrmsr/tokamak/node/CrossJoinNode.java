@@ -14,13 +14,11 @@
 package com.wrmsr.tokamak.node;
 
 import com.google.common.collect.ImmutableList;
-import com.wrmsr.tokamak.api.NodeName;
 import com.wrmsr.tokamak.node.visitor.NodeVisitor;
 
 import javax.annotation.concurrent.Immutable;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 @Immutable
@@ -37,7 +35,7 @@ public final class CrossJoinNode
     private final List<Node> sources;
 
     public CrossJoinNode(
-            NodeName name,
+            String name,
             List<Node> sources,
             Mode mode)
     {

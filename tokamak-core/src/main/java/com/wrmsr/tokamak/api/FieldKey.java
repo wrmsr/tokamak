@@ -24,12 +24,12 @@ import java.util.Objects;
 public final class FieldKey<V>
         implements Key
 {
-    private final FieldName field;
+    private final String field;
     private final V value;
 
     @JsonCreator
     public FieldKey(
-            @JsonProperty("field") FieldName field,
+            @JsonProperty("field") String field,
             @JsonProperty("value") V value)
     {
         this.field = field;
@@ -53,7 +53,7 @@ public final class FieldKey<V>
     }
 
     @JsonProperty("field")
-    public FieldName getField()
+    public String getField()
     {
         return field;
     }
