@@ -16,4 +16,10 @@ package com.wrmsr.tokamak.type;
 public final class ObjectType
         implements Type
 {
+    @Override
+    public String toString()
+    {
+        return "ObjectType{}";
+    }
+
 }

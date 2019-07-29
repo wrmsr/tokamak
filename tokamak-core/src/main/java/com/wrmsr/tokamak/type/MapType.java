@@ -30,6 +30,15 @@ public final class MapType
         this.valueType = checkNotNull(valueType);
     }
 
+    @Override
+    public String toString()
+    {
+        return "MapType{" +
+                "keyType=" + keyType +
+                ", valueType=" + valueType +
+                '}';
+    }
+
     public Type getKeyType()
     {
         return keyType;

@@ -24,6 +24,7 @@ import com.wrmsr.tokamak.codec.CompositeRowIdCodec;
 import com.wrmsr.tokamak.codec.IdCodecs;
 import com.wrmsr.tokamak.codec.RowIdCodec;
 import com.wrmsr.tokamak.codec.ScalarRowIdCodec;
+import com.wrmsr.tokamak.jdbc.JdbcLayoutUtils;
 import com.wrmsr.tokamak.jdbc.JdbcUtils;
 import com.wrmsr.tokamak.driver.BuildContext;
 import com.wrmsr.tokamak.driver.BuildNodeVisitor;
@@ -37,6 +38,7 @@ import com.wrmsr.tokamak.jdbc.metadata.TableDescription;
 import com.wrmsr.tokamak.jdbc.metadata.TableMetaData;
 import com.wrmsr.tokamak.layout.RowLayout;
 import com.wrmsr.tokamak.layout.RowView;
+import com.wrmsr.tokamak.layout.TableLayout;
 import com.wrmsr.tokamak.node.Node;
 import com.wrmsr.tokamak.node.ScanNode;
 import com.wrmsr.tokamak.type.Type;
@@ -184,6 +186,8 @@ public class AppTest
             System.out.println(rows);
 
             byte[] id = idc.encode(new RowView(rl, rows.get(0).getAttributes()));
+
+            TableLayout tableLayout = JdbcLayoutUtils.buildTableLayout(td);
 
             Node scanNode = new ScanNode(
                     "scan",

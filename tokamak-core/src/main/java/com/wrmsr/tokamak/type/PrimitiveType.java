@@ -26,6 +26,14 @@ public final class PrimitiveType<T>
         this.cls = cls;
     }
 
+    @Override
+    public String toString()
+    {
+        return "PrimitiveType{" +
+                "cls=" + cls +
+                '}';
+    }
+
     public Class<T> getCls()
     {
         return cls;

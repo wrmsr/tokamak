@@ -28,6 +28,14 @@ public final class ListType
         this.itemType = checkNotNull(itemType);
     }
 
+    @Override
+    public String toString()
+    {
+        return "ListType{" +
+                "itemType=" + itemType +
+                '}';
+    }
+
     public Type getItemType()
     {
         return itemType;

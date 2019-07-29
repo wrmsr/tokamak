@@ -30,6 +30,14 @@ public final class TupleType
         this.itemTypes = ImmutableList.copyOf(itemTypes);
     }
 
+    @Override
+    public String toString()
+    {
+        return "TupleType{" +
+                "itemTypes=" + itemTypes +
+                '}';
+    }
+
     public List<Type> getItemTypes()
     {
         return itemTypes;

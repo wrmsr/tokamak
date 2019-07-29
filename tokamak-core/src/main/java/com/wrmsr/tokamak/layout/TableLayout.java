@@ -39,7 +39,7 @@ public class TableLayout
         public String toString()
         {
             return "Key{" +
-                    ", fields=" + fields +
+                    "fields=" + fields +
                     '}';
         }
 

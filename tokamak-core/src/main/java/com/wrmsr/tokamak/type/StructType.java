@@ -30,6 +30,14 @@ public final class StructType
         this.fields = ImmutableMap.copyOf(fields);
     }
 
+    @Override
+    public String toString()
+    {
+        return "StructType{" +
+                "fields=" + fields +
+                '}';
+    }
+
     public Map<String, Type> getFields()
     {
         return fields;
