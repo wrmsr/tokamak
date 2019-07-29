@@ -17,6 +17,8 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.api.NodeId;
 import com.wrmsr.tokamak.node.Node;
+import com.wrmsr.tokamak.util.GetterLazyValue;
+import com.wrmsr.tokamak.util.Toposort;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -29,6 +31,9 @@ import java.util.Set;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
+import static com.google.common.collect.ImmutableMap.toImmutableMap;
+import static com.google.common.collect.ImmutableSet.toImmutableSet;
+import static java.util.function.Function.identity;
 
 public final class Plan
 {
@@ -88,9 +93,11 @@ public final class Plan
         return nodesByNodeId;
     }
 
+    private final GetterLazyValue<List<Node>> nameSortedNodes = new GetterLazyValue<>();
+
     public List<Node> getNameSortedNodes()
     {
-        return nodes.stream().sorted(Comparator.comparing(Node::getName)).collect(toImmutableList());
+        return nameSortedNodes.get(() -> nodes.stream().sorted(Comparator.comparing(Node::getName)).collect(toImmutableList()));
     }
 
     public List<Node> getNodeTypeList(Class<? extends Node> nodeType)
@@ -100,12 +107,12 @@ public final class Plan
 
     public Set<Node> getLeafNodes()
     {
-        throw new IllegalStateException();
+        return nodes.stream().filter(n -> n.getChildren().isEmpty()).collect(toImmutableSet());
     }
 
-    public List<List<Node>> getNodeToposort()
+    public List<Set<Node>> getNodeToposort()
     {
-        throw new IllegalStateException();
+        return Toposort.toposort(nodes.stream().collect(toImmutableMap(identity(), Node::getChildren)));
     }
 
     public List<List<Node>> getNodeReverseToposort()
