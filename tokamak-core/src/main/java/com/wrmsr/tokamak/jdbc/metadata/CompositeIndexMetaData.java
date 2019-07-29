@@ -15,6 +15,7 @@ package com.wrmsr.tokamak.jdbc.metadata;
 
 import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.jdbc.TableIdentifier;
+import com.wrmsr.tokamak.util.StreamableIterable;
 
 import java.util.Iterator;
 import java.util.List;
@@ -22,7 +23,7 @@ import java.util.List;
 import static com.google.common.base.Preconditions.checkArgument;
 
 public final class CompositeIndexMetaData
-        implements Iterable<IndexMetaData>
+        implements StreamableIterable<IndexMetaData>
 {
     private final List<IndexMetaData> components;
 

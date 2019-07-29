@@ -11,11 +11,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.layout;
+package com.wrmsr.tokamak.util;
 
-public final class LayoutUtils
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
+
+public interface StreamableIterable<T>
+        extends Iterable<T>
 {
-    private LayoutUtils()
+    default Stream<T> stream()
     {
+        return StreamSupport.stream(spliterator(), false);
     }
 }

@@ -14,12 +14,13 @@
 package com.wrmsr.tokamak.jdbc.metadata;
 
 import com.google.common.collect.ImmutableList;
+import com.wrmsr.tokamak.util.StreamableIterable;
 
 import java.util.Iterator;
 import java.util.List;
 
 public final class CompositePrimaryKeyMetaData
-        implements Iterable<PrimaryKeyMetaData>
+        implements StreamableIterable<PrimaryKeyMetaData>
 {
     private final List<PrimaryKeyMetaData> components;
 

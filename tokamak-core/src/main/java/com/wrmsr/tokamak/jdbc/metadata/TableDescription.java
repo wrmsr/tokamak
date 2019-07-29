@@ -24,7 +24,7 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static java.util.function.UnaryOperator.identity;
 
-public class TableDescription
+public final class TableDescription
 {
     private final TableMetaData tableMetaData;
     private final List<ColumnMetaData> columnMetaDatas;

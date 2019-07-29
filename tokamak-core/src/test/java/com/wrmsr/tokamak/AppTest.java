@@ -40,7 +40,7 @@ import com.wrmsr.tokamak.layout.RowView;
 import com.wrmsr.tokamak.node.Node;
 import com.wrmsr.tokamak.node.ScanNode;
 import com.wrmsr.tokamak.type.Type;
-import com.wrmsr.tokamak.type.TypeUtils;
+import com.wrmsr.tokamak.jdbc.JdbcTypeUtils;
 import io.airlift.tpch.TpchTable;
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -172,11 +172,11 @@ public class AppTest
             RowLayout rl = new RowLayout(
                     ImmutableList.of("N_NATIONKEY", "N_NAME").stream().collect(toImmutableMap(
                             identity(),
-                            f -> TypeUtils.getTypeForColumn(td.getColumnMetaDatasByName().get(f)))));
+                            f -> JdbcTypeUtils.getTypeForColumn(td.getColumnMetaDatasByName().get(f)))));
 
             List<RowIdCodec> idcp = td.getCompositePrimaryKeyMetaData().getComponents().stream().map(pkmd -> {
                 ColumnMetaData cmd = td.getColumnMetaDatasByName().get(pkmd.getColumnName());
-                return new ScalarRowIdCodec(cmd.getColumnName(), IdCodecs.CODECS_BY_TYPE.get(TypeUtils.getTypeForColumn(cmd)));
+                return new ScalarRowIdCodec(cmd.getColumnName(), IdCodecs.CODECS_BY_TYPE.get(JdbcTypeUtils.getTypeForColumn(cmd)));
             }).collect(toImmutableList());
             RowIdCodec idc = new CompositeRowIdCodec(idcp);
 

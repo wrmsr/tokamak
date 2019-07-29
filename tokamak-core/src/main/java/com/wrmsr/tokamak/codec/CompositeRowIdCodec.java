@@ -15,6 +15,7 @@ package com.wrmsr.tokamak.codec;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.wrmsr.tokamak.util.StreamableIterable;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -26,7 +27,7 @@ import java.util.Map;
 import static com.google.common.base.Preconditions.checkState;
 
 public final class CompositeRowIdCodec
-        implements RowIdCodec, Iterable<RowIdCodec>
+        implements RowIdCodec, StreamableIterable<RowIdCodec>
 {
     public static final int MAX_ID_LENGTH = 254;
 
