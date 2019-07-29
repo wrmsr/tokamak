@@ -29,53 +29,47 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 
 public final class MetaDataReflection
 {
-    public static final Map<Integer, String> DATA_TYPES;
-
-    static {
-        ImmutableMap.Builder<Integer, String> builder = ImmutableMap.builder();
-
-        builder.put(Types.BIT, "BIT");
-        builder.put(Types.TINYINT, "TINYINT");
-        builder.put(Types.SMALLINT, "SMALLINT");
-        builder.put(Types.INTEGER, "INTEGER");
-        builder.put(Types.BIGINT, "BIGINT");
-        builder.put(Types.FLOAT, "FLOAT");
-        builder.put(Types.REAL, "REAL");
-        builder.put(Types.DOUBLE, "DOUBLE");
-        builder.put(Types.NUMERIC, "NUMERIC");
-        builder.put(Types.DECIMAL, "DECIMAL");
-        builder.put(Types.CHAR, "CHAR");
-        builder.put(Types.VARCHAR, "VARCHAR");
-        builder.put(Types.LONGVARCHAR, "LONGVARCHAR");
-        builder.put(Types.DATE, "DATE");
-        builder.put(Types.TIME, "TIME");
-        builder.put(Types.TIMESTAMP, "TIMESTAMP");
-        builder.put(Types.BINARY, "BINARY");
-        builder.put(Types.VARBINARY, "VARBINARY");
-        builder.put(Types.LONGVARBINARY, "LONGVARBINARY");
-        builder.put(Types.NULL, "NULL");
-        builder.put(Types.OTHER, "OTHER");
-        builder.put(Types.JAVA_OBJECT, "JAVA_OBJECT");
-        builder.put(Types.DISTINCT, "DISTINCT");
-        builder.put(Types.STRUCT, "STRUCT");
-        builder.put(Types.ARRAY, "ARRAY");
-        builder.put(Types.BLOB, "BLOB");
-        builder.put(Types.CLOB, "CLOB");
-        builder.put(Types.REF, "REF");
-        builder.put(Types.DATALINK, "DATALINK");
-        builder.put(Types.BOOLEAN, "BOOLEAN");
-        builder.put(Types.ROWID, "ROWID");
-        builder.put(Types.NCHAR, "NCHAR");
-        builder.put(Types.NVARCHAR, "NVARCHAR");
-        builder.put(Types.LONGNVARCHAR, "LONGNVARCHAR");
-        builder.put(Types.NCLOB, "NCLOB");
-        builder.put(Types.SQLXML, "SQLXML");
-        builder.put(Types.REF_CURSOR, "REF_CURSOR");
-        builder.put(Types.TIME_WITH_TIMEZONE, "TIME_WITH_TIMEZONE");
-        builder.put(Types.TIMESTAMP_WITH_TIMEZONE, "TIMESTAMP_WITH_TIMEZONE");
-
-        DATA_TYPES = builder.build();
-    }
+    public static final Map<Integer, String> DATA_TYPES = ImmutableMap.<Integer, String>builder()
+            .put(Types.BIT, "BIT")
+            .put(Types.TINYINT, "TINYINT")
+            .put(Types.SMALLINT, "SMALLINT")
+            .put(Types.INTEGER, "INTEGER")
+            .put(Types.BIGINT, "BIGINT")
+            .put(Types.FLOAT, "FLOAT")
+            .put(Types.REAL, "REAL")
+            .put(Types.DOUBLE, "DOUBLE")
+            .put(Types.NUMERIC, "NUMERIC")
+            .put(Types.DECIMAL, "DECIMAL")
+            .put(Types.CHAR, "CHAR")
+            .put(Types.VARCHAR, "VARCHAR")
+            .put(Types.LONGVARCHAR, "LONGVARCHAR")
+            .put(Types.DATE, "DATE")
+            .put(Types.TIME, "TIME")
+            .put(Types.TIMESTAMP, "TIMESTAMP")
+            .put(Types.BINARY, "BINARY")
+            .put(Types.VARBINARY, "VARBINARY")
+            .put(Types.LONGVARBINARY, "LONGVARBINARY")
+            .put(Types.NULL, "NULL")
+            .put(Types.OTHER, "OTHER")
+            .put(Types.JAVA_OBJECT, "JAVA_OBJECT")
+            .put(Types.DISTINCT, "DISTINCT")
+            .put(Types.STRUCT, "STRUCT")
+            .put(Types.ARRAY, "ARRAY")
+            .put(Types.BLOB, "BLOB")
+            .put(Types.CLOB, "CLOB")
+            .put(Types.REF, "REF")
+            .put(Types.DATALINK, "DATALINK")
+            .put(Types.BOOLEAN, "BOOLEAN")
+            .put(Types.ROWID, "ROWID")
+            .put(Types.NCHAR, "NCHAR")
+            .put(Types.NVARCHAR, "NVARCHAR")
+            .put(Types.LONGNVARCHAR, "LONGNVARCHAR")
+            .put(Types.NCLOB, "NCLOB")
+            .put(Types.SQLXML, "SQLXML")
+            .put(Types.REF_CURSOR, "REF_CURSOR")
+            .put(Types.TIME_WITH_TIMEZONE, "TIME_WITH_TIMEZONE")
+            .put(Types.TIMESTAMP_WITH_TIMEZONE, "TIMESTAMP_WITH_TIMEZONE")
+            .build();
 
     private MetaDataReflection()
     {

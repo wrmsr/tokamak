@@ -13,6 +13,23 @@
  */
 package com.wrmsr.tokamak.driver;
 
+import com.wrmsr.tokamak.layout.TableLayout;
+import com.wrmsr.tokamak.plan.Plan;
+import org.jdbi.v3.core.Jdbi;
+
+import java.util.HashMap;
+import java.util.Map;
+
 public class DriverImpl
 {
+    private final Plan plan;
+    private final Jdbi jdbi;
+
+    private final Map<String, TableLayout> tableLayoutsByName = new HashMap<>();
+
+    public DriverImpl(Plan plan, Jdbi jdbi)
+    {
+        this.plan = plan;
+        this.jdbi = jdbi;
+    }
 }

@@ -11,23 +11,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-/*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package com.wrmsr.tokamak.util;
 
 import com.google.common.collect.HashMultimap;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableMultiset;
 import com.google.common.collect.SetMultimap;
@@ -40,11 +27,14 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.BiConsumer;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
+import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static java.util.function.Function.identity;
 
 public final class MoreCollectors
@@ -66,7 +56,9 @@ public final class MoreCollectors
                 Collector.Characteristics.UNORDERED);
     }
 
-    public static <I, K, V> Collector<I, ImmutableMultimap.Builder<K, V>, ImmutableMultimap<K, V>> toImmutableMultimap(Function<I, K> keyMapper, Function<I, V> valueMapper)
+    public static <I, K, V> Collector<I, ImmutableMultimap.Builder<K, V>, ImmutableMultimap<K, V>> toImmutableMultimap(
+            Function<I, K> keyMapper,
+            Function<I, V> valueMapper)
     {
         return Collector.of(
                 ImmutableMultimap::builder,
@@ -87,12 +79,16 @@ public final class MoreCollectors
         };
     }
 
-    public static <T, K, U> Collector<T, ?, Map<K, U>> toLinkedMap(Function<? super T, ? extends K> keyMapper, Function<? super T, ? extends U> valueMapper)
+    public static <T, K, U> Collector<T, ?, Map<K, U>> toLinkedMap(
+            Function<? super T, ? extends K> keyMapper,
+            Function<? super T, ? extends U> valueMapper)
     {
         return Collectors.toMap(keyMapper, valueMapper, throwingMerger(), LinkedHashMap::new);
     }
 
-    public static <T, K, U> Collector<T, ?, Map<K, U>> toIdentityMap(Function<? super T, ? extends K> keyMapper, Function<? super T, ? extends U> valueMapper)
+    public static <T, K, U> Collector<T, ?, Map<K, U>> toIdentityMap(
+            Function<? super T, ? extends K> keyMapper,
+            Function<? super T, ? extends U> valueMapper)
     {
         return Collectors.toMap(keyMapper, valueMapper, throwingMerger(), IdentityHashMap::new);
     }
@@ -123,7 +119,9 @@ public final class MoreCollectors
                 Collector.Characteristics.UNORDERED);
     }
 
-    public static <I, K, V> Collector<I, Map<K, V>, Map<K, V>> toHashMap(Function<I, K> keyMapper, Function<I, V> valueMapper)
+    public static <I, K, V> Collector<I, Map<K, V>, Map<K, V>> toHashMap(
+            Function<I, K> keyMapper,
+            Function<I, V> valueMapper)
     {
         return Collector.of(
                 HashMap::new,
@@ -153,7 +151,9 @@ public final class MoreCollectors
                 identity());
     }
 
-    public static <I, K, V> Collector<I, SetMultimap<K, V>, SetMultimap<K, V>> toHashMultimap(Function<I, K> keyMapper, Function<I, V> valueMapper)
+    public static <I, K, V> Collector<I, SetMultimap<K, V>, SetMultimap<K, V>> toHashMultimap(
+            Function<I, K> keyMapper,
+            Function<I, V> valueMapper)
     {
         return Collector.of(
                 HashMultimap::create,
@@ -169,5 +169,52 @@ public final class MoreCollectors
     public static <K, V> Collector<Map.Entry<K, V>, SetMultimap<K, V>, SetMultimap<K, V>> toHashMultimap()
     {
         return toHashMultimap(Map.Entry::getKey, Map.Entry::getValue);
+    }
+
+    public static class ImmutableGroupingByCollector<T, A, K>
+            implements Collector<T, A, Map<K, List<T>>>
+    {
+        private final Collector<T, A, Map<K, List<T>>> child;
+
+        public ImmutableGroupingByCollector(Collector<T, A, Map<K, List<T>>> child)
+        {
+            this.child = child;
+        }
+
+        @Override
+        public Supplier<A> supplier()
+        {
+            return child.supplier();
+        }
+
+        @Override
+        public BiConsumer<A, T> accumulator()
+        {
+            return child.accumulator();
+        }
+
+        @Override
+        public BinaryOperator<A> combiner()
+        {
+            return child.combiner();
+        }
+
+        @Override
+        public Function<A, Map<K, List<T>>> finisher()
+        {
+            return a -> child.finisher().apply(a).entrySet().stream()
+                    .collect(toImmutableMap(Map.Entry::getKey, e -> ImmutableList.copyOf(e.getValue())));
+        }
+
+        @Override
+        public Set<Characteristics> characteristics()
+        {
+            return child.characteristics();
+        }
+    }
+
+    public static <T, K> Collector<T, ?, Map<K, List<T>>> immutableGroupingBy(Function<? super T, ? extends K> classifier)
+    {
+        return new ImmutableGroupingByCollector<>(Collectors.groupingBy(classifier));
     }
 }

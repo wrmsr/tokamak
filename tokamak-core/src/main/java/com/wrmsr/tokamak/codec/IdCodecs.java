@@ -69,17 +69,11 @@ public final class IdCodecs
             b -> b
     );
 
-    public static final Map<Type, Codec<Object, byte[]>> CODECS_BY_TYPE;
-
-    static {
-        ImmutableMap.Builder<Type, Codec<Object, byte[]>> builder = ImmutableMap.builder();
-
-        builder.put(Type.BOOLEAN, BOOLEAN_CODEC);
-        builder.put(Type.LONG, LONG_CODEC);
-        builder.put(Type.DOUBLE, DOUBLE_CODEC);
-        builder.put(Type.STRING, STRING_CODEC);
-        builder.put(Type.BYTES, BYTES_CODEC);
-
-        CODECS_BY_TYPE = builder.build();
-    }
+    public static final Map<Type, Codec<Object, byte[]>> CODECS_BY_TYPE = ImmutableMap.<Type, Codec<Object, byte[]>>builder()
+            .put(Type.BOOLEAN, BOOLEAN_CODEC)
+            .put(Type.LONG, LONG_CODEC)
+            .put(Type.DOUBLE, DOUBLE_CODEC)
+            .put(Type.STRING, STRING_CODEC)
+            .put(Type.BYTES, BYTES_CODEC)
+            .build();
 }

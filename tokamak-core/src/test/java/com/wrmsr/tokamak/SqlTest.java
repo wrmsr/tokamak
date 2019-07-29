@@ -14,6 +14,7 @@
 package com.wrmsr.tokamak;
 
 import com.wrmsr.tokamak.util.RequiresBase;
+import junit.framework.TestCase;
 import org.junit.Test;
 
 import java.lang.invoke.MethodHandle;
@@ -21,9 +22,8 @@ import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
 import java.util.stream.Stream;
 
-import static org.junit.Assert.assertEquals;
-
 public class SqlTest
+        extends TestCase
 {
     /*
     Reflective matching sql nodes is for external extensibility (dialects). Internal tokamak nodes do not require this.

@@ -19,6 +19,7 @@ import com.wrmsr.tokamak.api.NodeId;
 import com.wrmsr.tokamak.node.Node;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -27,6 +28,7 @@ import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.collect.ImmutableList.toImmutableList;
 
 public final class Plan
 {
@@ -35,6 +37,8 @@ public final class Plan
     private final Set<Node> nodes;
     private final Map<String, Node> nodesByName;
     private final Map<NodeId, Node> nodesByNodeId;
+
+    private final Map<Class<? extends Node>, List<Node>> nodeListsByType = new HashMap<>();
 
     public Plan(Node root)
     {
@@ -86,17 +90,12 @@ public final class Plan
 
     public List<Node> getNameSortedNodes()
     {
-        throw new IllegalStateException();
-    }
-
-    public Map<Node, Integer> getNameSortedIndicesByNode()
-    {
-        throw new IllegalStateException();
+        return nodes.stream().sorted(Comparator.comparing(Node::getName)).collect(toImmutableList());
     }
 
     public List<Node> getNodeTypeList(Class<? extends Node> nodeType)
     {
-        throw new IllegalStateException();
+        return nodeListsByType.computeIfAbsent(nodeType, nt -> nodes.stream().filter(nodeType::isInstance).collect(toImmutableList()));
     }
 
     public Set<Node> getLeafNodes()
