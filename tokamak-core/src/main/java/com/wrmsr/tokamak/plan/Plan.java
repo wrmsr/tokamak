@@ -43,8 +43,6 @@ public final class Plan
     private final Map<String, Node> nodesByName;
     private final Map<NodeId, Node> nodesByNodeId;
 
-    private final Map<Class<? extends Node>, List<Node>> nodeListsByType = new HashMap<>();
-
     public Plan(Node root)
     {
         this.root = root;
@@ -100,19 +98,25 @@ public final class Plan
         return nameSortedNodes.get(() -> nodes.stream().sorted(Comparator.comparing(Node::getName)).collect(toImmutableList()));
     }
 
+    private final Map<Class<? extends Node>, List<Node>> nodeListsByType = new HashMap<>();
+
     public List<Node> getNodeTypeList(Class<? extends Node> nodeType)
     {
         return nodeListsByType.computeIfAbsent(nodeType, nt -> nodes.stream().filter(nodeType::isInstance).collect(toImmutableList()));
     }
 
+    private final GetterLazyValue<Set<Node>> leafNodes = new GetterLazyValue<>();
+
     public Set<Node> getLeafNodes()
     {
-        return nodes.stream().filter(n -> n.getChildren().isEmpty()).collect(toImmutableSet());
+        return leafNodes.get(() -> nodes.stream().filter(n -> n.getChildren().isEmpty()).collect(toImmutableSet()));
     }
+
+    private final GetterLazyValue<List<Set<Node>>> nodeToposort = new GetterLazyValue<>();
 
     public List<Set<Node>> getNodeToposort()
     {
-        return Toposort.toposort(nodes.stream().collect(toImmutableMap(identity(), Node::getChildren)));
+        return nodeToposort.get(() -> Toposort.toposort(nodes.stream().collect(toImmutableMap(identity(), Node::getChildren))));
     }
 
     public List<List<Node>> getNodeReverseToposort()

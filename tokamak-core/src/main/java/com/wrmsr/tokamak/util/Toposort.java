@@ -13,6 +13,7 @@
  */
 package com.wrmsr.tokamak.util;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
 
 import java.util.ArrayList;
@@ -22,6 +23,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static java.util.function.Function.identity;
 
 public final class Toposort
@@ -65,12 +67,12 @@ public final class Toposort
                 .collect(Collectors.toSet()), data.keySet());
         data.putAll(extraItemsInDeps.stream().collect(Collectors.toMap(identity(), k -> new HashSet<>())));
 
-        List<Set<T>> ret = new ArrayList<>();
+        ImmutableList.Builder<Set<T>> ret = ImmutableList.builder();
         while (true) {
             Set<T> step = data.entrySet().stream()
                     .filter(e -> e.getValue().isEmpty())
                     .map(Map.Entry::getKey)
-                    .collect(MoreCollectors.toHashSet());
+                    .collect(toImmutableSet());
             if (step.isEmpty()) {
                 break;
             }
@@ -90,6 +92,6 @@ public final class Toposort
             throw new ToposortCycleException((Map) data);
         }
 
-        return ret;
+        return ret.build();
     }
 }
