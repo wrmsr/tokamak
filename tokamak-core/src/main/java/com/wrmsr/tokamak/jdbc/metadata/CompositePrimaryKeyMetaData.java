@@ -18,7 +18,7 @@ import com.google.common.collect.ImmutableList;
 import java.util.Iterator;
 import java.util.List;
 
-public class CompositePrimaryKeyMetaData
+public final class CompositePrimaryKeyMetaData
         implements Iterable<PrimaryKeyMetaData>
 {
     private final List<PrimaryKeyMetaData> components;

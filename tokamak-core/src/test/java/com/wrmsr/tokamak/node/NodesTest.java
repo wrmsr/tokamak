@@ -29,7 +29,7 @@ public class NodesTest
     {
         Object obj = Json.OBJECT_MAPPER_SUPPLIER.get().readValue("{\"a\": [420]}", Object.class);
 
-        String s = Json.toJson(NodeId.of(NodeName.of("hi there")));
+        String s = Json.toJson(NodeId.of("hi there"));
         System.out.println(s);
         NodeId nid = Json.OBJECT_MAPPER_THREAD_LOCAL.get().readValue(s, NodeId.class);
         System.out.println(nid);
@@ -45,9 +45,9 @@ public class NodesTest
             throws Throwable
     {
         Node node = new ScanNode(
-                NodeName.of("hi"),
-                TableName.of("hi"),
-                ImmutableMap.of(FieldName.of("id"), Type.LONG, FieldName.of("thing"), Type.STRING),
+                "hi",
+                "hi",
+                ImmutableMap.of("id", Type.LONG, "thing", Type.STRING),
                 ImmutableMap.of(),
                 ImmutableMap.of(),
                 ImmutableList.of()

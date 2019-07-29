@@ -21,7 +21,7 @@ import java.util.List;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-public class CompositeIndexMetaData
+public final class CompositeIndexMetaData
         implements Iterable<IndexMetaData>
 {
     private final List<IndexMetaData> components;

@@ -20,20 +20,27 @@ import com.google.common.io.CharStreams;
 import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.api.IdKey;
 import com.wrmsr.tokamak.api.Row;
+import com.wrmsr.tokamak.codec.CompositeRowIdCodec;
+import com.wrmsr.tokamak.codec.IdCodecs;
+import com.wrmsr.tokamak.codec.RowIdCodec;
+import com.wrmsr.tokamak.codec.ScalarRowIdCodec;
+import com.wrmsr.tokamak.jdbc.JdbcUtils;
 import com.wrmsr.tokamak.driver.BuildContext;
 import com.wrmsr.tokamak.driver.BuildNodeVisitor;
 import com.wrmsr.tokamak.driver.NodeOutput;
 import com.wrmsr.tokamak.driver.Scanner;
 import com.wrmsr.tokamak.driver.context.DriverContextImpl;
-import com.wrmsr.tokamak.jdbc.JdbcUtils;
 import com.wrmsr.tokamak.jdbc.TableIdentifier;
 import com.wrmsr.tokamak.jdbc.metadata.ColumnMetaData;
 import com.wrmsr.tokamak.jdbc.metadata.MetaDataReflection;
 import com.wrmsr.tokamak.jdbc.metadata.TableDescription;
 import com.wrmsr.tokamak.jdbc.metadata.TableMetaData;
+import com.wrmsr.tokamak.layout.RowLayout;
+import com.wrmsr.tokamak.layout.RowView;
 import com.wrmsr.tokamak.node.Node;
 import com.wrmsr.tokamak.node.ScanNode;
 import com.wrmsr.tokamak.type.Type;
+import com.wrmsr.tokamak.type.TypeUtils;
 import io.airlift.tpch.TpchTable;
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -167,11 +174,11 @@ public class AppTest
                             identity(),
                             f -> TypeUtils.getTypeForColumn(td.getColumnMetaDatasByName().get(f)))));
 
-            List<IdCodecs.RowIdCodec> idcp = td.getCompositePrimaryKeyMetaData().getComponents().stream().map(pkmd -> {
+            List<RowIdCodec> idcp = td.getCompositePrimaryKeyMetaData().getComponents().stream().map(pkmd -> {
                 ColumnMetaData cmd = td.getColumnMetaDatasByName().get(pkmd.getColumnName());
-                return new IdCodecs.ScalarRowIdCodec(cmd.getColumnName(), IdCodecs.CODECS_BY_TYPE.get(TypeUtils.getTypeForColumn(cmd)));
+                return new ScalarRowIdCodec(cmd.getColumnName(), IdCodecs.CODECS_BY_TYPE.get(TypeUtils.getTypeForColumn(cmd)));
             }).collect(toImmutableList());
-            IdCodecs.RowIdCodec idc = new IdCodecs.CompositeRowIdCodec(idcp);
+            RowIdCodec idc = new CompositeRowIdCodec(idcp);
 
             List<Row> rows = scanner.scan(handle, "N_NATIONKEY", 10);
             System.out.println(rows);

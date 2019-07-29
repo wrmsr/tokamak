@@ -11,13 +11,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak;
+package com.wrmsr.tokamak.codec;
 
-public final class LayoutUtils
+import com.wrmsr.tokamak.util.codec.Codec;
+
+import java.util.Map;
+
+public interface RowIdCodec
+        extends Codec<Map<String, Object>, byte[]>
 {
-    private LayoutUtils()
-    {
-    }
-
-
+    // TODO: key awareness, length awareness, packed, salting, vints, ...
 }
