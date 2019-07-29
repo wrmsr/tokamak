@@ -19,6 +19,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.io.CharStreams;
 import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.api.IdKey;
+import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.api.Row;
 import com.wrmsr.tokamak.codec.CompositeRowIdCodec;
 import com.wrmsr.tokamak.codec.IdCodecs;
@@ -204,7 +205,7 @@ public class AppTest
                     new BuildNodeVisitor(),
                     new BuildContext(
                             new DriverContextImpl(handle),
-                            IdKey.of(Id.of(10))));
+                            Key.of(Id.of(10))));
 
             handle.commit();
 

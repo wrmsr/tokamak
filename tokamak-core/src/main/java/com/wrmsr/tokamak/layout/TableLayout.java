@@ -22,7 +22,7 @@ import java.util.Iterator;
 import java.util.List;
 
 @Immutable
-public class TableLayout
+public final class TableLayout
 {
     @Immutable
     public static final class Key

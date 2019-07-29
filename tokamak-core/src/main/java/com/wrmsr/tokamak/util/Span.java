@@ -16,7 +16,7 @@ package com.wrmsr.tokamak.util;
 import javax.annotation.concurrent.Immutable;
 
 @Immutable
-public class Span<T>
+public final class Span<T>
 {
     public enum Bound
     {

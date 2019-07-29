@@ -15,7 +15,7 @@ package com.wrmsr.tokamak.util;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public class StringPrefixing
+public final class StringPrefixing
 {
     private StringPrefixing()
     {
