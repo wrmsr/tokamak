@@ -13,12 +13,16 @@
  */
 package com.wrmsr.tokamak.plan;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Streams;
 import com.wrmsr.tokamak.api.NodeId;
 import com.wrmsr.tokamak.node.Node;
 import com.wrmsr.tokamak.util.GetterLazyValue;
 import com.wrmsr.tokamak.util.Toposort;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -27,6 +31,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.IntStream;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
@@ -102,46 +107,66 @@ public final class Plan
 
     public List<Node> getNodeTypeList(Class<? extends Node> nodeType)
     {
-        return nodeListsByType.computeIfAbsent(nodeType, nt -> nodes.stream().filter(nodeType::isInstance).collect(toImmutableList()));
+        return nodeListsByType.computeIfAbsent(nodeType, nt -> getNameSortedNodes().stream().filter(nodeType::isInstance).collect(toImmutableList()));
     }
 
     private final GetterLazyValue<Set<Node>> leafNodes = new GetterLazyValue<>();
 
     public Set<Node> getLeafNodes()
     {
-        return leafNodes.get(() -> nodes.stream().filter(n -> n.getChildren().isEmpty()).collect(toImmutableSet()));
+        return leafNodes.get(() -> getNameSortedNodes().stream().filter(n -> n.getChildren().isEmpty()).collect(toImmutableSet()));
     }
 
     private final GetterLazyValue<List<Set<Node>>> nodeToposort = new GetterLazyValue<>();
 
     public List<Set<Node>> getNodeToposort()
     {
-        return nodeToposort.get(() -> Toposort.toposort(nodes.stream().collect(toImmutableMap(identity(), Node::getChildren))));
+        return nodeToposort.get(() -> Toposort.toposort(getNameSortedNodes().stream().collect(toImmutableMap(identity(), Node::getChildren))));
     }
 
-    public List<List<Node>> getNodeReverseToposort()
+    private final GetterLazyValue<List<Set<Node>>> nodeReverseToposort = new GetterLazyValue<>();
+
+    public List<Set<Node>> getNodeReverseToposort()
     {
-        throw new IllegalStateException();
+        return nodeReverseToposort.get(() -> ImmutableList.copyOf(Lists.reverse(getNodeToposort())));
     }
 
-    public Map<Node, Integer> getToposortIndicesByNode()
-    {
-        throw new IllegalStateException();
-    }
-
-    public Map<Node, Integer> getReverseToposortIndicesByNode()
-    {
-        throw new IllegalStateException();
-    }
+    private final GetterLazyValue<List<Node>> toposortedNodes = new GetterLazyValue<>();
 
     public List<Node> getToposortedNodes()
     {
-        throw new IllegalStateException();
+        return toposortedNodes.get(() -> getNodeToposort().stream().flatMap(Set::stream).collect(toImmutableList()));
     }
+
+    private final GetterLazyValue<List<Node>> reverseToposortedNodes = new GetterLazyValue<>();
 
     public List<Node> getReverseToposortedNodes()
     {
-        throw new IllegalStateException();
+        return reverseToposortedNodes.get(() -> getNodeReverseToposort().stream().flatMap(Set::stream).collect(toImmutableList()));
+    }
+
+    private final GetterLazyValue<Map<Node, Integer>> toposortIndicesByNode = new GetterLazyValue<>();
+
+    public Map<Node, Integer> getToposortIndicesByNode()
+    {
+        return toposortIndicesByNode.get(() ->
+                Streams.zip(
+                        IntStream.range(0, nodes.size()).boxed(),
+                        getToposortedNodes().stream(),
+                        (i, n) -> new ImmutablePair<>(n, i))
+                        .collect(toImmutableMap(Map.Entry::getKey, Map.Entry::getValue)));
+    }
+
+    private final GetterLazyValue<Map<Node, Integer>> reverseToposortIndicesByNode = new GetterLazyValue<>();
+
+    public Map<Node, Integer> getReverseToposortIndicesByNode()
+    {
+        return reverseToposortIndicesByNode.get(() ->
+                Streams.zip(
+                        IntStream.range(0, nodes.size()).boxed(),
+                        getReverseToposortedNodes().stream(),
+                        (i, n) -> new ImmutablePair<>(n, i))
+                        .collect(toImmutableMap(Map.Entry::getKey, Map.Entry::getValue)));
     }
 
     public Map<Node, Set<Node>> getStatefulParentSetsByNode()
