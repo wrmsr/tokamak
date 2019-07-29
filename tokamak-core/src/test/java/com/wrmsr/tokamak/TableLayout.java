@@ -13,8 +13,7 @@
  */
 package com.wrmsr.tokamak;
 
-import java.util.List;
-
 public class TableLayout
 {
+    private final
 }
