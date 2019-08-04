@@ -13,11 +13,10 @@
  */
 package com.wrmsr.tokamak.node;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.node.visitor.NodeVisitor;
-import com.wrmsr.tokamak.serdes.MapSerializer;
-import com.wrmsr.tokamak.serdes.Serializer;
 import com.wrmsr.tokamak.type.Type;
 
 import javax.annotation.concurrent.Immutable;
@@ -33,6 +32,7 @@ public final class ScanNode
     private final String table;
     private final Map<String, Type> fields;
 
+    @JsonCreator
     public ScanNode(
             String name,
             String table,
@@ -49,11 +49,13 @@ public final class ScanNode
         checkInvariants();
     }
 
+    @JsonProperty("table")
     public String getTable()
     {
         return table;
     }
 
+    @JsonProperty("fields")
     public Map<String, Type> getFields()
     {
         return fields;
@@ -64,19 +66,4 @@ public final class ScanNode
     {
         return visitor.visitScanNode(this, context);
     }
-
-    public static final Serializer<ScanNode> SERIALIZER = MapSerializer.of(
-            (ctx, node) -> {
-                return ImmutableMap.<String, Object>builder()
-                        .put("name", node.getName())
-                        .put("table", node.getTable())
-                        .build();
-            },
-            (ctx, map) -> {
-                return new ScanNode(
-                        (String) map.get("name"),
-                        (String) map.get("table"),
-                )
-            }
-    );
 }
