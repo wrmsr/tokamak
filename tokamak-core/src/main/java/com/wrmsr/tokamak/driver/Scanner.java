@@ -17,23 +17,31 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.api.Row;
+import com.wrmsr.tokamak.layout.TableLayout;
 import org.jdbi.v3.core.Handle;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 
 public class Scanner
 {
     private final String table;
+    private final TableLayout tableLayout;
     private final Set<String> fields;
 
-    public Scanner(String table, Set<String> fields)
+    public Scanner(String table, TableLayout tableLayout, Set<String> fields)
     {
         this.table = table;
+        this.tableLayout = tableLayout;
         this.fields = ImmutableSet.copyOf(fields);
+
+        for (String field : fields) {
+            checkArgument(tableLayout.getRowLayout().getFields().contains(field));
+        }
     }
 
     public List<Row> scan(Handle handle, String field, int value)
