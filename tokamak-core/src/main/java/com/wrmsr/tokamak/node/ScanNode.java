@@ -16,7 +16,7 @@ package com.wrmsr.tokamak.node;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.node.visitor.NodeVisitor;
-import com.wrmsr.tokamak.serdes.Serdes;
+import com.wrmsr.tokamak.serdes.MapSerializer;
 import com.wrmsr.tokamak.serdes.Serializer;
 import com.wrmsr.tokamak.type.Type;
 
@@ -34,9 +34,9 @@ public final class ScanNode
     private final Map<String, Type> fields;
 
     public ScanNode(
-            @JsonProperty("name") String name,
-            @JsonProperty("table") String table,
-            @JsonProperty("fields") Map<String, Type> fields,
+            String name,
+            String table,
+            Map<String, Type> fields,
             Map<String, Invalidation> invalidations,
             Map<String, LinkageMask> linkageMasks,
             List<String> idNodes)
@@ -49,13 +49,11 @@ public final class ScanNode
         checkInvariants();
     }
 
-    @JsonProperty("table")
     public String getTable()
     {
         return table;
     }
 
-    @JsonProperty("fields")
     public Map<String, Type> getFields()
     {
         return fields;
@@ -66,4 +64,19 @@ public final class ScanNode
     {
         return visitor.visitScanNode(this, context);
     }
+
+    public static final Serializer<ScanNode> SERIALIZER = MapSerializer.of(
+            (ctx, node) -> {
+                return ImmutableMap.<String, Object>builder()
+                        .put("name", node.getName())
+                        .put("table", node.getTable())
+                        .build();
+            },
+            (ctx, map) -> {
+                return new ScanNode(
+                        (String) map.get("name"),
+                        (String) map.get("table"),
+                )
+            }
+    );
 }
