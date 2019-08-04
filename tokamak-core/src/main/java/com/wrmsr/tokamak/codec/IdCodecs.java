@@ -33,7 +33,12 @@ import com.wrmsr.tokamak.type.Type;
 import com.wrmsr.tokamak.util.codec.Codec;
 
 import java.nio.ByteBuffer;
+import java.util.List;
 import java.util.Map;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.collect.ImmutableList.toImmutableList;
+import static com.wrmsr.tokamak.util.MoreCollectors.toSingleton;
 
 public final class IdCodecs
 {
@@ -76,4 +81,19 @@ public final class IdCodecs
             .put(Type.STRING, STRING_CODEC)
             .put(Type.BYTES, BYTES_CODEC)
             .build();
+
+    public static RowIdCodec buildRowIdCodec(Map<String, Type> typesByField)
+    {
+        checkArgument(!typesByField.isEmpty());
+        if (typesByField.size() == 1) {
+            Map.Entry<String, Type> e = typesByField.entrySet().stream().collect(toSingleton());
+            return new ScalarRowIdCodec<>(e.getKey(), IdCodecs.CODECS_BY_TYPE.get(e.getValue()));
+        }
+        else {
+            List<RowIdCodec> parts = typesByField.entrySet().stream().map(e ->
+                    new ScalarRowIdCodec<>(e.getKey(), IdCodecs.CODECS_BY_TYPE.get(e.getValue()))
+            ).collect(toImmutableList());
+            return new CompositeRowIdCodec(parts);
+        }
+    }
 }

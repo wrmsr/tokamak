@@ -17,15 +17,21 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.api.Row;
+import com.wrmsr.tokamak.codec.IdCodecs;
+import com.wrmsr.tokamak.codec.RowIdCodec;
+import com.wrmsr.tokamak.layout.RowLayout;
 import com.wrmsr.tokamak.layout.TableLayout;
 import org.jdbi.v3.core.Handle;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.ImmutableList.toImmutableList;
+import static com.google.common.collect.ImmutableMap.toImmutableMap;
+import static java.util.function.Function.identity;
 
 public class Scanner
 {
@@ -33,37 +39,107 @@ public class Scanner
     private final TableLayout tableLayout;
     private final Set<String> fields;
 
+    private final RowLayout rowLayout;
+    private final RowIdCodec rowIdCodec;
+
+    private final Map<String, Instance> instancesByField = new ConcurrentHashMap<>();
+
     public Scanner(String table, TableLayout tableLayout, Set<String> fields)
     {
         this.table = table;
         this.tableLayout = tableLayout;
         this.fields = ImmutableSet.copyOf(fields);
 
-        for (String field : fields) {
+        for (String field : this.fields) {
             checkArgument(tableLayout.getRowLayout().getFields().contains(field));
         }
+
+        rowLayout = new RowLayout(
+                fields.stream()
+                        .collect(toImmutableMap(identity(), tableLayout.getRowLayout().getTypesByField()::get)));
+
+        rowIdCodec = IdCodecs.buildRowIdCodec(
+                tableLayout.getPrimaryKey().stream()
+                        .collect(toImmutableMap(identity(), tableLayout.getRowLayout().getTypesByField()::get)));
+    }
+
+    public String getTable()
+    {
+        return table;
+    }
+
+    public TableLayout getTableLayout()
+    {
+        return tableLayout;
+    }
+
+    public Set<String> getFields()
+    {
+        return fields;
+    }
+
+    public RowLayout getRowLayout()
+    {
+        return rowLayout;
+    }
+
+    public RowIdCodec getRowIdCodec()
+    {
+        return rowIdCodec;
+    }
+
+    private final class Instance
+    {
+        private final Set<String> selectedFields;
+        private final String stmt;
+
+        private Instance(String keyField)
+        {
+            checkArgument(tableLayout.getRowLayout().getFields().contains(keyField));
+
+            ImmutableSet.Builder<String> selectedFields = ImmutableSet.builder();
+            if (!fields.contains(keyField)) {
+                selectedFields.add(keyField);
+            }
+            for (String field : tableLayout.getPrimaryKey().getFields()) {
+                if (!fields.contains(field)) {
+                    selectedFields.add(field);
+                }
+            }
+            selectedFields.addAll(fields);
+            this.selectedFields = selectedFields.build();
+
+            stmt = "" +
+                    "select " +
+                    Joiner.on(", ").join(this.selectedFields.stream().collect(toImmutableList())) +
+                    " from " +
+                    table +
+                    " where " +
+                    keyField +
+                    " = :value";
+        }
+
+        public List<Map<String, Object>> getRows(Handle handle, int value)
+        {
+            return handle
+                    .createQuery(stmt).bind("value", value)
+                    .mapToMap()
+                    .list();
+        }
+    }
+
+    private Instance getInstance(String keyField)
+    {
+        return instancesByField.computeIfAbsent(keyField, Instance::new);
     }
 
     public List<Row> scan(Handle handle, String field, int value)
     {
-        String stmt = "" +
-                "select " +
-                Joiner.on(", ").join(fields.stream().collect(toImmutableList())) +
-                " from " +
-                table +
-                " where " +
-                field +
-                " = :value";
+        List<Map<String, Object>> rows = getInstance(field).getRows(handle, value);
 
-        List<Map<String, Object>> rows = handle
-                .createQuery(stmt).bind("value", value)
-                .mapToMap()
-                .list();
-
-        return rows
-                .stream()
+        return rows.stream()
                 .map(row -> new Row(
-                        Id.of(value),
+                        Id.of(rowIdCodec.encode(row)),
                         row.values().stream().toArray(Object[]::new)))
                 .collect(toImmutableList());
     }

@@ -21,6 +21,8 @@ import javax.annotation.concurrent.Immutable;
 import java.util.Iterator;
 import java.util.List;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 @Immutable
 public final class TableLayout
 {
@@ -33,6 +35,7 @@ public final class TableLayout
         public Key(List<String> fields)
         {
             this.fields = ImmutableList.copyOf(fields);
+            checkArgument(!this.fields.isEmpty());
         }
 
         @Override

@@ -95,7 +95,7 @@ public class BuildNodeVisitor
     @Override
     public List<NodeOutput> visitScanNode(ScanNode node, BuildContext context)
     {
-        Scanner scanner = new Scanner(node.getTable(), node.getFields().keySet());
+        // Scanner scanner = new Scanner(node.getTable(), node.getFields().keySet());
 
         if (context.getKey() instanceof IdKey) {
 

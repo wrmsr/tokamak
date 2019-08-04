@@ -18,32 +18,24 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.CharStreams;
 import com.wrmsr.tokamak.api.Id;
-import com.wrmsr.tokamak.api.IdKey;
 import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.api.Row;
-import com.wrmsr.tokamak.codec.CompositeRowIdCodec;
-import com.wrmsr.tokamak.codec.IdCodecs;
-import com.wrmsr.tokamak.codec.RowIdCodec;
-import com.wrmsr.tokamak.codec.ScalarRowIdCodec;
-import com.wrmsr.tokamak.jdbc.JdbcLayoutUtils;
-import com.wrmsr.tokamak.jdbc.JdbcUtils;
 import com.wrmsr.tokamak.driver.BuildContext;
 import com.wrmsr.tokamak.driver.BuildNodeVisitor;
 import com.wrmsr.tokamak.driver.NodeOutput;
 import com.wrmsr.tokamak.driver.Scanner;
 import com.wrmsr.tokamak.driver.context.DriverContextImpl;
+import com.wrmsr.tokamak.jdbc.JdbcLayoutUtils;
+import com.wrmsr.tokamak.jdbc.JdbcTypeUtils;
+import com.wrmsr.tokamak.jdbc.JdbcUtils;
 import com.wrmsr.tokamak.jdbc.TableIdentifier;
-import com.wrmsr.tokamak.jdbc.metadata.ColumnMetaData;
 import com.wrmsr.tokamak.jdbc.metadata.MetaDataReflection;
 import com.wrmsr.tokamak.jdbc.metadata.TableDescription;
 import com.wrmsr.tokamak.jdbc.metadata.TableMetaData;
 import com.wrmsr.tokamak.layout.RowLayout;
-import com.wrmsr.tokamak.layout.RowView;
-import com.wrmsr.tokamak.layout.TableLayout;
 import com.wrmsr.tokamak.node.Node;
 import com.wrmsr.tokamak.node.ScanNode;
 import com.wrmsr.tokamak.type.Type;
-import com.wrmsr.tokamak.jdbc.JdbcTypeUtils;
 import io.airlift.tpch.TpchTable;
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -62,7 +54,7 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.List;
 
-import static com.google.common.collect.ImmutableList.toImmutableList;
+import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static java.util.function.Function.identity;
 
@@ -140,7 +132,7 @@ public class AppTest
         // String url = "jdbc:h2:mem:test";
 
         try (DirectoryStream<Path> ds = Files.newDirectoryStream(Paths.get("temp"), "test.db*")) {
-            ds.forEach(p -> p.toFile().delete());
+            ds.forEach(p -> checkState(p.toFile().delete()));
         }
         String url = "jdbc:h2:file:./temp/test.db";
 
@@ -160,35 +152,24 @@ public class AppTest
                 TpchUtils.insertEntities(handle, table, table.createGenerator(0.01, 1, 1));
             }
 
-            Scanner scanner = new Scanner(
-                    "NATION",
-                    ImmutableSet.of(
-                            "N_NATIONKEY",
-                            "N_NAME"
-                    ));
-
-            // Codec
             TableDescription td = MetaDataReflection.getTableDescription(
                     metaData, TableIdentifier.of("TEST.DB", "PUBLIC", "NATION"));
-            // td.getCompositePrimaryKeyMetaData().getComponents()
 
             RowLayout rl = new RowLayout(
                     ImmutableList.of("N_NATIONKEY", "N_NAME").stream().collect(toImmutableMap(
                             identity(),
                             f -> JdbcTypeUtils.getTypeForColumn(td.getColumnMetaDatasByName().get(f)))));
 
-            List<RowIdCodec> idcp = td.getCompositePrimaryKeyMetaData().getComponents().stream().map(pkmd -> {
-                ColumnMetaData cmd = td.getColumnMetaDatasByName().get(pkmd.getColumnName());
-                return new ScalarRowIdCodec(cmd.getColumnName(), IdCodecs.CODECS_BY_TYPE.get(JdbcTypeUtils.getTypeForColumn(cmd)));
-            }).collect(toImmutableList());
-            RowIdCodec idc = new CompositeRowIdCodec(idcp);
+            Scanner scanner = new Scanner(
+                    "NATION",
+                    JdbcLayoutUtils.buildTableLayout(td),
+                    ImmutableSet.of(
+                            "N_NATIONKEY",
+                            "N_NAME"
+                    ));
 
             List<Row> rows = scanner.scan(handle, "N_NATIONKEY", 10);
             System.out.println(rows);
-
-            byte[] id = idc.encode(new RowView(rl, rows.get(0).getAttributes()));
-
-            TableLayout tableLayout = JdbcLayoutUtils.buildTableLayout(td);
 
             Node scanNode = new ScanNode(
                     "scan",
