@@ -153,7 +153,7 @@ public class AppTest
         DriverImpl driver = new DriverImpl(plan, jdbi);
 
         jdbi.withHandle(handle -> {
-            List<Row> buildRows = driver.build(driver.createContext(handle), scanNode, Key.of(Id.of(10)));
+            List<Row> buildRows = driver.build(driver.createContext(handle), scanNode, Key.of("N_NATIONKEY", 10));
             System.out.println(buildRows);
 
             return null;
