@@ -14,7 +14,7 @@
 package com.wrmsr.tokamak.driver;
 
 import com.google.common.collect.ImmutableList;
-import com.wrmsr.tokamak.api.IdKey;
+import com.wrmsr.tokamak.api.FieldKey;
 import com.wrmsr.tokamak.api.Row;
 import com.wrmsr.tokamak.node.CrossJoinNode;
 import com.wrmsr.tokamak.node.EquijoinNode;
@@ -31,6 +31,8 @@ import com.wrmsr.tokamak.node.ValuesNode;
 import com.wrmsr.tokamak.node.visitor.NodeVisitor;
 
 import java.util.List;
+
+import static com.google.common.collect.ImmutableList.toImmutableList;
 
 public class BuildNodeVisitor
         extends NodeVisitor<List<BuildOutput>, BuildContext>
@@ -95,20 +97,20 @@ public class BuildNodeVisitor
     @Override
     public List<BuildOutput> visitScanNode(ScanNode node, BuildContext context)
     {
-        // Scanner scanner = new Scanner(node.getTable(), node.getFields().keySet());
+        Scanner scanner = new Scanner(
+                node.getTable(),
+                context.getDriverContext().getDriver().getTableLayout(node.getTable()),
+                node.getFields().keySet());
 
-        if (context.getKey() instanceof IdKey) {
-
+        if (context.getKey() instanceof FieldKey) {
+            List<Row> rows = scanner.scan(context.getDriverContext().getJdbiHandle(), context.getKey());
+            return rows.stream()
+                    .map(r -> new BuildOutput(r, ImmutableList.of()))
+                    .collect(toImmutableList());
         }
         else {
             throw new IllegalArgumentException(context.getKey().toString());
         }
-
-        // scanner.scan(
-        //         context.getDriverContext().getJdbiHandle(),
-        //         context.getKey().)
-
-        throw new UnsupportedOperationException();
     }
 
     @Override

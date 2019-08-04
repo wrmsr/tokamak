@@ -15,25 +15,12 @@ package com.wrmsr.tokamak;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.io.CharStreams;
 import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.api.Row;
-import com.wrmsr.tokamak.driver.BuildContext;
-import com.wrmsr.tokamak.driver.BuildNodeVisitor;
 import com.wrmsr.tokamak.driver.DriverImpl;
-import com.wrmsr.tokamak.driver.BuildOutput;
-import com.wrmsr.tokamak.driver.Scanner;
-import com.wrmsr.tokamak.driver.context.DriverContextImpl;
-import com.wrmsr.tokamak.jdbc.JdbcLayoutUtils;
-import com.wrmsr.tokamak.jdbc.JdbcTypeUtils;
 import com.wrmsr.tokamak.jdbc.JdbcUtils;
-import com.wrmsr.tokamak.jdbc.TableIdentifier;
-import com.wrmsr.tokamak.jdbc.metadata.MetaDataReflection;
-import com.wrmsr.tokamak.jdbc.metadata.TableDescription;
-import com.wrmsr.tokamak.jdbc.metadata.TableMetaData;
-import com.wrmsr.tokamak.layout.RowLayout;
 import com.wrmsr.tokamak.node.Node;
 import com.wrmsr.tokamak.node.ScanNode;
 import com.wrmsr.tokamak.plan.Plan;
@@ -50,15 +37,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Connection;
-import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.collect.ImmutableMap.toImmutableMap;
-import static java.util.function.Function.identity;
 
 public class AppTest
         extends TestCase
@@ -139,59 +123,38 @@ public class AppTest
         String url = "jdbc:h2:file:./temp/test.db";
 
         Jdbi jdbi = Jdbi.create(url, "username", "password");
+
         jdbi.withHandle(handle -> {
             for (String stmt : JdbcUtils.splitSql(ddl)) {
                 handle.execute(stmt);
-            }
-
-            DatabaseMetaData metaData = handle.getConnection().getMetaData();
-            for (TableMetaData tblMd : MetaDataReflection.getTableMetadatas(metaData)) {
-                TableDescription td = MetaDataReflection.getTableDescription(metaData, tblMd.getTableIdentifier());
-                System.out.println(td);
             }
 
             for (TpchTable table : TpchTable.getTables()) {
                 TpchUtils.insertEntities(handle, table, table.createGenerator(0.01, 1, 1));
             }
 
-            TableDescription td = MetaDataReflection.getTableDescription(
-                    metaData, TableIdentifier.of("TEST.DB", "PUBLIC", "NATION"));
+            handle.commit();
+            return null;
+        });
 
-            RowLayout rl = new RowLayout(
-                    ImmutableList.of("N_NATIONKEY", "N_NAME").stream().collect(toImmutableMap(
-                            identity(),
-                            f -> JdbcTypeUtils.getTypeForColumn(td.getColumnMetaDatasByName().get(f)))));
+        Node scanNode = new ScanNode(
+                "scan",
+                "NATION",
+                ImmutableMap.of(
+                        "N_NATIONKEY", Type.LONG,
+                        "N_NAME", Type.STRING
+                ),
+                ImmutableMap.of(),
+                ImmutableMap.of(),
+                ImmutableList.of());
 
-            Scanner scanner = new Scanner(
-                    "NATION",
-                    JdbcLayoutUtils.buildTableLayout(td),
-                    ImmutableSet.of(
-                            "N_NATIONKEY",
-                            "N_NAME"
-                    ));
+        Plan plan = new Plan(scanNode);
 
-            List<Row> rows = scanner.scan(handle, "N_NATIONKEY", 10);
-            System.out.println(rows);
+        DriverImpl driver = new DriverImpl(plan, jdbi);
 
-            Node scanNode = new ScanNode(
-                    "scan",
-                    "NATION",
-                    ImmutableMap.of(
-                            "N_NATIONKEY", Type.LONG,
-                            "N_NAME", Type.STRING
-                    ),
-                    ImmutableMap.of(),
-                    ImmutableMap.of(),
-                    ImmutableList.of());
-
-            Plan plan = new Plan(scanNode);
-
-            DriverImpl driver = new DriverImpl(plan, jdbi);
-
+        jdbi.withHandle(handle -> {
             List<Row> buildRows = driver.build(driver.createContext(handle), scanNode, Key.of(Id.of(10)));
             System.out.println(buildRows);
-
-            handle.commit();
 
             return null;
         });

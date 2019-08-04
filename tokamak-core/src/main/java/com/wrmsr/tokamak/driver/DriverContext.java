@@ -36,6 +36,8 @@ import java.util.List;
 
 public interface DriverContext
 {
+    DriverImpl getDriver();
+
     Handle getJdbiHandle();
 
     List<Row> build(Node node, Key key);

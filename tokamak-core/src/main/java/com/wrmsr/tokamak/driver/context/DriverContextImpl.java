@@ -53,6 +53,12 @@ public final class DriverContextImpl
     }
 
     @Override
+    public DriverImpl getDriver()
+    {
+        return driver;
+    }
+
+    @Override
     public Handle getJdbiHandle()
     {
         return jdbiHandle;

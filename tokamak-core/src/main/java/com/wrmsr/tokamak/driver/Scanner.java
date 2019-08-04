@@ -14,8 +14,11 @@
 package com.wrmsr.tokamak.driver;
 
 import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.wrmsr.tokamak.api.FieldKey;
 import com.wrmsr.tokamak.api.Id;
+import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.api.Row;
 import com.wrmsr.tokamak.codec.IdCodecs;
 import com.wrmsr.tokamak.codec.RowIdCodec;
@@ -120,12 +123,23 @@ public class Scanner
                     " = :value";
         }
 
-        public List<Map<String, Object>> getRows(Handle handle, int value)
+        public List<Row> getRows(Handle handle, Object value)
         {
-            return handle
+            List<Map<String, Object>> rawRows = handle
                     .createQuery(stmt).bind("value", value)
                     .map(new MapMapper(false))
                     .list();
+
+            ImmutableList.Builder<Row> rows = ImmutableList.builder();
+            for (Map<String, Object> rawRow : rawRows) {
+                Id id = Id.of(rowIdCodec.encode(rawRow));
+                Object[] attributes = rawRow.entrySet().stream()
+                        .filter(e -> fields.contains(e.getKey()))
+                        .map(Map.Entry::getValue)
+                        .toArray(Object[]::new);
+                rows.add(new Row(id, attributes));
+            }
+            return rows.build();
         }
     }
 
@@ -134,14 +148,11 @@ public class Scanner
         return instancesByField.computeIfAbsent(keyField, Instance::new);
     }
 
-    public List<Row> scan(Handle handle, String field, int value)
+    public List<Row> scan(Handle handle, Key key)
     {
-        List<Map<String, Object>> rows = getInstance(field).getRows(handle, value);
-
-        return rows.stream()
-                .map(row -> new Row(
-                        Id.of(rowIdCodec.encode(row)),
-                        row.values().stream().toArray(Object[]::new)))
-                .collect(toImmutableList());
+        if (!(key instanceof FieldKey)) {
+            throw new IllegalArgumentException();
+        }
+        return getInstance(((FieldKey) key).getField()).getRows(handle, ((FieldKey) key).getValue());
     }
 }

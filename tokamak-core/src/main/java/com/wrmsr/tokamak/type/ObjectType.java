@@ -21,5 +21,4 @@ public final class ObjectType
     {
         return "ObjectType{}";
     }
-
 }

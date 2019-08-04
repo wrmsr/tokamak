@@ -16,7 +16,6 @@ package com.wrmsr.tokamak.api;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.google.common.base.Charsets;
-import com.wrmsr.tokamak.util.Box;
 
 import javax.annotation.concurrent.Immutable;
 

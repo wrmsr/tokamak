@@ -18,12 +18,18 @@ import com.wrmsr.tokamak.api.Row;
 import com.wrmsr.tokamak.driver.context.DriverContextImpl;
 import com.wrmsr.tokamak.driver.state.StateStorage;
 import com.wrmsr.tokamak.driver.state.StateStorageImpl;
+import com.wrmsr.tokamak.jdbc.JdbcLayoutUtils;
+import com.wrmsr.tokamak.jdbc.TableIdentifier;
+import com.wrmsr.tokamak.jdbc.metadata.MetaDataReflection;
+import com.wrmsr.tokamak.jdbc.metadata.TableDescription;
 import com.wrmsr.tokamak.layout.TableLayout;
 import com.wrmsr.tokamak.node.Node;
 import com.wrmsr.tokamak.plan.Plan;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 
+import java.sql.DatabaseMetaData;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,8 +40,6 @@ public class DriverImpl
     private final Jdbi jdbi;
 
     private final StateStorage stateStorage;
-
-    private final Map<String, TableLayout> tableLayoutsByName = new HashMap<>();
 
     public DriverImpl(Plan plan, Jdbi jdbi)
     {
@@ -53,6 +57,32 @@ public class DriverImpl
     public Jdbi getJdbi()
     {
         return jdbi;
+    }
+
+    private final Map<String, TableLayout> tableLayoutsByName = new HashMap<>();
+
+    public TableLayout getTableLayout(String name)
+    {
+        if (tableLayoutsByName.containsKey(name)) {
+            return tableLayoutsByName.get(name);
+        }
+
+        TableLayout tableLayout = jdbi.withHandle(handle -> {
+            try {
+                DatabaseMetaData metaData = handle.getConnection().getMetaData();
+
+                TableDescription tableDescription = MetaDataReflection.getTableDescription(
+                        metaData, TableIdentifier.of("TEST.DB", "PUBLIC", name));
+
+                return JdbcLayoutUtils.buildTableLayout(tableDescription);
+            }
+            catch (SQLException e) {
+                throw new RuntimeException();
+            }
+        });
+
+        tableLayoutsByName.put(name, tableLayout);
+        return tableLayout;
     }
 
     public StateStorage getStateStorage()
