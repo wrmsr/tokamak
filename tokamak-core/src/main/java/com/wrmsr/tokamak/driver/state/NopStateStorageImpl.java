@@ -11,6 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.wrmsr.tokamak.driver.state;
 
 import com.wrmsr.tokamak.api.Id;
@@ -24,7 +25,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
 
-public class StateStorageImpl
+public class NopStateStorageImpl
         implements StateStorage
 {
     @Override
@@ -62,7 +63,6 @@ public class StateStorageImpl
             boolean share)
             throws IOException
     {
-
     }
 
     @Override
@@ -72,7 +72,6 @@ public class StateStorageImpl
             boolean create)
             throws IOException
     {
-
     }
 
     @Override
@@ -82,7 +81,6 @@ public class StateStorageImpl
             boolean create)
             throws IOException
     {
-
     }
 
     @Override

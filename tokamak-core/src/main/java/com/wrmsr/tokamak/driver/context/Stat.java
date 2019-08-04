@@ -53,5 +53,26 @@ public enum Stat
         void update(Node node, Stat stat, long num);
 
         void update(Node node, Stat stat, double num);
+
+        static Updater nop()
+        {
+            return new Updater()
+            {
+                @Override
+                public void update(Node node, Stat stat)
+                {
+                }
+
+                @Override
+                public void update(Node node, Stat stat, long num)
+                {
+                }
+
+                @Override
+                public void update(Node node, Stat stat, double num)
+                {
+                }
+            };
+        }
     }
 }

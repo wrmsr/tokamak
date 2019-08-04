@@ -22,7 +22,8 @@ import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.api.Row;
 import com.wrmsr.tokamak.driver.BuildContext;
 import com.wrmsr.tokamak.driver.BuildNodeVisitor;
-import com.wrmsr.tokamak.driver.NodeOutput;
+import com.wrmsr.tokamak.driver.DriverImpl;
+import com.wrmsr.tokamak.driver.BuildOutput;
 import com.wrmsr.tokamak.driver.Scanner;
 import com.wrmsr.tokamak.driver.context.DriverContextImpl;
 import com.wrmsr.tokamak.jdbc.JdbcLayoutUtils;
@@ -35,6 +36,7 @@ import com.wrmsr.tokamak.jdbc.metadata.TableMetaData;
 import com.wrmsr.tokamak.layout.RowLayout;
 import com.wrmsr.tokamak.node.Node;
 import com.wrmsr.tokamak.node.ScanNode;
+import com.wrmsr.tokamak.plan.Plan;
 import com.wrmsr.tokamak.type.Type;
 import io.airlift.tpch.TpchTable;
 import junit.framework.Test;
@@ -182,11 +184,12 @@ public class AppTest
                     ImmutableMap.of(),
                     ImmutableList.of());
 
-            List<NodeOutput> out = scanNode.accept(
-                    new BuildNodeVisitor(),
-                    new BuildContext(
-                            new DriverContextImpl(handle),
-                            Key.of(Id.of(10))));
+            Plan plan = new Plan(scanNode);
+
+            DriverImpl driver = new DriverImpl(plan, jdbi);
+
+            List<Row> buildRows = driver.build(driver.createContext(handle), scanNode, Key.of(Id.of(10)));
+            System.out.println(buildRows);
 
             handle.commit();
 

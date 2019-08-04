@@ -22,12 +22,12 @@ import javax.annotation.concurrent.Immutable;
 import java.util.List;
 
 @Immutable
-public final class NodeOutput
+public final class BuildOutput
 {
     private final Row row;
     private final List<Row> lineage;
 
-    public NodeOutput(Row row, List<Row> lineage)
+    public BuildOutput(Row row, List<Row> lineage)
     {
         this.row = row;
         this.lineage = ImmutableList.copyOf(lineage);

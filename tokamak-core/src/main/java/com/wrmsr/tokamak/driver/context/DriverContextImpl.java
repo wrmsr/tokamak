@@ -13,22 +13,43 @@
  */
 package com.wrmsr.tokamak.driver.context;
 
+import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.api.Row;
+import com.wrmsr.tokamak.driver.BuildContext;
+import com.wrmsr.tokamak.driver.BuildNodeVisitor;
+import com.wrmsr.tokamak.driver.BuildOutput;
 import com.wrmsr.tokamak.driver.DriverContext;
+import com.wrmsr.tokamak.driver.DriverImpl;
 import com.wrmsr.tokamak.node.Node;
 import org.jdbi.v3.core.Handle;
 
 import java.util.List;
 
+import static com.google.common.collect.ImmutableList.toImmutableList;
+
 public final class DriverContextImpl
         implements DriverContext
 {
+    private final DriverImpl driver;
     private final Handle jdbiHandle;
 
-    public DriverContextImpl(Handle jdbiHandle)
+    private final RowCache rowCache;
+    private final StateCache stateCache;
+
+    public DriverContextImpl(
+            DriverImpl driver,
+            Handle jdbiHandle)
     {
+        this.driver = driver;
         this.jdbiHandle = jdbiHandle;
+
+        this.rowCache = new RowCache();
+        this.stateCache = new StateCache(
+                driver.getPlan(),
+                driver.getStateStorage(),
+                ImmutableList.of(),
+                Stat.Updater.nop());
     }
 
     @Override
@@ -40,7 +61,13 @@ public final class DriverContextImpl
     @Override
     public List<Row> build(Node node, Key key)
     {
-        throw new IllegalStateException();
+        List<BuildOutput> output = node.accept(
+                new BuildNodeVisitor(),
+                new BuildContext(
+                        this,
+                        key));
+
+        return output.stream().map(BuildOutput::getRow).collect(toImmutableList());
     }
 
     @Override

@@ -33,67 +33,67 @@ import com.wrmsr.tokamak.node.visitor.NodeVisitor;
 import java.util.List;
 
 public class BuildNodeVisitor
-        extends NodeVisitor<List<NodeOutput>, BuildContext>
+        extends NodeVisitor<List<BuildOutput>, BuildContext>
 {
     @Override
-    protected List<NodeOutput> visitNode(Node node, BuildContext context)
+    protected List<BuildOutput> visitNode(Node node, BuildContext context)
     {
         throw new IllegalStateException();
     }
 
     @Override
-    public List<NodeOutput> visitCrossJoinNode(CrossJoinNode node, BuildContext context)
+    public List<BuildOutput> visitCrossJoinNode(CrossJoinNode node, BuildContext context)
     {
         return super.visitCrossJoinNode(node, context);
     }
 
     @Override
-    public List<NodeOutput> visitEquijoinNode(EquijoinNode node, BuildContext context)
+    public List<BuildOutput> visitEquijoinNode(EquijoinNode node, BuildContext context)
     {
         return super.visitEquijoinNode(node, context);
     }
 
     @Override
-    public List<NodeOutput> visitFilterNode(FilterNode node, BuildContext context)
+    public List<BuildOutput> visitFilterNode(FilterNode node, BuildContext context)
     {
-        ImmutableList.Builder<NodeOutput> ret = ImmutableList.builder();
+        ImmutableList.Builder<BuildOutput> ret = ImmutableList.builder();
         for (Row row : context.getDriverContext().build(node.getSource(), context.getKey())) {
             if (node.getPredicate().test(row)) {
-                ret.add(new NodeOutput(new Row(row.getId(), row.getAttributes()), ImmutableList.of(row)));
+                ret.add(new BuildOutput(new Row(row.getId(), row.getAttributes()), ImmutableList.of(row)));
             }
             else {
-                ret.add(new NodeOutput(new Row(row.getId(), null), ImmutableList.of(row)));
+                ret.add(new BuildOutput(new Row(row.getId(), null), ImmutableList.of(row)));
             }
         }
         return ret.build();
     }
 
     @Override
-    public List<NodeOutput> visitListAggregateNode(ListAggregateNode node, BuildContext context)
+    public List<BuildOutput> visitListAggregateNode(ListAggregateNode node, BuildContext context)
     {
         return super.visitListAggregateNode(node, context);
     }
 
     @Override
-    public List<NodeOutput> visitLookupJoinNode(LookupJoinNode node, BuildContext context)
+    public List<BuildOutput> visitLookupJoinNode(LookupJoinNode node, BuildContext context)
     {
         return super.visitLookupJoinNode(node, context);
     }
 
     @Override
-    public List<NodeOutput> visitPersistNode(PersistNode node, BuildContext context)
+    public List<BuildOutput> visitPersistNode(PersistNode node, BuildContext context)
     {
         return super.visitPersistNode(node, context);
     }
 
     @Override
-    public List<NodeOutput> visitProjectNode(ProjectNode node, BuildContext context)
+    public List<BuildOutput> visitProjectNode(ProjectNode node, BuildContext context)
     {
         return super.visitProjectNode(node, context);
     }
 
     @Override
-    public List<NodeOutput> visitScanNode(ScanNode node, BuildContext context)
+    public List<BuildOutput> visitScanNode(ScanNode node, BuildContext context)
     {
         // Scanner scanner = new Scanner(node.getTable(), node.getFields().keySet());
 
@@ -112,19 +112,19 @@ public class BuildNodeVisitor
     }
 
     @Override
-    public List<NodeOutput> visitUnionNode(UnionNode node, BuildContext context)
+    public List<BuildOutput> visitUnionNode(UnionNode node, BuildContext context)
     {
         return super.visitUnionNode(node, context);
     }
 
     @Override
-    public List<NodeOutput> visitUnnestNode(UnnestNode node, BuildContext context)
+    public List<BuildOutput> visitUnnestNode(UnnestNode node, BuildContext context)
     {
         return super.visitUnnestNode(node, context);
     }
 
     @Override
-    public List<NodeOutput> visitValuesNode(ValuesNode node, BuildContext context)
+    public List<BuildOutput> visitValuesNode(ValuesNode node, BuildContext context)
     {
         return super.visitValuesNode(node, context);
     }
