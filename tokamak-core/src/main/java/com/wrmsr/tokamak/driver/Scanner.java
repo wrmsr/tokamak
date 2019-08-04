@@ -22,6 +22,7 @@ import com.wrmsr.tokamak.codec.RowIdCodec;
 import com.wrmsr.tokamak.layout.RowLayout;
 import com.wrmsr.tokamak.layout.TableLayout;
 import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.mapper.MapMapper;
 
 import java.util.List;
 import java.util.Map;
@@ -123,7 +124,7 @@ public class Scanner
         {
             return handle
                     .createQuery(stmt).bind("value", value)
-                    .mapToMap()
+                    .map(new MapMapper(false))
                     .list();
         }
     }
