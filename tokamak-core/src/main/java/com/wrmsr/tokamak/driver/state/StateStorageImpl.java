@@ -13,6 +13,83 @@
  */
 package com.wrmsr.tokamak.driver.state;
 
+import com.wrmsr.tokamak.api.Id;
+import com.wrmsr.tokamak.api.Row;
+import com.wrmsr.tokamak.node.StatefulNode;
+import com.wrmsr.tokamak.util.Span;
+
+import java.io.IOException;
+import java.sql.Connection;
+import java.util.List;
+import java.util.Optional;
+import java.util.OptionalInt;
+
 public class StateStorageImpl
+        implements StateStorage
 {
+    @Override
+    public void setup()
+            throws IOException
+    {
+
+    }
+
+    @Override
+    public Optional<State> get(
+            Connection conn,
+            Id id,
+            boolean create,
+            boolean linkage,
+            boolean attributes,
+            boolean share,
+            boolean noLock)
+            throws IOException
+    {
+        return Optional.empty();
+    }
+
+    @Override
+    public State createPhantom(StatefulNode node, Id id, Row row)
+            throws IOException
+    {
+        return null;
+    }
+
+    @Override
+    public void upgradePhantom(
+            Connection conn,
+            State state,
+            boolean linkage,
+            boolean share)
+            throws IOException
+    {
+
+    }
+
+    @Override
+    public void put(
+            Connection conn,
+            State state,
+            boolean create)
+            throws IOException
+    {
+
+    }
+
+    @Override
+    public void putMany(
+            Connection conn,
+            List<State> states,
+            boolean create)
+            throws IOException
+    {
+
+    }
+
+    @Override
+    public List<Id> getSpanIds(Span<Id> span, OptionalInt limit)
+            throws IOException
+    {
+        return null;
+    }
 }

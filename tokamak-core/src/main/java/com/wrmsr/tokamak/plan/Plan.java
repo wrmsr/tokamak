@@ -66,7 +66,7 @@ public final class Plan
             nodes.add(cur);
             nodesByName.put(cur.getName(), cur);
             nodesByNodeId.put(cur.getNodeId(), cur);
-            cur.getChildren().stream()
+            cur.getSources().stream()
                     .filter(n -> !nodes.contains(n))
                     .forEach(nodeStack::add);
         }
@@ -114,14 +114,14 @@ public final class Plan
 
     public Set<Node> getLeafNodes()
     {
-        return leafNodes.get(() -> getNameSortedNodes().stream().filter(n -> n.getChildren().isEmpty()).collect(toImmutableSet()));
+        return leafNodes.get(() -> getNameSortedNodes().stream().filter(n -> n.getSources().isEmpty()).collect(toImmutableSet()));
     }
 
     private final GetterLazyValue<List<Set<Node>>> nodeToposort = new GetterLazyValue<>();
 
     public List<Set<Node>> getNodeToposort()
     {
-        return nodeToposort.get(() -> Toposort.toposort(getNameSortedNodes().stream().collect(toImmutableMap(identity(), Node::getChildren))));
+        return nodeToposort.get(() -> Toposort.toposort(getNameSortedNodes().stream().collect(toImmutableMap(identity(), Node::getSources))));
     }
 
     private final GetterLazyValue<List<Set<Node>>> nodeReverseToposort = new GetterLazyValue<>();

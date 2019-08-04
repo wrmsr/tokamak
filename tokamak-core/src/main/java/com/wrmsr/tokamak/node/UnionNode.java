@@ -48,13 +48,8 @@ public final class UnionNode
         checkInvariants();
     }
 
-    public Set<Node> getSources()
-    {
-        return sources;
-    }
-
     @Override
-    public Set<Node> getChildren()
+    public Set<Node> getSources()
     {
         return sources;
     }

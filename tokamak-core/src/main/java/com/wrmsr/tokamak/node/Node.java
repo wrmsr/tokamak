@@ -44,7 +44,7 @@ public interface Node
 
     NodeId getNodeId();
 
-    Set<Node> getChildren();
+    Set<Node> getSources();
 
     Map<String, Type> getFields();
 

@@ -16,6 +16,8 @@ package com.wrmsr.tokamak.node;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.node.visitor.NodeVisitor;
+import com.wrmsr.tokamak.serdes.Serdes;
+import com.wrmsr.tokamak.serdes.Serializer;
 import com.wrmsr.tokamak.type.Type;
 
 import javax.annotation.concurrent.Immutable;

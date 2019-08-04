@@ -11,17 +11,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.node;
+package com.wrmsr.tokamak.serdes;
 
-import com.google.common.collect.ImmutableSet;
-
-import java.util.Set;
-
-public interface GeneratorNode
-        extends Node
+public interface SerdesContext
 {
-    default Set<Node> getSources()
-    {
-        return ImmutableSet.of();
-    }
+    <T> Object encode(T data);
+
+    <T> T decode(Class<? extends T> cls, Object data);
 }

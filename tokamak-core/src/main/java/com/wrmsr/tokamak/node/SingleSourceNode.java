@@ -22,7 +22,7 @@ public interface SingleSourceNode
 {
     Node getSource();
 
-    default Set<Node> getChildren()
+    default Set<Node> getSources()
     {
         return ImmutableSet.of(getSource());
     }

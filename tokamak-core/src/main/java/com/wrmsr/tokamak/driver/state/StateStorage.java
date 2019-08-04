@@ -40,11 +40,7 @@ public interface StateStorage
     )
             throws IOException;
 
-    State createPhantom(
-            StatefulNode node,
-            Id id,
-            Row row
-    )
+    State createPhantom(StatefulNode node, Id id, Row row)
             throws IOException;
 
     void upgradePhantom(

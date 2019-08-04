@@ -47,7 +47,7 @@ public final class CrossJoinNode
     }
 
     @Override
-    public Set<Node> getChildren()
+    public Set<Node> getSources()
     {
         throw new IllegalStateException();
     }

@@ -35,7 +35,7 @@ public abstract class AbstractNode
 
     protected void checkInvariants()
     {
-        checkUnique(getChildren());
+        checkUnique(getSources());
     }
 
     @Override

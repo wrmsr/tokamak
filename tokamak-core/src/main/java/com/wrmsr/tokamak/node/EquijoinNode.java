@@ -184,7 +184,7 @@ public final class EquijoinNode
     }
 
     @Override
-    public Set<Node> getChildren()
+    public Set<Node> getSources()
     {
         return branches.stream().map(b -> b.node).collect(toImmutableSet());
     }

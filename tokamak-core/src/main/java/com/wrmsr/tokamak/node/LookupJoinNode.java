@@ -61,7 +61,7 @@ public final class LookupJoinNode
     }
 
     @Override
-    public Set<Node> getChildren()
+    public Set<Node> getSources()
     {
         throw new IllegalStateException();
     }
