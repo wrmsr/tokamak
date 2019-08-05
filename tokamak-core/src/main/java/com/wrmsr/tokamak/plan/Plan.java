@@ -165,7 +165,7 @@ public final class Plan
                 Streams.zip(
                         IntStream.range(0, nodes.size()).boxed(),
                         getReverseToposortedNodes().stream(),
-                        (i, n) -> new ImmutablePair<>(n, i))
+                        (i, n) -> new Pairs.Immutable<>(n, i))
                         .collect(toImmutableMap(Map.Entry::getKey, Map.Entry::getValue)));
     }
 
