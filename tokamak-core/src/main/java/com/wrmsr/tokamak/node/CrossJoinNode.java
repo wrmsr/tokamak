@@ -20,6 +20,9 @@ import javax.annotation.concurrent.Immutable;
 
 import java.util.List;
 
+import static com.google.common.collect.ImmutableList.toImmutableList;
+import static com.wrmsr.tokamak.util.MorePreconditions.checkUnique;
+
 @Immutable
 public final class CrossJoinNode
         extends AbstractNode
@@ -43,6 +46,10 @@ public final class CrossJoinNode
 
         this.sources = ImmutableList.copyOf(sources);
         this.mode = mode;
+
+        checkUnique(this.sources.stream()
+                .flatMap(n -> n.getFields().keySet().stream())
+                .collect(toImmutableList()));
 
         checkInvariants();
     }

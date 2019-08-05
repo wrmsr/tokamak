@@ -13,6 +13,8 @@
  */
 package com.wrmsr.tokamak.node;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -50,12 +52,16 @@ public final class EquijoinNode
     public static final class Branch
     {
         private final Node node;
-        private final String field;
+        private final List<String> fields;
 
-        public Branch(Node node, String field)
+        @JsonCreator
+        public Branch(
+                @JsonProperty("node") Node node,
+                @JsonProperty("fields") List<String> fields)
         {
             this.node = node;
-            this.field = field;
+            this.fields = ImmutableList.copyOf(fields);
+            checkArgument(!this.fields.isEmpty());
         }
 
         @Override
@@ -65,23 +71,34 @@ public final class EquijoinNode
             if (o == null || getClass() != o.getClass()) { return false; }
             Branch branch = (Branch) o;
             return Objects.equals(node, branch.node) &&
-                    Objects.equals(field, branch.field);
+                    Objects.equals(fields, branch.fields);
         }
 
         @Override
         public int hashCode()
         {
-            return Objects.hash(node, field);
+            return Objects.hash(node, fields);
         }
 
+        @Override
+        public String toString()
+        {
+            return "Branch{" +
+                    "node=" + node +
+                    ", fields=" + fields +
+                    '}';
+        }
+
+        @JsonProperty("node")
         public Node getNode()
         {
             return node;
         }
 
-        public String getField()
+        @JsonProperty("fields")
+        public List<String> getFields()
         {
-            return field;
+            return fields;
         }
     }
 
@@ -93,7 +110,7 @@ public final class EquijoinNode
     private final Map<String, Node> nodesByUniqueField;
     private final Set<String> guaranteedUniqueFields;
     private final Map<String, Type> fields;
-    private final Set<String> idFields;
+    private final Set<Set<String>> idFieldSets;
 
     public EquijoinNode(
             String name,
@@ -179,7 +196,7 @@ public final class EquijoinNode
     }
 
     @Override
-    public Set<String> getIdFields()
+    public Set<Set<String>> getIdFieldSets()
     {
         return idFields;
     }

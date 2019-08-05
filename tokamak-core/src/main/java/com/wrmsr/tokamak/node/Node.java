@@ -49,7 +49,7 @@ public interface Node
 
     Map<String, Type> getFields();
 
-    Set<String> getIdFields();
+    Set<Set<String>> getIdFieldSets();
 
     <R, C> R accept(NodeVisitor<R, C> visitor, C context);
 }

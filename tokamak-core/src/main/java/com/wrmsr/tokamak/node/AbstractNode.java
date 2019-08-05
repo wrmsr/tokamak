@@ -21,6 +21,7 @@ import java.util.Set;
 
 import static com.wrmsr.tokamak.util.MorePreconditions.checkUnique;
 import static org.weakref.jmx.internal.guava.base.Preconditions.checkNotNull;
+import static org.weakref.jmx.internal.guava.base.Preconditions.checkState;
 
 public abstract class AbstractNode
         implements Node
@@ -37,6 +38,7 @@ public abstract class AbstractNode
     protected void checkInvariants()
     {
         checkUnique(getSources());
+        checkState(getSources().isEmpty() == (this instanceof GeneratorNode));
     }
 
     @Override
@@ -58,7 +60,7 @@ public abstract class AbstractNode
     }
 
     @Override
-    public Set<String> getIdFields()
+    public Set<Set<String>> getIdFieldSets()
     {
         throw new IllegalStateException();
     }
