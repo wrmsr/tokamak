@@ -125,7 +125,7 @@ public class Scanner
 
             Query query = handle.createQuery(stmt);
             for (Map.Entry<String, Object> e : keyValuesByField.entrySet()) {
-                query = query.bind(":" + e.getKey(), e.getValue());
+                query = query.bind(e.getKey(), e.getValue());
             }
             List<Map<String, Object>> rawRows = query
                     .map(new MapMapper(false))
