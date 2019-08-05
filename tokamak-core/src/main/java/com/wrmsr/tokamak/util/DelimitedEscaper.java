@@ -14,35 +14,37 @@
 
 package com.wrmsr.tokamak.util;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 
 import java.util.List;
 import java.util.Set;
+import java.util.stream.StreamSupport;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
 public final class DelimitedEscaper
 {
-    private final char delimiterChar;
+    private final char delimitChar;
     private final char quoteChar;
     private final char escapeChar;
     private final Set<Character> escapedChars;
 
     private final Set<Character> allEscapedChars;
 
-    public DelimitedEscaper(char delimiterChar, char quoteChar, char escapeChar, Set<Character> escapedChars)
+    public DelimitedEscaper(char delimitChar, char quoteChar, char escapeChar, Set<Character> escapedChars)
     {
-        checkArgument(delimiterChar != quoteChar);
-        checkArgument(delimiterChar != escapeChar);
+        checkArgument(delimitChar != quoteChar);
+        checkArgument(delimitChar != escapeChar);
         checkArgument(quoteChar != escapeChar);
 
-        this.delimiterChar = delimiterChar;
+        this.delimitChar = delimitChar;
         this.quoteChar = quoteChar;
         this.escapeChar = escapeChar;
         this.escapedChars = ImmutableSet.copyOf(escapedChars);
 
         allEscapedChars = ImmutableSet.<Character>builder()
-                .add(delimiterChar)
+                .add(delimitChar)
                 .add(quoteChar)
                 .add(escapeChar)
                 .addAll(escapedChars)
@@ -53,16 +55,16 @@ public final class DelimitedEscaper
     public String toString()
     {
         return "DelimitedEscaper{" +
-                "delimiterChar=" + delimiterChar +
+                "delimitChar=" + delimitChar +
                 ", quoteChar=" + quoteChar +
                 ", escapeChar=" + escapeChar +
                 ", escapedChars=" + escapedChars +
                 '}';
     }
 
-    public char getDelimiterChar()
+    public char getDelimitChar()
     {
-        return delimiterChar;
+        return delimitChar;
     }
 
     public char getQuoteChar()
@@ -82,23 +84,14 @@ public final class DelimitedEscaper
 
     public boolean isControlChar(char c)
     {
-        return c == delimiterChar || c == quoteChar || c == escapeChar;
-    }
-
-    public boolean containsControlChar(String str)
-    {
-        for (int i = 0; i < str.length(); ++i) {
-            if (isControlChar(str.charAt(i))) {
-                return true;
-            }
-        }
-        return false;
+        return c == delimitChar || c == quoteChar || c == escapeChar;
     }
 
     public boolean containsEscapedChar(String str)
     {
         for (int i = 0; i < str.length(); ++i) {
-            if (allEscapedChars.contains(str.charAt(i))) {
+            char c = str.charAt(i);
+            if (allEscapedChars.contains(c)) {
                 return true;
             }
         }
@@ -127,7 +120,7 @@ public final class DelimitedEscaper
                 sb.append(str.charAt(++i));
             }
             else {
-                checkArgument(!isControlChar(c));
+                checkArgument(!allEscapedChars.contains(c));
                 sb.append(c);
             }
         }
@@ -156,13 +149,92 @@ public final class DelimitedEscaper
         }
     }
 
+    public String delimit(String... strs)
+    {
+        StringBuilder sb = new StringBuilder();
+        int count = 0;
+        for (String str : strs) {
+            if (count++ > 0) {
+                sb.append(delimitChar);
+            }
+            if (containsEscapedChar(str)) {
+                sb.append(quote(str));
+            }
+            else {
+                sb.append(str);
+            }
+        }
+        return sb.toString();
+    }
+
     public String delimit(Iterable<String> strs)
     {
-
+        return delimit(StreamSupport.stream(strs.spliterator(), false).toArray(String[]::new));
     }
 
     public List<String> undelimit(String str)
     {
-       
+        ImmutableList.Builder<String> builder = ImmutableList.builder();
+        StringBuilder sb = new StringBuilder();
+        int count = 0;
+        int i = 0;
+
+        while (i < str.length()) {
+            char c = str.charAt(i);
+
+            if (count > 0) {
+                checkArgument(c == delimitChar);
+                checkArgument(i < str.length() - 1);
+                c = str.charAt(++i);
+            }
+
+            boolean quoted = c == quoteChar;
+            if (quoted) {
+                checkArgument(i < str.length() - 1);
+                c = str.charAt(++i);
+            }
+            boolean unquoted = false;
+
+            while (true) {
+                if (c == delimitChar) {
+                    if (!quoted) {
+                        break;
+                    }
+                    else {
+                        sb.append(c);
+                    }
+                }
+                else if (c == quoteChar) {
+                    checkArgument(quoted);
+                    unquoted = true;
+                    i++;
+                    break;
+                }
+                else if (c == escapeChar) {
+                    checkArgument(quoted);
+                    checkArgument(i <= str.length() - 2);
+                    sb.append(str.charAt(++i));
+                }
+                else {
+                    checkArgument(!escapedChars.contains(c));
+                    sb.append(c);
+                }
+
+                if (++i == str.length()) {
+                    break;
+                }
+                c = str.charAt(i);
+            }
+
+            if (quoted) {
+                checkArgument(unquoted);
+            }
+
+            builder.add(sb.toString());
+            sb = new StringBuilder();
+            count++;
+        }
+
+        return builder.build();
     }
 }
