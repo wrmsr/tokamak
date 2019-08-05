@@ -22,8 +22,7 @@ import com.wrmsr.tokamak.driver.state.StateStorageContext;
 import com.wrmsr.tokamak.node.Node;
 import com.wrmsr.tokamak.node.StatefulNode;
 import com.wrmsr.tokamak.plan.Plan;
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
+import com.wrmsr.tokamak.util.Pairs;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -74,8 +73,8 @@ public class StateCache
 
         prioritizedNodes = plan.getToposortedNodes().stream().filter(StatefulNode.class::isInstance).collect(toImmutableList());
         prioritiesByNode = IntStream.range(0, prioritizedNodes.size())
-                .mapToObj(i -> new ImmutablePair<>(prioritizedNodes.get(i), i))
-                .collect(toImmutableMap(ImmutablePair::getKey, ImmutablePair::getValue));
+                .mapToObj(i -> new Pairs.Immutable<>(prioritizedNodes.get(i), i))
+                .collect(toImmutableMap(Pairs.Immutable::getKey, Pairs.Immutable::getValue));
 
         states = new HashSet<>();
         statesByIdByNode = new HashMap<>();
@@ -151,7 +150,7 @@ public class StateCache
         throw new IllegalStateException();
     }
 
-    public Optional<Pair<Node, Id>> getNextInvalid()
+    public Optional<Pairs.Immutable<Node, Id>> getNextInvalid()
     {
         throw new IllegalStateException();
     }

@@ -20,9 +20,9 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Streams;
 import com.wrmsr.tokamak.api.NodeId;
 import com.wrmsr.tokamak.node.Node;
+import com.wrmsr.tokamak.util.Pairs;
 import com.wrmsr.tokamak.util.lazy.GetterLazyValue;
 import com.wrmsr.tokamak.util.Toposort;
-import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -153,7 +153,7 @@ public final class Plan
                 Streams.zip(
                         IntStream.range(0, nodes.size()).boxed(),
                         getToposortedNodes().stream(),
-                        (i, n) -> new ImmutablePair<>(n, i))
+                        (i, n) -> new Pairs.Immutable<>(n, i))
                         .collect(toImmutableMap(Map.Entry::getKey, Map.Entry::getValue)));
     }
 
