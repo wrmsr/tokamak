@@ -21,8 +21,8 @@ import com.google.common.collect.Streams;
 import com.wrmsr.tokamak.api.NodeId;
 import com.wrmsr.tokamak.node.Node;
 import com.wrmsr.tokamak.util.Pairs;
-import com.wrmsr.tokamak.util.lazy.GetterLazyValue;
 import com.wrmsr.tokamak.util.Toposort;
+import com.wrmsr.tokamak.util.lazy.GetterLazyValue;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -121,7 +121,7 @@ public final class Plan
 
     public List<Set<Node>> getNodeToposort()
     {
-        return nodeToposort.get(() -> Toposort.toposort(getNameSortedNodes().stream().collect(toImmutableMap(identity(), Node::getSources))));
+        return nodeToposort.get(() -> Toposort.toposort(getNameSortedNodes().stream().collect(toImmutableMap(identity(), n -> ImmutableSet.copyOf(n.getSources())))));
     }
 
     private final GetterLazyValue<List<Set<Node>>> nodeReverseToposort = new GetterLazyValue<>();

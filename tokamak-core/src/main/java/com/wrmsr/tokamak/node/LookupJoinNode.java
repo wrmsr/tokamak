@@ -19,7 +19,6 @@ import javax.annotation.concurrent.Immutable;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 @Immutable
 public final class LookupJoinNode
@@ -61,7 +60,7 @@ public final class LookupJoinNode
     }
 
     @Override
-    public Set<Node> getSources()
+    public List<Node> getSources()
     {
         throw new IllegalStateException();
     }

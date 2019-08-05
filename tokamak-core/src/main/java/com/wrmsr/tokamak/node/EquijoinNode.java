@@ -29,6 +29,7 @@ import java.util.Objects;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static java.util.function.Function.identity;
@@ -184,9 +185,9 @@ public final class EquijoinNode
     }
 
     @Override
-    public Set<Node> getSources()
+    public List<Node> getSources()
     {
-        return branches.stream().map(b -> b.node).collect(toImmutableSet());
+        return branches.stream().map(b -> b.node).collect(toImmutableList());
     }
 
     @Override

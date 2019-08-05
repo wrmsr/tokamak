@@ -19,6 +19,7 @@ import com.wrmsr.tokamak.api.NodeId;
 import com.wrmsr.tokamak.node.visitor.NodeVisitor;
 import com.wrmsr.tokamak.type.Type;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -26,11 +27,11 @@ import java.util.Set;
         use = JsonTypeInfo.Id.NAME,
         include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = CrossJoinNode.class, name = "cross_join"),
+        @JsonSubTypes.Type(value = CrossJoinNode.class, name = "crossJoin"),
         @JsonSubTypes.Type(value = EquijoinNode.class, name = "equijoin"),
         @JsonSubTypes.Type(value = FilterNode.class, name = "filter"),
-        @JsonSubTypes.Type(value = ListAggregateNode.class, name = "list_aggregate"),
-        @JsonSubTypes.Type(value = LookupJoinNode.class, name = "lookup_join"),
+        @JsonSubTypes.Type(value = ListAggregateNode.class, name = "listAggregate"),
+        @JsonSubTypes.Type(value = LookupJoinNode.class, name = "lookupJoin"),
         @JsonSubTypes.Type(value = PersistNode.class, name = "persist"),
         @JsonSubTypes.Type(value = ProjectNode.class, name = "project"),
         @JsonSubTypes.Type(value = ScanNode.class, name = "scan"),
@@ -44,7 +45,7 @@ public interface Node
 
     NodeId getNodeId();
 
-    Set<Node> getSources();
+    List<Node> getSources();
 
     Map<String, Type> getFields();
 

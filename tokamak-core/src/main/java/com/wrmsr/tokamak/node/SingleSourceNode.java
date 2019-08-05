@@ -13,17 +13,17 @@
  */
 package com.wrmsr.tokamak.node;
 
-import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableList;
 
-import java.util.Set;
+import java.util.List;
 
 public interface SingleSourceNode
         extends Node
 {
     Node getSource();
 
-    default Set<Node> getSources()
+    default List<Node> getSources()
     {
-        return ImmutableSet.of(getSource());
+        return ImmutableList.of(getSource());
     }
 }

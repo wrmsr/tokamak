@@ -19,7 +19,6 @@ import com.wrmsr.tokamak.node.visitor.NodeVisitor;
 import javax.annotation.concurrent.Immutable;
 
 import java.util.List;
-import java.util.Set;
 
 @Immutable
 public final class CrossJoinNode
@@ -33,6 +32,7 @@ public final class CrossJoinNode
     }
 
     private final List<Node> sources;
+    private final Mode mode;
 
     public CrossJoinNode(
             String name,
@@ -42,14 +42,20 @@ public final class CrossJoinNode
         super(name);
 
         this.sources = ImmutableList.copyOf(sources);
+        this.mode = mode;
 
         checkInvariants();
     }
 
     @Override
-    public Set<Node> getSources()
+    public List<Node> getSources()
     {
-        throw new IllegalStateException();
+        return sources;
+    }
+
+    public Mode getMode()
+    {
+        return mode;
     }
 
     @Override

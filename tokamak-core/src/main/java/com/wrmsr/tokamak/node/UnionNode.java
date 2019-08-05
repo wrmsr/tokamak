@@ -13,7 +13,7 @@
  */
 package com.wrmsr.tokamak.node;
 
-import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.node.visitor.NodeVisitor;
 import com.wrmsr.tokamak.type.Type;
 
@@ -21,7 +21,6 @@ import javax.annotation.concurrent.Immutable;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -29,7 +28,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 public final class UnionNode
         extends AbstractNode
 {
-    private final Set<Node> sources;
+    private final List<Node> sources;
 
     public UnionNode(
             String name,
@@ -43,13 +42,13 @@ public final class UnionNode
             checkArgument(fields.equals(sources.get(i).getFields()));
         }
 
-        this.sources = ImmutableSet.copyOf(sources);
+        this.sources = ImmutableList.copyOf(sources);
 
         checkInvariants();
     }
 
     @Override
-    public Set<Node> getSources()
+    public List<Node> getSources()
     {
         return sources;
     }
