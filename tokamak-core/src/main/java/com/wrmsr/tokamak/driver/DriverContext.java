@@ -40,7 +40,7 @@ public interface DriverContext
 
     Handle getJdbiHandle();
 
-    List<Row> build(Node node, Key key);
+    List<DriverRow> build(Node node, Key key);
 
     void commit();
 }

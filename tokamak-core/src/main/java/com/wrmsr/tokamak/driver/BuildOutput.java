@@ -14,32 +14,20 @@
  */
 package com.wrmsr.tokamak.driver;
 
-import com.google.common.collect.ImmutableList;
-import com.wrmsr.tokamak.api.Row;
-
 import javax.annotation.concurrent.Immutable;
-
-import java.util.List;
 
 @Immutable
 public final class BuildOutput
 {
-    private final Row row;
-    private final List<Row> lineage;
+    private final DriverRow row;
 
-    public BuildOutput(Row row, List<Row> lineage)
+    public BuildOutput(DriverRow row)
     {
         this.row = row;
-        this.lineage = ImmutableList.copyOf(lineage);
     }
 
-    public Row getRow()
+    public DriverRow getRow()
     {
         return row;
-    }
-
-    public List<Row> getLineage()
-    {
-        return lineage;
     }
 }

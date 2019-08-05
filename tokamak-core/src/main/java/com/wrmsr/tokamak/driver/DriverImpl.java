@@ -14,7 +14,6 @@
 package com.wrmsr.tokamak.driver;
 
 import com.wrmsr.tokamak.api.Key;
-import com.wrmsr.tokamak.api.Row;
 import com.wrmsr.tokamak.driver.context.DriverContextImpl;
 import com.wrmsr.tokamak.driver.state.StateStorage;
 import com.wrmsr.tokamak.driver.state.StateStorageImpl;
@@ -85,6 +84,11 @@ public class DriverImpl
         return tableLayout;
     }
 
+    public LineagePolicy getLineagePolicy()
+    {
+        return LineagePolicy.MINIMAL;
+    }
+
     public StateStorage getStateStorage()
     {
         return stateStorage;
@@ -95,7 +99,7 @@ public class DriverImpl
         return new DriverContextImpl(this, jdbiHandle);
     }
 
-    public List<Row> build(DriverContext ctx, Node node, Key key)
+    public List<DriverRow> build(DriverContext ctx, Node node, Key key)
     {
         return ctx.build(node, key);
     }

@@ -76,12 +76,14 @@ public final class TableIdentifier
         return Objects.hash(catalog, schema, name);
     }
 
-    public @Nullable String getCatalog()
+    @Nullable
+    public String getCatalog()
     {
         return catalog;
     }
 
-    public @Nullable String getSchema()
+    @Nullable
+    public String getSchema()
     {
         return schema;
     }

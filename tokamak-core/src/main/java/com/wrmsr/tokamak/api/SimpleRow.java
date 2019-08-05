@@ -16,12 +16,43 @@ package com.wrmsr.tokamak.api;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
-@Immutable
-public interface Row
-{
-    @Nullable
-    Id getId();
+import java.util.Arrays;
 
+@Immutable
+public final class SimpleRow
+        implements Row
+{
+    private final @Nullable Id id;
+    private final @Nullable Object[] attributes;
+
+    public SimpleRow(
+            @Nullable Id id,
+            @Nullable Object[] attributes)
+    {
+        this.id = id;
+        this.attributes = attributes;
+    }
+
+    @Override
+    public String toString()
+    {
+        return "Row{" +
+                "id=" + id +
+                ", attributes=" + Arrays.toString(attributes) +
+                '}';
+    }
+
+    @Override
     @Nullable
-    Object[] getAttributes();
+    public Id getId()
+    {
+        return id;
+    }
+
+    @Override
+    @Nullable
+    public Object[] getAttributes()
+    {
+        return attributes;
+    }
 }

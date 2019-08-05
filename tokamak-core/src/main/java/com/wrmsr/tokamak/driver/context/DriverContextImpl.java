@@ -15,12 +15,12 @@ package com.wrmsr.tokamak.driver.context;
 
 import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.api.Key;
-import com.wrmsr.tokamak.api.Row;
 import com.wrmsr.tokamak.driver.BuildContext;
 import com.wrmsr.tokamak.driver.BuildNodeVisitor;
 import com.wrmsr.tokamak.driver.BuildOutput;
 import com.wrmsr.tokamak.driver.DriverContext;
 import com.wrmsr.tokamak.driver.DriverImpl;
+import com.wrmsr.tokamak.driver.DriverRow;
 import com.wrmsr.tokamak.node.Node;
 import org.jdbi.v3.core.Handle;
 
@@ -65,7 +65,7 @@ public final class DriverContextImpl
     }
 
     @Override
-    public List<Row> build(Node node, Key key)
+    public List<DriverRow> build(Node node, Key key)
     {
         List<BuildOutput> output = node.accept(
                 new BuildNodeVisitor(),

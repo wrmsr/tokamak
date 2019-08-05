@@ -16,10 +16,9 @@ package com.wrmsr.tokamak;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.CharStreams;
-import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.api.Key;
-import com.wrmsr.tokamak.api.Row;
 import com.wrmsr.tokamak.driver.DriverImpl;
+import com.wrmsr.tokamak.driver.DriverRow;
 import com.wrmsr.tokamak.jdbc.JdbcUtils;
 import com.wrmsr.tokamak.node.Node;
 import com.wrmsr.tokamak.node.ScanNode;
@@ -153,7 +152,7 @@ public class AppTest
         DriverImpl driver = new DriverImpl(plan, jdbi);
 
         jdbi.withHandle(handle -> {
-            List<Row> buildRows = driver.build(driver.createContext(handle), scanNode, Key.of("N_NATIONKEY", 10));
+            List<DriverRow> buildRows = driver.build(driver.createContext(handle), scanNode, Key.of("N_NATIONKEY", 10));
             System.out.println(buildRows);
 
             return null;

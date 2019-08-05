@@ -20,6 +20,7 @@ import com.wrmsr.tokamak.api.FieldKey;
 import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.api.Row;
+import com.wrmsr.tokamak.api.SimpleRow;
 import com.wrmsr.tokamak.codec.IdCodecs;
 import com.wrmsr.tokamak.codec.RowIdCodec;
 import com.wrmsr.tokamak.layout.RowLayout;
@@ -123,21 +124,21 @@ public class Scanner
                     " = :value";
         }
 
-        public List<Row> getRows(Handle handle, Object value)
+        public List<SimpleRow> getRows(Handle handle, Object value)
         {
             List<Map<String, Object>> rawRows = handle
                     .createQuery(stmt).bind("value", value)
                     .map(new MapMapper(false))
                     .list();
 
-            ImmutableList.Builder<Row> rows = ImmutableList.builder();
+            ImmutableList.Builder<SimpleRow> rows = ImmutableList.builder();
             for (Map<String, Object> rawRow : rawRows) {
                 Id id = Id.of(rowIdCodec.encode(rawRow));
                 Object[] attributes = rawRow.entrySet().stream()
                         .filter(e -> fields.contains(e.getKey()))
                         .map(Map.Entry::getValue)
                         .toArray(Object[]::new);
-                rows.add(new Row(id, attributes));
+                rows.add(new SimpleRow(id, attributes));
             }
             return rows.build();
         }
@@ -148,7 +149,7 @@ public class Scanner
         return instancesByField.computeIfAbsent(keyField, Instance::new);
     }
 
-    public List<Row> scan(Handle handle, Key key)
+    public List<SimpleRow> scan(Handle handle, Key key)
     {
         if (!(key instanceof FieldKey)) {
             throw new IllegalArgumentException();

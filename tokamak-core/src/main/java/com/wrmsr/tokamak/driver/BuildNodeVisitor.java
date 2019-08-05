@@ -15,7 +15,7 @@ package com.wrmsr.tokamak.driver;
 
 import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.api.FieldKey;
-import com.wrmsr.tokamak.api.Row;
+import com.wrmsr.tokamak.api.SimpleRow;
 import com.wrmsr.tokamak.node.CrossJoinNode;
 import com.wrmsr.tokamak.node.EquijoinNode;
 import com.wrmsr.tokamak.node.FilterNode;
@@ -59,13 +59,21 @@ public class BuildNodeVisitor
     public List<BuildOutput> visitFilterNode(FilterNode node, BuildContext context)
     {
         ImmutableList.Builder<BuildOutput> ret = ImmutableList.builder();
-        for (Row row : context.getDriverContext().build(node.getSource(), context.getKey())) {
+        for (DriverRow row : context.getDriverContext().build(node.getSource(), context.getKey())) {
+            Object[] attributes;
             if (node.getPredicate().test(row)) {
-                ret.add(new BuildOutput(new Row(row.getId(), row.getAttributes()), ImmutableList.of(row)));
+                attributes = row.getAttributes();
             }
             else {
-                ret.add(new BuildOutput(new Row(row.getId(), null), ImmutableList.of(row)));
+                attributes = null;
             }
+            ret.add(
+                    new BuildOutput(
+                            new DriverRow(
+                                    node,
+                                    context.getDriverContext().getDriver().getLineagePolicy().build(row),
+                                    row.getId(),
+                                    attributes)));
         }
         return ret.build();
     }
@@ -103,9 +111,14 @@ public class BuildNodeVisitor
                 node.getFields().keySet());
 
         if (context.getKey() instanceof FieldKey) {
-            List<Row> rows = scanner.scan(context.getDriverContext().getJdbiHandle(), context.getKey());
+            List<SimpleRow> rows = scanner.scan(context.getDriverContext().getJdbiHandle(), context.getKey());
             return rows.stream()
-                    .map(r -> new BuildOutput(r, ImmutableList.of()))
+                    .map(r -> new BuildOutput(
+                            new DriverRow(
+                                    node,
+                                    context.getDriverContext().getDriver().getLineagePolicy().build(),
+                                    r.getId(),
+                                    r.getAttributes())))
                     .collect(toImmutableList());
         }
         else {
