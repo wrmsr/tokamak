@@ -16,6 +16,7 @@ package com.wrmsr.tokamak.util;
 
 import com.google.common.collect.ImmutableSet;
 
+import java.util.List;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -27,8 +28,7 @@ public final class DelimitedEscaper
     private final char escapeChar;
     private final Set<Character> escapedChars;
 
-    private final Set<Character> controlChars;
-    private final String quoteString;
+    private final Set<Character> allEscapedChars;
 
     public DelimitedEscaper(char delimiterChar, char quoteChar, char escapeChar, Set<Character> escapedChars)
     {
@@ -41,21 +41,75 @@ public final class DelimitedEscaper
         this.escapeChar = escapeChar;
         this.escapedChars = ImmutableSet.copyOf(escapedChars);
 
-        controlChars = ImmutableSet.<Character>builder()
+        allEscapedChars = ImmutableSet.<Character>builder()
                 .add(delimiterChar)
                 .add(quoteChar)
                 .add(escapeChar)
                 .addAll(escapedChars)
                 .build();
+    }
 
-        quoteString = new String(new char[] {quoteChar});
+    @Override
+    public String toString()
+    {
+        return "DelimitedEscaper{" +
+                "delimiterChar=" + delimiterChar +
+                ", quoteChar=" + quoteChar +
+                ", escapeChar=" + escapeChar +
+                ", escapedChars=" + escapedChars +
+                '}';
+    }
+
+    public char getDelimiterChar()
+    {
+        return delimiterChar;
+    }
+
+    public char getQuoteChar()
+    {
+        return quoteChar;
+    }
+
+    public char getEscapeChar()
+    {
+        return escapeChar;
+    }
+
+    public Set<Character> getEscapedChars()
+    {
+        return escapedChars;
+    }
+
+    public boolean isControlChar(char c)
+    {
+        return c == delimiterChar || c == quoteChar || c == escapeChar;
+    }
+
+    public boolean containsControlChar(String str)
+    {
+        for (int i = 0; i < str.length(); ++i) {
+            if (isControlChar(str.charAt(i))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean containsEscapedChar(String str)
+    {
+        for (int i = 0; i < str.length(); ++i) {
+            if (allEscapedChars.contains(str.charAt(i))) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public String escape(String str)
     {
         StringBuilder sb = new StringBuilder();
         for (char c : str.toCharArray()) {
-            if (controlChars.contains(c)) {
+            if (allEscapedChars.contains(c)) {
                 sb.append(escapeChar);
             }
             sb.append(c);
@@ -66,37 +120,49 @@ public final class DelimitedEscaper
     public String unescape(String str)
     {
         StringBuilder sb = new StringBuilder();
-        char[] arr = str.toCharArray();
-        for (int i = 0; i < arr.length; ++i) {
-            if (arr[i] == escapeChar) {
-                checkArgument(i <= arr.length - 2);
-                sb.append(arr[++i]);
+        for (int i = 0; i < str.length(); ++i) {
+            char c = str.charAt(i);
+            if (c == escapeChar) {
+                checkArgument(i <= str.length() - 2);
+                sb.append(str.charAt(++i));
             }
             else {
-                sb.append(arr[i]);
+                checkArgument(!isControlChar(c));
+                sb.append(c);
             }
         }
         return sb.toString();
     }
 
-    // public String escapeQuoted(String str)
-    // {
-    //     if (str.contains(new String(new char[] {quoteChar}))) {
-    //         return quoteChar + escape(str, escapeChar, ImmutableSet.of(quoteChar)) + quoteChar;
-    //     }
-    //     else {
-    //         return str;
-    //     }
-    // }
-    //
-    // public static String unescapeQuoted(String str, char escapeChar, char quoteChar)
-    // {
-    //     if (str.startsWith(new String(new char[] {quoteChar}))) {
-    //         checkArgument(str.endsWith(new String(new char[] {quoteChar})));
-    //         return unescape(str.substring(1, str.length() - 1), escapeChar);
-    //     }
-    //     else {
-    //         return
-    //     }
-    // }
+    public String quote(String str)
+    {
+        if (containsEscapedChar(str)) {
+            return quoteChar + escape(str) + quoteChar;
+        }
+        else {
+            return str;
+        }
+    }
+
+    public String unquote(String str)
+    {
+        if (!str.isEmpty() && str.charAt(0) == quoteChar) {
+            checkArgument(str.length() > 1);
+            checkArgument(str.charAt(str.length() - 1) == quoteChar);
+            return unescape(str.substring(1, str.length() - 1));
+        }
+        else {
+            return str;
+        }
+    }
+
+    public String delimit(Iterable<String> strs)
+    {
+
+    }
+
+    public List<String> undelimit(String str)
+    {
+       
+    }
 }
