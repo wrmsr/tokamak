@@ -121,6 +121,8 @@ public class Scanner
 
         public List<SimpleRow> getRows(Handle handle, Map<String, Object> keyValuesByField)
         {
+            checkArgument(keyValuesByField.keySet().equals(keyFields));
+
             Query query = handle.createQuery(stmt);
             for (Map.Entry<String, Object> e : keyValuesByField.entrySet()) {
                 query = query.bind(":" + e.getKey(), e.getValue());
