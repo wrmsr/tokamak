@@ -26,6 +26,7 @@ import org.jdbi.v3.core.Handle;
 
 import java.util.List;
 
+import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 
 public final class DriverContextImpl
@@ -73,6 +74,7 @@ public final class DriverContextImpl
                         this,
                         key));
 
+        checkState(!output.isEmpty());
         return output.stream().map(BuildOutput::getRow).collect(toImmutableList());
     }
 

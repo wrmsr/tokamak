@@ -32,6 +32,6 @@ public interface Driver
     List<Row> build(DriverContext context, Node node, Key key)
             throws IOException;
 
-    List<SyncOutput> sync(DriverContext context, Map<Node, Set<Id>> idSetsByNode)
+    List<Row> sync(DriverContext context, Map<Node, Set<Id>> idSetsByNode)
             throws IOException;
 }

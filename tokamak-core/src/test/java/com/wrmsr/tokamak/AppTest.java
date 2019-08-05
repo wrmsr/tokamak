@@ -16,6 +16,7 @@ package com.wrmsr.tokamak;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.CharStreams;
+import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.driver.DriverImpl;
 import com.wrmsr.tokamak.driver.DriverRow;
@@ -25,6 +26,7 @@ import com.wrmsr.tokamak.node.Node;
 import com.wrmsr.tokamak.node.ScanNode;
 import com.wrmsr.tokamak.plan.Plan;
 import com.wrmsr.tokamak.type.Type;
+import com.wrmsr.tokamak.util.MoreBytes;
 import io.airlift.tpch.TpchTable;
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -159,7 +161,30 @@ public class AppTest
         DriverImpl driver = new DriverImpl(plan, jdbi);
 
         jdbi.withHandle(handle -> {
-            List<DriverRow> buildRows = driver.build(driver.createContext(handle), plan.getRoot(), Key.of("N_NATIONKEY", 10));
+            List<DriverRow> buildRows = driver.build(
+                    driver.createContext(handle),
+                    plan.getRoot(),
+                    Key.of("N_NATIONKEY", 10));
+            System.out.println(buildRows);
+
+            return null;
+        });
+
+        jdbi.withHandle(handle -> {
+            List<DriverRow> buildRows = driver.build(
+                    driver.createContext(handle),
+                    plan.getRoot(),
+                    Key.of(Id.of(MoreBytes.fromHex("0000000000000001"))));
+            System.out.println(buildRows);
+
+            return null;
+        });
+
+        jdbi.withHandle(handle -> {
+            List<DriverRow> buildRows = driver.build(
+                    driver.createContext(handle),
+                    plan.getRoot(),
+                    Key.all());
             System.out.println(buildRows);
 
             return null;

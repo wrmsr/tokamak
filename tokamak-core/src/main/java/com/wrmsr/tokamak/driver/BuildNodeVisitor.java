@@ -31,6 +31,7 @@ import com.wrmsr.tokamak.node.visitor.NodeVisitor;
 
 import java.util.List;
 
+import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 
 public class BuildNodeVisitor
@@ -110,6 +111,7 @@ public class BuildNodeVisitor
                 node.getFields().keySet());
 
         List<SimpleRow> rows = scanner.scan(context.getDriverContext().getJdbiHandle(), context.getKey());
+        checkState(!rows.isEmpty());
         return rows.stream()
                 .map(r -> new BuildOutput(
                         new DriverRow(

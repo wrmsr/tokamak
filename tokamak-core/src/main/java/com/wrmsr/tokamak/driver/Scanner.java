@@ -17,6 +17,7 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 import com.wrmsr.tokamak.api.AllKey;
 import com.wrmsr.tokamak.api.FieldKey;
 import com.wrmsr.tokamak.api.Id;
@@ -48,6 +49,7 @@ public class Scanner
     private final Set<String> fields;
 
     private final RowLayout rowLayout;
+    private final Set<String> idFields;
     private final RowIdCodec rowIdCodec;
 
     private final Map<Set<String>, Instance> instancesByKeyFieldSets = new ConcurrentHashMap<>();
@@ -66,8 +68,10 @@ public class Scanner
                 fields.stream()
                         .collect(toImmutableMap(identity(), tableLayout.getRowLayout().getTypesByField()::get)));
 
+        idFields = ImmutableSet.copyOf(tableLayout.getPrimaryKey().getFields());
+
         rowIdCodec = IdCodecs.buildRowIdCodec(
-                tableLayout.getPrimaryKey().stream()
+                idFields.stream()
                         .collect(toImmutableMap(identity(), tableLayout.getRowLayout().getTypesByField()::get)));
     }
 
@@ -99,6 +103,8 @@ public class Scanner
     private final class Instance
     {
         private final Set<String> keyFields;
+
+        private final boolean keyHasIdFields;
         private final Set<String> selectedFields;
         private final String stmt;
 
@@ -107,15 +113,17 @@ public class Scanner
             this.keyFields = ImmutableSet.copyOf(keyFields);
             this.keyFields.forEach(f -> checkArgument(tableLayout.getRowLayout().getFields().contains(f)));
 
-            this.selectedFields = ImmutableSet.<String>builder()
+            keyHasIdFields = Sets.difference(idFields, keyFields).isEmpty();
+
+            selectedFields = ImmutableSet.<String>builder()
                     .addAll(this.keyFields)
-                    .addAll(tableLayout.getPrimaryKey().getFields())
+                    .addAll(idFields)
                     .addAll(fields)
                     .build();
 
             String stmt = "" +
                     "select " +
-                    Joiner.on(", ").join(this.selectedFields.stream().collect(toImmutableList())) +
+                    Joiner.on(", ").join(selectedFields.stream().collect(toImmutableList())) +
                     " from " +
                     table;
 
@@ -139,6 +147,20 @@ public class Scanner
             List<Map<String, Object>> rawRows = query
                     .map(new MapMapper(false))
                     .list();
+
+            if (rawRows.isEmpty()) {
+                Id id;
+                if (keyHasIdFields) {
+                    id = Id.of(rowIdCodec.encode(keyValuesByField));
+                }
+                else {
+                    id = null;
+                }
+                return ImmutableList.of(
+                        new SimpleRow(
+                                id,
+                                null));
+            }
 
             ImmutableList.Builder<SimpleRow> rows = ImmutableList.builder();
             for (Map<String, Object> rawRow : rawRows) {
@@ -167,7 +189,7 @@ public class Scanner
         }
         else if (key instanceof IdKey) {
             IdKey idKey = (IdKey) key;
-            Instance instance = getInstance(ImmutableSet.copyOf(tableLayout.getPrimaryKey().getFields()));
+            Instance instance = getInstance(idFields);
             Map<String, Object> idValuesByField = rowIdCodec.decode(idKey.getId().getValue());
             return instance.getRows(handle, idValuesByField);
         }

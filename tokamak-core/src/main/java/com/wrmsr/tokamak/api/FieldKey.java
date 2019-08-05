@@ -13,6 +13,8 @@
  */
 package com.wrmsr.tokamak.api;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.util.StreamableIterable;
 
@@ -25,7 +27,7 @@ import java.util.Objects;
 import static com.google.common.base.Preconditions.checkArgument;
 
 @Immutable
-public final class FieldKey<V>
+public final class FieldKey
         implements Key, StreamableIterable<Map.Entry<String, Object>>
 {
     private final Map<String, Object> valuesByField;
@@ -42,8 +44,8 @@ public final class FieldKey<V>
     {
         if (this == o) { return true; }
         if (o == null || getClass() != o.getClass()) { return false; }
-        FieldKey<?> fieldKey = (FieldKey<?>) o;
-        return Objects.equals(valuesByField, fieldKey.valuesByField);
+        FieldKey entries = (FieldKey) o;
+        return Objects.equals(valuesByField, entries.valuesByField);
     }
 
     @Override
@@ -69,5 +71,17 @@ public final class FieldKey<V>
     public Iterator<Map.Entry<String, Object>> iterator()
     {
         return valuesByField.entrySet().iterator();
+    }
+
+    @JsonCreator
+    public static FieldKey parsePrefixed(Map<String, Object> valuesByField)
+    {
+        return new FieldKey(valuesByField);
+    }
+
+    @JsonValue
+    public Map<String, Object> toPrefixedString()
+    {
+        return valuesByField;
     }
 }

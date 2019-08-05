@@ -24,8 +24,8 @@ import java.util.Arrays;
 
 import static com.google.common.base.Preconditions.checkState;
 import static com.wrmsr.tokamak.util.StringPrefixing.stripPrefix;
-import static com.wrmsr.tokamak.util.subprocess.MoreBytes.fromHex;
-import static com.wrmsr.tokamak.util.subprocess.MoreBytes.toHex;
+import static com.wrmsr.tokamak.util.MoreBytes.fromHex;
+import static com.wrmsr.tokamak.util.MoreBytes.toHex;
 
 @Immutable
 public final class Id
