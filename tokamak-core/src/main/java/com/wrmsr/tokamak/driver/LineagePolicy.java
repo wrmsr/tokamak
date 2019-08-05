@@ -55,6 +55,25 @@ public interface LineagePolicy
         }
     };
 
+    LineagePolicy CASCADE = new LineagePolicy()
+    {
+        @Override
+        public Set<DriverRow> build(DriverRow... rows)
+        {
+            ImmutableSet.Builder<DriverRow> set = ImmutableSet.builder();
+            for (DriverRow row : rows) {
+                if (row.getNode() instanceof StatefulNode) {
+                    set.add(row);
+                }
+                else {
+                    set.add(row);
+                    set.addAll(row.getLineage());
+                }
+            }
+            return set.build();
+        }
+    };
+
     LineagePolicy FULL = new LineagePolicy()
     {
         @Override
@@ -62,6 +81,7 @@ public interface LineagePolicy
         {
             ImmutableSet.Builder<DriverRow> set = ImmutableSet.builder();
             for (DriverRow row : rows) {
+                set.add(row);
                 set.addAll(row.getLineage());
             }
             return set.build();

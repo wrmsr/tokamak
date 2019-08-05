@@ -20,6 +20,7 @@ import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.driver.DriverImpl;
 import com.wrmsr.tokamak.driver.DriverRow;
 import com.wrmsr.tokamak.jdbc.JdbcUtils;
+import com.wrmsr.tokamak.node.FilterNode;
 import com.wrmsr.tokamak.node.Node;
 import com.wrmsr.tokamak.node.ScanNode;
 import com.wrmsr.tokamak.plan.Plan;
@@ -147,7 +148,13 @@ public class AppTest
                 ImmutableMap.of(),
                 ImmutableList.of());
 
-        Plan plan = new Plan(scanNode);
+        Node filterNode = new FilterNode(
+                "filter",
+                scanNode,
+                row -> row.getAttributes()[0] != null,
+                false);
+
+        Plan plan = new Plan(filterNode);
 
         DriverImpl driver = new DriverImpl(plan, jdbi);
 
