@@ -23,6 +23,7 @@ import javax.annotation.concurrent.Immutable;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Immutable
 public final class ScanNode
@@ -39,7 +40,8 @@ public final class ScanNode
             Map<String, Type> fields,
             Map<String, Invalidation> invalidations,
             Map<String, LinkageMask> linkageMasks,
-            List<String> idNodes)
+            List<String> idNodes,
+            Optional<LockOverride> lockOverride)
     {
         super(name, invalidations, linkageMasks);
 

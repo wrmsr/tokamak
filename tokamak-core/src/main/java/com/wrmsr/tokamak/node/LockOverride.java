@@ -11,39 +11,47 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.wrmsr.tokamak.node;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.collect.ImmutableSet;
 
 import javax.annotation.concurrent.Immutable;
 
-import java.util.Set;
-
 @Immutable
-public final class LinkageMask
+public final class LockOverride
 {
-    private final Set<String> fields;
+    private final String node;
+    private final String field;
 
     @JsonCreator
-    public LinkageMask(
-            @JsonProperty("fields") Set<String> fields)
+    public LockOverride(
+            @JsonProperty("node") String node,
+            @JsonProperty("field") String field)
     {
-        this.fields = ImmutableSet.copyOf(fields);
+        this.node = node;
+        this.field = field;
     }
 
     @Override
     public String toString()
     {
-        return "LinkageMask{" +
-                "fields=" + fields +
+        return "LockOverride{" +
+                "node='" + node + '\'' +
+                ", field='" + field + '\'' +
                 '}';
     }
 
-    @JsonProperty("fields")
-    public Set<String> getFields()
+    @JsonProperty("node")
+    public String getNode()
     {
-        return fields;
+        return node;
+    }
+
+    @JsonProperty("field")
+    public String getField()
+    {
+        return field;
     }
 }

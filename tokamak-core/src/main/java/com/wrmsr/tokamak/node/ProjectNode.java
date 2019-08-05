@@ -33,7 +33,10 @@ public final class ProjectNode
 
     private final Map<String, Type> fields;
 
-    public ProjectNode(String name, Node source, Projection projection)
+    public ProjectNode(
+            String name,
+            Node source,
+            Projection projection)
     {
         super(name);
 
