@@ -15,9 +15,12 @@ package com.wrmsr.tokamak.driver;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.wrmsr.tokamak.api.AllKey;
 import com.wrmsr.tokamak.api.FieldKey;
 import com.wrmsr.tokamak.api.Id;
+import com.wrmsr.tokamak.api.IdKey;
 import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.api.SimpleRow;
 import com.wrmsr.tokamak.codec.IdCodecs;
@@ -110,13 +113,19 @@ public class Scanner
                     .addAll(fields)
                     .build();
 
-            stmt = "" +
+            String stmt = "" +
                     "select " +
                     Joiner.on(", ").join(this.selectedFields.stream().collect(toImmutableList())) +
                     " from " +
-                    table +
-                    " where " +
-                    Joiner.on(" and ").join(this.keyFields.stream().map(f -> String.format("%s = :%s", f, f)).collect(toImmutableList()));
+                    table;
+
+            if (!this.keyFields.isEmpty()) {
+                stmt += "" +
+                        " where " +
+                        Joiner.on(" and ").join(this.keyFields.stream().map(f -> String.format("%s = :%s", f, f)).collect(toImmutableList()));
+            }
+
+            this.stmt = stmt;
         }
 
         public List<SimpleRow> getRows(Handle handle, Map<String, Object> keyValuesByField)
@@ -156,8 +165,18 @@ public class Scanner
             Instance instance = getInstance(fieldKey.getValuesByField().keySet());
             return instance.getRows(handle, fieldKey.getValuesByField());
         }
+        else if (key instanceof IdKey) {
+            IdKey idKey = (IdKey) key;
+            Instance instance = getInstance(ImmutableSet.copyOf(tableLayout.getPrimaryKey().getFields()));
+            Map<String, Object> idValuesByField = rowIdCodec.decode(idKey.getId().getValue());
+            return instance.getRows(handle, idValuesByField);
+        }
+        else if (key instanceof AllKey) {
+            Instance instance = getInstance(ImmutableSet.of());
+            return instance.getRows(handle, ImmutableMap.of());
+        }
         else {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException(key.toString());
         }
     }
 }
