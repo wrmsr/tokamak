@@ -13,9 +13,49 @@
  */
 package com.wrmsr.tokamak.plan;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.concurrent.TimeUnit;
+
 public final class Dot
 {
     private Dot()
     {
+    }
+
+    public static String buildPlanDot(Plan plan)
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.append("digraph G {\n");
+
+        sb.append("}\n");
+        return sb.toString();
+    }
+
+    public static void openDot(String gv)
+            throws Exception
+    {
+        Path tempDir = Files.createTempDirectory("wava");
+        tempDir.toFile().deleteOnExit();
+        Path outGv = tempDir.resolve("out.gv");
+        Files.write(outGv, gv.getBytes());
+        Path outPng = tempDir.resolve("out.pdf");
+
+        Process p = new ProcessBuilder()
+                .directory(tempDir.toFile())
+                .command("dot", "-Tpdf", "out.gv")
+                .redirectOutput(outPng.toFile())
+                .start();
+        if (!p.waitFor(3600, TimeUnit.SECONDS)) {
+            p.destroyForcibly();
+            throw new IllegalStateException();
+        }
+
+        new ProcessBuilder()
+                .directory(tempDir.toFile())
+                .command("open", "out.pdf")
+                .start()
+                .waitFor(30, TimeUnit.SECONDS);
+        Thread.sleep(500);
     }
 }
