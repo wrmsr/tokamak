@@ -18,6 +18,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.io.CharStreams;
 import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.api.Key;
+import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.driver.DriverImpl;
 import com.wrmsr.tokamak.driver.DriverRow;
 import com.wrmsr.tokamak.jdbc.JdbcUtils;
@@ -43,6 +44,7 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.List;
+import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkState;
 
@@ -141,14 +143,15 @@ public class AppTest
 
         Node scanNode = new ScanNode(
                 "scan",
-                "NATION",
+                SchemaTable.of("PUBLIC", "NATION"),
                 ImmutableMap.of(
                         "N_NATIONKEY", Type.LONG,
                         "N_NAME", Type.STRING
                 ),
                 ImmutableMap.of(),
                 ImmutableMap.of(),
-                ImmutableList.of());
+                ImmutableList.of(),
+                Optional.empty());
 
         Node filterNode = new FilterNode(
                 "filter",

@@ -11,8 +11,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.wrmsr.tokamak.util;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Map;
 import java.util.Objects;
@@ -30,7 +32,10 @@ public final class Pairs
         private final K key;
         private final V value;
 
-        public Immutable(K key, V value)
+        @JsonCreator
+        public Immutable(
+                @JsonProperty("key") K key,
+                @JsonProperty("value") V value)
         {
             this.key = key;
             this.value = value;
@@ -62,12 +67,14 @@ public final class Pairs
         }
 
         @Override
+        @JsonProperty("key")
         public K getKey()
         {
             return key;
         }
 
         @Override
+        @JsonProperty("value")
         public V getValue()
         {
             return value;
@@ -86,7 +93,10 @@ public final class Pairs
         private K key;
         private V value;
 
-        public Mutable(K key, V value)
+        @JsonCreator
+        public Mutable(
+                @JsonProperty("key") K key,
+                @JsonProperty("value") V value)
         {
             this.key = key;
             this.value = value;
@@ -118,12 +128,14 @@ public final class Pairs
         }
 
         @Override
+        @JsonProperty("key")
         public K getKey()
         {
             return key;
         }
 
         @Override
+        @JsonProperty("value")
         public V getValue()
         {
             return value;

@@ -13,7 +13,12 @@
  */
 package com.wrmsr.tokamak.util;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import javax.annotation.concurrent.Immutable;
+
+import java.util.Objects;
 
 @Immutable
 public final class Span<T>
@@ -31,17 +36,47 @@ public final class Span<T>
         private final T value;
         private final Bound bound;
 
-        public Marker(T value, Bound bound)
+        @JsonCreator
+        public Marker(
+                @JsonProperty("value") T value,
+                @JsonProperty("bound") Bound bound)
         {
             this.value = value;
             this.bound = bound;
         }
 
+        @Override
+        public boolean equals(Object o)
+        {
+            if (this == o) { return true; }
+            if (o == null || getClass() != o.getClass()) { return false; }
+            Marker<?> marker = (Marker<?>) o;
+            return Objects.equals(value, marker.value) &&
+                    bound == marker.bound;
+        }
+
+        @Override
+        public int hashCode()
+        {
+            return Objects.hash(value, bound);
+        }
+
+        @Override
+        public String toString()
+        {
+            return "Marker{" +
+                    "value=" + value +
+                    ", bound=" + bound +
+                    '}';
+        }
+
+        @JsonProperty("value")
         public T getValue()
         {
             return value;
         }
 
+        @JsonProperty("bound")
         public Bound getBound()
         {
             return bound;
@@ -51,17 +86,47 @@ public final class Span<T>
     private final Marker<T> lower;
     private final Marker<T> upper;
 
-    public Span(Marker<T> lower, Marker<T> upper)
+    @JsonCreator
+    public Span(
+            @JsonProperty("lower") Marker<T> lower,
+            @JsonProperty("upper") Marker<T> upper)
     {
         this.lower = lower;
         this.upper = upper;
     }
 
+    @Override
+    public boolean equals(Object o)
+    {
+        if (this == o) { return true; }
+        if (o == null || getClass() != o.getClass()) { return false; }
+        Span<?> span = (Span<?>) o;
+        return Objects.equals(lower, span.lower) &&
+                Objects.equals(upper, span.upper);
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return Objects.hash(lower, upper);
+    }
+
+    @Override
+    public String toString()
+    {
+        return "Span{" +
+                "lower=" + lower +
+                ", upper=" + upper +
+                '}';
+    }
+
+    @JsonProperty("lower")
     public Marker<T> getLower()
     {
         return lower;
     }
 
+    @JsonProperty("upper")
     public Marker<T> getUpper()
     {
         return upper;

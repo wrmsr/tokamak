@@ -17,9 +17,12 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.api.NodeId;
+import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.type.Type;
 import com.wrmsr.tokamak.util.Json;
 import org.junit.Test;
+
+import java.util.Optional;
 
 public class NodesTest
 {
@@ -46,12 +49,12 @@ public class NodesTest
     {
         Node node = new ScanNode(
                 "hi",
-                "hi",
+                SchemaTable.of("public", "hi"),
                 ImmutableMap.of("id", Type.LONG, "thing", Type.STRING),
                 ImmutableMap.of(),
                 ImmutableMap.of(),
-                ImmutableList.of()
-        );
+                ImmutableList.of(),
+                Optional.empty());
 
         System.out.println(Json.toJson(node));
     }

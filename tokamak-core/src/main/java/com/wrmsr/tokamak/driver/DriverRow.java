@@ -48,7 +48,7 @@ public final class DriverRow
     @Override
     public String toString()
     {
-        return "Row{" +
+        return "DriverRow{" +
                 "node=" + node.getName() +
                 "id=" + id +
                 ", attributes=" + Arrays.toString(attributes) +
@@ -65,12 +65,14 @@ public final class DriverRow
         return lineage;
     }
 
+    @Override
     @Nullable
     public Id getId()
     {
         return id;
     }
 
+    @Override
     @Nullable
     public Object[] getAttributes()
     {

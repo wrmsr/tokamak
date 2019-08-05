@@ -14,6 +14,7 @@
 package com.wrmsr.tokamak.driver;
 
 import com.wrmsr.tokamak.api.Key;
+import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.driver.context.DriverContextImpl;
 import com.wrmsr.tokamak.driver.state.StateStorage;
 import com.wrmsr.tokamak.driver.state.StateStorageImpl;
@@ -58,12 +59,12 @@ public class DriverImpl
         return jdbi;
     }
 
-    private final Map<String, TableLayout> tableLayoutsByName = new HashMap<>();
+    private final Map<SchemaTable, TableLayout> tableLayoutsBySchemaTable = new HashMap<>();
 
-    public TableLayout getTableLayout(String name)
+    public TableLayout getTableLayout(SchemaTable table)
     {
-        if (tableLayoutsByName.containsKey(name)) {
-            return tableLayoutsByName.get(name);
+        if (tableLayoutsBySchemaTable.containsKey(table)) {
+            return tableLayoutsBySchemaTable.get(table);
         }
 
         TableLayout tableLayout = jdbi.withHandle(handle -> {
@@ -71,7 +72,7 @@ public class DriverImpl
                 DatabaseMetaData metaData = handle.getConnection().getMetaData();
 
                 TableDescription tableDescription = MetaDataReflection.getTableDescription(
-                        metaData, TableIdentifier.of("TEST.DB", "PUBLIC", name));
+                        metaData, TableIdentifier.of("TEST.DB", "PUBLIC", table.getTable()));
 
                 return JdbcLayoutUtils.buildTableLayout(tableDescription);
             }
@@ -80,7 +81,7 @@ public class DriverImpl
             }
         });
 
-        tableLayoutsByName.put(name, tableLayout);
+        tableLayoutsBySchemaTable.put(table, tableLayout);
         return tableLayout;
     }
 

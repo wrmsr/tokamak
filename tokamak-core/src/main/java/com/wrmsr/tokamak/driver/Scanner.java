@@ -23,6 +23,7 @@ import com.wrmsr.tokamak.api.FieldKey;
 import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.api.IdKey;
 import com.wrmsr.tokamak.api.Key;
+import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.api.SimpleRow;
 import com.wrmsr.tokamak.codec.IdCodecs;
 import com.wrmsr.tokamak.codec.RowIdCodec;
@@ -44,7 +45,7 @@ import static java.util.function.Function.identity;
 
 public class Scanner
 {
-    private final String table;
+    private final SchemaTable table;
     private final TableLayout tableLayout;
     private final Set<String> fields;
 
@@ -54,7 +55,7 @@ public class Scanner
 
     private final Map<Set<String>, Instance> instancesByKeyFieldSets = new ConcurrentHashMap<>();
 
-    public Scanner(String table, TableLayout tableLayout, Set<String> fields)
+    public Scanner(SchemaTable table, TableLayout tableLayout, Set<String> fields)
     {
         this.table = table;
         this.tableLayout = tableLayout;
@@ -75,7 +76,7 @@ public class Scanner
                         .collect(toImmutableMap(identity(), tableLayout.getRowLayout().getTypesByField()::get)));
     }
 
-    public String getTable()
+    public SchemaTable getTable()
     {
         return table;
     }

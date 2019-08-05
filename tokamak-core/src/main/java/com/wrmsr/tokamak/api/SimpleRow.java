@@ -13,6 +13,9 @@
  */
 package com.wrmsr.tokamak.api;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
@@ -25,9 +28,10 @@ public final class SimpleRow
     private final @Nullable Id id;
     private final @Nullable Object[] attributes;
 
+    @JsonCreator
     public SimpleRow(
-            @Nullable Id id,
-            @Nullable Object[] attributes)
+            @JsonProperty("id") @Nullable Id id,
+            @JsonProperty("attributes") @Nullable Object[] attributes)
     {
         this.id = id;
         this.attributes = attributes;
@@ -43,6 +47,7 @@ public final class SimpleRow
     }
 
     @Override
+    @JsonProperty("id")
     @Nullable
     public Id getId()
     {
@@ -50,6 +55,7 @@ public final class SimpleRow
     }
 
     @Override
+    @JsonProperty("attributes")
     @Nullable
     public Object[] getAttributes()
     {

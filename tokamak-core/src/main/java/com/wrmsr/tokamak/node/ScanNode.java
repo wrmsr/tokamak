@@ -16,6 +16,7 @@ package com.wrmsr.tokamak.node;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
+import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.node.visitor.NodeVisitor;
 import com.wrmsr.tokamak.type.Type;
 
@@ -30,13 +31,13 @@ public final class ScanNode
         extends StatefulNode
         implements GeneratorNode
 {
-    private final String table;
+    private final SchemaTable table;
     private final Map<String, Type> fields;
 
     @JsonCreator
     public ScanNode(
             String name,
-            String table,
+            SchemaTable table,
             Map<String, Type> fields,
             Map<String, Invalidation> invalidations,
             Map<String, LinkageMask> linkageMasks,
@@ -52,7 +53,7 @@ public final class ScanNode
     }
 
     @JsonProperty("table")
-    public String getTable()
+    public SchemaTable getTable()
     {
         return table;
     }
