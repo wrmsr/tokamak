@@ -15,6 +15,9 @@ package com.wrmsr.tokamak.api;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.google.common.collect.ImmutableMap;
+
+import java.util.Map;
 
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
@@ -31,9 +34,14 @@ public interface Key
         return AllKey.INSTANCE;
     }
 
-    static <V> FieldKey<V> of(String field, V value)
+    static FieldKey of(String field, Object value)
     {
-        return new FieldKey<>(field, value);
+        return new FieldKey(ImmutableMap.of(field, value));
+    }
+
+    static FieldKey of(Map<String, Object> valuesByKey)
+    {
+        return new FieldKey(valuesByKey);
     }
 
     static IdKey of(Id id)

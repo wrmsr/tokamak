@@ -13,27 +13,28 @@
  */
 package com.wrmsr.tokamak.api;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.collect.ImmutableMap;
+import com.wrmsr.tokamak.util.StreamableIterable;
 
 import javax.annotation.concurrent.Immutable;
 
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Objects;
+
+import static com.google.common.base.Preconditions.checkArgument;
 
 @Immutable
 public final class FieldKey<V>
-        implements Key
+        implements Key, StreamableIterable<Map.Entry<String, Object>>
 {
-    private final String field;
-    private final V value;
+    private final Map<String, Object> valuesByField;
 
-    @JsonCreator
     public FieldKey(
-            @JsonProperty("field") String field,
-            @JsonProperty("value") V value)
+            Map<String, Object> valuesByField)
     {
-        this.field = field;
-        this.value = value;
+        this.valuesByField = ImmutableMap.copyOf(valuesByField);
+        checkArgument(!valuesByField.isEmpty());
     }
 
     @Override
@@ -41,26 +42,32 @@ public final class FieldKey<V>
     {
         if (this == o) { return true; }
         if (o == null || getClass() != o.getClass()) { return false; }
-        FieldKey<?> that = (FieldKey<?>) o;
-        return Objects.equals(field, that.field) &&
-                Objects.equals(value, that.value);
+        FieldKey<?> fieldKey = (FieldKey<?>) o;
+        return Objects.equals(valuesByField, fieldKey.valuesByField);
     }
 
     @Override
     public int hashCode()
     {
-        return Objects.hash(field, value);
+        return Objects.hash(valuesByField);
     }
 
-    @JsonProperty("field")
-    public String getField()
+    @Override
+    public String toString()
     {
-        return field;
+        return "FieldKey{" +
+                "valuesByField=" + valuesByField +
+                '}';
     }
 
-    @JsonProperty("value")
-    public V getValue()
+    public Map<String, Object> getValuesByField()
     {
-        return value;
+        return valuesByField;
+    }
+
+    @Override
+    public Iterator<Map.Entry<String, Object>> iterator()
+    {
+        return valuesByField.entrySet().iterator();
     }
 }

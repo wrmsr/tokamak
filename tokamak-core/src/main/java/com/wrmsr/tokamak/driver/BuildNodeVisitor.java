@@ -14,7 +14,6 @@
 package com.wrmsr.tokamak.driver;
 
 import com.google.common.collect.ImmutableList;
-import com.wrmsr.tokamak.api.FieldKey;
 import com.wrmsr.tokamak.api.SimpleRow;
 import com.wrmsr.tokamak.node.CrossJoinNode;
 import com.wrmsr.tokamak.node.EquijoinNode;
@@ -110,20 +109,15 @@ public class BuildNodeVisitor
                 context.getDriverContext().getDriver().getTableLayout(node.getTable()),
                 node.getFields().keySet());
 
-        if (context.getKey() instanceof FieldKey) {
-            List<SimpleRow> rows = scanner.scan(context.getDriverContext().getJdbiHandle(), context.getKey());
-            return rows.stream()
-                    .map(r -> new BuildOutput(
-                            new DriverRow(
-                                    node,
-                                    context.getDriverContext().getDriver().getLineagePolicy().build(),
-                                    r.getId(),
-                                    r.getAttributes())))
-                    .collect(toImmutableList());
-        }
-        else {
-            throw new IllegalArgumentException(context.getKey().toString());
-        }
+        List<SimpleRow> rows = scanner.scan(context.getDriverContext().getJdbiHandle(), context.getKey());
+        return rows.stream()
+                .map(r -> new BuildOutput(
+                        new DriverRow(
+                                node,
+                                context.getDriverContext().getDriver().getLineagePolicy().build(),
+                                r.getId(),
+                                r.getAttributes())))
+                .collect(toImmutableList());
     }
 
     @Override

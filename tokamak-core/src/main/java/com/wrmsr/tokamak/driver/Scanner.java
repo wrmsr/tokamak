@@ -19,7 +19,6 @@ import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.api.FieldKey;
 import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.api.Key;
-import com.wrmsr.tokamak.api.Row;
 import com.wrmsr.tokamak.api.SimpleRow;
 import com.wrmsr.tokamak.codec.IdCodecs;
 import com.wrmsr.tokamak.codec.RowIdCodec;
@@ -27,6 +26,7 @@ import com.wrmsr.tokamak.layout.RowLayout;
 import com.wrmsr.tokamak.layout.TableLayout;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.mapper.MapMapper;
+import org.jdbi.v3.core.statement.Query;
 
 import java.util.List;
 import java.util.Map;
@@ -47,7 +47,7 @@ public class Scanner
     private final RowLayout rowLayout;
     private final RowIdCodec rowIdCodec;
 
-    private final Map<String, Instance> instancesByField = new ConcurrentHashMap<>();
+    private final Map<Set<String>, Instance> instancesByKeyFieldSets = new ConcurrentHashMap<>();
 
     public Scanner(String table, TableLayout tableLayout, Set<String> fields)
     {
@@ -95,24 +95,20 @@ public class Scanner
 
     private final class Instance
     {
+        private final Set<String> keyFields;
         private final Set<String> selectedFields;
         private final String stmt;
 
-        private Instance(String keyField)
+        private Instance(Set<String> keyFields)
         {
-            checkArgument(tableLayout.getRowLayout().getFields().contains(keyField));
+            this.keyFields = ImmutableSet.copyOf(keyFields);
+            this.keyFields.forEach(f -> checkArgument(tableLayout.getRowLayout().getFields().contains(f)));
 
-            ImmutableSet.Builder<String> selectedFields = ImmutableSet.builder();
-            if (!fields.contains(keyField)) {
-                selectedFields.add(keyField);
-            }
-            for (String field : tableLayout.getPrimaryKey().getFields()) {
-                if (!fields.contains(field)) {
-                    selectedFields.add(field);
-                }
-            }
-            selectedFields.addAll(fields);
-            this.selectedFields = selectedFields.build();
+            this.selectedFields = ImmutableSet.<String>builder()
+                    .addAll(this.keyFields)
+                    .addAll(tableLayout.getPrimaryKey().getFields())
+                    .addAll(fields)
+                    .build();
 
             stmt = "" +
                     "select " +
@@ -120,14 +116,16 @@ public class Scanner
                     " from " +
                     table +
                     " where " +
-                    keyField +
-                    " = :value";
+                    Joiner.on(" and ").join(this.keyFields.stream().map(f -> String.format("%s = :%s", f, f)).collect(toImmutableList()));
         }
 
-        public List<SimpleRow> getRows(Handle handle, Object value)
+        public List<SimpleRow> getRows(Handle handle, Map<String, Object> keyValuesByField)
         {
-            List<Map<String, Object>> rawRows = handle
-                    .createQuery(stmt).bind("value", value)
+            Query query = handle.createQuery(stmt);
+            for (Map.Entry<String, Object> e : keyValuesByField.entrySet()) {
+                query = query.bind(":" + e.getKey(), e.getValue());
+            }
+            List<Map<String, Object>> rawRows = query
                     .map(new MapMapper(false))
                     .list();
 
@@ -144,16 +142,20 @@ public class Scanner
         }
     }
 
-    private Instance getInstance(String keyField)
+    private Instance getInstance(Set<String> keyFields)
     {
-        return instancesByField.computeIfAbsent(keyField, Instance::new);
+        return instancesByKeyFieldSets.computeIfAbsent(keyFields, Instance::new);
     }
 
     public List<SimpleRow> scan(Handle handle, Key key)
     {
-        if (!(key instanceof FieldKey)) {
+        if (key instanceof FieldKey) {
+            FieldKey fieldKey = (FieldKey) key;
+            Instance instance = getInstance(fieldKey.getValuesByField().keySet());
+            return instance.getRows(handle, fieldKey.getValuesByField());
+        }
+        else {
             throw new IllegalArgumentException();
         }
-        return getInstance(((FieldKey) key).getField()).getRows(handle, ((FieldKey) key).getValue());
     }
 }
