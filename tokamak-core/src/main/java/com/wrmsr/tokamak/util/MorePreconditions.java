@@ -15,6 +15,9 @@ package com.wrmsr.tokamak.util;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Stream;
+
+import static com.google.common.collect.ImmutableList.toImmutableList;
 
 public final class MorePreconditions
 {
@@ -31,5 +34,10 @@ public final class MorePreconditions
             }
         }
         return iterable;
+    }
+
+    public static <T> Iterable<T> checkUnique(Stream<T> stream)
+    {
+        return checkUnique(stream.collect(toImmutableList()));
     }
 }

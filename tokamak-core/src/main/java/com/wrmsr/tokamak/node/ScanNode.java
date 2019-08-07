@@ -16,15 +16,16 @@ package com.wrmsr.tokamak.node;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.node.visitor.NodeVisitor;
 import com.wrmsr.tokamak.type.Type;
 
 import javax.annotation.concurrent.Immutable;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 @Immutable
 public final class ScanNode
@@ -33,21 +34,25 @@ public final class ScanNode
 {
     private final SchemaTable table;
     private final Map<String, Type> fields;
+    private final Set<String> idNodes;
+    private final Optional<LockOverride> lockOverride;
 
     @JsonCreator
     public ScanNode(
-            String name,
-            SchemaTable table,
-            Map<String, Type> fields,
-            Map<String, Invalidation> invalidations,
-            Map<String, LinkageMask> linkageMasks,
-            List<String> idNodes,
-            Optional<LockOverride> lockOverride)
+            @JsonProperty("name") String name,
+            @JsonProperty("table") SchemaTable table,
+            @JsonProperty("fields") Map<String, Type> fields,
+            @JsonProperty("invalidations") Map<String, Invalidation> invalidations,
+            @JsonProperty("linkageMasks") Map<String, LinkageMask> linkageMasks,
+            @JsonProperty("idNodes") Set<String> idNodes,
+            @JsonProperty("lockOverride") Optional<LockOverride> lockOverride)
     {
         super(name, invalidations, linkageMasks);
 
         this.table = table;
         this.fields = ImmutableMap.copyOf(fields);
+        this.idNodes = ImmutableSet.copyOf(idNodes);
+        this.lockOverride = lockOverride;
 
         checkInvariants();
     }
@@ -62,6 +67,18 @@ public final class ScanNode
     public Map<String, Type> getFields()
     {
         return fields;
+    }
+
+    @JsonProperty("idNodes")
+    public Set<String> getIdNodes()
+    {
+        return idNodes;
+    }
+
+    @JsonProperty("lockOverride")
+    public Optional<LockOverride> getLockOverride()
+    {
+        return lockOverride;
     }
 
     @Override

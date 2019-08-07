@@ -1,5 +1,6 @@
 package com.wrmsr.tokamak.node;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
 
 import java.util.Map;
@@ -20,11 +21,13 @@ public abstract class StatefulNode
         this.linkageMasks = ImmutableMap.copyOf(linkageMasks);
     }
 
+    @JsonProperty("invalidations")
     public Map<String, Invalidation> getInvalidations()
     {
         return invalidations;
     }
 
+    @JsonProperty("linkageMasks")
     public Map<String, LinkageMask> getLinkageMasks()
     {
         return linkageMasks;
