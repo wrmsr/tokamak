@@ -23,6 +23,7 @@ import javax.annotation.concurrent.Immutable;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Maps.newLinkedHashMap;
@@ -83,6 +84,12 @@ public final class ValuesNode
     public boolean isStrict()
     {
         return isStrict;
+    }
+
+    @Override
+    public Set<Set<String>> getIdFieldSets()
+    {
+        throw new IllegalStateException();
     }
 
     @Override

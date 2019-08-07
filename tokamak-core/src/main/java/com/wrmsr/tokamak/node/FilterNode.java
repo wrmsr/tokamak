@@ -15,9 +15,12 @@ package com.wrmsr.tokamak.node;
 
 import com.wrmsr.tokamak.api.Row;
 import com.wrmsr.tokamak.node.visitor.NodeVisitor;
+import com.wrmsr.tokamak.type.Type;
 
 import javax.annotation.concurrent.Immutable;
 
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Predicate;
 
 @Immutable
@@ -58,6 +61,18 @@ public final class FilterNode
     public boolean isUnlinked()
     {
         return unlinked;
+    }
+
+    @Override
+    public Map<String, Type> getFields()
+    {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public Set<Set<String>> getIdFieldSets()
+    {
+        throw new IllegalStateException();
     }
 
     @Override

@@ -15,10 +15,12 @@ package com.wrmsr.tokamak.node;
 
 import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.node.visitor.NodeVisitor;
+import com.wrmsr.tokamak.type.Type;
 
 import javax.annotation.concurrent.Immutable;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @Immutable
@@ -58,6 +60,18 @@ public final class ListAggregateNode
     public Set<String> getListFields()
     {
         return listFields;
+    }
+
+    @Override
+    public Map<String, Type> getFields()
+    {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public Set<Set<String>> getIdFieldSets()
+    {
+        throw new IllegalStateException();
     }
 
     @Override

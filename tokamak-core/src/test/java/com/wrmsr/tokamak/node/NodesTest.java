@@ -13,8 +13,8 @@
  */
 package com.wrmsr.tokamak.node;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.api.NodeId;
 import com.wrmsr.tokamak.api.SchemaTable;
@@ -53,7 +53,7 @@ public class NodesTest
                 ImmutableMap.of("id", Type.LONG, "thing", Type.STRING),
                 ImmutableMap.of(),
                 ImmutableMap.of(),
-                ImmutableList.of(),
+                ImmutableSet.of(),
                 Optional.empty());
 
         Node projectNode = new ProjectNode(

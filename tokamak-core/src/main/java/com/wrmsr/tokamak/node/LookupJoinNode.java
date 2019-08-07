@@ -14,11 +14,14 @@
 package com.wrmsr.tokamak.node;
 
 import com.wrmsr.tokamak.node.visitor.NodeVisitor;
+import com.wrmsr.tokamak.type.Type;
 
 import javax.annotation.concurrent.Immutable;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 @Immutable
 public final class LookupJoinNode
@@ -61,6 +64,18 @@ public final class LookupJoinNode
 
     @Override
     public List<Node> getSources()
+    {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public Map<String, Type> getFields()
+    {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public Set<Set<String>> getIdFieldSets()
     {
         throw new IllegalStateException();
     }

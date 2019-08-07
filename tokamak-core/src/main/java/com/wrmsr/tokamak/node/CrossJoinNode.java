@@ -13,12 +13,17 @@
  */
 package com.wrmsr.tokamak.node;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.node.visitor.NodeVisitor;
+import com.wrmsr.tokamak.type.Type;
 
 import javax.annotation.concurrent.Immutable;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkUnique;
@@ -37,10 +42,11 @@ public final class CrossJoinNode
     private final List<Node> sources;
     private final Mode mode;
 
+    @JsonCreator
     public CrossJoinNode(
-            String name,
-            List<Node> sources,
-            Mode mode)
+            @JsonProperty("name") String name,
+            @JsonProperty("sources") List<Node> sources,
+            @JsonProperty("mode") Mode mode)
     {
         super(name);
 
@@ -54,15 +60,29 @@ public final class CrossJoinNode
         checkInvariants();
     }
 
+    @JsonProperty("sources")
     @Override
     public List<Node> getSources()
     {
         return sources;
     }
 
+    @JsonProperty("mode")
     public Mode getMode()
     {
         return mode;
+    }
+
+    @Override
+    public Map<String, Type> getFields()
+    {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public Set<Set<String>> getIdFieldSets()
+    {
+        throw new IllegalStateException();
     }
 
     @Override

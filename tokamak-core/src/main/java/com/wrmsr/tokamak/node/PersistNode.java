@@ -16,11 +16,13 @@ package com.wrmsr.tokamak.node;
 import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.api.OutputTarget;
 import com.wrmsr.tokamak.node.visitor.NodeVisitor;
+import com.wrmsr.tokamak.type.Type;
 
 import javax.annotation.concurrent.Immutable;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Immutable
 public final class PersistNode
@@ -61,6 +63,18 @@ public final class PersistNode
     public boolean isDenormalized()
     {
         return denormalized;
+    }
+
+    @Override
+    public Map<String, Type> getFields()
+    {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public Set<Set<String>> getIdFieldSets()
+    {
+        throw new IllegalStateException();
     }
 
     @Override

@@ -20,6 +20,7 @@ import com.wrmsr.tokamak.type.Type;
 import javax.annotation.concurrent.Immutable;
 
 import java.util.Map;
+import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -79,6 +80,12 @@ public final class ProjectNode
     public Map<String, Type> getFields()
     {
         return fields;
+    }
+
+    @Override
+    public Set<Set<String>> getIdFieldSets()
+    {
+        throw new IllegalStateException();
     }
 
     @Override

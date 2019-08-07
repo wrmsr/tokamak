@@ -13,8 +13,8 @@
  */
 package com.wrmsr.tokamak;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.io.CharStreams;
 import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.api.Key;
@@ -150,7 +150,7 @@ public class AppTest
                 ),
                 ImmutableMap.of(),
                 ImmutableMap.of(),
-                ImmutableList.of(),
+                ImmutableSet.of(),
                 Optional.empty());
 
         Node filterNode = new FilterNode(
