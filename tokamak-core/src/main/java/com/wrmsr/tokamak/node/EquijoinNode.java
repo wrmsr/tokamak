@@ -108,9 +108,9 @@ public final class EquijoinNode
     private final Map<Node, Branch> branchesByNode;
     private final Map<String, Set<Node>> nodeSetsByField;
     private final Map<String, Node> nodesByUniqueField;
-    private final Set<String> guaranteedUniqueFields;
-    private final Map<String, Type> fields;
     private final Set<Set<String>> idFieldSets;
+    private final Set<Set<String>> guaranteedEqualFieldSets;
+    private final Map<String, Type> fields;
 
     public EquijoinNode(
             String name,
@@ -134,7 +134,10 @@ public final class EquijoinNode
         nodesByUniqueField = this.nodeSetsByField.entrySet().stream()
                 .filter(e -> e.getValue().size() == 1)
                 .collect(toImmutableMap(Map.Entry::getKey, e -> e.getValue().stream().findFirst().get()));
-        guaranteedUniqueFields = this.nodeSetsByField.entrySet().stream()
+
+        idFieldSets = this.branches.stream().map(b -> ImmutableSet.copyOf(b.getFields())).collect(toImmutableSet());
+
+        guaranteedEqualFields = this.nodeSetsByField.entrySet().stream()
                 .filter(e -> e.getValue().stream().allMatch(n -> this.branchesByNode.get(n).field.equals(e.getKey())))
                 .map(Map.Entry::getKey)
                 .collect(toImmutableSet());
@@ -147,14 +150,12 @@ public final class EquijoinNode
                     fields.put(entry.getKey(), entry.getValue());
                 }
                 else {
-                    checkArgument(guaranteedUniqueFields.contains(entry.getKey()));
+                    checkArgument(guaranteedEqualFieldSets.contains(entry.getKey()));
                     checkArgument(fields.get(entry.getKey()).equals(entry.getValue()));
                 }
             }
         }
         this.fields = ImmutableMap.copyOf(fields);
-
-        idFields = this.branches.stream().map(Branch::getField).collect(toImmutableSet());
 
         checkInvariants();
     }
@@ -184,9 +185,9 @@ public final class EquijoinNode
         return nodesByUniqueField;
     }
 
-    public Set<String> getGuaranteedUniqueFields()
+    public Set<Set<String>> getGuaranteedEqualFieldSets()
     {
-        return guaranteedUniqueFields;
+        return guaranteedEqualFieldSets;
     }
 
     @Override
@@ -198,7 +199,7 @@ public final class EquijoinNode
     @Override
     public Set<Set<String>> getIdFieldSets()
     {
-        return idFields;
+        return idFieldSets;
     }
 
     @Override
