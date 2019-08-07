@@ -13,7 +13,6 @@
  */
 package com.wrmsr.tokamak.node;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
 
 import java.util.List;
@@ -21,7 +20,6 @@ import java.util.List;
 public interface SingleSourceNode
         extends Node
 {
-    @JsonProperty("source")
     Node getSource();
 
     default List<Node> getSources()

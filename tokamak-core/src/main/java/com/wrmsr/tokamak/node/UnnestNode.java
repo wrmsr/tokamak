@@ -13,6 +13,8 @@
  */
 package com.wrmsr.tokamak.node;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.node.visitor.NodeVisitor;
 import com.wrmsr.tokamak.type.Type;
@@ -37,12 +39,13 @@ public final class UnnestNode
 
     private final Map<String, Type> fields;
 
+    @JsonCreator
     public UnnestNode(
-            String name,
-            Node source,
-            String listField,
-            Map<String, Type> unnestedFields,
-            Optional<String> indexField)
+            @JsonProperty("name") String name,
+            @JsonProperty("source") Node source,
+            @JsonProperty("listField") String listField,
+            @JsonProperty("unnestedFields") Map<String, Type> unnestedFields,
+            @JsonProperty("indexField") Optional<String> indexField)
     {
         super(name);
 
@@ -72,22 +75,26 @@ public final class UnnestNode
         checkInvariants();
     }
 
+    @JsonProperty("source")
     @Override
     public Node getSource()
     {
         return source;
     }
 
+    @JsonProperty("listField")
     public String getListField()
     {
         return listField;
     }
 
+    @JsonProperty("unnestedFields")
     public Map<String, Type> getUnnestedFields()
     {
         return unnestedFields;
     }
 
+    @JsonProperty("indexField")
     public Optional<String> getIndexField()
     {
         return indexField;

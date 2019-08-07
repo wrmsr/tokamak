@@ -15,10 +15,6 @@ package com.wrmsr.tokamak.node;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wrmsr.tokamak.api.NodeId;
-import com.wrmsr.tokamak.type.Type;
-
-import java.util.Map;
-import java.util.Set;
 
 import static com.wrmsr.tokamak.util.MorePreconditions.checkUnique;
 import static org.weakref.jmx.internal.guava.base.Preconditions.checkNotNull;
@@ -53,18 +49,5 @@ public abstract class AbstractNode
     public NodeId getId()
     {
         return nodeId;
-    }
-
-    @JsonProperty("fields")
-    @Override
-    public Map<String, Type> getFields()
-    {
-        throw new IllegalStateException();
-    }
-
-    @Override
-    public Set<Set<String>> getIdFieldSets()
-    {
-        throw new IllegalStateException();
     }
 }
