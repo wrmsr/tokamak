@@ -11,33 +11,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.wrmsr.tokamak.type;
 
-import javax.annotation.concurrent.Immutable;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.ImmutableBiMap;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-@Immutable
-public final class ListType
-        implements Type
+public final class TypeUtils
 {
-    private final Type itemType;
-
-    public ListType(Type itemType)
+    private TypeUtils()
     {
-        this.itemType = checkNotNull(itemType);
     }
 
-    @Override
-    public String toString()
+    public static final BiMap<Type, String> PRIMITIVE_STRING_MAP = ImmutableBiMap.<Type, String>builder()
+            .put(Type.BOOLEAN, "boolean")
+            .put(Type.LONG, "long")
+            .put(Type.DOUBLE, "double")
+            .put(Type.STRING, "string")
+            .put(Type.BYTES, "bytes")
+            .build();
+
+    public static Type parseRepr(String str)
     {
-        return "ListType{" +
-                "itemType=" + itemType +
-                '}';
+        return checkNotNull(PRIMITIVE_STRING_MAP.inverse().get(str));
     }
 
-    public Type getItemType()
+    public static String toRepr(Type type)
     {
-        return itemType;
+        return PRIMITIVE_STRING_MAP.get(type);
     }
 }

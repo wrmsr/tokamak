@@ -25,6 +25,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.StreamSupport;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static java.util.function.Function.identity;
 
@@ -121,5 +123,27 @@ public final class Projection
         return new Projection(
                 StreamSupport.stream(fields.spliterator(), false)
                         .collect(toImmutableMap(identity(), FieldInput::new)));
+    }
+
+    public static Projection of(Object... args)
+    {
+        checkArgument(args.length % 2 == 0);
+        ImmutableMap.Builder<String, Input> builder = ImmutableMap.builder();
+        for (int i = 0; i < args.length;) {
+            String output = (String) args[i++];
+            Object inputObj = checkNotNull(args[i++]);
+            Input input;
+            if (inputObj instanceof String) {
+                input = new FieldInput((String) inputObj);
+            }
+            else if (inputObj instanceof Function) {
+                input = new FunctionInput((Function) inputObj, (Type) args[i++]);
+            }
+            else {
+                throw new IllegalArgumentException(inputObj.toString());
+            }
+            builder.put(output, input);
+        }
+        return new Projection(builder.build());
     }
 }

@@ -13,8 +13,10 @@
  */
 package com.wrmsr.tokamak.node;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.wrmsr.tokamak.api.NodeId;
 import com.wrmsr.tokamak.node.visitor.NodeVisitor;
 import com.wrmsr.tokamak.type.Type;
@@ -39,11 +41,13 @@ import java.util.Set;
         @JsonSubTypes.Type(value = UnnestNode.class, name = "unnest"),
         @JsonSubTypes.Type(value = ValuesNode.class, name = "values"),
 })
+// @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS, property = "@type")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "name")
 public interface Node
 {
     String getName();
 
-    NodeId getNodeId();
+    NodeId getId();
 
     List<Node> getSources();
 

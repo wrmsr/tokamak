@@ -35,7 +35,7 @@ public final class Dot
     public static void openDot(String gv)
             throws Exception
     {
-        Path tempDir = Files.createTempDirectory("wava");
+        Path tempDir = Files.createTempDirectory("tokamak-dot");
         tempDir.toFile().deleteOnExit();
         Path outGv = tempDir.resolve("out.gv");
         Files.write(outGv, gv.getBytes());

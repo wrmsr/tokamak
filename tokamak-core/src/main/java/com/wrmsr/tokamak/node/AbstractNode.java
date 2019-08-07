@@ -13,6 +13,7 @@
  */
 package com.wrmsr.tokamak.node;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wrmsr.tokamak.api.NodeId;
 import com.wrmsr.tokamak.type.Type;
 
@@ -41,6 +42,7 @@ public abstract class AbstractNode
         checkState(getSources().isEmpty() == (this instanceof GeneratorNode));
     }
 
+    @JsonProperty("name")
     @Override
     public String getName()
     {
@@ -48,11 +50,12 @@ public abstract class AbstractNode
     }
 
     @Override
-    public NodeId getNodeId()
+    public NodeId getId()
     {
         return nodeId;
     }
 
+    @JsonProperty("fields")
     @Override
     public Map<String, Type> getFields()
     {

@@ -47,8 +47,8 @@ public class NodesTest
     public void testNodes()
             throws Throwable
     {
-        Node node = new ScanNode(
-                "hi",
+        Node scanNode = new ScanNode(
+                "scan0",
                 SchemaTable.of("public", "hi"),
                 ImmutableMap.of("id", Type.LONG, "thing", Type.STRING),
                 ImmutableMap.of(),
@@ -56,6 +56,13 @@ public class NodesTest
                 ImmutableList.of(),
                 Optional.empty());
 
-        System.out.println(Json.toJson(node));
+        Node projectNode = new ProjectNode(
+                "project0",
+                scanNode,
+                Projection.of(
+                        "id", "id"
+                ));
+
+        System.out.println(Json.toJson(projectNode));
     }
 }

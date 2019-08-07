@@ -54,7 +54,7 @@ public final class Plan
 
         Set<Node> nodes = new HashSet<>();
         Map<String, Node> nodesByName = new HashMap<>();
-        Map<NodeId, Node> nodesByNodeId = new HashMap<>();
+        Map<NodeId, Node> nodesById = new HashMap<>();
 
         List<Node> nodeStack = new ArrayList<>();
         nodeStack.add(root);
@@ -62,10 +62,10 @@ public final class Plan
             Node cur = nodeStack.remove(nodeStack.size() - 1);
             checkState(!nodes.contains(cur));
             checkArgument(!nodesByName.containsKey(cur.getName()));
-            checkArgument(!nodesByNodeId.containsKey(cur.getNodeId()));
+            checkArgument(!nodesById.containsKey(cur.getId()));
             nodes.add(cur);
             nodesByName.put(cur.getName(), cur);
-            nodesByNodeId.put(cur.getNodeId(), cur);
+            nodesById.put(cur.getId(), cur);
             cur.getSources().stream()
                     .filter(n -> !nodes.contains(n))
                     .forEach(nodeStack::add);
@@ -73,7 +73,7 @@ public final class Plan
 
         this.nodes = ImmutableSet.copyOf(nodes);
         this.nodesByName = ImmutableMap.copyOf(nodesByName);
-        this.nodesByNodeId = ImmutableMap.copyOf(nodesByNodeId);
+        this.nodesByNodeId = ImmutableMap.copyOf(nodesById);
     }
 
     public Node getRoot()
@@ -91,7 +91,7 @@ public final class Plan
         return nodesByName;
     }
 
-    public Map<NodeId, Node> getNodesByNodeId()
+    public Map<NodeId, Node> getNodesById()
     {
         return nodesByNodeId;
     }

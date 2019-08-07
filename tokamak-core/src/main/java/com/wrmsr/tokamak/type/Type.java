@@ -13,6 +13,12 @@
  */
 package com.wrmsr.tokamak.type;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
+import com.google.common.collect.ImmutableMap;
+
+import java.util.Map;
+
 public interface Type
 {
     PrimitiveType BOOLEAN = new PrimitiveType<>(Boolean.class);
@@ -20,4 +26,24 @@ public interface Type
     PrimitiveType DOUBLE = new PrimitiveType<>(Double.class);
     PrimitiveType STRING = new PrimitiveType<>(String.class);
     PrimitiveType BYTES = new PrimitiveType<>(byte[].class);
+
+    Map<Class<?>, Type> FROM_JAVA_TYPE = ImmutableMap.<Class<?>, Type>builder()
+            .put(Boolean.class, BOOLEAN)
+            .put(Long.class, LONG)
+            .put(Double.class, DOUBLE)
+            .put(String.class, STRING)
+            .put(byte[].class, BYTES)
+            .build();
+
+    @JsonValue
+    default String toRepr()
+    {
+        return TypeUtils.toRepr(this);
+    }
+
+    @JsonCreator
+    static Type parseRepr(String str)
+    {
+        return TypeUtils.parseRepr(str);
+    }
 }

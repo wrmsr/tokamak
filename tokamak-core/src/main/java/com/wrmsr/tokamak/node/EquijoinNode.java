@@ -137,6 +137,7 @@ public final class EquijoinNode
 
         idFieldSets = this.branches.stream().map(b -> ImmutableSet.copyOf(b.getFields())).collect(toImmutableSet());
 
+        /*
         guaranteedEqualFields = this.nodeSetsByField.entrySet().stream()
                 .filter(e -> e.getValue().stream().allMatch(n -> this.branchesByNode.get(n).field.equals(e.getKey())))
                 .map(Map.Entry::getKey)
@@ -156,8 +157,11 @@ public final class EquijoinNode
             }
         }
         this.fields = ImmutableMap.copyOf(fields);
+        */
 
         checkInvariants();
+
+        throw new IllegalStateException();
     }
 
     public List<Branch> getBranches()

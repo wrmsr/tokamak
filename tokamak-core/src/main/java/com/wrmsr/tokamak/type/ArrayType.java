@@ -13,33 +13,31 @@
  */
 package com.wrmsr.tokamak.type;
 
-import com.google.common.collect.ImmutableMap;
-
 import javax.annotation.concurrent.Immutable;
 
-import java.util.Map;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
-public final class StructType
+public final class ArrayType
         implements Type
 {
-    private final Map<String, Type> fields;
+    private final Type itemType;
 
-    public StructType(Map<String, Type> fields)
+    public ArrayType(Type itemType)
     {
-        this.fields = ImmutableMap.copyOf(fields);
+        this.itemType = checkNotNull(itemType);
     }
 
     @Override
     public String toString()
     {
-        return "StructType{" +
-                "fields=" + fields +
+        return "ArrayType{" +
+                "itemType=" + itemType +
                 '}';
     }
 
-    public Map<String, Type> getFields()
+    public Type getItemType()
     {
-        return fields;
+        return itemType;
     }
 }

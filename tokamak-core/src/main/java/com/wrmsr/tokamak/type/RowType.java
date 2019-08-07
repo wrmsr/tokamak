@@ -11,21 +11,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.node;
+package com.wrmsr.tokamak.type;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 
-import java.util.List;
+import javax.annotation.concurrent.Immutable;
 
-public interface SingleSourceNode
-        extends Node
+import java.util.Map;
+
+@Immutable
+public final class RowType
+        implements Type
 {
-    @JsonProperty("source")
-    Node getSource();
+    private final Map<String, Type> fields;
 
-    default List<Node> getSources()
+    public RowType(Map<String, Type> fields)
     {
-        return ImmutableList.of(getSource());
+        this.fields = ImmutableMap.copyOf(fields);
+    }
+
+    @Override
+    public String toString()
+    {
+        return "RowType{" +
+                "fields=" + fields +
+                '}';
+    }
+
+    public Map<String, Type> getFields()
+    {
+        return fields;
     }
 }
