@@ -16,17 +16,21 @@ package com.wrmsr.tokamak.node;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Sets;
 import com.wrmsr.tokamak.node.visitor.NodeVisitor;
 import com.wrmsr.tokamak.type.Type;
 
 import javax.annotation.concurrent.Immutable;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
-import static com.wrmsr.tokamak.util.MorePreconditions.checkUnique;
+import static com.google.common.collect.ImmutableSet.toImmutableSet;
+import static com.wrmsr.tokamak.util.MorePreconditions.checkSingle;
 
 @Immutable
 public final class CrossJoinNode
@@ -42,6 +46,10 @@ public final class CrossJoinNode
     private final List<Node> sources;
     private final Mode mode;
 
+    private final Map<String, Type> fields;
+    private final Map<String, Node> sourcesByField;
+    private final Set<Set<String>> idFieldSets;
+
     @JsonCreator
     public CrossJoinNode(
             @JsonProperty("name") String name,
@@ -53,9 +61,21 @@ public final class CrossJoinNode
         this.sources = ImmutableList.copyOf(sources);
         this.mode = mode;
 
-        checkUnique(this.sources.stream()
-                .flatMap(n -> n.getFields().keySet().stream())
-                .collect(toImmutableList()));
+        ImmutableMap.Builder<String, Type> fields = ImmutableMap.builder();
+        ImmutableMap.Builder<String, Node> sourcesByField = ImmutableMap.builder();
+        for (Node source : sources) {
+            for (Map.Entry<String, Type> e : source.getFields().entrySet()) {
+                fields.put(e.getKey(), e.getValue());
+                sourcesByField.put(e.getKey(), source);
+            }
+        }
+        this.fields = fields.build();
+        this.sourcesByField = sourcesByField.build();
+
+        checkSingle(this.sources.stream().map(Node::getIdFieldSets).map(Set::size).collect(toImmutableSet()));
+        this.idFieldSets = Sets.cartesianProduct(this.sources.stream().map(Node::getIdFieldSets).collect(toImmutableList())).stream()
+                .map(l -> l.stream().flatMap(Collection::stream).collect(toImmutableSet()))
+                .collect(toImmutableSet());
 
         checkInvariants();
     }
@@ -76,13 +96,18 @@ public final class CrossJoinNode
     @Override
     public Map<String, Type> getFields()
     {
-        throw new IllegalStateException();
+        return fields;
     }
 
     @Override
     public Set<Set<String>> getIdFieldSets()
     {
-        throw new IllegalStateException();
+        return idFieldSets;
+    }
+
+    public Map<String, Node> getSourcesByField()
+    {
+        return sourcesByField;
     }
 
     @Override

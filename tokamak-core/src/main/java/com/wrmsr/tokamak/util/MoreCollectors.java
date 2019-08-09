@@ -218,7 +218,7 @@ public final class MoreCollectors
         return new ImmutableGroupingByCollector<>(Collectors.groupingBy(classifier));
     }
 
-    public static <T> Collector<T, ?, T> toSingleton()
+    public static <T> Collector<T, ?, T> toSingle()
     {
         return Collectors.collectingAndThen(
                 Collectors.toList(),

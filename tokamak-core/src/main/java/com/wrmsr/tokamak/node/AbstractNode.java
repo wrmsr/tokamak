@@ -38,6 +38,15 @@ public abstract class AbstractNode
         checkState(getSources().isEmpty() == (this instanceof GeneratorNode));
     }
 
+    @Override
+    public String toString()
+    {
+        return getClass().getSimpleName() + "{" +
+                "name='" + name + '\'' +
+                ", nodeId=" + nodeId +
+                '}';
+    }
+
     @JsonProperty("name")
     @Override
     public String getName()

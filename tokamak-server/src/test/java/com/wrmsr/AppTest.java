@@ -15,6 +15,9 @@ package com.wrmsr;
 
 import com.eclipsesource.v8.V8;
 import com.eclipsesource.v8.V8Object;
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
@@ -29,13 +32,15 @@ import junit.framework.TestSuite;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.function.Supplier;
-
-import static com.google.common.base.Preconditions.checkState;
 
 public class AppTest
         extends TestCase
@@ -138,5 +143,31 @@ public class AppTest
         object.release();
 
         v8.release();
+    }
+
+    public void testKryo()
+            throws Throwable
+    {
+        Kryo kryo = new Kryo();
+        kryo.register(SomeClass.class);
+
+        SomeClass object = new SomeClass();
+        object.value = "Hello Kryo!";
+
+        ByteArrayOutputStream bas = new ByteArrayOutputStream();
+        Output output = new Output(bas);
+        kryo.writeObject(output, object);
+        output.close();
+
+        Input input = new Input(new ByteArrayInputStream(bas.toByteArray()));
+        SomeClass object2 = kryo.readObject(input, SomeClass.class);
+        input.close();
+
+        assertNotNull(object2);
+    }
+
+    static public class SomeClass
+    {
+        String value;
     }
 }

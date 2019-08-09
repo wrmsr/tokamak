@@ -35,7 +35,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
-import static com.wrmsr.tokamak.util.MoreCollectors.toSingleton;
+import static com.wrmsr.tokamak.util.MoreCollectors.toSingle;
 import static java.util.function.Function.identity;
 
 @Immutable
@@ -153,7 +153,7 @@ public final class EquijoinNode
         }
         this.fields = ImmutableMap.copyOf(fields);
 
-        int keyLength = this.branches.stream().map(b -> b.getFields().size()).collect(toSingleton());
+        int keyLength = this.branches.stream().map(b -> b.getFields().size()).collect(toSingle());
         idFieldSets = IntStream.range(0, keyLength)
                 .mapToObj(i -> this.branches.stream().map(b -> b.getFields().get(i)).collect(toImmutableSet()))
                 .collect(toImmutableSet());

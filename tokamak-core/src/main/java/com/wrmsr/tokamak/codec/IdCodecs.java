@@ -38,7 +38,7 @@ import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.ImmutableList.toImmutableList;
-import static com.wrmsr.tokamak.util.MoreCollectors.toSingleton;
+import static com.wrmsr.tokamak.util.MoreCollectors.toSingle;
 
 public final class IdCodecs
 {
@@ -86,7 +86,7 @@ public final class IdCodecs
     {
         checkArgument(!typesByField.isEmpty());
         if (typesByField.size() == 1) {
-            Map.Entry<String, Type> e = typesByField.entrySet().stream().collect(toSingleton());
+            Map.Entry<String, Type> e = typesByField.entrySet().stream().collect(toSingle());
             return new ScalarRowIdCodec<>(e.getKey(), IdCodecs.CODECS_BY_TYPE.get(e.getValue()));
         }
         else {

@@ -14,10 +14,13 @@
 package com.wrmsr.tokamak.util;
 
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
+import static com.wrmsr.tokamak.util.MoreCollectors.toSingle;
 
 public final class MorePreconditions
 {
@@ -39,5 +42,19 @@ public final class MorePreconditions
     public static <T> Iterable<T> checkUnique(Stream<T> stream)
     {
         return checkUnique(stream.collect(toImmutableList()));
+    }
+
+    public static <T> T checkSingle(Iterable<T> iterable)
+    {
+        Iterator<T> it = iterable.iterator();
+        checkState(it.hasNext());
+        T ret = it.next();
+        checkState(!it.hasNext());
+        return ret;
+    }
+
+    public static <T> T checkSingle(Stream<T> stream)
+    {
+        return stream.collect(toSingle());
     }
 }

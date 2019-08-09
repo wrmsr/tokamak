@@ -24,6 +24,8 @@ import com.wrmsr.tokamak.util.Pairs;
 import com.wrmsr.tokamak.util.Toposort;
 import com.wrmsr.tokamak.util.lazy.GetterLazyValue;
 
+import javax.annotation.concurrent.Immutable;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -40,6 +42,7 @@ import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static java.util.function.Function.identity;
 
+@Immutable
 public final class Plan
 {
     private final Node root;
@@ -100,28 +103,35 @@ public final class Plan
 
     public List<Node> getNameSortedNodes()
     {
-        return nameSortedNodes.get(() -> nodes.stream().sorted(Comparator.comparing(Node::getName)).collect(toImmutableList()));
+        return nameSortedNodes.get(() -> nodes.stream()
+                .sorted(Comparator.comparing(Node::getName))
+                .collect(toImmutableList()));
     }
 
     private final Map<Class<? extends Node>, List<Node>> nodeListsByType = new HashMap<>();
 
     public List<Node> getNodeTypeList(Class<? extends Node> nodeType)
     {
-        return nodeListsByType.computeIfAbsent(nodeType, nt -> getNameSortedNodes().stream().filter(nodeType::isInstance).collect(toImmutableList()));
+        return nodeListsByType.computeIfAbsent(nodeType, nt -> getNameSortedNodes().stream()
+                .filter(nodeType::isInstance)
+                .collect(toImmutableList()));
     }
 
     private final GetterLazyValue<Set<Node>> leafNodes = new GetterLazyValue<>();
 
     public Set<Node> getLeafNodes()
     {
-        return leafNodes.get(() -> getNameSortedNodes().stream().filter(n -> n.getSources().isEmpty()).collect(toImmutableSet()));
+        return leafNodes.get(() -> getNameSortedNodes().stream()
+                .filter(n -> n.getSources().isEmpty())
+                .collect(toImmutableSet()));
     }
 
     private final GetterLazyValue<List<Set<Node>>> nodeToposort = new GetterLazyValue<>();
 
     public List<Set<Node>> getNodeToposort()
     {
-        return nodeToposort.get(() -> Toposort.toposort(getNameSortedNodes().stream().collect(toImmutableMap(identity(), n -> ImmutableSet.copyOf(n.getSources())))));
+        return nodeToposort.get(() -> Toposort.toposort(getNameSortedNodes().stream()
+                .collect(toImmutableMap(identity(), n -> ImmutableSet.copyOf(n.getSources())))));
     }
 
     private final GetterLazyValue<List<Set<Node>>> nodeReverseToposort = new GetterLazyValue<>();
@@ -135,14 +145,18 @@ public final class Plan
 
     public List<Node> getToposortedNodes()
     {
-        return toposortedNodes.get(() -> getNodeToposort().stream().flatMap(Set::stream).collect(toImmutableList()));
+        return toposortedNodes.get(() -> getNodeToposort().stream()
+                .flatMap(Set::stream)
+                .collect(toImmutableList()));
     }
 
     private final GetterLazyValue<List<Node>> reverseToposortedNodes = new GetterLazyValue<>();
 
     public List<Node> getReverseToposortedNodes()
     {
-        return reverseToposortedNodes.get(() -> getNodeReverseToposort().stream().flatMap(Set::stream).collect(toImmutableList()));
+        return reverseToposortedNodes.get(() -> getNodeReverseToposort().stream()
+                .flatMap(Set::stream)
+                .collect(toImmutableList()));
     }
 
     private final GetterLazyValue<Map<Node, Integer>> toposortIndicesByNode = new GetterLazyValue<>();
