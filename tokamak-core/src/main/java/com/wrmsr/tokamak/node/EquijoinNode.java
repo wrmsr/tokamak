@@ -33,6 +33,7 @@ import java.util.Set;
 import java.util.stream.IntStream;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
@@ -123,9 +124,8 @@ public final class EquijoinNode
     {
         super(name);
 
-        this.branches = ImmutableList.copyOf(branches);
-        this.mode = mode;
-        MorePreconditions.checkNotEmpty(this.branches);
+        this.branches = checkNotEmpty(ImmutableList.copyOf(branches));
+        this.mode = checkNotNull(mode);
 
         this.branchesByNode = this.branches.stream()
                 .collect(toImmutableMap(Branch::getNode, identity()));

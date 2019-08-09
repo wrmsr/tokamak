@@ -21,19 +21,21 @@ import javax.annotation.concurrent.Immutable;
 
 import java.util.Set;
 
+import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
+
 @Immutable
 public final class Invalidation
 {
     private final Set<String> fields;
-    private final boolean isSoft;
+    private final boolean soft;
 
     @JsonCreator
     public Invalidation(
             @JsonProperty("fields") Set<String> fields,
-            @JsonProperty("isSoft") boolean isSoft)
+            @JsonProperty("soft") boolean soft)
     {
-        this.fields = ImmutableSet.copyOf(fields);
-        this.isSoft = isSoft;
+        this.fields = checkNotEmpty(ImmutableSet.copyOf(fields));
+        this.soft = soft;
     }
 
     @Override
@@ -41,7 +43,7 @@ public final class Invalidation
     {
         return "Invalidation{" +
                 "fields=" + fields +
-                ", isSoft=" + isSoft +
+                ", soft=" + soft +
                 '}';
     }
 
@@ -54,6 +56,6 @@ public final class Invalidation
     @JsonProperty("isSoft")
     public boolean isSoft()
     {
-        return isSoft;
+        return soft;
     }
 }

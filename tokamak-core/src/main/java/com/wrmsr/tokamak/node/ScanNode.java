@@ -27,6 +27,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 @Immutable
 public final class ScanNode
         extends StatefulNode
@@ -48,7 +50,7 @@ public final class ScanNode
     {
         super(name, invalidations, linkageMasks, lockOverride);
 
-        this.table = table;
+        this.table = checkNotNull(table);
         this.fields = ImmutableMap.copyOf(fields);
         this.idNodes = ImmutableSet.copyOf(idNodes);
 

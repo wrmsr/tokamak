@@ -25,6 +25,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 @Immutable
 public final class FilterNode
         extends AbstractNode
@@ -43,8 +45,8 @@ public final class FilterNode
     {
         super(name);
 
-        this.source = source;
-        this.predicate = predicate;
+        this.source = checkNotNull(source);
+        this.predicate = checkNotNull(predicate);
         this.unlinked = unlinked;
 
         checkInvariants();

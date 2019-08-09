@@ -27,6 +27,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 @Immutable
 public final class PersistNode
         extends StatefulNode
@@ -48,7 +50,7 @@ public final class PersistNode
     {
         super(name, invalidations, linkageMasks, lockOverride);
 
-        this.source = source;
+        this.source = checkNotNull(source);
         this.outputTargets = ImmutableList.copyOf(outputTargets);
         this.denormalized = denormalized;
 

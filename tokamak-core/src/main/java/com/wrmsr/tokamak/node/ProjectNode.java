@@ -29,6 +29,7 @@ import java.util.Objects;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 
 @Immutable
@@ -50,8 +51,8 @@ public final class ProjectNode
     {
         super(name);
 
-        this.source = source;
-        this.projection = projection;
+        this.source = checkNotNull(source);
+        this.projection = checkNotNull(projection);
 
         ImmutableMap.Builder<String, Type> fields = ImmutableMap.builder();
         for (Map.Entry<String, Projection.Input> entry : projection.getInputsByOutput().entrySet()) {

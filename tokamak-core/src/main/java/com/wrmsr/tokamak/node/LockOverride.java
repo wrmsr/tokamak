@@ -18,6 +18,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.annotation.concurrent.Immutable;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 @Immutable
 public final class LockOverride
 {
@@ -29,8 +31,8 @@ public final class LockOverride
             @JsonProperty("node") String node,
             @JsonProperty("field") String field)
     {
-        this.node = node;
-        this.field = field;
+        this.node = checkNotNull(node);
+        this.field = checkNotNull(field);
     }
 
     @Override

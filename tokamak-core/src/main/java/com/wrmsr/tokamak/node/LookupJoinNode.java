@@ -28,7 +28,9 @@ import java.util.Optional;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableList.toImmutableList;
+import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 
 @Immutable
 public final class LookupJoinNode
@@ -78,9 +80,9 @@ public final class LookupJoinNode
     {
         super(name);
 
-        this.source = source;
-        this.branches = ImmutableList.copyOf(branches);
-        this.sourceIdField = sourceIdField;
+        this.source = checkNotNull(source);
+        this.branches = checkNotEmpty(ImmutableList.copyOf(branches));
+        this.sourceIdField = checkNotNull(sourceIdField);
 
         ImmutableMap.Builder<String, Branch> branchesByField = ImmutableMap.builder();
         for (Branch branch : this.branches) {

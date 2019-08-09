@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
 public final class ListAggregateNode
@@ -50,9 +51,9 @@ public final class ListAggregateNode
     {
         super(name);
 
-        this.source = source;
-        this.groupField = groupField;
-        this.listField = listField;
+        this.source = checkNotNull(source);
+        this.groupField = checkNotNull(groupField);
+        this.listField = checkNotNull(listField);
 
         checkArgument(!groupField.equals(listField));
         checkArgument(source.getFields().containsKey(groupField));

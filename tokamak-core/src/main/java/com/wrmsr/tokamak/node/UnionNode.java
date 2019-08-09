@@ -33,6 +33,7 @@ import java.util.stream.Collectors;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
+import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 import static java.util.function.Function.identity;
 
 @Immutable
@@ -53,10 +54,9 @@ public final class UnionNode
     {
         super(name);
 
-        this.sources = ImmutableList.copyOf(sources);
+        this.sources = checkNotEmpty(ImmutableList.copyOf(sources));
         this.indexField = checkNotNull(indexField);
 
-        MorePreconditions.checkNotEmpty(this.sources);
         Map<String, Type> firstFields = this.sources.get(0).getFields();
         for (int i = 1; i < this.sources.size(); ++i) {
             checkArgument(firstFields.equals(this.sources.get(i).getFields()));

@@ -13,8 +13,11 @@
  */
 package com.wrmsr.tokamak.node;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.node.visitor.NodeVisitor;
 import com.wrmsr.tokamak.type.Type;
 
@@ -25,49 +28,45 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.collect.Maps.newLinkedHashMap;
-
 @Immutable
 public final class ValuesNode
         extends AbstractNode
         implements GeneratorNode
 {
-    private final Map<String, Type> fields;
+    private final Map<String, Type> declaredFields;
     private final List<Object> values;
     private final Optional<String> indexField;
-    private final boolean isStrict;
+    private final boolean weak;
 
+    private final Map<String, Type> fields;
+
+    @JsonCreator
     public ValuesNode(
-            String name,
-            Map<String, Type> fields,
-            List<Object> values,
-            Optional<String> indexField,
-            Optional<Boolean> isStrict)
+            @JsonProperty("name") String name,
+            @JsonProperty("fields") Map<String, Type> fields,
+            @JsonProperty("values") List<Object> values,
+            @JsonProperty("indexField") Optional<String> indexField,
+            @JsonProperty("weak") boolean weak)
     {
         super(name);
 
-        if (indexField.isPresent()) {
-            if (fields.containsKey(indexField.get())) {
-                checkArgument(fields.get(indexField.get()) == Type.LONG);
-            }
-            else {
-                fields = newLinkedHashMap(fields);
-                fields.put(indexField.get(), Type.LONG);
-            }
-        }
-
-        this.fields = ImmutableMap.copyOf(fields);
+        this.declaredFields = ImmutableMap.copyOf(fields);
         this.values = ImmutableList.copyOf(values);
         this.indexField = indexField;
-        this.isStrict = isStrict.orElse(false);
+        this.weak = weak;
+
+        ImmutableMap.Builder<String, Type> fieldsBuilder = ImmutableMap.builder();
+        fieldsBuilder.putAll(this.declaredFields);
+        indexField.ifPresent(f -> fieldsBuilder.put(f, Type.LONG));
+        this.fields = fieldsBuilder.build();
 
         checkInvariants();
     }
 
-    public List<Object> getValues()
+    @JsonProperty("fields")
+    public Map<String, Type> getDeclaredFields()
     {
-        return values;
+        return declaredFields;
     }
 
     @Override
@@ -76,20 +75,33 @@ public final class ValuesNode
         return fields;
     }
 
+    @JsonProperty("values")
+    public List<Object> getValues()
+    {
+        return values;
+    }
+
+    @JsonProperty("indexField")
     public Optional<String> getIndexField()
     {
         return indexField;
     }
 
-    public boolean isStrict()
+    @JsonProperty("weak")
+    public boolean isWeak()
     {
-        return isStrict;
+        return weak;
     }
 
     @Override
     public Set<Set<String>> getIdFieldSets()
     {
-        throw new IllegalStateException();
+        if (indexField.isPresent()) {
+            return ImmutableSet.of(ImmutableSet.of(indexField.get()));
+        }
+        else {
+            return ImmutableSet.of();
+        }
     }
 
     @Override

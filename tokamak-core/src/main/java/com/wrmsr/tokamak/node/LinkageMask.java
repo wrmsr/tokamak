@@ -21,6 +21,8 @@ import javax.annotation.concurrent.Immutable;
 
 import java.util.Set;
 
+import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
+
 @Immutable
 public final class LinkageMask
 {
@@ -30,7 +32,7 @@ public final class LinkageMask
     public LinkageMask(
             @JsonProperty("fields") Set<String> fields)
     {
-        this.fields = ImmutableSet.copyOf(fields);
+        this.fields = checkNotEmpty(ImmutableSet.copyOf(fields));
     }
 
     @Override

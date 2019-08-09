@@ -28,8 +28,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
+import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkSingle;
 
 @Immutable
@@ -58,8 +60,8 @@ public final class CrossJoinNode
     {
         super(name);
 
-        this.sources = ImmutableList.copyOf(sources);
-        this.mode = mode;
+        this.sources = checkNotEmpty(ImmutableList.copyOf(sources));
+        this.mode = checkNotNull(mode);
 
         ImmutableMap.Builder<String, Type> fields = ImmutableMap.builder();
         ImmutableMap.Builder<String, Node> sourcesByField = ImmutableMap.builder();

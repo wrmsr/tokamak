@@ -26,6 +26,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Maps.newLinkedHashMap;
 
 @Immutable
@@ -50,6 +51,11 @@ public final class UnnestNode
     {
         super(name);
 
+        this.source = checkNotNull(source);
+        this.listField = checkNotNull(listField);
+        this.unnestedFields = ImmutableMap.copyOf(unnestedFields);
+        this.indexField = checkNotNull(indexField);
+
         Map<String, Type> fields = source.getFields();
         checkArgument(fields.containsKey(listField));
         if (indexField.isPresent()) {
@@ -65,11 +71,6 @@ public final class UnnestNode
             checkArgument(!fields.containsKey(entry.getKey()));
             fields.put(entry.getKey(), entry.getValue());
         }
-
-        this.source = source;
-        this.listField = listField;
-        this.unnestedFields = ImmutableMap.copyOf(unnestedFields);
-        this.indexField = indexField;
 
         this.fields = fields;
 

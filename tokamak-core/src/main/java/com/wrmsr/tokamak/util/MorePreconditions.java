@@ -16,6 +16,8 @@ package com.wrmsr.tokamak.util;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -60,6 +62,24 @@ public final class MorePreconditions
     }
 
     public static <T> Collection<T> checkNotEmpty(Collection<T> coll)
+    {
+        checkState(!coll.isEmpty());
+        return coll;
+    }
+
+    public static <T> List<T> checkNotEmpty(List<T> coll)
+    {
+        checkState(!coll.isEmpty());
+        return coll;
+    }
+
+    public static <T> Set<T> checkNotEmpty(Set<T> coll)
+    {
+        checkState(!coll.isEmpty());
+        return coll;
+    }
+
+    public static <K, V> Map<K, V> checkNotEmpty(Map<K, V> coll)
     {
         checkState(!coll.isEmpty());
         return coll;
