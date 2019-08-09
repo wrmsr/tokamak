@@ -16,20 +16,23 @@ package com.wrmsr.tokamak.api;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.google.common.base.Charsets;
+import com.google.common.primitives.UnsignedBytes;
 
 import javax.annotation.concurrent.Immutable;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+import java.util.Comparator;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
-import static com.wrmsr.tokamak.util.StringPrefixing.stripPrefix;
 import static com.wrmsr.tokamak.util.MoreBytes.fromHex;
 import static com.wrmsr.tokamak.util.MoreBytes.toHex;
+import static com.wrmsr.tokamak.util.StringPrefixing.stripPrefix;
 
 @Immutable
 public final class Id
+        implements Comparable<Id>
 {
     private final byte[] value;
 
@@ -64,6 +67,14 @@ public final class Id
         return "Id{" +
                 "value=" + toHex(value) +
                 '}';
+    }
+
+    private static final Comparator<byte[]> comparator = UnsignedBytes.lexicographicalComparator();
+
+    @Override
+    public int compareTo(Id o)
+    {
+        return comparator.compare(value, o.value);
     }
 
     public static Id of(long value)

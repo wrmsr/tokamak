@@ -15,6 +15,7 @@ package com.wrmsr.tokamak.api;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.google.common.collect.Comparators;
 import com.google.common.hash.Hashing;
 import com.wrmsr.tokamak.util.box.IntBox;
 
@@ -29,6 +30,7 @@ import static com.wrmsr.tokamak.util.StringPrefixing.stripPrefix;
 @Immutable
 public final class NodeId
         extends IntBox
+        implements Comparable<NodeId>
 {
     private final String string;
 
@@ -43,6 +45,12 @@ public final class NodeId
     public String toString()
     {
         return string;
+    }
+
+    @Override
+    public int compareTo(NodeId o)
+    {
+        return Integer.compare(value, o.value);
     }
 
     public static NodeId parse(String string)
