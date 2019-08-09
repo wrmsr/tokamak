@@ -160,8 +160,6 @@ public final class EquijoinNode
                 .collect(toImmutableSet());
 
         checkInvariants();
-
-        throw new IllegalStateException();
     }
 
     @JsonProperty("branches")

@@ -18,12 +18,12 @@ import javax.annotation.concurrent.Immutable;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
-public final class ArrayType
+public final class ListType
         implements Type
 {
     private final Type itemType;
 
-    public ArrayType(Type itemType)
+    public ListType(Type itemType)
     {
         this.itemType = checkNotNull(itemType);
     }
@@ -31,7 +31,7 @@ public final class ArrayType
     @Override
     public String toString()
     {
-        return "ArrayType{" +
+        return "ListType{" +
                 "itemType=" + itemType +
                 '}';
     }

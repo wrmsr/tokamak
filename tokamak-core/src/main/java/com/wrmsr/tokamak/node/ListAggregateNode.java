@@ -18,6 +18,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.node.visitor.NodeVisitor;
+import com.wrmsr.tokamak.type.ListType;
 import com.wrmsr.tokamak.type.RowType;
 import com.wrmsr.tokamak.type.Type;
 
@@ -59,7 +60,7 @@ public final class ListAggregateNode
         rowType = new RowType(source.getFields());
         fields = ImmutableMap.of(
                 groupField, source.getFields().get(groupField),
-                listField, rowType
+                listField, new ListType(rowType)
         );
 
         checkInvariants();

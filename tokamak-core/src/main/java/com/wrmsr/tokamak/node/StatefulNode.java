@@ -25,6 +25,7 @@ public abstract class StatefulNode
             Optional<LockOverride> lockOverride)
     {
         super(name);
+
         this.invalidations = ImmutableMap.copyOf(invalidations);
         this.linkageMasks = ImmutableMap.copyOf(linkageMasks);
         this.lockOverride = checkNotNull(lockOverride);
