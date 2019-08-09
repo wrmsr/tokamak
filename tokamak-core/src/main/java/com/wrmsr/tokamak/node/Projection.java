@@ -129,7 +129,7 @@ public final class Projection
         ImmutableMap.Builder<String, String> inputFieldsByOutput = ImmutableMap.builder();
         Map<String, ImmutableSet.Builder<String>> outputSetsByInputField = new HashMap<>();
 
-        for (Map.Entry<String, Input> entry : inputsByOutput.entrySet()) {
+        for (Map.Entry<String, Input> entry : this.inputsByOutput.entrySet()) {
             if (entry.getValue() instanceof FieldInput) {
                 String field = ((FieldInput) entry.getValue()).getField();
                 inputFieldsByOutput.put(entry.getKey(), field);

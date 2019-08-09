@@ -65,7 +65,7 @@ public final class CrossJoinNode
 
         ImmutableMap.Builder<String, Type> fields = ImmutableMap.builder();
         ImmutableMap.Builder<String, Node> sourcesByField = ImmutableMap.builder();
-        for (Node source : sources) {
+        for (Node source : this.sources) {
             for (Map.Entry<String, Type> e : source.getFields().entrySet()) {
                 fields.put(e.getKey(), e.getValue());
                 sourcesByField.put(e.getKey(), source);
