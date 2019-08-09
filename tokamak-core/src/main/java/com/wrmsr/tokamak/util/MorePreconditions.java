@@ -13,6 +13,7 @@
  */
 package com.wrmsr.tokamak.util;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -56,5 +57,17 @@ public final class MorePreconditions
     public static <T> T checkSingle(Stream<T> stream)
     {
         return stream.collect(toSingle());
+    }
+
+    public static <T> Collection<T> checkNotEmpty(Collection<T> coll)
+    {
+        checkState(!coll.isEmpty());
+        return coll;
+    }
+
+    public static <T> Iterable<T> checkNotEmpty(Iterable<T> iterable)
+    {
+        checkState(!iterable.iterator().hasNext());
+        return iterable;
     }
 }

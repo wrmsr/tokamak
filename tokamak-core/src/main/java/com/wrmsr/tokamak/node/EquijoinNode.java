@@ -20,6 +20,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.node.visitor.NodeVisitor;
 import com.wrmsr.tokamak.type.Type;
+import com.wrmsr.tokamak.util.MorePreconditions;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -36,6 +37,7 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static com.wrmsr.tokamak.util.MoreCollectors.toSingle;
+import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 import static java.util.function.Function.identity;
 
 @Immutable
@@ -63,7 +65,7 @@ public final class EquijoinNode
         {
             this.node = node;
             this.fields = ImmutableList.copyOf(fields);
-            checkArgument(!this.fields.isEmpty());
+            MorePreconditions.checkNotEmpty(this.fields);
         }
 
         @Override
@@ -123,7 +125,7 @@ public final class EquijoinNode
 
         this.branches = ImmutableList.copyOf(branches);
         this.mode = mode;
-        checkArgument(!this.branches.isEmpty());
+        MorePreconditions.checkNotEmpty(this.branches);
 
         this.branchesByNode = this.branches.stream()
                 .collect(toImmutableMap(Branch::getNode, identity()));

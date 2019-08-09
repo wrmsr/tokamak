@@ -16,8 +16,11 @@ package com.wrmsr.tokamak.node;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.node.visitor.NodeVisitor;
 import com.wrmsr.tokamak.type.Type;
+import com.wrmsr.tokamak.util.MorePreconditions;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -25,8 +28,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
+import static java.util.function.Function.identity;
 
 @Immutable
 public final class UnionNode
@@ -34,6 +41,9 @@ public final class UnionNode
 {
     private final List<Node> sources;
     private final Optional<String> indexField;
+
+    private final Map<String, Type> fields;
+    private final Set<Set<String>> idFieldSets;
 
     @JsonCreator
     public UnionNode(
@@ -44,12 +54,35 @@ public final class UnionNode
         super(name);
 
         this.sources = ImmutableList.copyOf(sources);
-        this.indexField = indexField;
+        this.indexField = checkNotNull(indexField);
 
-        checkArgument(!this.sources.isEmpty());
-        Map<String, Type> fields = this.sources.get(0).getFields();
+        MorePreconditions.checkNotEmpty(this.sources);
+        Map<String, Type> firstFields = this.sources.get(0).getFields();
         for (int i = 1; i < this.sources.size(); ++i) {
-            checkArgument(fields.equals(this.sources.get(i).getFields()));
+            checkArgument(firstFields.equals(this.sources.get(i).getFields()));
+        }
+
+        ImmutableMap.Builder<String, Type> fields = ImmutableMap.builder();
+        fields.putAll(firstFields);
+        indexField.ifPresent(f -> fields.put(f, Type.LONG));
+        this.fields = fields.build();
+
+        if (indexField.isPresent()) {
+            Map<Set<String>, Long> idFieldSetCounts = this.sources.stream()
+                    .map(Node::getIdFieldSets)
+                    .flatMap(Set::stream)
+                    .collect(Collectors.groupingBy(identity(), Collectors.counting()));
+            ImmutableSet.Builder<Set<String>> idFieldSets = ImmutableSet.builder();
+            for (Map.Entry<Set<String>, Long> e : idFieldSetCounts.entrySet()) {
+                checkState(e.getValue() <= this.sources.size());
+                if (e.getValue() == this.sources.size()) {
+                    idFieldSets.add(ImmutableSet.<String>builder().addAll(e.getKey()).add(indexField.get()).build());
+                }
+            }
+            this.idFieldSets = idFieldSets.build();
+        }
+        else {
+            this.idFieldSets = ImmutableSet.of();
         }
 
         checkInvariants();
@@ -71,13 +104,13 @@ public final class UnionNode
     @Override
     public Map<String, Type> getFields()
     {
-        throw new IllegalStateException();
+        return fields;
     }
 
     @Override
     public Set<Set<String>> getIdFieldSets()
     {
-        throw new IllegalStateException();
+        return idFieldSets;
     }
 
     @Override
