@@ -13,6 +13,10 @@
  */
 package com.wrmsr.tokamak.node;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.node.visitor.NodeVisitor;
 import com.wrmsr.tokamak.type.Type;
 
@@ -22,6 +26,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.collect.ImmutableList.toImmutableList;
 
 @Immutable
 public final class LookupJoinNode
@@ -34,50 +41,100 @@ public final class LookupJoinNode
         private final Node node;
         private final String field;
 
-        public Branch(Node node, String field)
+        @JsonCreator
+        public Branch(
+                @JsonProperty("node") Node node,
+                @JsonProperty("field") String field)
         {
             this.node = node;
             this.field = field;
         }
 
+        @JsonProperty("node")
         public Node getNode()
         {
             return node;
         }
 
+        @JsonProperty("field")
         public String getField()
         {
             return field;
         }
     }
 
+    private final Node source;
+    private final List<Branch> branches;
+    private final Optional<String> sourceIdField;
+
+    private final Map<String, Branch> branchesByField;
+
+    @JsonCreator
     public LookupJoinNode(
-            String name,
-            Node source,
-            List<Branch> branches,
-            Optional<String> sourceIdField)
+            @JsonProperty("name") String name,
+            @JsonProperty("source") Node source,
+            @JsonProperty("branches") List<Branch> branches,
+            @JsonProperty("sourceIdField") Optional<String> sourceIdField)
     {
         super(name);
 
+        this.source = source;
+        this.branches = ImmutableList.copyOf(branches);
+        this.sourceIdField = sourceIdField;
+
+        ImmutableMap.Builder<String, Branch> branchesByField = ImmutableMap.builder();
+        for (Branch branch : this.branches) {
+            checkArgument(branch.getNode().getFields().containsKey(branch.getField()));
+            checkArgument(source.getFields().containsKey(branch.getField()));
+            branchesByField.put(branch.getField(), branch);
+        }
+        this.branchesByField = branchesByField.build();
+
         checkInvariants();
+    }
+
+    @JsonProperty("source'")
+    public Node getSource()
+    {
+        return source;
+    }
+
+    @JsonProperty("branches")
+    public List<Branch> getBranches()
+    {
+        return branches;
+    }
+
+    @JsonProperty("sourceIdField")
+    public Optional<String> getSourceIdField()
+    {
+        return sourceIdField;
     }
 
     @Override
     public List<Node> getSources()
     {
-        throw new IllegalStateException();
+        return ImmutableList.<Node>builder()
+                .add(source)
+                .addAll(branches.stream().map(Branch::getNode).collect(toImmutableList()))
+                .build();
+    }
+
+    public Map<String, Branch> getBranchesByField()
+    {
+        return branchesByField;
     }
 
     @Override
     public Map<String, Type> getFields()
     {
-        throw new IllegalStateException();
+        return source.getFields();
     }
 
     @Override
     public Set<Set<String>> getIdFieldSets()
     {
-        throw new IllegalStateException();
+        return source.getIdFieldSets();
     }
 
     @Override

@@ -13,6 +13,8 @@
  */
 package com.wrmsr.tokamak.node;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.node.visitor.NodeVisitor;
 import com.wrmsr.tokamak.type.Type;
@@ -34,10 +36,11 @@ public final class ProjectNode
 
     private final Map<String, Type> fields;
 
+    @JsonCreator
     public ProjectNode(
-            String name,
-            Node source,
-            Projection projection)
+            @JsonProperty("name") String name,
+            @JsonProperty("source") Node source,
+            @JsonProperty("projection") Projection projection)
     {
         super(name);
 
@@ -65,12 +68,14 @@ public final class ProjectNode
         checkInvariants();
     }
 
+    @JsonProperty("source")
     @Override
     public Node getSource()
     {
         return source;
     }
 
+    @JsonProperty("projection")
     public Projection getProjection()
     {
         return projection;

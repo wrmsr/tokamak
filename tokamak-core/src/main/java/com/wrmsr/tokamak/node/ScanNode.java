@@ -35,7 +35,6 @@ public final class ScanNode
     private final SchemaTable table;
     private final Map<String, Type> fields;
     private final Set<String> idNodes;
-    private final Optional<LockOverride> lockOverride;
 
     @JsonCreator
     public ScanNode(
@@ -47,12 +46,11 @@ public final class ScanNode
             @JsonProperty("idNodes") Set<String> idNodes,
             @JsonProperty("lockOverride") Optional<LockOverride> lockOverride)
     {
-        super(name, invalidations, linkageMasks);
+        super(name, invalidations, linkageMasks, lockOverride);
 
         this.table = table;
         this.fields = ImmutableMap.copyOf(fields);
         this.idNodes = ImmutableSet.copyOf(idNodes);
-        this.lockOverride = lockOverride;
 
         checkInvariants();
     }
@@ -73,12 +71,6 @@ public final class ScanNode
     public Set<String> getIdNodes()
     {
         return idNodes;
-    }
-
-    @JsonProperty("lockOverride")
-    public Optional<LockOverride> getLockOverride()
-    {
-        return lockOverride;
     }
 
     @Override

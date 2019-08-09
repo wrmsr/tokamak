@@ -13,6 +13,10 @@
  */
 package com.wrmsr.tokamak.node;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.function.Function;
@@ -28,11 +32,19 @@ import java.util.stream.StreamSupport;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
+import static com.sun.tools.javac.util.Assert.checkNonNull;
 import static java.util.function.Function.identity;
 
 @Immutable
 public final class Projection
 {
+    @JsonTypeInfo(
+            use = JsonTypeInfo.Id.NAME,
+            include = JsonTypeInfo.As.WRAPPER_OBJECT)
+    @JsonSubTypes({
+            @JsonSubTypes.Type(value = FieldInput.class, name = "field"),
+            @JsonSubTypes.Type(value = FunctionInput.class, name = "function")
+    })
     public interface Input
     {
     }
@@ -43,11 +55,22 @@ public final class Projection
     {
         private final String field;
 
-        public FieldInput(String field)
+        @JsonCreator
+        public FieldInput(
+                @JsonProperty("field") String field)
         {
-            this.field = field;
+            this.field = checkNonNull(field);
         }
 
+        @Override
+        public String toString()
+        {
+            return "FieldInput{" +
+                    "field='" + field + '\'' +
+                    '}';
+        }
+
+        @JsonProperty("field")
         public String getField()
         {
             return field;
@@ -58,20 +81,34 @@ public final class Projection
     public static final class FunctionInput
             implements Input
     {
-        private final Function value;
+        private final Function function;
         private final Type type;
 
-        public FunctionInput(Function value, Type type)
+        @JsonCreator
+        public FunctionInput(
+                @JsonProperty("function") Function function,
+                @JsonProperty("type") Type type)
         {
-            this.value = value;
-            this.type = type;
+            this.function = checkNotNull(function);
+            this.type = checkNotNull(type);
         }
 
-        public Function getValue()
+        @Override
+        public String toString()
         {
-            return value;
+            return "FunctionInput{" +
+                    "function=" + function +
+                    ", type=" + type +
+                    '}';
         }
 
+        @JsonProperty("function")
+        public Function getFunction()
+        {
+            return function;
+        }
+
+        @JsonProperty("type")
         public Type getType()
         {
             return type;
@@ -83,7 +120,9 @@ public final class Projection
     private final Map<String, String> inputFieldsByOutput;
     private final Map<String, Set<String>> outputSetsByInputField;
 
-    public Projection(Map<String, Input> inputsByOutput)
+    @JsonCreator
+    public Projection(
+            @JsonProperty("inputsByOutput") Map<String, Input> inputsByOutput)
     {
         this.inputsByOutput = ImmutableMap.copyOf(inputsByOutput);
 
@@ -103,6 +142,7 @@ public final class Projection
                 .collect(toImmutableMap(Map.Entry::getKey, e -> e.getValue().build()));
     }
 
+    @JsonProperty("inputsByOutput")
     public Map<String, Input> getInputsByOutput()
     {
         return inputsByOutput;
@@ -129,7 +169,7 @@ public final class Projection
     {
         checkArgument(args.length % 2 == 0);
         ImmutableMap.Builder<String, Input> builder = ImmutableMap.builder();
-        for (int i = 0; i < args.length;) {
+        for (int i = 0; i < args.length; ) {
             String output = (String) args[i++];
             Object inputObj = checkNotNull(args[i++]);
             Input input;

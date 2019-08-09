@@ -13,6 +13,8 @@
  */
 package com.wrmsr.tokamak.node;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wrmsr.tokamak.api.Row;
 import com.wrmsr.tokamak.node.visitor.NodeVisitor;
 import com.wrmsr.tokamak.type.Type;
@@ -32,11 +34,12 @@ public final class FilterNode
     private final Predicate<Row> predicate;
     private final boolean unlinked;
 
+    @JsonCreator
     public FilterNode(
-            String name,
-            Node source,
-            Predicate<Row> predicate,
-            boolean unlinked)
+            @JsonProperty("name") String name,
+            @JsonProperty("source") Node source,
+            @JsonProperty("predicate") Predicate<Row> predicate,
+            @JsonProperty("unlinked") boolean unlinked)
     {
         super(name);
 
@@ -47,17 +50,20 @@ public final class FilterNode
         checkInvariants();
     }
 
+    @JsonProperty("source")
     @Override
     public Node getSource()
     {
         return source;
     }
 
+    @JsonProperty("predicate")
     public Predicate<Row> getPredicate()
     {
         return predicate;
     }
 
+    @JsonProperty("unlinked")
     public boolean isUnlinked()
     {
         return unlinked;
@@ -66,13 +72,13 @@ public final class FilterNode
     @Override
     public Map<String, Type> getFields()
     {
-        throw new IllegalStateException();
+        return source.getFields();
     }
 
     @Override
     public Set<Set<String>> getIdFieldSets()
     {
-        throw new IllegalStateException();
+        return source.getIdFieldSets();
     }
 
     @Override

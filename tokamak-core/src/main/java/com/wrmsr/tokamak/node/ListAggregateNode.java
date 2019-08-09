@@ -13,15 +13,20 @@
  */
 package com.wrmsr.tokamak.node;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.node.visitor.NodeVisitor;
+import com.wrmsr.tokamak.type.RowType;
 import com.wrmsr.tokamak.type.Type;
 
 import javax.annotation.concurrent.Immutable;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import static com.google.common.base.Preconditions.checkArgument;
 
 @Immutable
 public final class ListAggregateNode
@@ -30,48 +35,65 @@ public final class ListAggregateNode
 {
     private final Node source;
     private final String groupField;
-    private final Set<String> listFields;
+    private final String listField;
 
+    private final RowType rowType;
+    private final Map<String, Type> fields;
+
+    @JsonCreator
     public ListAggregateNode(
-            String name,
-            Node source,
-            String groupField,
-            List<String> listFields)
+            @JsonProperty("name") String name,
+            @JsonProperty("source") Node source,
+            @JsonProperty("groupField") String groupField,
+            @JsonProperty("listField") String listField)
     {
         super(name);
+
         this.source = source;
         this.groupField = groupField;
-        this.listFields = ImmutableSet.copyOf(listFields);
+        this.listField = listField;
+
+        checkArgument(!groupField.equals(listField));
+        checkArgument(source.getFields().containsKey(groupField));
+
+        rowType = new RowType(source.getFields());
+        fields = ImmutableMap.of(
+                groupField, source.getFields().get(groupField),
+                listField, rowType
+        );
 
         checkInvariants();
     }
 
+    @JsonProperty("source")
     @Override
     public Node getSource()
     {
         return source;
     }
 
+    @JsonProperty("groupField")
     public String getGroupField()
     {
         return groupField;
     }
 
-    public Set<String> getListFields()
+    @JsonProperty("listField")
+    public String getListField()
     {
-        return listFields;
+        return listField;
     }
 
     @Override
     public Map<String, Type> getFields()
     {
-        throw new IllegalStateException();
+        return fields;
     }
 
     @Override
     public Set<Set<String>> getIdFieldSets()
     {
-        throw new IllegalStateException();
+        return ImmutableSet.of(ImmutableSet.of(groupField));
     }
 
     @Override

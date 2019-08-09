@@ -113,10 +113,11 @@ public final class EquijoinNode
     private final Set<Set<String>> idFieldSets;
     private final Map<String, Type> fields;
 
+    @JsonCreator
     public EquijoinNode(
-            String name,
-            List<Branch> branches,
-            Mode mode)
+            @JsonProperty("name") String name,
+            @JsonProperty("branches") List<Branch> branches,
+            @JsonProperty("mode") Mode mode)
     {
         super(name);
 
@@ -163,11 +164,13 @@ public final class EquijoinNode
         throw new IllegalStateException();
     }
 
+    @JsonProperty("branches")
     public List<Branch> getBranches()
     {
         return branches;
     }
 
+    @JsonProperty("mode")
     public Mode getMode()
     {
         return mode;

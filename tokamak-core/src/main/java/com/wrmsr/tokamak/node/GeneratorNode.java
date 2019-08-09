@@ -20,6 +20,7 @@ import java.util.List;
 public interface GeneratorNode
         extends Node
 {
+    @Override
     default List<Node> getSources()
     {
         return ImmutableList.of();

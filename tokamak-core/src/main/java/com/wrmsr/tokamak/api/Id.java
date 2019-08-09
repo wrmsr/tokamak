@@ -22,6 +22,7 @@ import javax.annotation.concurrent.Immutable;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.wrmsr.tokamak.util.StringPrefixing.stripPrefix;
 import static com.wrmsr.tokamak.util.MoreBytes.fromHex;
@@ -34,7 +35,7 @@ public final class Id
 
     public Id(byte[] value)
     {
-        this.value = value;
+        this.value = checkNotNull(value);
     }
 
     public byte[] getValue()
@@ -72,6 +73,7 @@ public final class Id
 
     public static Id of(String value)
     {
+        checkNotNull(value);
         return of(value.getBytes(Charsets.UTF_8));
     }
 

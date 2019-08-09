@@ -46,16 +46,16 @@ public final class SimpleRow
                 '}';
     }
 
-    @Override
     @JsonProperty("id")
+    @Override
     @Nullable
     public Id getId()
     {
         return id;
     }
 
-    @Override
     @JsonProperty("attributes")
+    @Override
     @Nullable
     public Object[] getAttributes()
     {

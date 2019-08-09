@@ -19,6 +19,8 @@ import javax.annotation.concurrent.Immutable;
 
 import java.util.Map;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 @Immutable
 public abstract class OutputTarget
 {
@@ -27,7 +29,7 @@ public abstract class OutputTarget
 
     public OutputTarget(String name, Map<String, Object> options)
     {
-        this.name = name;
+        this.name = checkNotNull(name);
         this.options = ImmutableMap.copyOf(options);
     }
 

@@ -20,6 +20,8 @@ import javax.annotation.concurrent.Immutable;
 
 import java.util.Objects;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 @Immutable
 public final class IdKey
         implements Key
@@ -30,7 +32,7 @@ public final class IdKey
     public IdKey(
             @JsonProperty("id") Id id)
     {
-        this.id = id;
+        this.id = checkNotNull(id);
     }
 
     @Override

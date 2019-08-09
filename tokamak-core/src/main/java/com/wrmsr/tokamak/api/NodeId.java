@@ -23,6 +23,7 @@ import javax.annotation.concurrent.Immutable;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.wrmsr.tokamak.util.StringPrefixing.stripPrefix;
 
 @Immutable
@@ -46,11 +47,13 @@ public final class NodeId
 
     public static NodeId parse(String string)
     {
+        checkNotNull(string);
         return new NodeId(Integer.parseInt(string, 16));
     }
 
     public static NodeId of(String name)
     {
+        checkNotNull(name);
         ByteBuffer bytes = StandardCharsets.UTF_8.encode(name);
         int hash = Hashing.murmur3_32().newHasher().putBytes(bytes).hash().asInt();
         return new NodeId(hash);
