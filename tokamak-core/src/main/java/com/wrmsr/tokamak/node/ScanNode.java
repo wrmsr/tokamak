@@ -43,9 +43,9 @@ public final class ScanNode
             @JsonProperty("name") String name,
             @JsonProperty("table") SchemaTable table,
             @JsonProperty("fields") Map<String, Type> fields,
+            @JsonProperty("idNodes") Set<String> idNodes,
             @JsonProperty("invalidations") Map<String, Invalidation> invalidations,
             @JsonProperty("linkageMasks") Map<String, LinkageMask> linkageMasks,
-            @JsonProperty("idNodes") Set<String> idNodes,
             @JsonProperty("lockOverride") Optional<LockOverride> lockOverride)
     {
         super(name, invalidations, linkageMasks, lockOverride);

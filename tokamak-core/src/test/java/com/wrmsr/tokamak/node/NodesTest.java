@@ -51,9 +51,9 @@ public class NodesTest
                 "scan0",
                 SchemaTable.of("public", "hi"),
                 ImmutableMap.of("id", Type.LONG, "thing", Type.STRING),
-                ImmutableMap.of(),
-                ImmutableMap.of(),
                 ImmutableSet.of(),
+                ImmutableMap.of(),
+                ImmutableMap.of(),
                 Optional.empty());
 
         Node projectNode = new ProjectNode(

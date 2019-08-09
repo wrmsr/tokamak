@@ -148,9 +148,9 @@ public class AppTest
                         "N_NATIONKEY", Type.LONG,
                         "N_NAME", Type.STRING
                 ),
-                ImmutableMap.of(),
-                ImmutableMap.of(),
                 ImmutableSet.of(),
+                ImmutableMap.of(),
+                ImmutableMap.of(),
                 Optional.empty());
 
         Node filterNode = new FilterNode(

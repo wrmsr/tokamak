@@ -30,7 +30,7 @@ public abstract class NodeVisitor<R, C>
 {
     protected R visitNode(Node node, C context)
     {
-        return null;
+        throw new IllegalStateException();
     }
 
     public R visitCrossJoinNode(CrossJoinNode node, C context)

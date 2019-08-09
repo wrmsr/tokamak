@@ -67,7 +67,7 @@ public final class UnnestNode
                 fields.put(indexField.get(), Type.LONG);
             }
         }
-        for (Map.Entry<String, Type> entry : unnestedFields.entrySet()) {
+        for (Map.Entry<String, Type> entry : this.unnestedFields.entrySet()) {
             checkArgument(!fields.containsKey(entry.getKey()));
             fields.put(entry.getKey(), entry.getValue());
         }
