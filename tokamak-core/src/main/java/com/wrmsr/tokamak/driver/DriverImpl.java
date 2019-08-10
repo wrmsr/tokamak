@@ -17,13 +17,17 @@ import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.api.Row;
 import com.wrmsr.tokamak.catalog.Catalog;
+import com.wrmsr.tokamak.catalog.Scanner;
+import com.wrmsr.tokamak.catalog.Table;
 import com.wrmsr.tokamak.driver.context.DriverContextImpl;
 import com.wrmsr.tokamak.driver.state.StateStorage;
 import com.wrmsr.tokamak.driver.state.StateStorageImpl;
 import com.wrmsr.tokamak.node.Node;
+import com.wrmsr.tokamak.node.ScanNode;
 import com.wrmsr.tokamak.plan.Plan;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -66,6 +70,16 @@ public class DriverImpl
     public StateStorage getStateStorage()
     {
         return stateStorage;
+    }
+
+    private final Map<ScanNode, Scanner> scannersByScanNode = new HashMap<>();
+
+    public Scanner getScanner(ScanNode scanNode)
+    {
+        return scannersByScanNode.computeIfAbsent(scanNode, sn -> {
+            Table table = catalog.lookupSchemaTable(scanNode.getSchemaTable());
+            return table.getSchema().getConnector().createScanner(table, scanNode.getFields().keySet());
+        });
     }
 
     @Override
