@@ -133,7 +133,7 @@ public final class JdbcScanner
                     "select " +
                     Joiner.on(", ").join(selectedFields.stream().collect(toImmutableList())) +
                     " from " +
-                    schemaTable;
+                    schemaTable.getSchema() + "." + schemaTable.getTable();
 
             if (!this.keyFields.isEmpty()) {
                 stmt += "" +

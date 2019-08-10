@@ -21,6 +21,7 @@ import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.api.Row;
 import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.catalog.Catalog;
+import com.wrmsr.tokamak.catalog.Schema;
 import com.wrmsr.tokamak.driver.DriverImpl;
 import com.wrmsr.tokamak.jdbc.JdbcConnector;
 import com.wrmsr.tokamak.jdbc.JdbcUtils;
@@ -124,8 +125,8 @@ public class AppTest
         try (DirectoryStream<Path> ds = Files.newDirectoryStream(Paths.get("temp"), "test.db*")) {
             ds.forEach(p -> checkState(p.toFile().delete()));
         }
-        String url = "jdbc:h2:file:./temp/test.db";
-        Jdbi jdbi = Jdbi.create(url, "username", "password");
+        String url = "jdbc:h2:file:./temp/test.db;USER=username;PASSWORD=password";
+        Jdbi jdbi = Jdbi.create(url);
         jdbi.withHandle(handle -> {
             for (String stmt : JdbcUtils.splitSql(ddl)) {
                 handle.execute(stmt);
@@ -162,7 +163,10 @@ public class AppTest
 
         Catalog catalog = new Catalog();
         JdbcConnector jdbcConnector = new JdbcConnector("jdbc", url);
-        catalog.getOrBuildSchema("PUBLIC", jdbcConnector);
+        catalog
+                .getOrBuildSchema("PUBLIC", jdbcConnector)
+                .getOrBuildTable("NATION");
+
         DriverImpl driver = new DriverImpl(catalog, plan);
 
         List<Row> buildRows = driver.build(

@@ -93,7 +93,7 @@ public class DriverImpl
             throws IOException
     {
         DriverContextImpl contextImpl = (DriverContextImpl) context;
-        return null;
+        return (List) contextImpl.build(node, key);
     }
 
     @Override
@@ -101,6 +101,6 @@ public class DriverImpl
             throws IOException
     {
         DriverContextImpl contextImpl = (DriverContextImpl) context;
-        return null;
+        throw new IllegalStateException();
     }
 }

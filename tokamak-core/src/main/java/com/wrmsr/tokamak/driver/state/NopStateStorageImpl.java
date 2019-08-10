@@ -51,7 +51,7 @@ public class NopStateStorageImpl
     public State createPhantom(StatefulNode node, Id id, Row row)
             throws IOException
     {
-        return null;
+        throw new IllegalStateException();
     }
 
     @Override
@@ -86,6 +86,6 @@ public class NopStateStorageImpl
     public List<Id> getSpanIds(Span<Id> span, OptionalInt limit)
             throws IOException
     {
-        return null;
+        throw new IllegalStateException();
     }
 }

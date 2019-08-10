@@ -42,7 +42,7 @@ public final class Schema
     {
         return "Schema{" +
                 "name='" + name + '\'' +
-                "connector=" + connector +
+                ", connector=" + connector +
                 '}';
     }
 
