@@ -15,6 +15,7 @@ package com.wrmsr.tokamak.util;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableMultiset;
 import com.google.common.collect.SetMultimap;
@@ -34,7 +35,6 @@ import java.util.function.Supplier;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
-import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static java.util.function.Function.identity;
 
 public final class MoreCollectors
@@ -229,5 +229,25 @@ public final class MoreCollectors
                     return list.get(0);
                 }
         );
+    }
+
+    public static <T, K, V> Collector<T, ?, ImmutableMap<K, V>> toImmutableMap(
+            Function<? super T, ? extends K> keyFunction,
+            Function<? super T, ? extends V> valueFunction)
+    {
+        return com.google.common.collect.ImmutableMap.toImmutableMap(keyFunction, valueFunction);
+    }
+
+    public static <K, V> Collector<Map.Entry<K, V>, ?, ImmutableMap<K, V>> toImmutableMap()
+    {
+        return com.google.common.collect.ImmutableMap.toImmutableMap(Map.Entry::getKey, Map.Entry::getValue);
+    }
+
+    public static <T, K, V> Collector<T, ?, ImmutableMap<K, V>> toImmutableMap(
+            Function<? super T, ? extends K> keyFunction,
+            Function<? super T, ? extends V> valueFunction,
+            BinaryOperator<V> mergeFunction)
+    {
+        return com.google.common.collect.ImmutableMap.toImmutableMap(keyFunction, valueFunction, mergeFunction);
     }
 }

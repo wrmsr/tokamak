@@ -38,8 +38,8 @@ import java.util.stream.IntStream;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
-import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
+import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 import static java.util.function.Function.identity;
 
 @Immutable
@@ -168,7 +168,7 @@ public final class Plan
                         IntStream.range(0, nodes.size()).boxed(),
                         getToposortedNodes().stream(),
                         (i, n) -> new Pairs.Immutable<>(n, i))
-                        .collect(toImmutableMap(Map.Entry::getKey, Map.Entry::getValue)));
+                        .collect(toImmutableMap()));
     }
 
     private final GetterLazyValue<Map<Node, Integer>> reverseToposortIndicesByNode = new GetterLazyValue<>();
@@ -180,7 +180,7 @@ public final class Plan
                         IntStream.range(0, nodes.size()).boxed(),
                         getReverseToposortedNodes().stream(),
                         (i, n) -> new Pairs.Immutable<>(n, i))
-                        .collect(toImmutableMap(Map.Entry::getKey, Map.Entry::getValue)));
+                        .collect(toImmutableMap()));
     }
 
     public Map<Node, Set<Node>> getStatefulParentSetsByNode()

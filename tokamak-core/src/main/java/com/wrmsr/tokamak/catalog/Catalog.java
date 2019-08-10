@@ -14,6 +14,7 @@
 package com.wrmsr.tokamak.catalog;
 
 import com.wrmsr.tokamak.api.SchemaTable;
+import com.wrmsr.tokamak.function.Function;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -23,6 +24,7 @@ public final class Catalog
 {
     private final Map<String, Connector> connectorsByName = new HashMap<>();
     private final Map<String, Schema> schemasByName = new HashMap<>();
+    private final Map<String, Function> functionsByName = new HashMap<>();
 
     public Map<String, Connector> getConnectorsByName()
     {
@@ -32,6 +34,11 @@ public final class Catalog
     public Map<String, Schema> getSchemasByName()
     {
         return Collections.unmodifiableMap(schemasByName);
+    }
+
+    public Map<String, Function> getFunctionsByName()
+    {
+        return Collections.unmodifiableMap(functionsByName);
     }
 
     public Schema getOrBuildSchema(String name, Connector connector)
@@ -63,5 +70,14 @@ public final class Catalog
             throw new IllegalArgumentException("Table not found: " + schemaTable);
         }
         return table;
+    }
+
+    public Function addFunction(Function function)
+    {
+        if (functionsByName.get(function.getName()) != null) {
+            throw new IllegalArgumentException("Function name taken: " + function.getName());
+        }
+        functionsByName.put(function.getName(), function);
+        return function;
     }
 }
