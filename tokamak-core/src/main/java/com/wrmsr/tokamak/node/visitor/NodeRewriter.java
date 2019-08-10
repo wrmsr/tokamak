@@ -135,6 +135,7 @@ public abstract class NodeRewriter<C>
                 visitNodeName(node.getName(), context),
                 node.getSchemaTable(),
                 node.getFields(),
+                node.getIdFieldSets(),
                 node.getIdNodes(),
                 node.getInvalidations().entrySet().stream()
                         .collect(ImmutableMap.toImmutableMap(e -> visitNodeName(e.getKey(), context), Map.Entry::getValue)),

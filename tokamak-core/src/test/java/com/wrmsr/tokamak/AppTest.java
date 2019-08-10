@@ -144,6 +144,9 @@ public class AppTest
                         "N_NATIONKEY", Type.LONG,
                         "N_NAME", Type.STRING
                 ),
+                ImmutableSet.of(
+                        ImmutableSet.of("N_NATIONKEY")
+                ),
                 ImmutableSet.of(),
                 ImmutableMap.of(),
                 ImmutableMap.of(),

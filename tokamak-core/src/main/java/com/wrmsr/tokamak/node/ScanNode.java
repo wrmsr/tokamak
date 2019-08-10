@@ -28,6 +28,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.ImmutableSet.toImmutableSet;
 
 @Immutable
 public final class ScanNode
@@ -36,6 +37,7 @@ public final class ScanNode
 {
     private final SchemaTable schemaTable;
     private final Map<String, Type> fields;
+    private final Set<Set<String>> idFieldSets;
     private final Set<String> idNodes;
 
     @JsonCreator
@@ -43,6 +45,7 @@ public final class ScanNode
             @JsonProperty("name") String name,
             @JsonProperty("schemaTable") SchemaTable schemaTable,
             @JsonProperty("fields") Map<String, Type> fields,
+            @JsonProperty("idFieldSets") Set<Set<String>> idFieldSets,
             @JsonProperty("idNodes") Set<String> idNodes,
             @JsonProperty("invalidations") Map<String, Invalidation> invalidations,
             @JsonProperty("linkageMasks") Map<String, LinkageMask> linkageMasks,
@@ -52,6 +55,7 @@ public final class ScanNode
 
         this.schemaTable = checkNotNull(schemaTable);
         this.fields = ImmutableMap.copyOf(fields);
+        this.idFieldSets = idFieldSets.stream().map(ImmutableSet::copyOf).collect(toImmutableSet());
         this.idNodes = ImmutableSet.copyOf(idNodes);
 
         checkInvariants();
@@ -69,16 +73,17 @@ public final class ScanNode
         return fields;
     }
 
+    @JsonProperty("idFieldSets")
+    @Override
+    public Set<Set<String>> getIdFieldSets()
+    {
+        return idFieldSets;
+    }
+
     @JsonProperty("idNodes")
     public Set<String> getIdNodes()
     {
         return idNodes;
-    }
-
-    @Override
-    public Set<Set<String>> getIdFieldSets()
-    {
-        throw new IllegalStateException();
     }
 
     @Override
