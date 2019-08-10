@@ -44,6 +44,14 @@ public final class JdbcConnector
     }
 
     @Override
+    public String toString()
+    {
+        return "JdbcConnector{" +
+                "name='" + name + '\'' +
+                '}';
+    }
+
+    @Override
     public String getName()
     {
         return name;

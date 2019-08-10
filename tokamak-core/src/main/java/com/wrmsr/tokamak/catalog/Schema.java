@@ -13,6 +13,9 @@
  */
 package com.wrmsr.tokamak.catalog;
 
+import com.wrmsr.tokamak.api.SchemaTable;
+import com.wrmsr.tokamak.layout.TableLayout;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -61,5 +64,16 @@ public final class Schema
     public Map<String, Table> getTablesByName()
     {
         return Collections.unmodifiableMap(tablesByName);
+    }
+
+    public Table getOrBuildTable(String name)
+    {
+        return tablesByName.computeIfAbsent(name, n -> {
+            TableLayout layout = connector.getTableLayout(SchemaTable.of(this.name, name));
+            return new Table(
+                    this,
+                    name,
+                    layout);
+        });
     }
 }

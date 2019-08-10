@@ -34,7 +34,25 @@ public final class Catalog
         return Collections.unmodifiableMap(schemasByName);
     }
 
-    public Table getTable(SchemaTable schemaTable)
+    public Schema getOrBuildSchema(String name, Connector connector)
+    {
+        Connector existingConnector = connectorsByName.get(connector.getName());
+        if (existingConnector == null) {
+            connectorsByName.put(connector.getName(), connector);
+        }
+        else if (existingConnector != connector) {
+            throw new IllegalArgumentException("Connector name taken: " + connector.getName());
+        }
+
+        return schemasByName.computeIfAbsent(name, n ->
+                new Schema(
+                        this,
+                        name,
+                        connector)
+        );
+    }
+
+    public Table lookupSchemaTable(SchemaTable schemaTable)
     {
         Schema schema = schemasByName.get(schemaTable.getSchema());
         if (schema == null) {

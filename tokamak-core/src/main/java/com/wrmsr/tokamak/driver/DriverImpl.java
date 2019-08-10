@@ -13,41 +13,35 @@
  */
 package com.wrmsr.tokamak.driver;
 
+import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.api.Key;
-import com.wrmsr.tokamak.api.SchemaTable;
+import com.wrmsr.tokamak.api.Row;
 import com.wrmsr.tokamak.catalog.Catalog;
 import com.wrmsr.tokamak.driver.context.DriverContextImpl;
 import com.wrmsr.tokamak.driver.state.StateStorage;
 import com.wrmsr.tokamak.driver.state.StateStorageImpl;
-import com.wrmsr.tokamak.jdbc.JdbcLayoutUtils;
-import com.wrmsr.tokamak.jdbc.JdbcTableIdentifier;
-import com.wrmsr.tokamak.jdbc.metadata.MetaDataReflection;
-import com.wrmsr.tokamak.jdbc.metadata.TableDescription;
-import com.wrmsr.tokamak.layout.TableLayout;
 import com.wrmsr.tokamak.node.Node;
 import com.wrmsr.tokamak.plan.Plan;
-import org.jdbi.v3.core.Handle;
 
-import java.sql.DatabaseMetaData;
-import java.sql.SQLException;
-import java.util.HashMap;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public class DriverImpl
-    implements Driver
+        implements Driver
 {
-    private final Plan plan;
     private final Catalog catalog;
+    private final Plan plan;
 
     private final StateStorage stateStorage;
 
-    public DriverImpl(Plan plan, Catalog catalog)
+    public DriverImpl(Catalog catalog, Plan plan)
     {
-        this.plan = checkNotNull(plan);
         this.catalog = checkNotNull(catalog);
+        this.plan = checkNotNull(plan);
 
         stateStorage = new StateStorageImpl();
     }
@@ -64,32 +58,6 @@ public class DriverImpl
         return catalog;
     }
 
-    private final Map<SchemaTable, TableLayout> tableLayoutsBySchemaTable = new HashMap<>();
-
-    public TableLayout getTableLayout(SchemaTable schemaTable)
-    {
-        if (tableLayoutsBySchemaTable.containsKey(schemaTable)) {
-            return tableLayoutsBySchemaTable.get(schemaTable);
-        }
-
-        TableLayout tableLayout = jdbi.withHandle(handle -> {
-            try {
-                DatabaseMetaData metaData = handle.getConnection().getMetaData();
-
-                TableDescription tableDescription = MetaDataReflection.getTableDescription(
-                        metaData, JdbcTableIdentifier.of("TEST.DB", "PUBLIC", schemaTable.getTable()));
-
-                return JdbcLayoutUtils.buildTableLayout(tableDescription);
-            }
-            catch (SQLException e) {
-                throw new RuntimeException();
-            }
-        });
-
-        tableLayoutsBySchemaTable.put(schemaTable, tableLayout);
-        return tableLayout;
-    }
-
     public LineagePolicy getLineagePolicy()
     {
         return LineagePolicy.MINIMAL;
@@ -100,13 +68,25 @@ public class DriverImpl
         return stateStorage;
     }
 
-    public DriverContext createContext(Handle jdbiHandle)
+    @Override
+    public DriverContext createContext()
     {
-        return new DriverContextImpl(this, jdbiHandle);
+        return new DriverContextImpl(this);
     }
 
-    public List<DriverRow> build(DriverContext ctx, Node node, Key key)
+    @Override
+    public List<Row> build(DriverContext context, Node node, Key key)
+            throws IOException
     {
-        return ctx.build(node, key);
+        DriverContextImpl contextImpl = (DriverContextImpl) context;
+        return null;
+    }
+
+    @Override
+    public List<Row> sync(DriverContext context, Map<Node, Set<Id>> idSetsByNode)
+            throws IOException
+    {
+        DriverContextImpl contextImpl = (DriverContextImpl) context;
+        return null;
     }
 }

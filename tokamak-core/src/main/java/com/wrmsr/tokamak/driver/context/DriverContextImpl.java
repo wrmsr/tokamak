@@ -15,6 +15,8 @@ package com.wrmsr.tokamak.driver.context;
 
 import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.api.Key;
+import com.wrmsr.tokamak.catalog.Connection;
+import com.wrmsr.tokamak.catalog.Connector;
 import com.wrmsr.tokamak.driver.BuildContext;
 import com.wrmsr.tokamak.driver.BuildNodeVisitor;
 import com.wrmsr.tokamak.driver.BuildOutput;
@@ -22,9 +24,10 @@ import com.wrmsr.tokamak.driver.DriverContext;
 import com.wrmsr.tokamak.driver.DriverImpl;
 import com.wrmsr.tokamak.driver.DriverRow;
 import com.wrmsr.tokamak.node.Node;
-import org.jdbi.v3.core.Handle;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
@@ -33,17 +36,14 @@ public final class DriverContextImpl
         implements DriverContext
 {
     private final DriverImpl driver;
-    private final Handle jdbiHandle;
 
     private final RowCache rowCache;
     private final StateCache stateCache;
 
     public DriverContextImpl(
-            DriverImpl driver,
-            Handle jdbiHandle)
+            DriverImpl driver)
     {
         this.driver = driver;
-        this.jdbiHandle = jdbiHandle;
 
         this.rowCache = new RowCache();
         this.stateCache = new StateCache(
@@ -59,13 +59,14 @@ public final class DriverContextImpl
         return driver;
     }
 
-    @Override
-    public Handle getJdbiHandle()
-    {
-        return jdbiHandle;
-    }
+    private final Map<Connector, Connection> connectionsByConnection = new HashMap<>();
 
     @Override
+    public Connection getConnection(Connector connector)
+    {
+        return connectionsByConnection.computeIfAbsent(connector, c -> connector.connect());
+    }
+
     public List<DriverRow> build(Node node, Key key)
     {
         List<BuildOutput> output = node.accept(
@@ -82,5 +83,14 @@ public final class DriverContextImpl
     public void commit()
     {
         throw new IllegalStateException();
+    }
+
+    @Override
+    public void close()
+            throws Exception
+    {
+        for (Connection connection : connectionsByConnection.values()) {
+            connection.close();
+        }
     }
 }

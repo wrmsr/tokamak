@@ -13,20 +13,15 @@
  */
 package com.wrmsr.tokamak.driver;
 
-import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.catalog.Connection;
 import com.wrmsr.tokamak.catalog.Connector;
-import com.wrmsr.tokamak.node.Node;
-
-import java.util.List;
 
 public interface DriverContext
+        extends AutoCloseable
 {
     Driver getDriver();
 
     Connection getConnection(Connector connector);
-
-    List<DriverRow> build(Node node, Key key);
 
     void commit();
 }
