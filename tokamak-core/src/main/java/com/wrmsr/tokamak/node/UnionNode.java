@@ -20,7 +20,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.node.visitor.NodeVisitor;
 import com.wrmsr.tokamak.type.Type;
-import com.wrmsr.tokamak.util.MorePreconditions;
 
 import javax.annotation.concurrent.Immutable;
 
