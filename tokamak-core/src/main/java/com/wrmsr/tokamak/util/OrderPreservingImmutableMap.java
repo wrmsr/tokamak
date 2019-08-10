@@ -11,12 +11,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.wrmsr.tokamak.util;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.ObjectCodec;
+import com.fasterxml.jackson.core.TreeNode;
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
@@ -92,6 +93,7 @@ public final class OrderPreservingImmutableMap<K, V>
                 throws IOException
         {
             checkState(parser.currentToken() == JsonToken.START_ARRAY);
+            ObjectCodec codec = parser.getCodec();
             ImmutableMap.Builder builder = ImmutableMap.builder();
             while (true) {
                 JsonToken tok = parser.nextToken();
@@ -100,8 +102,8 @@ public final class OrderPreservingImmutableMap<K, V>
                 }
                 else if (tok == JsonToken.START_ARRAY) {
                     parser.nextToken();
-                    Object key = ctx.readValue(parser, keyType);
-                    Object value = ctx.readValue(parser, valueType);
+                    Object key = codec.readValue(codec.treeAsTokens(parser.readValueAsTree()), keyType);
+                    Object value = codec.readValue(codec.treeAsTokens(parser.readValueAsTree()), valueType);
                     checkState(parser.nextToken() == JsonToken.END_ARRAY);
                     builder.put(key, value);
                 }
