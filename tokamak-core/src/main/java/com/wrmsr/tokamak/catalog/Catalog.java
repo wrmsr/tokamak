@@ -13,6 +13,16 @@
  */
 package com.wrmsr.tokamak.catalog;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
 public final class Catalog
 {
+    private final Map<String, Schema> schemasByName = new HashMap<>();
+
+    public Map<String, Schema> getSchemasByName()
+    {
+        return Collections.unmodifiableMap(schemasByName);
+    }
 }

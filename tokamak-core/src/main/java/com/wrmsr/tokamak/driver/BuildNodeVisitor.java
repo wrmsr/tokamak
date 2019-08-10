@@ -105,7 +105,7 @@ public class BuildNodeVisitor
     @Override
     public List<BuildOutput> visitScanNode(ScanNode node, BuildContext context)
     {
-        Scanner scanner = new Scanner(
+        JdbcScannerFactory scanner = new JdbcScannerFactory(
                 node.getTable(),
                 context.getDriverContext().getDriver().getTableLayout(node.getTable()),
                 node.getFields().keySet());
