@@ -25,9 +25,10 @@ import java.util.Map;
 @JsonSubTypes({
         @JsonSubTypes.Type(value = AllKey.class, name = "all"),
         @JsonSubTypes.Type(value = FieldKey.class, name = "field"),
-        @JsonSubTypes.Type(value = IdKey.class, name = "id")
+        @JsonSubTypes.Type(value = IdKey.class, name = "id"),
 })
 public interface Key
+        extends Comparable<Key>
 {
     static AllKey all()
     {

@@ -15,7 +15,7 @@ package com.wrmsr.tokamak.jdbc.metadata;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.wrmsr.tokamak.jdbc.TableIdentifier;
+import com.wrmsr.tokamak.jdbc.JdbcTableIdentifier;
 
 import java.sql.DatabaseMetaData;
 import java.util.Map;
@@ -111,9 +111,9 @@ public final class ColumnMetaData
                 '}';
     }
 
-    public TableIdentifier getTableIdentifier()
+    public JdbcTableIdentifier getTableIdentifier()
     {
-        return new TableIdentifier(tableCatalog, tableSchema, tableName);
+        return new JdbcTableIdentifier(tableCatalog, tableSchema, tableName);
     }
 
     public String getTableCatalog()

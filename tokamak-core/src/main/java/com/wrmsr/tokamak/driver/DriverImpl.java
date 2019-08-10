@@ -19,7 +19,7 @@ import com.wrmsr.tokamak.driver.context.DriverContextImpl;
 import com.wrmsr.tokamak.driver.state.StateStorage;
 import com.wrmsr.tokamak.driver.state.StateStorageImpl;
 import com.wrmsr.tokamak.jdbc.JdbcLayoutUtils;
-import com.wrmsr.tokamak.jdbc.TableIdentifier;
+import com.wrmsr.tokamak.jdbc.JdbcTableIdentifier;
 import com.wrmsr.tokamak.jdbc.metadata.MetaDataReflection;
 import com.wrmsr.tokamak.jdbc.metadata.TableDescription;
 import com.wrmsr.tokamak.layout.TableLayout;
@@ -72,7 +72,7 @@ public class DriverImpl
                 DatabaseMetaData metaData = handle.getConnection().getMetaData();
 
                 TableDescription tableDescription = MetaDataReflection.getTableDescription(
-                        metaData, TableIdentifier.of("TEST.DB", "PUBLIC", table.getTable()));
+                        metaData, JdbcTableIdentifier.of("TEST.DB", "PUBLIC", table.getTable()));
 
                 return JdbcLayoutUtils.buildTableLayout(tableDescription);
             }

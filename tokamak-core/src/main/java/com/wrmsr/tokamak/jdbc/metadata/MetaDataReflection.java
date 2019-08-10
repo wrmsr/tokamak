@@ -15,7 +15,7 @@ package com.wrmsr.tokamak.jdbc.metadata;
 
 import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.jdbc.JdbcUtils;
-import com.wrmsr.tokamak.jdbc.TableIdentifier;
+import com.wrmsr.tokamak.jdbc.JdbcTableIdentifier;
 
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
@@ -75,7 +75,7 @@ public final class MetaDataReflection
     {
     }
 
-    public static TableMetaData getTableMetadata(DatabaseMetaData metaData, TableIdentifier tableIdentifier)
+    public static TableMetaData getTableMetadata(DatabaseMetaData metaData, JdbcTableIdentifier tableIdentifier)
             throws SQLException
     {
         return JdbcUtils.readRows(
@@ -104,7 +104,7 @@ public final class MetaDataReflection
                 .collect(toImmutableList());
     }
 
-    public static List<ColumnMetaData> getColumnMetaData(DatabaseMetaData metaData, TableIdentifier tableIdentifier)
+    public static List<ColumnMetaData> getColumnMetaData(DatabaseMetaData metaData, JdbcTableIdentifier tableIdentifier)
             throws SQLException
     {
         return JdbcUtils.readRows(
@@ -118,7 +118,7 @@ public final class MetaDataReflection
                 .collect(toImmutableList());
     }
 
-    public static List<IndexMetaData> getIndexMetaData(DatabaseMetaData metaData, TableIdentifier tableIdentifier)
+    public static List<IndexMetaData> getIndexMetaData(DatabaseMetaData metaData, JdbcTableIdentifier tableIdentifier)
             throws SQLException
     {
         return JdbcUtils.readRows(
@@ -133,7 +133,7 @@ public final class MetaDataReflection
                 .collect(toImmutableList());
     }
 
-    public static List<CompositeIndexMetaData> getCompositeIndexMetaDatas(DatabaseMetaData metaData, TableIdentifier tableIdentifier)
+    public static List<CompositeIndexMetaData> getCompositeIndexMetaDatas(DatabaseMetaData metaData, JdbcTableIdentifier tableIdentifier)
             throws SQLException
     {
         Map<String, List<IndexMetaData>> idxMdsByName = getIndexMetaData(metaData, tableIdentifier).stream()
@@ -148,7 +148,7 @@ public final class MetaDataReflection
                 .collect(toImmutableList());
     }
 
-    public static List<PrimaryKeyMetaData> getPrimaryKeyMetaData(DatabaseMetaData metaData, TableIdentifier tableIdentifier)
+    public static List<PrimaryKeyMetaData> getPrimaryKeyMetaData(DatabaseMetaData metaData, JdbcTableIdentifier tableIdentifier)
             throws SQLException
     {
         return JdbcUtils.readRows(
@@ -159,7 +159,7 @@ public final class MetaDataReflection
                 .stream().map(PrimaryKeyMetaData::new).collect(toImmutableList());
     }
 
-    public static CompositePrimaryKeyMetaData getCompositePrimaryKeyMetaData(DatabaseMetaData metaData, TableIdentifier tableIdentifier)
+    public static CompositePrimaryKeyMetaData getCompositePrimaryKeyMetaData(DatabaseMetaData metaData, JdbcTableIdentifier tableIdentifier)
             throws SQLException
     {
         return new CompositePrimaryKeyMetaData(
@@ -168,7 +168,7 @@ public final class MetaDataReflection
                         .collect(toImmutableList()));
     }
 
-    public static TableDescription getTableDescription(DatabaseMetaData metaData, TableIdentifier tableIdentifier)
+    public static TableDescription getTableDescription(DatabaseMetaData metaData, JdbcTableIdentifier tableIdentifier)
             throws SQLException
     {
         return new TableDescription(

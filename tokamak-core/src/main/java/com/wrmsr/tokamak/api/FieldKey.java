@@ -15,16 +15,21 @@ package com.wrmsr.tokamak.api;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.google.common.collect.Comparators;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Sets;
 import com.wrmsr.tokamak.util.StreamableIterable;
 
 import javax.annotation.concurrent.Immutable;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
 public final class FieldKey
@@ -83,5 +88,40 @@ public final class FieldKey
     public Map<String, Object> toPrefixedString()
     {
         return valuesByField;
+    }
+
+    @Override
+    public int compareTo(Key o)
+    {
+        if (o instanceof FieldKey) {
+            FieldKey ofk = (FieldKey) o;
+
+            List<String> lk = valuesByField.keySet().stream().sorted().collect(Collectors.toList());
+            List<String> rk = ofk.valuesByField.keySet().stream().sorted().collect(Collectors.toList());
+            int cmp = Comparators.lexicographical(String::compareTo).compare(lk, rk);
+            if (cmp != 0) {
+                return cmp;
+            }
+
+            for (String key : lk) {
+                Object l = checkNotNull(valuesByField.get(key));
+                Object r = checkNotNull(ofk.valuesByField.get(key));
+                cmp = ((Comparable) l).compareTo(r);
+                if (cmp != 0) {
+                    return cmp;
+                }
+            }
+
+            return 0;
+        }
+        else if (o instanceof AllKey) {
+            return -1;
+        }
+        else if (o instanceof IdKey) {
+            return 1;
+        }
+        else {
+            throw new IllegalArgumentException(o.toString());
+        }
     }
 }

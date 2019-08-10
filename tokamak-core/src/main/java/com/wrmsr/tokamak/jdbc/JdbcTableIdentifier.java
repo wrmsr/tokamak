@@ -21,32 +21,32 @@ import java.util.Objects;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
-public final class TableIdentifier
+public final class JdbcTableIdentifier
 {
     private final @Nullable String catalog;
     private final @Nullable String schema;
     private final String name;
 
-    public TableIdentifier(@Nullable String catalog, @Nullable String schema, String name)
+    public JdbcTableIdentifier(@Nullable String catalog, @Nullable String schema, String name)
     {
         this.catalog = catalog;
         this.schema = schema;
         this.name = checkNotNull(name);
     }
 
-    public static TableIdentifier of(@Nullable String catalog, @Nullable String schema, String name)
+    public static JdbcTableIdentifier of(@Nullable String catalog, @Nullable String schema, String name)
     {
-        return new TableIdentifier(catalog, schema, name);
+        return new JdbcTableIdentifier(catalog, schema, name);
     }
 
-    public static TableIdentifier of(@Nullable String schema, String name)
+    public static JdbcTableIdentifier of(@Nullable String schema, String name)
     {
-        return new TableIdentifier(null, schema, name);
+        return new JdbcTableIdentifier(null, schema, name);
     }
 
-    public static TableIdentifier of(String name)
+    public static JdbcTableIdentifier of(String name)
     {
-        return new TableIdentifier(null, null, name);
+        return new JdbcTableIdentifier(null, null, name);
     }
 
     @Override
@@ -64,7 +64,7 @@ public final class TableIdentifier
     {
         if (this == o) { return true; }
         if (o == null || getClass() != o.getClass()) { return false; }
-        TableIdentifier that = (TableIdentifier) o;
+        JdbcTableIdentifier that = (JdbcTableIdentifier) o;
         return Objects.equals(catalog, that.catalog) &&
                 Objects.equals(schema, that.schema) &&
                 Objects.equals(name, that.name);

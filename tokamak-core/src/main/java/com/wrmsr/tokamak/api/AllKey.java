@@ -41,4 +41,15 @@ public final class AllKey
     {
         return 31;
     }
+
+    @Override
+    public int compareTo(Key o)
+    {
+        if (o instanceof AllKey) {
+            return 0;
+        }
+        else {
+            return 1;
+        }
+    }
 }

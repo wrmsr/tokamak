@@ -20,7 +20,7 @@ public final class CtorLazyValue<T>
     private final Supplier<T> supplier;
 
     private volatile boolean isSet = false;
-    private T value = null;
+    private volatile T value = null;
 
     public CtorLazyValue(Supplier<T> supplier)
     {

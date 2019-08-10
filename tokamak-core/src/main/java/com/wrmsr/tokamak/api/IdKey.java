@@ -55,4 +55,15 @@ public final class IdKey
     {
         return id;
     }
+
+    @Override
+    public int compareTo(Key o)
+    {
+        if (o instanceof IdKey) {
+            return id.compareTo(((IdKey) o).id);
+        }
+        else {
+            return -1;
+        }
+    }
 }

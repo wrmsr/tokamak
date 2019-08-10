@@ -18,7 +18,7 @@ import java.util.function.Supplier;
 public final class GetterLazyValue<T>
 {
     private volatile boolean isSet = false;
-    private T value = null;
+    private volatile T value = null;
 
     public T get(Supplier<T> supplier)
     {
