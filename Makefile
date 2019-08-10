@@ -83,5 +83,5 @@ endif
 
 .PHONY: fix-copyright
 fix-copyright:
-	find tokamak-* -name '*.java' | xargs -P8 -n1 perl -i -p0e 's/(\/\*.*LICENSE-2.0.*\*\/)(\s*\/\*.*LICENSE-2.0.*\*\/)+\/$1/sg'
-	find tokamak-* -name '*.java' | xargs -P8 -n1 perl -i -p0e 's/\*\/\n\npackage com\./\*\/\npackage com./s'
+	find tokamak-* -name '*.java' | xargs -P8 -n1 perl -i -p0e \
+		's/(\/\*.*LICENSE-2.0.*\*\/)(\s+\/\*.*LICENSE-2.0.*\*\/)+(\s+package com\.)/$$1\npackage com\./sg'
