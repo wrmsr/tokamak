@@ -133,7 +133,7 @@ public abstract class NodeRewriter<C>
     {
         return new ScanNode(
                 visitNodeName(node.getName(), context),
-                node.getTable(),
+                node.getSchemaTable(),
                 node.getFields(),
                 node.getIdNodes(),
                 node.getInvalidations().entrySet().stream()

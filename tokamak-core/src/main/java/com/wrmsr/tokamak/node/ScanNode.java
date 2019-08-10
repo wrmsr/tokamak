@@ -34,14 +34,14 @@ public final class ScanNode
         extends StatefulNode
         implements GeneratorNode
 {
-    private final SchemaTable table;
+    private final SchemaTable schemaTable;
     private final Map<String, Type> fields;
     private final Set<String> idNodes;
 
     @JsonCreator
     public ScanNode(
             @JsonProperty("name") String name,
-            @JsonProperty("table") SchemaTable table,
+            @JsonProperty("schemaTable") SchemaTable schemaTable,
             @JsonProperty("fields") Map<String, Type> fields,
             @JsonProperty("idNodes") Set<String> idNodes,
             @JsonProperty("invalidations") Map<String, Invalidation> invalidations,
@@ -50,17 +50,17 @@ public final class ScanNode
     {
         super(name, invalidations, linkageMasks, lockOverride);
 
-        this.table = checkNotNull(table);
+        this.schemaTable = checkNotNull(schemaTable);
         this.fields = ImmutableMap.copyOf(fields);
         this.idNodes = ImmutableSet.copyOf(idNodes);
 
         checkInvariants();
     }
 
-    @JsonProperty("table")
-    public SchemaTable getTable()
+    @JsonProperty("schemaTable")
+    public SchemaTable getSchemaTable()
     {
-        return table;
+        return schemaTable;
     }
 
     @JsonProperty("fields")

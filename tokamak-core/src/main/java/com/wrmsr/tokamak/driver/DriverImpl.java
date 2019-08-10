@@ -27,7 +27,6 @@ import com.wrmsr.tokamak.layout.TableLayout;
 import com.wrmsr.tokamak.node.Node;
 import com.wrmsr.tokamak.plan.Plan;
 import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.Jdbi;
 
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
@@ -67,10 +66,10 @@ public class DriverImpl
 
     private final Map<SchemaTable, TableLayout> tableLayoutsBySchemaTable = new HashMap<>();
 
-    public TableLayout getTableLayout(SchemaTable table)
+    public TableLayout getTableLayout(SchemaTable schemaTable)
     {
-        if (tableLayoutsBySchemaTable.containsKey(table)) {
-            return tableLayoutsBySchemaTable.get(table);
+        if (tableLayoutsBySchemaTable.containsKey(schemaTable)) {
+            return tableLayoutsBySchemaTable.get(schemaTable);
         }
 
         TableLayout tableLayout = jdbi.withHandle(handle -> {
@@ -78,7 +77,7 @@ public class DriverImpl
                 DatabaseMetaData metaData = handle.getConnection().getMetaData();
 
                 TableDescription tableDescription = MetaDataReflection.getTableDescription(
-                        metaData, JdbcTableIdentifier.of("TEST.DB", "PUBLIC", table.getTable()));
+                        metaData, JdbcTableIdentifier.of("TEST.DB", "PUBLIC", schemaTable.getTable()));
 
                 return JdbcLayoutUtils.buildTableLayout(tableDescription);
             }
@@ -87,7 +86,7 @@ public class DriverImpl
             }
         });
 
-        tableLayoutsBySchemaTable.put(table, tableLayout);
+        tableLayoutsBySchemaTable.put(schemaTable, tableLayout);
         return tableLayout;
     }
 

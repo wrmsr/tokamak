@@ -106,8 +106,8 @@ public class BuildNodeVisitor
     public List<BuildOutput> visitScanNode(ScanNode node, BuildContext context)
     {
         JdbcScannerFactory scanner = new JdbcScannerFactory(
-                node.getTable(),
-                context.getDriverContext().getDriver().getTableLayout(node.getTable()),
+                node.getSchemaTable(),
+                context.getDriverContext().getDriver().getTableLayout(node.getSchemaTable()),
                 node.getFields().keySet());
 
         List<SimpleRow> rows = scanner.scan(context.getDriverContext().getJdbiHandle(), context.getKey());

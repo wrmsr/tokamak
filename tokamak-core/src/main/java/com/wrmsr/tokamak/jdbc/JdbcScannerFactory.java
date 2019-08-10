@@ -48,7 +48,7 @@ import static java.util.function.Function.identity;
 
 public final class JdbcScannerFactory
 {
-    private final SchemaTable table;
+    private final SchemaTable schemaTable;
     private final TableLayout tableLayout;
     private final Set<String> fields;
 
@@ -59,11 +59,11 @@ public final class JdbcScannerFactory
     private final Map<Set<String>, Instance> instancesByKeyFieldSets = new ConcurrentHashMap<>();
 
     public JdbcScannerFactory(
-            SchemaTable table,
+            SchemaTable schemaTable,
             TableLayout tableLayout,
             Set<String> fields)
     {
-        this.table = table;
+        this.schemaTable = schemaTable;
         this.tableLayout = tableLayout;
         this.fields = ImmutableSet.copyOf(fields);
 
@@ -82,9 +82,9 @@ public final class JdbcScannerFactory
                         .collect(toImmutableMap(identity(), tableLayout.getRowLayout().getTypesByField()::get)));
     }
 
-    public SchemaTable getTable()
+    public SchemaTable getSchemaTable()
     {
-        return table;
+        return schemaTable;
     }
 
     public TableLayout getTableLayout()
@@ -132,7 +132,7 @@ public final class JdbcScannerFactory
                     "select " +
                     Joiner.on(", ").join(selectedFields.stream().collect(toImmutableList())) +
                     " from " +
-                    table;
+                    schemaTable;
 
             if (!this.keyFields.isEmpty()) {
                 stmt += "" +
