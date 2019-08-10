@@ -15,9 +15,13 @@ package com.wrmsr.tokamak.node;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.function.Function;
@@ -27,6 +31,7 @@ import com.wrmsr.tokamak.util.StreamableIterable;
 
 import javax.annotation.concurrent.Immutable;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -43,15 +48,27 @@ import static java.util.function.Function.identity;
 public final class Projection
         implements StreamableIterable<Map.Entry<String, Projection.Input>>
 {
-    @JsonTypeInfo(
-            use = JsonTypeInfo.Id.NAME,
-            include = JsonTypeInfo.As.WRAPPER_OBJECT)
-    @JsonSubTypes({
-            @JsonSubTypes.Type(value = FieldInput.class, name = "field"),
-            @JsonSubTypes.Type(value = FunctionInput.class, name = "function")
-    })
+    @JsonDeserialize(using = Projection.Input.Deserialier.class)
     public interface Input
     {
+        final class Deserialier
+                extends JsonDeserializer<Input>
+        {
+            @Override
+            public Input deserialize(JsonParser parser, DeserializationContext ctx)
+                    throws IOException
+            {
+                if (parser.currentToken() == JsonToken.VALUE_STRING) {
+                    return new FieldInput(parser.getValueAsString());
+                }
+                else if (parser.currentToken() == JsonToken.START_OBJECT) {
+                    return parser.readValueAs(FunctionInput.class);
+                }
+                else {
+                    throw new IllegalStateException();
+                }
+            }
+        }
     }
 
     @Immutable
@@ -77,12 +94,6 @@ public final class Projection
         public String getField()
         {
             return field;
-        }
-
-        @JsonCreator
-        public static FieldInput of(String field)
-        {
-            return new FieldInput(field);
         }
     }
 
