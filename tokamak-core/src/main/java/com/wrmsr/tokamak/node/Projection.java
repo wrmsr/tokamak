@@ -17,8 +17,8 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -40,6 +40,7 @@ import java.util.stream.StreamSupport;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static com.sun.tools.javac.util.Assert.checkNonNull;
 import static java.util.function.Function.identity;
@@ -48,10 +49,10 @@ import static java.util.function.Function.identity;
 public final class Projection
         implements StreamableIterable<Map.Entry<String, Projection.Input>>
 {
-    @JsonDeserialize(using = Projection.Input.Deserialier.class)
+    @JsonDeserialize(using = Projection.Input.Deserializer.class)
     public interface Input
     {
-        final class Deserialier
+        final class Deserializer
                 extends JsonDeserializer<Input>
         {
             @Override
@@ -62,7 +63,9 @@ public final class Projection
                     return new FieldInput(parser.getValueAsString());
                 }
                 else if (parser.currentToken() == JsonToken.START_OBJECT) {
-                    return parser.readValueAs(FunctionInput.class);
+                    Map<String, String> map = parser.readValueAs(new TypeReference<Map<String, String>>() {});
+                    checkState(map.keySet().equals(ImmutableSet.of("function", "type")));
+                    return new FunctionInput(map.get("function"), Type.parseRepr(map.get("type")));
                 }
                 else {
                     throw new IllegalStateException();
@@ -101,13 +104,10 @@ public final class Projection
     public static final class FunctionInput
             implements Input
     {
-        private final Function function;
+        private final String function;
         private final Type type;
 
-        @JsonCreator
-        public FunctionInput(
-                @JsonProperty("function") Function function,
-                @JsonProperty("type") Type type)
+        public FunctionInput(String function, Type type)
         {
             this.function = checkNotNull(function);
             this.type = checkNotNull(type);
@@ -123,7 +123,7 @@ public final class Projection
         }
 
         @JsonProperty("function")
-        public Function getFunction()
+        public String getFunction()
         {
             return function;
         }
@@ -207,7 +207,8 @@ public final class Projection
                 input = new FieldInput((String) inputObj);
             }
             else if (inputObj instanceof Function) {
-                input = new FunctionInput((Function) inputObj, (Type) args[i++]);
+                Function func = (Function) inputObj;
+                input = new FunctionInput(func.getName(), func.getType());
             }
             else {
                 throw new IllegalArgumentException(inputObj.toString());

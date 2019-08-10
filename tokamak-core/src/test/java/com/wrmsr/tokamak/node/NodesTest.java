@@ -18,6 +18,8 @@ import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.api.NodeId;
 import com.wrmsr.tokamak.api.SchemaTable;
+import com.wrmsr.tokamak.function.Function;
+import com.wrmsr.tokamak.function.RowFunction;
 import com.wrmsr.tokamak.type.Type;
 import com.wrmsr.tokamak.util.Json;
 import org.junit.Test;
@@ -61,7 +63,8 @@ public class NodesTest
                 "project0",
                 scanNode,
                 Projection.of(
-                        "id", "id"
+                        "id", "id",
+                        "fn", RowFunction.anon(Type.LONG, r -> 0)
                 ));
 
         String json = Json.toPrettyJson(projectNode);

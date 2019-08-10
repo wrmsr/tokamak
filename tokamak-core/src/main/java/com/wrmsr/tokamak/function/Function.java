@@ -13,10 +13,11 @@
  */
 package com.wrmsr.tokamak.function;
 
-import com.wrmsr.tokamak.api.Row;
+import com.wrmsr.tokamak.type.Type;
 
-@FunctionalInterface
 public interface Function
 {
-    Row evaluate(Row attributes);
+    String getName();
+
+    Type getType();
 }
