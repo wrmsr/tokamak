@@ -14,13 +14,17 @@
 package com.wrmsr.tokamak.driver;
 
 import com.google.common.collect.ImmutableList;
-import com.wrmsr.tokamak.api.SimpleRow;
+import com.wrmsr.tokamak.api.Key;
+import com.wrmsr.tokamak.api.Row;
+import com.wrmsr.tokamak.catalog.Connection;
+import com.wrmsr.tokamak.catalog.Scanner;
+import com.wrmsr.tokamak.catalog.Schema;
+import com.wrmsr.tokamak.driver.context.DriverContextImpl;
 import com.wrmsr.tokamak.node.CrossJoinNode;
 import com.wrmsr.tokamak.node.EquijoinNode;
 import com.wrmsr.tokamak.node.FilterNode;
 import com.wrmsr.tokamak.node.ListAggregateNode;
 import com.wrmsr.tokamak.node.LookupJoinNode;
-import com.wrmsr.tokamak.node.Node;
 import com.wrmsr.tokamak.node.PersistNode;
 import com.wrmsr.tokamak.node.ProjectNode;
 import com.wrmsr.tokamak.node.ScanNode;
@@ -31,35 +35,37 @@ import com.wrmsr.tokamak.node.visitor.NodeVisitor;
 
 import java.util.List;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 
 public class BuildNodeVisitor
-        extends NodeVisitor<List<BuildOutput>, BuildContext>
+        extends NodeVisitor<List<BuildOutput>, Key>
 {
-    @Override
-    protected List<BuildOutput> visitNode(Node node, BuildContext context)
+    private final DriverContextImpl context;
+
+    public BuildNodeVisitor(DriverContextImpl context)
     {
-        throw new IllegalStateException();
+        this.context = checkNotNull(context);
     }
 
     @Override
-    public List<BuildOutput> visitCrossJoinNode(CrossJoinNode node, BuildContext context)
+    public List<BuildOutput> visitCrossJoinNode(CrossJoinNode node, Key key)
     {
-        return super.visitCrossJoinNode(node, context);
+        return super.visitCrossJoinNode(node, key);
     }
 
     @Override
-    public List<BuildOutput> visitEquijoinNode(EquijoinNode node, BuildContext context)
+    public List<BuildOutput> visitEquijoinNode(EquijoinNode node, Key key)
     {
-        return super.visitEquijoinNode(node, context);
+        return super.visitEquijoinNode(node, key);
     }
 
     @Override
-    public List<BuildOutput> visitFilterNode(FilterNode node, BuildContext context)
+    public List<BuildOutput> visitFilterNode(FilterNode node, Key key)
     {
         ImmutableList.Builder<BuildOutput> ret = ImmutableList.builder();
-        for (DriverRow row : context.getDriverContext().build(node.getSource(), context.getKey())) {
+        for (DriverRow row : context.build(node.getSource(), key)) {
             Object[] attributes;
             if (node.getPredicate().test(row)) {
                 attributes = row.getAttributes();
@@ -71,7 +77,7 @@ public class BuildNodeVisitor
                     new BuildOutput(
                             new DriverRow(
                                     node,
-                                    context.getDriverContext().getDriver().getLineagePolicy().build(row),
+                                    context.getDriver().getLineagePolicy().build(row),
                                     row.getId(),
                                     attributes)));
         }
@@ -79,64 +85,62 @@ public class BuildNodeVisitor
     }
 
     @Override
-    public List<BuildOutput> visitListAggregateNode(ListAggregateNode node, BuildContext context)
+    public List<BuildOutput> visitListAggregateNode(ListAggregateNode node, Key key)
     {
-        return super.visitListAggregateNode(node, context);
+        return super.visitListAggregateNode(node, key);
     }
 
     @Override
-    public List<BuildOutput> visitLookupJoinNode(LookupJoinNode node, BuildContext context)
+    public List<BuildOutput> visitLookupJoinNode(LookupJoinNode node, Key key)
     {
-        return super.visitLookupJoinNode(node, context);
+        return super.visitLookupJoinNode(node, key);
     }
 
     @Override
-    public List<BuildOutput> visitPersistNode(PersistNode node, BuildContext context)
+    public List<BuildOutput> visitPersistNode(PersistNode node, Key key)
     {
-        return super.visitPersistNode(node, context);
+        return super.visitPersistNode(node, key);
     }
 
     @Override
-    public List<BuildOutput> visitProjectNode(ProjectNode node, BuildContext context)
+    public List<BuildOutput> visitProjectNode(ProjectNode node, Key key)
     {
-        return super.visitProjectNode(node, context);
+        return super.visitProjectNode(node, key);
     }
 
     @Override
-    public List<BuildOutput> visitScanNode(ScanNode node, BuildContext context)
+    public List<BuildOutput> visitScanNode(ScanNode node, Key key)
     {
-        JdbcScannerFactory scanner = new JdbcScannerFactory(
-                node.getSchemaTable(),
-                context.getDriverContext().getDriver().getTableLayout(node.getSchemaTable()),
-                node.getFields().keySet());
-
-        List<SimpleRow> rows = scanner.scan(context.getDriverContext().getJdbiHandle(), context.getKey());
+        Scanner scanner = context.getDriver().getScanner(node);
+        Schema schema = context.getDriver().getCatalog().getSchemasByName().get(node.getSchemaTable().getSchema());
+        Connection connection = context.getConnection(schema.getConnector());
+        List<Row> rows = scanner.scan(connection, key);
         checkState(!rows.isEmpty());
         return rows.stream()
                 .map(r -> new BuildOutput(
                         new DriverRow(
                                 node,
-                                context.getDriverContext().getDriver().getLineagePolicy().build(),
+                                context.getDriver().getLineagePolicy().build(),
                                 r.getId(),
                                 r.getAttributes())))
                 .collect(toImmutableList());
     }
 
     @Override
-    public List<BuildOutput> visitUnionNode(UnionNode node, BuildContext context)
+    public List<BuildOutput> visitUnionNode(UnionNode node, Key key)
     {
-        return super.visitUnionNode(node, context);
+        return super.visitUnionNode(node, key);
     }
 
     @Override
-    public List<BuildOutput> visitUnnestNode(UnnestNode node, BuildContext context)
+    public List<BuildOutput> visitUnnestNode(UnnestNode node, Key key)
     {
-        return super.visitUnnestNode(node, context);
+        return super.visitUnnestNode(node, key);
     }
 
     @Override
-    public List<BuildOutput> visitValuesNode(ValuesNode node, BuildContext context)
+    public List<BuildOutput> visitValuesNode(ValuesNode node, Key key)
     {
-        return super.visitValuesNode(node, context);
+        return super.visitValuesNode(node, key);
     }
 }
