@@ -14,6 +14,9 @@
 package com.wrmsr.tokamak.driver;
 
 import com.google.common.collect.ImmutableList;
+import com.wrmsr.tokamak.api.AllKey;
+import com.wrmsr.tokamak.api.FieldKey;
+import com.wrmsr.tokamak.api.IdKey;
 import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.api.Row;
 import com.wrmsr.tokamak.catalog.Connection;
@@ -34,10 +37,12 @@ import com.wrmsr.tokamak.node.ValuesNode;
 import com.wrmsr.tokamak.node.visitor.NodeVisitor;
 
 import java.util.List;
+import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
+import static com.google.common.collect.ImmutableMap.toImmutableMap;
 
 public class BuildNodeVisitor
         extends NodeVisitor<List<BuildOutput>, Key>
@@ -105,7 +110,30 @@ public class BuildNodeVisitor
     @Override
     public List<BuildOutput> visitProjectNode(ProjectNode node, Key key)
     {
-        return super.visitProjectNode(node, key);
+        Key sourceKey;
+        if (key instanceof IdKey || key instanceof AllKey) {
+            sourceKey = key;
+        }
+        else if (key instanceof FieldKey) {
+            FieldKey fieldKey = (FieldKey) key;
+            sourceKey = Key.of(
+                    fieldKey.stream()
+                            .collect(toImmutableMap(
+                                    e -> node.getProjection().getInputFieldsByOutput().get(e.getKey()),
+                                    Map.Entry::getValue)));
+        }
+        else {
+            throw new IllegalArgumentException(key.toString());
+        }
+
+        // ImmutableList.Builder<BuildOutput> ret = ImmutableList.builder();
+        // for (DriverRow row : context.build(node.getSource(), sourceKey)) {
+        //     Object[] attributes = new Object[node.getFields().size()];
+        //     for ()
+        //
+        // }
+        // return ret.build();
+        throw new IllegalStateException();
     }
 
     @Override
