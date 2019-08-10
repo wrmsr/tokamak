@@ -11,24 +11,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.catalog;
+package com.wrmsr.tokamak.jdbc;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import com.wrmsr.tokamak.catalog.Connector;
 
-public final class Catalog
+public final class JdbcConnector
+        extends Connector
 {
-    private final Map<String, Connector> connectorsByName = new HashMap<>();
-    private final Map<String, Schema> schemasByName = new HashMap<>();
-
-    public Map<String, Connector> getConnectorsByName()
-    {
-        return Collections.unmodifiableMap(connectorsByName);
-    }
-
-    public Map<String, Schema> getSchemasByName()
-    {
-        return Collections.unmodifiableMap(schemasByName);
-    }
 }

@@ -23,13 +23,15 @@ public final class Schema
 {
     private final Catalog catalog;
     private final String name;
+    private final Connector connector;
 
     private final Map<String, Table> tablesByName = new HashMap<>();
 
-    public Schema(Catalog catalog, String name)
+    public Schema(Catalog catalog, String name, Connector connector)
     {
         this.catalog = checkNotNull(catalog);
         this.name = checkNotNull(name);
+        this.connector = checkNotNull(connector);
     }
 
     @Override
@@ -37,6 +39,7 @@ public final class Schema
     {
         return "Schema{" +
                 "name='" + name + '\'' +
+                "connector=" + connector +
                 '}';
     }
 
@@ -48,6 +51,11 @@ public final class Schema
     public String getName()
     {
         return name;
+    }
+
+    public Connector getConnector()
+    {
+        return connector;
     }
 
     public Map<String, Table> getTablesByName()

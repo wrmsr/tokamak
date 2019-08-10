@@ -17,7 +17,6 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.google.common.collect.Comparators;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Sets;
 import com.wrmsr.tokamak.util.StreamableIterable;
 
 import javax.annotation.concurrent.Immutable;

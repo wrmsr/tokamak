@@ -13,22 +13,6 @@
  */
 package com.wrmsr.tokamak.catalog;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-
-public final class Catalog
+public abstract class Connector
 {
-    private final Map<String, Connector> connectorsByName = new HashMap<>();
-    private final Map<String, Schema> schemasByName = new HashMap<>();
-
-    public Map<String, Connector> getConnectorsByName()
-    {
-        return Collections.unmodifiableMap(connectorsByName);
-    }
-
-    public Map<String, Schema> getSchemasByName()
-    {
-        return Collections.unmodifiableMap(schemasByName);
-    }
 }
