@@ -18,9 +18,11 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.io.CharStreams;
 import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.api.Key;
+import com.wrmsr.tokamak.api.Row;
 import com.wrmsr.tokamak.api.SchemaTable;
+import com.wrmsr.tokamak.catalog.Catalog;
 import com.wrmsr.tokamak.driver.DriverImpl;
-import com.wrmsr.tokamak.driver.DriverRow;
+import com.wrmsr.tokamak.jdbc.JdbcConnector;
 import com.wrmsr.tokamak.jdbc.JdbcUtils;
 import com.wrmsr.tokamak.node.FilterNode;
 import com.wrmsr.tokamak.node.Node;
@@ -118,25 +120,19 @@ public class AppTest
             throws Throwable
     {
         String ddl = CharStreams.toString(new InputStreamReader(AppTest.class.getResourceAsStream("tpch_ddl.sql")));
-
         // String url = "jdbc:h2:mem:test";
-
         try (DirectoryStream<Path> ds = Files.newDirectoryStream(Paths.get("temp"), "test.db*")) {
             ds.forEach(p -> checkState(p.toFile().delete()));
         }
         String url = "jdbc:h2:file:./temp/test.db";
-
         Jdbi jdbi = Jdbi.create(url, "username", "password");
-
         jdbi.withHandle(handle -> {
             for (String stmt : JdbcUtils.splitSql(ddl)) {
                 handle.execute(stmt);
             }
-
             for (TpchTable table : TpchTable.getTables()) {
                 TpchUtils.insertEntities(handle, table, table.createGenerator(0.01, 1, 1));
             }
-
             handle.commit();
             return null;
         });
@@ -161,36 +157,27 @@ public class AppTest
 
         Plan plan = new Plan(filterNode);
 
-        DriverImpl driver = new DriverImpl(plan, jdbi);
+        Catalog catalog = new Catalog();
+        JdbcConnector jdbcConnector = new JdbcConnector("jdbc", url);
+        catalog.getOrBuildSchema("PUBLIC", jdbcConnector);
+        DriverImpl driver = new DriverImpl(catalog, plan);
 
-        jdbi.withHandle(handle -> {
-            List<DriverRow> buildRows = driver.build(
-                    driver.createContext(handle),
-                    plan.getRoot(),
-                    Key.of("N_NATIONKEY", 10));
-            System.out.println(buildRows);
+        List<Row> buildRows = driver.build(
+                driver.createContext(),
+                plan.getRoot(),
+                Key.of("N_NATIONKEY", 10));
+        System.out.println(buildRows);
 
-            return null;
-        });
+        buildRows = driver.build(
+                driver.createContext(),
+                plan.getRoot(),
+                Key.of(Id.of(MoreBytes.fromHex("0000000000000001"))));
+        System.out.println(buildRows);
 
-        jdbi.withHandle(handle -> {
-            List<DriverRow> buildRows = driver.build(
-                    driver.createContext(handle),
-                    plan.getRoot(),
-                    Key.of(Id.of(MoreBytes.fromHex("0000000000000001"))));
-            System.out.println(buildRows);
-
-            return null;
-        });
-
-        jdbi.withHandle(handle -> {
-            List<DriverRow> buildRows = driver.build(
-                    driver.createContext(handle),
-                    plan.getRoot(),
-                    Key.all());
-            System.out.println(buildRows);
-
-            return null;
-        });
+        buildRows = driver.build(
+                driver.createContext(),
+                plan.getRoot(),
+                Key.all());
+        System.out.println(buildRows);
     }
 }
