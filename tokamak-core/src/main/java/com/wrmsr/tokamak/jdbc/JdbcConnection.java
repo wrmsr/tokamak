@@ -11,14 +11,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.driver;
+package com.wrmsr.tokamak.jdbc;
 
-import com.wrmsr.tokamak.api.Key;
-import com.wrmsr.tokamak.api.Row;
+import com.wrmsr.tokamak.catalog.Connection;
+import org.jdbi.v3.core.Handle;
 
-import java.util.List;
+import static com.google.common.base.Preconditions.checkNotNull;
 
-public interface Scanner
+final class JdbcConnection
+        implements Connection
 {
-    List<Row> scan(Key key);
+    private final Handle handle;
+
+    public JdbcConnection(Handle handle)
+    {
+        this.handle = checkNotNull(handle);
+    }
+
+    public Handle getHandle()
+    {
+        return handle;
+    }
+
+    @Override
+    public void close()
+            throws Exception
+    {
+        handle.close();
+    }
 }

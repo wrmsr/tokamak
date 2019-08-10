@@ -13,11 +13,7 @@
  */
 package com.wrmsr.tokamak.catalog;
 
-import java.util.List;
-
-public interface Connector
+public interface Connection
+        extends AutoCloseable
 {
-    Connection connect();
-
-    Scanner createScanner(Table table, List<String> fields);
 }

@@ -16,17 +16,22 @@ package com.wrmsr.tokamak.driver;
 import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.api.Row;
+import com.wrmsr.tokamak.catalog.Catalog;
 import com.wrmsr.tokamak.node.Node;
+import com.wrmsr.tokamak.plan.Plan;
 
 import java.io.IOException;
-import java.sql.Connection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 public interface Driver
 {
-    DriverContext createContext(Connection conn)
+    Plan getPlan();
+
+    Catalog getCatalog();
+
+    DriverContext createContext()
             throws IOException;
 
     List<Row> build(DriverContext context, Node node, Key key)

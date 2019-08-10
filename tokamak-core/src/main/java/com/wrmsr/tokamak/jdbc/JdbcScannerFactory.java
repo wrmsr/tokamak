@@ -26,9 +26,10 @@ import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.api.Row;
 import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.api.SimpleRow;
+import com.wrmsr.tokamak.catalog.Connection;
+import com.wrmsr.tokamak.catalog.Scanner;
 import com.wrmsr.tokamak.codec.IdCodecs;
 import com.wrmsr.tokamak.codec.RowIdCodec;
-import com.wrmsr.tokamak.driver.Scanner;
 import com.wrmsr.tokamak.layout.RowLayout;
 import com.wrmsr.tokamak.layout.TableLayout;
 import org.jdbi.v3.core.Handle;
@@ -186,13 +187,16 @@ public final class JdbcScannerFactory
         return instancesByKeyFieldSets.computeIfAbsent(keyFields, Instance::new);
     }
 
-    public Scanner build(Handle handle)
+    public Scanner build()
     {
         return new Scanner()
         {
             @Override
-            public List<Row> scan(Key key)
+            public List<Row> scan(Connection connection, Key key)
             {
+                JdbcConnection jdbcConnection = (JdbcConnection) connection;
+                Handle handle = jdbcConnection.getHandle();
+
                 if (key instanceof FieldKey) {
                     FieldKey fieldKey = (FieldKey) key;
                     Instance instance = getInstance(fieldKey.getValuesByField().keySet());

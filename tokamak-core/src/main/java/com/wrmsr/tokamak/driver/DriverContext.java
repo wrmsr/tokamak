@@ -14,17 +14,17 @@
 package com.wrmsr.tokamak.driver;
 
 import com.wrmsr.tokamak.api.Key;
-import com.wrmsr.tokamak.api.Row;
+import com.wrmsr.tokamak.catalog.Connection;
+import com.wrmsr.tokamak.catalog.Connector;
 import com.wrmsr.tokamak.node.Node;
-import org.jdbi.v3.core.Handle;
 
 import java.util.List;
 
 public interface DriverContext
 {
-    DriverImpl getDriver();
+    Driver getDriver();
 
-    Handle getJdbiHandle();
+    Connection getConnection(Connector connector);
 
     List<DriverRow> build(Node node, Key key);
 

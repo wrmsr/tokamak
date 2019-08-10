@@ -13,9 +13,43 @@
  */
 package com.wrmsr.tokamak.jdbc;
 
+import com.wrmsr.tokamak.catalog.Connection;
 import com.wrmsr.tokamak.catalog.Connector;
+import com.wrmsr.tokamak.catalog.Scanner;
+import com.wrmsr.tokamak.catalog.Table;
+import com.wrmsr.tokamak.util.lazy.GetterLazyValue;
+import org.jdbi.v3.core.Jdbi;
+
+import java.util.List;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public final class JdbcConnector
-        extends Connector
+        implements Connector
 {
+    private final String url;
+
+    public JdbcConnector(String url)
+    {
+        this.url = checkNotNull(url);
+    }
+
+    private final GetterLazyValue<Jdbi> jdbi = new GetterLazyValue<>();
+
+    private Jdbi getJdbi()
+    {
+        return jdbi.get(() -> Jdbi.create(url));
+    }
+
+    @Override
+    public Connection connect()
+    {
+        return new JdbcConnection(getJdbi().open());
+    }
+
+    @Override
+    public Scanner createScanner(Table table, List<String> fields)
+    {
+        return null;
+    }
 }

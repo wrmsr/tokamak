@@ -15,6 +15,7 @@ package com.wrmsr.tokamak.driver;
 
 import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.api.SchemaTable;
+import com.wrmsr.tokamak.catalog.Catalog;
 import com.wrmsr.tokamak.driver.context.DriverContextImpl;
 import com.wrmsr.tokamak.driver.state.StateStorage;
 import com.wrmsr.tokamak.driver.state.StateStorageImpl;
@@ -34,29 +35,34 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 public class DriverImpl
+    implements Driver
 {
     private final Plan plan;
-    private final Jdbi jdbi;
+    private final Catalog catalog;
 
     private final StateStorage stateStorage;
 
-    public DriverImpl(Plan plan, Jdbi jdbi)
+    public DriverImpl(Plan plan, Catalog catalog)
     {
-        this.plan = plan;
-        this.jdbi = jdbi;
+        this.plan = checkNotNull(plan);
+        this.catalog = checkNotNull(catalog);
 
         stateStorage = new StateStorageImpl();
     }
 
+    @Override
     public Plan getPlan()
     {
         return plan;
     }
 
-    public Jdbi getJdbi()
+    @Override
+    public Catalog getCatalog()
     {
-        return jdbi;
+        return catalog;
     }
 
     private final Map<SchemaTable, TableLayout> tableLayoutsBySchemaTable = new HashMap<>();
