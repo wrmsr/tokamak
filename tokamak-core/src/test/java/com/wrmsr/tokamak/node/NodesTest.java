@@ -64,6 +64,10 @@ public class NodesTest
                         "id", "id"
                 ));
 
-        System.out.println(Json.toJson(projectNode));
+        String json = Json.toPrettyJson(projectNode);
+        System.out.println(json);
+
+        Node deserNode = Json.OBJECT_MAPPER_THREAD_LOCAL.get().readValue(json, Node.class);
+        System.out.println(deserNode);
     }
 }

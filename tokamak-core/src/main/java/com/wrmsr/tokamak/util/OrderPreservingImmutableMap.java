@@ -55,10 +55,10 @@ public final class OrderPreservingImmutableMap<K, V>
     }
 
     public static final class Serializer
-            extends JsonSerializer<OrderPreservingImmutableMap<?, ?>>
+            extends JsonSerializer<Map<?, ?>>
     {
         @Override
-        public void serialize(OrderPreservingImmutableMap<?, ?> value, JsonGenerator generator, SerializerProvider provider)
+        public void serialize(Map<?, ?> value, JsonGenerator generator, SerializerProvider provider)
                 throws IOException
         {
             generator.writeObject(value.entrySet().stream().map(e -> ImmutableList.of(e.getKey(), e.getValue())).collect(toImmutableList()));
@@ -66,7 +66,7 @@ public final class OrderPreservingImmutableMap<K, V>
     }
 
     public static final class Deserializer
-            extends JsonDeserializer<OrderPreservingImmutableMap<?, ?>>
+            extends JsonDeserializer<Map<?, ?>>
             implements ContextualDeserializer
     {
         private JavaType keyType;
@@ -89,7 +89,7 @@ public final class OrderPreservingImmutableMap<K, V>
         }
 
         @Override
-        public OrderPreservingImmutableMap<?, ?> deserialize(JsonParser parser, DeserializationContext ctx)
+        public Map<?, ?> deserialize(JsonParser parser, DeserializationContext ctx)
                 throws IOException
         {
             checkState(parser.currentToken() == JsonToken.START_ARRAY);

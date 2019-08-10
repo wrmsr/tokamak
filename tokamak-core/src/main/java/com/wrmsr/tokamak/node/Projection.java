@@ -17,10 +17,13 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.function.Function;
 import com.wrmsr.tokamak.type.Type;
+import com.wrmsr.tokamak.util.OrderPreservingImmutableMap;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -142,6 +145,8 @@ public final class Projection
                 .collect(toImmutableMap(Map.Entry::getKey, e -> e.getValue().build()));
     }
 
+    @JsonSerialize(using = OrderPreservingImmutableMap.Serializer.class)
+    @JsonDeserialize(using = OrderPreservingImmutableMap.Deserializer.class)
     @JsonProperty("inputsByOutput")
     public Map<String, Input> getInputsByOutput()
     {
