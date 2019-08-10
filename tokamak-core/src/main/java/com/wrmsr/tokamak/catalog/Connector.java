@@ -16,13 +16,15 @@ package com.wrmsr.tokamak.catalog;
 import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.layout.TableLayout;
 
-import java.util.List;
+import java.util.Set;
 
 public interface Connector
 {
+    String getName();
+
     Connection connect();
 
     TableLayout getTableLayout(SchemaTable schemaTable);
 
-    Scanner createScanner(Table table, List<String> fields);
+    Scanner createScanner(Table table, Set<String> fields);
 }

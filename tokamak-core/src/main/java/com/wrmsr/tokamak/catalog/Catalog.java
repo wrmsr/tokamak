@@ -13,6 +13,8 @@
  */
 package com.wrmsr.tokamak.catalog;
 
+import com.wrmsr.tokamak.api.SchemaTable;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,5 +32,18 @@ public final class Catalog
     public Map<String, Schema> getSchemasByName()
     {
         return Collections.unmodifiableMap(schemasByName);
+    }
+
+    public Table getTable(SchemaTable schemaTable)
+    {
+        Schema schema = schemasByName.get(schemaTable.getSchema());
+        if (schema == null) {
+            throw new IllegalArgumentException("Schema not found: " + schemaTable);
+        }
+        Table table = schema.getTablesByName().get(schemaTable.getTable());
+        if (table == null) {
+            throw new IllegalArgumentException("Table not found: " + schemaTable);
+        }
+        return table;
     }
 }

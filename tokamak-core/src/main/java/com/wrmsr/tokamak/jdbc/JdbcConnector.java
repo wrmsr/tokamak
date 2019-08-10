@@ -13,25 +13,40 @@
  */
 package com.wrmsr.tokamak.jdbc;
 
+import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.catalog.Connection;
 import com.wrmsr.tokamak.catalog.Connector;
 import com.wrmsr.tokamak.catalog.Scanner;
 import com.wrmsr.tokamak.catalog.Table;
+import com.wrmsr.tokamak.jdbc.metadata.MetaDataReflection;
+import com.wrmsr.tokamak.jdbc.metadata.TableDescription;
+import com.wrmsr.tokamak.layout.TableLayout;
 import com.wrmsr.tokamak.util.lazy.GetterLazyValue;
 import org.jdbi.v3.core.Jdbi;
 
-import java.util.List;
+import java.sql.DatabaseMetaData;
+import java.sql.SQLException;
+import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 
 public final class JdbcConnector
         implements Connector
 {
+    private final String name;
     private final String url;
 
-    public JdbcConnector(String url)
+    public JdbcConnector(String name, String url)
     {
+        this.name = checkNotEmpty(name);
         this.url = checkNotNull(url);
+    }
+
+    @Override
+    public String getName()
+    {
+        return name;
     }
 
     private final GetterLazyValue<Jdbi> jdbi = new GetterLazyValue<>();
@@ -48,8 +63,29 @@ public final class JdbcConnector
     }
 
     @Override
-    public Scanner createScanner(Table table, List<String> fields)
+    public TableLayout getTableLayout(SchemaTable schemaTable)
     {
-        return null;
+        return getJdbi().withHandle(handle -> {
+            try {
+                DatabaseMetaData metaData = handle.getConnection().getMetaData();
+
+                TableDescription tableDescription = MetaDataReflection.getTableDescription(
+                        metaData, JdbcTableIdentifier.of("TEST.DB", "PUBLIC", schemaTable.getTable()));
+
+                return JdbcLayoutUtils.buildTableLayout(tableDescription);
+            }
+            catch (SQLException e) {
+                throw new RuntimeException();
+            }
+        });
+    }
+
+    @Override
+    public Scanner createScanner(Table table, Set<String> fields)
+    {
+        return new JdbcScanner(
+                table.getSchemaTable(),
+                table.getLayout(),
+                fields);
     }
 }

@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.wrmsr.tokamak.util.MoreCollectors.toSingle;
@@ -61,32 +62,44 @@ public final class MorePreconditions
         return stream.collect(toSingle());
     }
 
-    public static <T> Collection<T> checkNotEmpty(Collection<T> coll)
+    public static String checkNotEmpty(String obj)
     {
-        checkState(!coll.isEmpty());
-        return coll;
+        checkNotNull(obj);
+        checkState(!obj.isEmpty());
+        return obj;
     }
 
-    public static <T> List<T> checkNotEmpty(List<T> coll)
+    public static <T> Collection<T> checkNotEmpty(Collection<T> obj)
     {
-        checkState(!coll.isEmpty());
-        return coll;
+        checkNotNull(obj);
+        checkState(!obj.isEmpty());
+        return obj;
     }
 
-    public static <T> Set<T> checkNotEmpty(Set<T> coll)
+    public static <T> List<T> checkNotEmpty(List<T> obj)
     {
-        checkState(!coll.isEmpty());
-        return coll;
+        checkNotNull(obj);
+        checkState(!obj.isEmpty());
+        return obj;
     }
 
-    public static <K, V> Map<K, V> checkNotEmpty(Map<K, V> coll)
+    public static <T> Set<T> checkNotEmpty(Set<T> obj)
     {
-        checkState(!coll.isEmpty());
-        return coll;
+        checkNotNull(obj);
+        checkState(!obj.isEmpty());
+        return obj;
+    }
+
+    public static <K, V> Map<K, V> checkNotEmpty(Map<K, V> obj)
+    {
+        checkNotNull(obj);
+        checkState(!obj.isEmpty());
+        return obj;
     }
 
     public static <T> Iterable<T> checkNotEmpty(Iterable<T> iterable)
     {
+        checkNotNull(iterable);
         checkState(!iterable.iterator().hasNext());
         return iterable;
     }

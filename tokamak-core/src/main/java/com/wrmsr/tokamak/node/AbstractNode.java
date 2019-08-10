@@ -18,6 +18,7 @@ import com.wrmsr.tokamak.api.NodeId;
 
 import javax.annotation.concurrent.Immutable;
 
+import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkUnique;
 import static org.weakref.jmx.internal.guava.base.Preconditions.checkNotNull;
 import static org.weakref.jmx.internal.guava.base.Preconditions.checkState;
@@ -31,7 +32,7 @@ public abstract class AbstractNode
 
     protected AbstractNode(String name)
     {
-        this.name = checkNotNull(name);
+        this.name = checkNotEmpty(name);
         this.nodeId = NodeId.of(name);
     }
 

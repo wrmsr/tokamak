@@ -15,7 +15,6 @@ package com.wrmsr.tokamak.api;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
-import com.google.common.collect.Comparators;
 import com.google.common.hash.Hashing;
 import com.wrmsr.tokamak.util.box.IntBox;
 
@@ -24,7 +23,7 @@ import javax.annotation.concurrent.Immutable;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 import static com.wrmsr.tokamak.util.StringPrefixing.stripPrefix;
 
 @Immutable
@@ -55,13 +54,13 @@ public final class NodeId
 
     public static NodeId parse(String string)
     {
-        checkNotNull(string);
+        checkNotEmpty(string);
         return new NodeId(Integer.parseInt(string, 16));
     }
 
     public static NodeId of(String name)
     {
-        checkNotNull(name);
+        checkNotEmpty(name);
         ByteBuffer bytes = StandardCharsets.UTF_8.encode(name);
         int hash = Hashing.murmur3_32().newHasher().putBytes(bytes).hash().asInt();
         return new NodeId(hash);

@@ -46,7 +46,8 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static java.util.function.Function.identity;
 
-public final class JdbcScannerFactory
+public final class JdbcScanner
+        implements Scanner
 {
     private final SchemaTable schemaTable;
     private final TableLayout tableLayout;
@@ -58,7 +59,7 @@ public final class JdbcScannerFactory
 
     private final Map<Set<String>, Instance> instancesByKeyFieldSets = new ConcurrentHashMap<>();
 
-    public JdbcScannerFactory(
+    public JdbcScanner(
             SchemaTable schemaTable,
             TableLayout tableLayout,
             Set<String> fields)
@@ -187,35 +188,29 @@ public final class JdbcScannerFactory
         return instancesByKeyFieldSets.computeIfAbsent(keyFields, Instance::new);
     }
 
-    public Scanner build()
+    @Override
+    public List<Row> scan(Connection connection, Key key)
     {
-        return new Scanner()
-        {
-            @Override
-            public List<Row> scan(Connection connection, Key key)
-            {
-                JdbcConnection jdbcConnection = (JdbcConnection) connection;
-                Handle handle = jdbcConnection.getHandle();
+        JdbcConnection jdbcConnection = (JdbcConnection) connection;
+        Handle handle = jdbcConnection.getHandle();
 
-                if (key instanceof FieldKey) {
-                    FieldKey fieldKey = (FieldKey) key;
-                    Instance instance = getInstance(fieldKey.getValuesByField().keySet());
-                    return instance.getRows(handle, fieldKey.getValuesByField());
-                }
-                else if (key instanceof IdKey) {
-                    IdKey idKey = (IdKey) key;
-                    Instance instance = getInstance(idFields);
-                    Map<String, Object> idValuesByField = rowIdCodec.decode(idKey.getId().getValue());
-                    return instance.getRows(handle, idValuesByField);
-                }
-                else if (key instanceof AllKey) {
-                    Instance instance = getInstance(ImmutableSet.of());
-                    return instance.getRows(handle, ImmutableMap.of());
-                }
-                else {
-                    throw new IllegalArgumentException(key.toString());
-                }
-            }
-        };
+        if (key instanceof FieldKey) {
+            FieldKey fieldKey = (FieldKey) key;
+            Instance instance = getInstance(fieldKey.getValuesByField().keySet());
+            return instance.getRows(handle, fieldKey.getValuesByField());
+        }
+        else if (key instanceof IdKey) {
+            IdKey idKey = (IdKey) key;
+            Instance instance = getInstance(idFields);
+            Map<String, Object> idValuesByField = rowIdCodec.decode(idKey.getId().getValue());
+            return instance.getRows(handle, idValuesByField);
+        }
+        else if (key instanceof AllKey) {
+            Instance instance = getInstance(ImmutableSet.of());
+            return instance.getRows(handle, ImmutableMap.of());
+        }
+        else {
+            throw new IllegalArgumentException(key.toString());
+        }
     }
 }

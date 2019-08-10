@@ -21,7 +21,7 @@ import javax.annotation.concurrent.Immutable;
 import java.util.Objects;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
+import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 
 @Immutable
 public final class SchemaTable
@@ -31,8 +31,8 @@ public final class SchemaTable
 
     public SchemaTable(String schema, String table)
     {
-        this.schema = checkNotNull(schema);
-        this.table = checkNotNull(table);
+        this.schema = checkNotEmpty(schema);
+        this.table = checkNotEmpty(table);
     }
 
     public static SchemaTable of(String schema, String table)
