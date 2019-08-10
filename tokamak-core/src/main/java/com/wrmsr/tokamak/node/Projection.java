@@ -17,17 +17,18 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.function.Function;
 import com.wrmsr.tokamak.type.Type;
 import com.wrmsr.tokamak.util.OrderPreservingImmutableMap;
+import com.wrmsr.tokamak.util.StreamableIterable;
 
 import javax.annotation.concurrent.Immutable;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.StreamSupport;
@@ -40,6 +41,7 @@ import static java.util.function.Function.identity;
 
 @Immutable
 public final class Projection
+        implements StreamableIterable<Map.Entry<String, Projection.Input>>
 {
     @JsonTypeInfo(
             use = JsonTypeInfo.Id.NAME,
@@ -58,9 +60,7 @@ public final class Projection
     {
         private final String field;
 
-        @JsonCreator
-        public FieldInput(
-                @JsonProperty("field") String field)
+        public FieldInput(String field)
         {
             this.field = checkNonNull(field);
         }
@@ -73,10 +73,16 @@ public final class Projection
                     '}';
         }
 
-        @JsonProperty("field")
+        @JsonValue
         public String getField()
         {
             return field;
+        }
+
+        @JsonCreator
+        public static FieldInput of(String field)
+        {
+            return new FieldInput(field);
         }
     }
 
@@ -123,11 +129,9 @@ public final class Projection
     private final Map<String, String> inputFieldsByOutput;
     private final Map<String, Set<String>> outputSetsByInputField;
 
-    @JsonCreator
-    public Projection(
-            @JsonProperty("inputsByOutput") Map<String, Input> inputsByOutput)
+    public Projection(Map<String, Input> inputsByOutput)
     {
-        this.inputsByOutput = ImmutableMap.copyOf(inputsByOutput);
+        this.inputsByOutput = new OrderPreservingImmutableMap<>(ImmutableMap.copyOf(inputsByOutput));
 
         ImmutableMap.Builder<String, String> inputFieldsByOutput = ImmutableMap.builder();
         Map<String, ImmutableSet.Builder<String>> outputSetsByInputField = new HashMap<>();
@@ -145,12 +149,22 @@ public final class Projection
                 .collect(toImmutableMap(Map.Entry::getKey, e -> e.getValue().build()));
     }
 
-    @JsonSerialize(using = OrderPreservingImmutableMap.Serializer.class)
-    @JsonDeserialize(using = OrderPreservingImmutableMap.Deserializer.class)
-    @JsonProperty("inputsByOutput")
+    @Override
+    public Iterator<Map.Entry<String, Input>> iterator()
+    {
+        return inputsByOutput.entrySet().iterator();
+    }
+
+    @JsonValue
     public Map<String, Input> getInputsByOutput()
     {
         return inputsByOutput;
+    }
+
+    @JsonCreator
+    public static Projection fromOrderPreservingImmutableMap(OrderPreservingImmutableMap<String, Input> map)
+    {
+        return new Projection(map);
     }
 
     public Map<String, String> getInputFieldsByOutput()

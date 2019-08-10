@@ -42,7 +42,7 @@ import java.util.Set;
         @JsonSubTypes.Type(value = ValuesNode.class, name = "values"),
 })
 // @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS, property = "@type")
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "name")
+// @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "name")
 public interface Node
 {
     String getName();
