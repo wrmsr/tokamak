@@ -22,6 +22,7 @@ import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.api.Row;
 import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.catalog.Catalog;
+import com.wrmsr.tokamak.catalog.Schema;
 import com.wrmsr.tokamak.driver.DriverImpl;
 import com.wrmsr.tokamak.function.RowViewFunction;
 import com.wrmsr.tokamak.jdbc.JdbcConnector;
@@ -144,9 +145,9 @@ public class AppTest
 
         Catalog catalog = new Catalog();
         JdbcConnector jdbcConnector = new JdbcConnector("jdbc", url);
-        catalog
-                .getOrBuildSchema("PUBLIC", jdbcConnector)
-                .getOrBuildTable("NATION");
+        Schema schema = catalog.getOrBuildSchema("PUBLIC", jdbcConnector);
+        schema.getOrBuildTable("NATION");
+        schema.getOrBuildTable("REGION");
 
         Node scanNode0 = new ScanNode(
                 "scan0",

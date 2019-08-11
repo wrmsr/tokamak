@@ -14,6 +14,7 @@
 package com.wrmsr.tokamak.driver;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Streams;
 import com.wrmsr.tokamak.api.AllKey;
 import com.wrmsr.tokamak.api.FieldKey;
@@ -143,7 +144,8 @@ public class BuildNodeVisitor
                     .map(lookupRow.getRowView()::get)
                     .collect(toImmutableList());
 
-            ImmutableList.Builder<List<DriverRow>> nonLookupRowLists = ImmutableList.builder();
+            ImmutableList.Builder<List<DriverRow>> innerRowLists = ImmutableList.builder();
+            innerRowLists.add(lookupRows);
             for (EquijoinNode.Branch nonLookupBranch : node.getBranches()) {
                 if (nonLookupBranch == branchFieldKeyPair.first()) {
                     continue;
@@ -154,10 +156,12 @@ public class BuildNodeVisitor
                                 .collect(toImmutableMap(
                                         i -> nonLookupBranch.getFields().get(i),
                                         keyValues::get)));
-                nonLookupRowLists.add(context.build(nonLookupBranch.getNode(), nonLookupKey));
+                innerRowLists.add(context.build(nonLookupBranch.getNode(), nonLookupKey));
             }
 
-            
+            for (List<DriverRow> product : Lists.cartesianProduct(innerRowLists.build())) {
+                System.out.println(product);
+            }
         }
         return ret.build();
     }
