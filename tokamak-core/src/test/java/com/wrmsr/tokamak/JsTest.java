@@ -14,6 +14,8 @@
 package com.wrmsr.tokamak;
 
 import com.eclipsesource.v8.V8;
+import com.eclipsesource.v8.V8Array;
+import com.eclipsesource.v8.V8Function;
 import com.eclipsesource.v8.V8Object;
 import com.google.common.io.CharStreams;
 import junit.framework.TestCase;
@@ -80,11 +82,21 @@ public class JsTest
             throws Throwable
     {
         //https://cran.r-project.org/web/packages/V8/vignettes/npm.html
-        String src = CharStreams.toString(new InputStreamReader(AppTest.class.getResourceAsStream("blob.js.txt")));
+
         V8 v8 = V8.createV8Runtime();
-        V8Object ret = v8.executeObjectScript(src);
+
+        String src = CharStreams.toString(new InputStreamReader(AppTest.class.getResourceAsStream("blob.js.txt")));
+        V8Function ret = (V8Function) v8.executeObjectScript(src);
         System.out.println(ret);
-        String strRet = v8.executeStringScript("main()");
-        System.out.println(strRet);
+
+        V8Object lodash = (V8Object) v8.executeScript("_");
+
+        V8Object receiver = v8.executeObjectScript("{}");
+        V8Array parameters = new V8Array(v8);
+        Object ret2  = ret.call(receiver, parameters);
+        parameters.release();
+
+        // String strRet = v8.executeStringScript("main()");
+        // System.out.println(strRet);
     }
 }
