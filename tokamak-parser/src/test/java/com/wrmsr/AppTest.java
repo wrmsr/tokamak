@@ -17,14 +17,6 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
-
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
-
 public class AppTest
         extends TestCase
 {
@@ -36,27 +28,5 @@ public class AppTest
     public static Test suite()
     {
         return new TestSuite(AppTest.class);
-    }
-
-    public void testJs()
-            throws Throwable
-    {
-        ScriptEngine engine = new ScriptEngineManager().getEngineByName("nashorn");
-        engine.eval("print('Hello World!');");
-    }
-
-    public void testJdbc()
-            throws Throwable
-    {
-        Class.forName("com.mysql.cj.jdbc.Driver");
-        try (Connection conn = DriverManager.getConnection("jdbc:mysql://0.0.0.0:11210", "tokamak", "tokamak")) {
-            try (Statement stmt = conn.createStatement()) {
-                try (ResultSet rs = stmt.executeQuery("select 1")) {
-                    while (rs.next()) {
-                        System.out.println(rs);
-                    }
-                }
-            }
-        }
     }
 }

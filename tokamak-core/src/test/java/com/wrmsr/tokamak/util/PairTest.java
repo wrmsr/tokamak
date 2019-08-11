@@ -17,9 +17,10 @@ package com.wrmsr.tokamak.util;
 import junit.framework.TestCase;
 
 public class PairTest
-    extends TestCase
+        extends TestCase
 {
-    public void testJson() throws Throwable
+    public void testJson()
+            throws Throwable
     {
         Pair p0 = Pair.immutable("a", 0);
         String json = Json.writeValue(p0);

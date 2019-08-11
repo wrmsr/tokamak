@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.wrmsr</groupId>
+        <groupId>com.wrmsr.tokamak</groupId>
         <artifactId>tokamak-parent</artifactId>
         <version>0.1-SNAPSHOT</version>
     </parent>

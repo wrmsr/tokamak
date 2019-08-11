@@ -28,6 +28,7 @@ import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.util.Set;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 
@@ -91,6 +92,7 @@ public final class JdbcConnector
     @Override
     public Scanner createScanner(Table table, Set<String> fields)
     {
+        checkArgument(table.getSchema().getConnector() == this);
         return new JdbcScanner(
                 table.getSchemaTable(),
                 table.getLayout(),
