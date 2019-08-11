@@ -15,10 +15,12 @@ package com.wrmsr.tokamak.layout;
 
 import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.util.Pair;
+import com.wrmsr.tokamak.util.StreamableIterable;
 
 import javax.annotation.concurrent.Immutable;
 
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.IntStream;
@@ -29,7 +31,7 @@ import static com.google.common.collect.ImmutableSet.toImmutableSet;
 
 @Immutable
 public final class RowView
-        implements Map<String, Object>
+        implements Map<String, Object>, StreamableIterable<Map.Entry<String, Object>>
 {
     private final RowLayout rowLayout;
     private final Object[] attributes;
@@ -49,6 +51,12 @@ public final class RowView
     public Object[] getAttributes()
     {
         return attributes;
+    }
+
+    @Override
+    public Iterator<Entry<String, Object>> iterator()
+    {
+        return entrySet().iterator();
     }
 
     @Override

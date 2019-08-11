@@ -160,9 +160,28 @@ public class BuildNodeVisitor
             }
 
             for (List<DriverRow> product : Lists.cartesianProduct(innerRowLists.build())) {
-                System.out.println(product);
+                Object[] attributes = new Object[node.getRowLayout().getFields().size()];
+                for (DriverRow row : product) {
+                    for (Map.Entry<String, Object> e : row.getRowView()) {
+                        int pos = node.getRowLayout().getPositionsByField().get(e.getKey());
+                        attributes[pos] = e.getValue();
+                    }
+                }
+                Id id = Id.of(
+                        CompositeRowIdCodec.join(
+                                product.stream()
+                                        .map(DriverRow::getId)
+                                        .map(Id::getValue)
+                                        .collect(toImmutableList())));
+                ret.add(
+                        new DriverRow(
+                                node,
+                                context.getDriver().getLineagePolicy().build(product),
+                                id,
+                                attributes));
             }
         }
+
         return ret.build();
     }
 
