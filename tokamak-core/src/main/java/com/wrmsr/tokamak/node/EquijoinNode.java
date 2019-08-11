@@ -20,6 +20,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.node.visitor.NodeVisitor;
 import com.wrmsr.tokamak.type.Type;
+import com.wrmsr.tokamak.util.MoreCollections;
 import com.wrmsr.tokamak.util.Pair;
 
 import javax.annotation.concurrent.Immutable;
@@ -116,7 +117,7 @@ public final class EquijoinNode
     private final Set<String> idFields;
     private final Map<String, Branch> branchesByUniqueField;
     private final Map<String, Type> fields;
-    private final Set<Set<String>> idFieldSets;
+    private final Set<Set<String>> guaranteedEqualFieldSets;
 
     @JsonCreator
     public EquijoinNode(
@@ -161,9 +162,9 @@ public final class EquijoinNode
         this.fields = ImmutableMap.copyOf(fields);
 
         int keyLength = this.branches.stream().map(b -> b.getFields().size()).distinct().collect(toSingle());
-        idFieldSets = IntStream.range(0, keyLength)
+        guaranteedEqualFieldSets = MoreCollections.unify(IntStream.range(0, keyLength)
                 .mapToObj(i -> this.branches.stream().map(b -> b.getFields().get(i)).collect(toImmutableSet()))
-                .collect(toImmutableSet());
+                .collect(toImmutableSet()));
 
         checkInvariants();
     }
@@ -189,13 +190,43 @@ public final class EquijoinNode
     @Override
     public Set<Set<String>> getIdFieldSets()
     {
-        return idFieldSets;
+        return branchSetsByIdFieldSets.keySet();
     }
 
     @Override
     public List<Node> getSources()
     {
         return branches.stream().map(b -> b.node).collect(toImmutableList());
+    }
+
+    public Map<Node, Set<Branch>> getBranchSetsByNode()
+    {
+        return branchSetsByNode;
+    }
+
+    public Map<Set<String>, Set<Branch>> getBranchSetsByIdFieldSets()
+    {
+        return branchSetsByIdFieldSets;
+    }
+
+    public Map<String, Set<Branch>> getBranchSetsByField()
+    {
+        return branchSetsByField;
+    }
+
+    public Set<String> getIdFields()
+    {
+        return idFields;
+    }
+
+    public Map<String, Branch> getBranchesByUniqueField()
+    {
+        return branchesByUniqueField;
+    }
+
+    public Set<Set<String>> getGuaranteedEqualFieldSets()
+    {
+        return guaranteedEqualFieldSets;
     }
 
     @Override

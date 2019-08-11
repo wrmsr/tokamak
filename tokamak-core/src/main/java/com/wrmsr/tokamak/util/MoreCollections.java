@@ -14,7 +14,11 @@
 package com.wrmsr.tokamak.util;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Sets;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.IntStream;
@@ -28,10 +32,10 @@ public final class MoreCollections
     {
     }
 
-    public static <E> Set<E> newIdentityHashSetOf(Iterable<E> src)
+    public static <T> Set<T> newIdentityHashSetOf(Iterable<T> src)
     {
-        Set<E> set = newIdentityHashSet();
-        for (E item : src) {
+        Set<T> set = newIdentityHashSet();
+        for (T item : src) {
             set.add(item);
         }
         return set;
@@ -47,8 +51,30 @@ public final class MoreCollections
         return builder.build();
     }
 
-    public static <E> List<E> listOf(int size, E value)
+    public static <T> List<T> listOf(int size, T value)
     {
         return IntStream.range(0, size).boxed().map(i -> value).collect(toImmutableList());
+    }
+
+    public static <T> Set<Set<T>> unify(Collection<Set<T>> sets)
+    {
+        List<Set<T>> rem = new ArrayList<>(sets);
+        Set<Set<T>> ret = new HashSet<>();
+        while (!rem.isEmpty()) {
+            Set<T> cur = rem.remove(rem.size() - 1);
+            boolean moved;
+            do {
+                moved = false;
+                for (int i = rem.size() - 1; i >= 0; --i) {
+                    if (!Sets.intersection(cur, rem.get(i)).isEmpty()) {
+                        cur.addAll(rem.remove(i));
+                        moved = true;
+                    }
+                }
+            }
+            while (moved);
+            ret.add(cur);
+        }
+        return ret;
     }
 }
