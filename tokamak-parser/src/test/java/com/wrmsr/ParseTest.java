@@ -82,6 +82,12 @@ public class ParseTest
                 }
 
                 @Override
+                public TreeNode visitSingleStatement(SqlParser.SingleStatementContext ctx)
+                {
+                    return visit(ctx.statement());
+                }
+
+                @Override
                 public TreeNode visitSelect(SqlParser.SelectContext ctx)
                 {
                     List<SelectItem> selectItems = visit(ctx.selectItem(), SelectItem.class);

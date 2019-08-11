@@ -4,8 +4,12 @@ tokens {
     DELIMITER
 }
 
+singleStatement
+    : statement EOF
+    ;
+
 statement
-    : select EOF
+    : select
     ;
 
 select
