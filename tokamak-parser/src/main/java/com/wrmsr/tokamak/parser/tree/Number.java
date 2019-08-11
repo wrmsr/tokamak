@@ -17,4 +17,10 @@ package com.wrmsr.tokamak.parser.tree;
 public final class Number
         extends Literal
 {
+    private final String value;
+
+    public Number(String value)
+    {
+        this.value = value;
+    }
 }

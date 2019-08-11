@@ -14,7 +14,15 @@
 
 package com.wrmsr.tokamak.parser.tree;
 
-public final class ColumnSelectItem
+import static com.google.common.base.Preconditions.checkNotNull;
+
+public final class ExpressionSelectItem
         extends SelectItem
 {
+    private final Expression expression;
+
+    public ExpressionSelectItem(Expression expression)
+    {
+        this.expression = checkNotNull(expression);
+    }
 }

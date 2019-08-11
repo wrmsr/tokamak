@@ -18,6 +18,9 @@ import com.wrmsr.tokamak.parser.SqlBaseVisitor;
 import com.wrmsr.tokamak.parser.SqlLexer;
 import com.wrmsr.tokamak.parser.SqlParser;
 import com.wrmsr.tokamak.parser.tree.AllSelectItem;
+import com.wrmsr.tokamak.parser.tree.Expression;
+import com.wrmsr.tokamak.parser.tree.ExpressionSelectItem;
+import com.wrmsr.tokamak.parser.tree.Number;
 import com.wrmsr.tokamak.parser.tree.Select;
 import com.wrmsr.tokamak.parser.tree.SelectItem;
 import com.wrmsr.tokamak.parser.tree.TreeNode;
@@ -98,13 +101,19 @@ public class ParseTest
                 @Override
                 public TreeNode visitSelectExpression(SqlParser.SelectExpressionContext ctx)
                 {
-                    return super.visitSelectExpression(ctx);
+                    return new ExpressionSelectItem((Expression) visit(ctx.expression()));
                 }
 
                 @Override
                 public TreeNode visitSelectAll(SqlParser.SelectAllContext ctx)
                 {
                     return new AllSelectItem();
+                }
+
+                @Override
+                public TreeNode visitIntegerLiteral(SqlParser.IntegerLiteralContext ctx)
+                {
+                    return new Number(ctx.getText());
                 }
             });
 

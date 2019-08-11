@@ -43,12 +43,12 @@ expression
 
 booleanExpression
     : NOT booleanExpression
-    | primaryExpression
+    | literalExpression
     ;
 
-primaryExpression
-    : NULL
-    | INTEGER_VALUE
+literalExpression
+    : NULL            #nullLiteral
+    | INTEGER_VALUE   #integerLiteral
     ;
 
 FROM: 'FROM';
