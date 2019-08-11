@@ -32,9 +32,9 @@ public class OrderPreservingImmutableMapTest
                         .put("c", 3)
                         .build());
 
-        String json = Json.toJson(map);
+        String json = Json.writeValue(map);
         System.out.println(json);
-        Map<String, Integer> map2 = Json.OBJECT_MAPPER_THREAD_LOCAL.get().readValue(
+        Map<String, Integer> map2 = Json.readValue(
                 json, new TypeReference<OrderPreservingImmutableMap<String, Integer>>() {});
         System.out.println(map2);
     }

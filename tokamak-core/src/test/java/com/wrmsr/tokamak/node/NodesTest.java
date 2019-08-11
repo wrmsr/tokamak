@@ -18,7 +18,6 @@ import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.api.NodeId;
 import com.wrmsr.tokamak.api.SchemaTable;
-import com.wrmsr.tokamak.function.Function;
 import com.wrmsr.tokamak.function.RowFunction;
 import com.wrmsr.tokamak.type.Type;
 import com.wrmsr.tokamak.util.Json;
@@ -34,14 +33,14 @@ public class NodesTest
     {
         Object obj = Json.OBJECT_MAPPER_SUPPLIER.get().readValue("{\"a\": [420]}", Object.class);
 
-        String s = Json.toJson(NodeId.of("hi there"));
+        String s = Json.writeValue(NodeId.of("hi there"));
         System.out.println(s);
-        NodeId nid = Json.OBJECT_MAPPER_THREAD_LOCAL.get().readValue(s, NodeId.class);
+        NodeId nid = Json.readValue(s, NodeId.class);
         System.out.println(nid);
 
-        s = Json.toJson(Id.of(new byte[] {(byte) 0x12, (byte) 0x14}));
+        s = Json.writeValue(Id.of(new byte[] {(byte) 0x12, (byte) 0x14}));
         System.out.println(s);
-        Id id = Json.OBJECT_MAPPER_THREAD_LOCAL.get().readValue(s, Id.class);
+        Id id = Json.readValue(s, Id.class);
         System.out.println(id);
     }
 
@@ -67,10 +66,10 @@ public class NodesTest
                         "fn", RowFunction.anon(Type.LONG, r -> 0)
                 ));
 
-        String json = Json.toPrettyJson(projectNode);
+        String json = Json.writeValuePretty(projectNode);
         System.out.println(json);
 
-        Node deserNode = Json.OBJECT_MAPPER_THREAD_LOCAL.get().readValue(json, Node.class);
+        Node deserNode = Json.readValue(json, Node.class);
         System.out.println(deserNode);
     }
 }

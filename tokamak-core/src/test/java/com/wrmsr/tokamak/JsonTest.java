@@ -26,11 +26,11 @@ public class JsonTest
             throws Throwable
     {
         System.out.println(
-                Json.toJson(
+                Json.writeValue(
                         Key.all()));
 
         System.out.println(
-                Json.toJson(
+                Json.writeValue(
                         new SimpleRow(
                                 Id.of(420),
                                 new Object[] {

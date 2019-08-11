@@ -83,7 +83,7 @@ public class SubprocessTest
             process.getOutputStream().write("{\"barf\":true}\n".getBytes());
             process.getOutputStream().flush();
             String line = br.readLine();
-            Map obj = Json.OBJECT_MAPPER_THREAD_LOCAL.get().readValue(line, Map.class);
+            Map obj = Json.readValue(line, Map.class);
             System.out.println(obj);
         }
     }

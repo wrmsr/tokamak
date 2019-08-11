@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class ToposortTest
-    extends TestCase
+        extends TestCase
 {
     public void testToposort()
     {
@@ -34,7 +34,7 @@ public class ToposortTest
                 "D", ImmutableSet.of("B")
         );
 
-        List<Set<String>> ts = Toposort.toposort(data);
+        List<Set<String>> ts = MoreCollections.toposort(data);
 
         assertEquals(ts, ImmutableList.of(
                 ImmutableSet.of("B"),

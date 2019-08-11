@@ -14,17 +14,16 @@
 package com.wrmsr.tokamak.util;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-import com.fasterxml.jackson.datatype.jsr310.JSR310Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
-import com.google.common.base.Throwables;
 
 import java.io.IOException;
 
@@ -62,7 +61,6 @@ public final class Json
 
         objectMapper.registerModules(
                 new Jdk8Module(),
-                new JSR310Module(),
                 new GuavaModule(),
                 new JavaTimeModule());
 
@@ -71,25 +69,43 @@ public final class Json
 
     public static final Supplier<ObjectMapper> OBJECT_MAPPER_SUPPLIER = Suppliers.memoize(Json::newObjectMapper);
 
-    public static final ThreadLocal<ObjectMapper> OBJECT_MAPPER_THREAD_LOCAL = ThreadLocal.<ObjectMapper>withInitial(OBJECT_MAPPER_SUPPLIER::get);
-
-    public static String toJson(Object object)
+    public static String writeValue(Object object)
     {
         try {
             return Json.OBJECT_MAPPER_SUPPLIER.get().writeValueAsString(object);
         }
         catch (IOException e) {
-            throw Throwables.propagate(e);
+            throw new RuntimeException(e);
         }
     }
 
-    public static String toPrettyJson(Object object)
+    public static String writeValuePretty(Object object)
     {
         try {
             return Json.OBJECT_MAPPER_SUPPLIER.get().writerWithDefaultPrettyPrinter().writeValueAsString(object);
         }
         catch (IOException e) {
-            throw Throwables.propagate(e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static <T> T readValue(String src, Class<T> valueType)
+    {
+        try {
+            return Json.OBJECT_MAPPER_SUPPLIER.get().readValue(src, valueType);
+        }
+        catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static <T> T readValue(String src, TypeReference<T> valueType)
+    {
+        try {
+            return Json.OBJECT_MAPPER_SUPPLIER.get().readValue(src, valueType);
+        }
+        catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 }
