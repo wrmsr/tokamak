@@ -35,7 +35,9 @@ import java.util.function.Supplier;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
+import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.groupingBy;
 
 public final class MoreCollectors
 {
@@ -215,7 +217,7 @@ public final class MoreCollectors
 
     public static <T, K> Collector<T, ?, Map<K, List<T>>> immutableGroupingBy(Function<? super T, ? extends K> classifier)
     {
-        return new ImmutableGroupingByCollector<>(Collectors.groupingBy(classifier));
+        return new ImmutableGroupingByCollector<>(groupingBy(classifier));
     }
 
     public static <T> Collector<T, ?, T> toSingle()
@@ -249,5 +251,10 @@ public final class MoreCollectors
             BinaryOperator<V> mergeFunction)
     {
         return com.google.common.collect.ImmutableMap.toImmutableMap(keyFunction, valueFunction, mergeFunction);
+    }
+
+    public static <T, K> Collector<T, ?, Map<K, Set<T>>> groupingBySet(Function<? super T, ? extends K> classifier)
+    {
+        return groupingBy(classifier, LinkedHashMap::new, Collectors.toSet());
     }
 }

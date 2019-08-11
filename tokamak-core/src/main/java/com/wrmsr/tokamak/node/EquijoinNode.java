@@ -21,7 +21,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.wrmsr.tokamak.node.visitor.NodeVisitor;
 import com.wrmsr.tokamak.type.Type;
-import com.wrmsr.tokamak.util.MorePreconditions;
 import com.wrmsr.tokamak.util.Pair;
 
 import javax.annotation.concurrent.Immutable;
@@ -38,9 +37,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
+import static com.wrmsr.tokamak.util.MoreCollectors.groupingBySet;
 import static com.wrmsr.tokamak.util.MoreCollectors.toSingle;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
-import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.groupingBy;
 
 @Immutable
@@ -112,12 +111,13 @@ public final class EquijoinNode
     private final List<Branch> branches;
     private final Mode mode;
 
-    private final Map<Node, Branch> branchesByNode;
-    private final Map<String, Set<Node>> nodeSetsByField;
+    private final Map<Node, Set<Branch>> branchSetsByNode;
+    private final Map<Set<String>, Set<Branch>> branchSetsByIdFieldSets;
+    private final Map<String, Set<Branch>> branchSetsByField;
     private final Set<String> idFields;
-    private final Map<String, Node> nodesByUniqueField;
-    private final Set<Set<String>> idFieldSets;
+    private final Map<String, Branch> branchesByUniqueField;
     private final Map<String, Type> fields;
+    private final Set<Set<String>> idFieldSets;
 
     @JsonCreator
     public EquijoinNode(
@@ -130,21 +130,24 @@ public final class EquijoinNode
         this.branches = checkNotEmpty(ImmutableList.copyOf(branches));
         this.mode = checkNotNull(mode);
 
-        branchesByNode = this.branches.stream()
-                .collect(toImmutableMap(Branch::getNode, identity()));
+        branchSetsByNode = this.branches.stream()
+                .collect(groupingBySet(Branch::getNode));
+        branchSetsByIdFieldSets = this.branches.stream()
+                .collect(groupingBySet(b -> ImmutableSet.copyOf(b.getFields())));
 
-        nodeSetsByField = this.branches.stream()
-                .flatMap(b -> b.getFields().stream().map(f -> Pair.immutable(f, b.getNode())))
+        branchSetsByField = this.branches.stream()
+                .flatMap(b -> b.getFields().stream().map(f -> Pair.immutable(f, b)))
                 .collect(groupingBy(Pair::first)).entrySet().stream()
-                .collect(toImmutableMap(Map.Entry::getKey, e -> ImmutableSet.copyOf(e.getValue())));
+                .collect(toImmutableMap(Map.Entry::getKey, e -> e.getValue().stream().map(Pair::second).collect(toImmutableSet())));
 
         idFields = this.branches.stream()
                 .flatMap(b -> b.getFields().stream())
                 .collect(toImmutableSet());
-        nodesByUniqueField = this.nodeSetsByField.entrySet().stream()
+        branchesByUniqueField = this.branchSetsByField.entrySet().stream()
                 .filter(e -> e.getValue().size() == 1)
                 .collect(toImmutableMap(Map.Entry::getKey, e -> e.getValue().stream().findFirst().get()));
-        Set<String> duplicateNonKeyFields = Sets.intersection(idFields, nodesByUniqueField.keySet());
+
+        Set<String> duplicateNonKeyFields = Sets.intersection(idFields, branchesByUniqueField.keySet());
         if (!duplicateNonKeyFields.isEmpty()) {
             throw new IllegalStateException(duplicateNonKeyFields.toString());
         }
@@ -180,21 +183,6 @@ public final class EquijoinNode
     public Mode getMode()
     {
         return mode;
-    }
-
-    public Map<Node, Branch> getBranchesByNode()
-    {
-        return branchesByNode;
-    }
-
-    public Map<String, Set<Node>> getNodeSetsByField()
-    {
-        return nodeSetsByField;
-    }
-
-    public Map<String, Node> getNodesByUniqueField()
-    {
-        return nodesByUniqueField;
     }
 
     @Override
