@@ -136,7 +136,7 @@ public final class EquijoinNode
                 .collect(groupingBySet(b -> ImmutableSet.copyOf(b.getFields())));
 
         branchSetsByField = this.branches.stream()
-                .flatMap(b -> b.getFields().stream().map(f -> Pair.immutable(f, b)))
+                .flatMap(b -> b.getNode().getFields().keySet().stream().map(f -> Pair.immutable(f, b)))
                 .collect(groupingBy(Pair::first)).entrySet().stream()
                 .collect(toImmutableMap(Map.Entry::getKey, e -> e.getValue().stream().map(Pair::second).collect(toImmutableSet())));
 
