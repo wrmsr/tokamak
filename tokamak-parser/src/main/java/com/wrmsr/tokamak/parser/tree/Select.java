@@ -21,28 +21,14 @@ import java.util.List;
 public final class Select
         extends Statement
 {
-    public abstract class Item
-    {
-    }
+    private final List<SelectItem> items;
 
-    public final class All
-            extends Item
-    {
-    }
-
-    public final class Column
-            extends Item
-    {
-    }
-
-    private final List<Item> items;
-
-    public Select(List<Item> items)
+    public Select(List<SelectItem> items)
     {
         this.items = ImmutableList.copyOf(items);
     }
 
-    public List<Item> getItems()
+    public List<SelectItem> getItems()
     {
         return items;
     }

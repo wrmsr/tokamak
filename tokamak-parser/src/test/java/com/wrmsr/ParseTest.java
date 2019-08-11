@@ -17,12 +17,22 @@ import com.wrmsr.tokamak.parser.CaseInsensitiveCharStream;
 import com.wrmsr.tokamak.parser.SqlBaseVisitor;
 import com.wrmsr.tokamak.parser.SqlLexer;
 import com.wrmsr.tokamak.parser.SqlParser;
+import com.wrmsr.tokamak.parser.tree.AllSelectItem;
+import com.wrmsr.tokamak.parser.tree.Select;
+import com.wrmsr.tokamak.parser.tree.SelectItem;
 import com.wrmsr.tokamak.parser.tree.TreeNode;
 import junit.framework.TestCase;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ParseTree;
+
+import java.util.List;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.collect.ImmutableList.toImmutableList;
 
 public class ParseTest
         extends TestCase
@@ -31,6 +41,7 @@ public class ParseTest
             throws Throwable
     {
         for (String str : new String[] {
+                "select *",
                 "select 420",
                 "select /*+ hint */ 1",
                 "select a",
@@ -47,68 +58,51 @@ public class ParseTest
             ParseTree tree = parser.statement();
             System.out.println(tree.toStringTree(parser));
 
-            TreeNode treeNode = tree.accept(new SqlBaseVisitor<TreeNode>()
+            TreeNode node = tree.accept(new SqlBaseVisitor<TreeNode>()
             {
                 @Override
-                public TreeNode visitStatement(SqlParser.StatementContext ctx)
+                protected TreeNode defaultResult()
                 {
-                    return super.visitStatement(ctx);
+                    return super.defaultResult();
                 }
 
                 @Override
-                public TreeNode visitQuery(SqlParser.QueryContext ctx)
+                protected TreeNode aggregateResult(TreeNode aggregate, TreeNode nextResult)
                 {
-                    return super.visitQuery(ctx);
+                    checkState(aggregate == null);
+                    return checkNotNull(nextResult);
+                }
+
+                private <T> List<T> visit(List<? extends ParserRuleContext> contexts, Class<T> cls)
+                {
+                    return contexts.stream()
+                            .map(this::visit)
+                            .map(cls::cast)
+                            .collect(toImmutableList());
                 }
 
                 @Override
-                public TreeNode visitSelectItem(SqlParser.SelectItemContext ctx)
+                public TreeNode visitSelect(SqlParser.SelectContext ctx)
                 {
-                    return super.visitSelectItem(ctx);
+                    List<SelectItem> selectItems = visit(ctx.selectItem(), SelectItem.class);
+                    return new Select(
+                            selectItems);
                 }
 
                 @Override
-                public TreeNode visitRelation(SqlParser.RelationContext ctx)
+                public TreeNode visitSelectExpression(SqlParser.SelectExpressionContext ctx)
                 {
-                    return super.visitRelation(ctx);
+                    return super.visitSelectExpression(ctx);
                 }
 
                 @Override
-                public TreeNode visitQualifiedName(SqlParser.QualifiedNameContext ctx)
+                public TreeNode visitSelectAll(SqlParser.SelectAllContext ctx)
                 {
-                    return super.visitQualifiedName(ctx);
-                }
-
-                @Override
-                public TreeNode visitUnquotedIdentifier(SqlParser.UnquotedIdentifierContext ctx)
-                {
-                    return super.visitUnquotedIdentifier(ctx);
-                }
-
-                @Override
-                public TreeNode visitQuotedIdentifier(SqlParser.QuotedIdentifierContext ctx)
-                {
-                    return super.visitQuotedIdentifier(ctx);
-                }
-
-                @Override
-                public TreeNode visitExpression(SqlParser.ExpressionContext ctx)
-                {
-                    return super.visitExpression(ctx);
-                }
-
-                @Override
-                public TreeNode visitBooleanExpression(SqlParser.BooleanExpressionContext ctx)
-                {
-                    return super.visitBooleanExpression(ctx);
-                }
-
-                @Override
-                public TreeNode visitPrimaryExpression(SqlParser.PrimaryExpressionContext ctx)
-                {
-                    return super.visitPrimaryExpression(ctx);
+                    return new AllSelectItem();
                 }
             });
+
+            System.out.println(node);
         }
     }
 }

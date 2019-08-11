@@ -5,17 +5,18 @@ tokens {
 }
 
 statement
-    : query EOF
+    : select EOF
     ;
 
-query
+select
     : SELECT selectItem (',' selectItem)*
       (FROM relation (',' relation)*)?
       (WHERE where=booleanExpression)?
     ;
 
 selectItem
-    : expression
+    : expression  #selectExpression
+    | ASTERISK    #selectAll
     ;
 
 relation
@@ -27,8 +28,8 @@ qualifiedName
     ;
 
 identifier
-    : IDENTIFIER             #unquotedIdentifier
-    | QUOTED_IDENTIFIER      #quotedIdentifier
+    : IDENTIFIER         #unquotedIdentifier
+    | QUOTED_IDENTIFIER  #quotedIdentifier
     ;
 
 expression
@@ -51,6 +52,8 @@ NOT: 'NOT';
 NULL: 'NULL';
 SELECT: 'SELECT';
 WHERE: 'WHERE';
+
+ASTERISK: '*';
 
 IDENTIFIER
     : (LETTER | '_') (LETTER | DIGIT | '_' | '@' | ':')*

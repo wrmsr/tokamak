@@ -14,7 +14,7 @@
 
 package com.wrmsr.tokamak.parser.tree;
 
-public abstract class Statement
+public abstract class SelectItem
         extends TreeNode
 {
 }
