@@ -9,8 +9,7 @@ statement
     ;
 
 query
-    : COMMIT
-    | SELECT selectItem (',' selectItem)*
+    : SELECT selectItem (',' selectItem)*
       (FROM relation (',' relation)*)?
       (WHERE where=booleanExpression)?
     ;
@@ -47,7 +46,6 @@ primaryExpression
     | INTEGER_VALUE
     ;
 
-COMMIT: 'COMMIT';
 FROM: 'FROM';
 NOT: 'NOT';
 NULL: 'NULL';

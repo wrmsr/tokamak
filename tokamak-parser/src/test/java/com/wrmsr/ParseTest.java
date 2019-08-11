@@ -14,8 +14,10 @@
 package com.wrmsr;
 
 import com.wrmsr.tokamak.parser.CaseInsensitiveCharStream;
+import com.wrmsr.tokamak.parser.SqlBaseVisitor;
 import com.wrmsr.tokamak.parser.SqlLexer;
 import com.wrmsr.tokamak.parser.SqlParser;
+import com.wrmsr.tokamak.parser.tree.TreeNode;
 import junit.framework.TestCase;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
@@ -29,7 +31,6 @@ public class ParseTest
             throws Throwable
     {
         for (String str : new String[] {
-                "commit",
                 "select 420",
                 "select /*+ hint */ 1",
                 "select a",
@@ -45,6 +46,69 @@ public class ParseTest
 
             ParseTree tree = parser.statement();
             System.out.println(tree.toStringTree(parser));
+
+            TreeNode treeNode = tree.accept(new SqlBaseVisitor<TreeNode>()
+            {
+                @Override
+                public TreeNode visitStatement(SqlParser.StatementContext ctx)
+                {
+                    return super.visitStatement(ctx);
+                }
+
+                @Override
+                public TreeNode visitQuery(SqlParser.QueryContext ctx)
+                {
+                    return super.visitQuery(ctx);
+                }
+
+                @Override
+                public TreeNode visitSelectItem(SqlParser.SelectItemContext ctx)
+                {
+                    return super.visitSelectItem(ctx);
+                }
+
+                @Override
+                public TreeNode visitRelation(SqlParser.RelationContext ctx)
+                {
+                    return super.visitRelation(ctx);
+                }
+
+                @Override
+                public TreeNode visitQualifiedName(SqlParser.QualifiedNameContext ctx)
+                {
+                    return super.visitQualifiedName(ctx);
+                }
+
+                @Override
+                public TreeNode visitUnquotedIdentifier(SqlParser.UnquotedIdentifierContext ctx)
+                {
+                    return super.visitUnquotedIdentifier(ctx);
+                }
+
+                @Override
+                public TreeNode visitQuotedIdentifier(SqlParser.QuotedIdentifierContext ctx)
+                {
+                    return super.visitQuotedIdentifier(ctx);
+                }
+
+                @Override
+                public TreeNode visitExpression(SqlParser.ExpressionContext ctx)
+                {
+                    return super.visitExpression(ctx);
+                }
+
+                @Override
+                public TreeNode visitBooleanExpression(SqlParser.BooleanExpressionContext ctx)
+                {
+                    return super.visitBooleanExpression(ctx);
+                }
+
+                @Override
+                public TreeNode visitPrimaryExpression(SqlParser.PrimaryExpressionContext ctx)
+                {
+                    return super.visitPrimaryExpression(ctx);
+                }
+            });
         }
     }
 }
