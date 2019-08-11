@@ -28,6 +28,7 @@ import com.wrmsr.tokamak.catalog.Schema;
 import com.wrmsr.tokamak.codec.CompositeRowIdCodec;
 import com.wrmsr.tokamak.codec.IdCodecs;
 import com.wrmsr.tokamak.codec.RowIdCodec;
+import com.wrmsr.tokamak.codec.ScalarRowIdCodec;
 import com.wrmsr.tokamak.driver.context.DriverContextImpl;
 import com.wrmsr.tokamak.function.Function;
 import com.wrmsr.tokamak.function.RowFunction;
@@ -214,7 +215,8 @@ public class BuildNodeVisitor
     @Override
     public List<DriverRow> visitListAggregateNode(ListAggregateNode node, Key key)
     {
-        RowIdCodec idCodec = checkNotNull(IdCodecs.CODECS_BY_TYPE.get(node.getFields().get(node.getGroupField()));
+        RowIdCodec idCodec = new ScalarRowIdCodec<>(
+                node.getGroupField(), IdCodecs.CODECS_BY_TYPE.get(node.getFields().get(node.getGroupField())));
         Key childKey;
         if (key instanceof IdKey) {
             childKey = Key.of(node.getGroupField(), idCodec.decode(((IdKey) key).getId().getValue()));

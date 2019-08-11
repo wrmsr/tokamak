@@ -18,6 +18,8 @@ import com.wrmsr.tokamak.util.codec.Codec;
 
 import java.util.Map;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 public final class ScalarRowIdCodec<V>
         implements RowIdCodec
 {
@@ -26,8 +28,8 @@ public final class ScalarRowIdCodec<V>
 
     public ScalarRowIdCodec(String field, Codec<V, byte[]> child)
     {
-        this.field = field;
-        this.child = child;
+        this.field = checkNotNull(field);
+        this.child = checkNotNull(child);
     }
 
     public String getField()
