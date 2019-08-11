@@ -13,6 +13,7 @@
  */
 package com.wrmsr.tokamak;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.CharStreams;
@@ -25,6 +26,7 @@ import com.wrmsr.tokamak.driver.DriverImpl;
 import com.wrmsr.tokamak.function.RowViewFunction;
 import com.wrmsr.tokamak.jdbc.JdbcConnector;
 import com.wrmsr.tokamak.jdbc.JdbcUtils;
+import com.wrmsr.tokamak.node.EquijoinNode;
 import com.wrmsr.tokamak.node.FilterNode;
 import com.wrmsr.tokamak.node.Node;
 import com.wrmsr.tokamak.node.ProjectNode;
@@ -146,12 +148,13 @@ public class AppTest
                 .getOrBuildSchema("PUBLIC", jdbcConnector)
                 .getOrBuildTable("NATION");
 
-        Node scanNode = new ScanNode(
-                "scan",
+        Node scanNode0 = new ScanNode(
+                "scan0",
                 SchemaTable.of("PUBLIC", "NATION"),
                 ImmutableMap.of(
                         "N_NATIONKEY", Type.LONG,
-                        "N_NAME", Type.STRING
+                        "N_NAME", Type.STRING,
+                        "N_REGIONKEY", Type.LONG
                 ),
                 ImmutableSet.of(
                         ImmutableSet.of("N_NATIONKEY")
@@ -161,21 +164,21 @@ public class AppTest
                 ImmutableMap.of(),
                 Optional.empty());
 
-        Node filterNode = new FilterNode(
-                "filter",
-                scanNode,
+        Node filterNode0 = new FilterNode(
+                "filter0",
+                scanNode0,
                 row -> row.getAttributes()[0] != null,
                 false);
 
-        Node projectNode = new ProjectNode(
-                "project",
-                filterNode,
+        Node projectNode0 = new ProjectNode(
+                "project0",
+                filterNode0,
                 Projection.of(
                         "N_NATIONKEY", "N_NATIONKEY",
                         "N_NAME", catalog.addFunction(RowViewFunction.anon(Type.STRING, rv -> rv.get("N_NAME") + "!"))
                 ));
 
-        Plan plan = new Plan(projectNode);
+        Plan plan = new Plan(projectNode0);
 
         DriverImpl driver = new DriverImpl(catalog, plan);
 
@@ -195,6 +198,39 @@ public class AppTest
                 driver.createContext(),
                 plan.getRoot(),
                 Key.all());
+        System.out.println(buildRows);
+
+        Node scanNode1 = new ScanNode(
+                "scan1",
+                SchemaTable.of("PUBLIC", "REGION"),
+                ImmutableMap.of(
+                        "R_REGIONKEY", Type.LONG,
+                        "R_NAME", Type.STRING
+                ),
+                ImmutableSet.of(
+                        ImmutableSet.of("R_REGIONKEY")
+                ),
+                ImmutableSet.of(),
+                ImmutableMap.of(),
+                ImmutableMap.of(),
+                Optional.empty());
+
+        Node equijoinNode0 = new EquijoinNode(
+                "equijoin0",
+                ImmutableList.of(
+                        new EquijoinNode.Branch(scanNode0, ImmutableList.of("N_REGIONKEY")),
+                        new EquijoinNode.Branch(scanNode1, ImmutableList.of("R_REGIONKEY"))
+                ),
+                EquijoinNode.Mode.INNER);
+
+        plan = new Plan(equijoinNode0);
+
+        driver = new DriverImpl(catalog, plan);
+
+        buildRows = driver.build(
+                driver.createContext(),
+                plan.getRoot(),
+                Key.of("N_NATIONKEY", 10));
         System.out.println(buildRows);
     }
 }

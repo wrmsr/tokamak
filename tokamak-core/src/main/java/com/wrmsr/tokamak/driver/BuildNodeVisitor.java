@@ -108,7 +108,13 @@ public class BuildNodeVisitor
     @Override
     public List<DriverRow> visitPersistNode(PersistNode node, Key key)
     {
-        return super.visitPersistNode(node, key);
+        return context.build(node.getSource(), key).stream()
+                .map(row -> new DriverRow(
+                        node,
+                        context.getDriver().getLineagePolicy().build(row),
+                        row.getId(),
+                        row.getAttributes()))
+                .collect(toImmutableList());
     }
 
     @Override
