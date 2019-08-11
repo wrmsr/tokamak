@@ -62,7 +62,9 @@ public final class ProjectNode
                 fields.put(entry.getKey(), source.getFields().get(inputField));
             }
             else if (entry.getValue() instanceof Projection.FunctionInput) {
-                fields.put(entry.getKey(), ((Projection.FunctionInput) entry.getValue()).getType());
+                Projection.FunctionInput functionInput = (Projection.FunctionInput) entry.getValue();
+                functionInput.getArgs().forEach(f -> checkArgument(source.getFields().containsKey(f)));
+                fields.put(entry.getKey(), functionInput.getType());
             }
             else {
                 throw new IllegalArgumentException(entry.getValue().toString());

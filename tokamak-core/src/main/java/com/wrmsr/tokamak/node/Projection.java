@@ -22,9 +22,16 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.wrmsr.tokamak.function.BinaryFunction;
 import com.wrmsr.tokamak.function.Function;
+import com.wrmsr.tokamak.function.NullaryFunction;
+import com.wrmsr.tokamak.function.RowFunction;
+import com.wrmsr.tokamak.function.RowViewFunction;
+import com.wrmsr.tokamak.function.UnaryFunction;
+import com.wrmsr.tokamak.function.VariadicFunction;
 import com.wrmsr.tokamak.type.Type;
 import com.wrmsr.tokamak.util.OrderPreservingImmutableMap;
 import com.wrmsr.tokamak.util.StreamableIterable;
@@ -34,6 +41,7 @@ import javax.annotation.concurrent.Immutable;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.StreamSupport;
@@ -63,9 +71,12 @@ public final class Projection
                     return new FieldInput(parser.getValueAsString());
                 }
                 else if (parser.currentToken() == JsonToken.START_OBJECT) {
-                    Map<String, String> map = parser.readValueAs(new TypeReference<Map<String, String>>() {});
-                    checkState(map.keySet().equals(ImmutableSet.of("function", "type")));
-                    return new FunctionInput(map.get("function"), Type.parseRepr(map.get("type")));
+                    Map<String, Object> map = parser.readValueAs(new TypeReference<Map<String, Object>>() {});
+                    checkState(map.keySet().equals(ImmutableSet.of("function", "type", "args")));
+                    return new FunctionInput(
+                            (String) map.get("function"),
+                            Type.parseRepr((String) map.get("type")),
+                            (List<String>) map.get("args"));
                 }
                 else {
                     throw new IllegalStateException();
@@ -106,19 +117,22 @@ public final class Projection
     {
         private final String function;
         private final Type type;
+        private final List<String> args;
 
-        public FunctionInput(String function, Type type)
+        public FunctionInput(String function, Type type, List<String> args)
         {
             this.function = checkNotNull(function);
             this.type = checkNotNull(type);
+            this.args = ImmutableList.copyOf(args);
         }
 
         @Override
         public String toString()
         {
             return "FunctionInput{" +
-                    "function=" + function +
+                    "function='" + function + '\'' +
                     ", type=" + type +
+                    ", args=" + args +
                     '}';
         }
 
@@ -132,6 +146,12 @@ public final class Projection
         public Type getType()
         {
             return type;
+        }
+
+        @JsonProperty("args")
+        public List<String> getArgs()
+        {
+            return args;
         }
     }
 
@@ -208,7 +228,23 @@ public final class Projection
             }
             else if (inputObj instanceof Function) {
                 Function func = (Function) inputObj;
-                input = new FunctionInput(func.getName(), func.getType());
+                List<String> funcArgs;
+                if (func instanceof RowFunction || func instanceof RowViewFunction || func instanceof NullaryFunction) {
+                    funcArgs = ImmutableList.of();
+                }
+                else if (func instanceof UnaryFunction) {
+                    funcArgs = ImmutableList.of((String) args[i++]);
+                }
+                else if (func instanceof BinaryFunction) {
+                    funcArgs = ImmutableList.of((String) args[i++], (String) args[i++]);
+                }
+                else if (func instanceof VariadicFunction) {
+                    funcArgs = ImmutableList.copyOf((String[]) args[i++]);
+                }
+                else {
+                    throw new IllegalArgumentException(func.toString());
+                }
+                input = new FunctionInput(func.getName(), func.getType(), funcArgs);
             }
             else {
                 throw new IllegalArgumentException(inputObj.toString());
