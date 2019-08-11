@@ -15,18 +15,10 @@ package com.wrmsr.tokamak.function;
 
 import com.wrmsr.tokamak.type.Type;
 
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.List;
 
-public interface Function
+public interface ScalarFunction
+        extends Function
 {
-    String getName();
-
-    Type getType();
-
-    AtomicInteger anonCount = new AtomicInteger();
-
-    static String genAnonName()
-    {
-        return "anon$" + anonCount.getAndIncrement();
-    }
+    List<Type> getArgTypes();
 }

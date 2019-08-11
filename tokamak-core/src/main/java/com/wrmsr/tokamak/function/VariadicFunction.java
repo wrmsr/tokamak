@@ -13,17 +13,24 @@
  */
 package com.wrmsr.tokamak.function;
 
-import com.wrmsr.tokamak.api.Row;
+import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.type.Type;
 
-public interface RowFunction<T>
-        extends Function
-{
-    T apply(Row row);
+import java.util.List;
 
-    static <T> RowFunction<T> of(String name, Type type, java.util.function.Function<Row, T> fn)
+public interface VariadicFunction<T>
+        extends ScalarFunction
+{
+    T apply(Object... args);
+
+    static <T> VariadicFunction<T> of(
+            String name,
+            List<Type> argTypes,
+            Type type,
+            java.util.function.Function<Object[], T> fn)
     {
-        return new RowFunction<T>()
+        List<Type> argTypes_ = ImmutableList.copyOf(argTypes);
+        return new VariadicFunction<T>()
         {
             @Override
             public String getName()
@@ -38,15 +45,24 @@ public interface RowFunction<T>
             }
 
             @Override
-            public T apply(Row row)
+            public List<Type> getArgTypes()
             {
-                return fn.apply(row);
+                return argTypes_;
+            }
+
+            @Override
+            public T apply(Object... args)
+            {
+                return fn.apply(args);
             }
         };
     }
 
-    static <T> RowFunction<T> anon(Type type, java.util.function.Function<Row, T> fn)
+    static <T> VariadicFunction<T> anon(
+            List<Type> argTypes,
+            Type type,
+            java.util.function.Function<Object[], T> fn)
     {
-        return of(Function.genAnonName(), type, fn);
+        return of(Function.genAnonName(), argTypes, type, fn);
     }
 }

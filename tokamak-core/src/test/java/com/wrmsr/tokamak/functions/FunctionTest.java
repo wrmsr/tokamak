@@ -11,22 +11,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.function;
+package com.wrmsr.tokamak.functions;
 
+import com.wrmsr.tokamak.function.Function;
+import com.wrmsr.tokamak.function.RowFunction;
 import com.wrmsr.tokamak.type.Type;
+import junit.framework.TestCase;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
-public interface Function
+public class FunctionTest
+        extends TestCase
 {
-    String getName();
-
-    Type getType();
-
-    AtomicInteger anonCount = new AtomicInteger();
-
-    static String genAnonName()
+    public void testReflection()
+            throws Throwable
     {
-        return "anon$" + anonCount.getAndIncrement();
+        Function f = RowFunction.anon(Type.LONG, r -> 0L);
+        System.out.println(f);
     }
 }

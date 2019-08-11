@@ -13,17 +13,31 @@
  */
 package com.wrmsr.tokamak.function;
 
-import com.wrmsr.tokamak.api.Row;
+import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.type.Type;
 
-public interface RowFunction<T>
-        extends Function
-{
-    T apply(Row row);
+import java.util.List;
 
-    static <T> RowFunction<T> of(String name, Type type, java.util.function.Function<Row, T> fn)
+public interface UnaryFunction<T, R>
+        extends ScalarFunction
+{
+    R apply(T arg);
+
+    Type getArgType();
+
+    @Override
+    default List<Type> getArgTypes()
     {
-        return new RowFunction<T>()
+        return ImmutableList.of(getArgType());
+    }
+
+    static <T, R> UnaryFunction<T, R> of(
+            String name,
+            Type argType,
+            Type type,
+            java.util.function.Function<T, R> fn)
+    {
+        return new UnaryFunction<T, R>()
         {
             @Override
             public String getName()
@@ -38,15 +52,24 @@ public interface RowFunction<T>
             }
 
             @Override
-            public T apply(Row row)
+            public Type getArgType()
             {
-                return fn.apply(row);
+                return argType;
+            }
+
+            @Override
+            public R apply(T arg)
+            {
+                return fn.apply(arg);
             }
         };
     }
 
-    static <T> RowFunction<T> anon(Type type, java.util.function.Function<Row, T> fn)
+    static <T, R> UnaryFunction<T, R> anon(
+            Type argType,
+            Type type,
+            java.util.function.Function<T, R> fn)
     {
-        return of(Function.genAnonName(), type, fn);
+        return of(Function.genAnonName(), argType, type, fn);
     }
 }
