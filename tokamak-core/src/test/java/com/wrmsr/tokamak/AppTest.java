@@ -219,7 +219,7 @@ public class AppTest
         Node equijoinNode0 = new EquijoinNode(
                 "equijoin0",
                 ImmutableList.of(
-                        new EquijoinNode.Branch(scanNode0, ImmutableList.of("N_REGIONKEY")),
+                        new EquijoinNode.Branch(projectNode0, ImmutableList.of("N_REGIONKEY")),
                         new EquijoinNode.Branch(scanNode1, ImmutableList.of("R_REGIONKEY"))
                 ),
                 EquijoinNode.Mode.INNER);
