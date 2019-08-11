@@ -15,4 +15,8 @@ package com.wrmsr.tokamak.driver.context;
 
 public class LinkageManager
 {
+    public void update()
+    {
+        throw new IllegalStateException();
+    }
 }

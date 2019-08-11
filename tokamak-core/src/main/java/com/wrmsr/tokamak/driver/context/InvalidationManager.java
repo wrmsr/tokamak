@@ -13,6 +13,25 @@
  */
 package com.wrmsr.tokamak.driver.context;
 
+import com.wrmsr.tokamak.api.Id;
+import com.wrmsr.tokamak.driver.state.State;
+import com.wrmsr.tokamak.node.StatefulNode;
+
+import java.util.Map;
+import java.util.Set;
+
 public class InvalidationManager
 {
+    public void invalidate(State state)
+    {
+        throw new IllegalStateException();
+    }
+
+    public void recursiveInvalidate(
+            Map<StatefulNode, Set<Id>> idSetsByNode,
+            boolean input,
+            boolean output)
+    {
+        throw new IllegalStateException();
+    }
 }

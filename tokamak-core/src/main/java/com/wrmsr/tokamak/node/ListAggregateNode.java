@@ -19,7 +19,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.node.visitor.NodeVisitor;
 import com.wrmsr.tokamak.type.ListType;
-import com.wrmsr.tokamak.type.RowType;
+import com.wrmsr.tokamak.type.StructType;
 import com.wrmsr.tokamak.type.Type;
 
 import javax.annotation.concurrent.Immutable;
@@ -39,7 +39,7 @@ public final class ListAggregateNode
     private final String groupField;
     private final String listField;
 
-    private final RowType rowType;
+    private final StructType structType;
     private final Map<String, Type> fields;
 
     @JsonCreator
@@ -58,10 +58,10 @@ public final class ListAggregateNode
         checkArgument(!groupField.equals(listField));
         checkArgument(source.getFields().containsKey(groupField));
 
-        rowType = new RowType(source.getFields());
+        structType = new StructType(source.getFields());
         fields = ImmutableMap.of(
                 groupField, source.getFields().get(groupField),
-                listField, new ListType(rowType)
+                listField, new ListType(structType)
         );
 
         checkInvariants();

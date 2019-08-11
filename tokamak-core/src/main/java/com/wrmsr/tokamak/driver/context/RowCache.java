@@ -13,6 +13,40 @@
  */
 package com.wrmsr.tokamak.driver.context;
 
+import com.wrmsr.tokamak.api.FieldKey;
+import com.wrmsr.tokamak.api.Id;
+import com.wrmsr.tokamak.api.Key;
+import com.wrmsr.tokamak.driver.DriverRow;
+import com.wrmsr.tokamak.node.Node;
+import com.wrmsr.tokamak.node.StatefulNode;
+
+import java.util.List;
+import java.util.Map;
+
 public class RowCache
 {
+    public void set(Node node, Key key, List<DriverRow> rows)
+    {
+        throw new IllegalStateException();
+    }
+
+    public List<DriverRow> get(Node node)
+    {
+        throw new IllegalStateException();
+    }
+
+    public Map<Node, List<DriverRow>> get()
+    {
+        throw new IllegalStateException();
+    }
+
+    public DriverRow get(StatefulNode node, Id id)
+    {
+        throw new IllegalStateException();
+    }
+
+    private DriverRow get(FieldKey fieldKey)
+    {
+        throw new IllegalStateException();
+    }
 }

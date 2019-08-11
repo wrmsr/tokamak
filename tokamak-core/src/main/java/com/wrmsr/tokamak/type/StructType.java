@@ -20,12 +20,12 @@ import javax.annotation.concurrent.Immutable;
 import java.util.Map;
 
 @Immutable
-public final class RowType
+public final class StructType
         implements Type
 {
     private final Map<String, Type> fields;
 
-    public RowType(Map<String, Type> fields)
+    public StructType(Map<String, Type> fields)
     {
         this.fields = ImmutableMap.copyOf(fields);
     }
@@ -33,7 +33,7 @@ public final class RowType
     @Override
     public String toString()
     {
-        return "RowType{" +
+        return "StructType{" +
                 "fields=" + fields +
                 '}';
     }

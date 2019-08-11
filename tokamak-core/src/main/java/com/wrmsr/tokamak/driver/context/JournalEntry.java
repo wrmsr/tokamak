@@ -27,7 +27,8 @@ public abstract class JournalEntry
         SYNC,
         DIRECT,
         LINKED,
-        SCAN
+        SCAN,
+        RECURSIVE,
     }
 
     public final class Invalidate

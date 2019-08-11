@@ -13,6 +13,12 @@
  */
 package com.wrmsr.tokamak.driver.context;
 
+import com.wrmsr.tokamak.driver.state.State;
+
 public class DenormalizationManager
 {
+    public void denormalize(State state)
+    {
+        throw new IllegalStateException();
+    }
 }
