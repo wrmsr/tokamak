@@ -19,19 +19,19 @@ import com.wrmsr.tokamak.node.StatefulNode;
 import com.wrmsr.tokamak.util.Span;
 
 import java.io.IOException;
-import java.sql.Connection;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 import java.util.OptionalInt;
+import java.util.Set;
 
 public interface StateStorage
 {
     void setup()
             throws IOException;
 
-    Optional<State> get(
-            Connection conn,
-            Id id,
+    Map<StatefulNode, Map<Id, State>> get(
+            StateStorageContext ctx,
+            Map<StatefulNode, Set<Id>> idSetsByNode,
             boolean create,
             boolean linkage,
             boolean attributes,
@@ -40,31 +40,40 @@ public interface StateStorage
     )
             throws IOException;
 
-    State createPhantom(StatefulNode node, Id id, Row row)
+    void put(
+            StateStorageContext ctx,
+            List<State> states,
+            boolean create
+    )
+            throws IOException;
+
+    State createPhantom(
+            StateStorageContext ctx,
+            StatefulNode node,
+            Id id,
+            Row row
+    )
             throws IOException;
 
     void upgradePhantom(
-            Connection conn,
+            StateStorageContext ctx,
             State state,
             boolean linkage,
             boolean share
     )
             throws IOException;
 
-    void put(
-            Connection conn,
-            State state,
-            boolean create
+    void allocate(
+            StateStorageContext ctx,
+            StatefulNode node,
+            Iterable<Id> ids
     )
             throws IOException;
 
-    void putMany(
-            Connection conn,
-            List<State> states,
-            boolean create
-    )
-            throws IOException;
-
-    List<Id> getSpanIds(Span<Id> span, OptionalInt limit)
+    List<Id> getSpanIds(
+            StateStorageContext ctx,
+            StatefulNode node,
+            Span<Id> span,
+            OptionalInt limit)
             throws IOException;
 }

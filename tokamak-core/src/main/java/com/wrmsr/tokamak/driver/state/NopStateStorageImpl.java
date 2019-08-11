@@ -13,16 +13,17 @@
  */
 package com.wrmsr.tokamak.driver.state;
 
+import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.api.Row;
 import com.wrmsr.tokamak.node.StatefulNode;
 import com.wrmsr.tokamak.util.Span;
 
 import java.io.IOException;
-import java.sql.Connection;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 import java.util.OptionalInt;
+import java.util.Set;
 
 public class NopStateStorageImpl
         implements StateStorage
@@ -34,21 +35,37 @@ public class NopStateStorageImpl
     }
 
     @Override
-    public Optional<State> get(
-            Connection conn,
-            Id id,
+    public Map<StatefulNode, Map<Id, State>> get(
+            StateStorageContext ctx,
+            Map<StatefulNode, Set<Id>> idSetsByNode,
             boolean create,
             boolean linkage,
             boolean attributes,
             boolean share,
-            boolean noLock)
+            boolean noLock
+    )
             throws IOException
     {
-        return Optional.empty();
+        return ImmutableMap.of();
     }
 
     @Override
-    public State createPhantom(StatefulNode node, Id id, Row row)
+    public void put(
+            StateStorageContext ctx,
+            List<State> states,
+            boolean create
+    )
+            throws IOException
+    {
+    }
+
+    @Override
+    public State createPhantom(
+            StateStorageContext ctx,
+            StatefulNode node,
+            Id id,
+            Row row
+    )
             throws IOException
     {
         throw new IllegalStateException();
@@ -56,7 +73,7 @@ public class NopStateStorageImpl
 
     @Override
     public void upgradePhantom(
-            Connection conn,
+            StateStorageContext ctx,
             State state,
             boolean linkage,
             boolean share)
@@ -65,25 +82,22 @@ public class NopStateStorageImpl
     }
 
     @Override
-    public void put(
-            Connection conn,
-            State state,
-            boolean create)
+    public void allocate(
+            StateStorageContext ctx,
+            StatefulNode node,
+            Iterable<Id> ids
+    )
             throws IOException
     {
     }
 
     @Override
-    public void putMany(
-            Connection conn,
-            List<State> states,
-            boolean create)
-            throws IOException
-    {
-    }
-
-    @Override
-    public List<Id> getSpanIds(Span<Id> span, OptionalInt limit)
+    public List<Id> getSpanIds(
+            StateStorageContext ctx,
+            StatefulNode node,
+            Span<Id> span,
+            OptionalInt limit
+    )
             throws IOException
     {
         throw new IllegalStateException();
