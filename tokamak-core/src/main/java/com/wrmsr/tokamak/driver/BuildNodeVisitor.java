@@ -69,7 +69,9 @@ public class BuildNodeVisitor
     public List<DriverRow> visitEquijoinNode(EquijoinNode node, Key key)
     {
         if (key instanceof IdKey) {
-
+            throw new IllegalStateException();
+        }
+        else if (key instanceof FieldKey) {
         }
 
         throw new IllegalStateException();

@@ -18,13 +18,14 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 import com.wrmsr.tokamak.node.visitor.NodeVisitor;
 import com.wrmsr.tokamak.type.Type;
 import com.wrmsr.tokamak.util.MorePreconditions;
+import com.wrmsr.tokamak.util.Pair;
 
 import javax.annotation.concurrent.Immutable;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +41,7 @@ import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static com.wrmsr.tokamak.util.MoreCollectors.toSingle;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.groupingBy;
 
 @Immutable
 public final class EquijoinNode
@@ -65,8 +67,8 @@ public final class EquijoinNode
                 @JsonProperty("fields") List<String> fields)
         {
             this.node = node;
-            this.fields = ImmutableList.copyOf(fields);
-            MorePreconditions.checkNotEmpty(this.fields);
+            this.fields = checkNotEmpty(ImmutableList.copyOf(fields));
+            this.fields.forEach(f -> checkArgument(node.getFields().containsKey(f)));
         }
 
         @Override
@@ -112,6 +114,7 @@ public final class EquijoinNode
 
     private final Map<Node, Branch> branchesByNode;
     private final Map<String, Set<Node>> nodeSetsByField;
+    private final Set<String> idFields;
     private final Map<String, Node> nodesByUniqueField;
     private final Set<Set<String>> idFieldSets;
     private final Map<String, Type> fields;
@@ -127,24 +130,27 @@ public final class EquijoinNode
         this.branches = checkNotEmpty(ImmutableList.copyOf(branches));
         this.mode = checkNotNull(mode);
 
-        this.branchesByNode = this.branches.stream()
+        branchesByNode = this.branches.stream()
                 .collect(toImmutableMap(Branch::getNode, identity()));
 
-        Map<String, ImmutableSet.Builder<Node>> nodeSetsByField = new HashMap<>();
-        for (Branch branch : this.branches) {
-            for (String field : branch.node.getFields().keySet()) {
-                nodeSetsByField.computeIfAbsent(field, n -> ImmutableSet.builder()).add(branch.node);
-            }
-        }
-        this.nodeSetsByField = nodeSetsByField.entrySet().stream()
-                .collect(toImmutableMap(Map.Entry::getKey, e -> e.getValue().build()));
+        nodeSetsByField = this.branches.stream()
+                .flatMap(b -> b.getFields().stream().map(f -> Pair.immutable(f, b.getNode())))
+                .collect(groupingBy(Pair::first)).entrySet().stream()
+                .collect(toImmutableMap(Map.Entry::getKey, e -> ImmutableSet.copyOf(e.getValue())));
+
+        idFields = this.branches.stream()
+                .flatMap(b -> b.getFields().stream())
+                .collect(toImmutableSet());
         nodesByUniqueField = this.nodeSetsByField.entrySet().stream()
                 .filter(e -> e.getValue().size() == 1)
                 .collect(toImmutableMap(Map.Entry::getKey, e -> e.getValue().stream().findFirst().get()));
+        Set<String> duplicateNonKeyFields = Sets.intersection(idFields, nodesByUniqueField.keySet());
+        if (!duplicateNonKeyFields.isEmpty()) {
+            throw new IllegalStateException(duplicateNonKeyFields.toString());
+        }
 
         Map<String, Type> fields = new LinkedHashMap<>();
         for (Branch branch : this.branches) {
-            branch.getFields().forEach(f -> checkArgument(branch.node.getFields().containsKey(f)));
             for (Map.Entry<String, Type> entry : branch.getNode().getFields().entrySet()) {
                 if (!fields.containsKey(entry.getKey())) {
                     fields.put(entry.getKey(), entry.getValue());
