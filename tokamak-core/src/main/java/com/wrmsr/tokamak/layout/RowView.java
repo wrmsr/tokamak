@@ -14,7 +14,7 @@
 package com.wrmsr.tokamak.layout;
 
 import com.google.common.collect.ImmutableList;
-import com.wrmsr.tokamak.util.Pairs;
+import com.wrmsr.tokamak.util.Pair;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -133,7 +133,7 @@ public final class RowView
     public Set<Entry<String, Object>> entrySet()
     {
         return IntStream.range(0, rowLayout.getFields().size()).mapToObj(
-                i -> new Pairs.Immutable<String, Object>(rowLayout.getFields().get(i), attributes[i])
+                i -> new Pair.Immutable<String, Object>(rowLayout.getFields().get(i), attributes[i])
         ).collect(toImmutableSet());
     }
 }

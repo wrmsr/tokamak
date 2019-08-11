@@ -19,15 +19,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Map;
 import java.util.Objects;
 
-public final class Pairs
+public interface Pair<K, V>
+        extends Map.Entry<K, V>
 {
-    private Pairs()
-    {
-    }
-
     @javax.annotation.concurrent.Immutable
-    public static final class Immutable<K, V>
-            implements Map.Entry<K, V>
+    final class Immutable<K, V>
+            implements Pair<K, V>
     {
         private final K key;
         private final V value;
@@ -60,7 +57,7 @@ public final class Pairs
         @Override
         public String toString()
         {
-            return "Pair{" +
+            return "Pair.Immutable{" +
                     "key=" + key +
                     ", value=" + value +
                     '}';
@@ -87,8 +84,13 @@ public final class Pairs
         }
     }
 
-    public static final class Mutable<K, V>
-            implements Map.Entry<K, V>
+    static <K, V> Immutable<K, V> immutable(K key, V value)
+    {
+        return new Immutable<>(key, value);
+    }
+
+    final class Mutable<K, V>
+            implements Pair<K, V>
     {
         private K key;
         private V value;
@@ -121,7 +123,7 @@ public final class Pairs
         @Override
         public String toString()
         {
-            return "Pair{" +
+            return "Pair.Mutable{" +
                     "key=" + key +
                     ", value=" + value +
                     '}';
@@ -148,5 +150,10 @@ public final class Pairs
             this.value = value;
             return old;
         }
+    }
+
+    static <K, V> Mutable<K, V> mutable(K key, V value)
+    {
+        return new Mutable<>(key, value);
     }
 }

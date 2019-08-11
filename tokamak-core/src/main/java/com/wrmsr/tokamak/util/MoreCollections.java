@@ -13,8 +13,13 @@
  */
 package com.wrmsr.tokamak.util;
 
-import java.util.Set;
+import com.google.common.collect.ImmutableList;
 
+import java.util.List;
+import java.util.Set;
+import java.util.stream.IntStream;
+
+import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.Sets.newIdentityHashSet;
 
 public final class MoreCollections
@@ -30,5 +35,20 @@ public final class MoreCollections
             set.add(item);
         }
         return set;
+    }
+
+    public static <T> List<Pair<Integer, T>> enumerate(Iterable<T> it)
+    {
+        List<T> list = ImmutableList.copyOf(it);
+        ImmutableList.Builder<Pair<Integer, T>> builder = ImmutableList.builder();
+        for (int i = 0; i < list.size(); ++i) {
+            builder.add(new Pair.Immutable<>(i, list.get(i)));
+        }
+        return builder.build();
+    }
+
+    public static <E> List<E> listOf(int size, E value)
+    {
+        return IntStream.range(0, size).boxed().map(i -> value).collect(toImmutableList());
     }
 }

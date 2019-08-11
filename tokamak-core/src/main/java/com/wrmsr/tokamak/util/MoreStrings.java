@@ -13,30 +13,28 @@
  */
 package com.wrmsr.tokamak.util;
 
+import java.util.Map;
+
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 
-public final class MoreBytes
+public final class MoreStrings
 {
-    private MoreBytes()
+    private MoreStrings()
     {
     }
 
-    public static String toHex(byte[] bytes)
+    public static String[] splitProperty(String prop)
     {
-        StringBuilder sb = new StringBuilder(bytes.length * 2);
-        for (byte b : bytes) {
-            sb.append(String.format("%02x", b));
-        }
-        return sb.toString();
+        int pos = prop.indexOf("=");
+        checkArgument(pos > 0);
+        return new String[] {prop.substring(0, pos), prop.substring(pos + 1)};
     }
 
-    public static byte[] fromHex(String string)
+    public static Map<String, String> getSystemProperties()
     {
-        checkArgument(string.length() % 2 == 0);
-        byte[] bytes = new byte[string.length() / 2];
-        for (int i = 0; i < bytes.length; ++i) {
-            bytes[i] = Byte.parseByte(string.substring(i * 2, (i + 1) * 2));
-        }
-        return bytes;
+        return System.getProperties().entrySet().stream()
+                .map(e -> new Pair.Immutable<>((String) e.getKey(), (String) e.getValue()))
+                .collect(toImmutableMap());
     }
 }
