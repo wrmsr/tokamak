@@ -27,7 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.google.common.base.Preconditions.checkState;
+import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 
 public final class DriverContextImpl
         implements DriverContext
@@ -69,8 +69,7 @@ public final class DriverContextImpl
         List<DriverRow> output = node.accept(
                 new BuildNodeVisitor(this),
                 key);
-        checkState(!output.isEmpty());
-        return output;
+        return checkNotEmpty(output);
     }
 
     @Override

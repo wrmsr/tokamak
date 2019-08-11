@@ -26,6 +26,8 @@ import com.wrmsr.tokamak.catalog.Connection;
 import com.wrmsr.tokamak.catalog.Scanner;
 import com.wrmsr.tokamak.catalog.Schema;
 import com.wrmsr.tokamak.codec.CompositeRowIdCodec;
+import com.wrmsr.tokamak.codec.IdCodecs;
+import com.wrmsr.tokamak.codec.RowIdCodec;
 import com.wrmsr.tokamak.driver.context.DriverContextImpl;
 import com.wrmsr.tokamak.function.Function;
 import com.wrmsr.tokamak.function.RowFunction;
@@ -47,11 +49,13 @@ import com.wrmsr.tokamak.node.ValuesNode;
 import com.wrmsr.tokamak.node.visitor.NodeVisitor;
 import com.wrmsr.tokamak.util.Pair;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.IntStream;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
@@ -210,7 +214,39 @@ public class BuildNodeVisitor
     @Override
     public List<DriverRow> visitListAggregateNode(ListAggregateNode node, Key key)
     {
-        return super.visitListAggregateNode(node, key);
+        RowIdCodec idCodec = checkNotNull(IdCodecs.CODECS_BY_TYPE.get(node.getFields().get(node.getGroupField()));
+        Key childKey;
+        if (key instanceof IdKey) {
+            childKey = Key.of(node.getGroupField(), idCodec.decode(((IdKey) key).getId().getValue()));
+        }
+        else if (key instanceof FieldKey) {
+            FieldKey fieldKey = (FieldKey) key;
+            Map.Entry<String, Object> fieldKeyEntry = checkSingle(fieldKey);
+            checkArgument(fieldKeyEntry.getKey().equals(node.getGroupField()));
+            childKey = Key.of(node.getGroupField(), fieldKeyEntry.getValue());
+        }
+        else if (key instanceof AllKey) {
+            childKey = key;
+        }
+        else {
+            throw new IllegalArgumentException(key.toString());
+        }
+
+        List<DriverRow> rows = context.build(node.getSource(), key);
+        if (rows.size() == 1 && rows.get(0).isNull()) {
+
+        }
+
+        Map<Object, List<DriverRow>> groups = new LinkedHashMap<>();
+        for (DriverRow row : rows) {
+            if (row.isNull()) {
+
+            }
+            // Object group =
+            //         groups.computeIfAbsent(ro)
+        }
+
+        throw new IllegalStateException();
     }
 
     @Override
