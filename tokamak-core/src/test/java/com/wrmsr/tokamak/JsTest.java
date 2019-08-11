@@ -81,7 +81,10 @@ public class JsTest
     public void testV8Blob()
             throws Throwable
     {
+        //https://github.com/browserify/browserify
+        //https://cran.r-project.org/web/packages/V8/vignettes/v8_intro.html
         //https://cran.r-project.org/web/packages/V8/vignettes/npm.html
+        //https://github.com/jeroen/V8/blob/a9308d21b087a0ac38e6babe7ff01bc7d98c43c1/src/legacy/V8.cpp#L114
 
         V8 v8 = V8.createV8Runtime();
 

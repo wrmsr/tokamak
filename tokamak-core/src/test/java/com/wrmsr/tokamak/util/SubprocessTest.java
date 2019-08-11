@@ -13,6 +13,8 @@
  */
 package com.wrmsr.tokamak.util;
 
+import com.google.common.io.CharStreams;
+import com.wrmsr.tokamak.AppTest;
 import com.wrmsr.tokamak.util.subprocess.FinalizedProcess;
 import com.wrmsr.tokamak.util.subprocess.FinalizedProcessBuilder;
 import org.junit.Test;
@@ -27,18 +29,6 @@ import java.util.concurrent.TimeUnit;
 
 public class SubprocessTest
 {
-    private static final String PYTHON_JSON_SRC = "" +
-            "import json\n" +
-            "import sys\n" +
-            "def _main():\n" +
-            "    for line in sys.stdin:\n" +
-            "        obj = json.loads(line)\n" +
-            "        obj['processed'] = True\n" +
-            "        print(json.dumps(obj))\n" +
-            "        sys.stdout.flush()\n" +
-            "if __name__ == '__main__':\n" +
-            "    _main()\n";
-
     @Test
     public void testSubprocess()
             throws Throwable
@@ -65,11 +55,12 @@ public class SubprocessTest
     public void testPythonSubprocess()
             throws Throwable
     {
+        String src = CharStreams.toString(new InputStreamReader(AppTest.class.getResourceAsStream("lines.py")));
 
         Path tempDir = Files.createTempDirectory("tokamak-temp");
         tempDir.toFile().deleteOnExit();
         Path pyPath = tempDir.resolve("test.py");
-        Files.write(pyPath, PYTHON_JSON_SRC.getBytes());
+        Files.write(pyPath, src.getBytes());
 
         String[] argv = new String[] {
                 "/usr/bin/python",
