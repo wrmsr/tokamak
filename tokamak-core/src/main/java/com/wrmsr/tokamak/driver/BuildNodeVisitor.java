@@ -49,6 +49,7 @@ import com.wrmsr.tokamak.util.Pair;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.IntStream;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
@@ -138,7 +139,25 @@ public class BuildNodeVisitor
         List<DriverRow> lookupRows = context.build(branchFieldKeyPair.first().getNode(), branchFieldKeyPair.second());
         ImmutableList.Builder<DriverRow> ret = ImmutableList.builder();
         for (DriverRow lookupRow : lookupRows) {
+            List<Object> keyValues = branchFieldKeyPair.first().getFields().stream()
+                    .map(lookupRow.getRowView()::get)
+                    .collect(toImmutableList());
 
+            ImmutableList.Builder<List<DriverRow>> nonLookupRowLists = ImmutableList.builder();
+            for (EquijoinNode.Branch nonLookupBranch : node.getBranches()) {
+                if (nonLookupBranch == branchFieldKeyPair.first()) {
+                    continue;
+                }
+                FieldKey nonLookupKey = Key.of(
+                        IntStream.range(0, node.getKeyLength())
+                                .boxed()
+                                .collect(toImmutableMap(
+                                        i -> nonLookupBranch.getFields().get(i),
+                                        keyValues::get)));
+                nonLookupRowLists.add(context.build(nonLookupBranch.getNode(), nonLookupKey));
+            }
+
+            
         }
         return ret.build();
     }
