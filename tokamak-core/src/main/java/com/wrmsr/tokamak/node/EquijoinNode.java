@@ -156,7 +156,7 @@ public final class EquijoinNode
         }
         this.fields = ImmutableMap.copyOf(fields);
 
-        int keyLength = this.branches.stream().map(b -> b.getFields().size()).collect(toSingle());
+        int keyLength = this.branches.stream().map(b -> b.getFields().size()).distinct().collect(toSingle());
         idFieldSets = IntStream.range(0, keyLength)
                 .mapToObj(i -> this.branches.stream().map(b -> b.getFields().get(i)).collect(toImmutableSet()))
                 .collect(toImmutableSet());
