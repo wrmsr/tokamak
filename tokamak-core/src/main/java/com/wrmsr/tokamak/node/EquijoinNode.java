@@ -18,7 +18,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
 import com.wrmsr.tokamak.node.visitor.NodeVisitor;
 import com.wrmsr.tokamak.type.Type;
 import com.wrmsr.tokamak.util.Pair;
@@ -147,11 +146,6 @@ public final class EquijoinNode
                 .filter(e -> e.getValue().size() == 1)
                 .collect(toImmutableMap(Map.Entry::getKey, e -> e.getValue().stream().findFirst().get()));
 
-        Set<String> duplicateNonKeyFields = Sets.intersection(idFields, branchesByUniqueField.keySet());
-        if (!duplicateNonKeyFields.isEmpty()) {
-            throw new IllegalStateException(duplicateNonKeyFields.toString());
-        }
-
         Map<String, Type> fields = new LinkedHashMap<>();
         for (Branch branch : this.branches) {
             for (Map.Entry<String, Type> entry : branch.getNode().getFields().entrySet()) {
@@ -159,6 +153,7 @@ public final class EquijoinNode
                     fields.put(entry.getKey(), entry.getValue());
                 }
                 else {
+                    checkArgument(!idFields.contains(entry.getKey()));
                     checkArgument(fields.get(entry.getKey()).equals(entry.getValue()));
                 }
             }
