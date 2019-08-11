@@ -19,10 +19,8 @@ import com.wrmsr.tokamak.type.Type;
 import java.util.List;
 
 public interface VariadicFunction<T>
-        extends ScalarFunction
+        extends ScalarFunction<T>
 {
-    T apply(Object... args);
-
     static <T> VariadicFunction<T> of(
             String name,
             List<Type> argTypes,
@@ -32,6 +30,12 @@ public interface VariadicFunction<T>
         List<Type> argTypes_ = ImmutableList.copyOf(argTypes);
         return new VariadicFunction<T>()
         {
+            @Override
+            public String toString()
+            {
+                return "VariadicFunction{name='" + getName() + "'}";
+            }
+
             @Override
             public String getName()
             {
@@ -51,7 +55,7 @@ public interface VariadicFunction<T>
             }
 
             @Override
-            public T apply(Object... args)
+            public T invoke(Object... args)
             {
                 return fn.apply(args);
             }

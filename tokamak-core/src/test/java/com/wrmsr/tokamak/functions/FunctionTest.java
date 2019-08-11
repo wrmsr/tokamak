@@ -14,9 +14,13 @@
 package com.wrmsr.tokamak.functions;
 
 import com.wrmsr.tokamak.function.Function;
+import com.wrmsr.tokamak.function.Reflection;
 import com.wrmsr.tokamak.function.RowFunction;
+import com.wrmsr.tokamak.function.ScalarFunction;
 import com.wrmsr.tokamak.type.Type;
 import junit.framework.TestCase;
+
+import java.lang.reflect.Method;
 
 public class FunctionTest
         extends TestCase
@@ -26,5 +30,10 @@ public class FunctionTest
     {
         Function f = RowFunction.anon(Type.LONG, r -> 0L);
         System.out.println(f);
+
+        Method method = System.class.getDeclaredMethod("currentTimeMillis");
+        ScalarFunction function = Reflection.reflect(method);
+        System.out.println(function);
+        System.out.println(function.invoke());
     }
 }

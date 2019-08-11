@@ -18,12 +18,21 @@ import com.wrmsr.tokamak.type.Type;
 
 import java.util.List;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 public interface UnaryFunction<T, R>
-        extends ScalarFunction
+        extends ScalarFunction<R>
 {
-    R apply(T arg);
+    R invoke(T arg);
 
     Type getArgType();
+
+    @Override
+    default R invoke(Object... args)
+    {
+        checkArgument(args.length == 1);
+        return invoke((T) args[0]);
+    }
 
     @Override
     default List<Type> getArgTypes()
@@ -39,6 +48,12 @@ public interface UnaryFunction<T, R>
     {
         return new UnaryFunction<T, R>()
         {
+            @Override
+            public String toString()
+            {
+                return "UnaryFunction{name='" + getName() + "'}";
+            }
+
             @Override
             public String getName()
             {
@@ -58,7 +73,7 @@ public interface UnaryFunction<T, R>
             }
 
             @Override
-            public R apply(T arg)
+            public R invoke(T arg)
             {
                 return fn.apply(arg);
             }

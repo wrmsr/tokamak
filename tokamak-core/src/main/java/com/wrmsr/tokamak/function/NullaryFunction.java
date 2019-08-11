@@ -11,6 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.wrmsr.tokamak.function;
 
 import com.google.common.collect.ImmutableList;
@@ -18,43 +19,34 @@ import com.wrmsr.tokamak.type.Type;
 
 import java.util.List;
 
-import static com.google.common.base.Preconditions.checkArgument;
-
-public interface BinaryFunction<T, U, R>
-        extends ScalarFunction<R>
+public interface NullaryFunction<T>
+        extends ScalarFunction<T>
 {
-    R invoke(T arg0, U arg1);
-
-    Type getArg0Type();
-
-    Type getArg1Type();
+    T invoke();
 
     @Override
-    default R invoke(Object... args)
+    default T invoke(Object... args)
     {
-        checkArgument(args.length == 2);
-        return invoke((T) args[0], (U) args[1]);
+        return invoke();
     }
 
     @Override
     default List<Type> getArgTypes()
     {
-        return ImmutableList.of(getArg0Type(), getArg1Type());
+        return ImmutableList.of();
     }
 
-    static <T, U, R> BinaryFunction<T, U, R> of(
+    static <T> NullaryFunction<T> of(
             String name,
-            Type arg0Type,
-            Type arg1Type,
             Type type,
-            java.util.function.BiFunction<T, U, R> fn)
+            java.util.function.Supplier<T> fn)
     {
-        return new BinaryFunction<T, U, R>()
+        return new NullaryFunction<T>()
         {
             @Override
             public String toString()
             {
-                return "BinaryFunction{name='" + getName() + "'}";
+                return "NullaryFunction{name='" + getName() + "'}";
             }
 
             @Override
@@ -70,31 +62,17 @@ public interface BinaryFunction<T, U, R>
             }
 
             @Override
-            public Type getArg0Type()
+            public T invoke()
             {
-                return arg0Type;
-            }
-
-            @Override
-            public Type getArg1Type()
-            {
-                return arg1Type;
-            }
-
-            @Override
-            public R invoke(T arg0, U arg1)
-            {
-                return fn.apply(arg0, arg1);
+                return fn.get();
             }
         };
     }
 
-    static <T, U, R> BinaryFunction<T, U, R> anon(
-            Type arg0Type,
-            Type arg1Type,
+    static <T> NullaryFunction<T> anon(
             Type type,
-            java.util.function.BiFunction<T, U, R> fn)
+            java.util.function.Supplier<T> fn)
     {
-        return of(Function.genAnonName(), arg0Type, arg1Type, type, fn);
+        return of(Function.genAnonName(), type, fn);
     }
 }

@@ -19,12 +19,18 @@ import com.wrmsr.tokamak.type.Type;
 public interface RowFunction<T>
         extends Function
 {
-    T apply(Row row);
+    T invoke(Row row);
 
     static <T> RowFunction<T> of(String name, Type type, java.util.function.Function<Row, T> fn)
     {
         return new RowFunction<T>()
         {
+            @Override
+            public String toString()
+            {
+                return "RowFunction{name='" + getName() + "'}";
+            }
+
             @Override
             public String getName()
             {
@@ -38,7 +44,7 @@ public interface RowFunction<T>
             }
 
             @Override
-            public T apply(Row row)
+            public T invoke(Row row)
             {
                 return fn.apply(row);
             }
