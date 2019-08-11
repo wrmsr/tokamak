@@ -10,15 +10,50 @@ statement
 
 query
     : COMMIT
-    | SELECT expression
+    | SELECT selectItem (',' selectItem)*
+      (FROM relation (',' relation)*)?
+      (WHERE where=booleanExpression)?
+    ;
+
+selectItem
+    : expression
+    ;
+
+relation
+    : qualifiedName
+    ;
+
+qualifiedName
+    : identifier ('.' identifier)*
+    ;
+
+identifier
+    : IDENTIFIER             #unquotedIdentifier
+    | QUOTED_IDENTIFIER      #quotedIdentifier
     ;
 
 expression
-    : DIGIT+
+    : booleanExpression
+    | qualifiedName
+    | DIGIT+
+    ;
+
+booleanExpression
+    :
     ;
 
 COMMIT: 'commit';
+FROM: 'from';
 SELECT: 'select';
+WHERE: 'where';
+
+IDENTIFIER
+    : (LETTER | '_') (LETTER | DIGIT | '_' | '@' | ':')*
+    ;
+
+QUOTED_IDENTIFIER
+    : '"' ( ~'"' | '""' )* '"'
+    ;
 
 fragment DIGIT
     : [0-9]

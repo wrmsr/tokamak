@@ -31,6 +31,7 @@ public class ParseTest
                 "commit",
                 "select 420",
                 "select /*+ hint */ 1",
+                "select a from a",
         }) {
             CodePointCharStream input = CharStreams.fromString(str);
 

@@ -68,7 +68,11 @@ public class BuildNodeVisitor
     @Override
     public List<DriverRow> visitEquijoinNode(EquijoinNode node, Key key)
     {
-        return super.visitEquijoinNode(node, key);
+        if (key instanceof IdKey) {
+
+        }
+
+        throw new IllegalStateException();
     }
 
     @Override
