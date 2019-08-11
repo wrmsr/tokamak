@@ -109,6 +109,8 @@ public class BuildNodeVisitor
     @Override
     public List<DriverRow> visitEquijoinNode(EquijoinNode node, Key key)
     {
+        Pair<EquijoinNode.Branch, FieldKey> branchFieldKeyPair;
+
         if (key instanceof IdKey) {
             throw new IllegalStateException();
         }
@@ -123,13 +125,22 @@ public class BuildNodeVisitor
                     throw new IllegalStateException("Multiple lookup branches: " + lookupBranches);
                 }
                 EquijoinNode.Branch lookupBranch = checkSingle(lookupBranches);
+                branchFieldKeyPair = Pair.immutable(lookupBranch, fieldKey);
+            }
+            else {
+                throw new UnsupportedOperationException();
             }
         }
         else {
             throw new IllegalStateException();
         }
 
-        throw new IllegalStateException();
+        List<DriverRow> lookupRows = context.build(branchFieldKeyPair.first().getNode(), branchFieldKeyPair.second());
+        ImmutableList.Builder<DriverRow> ret = ImmutableList.builder();
+        for (DriverRow lookupRow : lookupRows) {
+
+        }
+        return ret.build();
     }
 
     @Override
