@@ -60,7 +60,7 @@ public class TaskThread
                 condition.await(timeout.get(ChronoUnit.MILLIS), TimeUnit.MILLISECONDS);
             }
             catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
+                Thread.interrupted();
             }
             finally {
                 lock.unlock();
