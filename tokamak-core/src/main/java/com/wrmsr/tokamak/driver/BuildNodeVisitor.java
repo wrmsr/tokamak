@@ -14,14 +14,17 @@
 package com.wrmsr.tokamak.driver;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Streams;
 import com.wrmsr.tokamak.api.AllKey;
 import com.wrmsr.tokamak.api.FieldKey;
+import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.api.IdKey;
 import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.api.Row;
 import com.wrmsr.tokamak.catalog.Connection;
 import com.wrmsr.tokamak.catalog.Scanner;
 import com.wrmsr.tokamak.catalog.Schema;
+import com.wrmsr.tokamak.codec.CompositeRowIdCodec;
 import com.wrmsr.tokamak.driver.context.DriverContextImpl;
 import com.wrmsr.tokamak.function.Function;
 import com.wrmsr.tokamak.function.RowFunction;
@@ -32,6 +35,7 @@ import com.wrmsr.tokamak.node.EquijoinNode;
 import com.wrmsr.tokamak.node.FilterNode;
 import com.wrmsr.tokamak.node.ListAggregateNode;
 import com.wrmsr.tokamak.node.LookupJoinNode;
+import com.wrmsr.tokamak.node.Node;
 import com.wrmsr.tokamak.node.PersistNode;
 import com.wrmsr.tokamak.node.ProjectNode;
 import com.wrmsr.tokamak.node.Projection;
@@ -40,6 +44,7 @@ import com.wrmsr.tokamak.node.UnionNode;
 import com.wrmsr.tokamak.node.UnnestNode;
 import com.wrmsr.tokamak.node.ValuesNode;
 import com.wrmsr.tokamak.node.visitor.NodeVisitor;
+import com.wrmsr.tokamak.util.Pair;
 
 import java.util.List;
 import java.util.Map;
@@ -50,6 +55,7 @@ import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
+import static com.wrmsr.tokamak.util.MoreCollectors.toSingle;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkSingle;
 
 public class BuildNodeVisitor
@@ -65,7 +71,39 @@ public class BuildNodeVisitor
     @Override
     public List<DriverRow> visitCrossJoinNode(CrossJoinNode node, Key key)
     {
-        return super.visitCrossJoinNode(node, key);
+        List<Pair<Node, Key>> sourceKeyPairs;
+        if (key instanceof AllKey) {
+            sourceKeyPairs = node.getSources().stream()
+                    .map(s -> Pair.immutable(s, key))
+                    .collect(toImmutableList());
+        }
+        else if (key instanceof FieldKey) {
+            FieldKey fieldKey = (FieldKey) key;
+            Node lookupSource = fieldKey.getValuesByField().keySet().stream()
+                    .map(f -> checkNotNull(node.getSourcesByField().get(f)))
+                    .collect(toSingle());
+            sourceKeyPairs = ImmutableList.<Pair<Node, Key>>builder()
+                    .add(Pair.immutable(lookupSource, key))
+                    .addAll(node.getSources().stream()
+                            .filter(s -> s != lookupSource)
+                            .map(s -> Pair.<Node, Key>immutable(s, Key.all()))
+                            .collect(toImmutableList()))
+                    .build();
+        }
+        else if (key instanceof IdKey) {
+            List<Key> idKeys = CompositeRowIdCodec.split(((IdKey) key).getId().getValue()).stream()
+                    .map(Id::of)
+                    .map(Key::of)
+                    .collect(toImmutableList());
+            checkState(idKeys.size() == node.getSources().size());
+            sourceKeyPairs = Streams.zip(node.getSources().stream(), idKeys.stream(), Pair::immutable)
+                    .collect(toImmutableList());
+        }
+        else {
+            throw new IllegalArgumentException(key.toString());
+        }
+
+        throw new IllegalStateException();
     }
 
     @Override
@@ -191,6 +229,7 @@ public class BuildNodeVisitor
 
                 attributes[pos++] = value;
             }
+
             ret.add(
                     new DriverRow(
                             node,
@@ -198,6 +237,7 @@ public class BuildNodeVisitor
                             row.getId(),
                             attributes));
         }
+
         return ret.build();
     }
 

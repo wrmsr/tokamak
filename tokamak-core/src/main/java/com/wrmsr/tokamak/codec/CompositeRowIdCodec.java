@@ -49,29 +49,25 @@ public final class CompositeRowIdCodec
         return components.iterator();
     }
 
-    @Override
-    public Map<String, Object> decode(byte[] data)
+    public static List<byte[]> split(byte[] data)
     {
-        ImmutableMap.Builder<String, Object> builder = ImmutableMap.builder();
+        ImmutableList.Builder<byte[]> parts = ImmutableList.builder();
         ByteArrayInputStream bais = new ByteArrayInputStream(data);
-        for (RowIdCodec child : components) {
+        while (bais.available() > 0) {
             byte[] buf = new byte[1];
             checkState(bais.read(buf, 0, 1) == 1);
             byte[] part = new byte[buf[0]];
             checkState(bais.read(part, 0, part.length) == part.length);
-            Map<String, Object> out = child.decode(part);
-            builder.putAll(out);
+            parts.add(part);
         }
-        return builder.build();
+        return parts.build();
     }
 
-    @Override
-    public byte[] encode(Map<String, Object> data)
+    public static byte[] join(Iterable<byte[]> parts)
     {
         try {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            for (RowIdCodec child : components) {
-                byte[] part = child.encode(data);
+            for (byte[] part : parts) {
                 checkState(part.length < MAX_ID_LENGTH);
                 baos.write(new byte[] {(byte) part.length});
                 baos.write(part);
@@ -81,5 +77,29 @@ public final class CompositeRowIdCodec
         catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public Map<String, Object> decode(byte[] data)
+    {
+        ImmutableMap.Builder<String, Object> builder = ImmutableMap.builder();
+        List<byte[]> parts = split(data);
+        checkState(parts.size() == components.size());
+        ByteArrayInputStream bais = new ByteArrayInputStream(data);
+        for (int i = 0; i < components.size(); ++i) {
+            Map<String, Object> out = components.get(i).decode(parts.get(i));
+            builder.putAll(out);
+        }
+        return builder.build();
+    }
+
+    @Override
+    public byte[] encode(Map<String, Object> data)
+    {
+        ImmutableList.Builder<byte[]> parts = ImmutableList.builder();
+        for (int i = 0; i < components.size(); ++i) {
+            parts.add(components.get(i).encode(data));
+        }
+        return join(parts.build());
     }
 }

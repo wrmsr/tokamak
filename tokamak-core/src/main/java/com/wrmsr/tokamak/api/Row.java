@@ -24,4 +24,14 @@ public interface Row
 
     @Nullable
     Object[] getAttributes();
+
+    default boolean hasId()
+    {
+        return getId() != null;
+    }
+
+    default boolean isNull()
+    {
+        return getAttributes() == null;
+    }
 }
