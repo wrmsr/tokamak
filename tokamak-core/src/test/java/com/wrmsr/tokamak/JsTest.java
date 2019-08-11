@@ -53,7 +53,7 @@ public class JsTest
     public void testV8Blob()
             throws Throwable
     {
-        String src = CharStreams.toString(new InputStreamReader(AppTest.class.getResourceAsStream("blob.js")));
+        String src = CharStreams.toString(new InputStreamReader(AppTest.class.getResourceAsStream("blob.js.txt")));
         V8 v8 = V8.createV8Runtime();
         V8Object ret = v8.executeObjectScript(src);
         System.out.println(ret);
