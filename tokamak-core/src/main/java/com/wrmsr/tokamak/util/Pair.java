@@ -220,14 +220,14 @@ public interface Pair<K, V>
         private JavaType firstType;
         private JavaType secondType;
 
-        abstract Deserializer newDeserializer();
+        abstract Deserializer<?> newDeserializer();
 
         abstract P newPair(Object first, Object second);
 
         @Override
         public JsonDeserializer<?> createContextual(DeserializationContext ctx, BeanProperty property)
         {
-            Pair.Deserializer deserializer = newDeserializer();
+            Pair.Deserializer<?> deserializer = newDeserializer();
             if (property != null) {
                 JavaType mapType = property.getType();
                 deserializer.firstType = mapType.containedType(0);
@@ -247,8 +247,10 @@ public interface Pair<K, V>
             checkState(parser.currentToken() == JsonToken.START_ARRAY);
             ObjectCodec codec = parser.getCodec();
             parser.nextToken();
-            Object first = codec.readValue(codec.treeAsTokens(parser.readValueAsTree()), firstType);
-            Object second = codec.readValue(codec.treeAsTokens(parser.readValueAsTree()), secondType);
+            Object first = codec.readValue(codec.treeAsTokens(
+                    parser.readValueAsTree()), firstType != null ? firstType : ctx.constructType(Object.class));
+            Object second = codec.readValue(codec.treeAsTokens(
+                    parser.readValueAsTree()), secondType != null ? secondType : ctx.constructType(Object.class));
             checkState(parser.nextToken() == JsonToken.END_ARRAY);
             return newPair(first, second);
         }
@@ -258,7 +260,7 @@ public interface Pair<K, V>
             extends Deserializer<Immutable<?, ?>>
     {
         @Override
-        Deserializer newDeserializer()
+        Deserializer<?> newDeserializer()
         {
             return new ImmutableDeserializer();
         }
@@ -274,7 +276,7 @@ public interface Pair<K, V>
             extends Deserializer<Mutable<?, ?>>
     {
         @Override
-        Deserializer newDeserializer()
+        Deserializer<?> newDeserializer()
         {
             return new MutableDeserializer();
         }
