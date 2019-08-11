@@ -176,7 +176,8 @@ public class AppTest
                 filterNode0,
                 Projection.of(
                         "N_NATIONKEY", "N_NATIONKEY",
-                        "N_NAME", catalog.addFunction(RowViewFunction.anon(Type.STRING, rv -> rv.get("N_NAME") + "!"))
+                        "N_NAME", catalog.addFunction(RowViewFunction.anon(Type.STRING, rv -> rv.get("N_NAME") + "!")),
+                        "N_REGIONKEY", "N_REGIONKEY"
                 ));
 
         Plan plan = new Plan(projectNode0);
