@@ -18,8 +18,11 @@ import com.eclipsesource.v8.V8Object;
 import com.google.common.io.CharStreams;
 import junit.framework.TestCase;
 
+import javax.script.Bindings;
+import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
+import javax.script.SimpleScriptContext;
 
 import java.io.InputStreamReader;
 
@@ -29,8 +32,31 @@ public class JsTest
     public void testJs()
             throws Throwable
     {
-        ScriptEngine engine = new ScriptEngineManager().getEngineByName("nashorn");
+        //https://docs.oracle.com/javase/8/docs/technotes/guides/scripting/prog_guide/api.html
+        //https://docs.oracle.com/javase/8/docs/technotes/guides/scripting/prog_guide/javascript.html
+
+        ScriptEngineManager engineManager = new ScriptEngineManager();
+        ScriptEngine engine = engineManager.getEngineByName("nashorn");
+
         engine.eval("print('Hello World!');");
+        engine.eval("function add2(v) { return v + 2; }");
+        engine.eval("f(2)");
+        // engine.eval("f(x)", );
+
+        engine.put("x", "hello");
+        // print global variable "x"
+        engine.eval("println(x);");
+        // the above line prints "hello"
+
+        // Now, pass a different script context
+        ScriptContext newContext = new SimpleScriptContext();
+        Bindings engineScope = newContext.getBindings(ScriptContext.ENGINE_SCOPE);
+
+        // add new variable "x" to the new engineScope
+        engineScope.put("x", "world");
+
+        // execute the same script - but this time pass a different script context
+        engine.eval("println(x);", newContext);
     }
 
     public void testV8()
@@ -53,6 +79,7 @@ public class JsTest
     public void testV8Blob()
             throws Throwable
     {
+        //https://cran.r-project.org/web/packages/V8/vignettes/npm.html
         String src = CharStreams.toString(new InputStreamReader(AppTest.class.getResourceAsStream("blob.js.txt")));
         V8 v8 = V8.createV8Runtime();
         V8Object ret = v8.executeObjectScript(src);
