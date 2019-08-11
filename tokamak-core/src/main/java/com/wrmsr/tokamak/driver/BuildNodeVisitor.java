@@ -43,11 +43,14 @@ import com.wrmsr.tokamak.node.visitor.NodeVisitor;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
+import static com.google.common.collect.ImmutableSet.toImmutableSet;
+import static com.wrmsr.tokamak.util.MorePreconditions.checkSingle;
 
 public class BuildNodeVisitor
         extends NodeVisitor<List<DriverRow>, Key>
@@ -72,6 +75,20 @@ public class BuildNodeVisitor
             throw new IllegalStateException();
         }
         else if (key instanceof FieldKey) {
+            FieldKey fieldKey = (FieldKey) key;
+            Set<EquijoinNode.Branch> idBranches = node.getBranchSetsByIdFieldSets().get(fieldKey.getValuesByField().keySet());
+            if (idBranches == null) {
+                Set<EquijoinNode.Branch> lookupBranches = fieldKey.getValuesByField().keySet().stream()
+                        .map(f -> checkNotNull(node.getBranchesByUniqueField().get(f)))
+                        .collect(toImmutableSet());
+                if (lookupBranches.size() != 1) {
+                    throw new IllegalStateException("Multiple lookup branches: " + lookupBranches);
+                }
+                EquijoinNode.Branch lookupBranch = checkSingle(lookupBranches);
+            }
+        }
+        else {
+            throw new IllegalStateException();
         }
 
         throw new IllegalStateException();

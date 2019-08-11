@@ -117,7 +117,6 @@ public final class EquijoinNode
     private final Set<String> idFields;
     private final Map<String, Branch> branchesByUniqueField;
     private final Map<String, Type> fields;
-    private final int keyLength;
     private final Set<Set<String>> guaranteedEqualFieldSets;
 
     @JsonCreator
@@ -162,7 +161,7 @@ public final class EquijoinNode
         }
         this.fields = ImmutableMap.copyOf(fields);
 
-        keyLength = this.branches.stream().map(b -> b.getFields().size()).distinct().collect(toSingle());
+        int keyLength = this.branches.stream().map(b -> b.getFields().size()).distinct().collect(toSingle());
         guaranteedEqualFieldSets = MoreCollections.unify(IntStream.range(0, keyLength)
                 .mapToObj(i -> this.branches.stream().map(b -> b.getFields().get(i)).collect(toImmutableSet()))
                 .collect(toImmutableSet()));
@@ -223,11 +222,6 @@ public final class EquijoinNode
     public Map<String, Branch> getBranchesByUniqueField()
     {
         return branchesByUniqueField;
-    }
-
-    public int getKeyLength()
-    {
-        return keyLength;
     }
 
     public Set<Set<String>> getGuaranteedEqualFieldSets()
