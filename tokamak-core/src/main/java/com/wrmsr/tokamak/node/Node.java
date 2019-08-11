@@ -13,11 +13,10 @@
  */
 package com.wrmsr.tokamak.node;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.wrmsr.tokamak.api.NodeId;
+import com.wrmsr.tokamak.layout.RowLayout;
 import com.wrmsr.tokamak.node.visitor.NodeVisitor;
 import com.wrmsr.tokamak.type.Type;
 
@@ -54,6 +53,11 @@ public interface Node
     Map<String, Type> getFields();
 
     Set<Set<String>> getIdFieldSets();
+
+    default RowLayout getRowLayout()
+    {
+        return new RowLayout(getFields());
+    }
 
     <R, C> R accept(NodeVisitor<R, C> visitor, C context);
 }

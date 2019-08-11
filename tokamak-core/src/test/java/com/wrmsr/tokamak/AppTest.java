@@ -21,12 +21,14 @@ import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.api.Row;
 import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.catalog.Catalog;
-import com.wrmsr.tokamak.catalog.Schema;
 import com.wrmsr.tokamak.driver.DriverImpl;
+import com.wrmsr.tokamak.function.RowViewFunction;
 import com.wrmsr.tokamak.jdbc.JdbcConnector;
 import com.wrmsr.tokamak.jdbc.JdbcUtils;
 import com.wrmsr.tokamak.node.FilterNode;
 import com.wrmsr.tokamak.node.Node;
+import com.wrmsr.tokamak.node.ProjectNode;
+import com.wrmsr.tokamak.node.Projection;
 import com.wrmsr.tokamak.node.ScanNode;
 import com.wrmsr.tokamak.plan.Plan;
 import com.wrmsr.tokamak.type.Type;
@@ -138,6 +140,12 @@ public class AppTest
             return null;
         });
 
+        Catalog catalog = new Catalog();
+        JdbcConnector jdbcConnector = new JdbcConnector("jdbc", url);
+        catalog
+                .getOrBuildSchema("PUBLIC", jdbcConnector)
+                .getOrBuildTable("NATION");
+
         Node scanNode = new ScanNode(
                 "scan",
                 SchemaTable.of("PUBLIC", "NATION"),
@@ -159,13 +167,15 @@ public class AppTest
                 row -> row.getAttributes()[0] != null,
                 false);
 
-        Plan plan = new Plan(filterNode);
+        Node projectNode = new ProjectNode(
+                "project",
+                filterNode,
+                Projection.of(
+                        "N_NATIONKEY", "N_NATIONKEY",
+                        "N_NAME", catalog.addFunction(RowViewFunction.anon(Type.STRING, rv -> rv.get("N_NAME") + "!"))
+                ));
 
-        Catalog catalog = new Catalog();
-        JdbcConnector jdbcConnector = new JdbcConnector("jdbc", url);
-        catalog
-                .getOrBuildSchema("PUBLIC", jdbcConnector)
-                .getOrBuildTable("NATION");
+        Plan plan = new Plan(projectNode);
 
         DriverImpl driver = new DriverImpl(catalog, plan);
 

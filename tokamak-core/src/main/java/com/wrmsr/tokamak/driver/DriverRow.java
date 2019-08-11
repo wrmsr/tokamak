@@ -15,6 +15,7 @@ package com.wrmsr.tokamak.driver;
 
 import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.api.Row;
+import com.wrmsr.tokamak.layout.RowView;
 import com.wrmsr.tokamak.node.Node;
 
 import javax.annotation.Nullable;
@@ -63,6 +64,11 @@ public final class DriverRow
     public Set<DriverRow> getLineage()
     {
         return lineage;
+    }
+
+    public RowView getRowView()
+    {
+        return new RowView(node.getRowLayout(), attributes);
     }
 
     @Override

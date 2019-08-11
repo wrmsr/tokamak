@@ -18,7 +18,6 @@ import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.catalog.Connection;
 import com.wrmsr.tokamak.catalog.Connector;
 import com.wrmsr.tokamak.driver.BuildNodeVisitor;
-import com.wrmsr.tokamak.driver.BuildOutput;
 import com.wrmsr.tokamak.driver.DriverContext;
 import com.wrmsr.tokamak.driver.DriverImpl;
 import com.wrmsr.tokamak.driver.DriverRow;
@@ -29,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.collect.ImmutableList.toImmutableList;
 
 public final class DriverContextImpl
         implements DriverContext
@@ -68,12 +66,11 @@ public final class DriverContextImpl
 
     public List<DriverRow> build(Node node, Key key)
     {
-        List<BuildOutput> output = node.accept(
+        List<DriverRow> output = node.accept(
                 new BuildNodeVisitor(this),
                 key);
-
         checkState(!output.isEmpty());
-        return output.stream().map(BuildOutput::getRow).collect(toImmutableList());
+        return output;
     }
 
     @Override

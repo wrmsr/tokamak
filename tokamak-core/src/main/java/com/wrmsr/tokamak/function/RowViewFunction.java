@@ -13,39 +13,22 @@
  */
 package com.wrmsr.tokamak.function;
 
-import com.google.common.collect.ImmutableList;
+import com.wrmsr.tokamak.layout.RowView;
 import com.wrmsr.tokamak.type.Type;
 
-import java.util.List;
-
-public interface NullaryFunction<T>
-        extends ScalarFunction<T>
+public interface RowViewFunction<T>
+        extends Function
 {
-    T invoke();
+    T invoke(RowView rowView);
 
-    @Override
-    default T invoke(Object... args)
+    static <T> RowViewFunction<T> of(String name, Type type, java.util.function.Function<RowView, T> fn)
     {
-        return invoke();
-    }
-
-    @Override
-    default List<Type> getArgTypes()
-    {
-        return ImmutableList.of();
-    }
-
-    static <T> NullaryFunction<T> of(
-            String name,
-            Type type,
-            java.util.function.Supplier<T> fn)
-    {
-        return new NullaryFunction<T>()
+        return new RowViewFunction<T>()
         {
             @Override
             public String toString()
             {
-                return "NullaryFunction{name='" + getName() + "'}";
+                return "RowViewFunction{name='" + getName() + "'}";
             }
 
             @Override
@@ -61,16 +44,14 @@ public interface NullaryFunction<T>
             }
 
             @Override
-            public T invoke()
+            public T invoke(RowView rowView)
             {
-                return fn.get();
+                return fn.apply(rowView);
             }
         };
     }
 
-    static <T> NullaryFunction<T> anon(
-            Type type,
-            java.util.function.Supplier<T> fn)
+    static <T> RowViewFunction<T> anon(Type type, java.util.function.Function<RowView, T> fn)
     {
         return of(Function.genAnonName(), type, fn);
     }

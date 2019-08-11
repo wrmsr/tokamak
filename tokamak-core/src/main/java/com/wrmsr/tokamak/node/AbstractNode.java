@@ -15,6 +15,8 @@ package com.wrmsr.tokamak.node;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wrmsr.tokamak.api.NodeId;
+import com.wrmsr.tokamak.layout.RowLayout;
+import com.wrmsr.tokamak.util.lazy.GetterLazyValue;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -22,7 +24,6 @@ import java.util.Set;
 
 import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkUnique;
-import static org.weakref.jmx.internal.guava.base.Preconditions.checkNotNull;
 import static org.weakref.jmx.internal.guava.base.Preconditions.checkState;
 
 @Immutable
@@ -66,5 +67,13 @@ public abstract class AbstractNode
     public NodeId getId()
     {
         return nodeId;
+    }
+
+    private final GetterLazyValue<RowLayout> rowLayout = new GetterLazyValue<>();
+
+    @Override
+    public RowLayout getRowLayout()
+    {
+        return rowLayout.get(() -> new RowLayout(getFields()));
     }
 }

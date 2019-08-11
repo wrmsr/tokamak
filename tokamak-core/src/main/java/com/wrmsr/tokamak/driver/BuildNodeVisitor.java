@@ -23,6 +23,10 @@ import com.wrmsr.tokamak.catalog.Connection;
 import com.wrmsr.tokamak.catalog.Scanner;
 import com.wrmsr.tokamak.catalog.Schema;
 import com.wrmsr.tokamak.driver.context.DriverContextImpl;
+import com.wrmsr.tokamak.function.Function;
+import com.wrmsr.tokamak.function.RowFunction;
+import com.wrmsr.tokamak.function.RowViewFunction;
+import com.wrmsr.tokamak.layout.RowView;
 import com.wrmsr.tokamak.node.CrossJoinNode;
 import com.wrmsr.tokamak.node.EquijoinNode;
 import com.wrmsr.tokamak.node.FilterNode;
@@ -30,6 +34,7 @@ import com.wrmsr.tokamak.node.ListAggregateNode;
 import com.wrmsr.tokamak.node.LookupJoinNode;
 import com.wrmsr.tokamak.node.PersistNode;
 import com.wrmsr.tokamak.node.ProjectNode;
+import com.wrmsr.tokamak.node.Projection;
 import com.wrmsr.tokamak.node.ScanNode;
 import com.wrmsr.tokamak.node.UnionNode;
 import com.wrmsr.tokamak.node.UnnestNode;
@@ -45,7 +50,7 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
 
 public class BuildNodeVisitor
-        extends NodeVisitor<List<BuildOutput>, Key>
+        extends NodeVisitor<List<DriverRow>, Key>
 {
     private final DriverContextImpl context;
 
@@ -55,21 +60,21 @@ public class BuildNodeVisitor
     }
 
     @Override
-    public List<BuildOutput> visitCrossJoinNode(CrossJoinNode node, Key key)
+    public List<DriverRow> visitCrossJoinNode(CrossJoinNode node, Key key)
     {
         return super.visitCrossJoinNode(node, key);
     }
 
     @Override
-    public List<BuildOutput> visitEquijoinNode(EquijoinNode node, Key key)
+    public List<DriverRow> visitEquijoinNode(EquijoinNode node, Key key)
     {
         return super.visitEquijoinNode(node, key);
     }
 
     @Override
-    public List<BuildOutput> visitFilterNode(FilterNode node, Key key)
+    public List<DriverRow> visitFilterNode(FilterNode node, Key key)
     {
-        ImmutableList.Builder<BuildOutput> ret = ImmutableList.builder();
+        ImmutableList.Builder<DriverRow> ret = ImmutableList.builder();
         for (DriverRow row : context.build(node.getSource(), key)) {
             Object[] attributes;
             if (node.getPredicate().test(row)) {
@@ -79,36 +84,35 @@ public class BuildNodeVisitor
                 attributes = null;
             }
             ret.add(
-                    new BuildOutput(
-                            new DriverRow(
-                                    node,
-                                    context.getDriver().getLineagePolicy().build(row),
-                                    row.getId(),
-                                    attributes)));
+                    new DriverRow(
+                            node,
+                            context.getDriver().getLineagePolicy().build(row),
+                            row.getId(),
+                            attributes));
         }
         return ret.build();
     }
 
     @Override
-    public List<BuildOutput> visitListAggregateNode(ListAggregateNode node, Key key)
+    public List<DriverRow> visitListAggregateNode(ListAggregateNode node, Key key)
     {
         return super.visitListAggregateNode(node, key);
     }
 
     @Override
-    public List<BuildOutput> visitLookupJoinNode(LookupJoinNode node, Key key)
+    public List<DriverRow> visitLookupJoinNode(LookupJoinNode node, Key key)
     {
         return super.visitLookupJoinNode(node, key);
     }
 
     @Override
-    public List<BuildOutput> visitPersistNode(PersistNode node, Key key)
+    public List<DriverRow> visitPersistNode(PersistNode node, Key key)
     {
         return super.visitPersistNode(node, key);
     }
 
     @Override
-    public List<BuildOutput> visitProjectNode(ProjectNode node, Key key)
+    public List<DriverRow> visitProjectNode(ProjectNode node, Key key)
     {
         Key sourceKey;
         if (key instanceof IdKey || key instanceof AllKey) {
@@ -126,18 +130,50 @@ public class BuildNodeVisitor
             throw new IllegalArgumentException(key.toString());
         }
 
-        // ImmutableList.Builder<BuildOutput> ret = ImmutableList.builder();
-        // for (DriverRow row : context.build(node.getSource(), sourceKey)) {
-        //     Object[] attributes = new Object[node.getFields().size()];
-        //     for ()
-        //
-        // }
-        // return ret.build();
-        throw new IllegalStateException();
+        ImmutableList.Builder<DriverRow> ret = ImmutableList.builder();
+        for (DriverRow row : context.build(node.getSource(), sourceKey)) {
+            RowView rowView = row.getRowView();
+            Object[] attributes = new Object[node.getFields().size()];
+            int pos = 0;
+            for (Map.Entry<String, Projection.Input> entry : node.getProjection()) {
+                Object value;
+
+                if (entry.getValue() instanceof Projection.FieldInput) {
+                    Projection.FieldInput fieldInput = (Projection.FieldInput) entry.getValue();
+                    value = rowView.get(fieldInput.getField());
+                }
+                else if (entry.getValue() instanceof Projection.FunctionInput) {
+                    Projection.FunctionInput functionInput = (Projection.FunctionInput) entry.getValue();
+                    Function function = context.getDriver().getCatalog().getFunctionsByName().get(functionInput.getFunction());
+                    checkState(function.getType().equals(functionInput.getType()));
+                    if (function instanceof RowFunction) {
+                        value = ((RowFunction) function).invoke(row);
+                    }
+                    else if (function instanceof RowViewFunction) {
+                        value = ((RowViewFunction) function).invoke(rowView);
+                    }
+                    else {
+                        throw new IllegalStateException(function.toString());
+                    }
+                }
+                else {
+                    throw new IllegalStateException(entry.toString());
+                }
+
+                attributes[pos++] = value;
+            }
+            ret.add(
+                    new DriverRow(
+                            node,
+                            context.getDriver().getLineagePolicy().build(row),
+                            row.getId(),
+                            attributes));
+        }
+        return ret.build();
     }
 
     @Override
-    public List<BuildOutput> visitScanNode(ScanNode node, Key key)
+    public List<DriverRow> visitScanNode(ScanNode node, Key key)
     {
         Scanner scanner = context.getDriver().getScanner(node);
         Schema schema = context.getDriver().getCatalog().getSchemasByName().get(node.getSchemaTable().getSchema());
@@ -145,29 +181,28 @@ public class BuildNodeVisitor
         List<Row> rows = scanner.scan(connection, key);
         checkState(!rows.isEmpty());
         return rows.stream()
-                .map(r -> new BuildOutput(
-                        new DriverRow(
-                                node,
-                                context.getDriver().getLineagePolicy().build(),
-                                r.getId(),
-                                r.getAttributes())))
+                .map(r -> new DriverRow(
+                        node,
+                        context.getDriver().getLineagePolicy().build(),
+                        r.getId(),
+                        r.getAttributes()))
                 .collect(toImmutableList());
     }
 
     @Override
-    public List<BuildOutput> visitUnionNode(UnionNode node, Key key)
+    public List<DriverRow> visitUnionNode(UnionNode node, Key key)
     {
         return super.visitUnionNode(node, key);
     }
 
     @Override
-    public List<BuildOutput> visitUnnestNode(UnnestNode node, Key key)
+    public List<DriverRow> visitUnnestNode(UnnestNode node, Key key)
     {
         return super.visitUnnestNode(node, key);
     }
 
     @Override
-    public List<BuildOutput> visitValuesNode(ValuesNode node, Key key)
+    public List<DriverRow> visitValuesNode(ValuesNode node, Key key)
     {
         return super.visitValuesNode(node, key);
     }
