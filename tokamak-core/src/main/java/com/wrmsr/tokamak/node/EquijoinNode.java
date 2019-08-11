@@ -18,6 +18,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 import com.wrmsr.tokamak.node.visitor.NodeVisitor;
 import com.wrmsr.tokamak.type.Type;
 import com.wrmsr.tokamak.util.MoreCollections;
@@ -112,13 +113,15 @@ public final class EquijoinNode
     private final Mode mode;
 
     private final Map<Node, Set<Branch>> branchSetsByNode;
-    private final Map<Set<String>, Set<Branch>> branchSetsByIdFieldSets;
+    private final Map<Set<String>, Set<Branch>> branchSetsByKeyFieldSet;
     private final Map<String, Set<Branch>> branchSetsByField;
-    private final Set<String> idFields;
+    private final Set<String> keyFields;
     private final Map<String, Branch> branchesByUniqueField;
     private final Map<String, Type> fields;
     private final int keyLength;
     private final Set<Set<String>> guaranteedEqualFieldSets;
+    private final Map<Set<String>, Set<Branch>> branchSetsByIdFieldSet;
+    private final Set<Set<String>> idFieldSets;
 
     @JsonCreator
     public EquijoinNode(
@@ -133,7 +136,7 @@ public final class EquijoinNode
 
         branchSetsByNode = this.branches.stream()
                 .collect(groupingBySet(Branch::getNode));
-        branchSetsByIdFieldSets = this.branches.stream()
+        branchSetsByKeyFieldSet = this.branches.stream()
                 .collect(groupingBySet(b -> ImmutableSet.copyOf(b.getFields())));
 
         branchSetsByField = this.branches.stream()
@@ -141,7 +144,7 @@ public final class EquijoinNode
                 .collect(groupingBy(Pair::first)).entrySet().stream()
                 .collect(toImmutableMap(Map.Entry::getKey, e -> e.getValue().stream().map(Pair::second).collect(toImmutableSet())));
 
-        idFields = this.branches.stream()
+        keyFields = this.branches.stream()
                 .flatMap(b -> b.getFields().stream())
                 .collect(toImmutableSet());
         branchesByUniqueField = this.branchSetsByField.entrySet().stream()
@@ -155,7 +158,7 @@ public final class EquijoinNode
                     fields.put(entry.getKey(), entry.getValue());
                 }
                 else {
-                    checkArgument(!idFields.contains(entry.getKey()));
+                    checkArgument(!keyFields.contains(entry.getKey()));
                     checkArgument(fields.get(entry.getKey()).equals(entry.getValue()));
                 }
             }
@@ -166,6 +169,13 @@ public final class EquijoinNode
         guaranteedEqualFieldSets = MoreCollections.unify(IntStream.range(0, keyLength)
                 .mapToObj(i -> this.branches.stream().map(b -> b.getFields().get(i)).collect(toImmutableSet()))
                 .collect(toImmutableSet()));
+
+        branchSetsByIdFieldSet = this.branches.stream()
+                .flatMap(b -> b.getNode().getIdFieldSets().stream().map(fs -> Pair.immutable(fs, b)))
+                .collect(groupingBySet(Pair::first)).entrySet().stream()
+                .collect(toImmutableMap(Map.Entry::getKey, e -> e.getValue().stream().map(Pair::second).collect(toImmutableSet())));
+        idFieldSets = Sets.cartesianProduct(ImmutableList.copyOf(branchSetsByIdFieldSet.keySet())).stream()
+                .map(l -> ImmutableSet.<String>builder().addAll(l).build()).collect(toImmutableSet());
 
         checkInvariants();
     }
@@ -191,7 +201,7 @@ public final class EquijoinNode
     @Override
     public Set<Set<String>> getIdFieldSets()
     {
-        return branchSetsByIdFieldSets.keySet();
+        return idFieldSets;
     }
 
     @Override
@@ -205,9 +215,9 @@ public final class EquijoinNode
         return branchSetsByNode;
     }
 
-    public Map<Set<String>, Set<Branch>> getBranchSetsByIdFieldSets()
+    public Map<Set<String>, Set<Branch>> getBranchSetsByKeyFieldSet()
     {
-        return branchSetsByIdFieldSets;
+        return branchSetsByKeyFieldSet;
     }
 
     public Map<String, Set<Branch>> getBranchSetsByField()
@@ -215,9 +225,9 @@ public final class EquijoinNode
         return branchSetsByField;
     }
 
-    public Set<String> getIdFields()
+    public Set<String> getKeyFields()
     {
-        return idFields;
+        return keyFields;
     }
 
     public Map<String, Branch> getBranchesByUniqueField()
@@ -233,6 +243,11 @@ public final class EquijoinNode
     public Set<Set<String>> getGuaranteedEqualFieldSets()
     {
         return guaranteedEqualFieldSets;
+    }
+
+    public Map<Set<String>, Set<Branch>> getBranchSetsByIdFieldSet()
+    {
+        return branchSetsByIdFieldSet;
     }
 
     @Override

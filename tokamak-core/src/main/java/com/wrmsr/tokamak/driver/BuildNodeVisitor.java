@@ -68,6 +68,11 @@ import static com.wrmsr.tokamak.util.MorePreconditions.checkSingle;
 public class BuildNodeVisitor
         extends NodeVisitor<List<DriverRow>, Key>
 {
+    /*
+    TODO:
+      - node priorities
+      - EJ cross lookup (one left one right)
+    */
     private final DriverContextImpl context;
 
     public BuildNodeVisitor(DriverContextImpl context)
@@ -123,8 +128,13 @@ public class BuildNodeVisitor
         }
         else if (key instanceof FieldKey) {
             FieldKey fieldKey = (FieldKey) key;
-            Set<EquijoinNode.Branch> idBranches = node.getBranchSetsByIdFieldSets().get(fieldKey.getValuesByField().keySet());
+            Set<EquijoinNode.Branch> idBranches = node.getBranchSetsByKeyFieldSet().get(fieldKey.getValuesByField().keySet());
             if (idBranches == null) {
+                EquijoinNode.Branch idBranch = checkNotNull(idBranches.iterator().next());
+                // branchFieldKeyPair = Pair.immutable(idBranch, Key.of())
+                throw new IllegalStateException();
+            }
+            else {
                 Set<EquijoinNode.Branch> lookupBranches = fieldKey.getValuesByField().keySet().stream()
                         .map(f -> checkNotNull(node.getBranchesByUniqueField().get(f)))
                         .collect(toImmutableSet());
@@ -133,9 +143,6 @@ public class BuildNodeVisitor
                 }
                 EquijoinNode.Branch lookupBranch = checkSingle(lookupBranches);
                 branchFieldKeyPair = Pair.immutable(lookupBranch, fieldKey);
-            }
-            else {
-                throw new UnsupportedOperationException();
             }
         }
         else {
