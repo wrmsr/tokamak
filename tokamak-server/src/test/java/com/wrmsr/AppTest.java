@@ -18,6 +18,8 @@ import com.eclipsesource.v8.V8Object;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
@@ -25,6 +27,9 @@ import com.google.inject.Key;
 import com.google.inject.PrivateModule;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
+import com.wrmsr.tokamak.api.SchemaTable;
+import com.wrmsr.tokamak.node.ScanNode;
+import com.wrmsr.tokamak.type.Type;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -34,12 +39,11 @@ import javax.script.ScriptEngineManager;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 public class AppTest
@@ -169,5 +173,19 @@ public class AppTest
     static public class SomeClass
     {
         String value;
+    }
+
+    public void testCore()
+            throws Throwable
+    {
+        ScanNode scanNode = new ScanNode(
+                "scan0",
+                SchemaTable.of("a", "b"),
+                ImmutableMap.of("id", Type.LONG),
+                ImmutableSet.of(ImmutableSet.of("id")),
+                ImmutableSet.of(),
+                ImmutableMap.of(),
+                ImmutableMap.of(),
+                Optional.empty());
     }
 }

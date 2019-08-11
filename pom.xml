@@ -34,6 +34,32 @@
     <dependencyManagement>
         <dependencies>
 
+            <!-- Self -->
+
+            <dependency>
+                <groupId>com.wrmsr.tokamak</groupId>
+                <artifactId>tokamak-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.wrmsr.tokamak</groupId>
+                <artifactId>tokamak-parser</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.wrmsr.tokamak</groupId>
+                <artifactId>tokamak-server</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.wrmsr.tokamak</groupId>
+                <artifactId>tokamak-spark</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
             <!-- Protobuf -->
 
             <dependency>

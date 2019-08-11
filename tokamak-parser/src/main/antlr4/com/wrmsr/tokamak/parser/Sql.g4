@@ -35,17 +35,24 @@ identifier
 expression
     : booleanExpression
     | qualifiedName
-    | DIGIT+
     ;
 
 booleanExpression
-    :
+    : NOT booleanExpression
+    | primaryExpression
     ;
 
-COMMIT: 'commit';
-FROM: 'from';
-SELECT: 'select';
-WHERE: 'where';
+primaryExpression
+    : NULL
+    | INTEGER_VALUE
+    ;
+
+COMMIT: 'COMMIT';
+FROM: 'FROM';
+NOT: 'NOT';
+NULL: 'NULL';
+SELECT: 'SELECT';
+WHERE: 'WHERE';
 
 IDENTIFIER
     : (LETTER | '_') (LETTER | DIGIT | '_' | '@' | ':')*
@@ -53,6 +60,10 @@ IDENTIFIER
 
 QUOTED_IDENTIFIER
     : '"' ( ~'"' | '""' )* '"'
+    ;
+
+INTEGER_VALUE
+    : DIGIT+
     ;
 
 fragment DIGIT

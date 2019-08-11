@@ -13,11 +13,12 @@
  */
 package com.wrmsr;
 
+import com.wrmsr.tokamak.parser.CaseInsensitiveCharStream;
 import com.wrmsr.tokamak.parser.SqlLexer;
 import com.wrmsr.tokamak.parser.SqlParser;
 import junit.framework.TestCase;
+import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
-import org.antlr.v4.runtime.CodePointCharStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 
@@ -31,9 +32,10 @@ public class ParseTest
                 "commit",
                 "select 420",
                 "select /*+ hint */ 1",
+                "select a",
                 "select a from a",
         }) {
-            CodePointCharStream input = CharStreams.fromString(str);
+            CharStream input = new CaseInsensitiveCharStream(CharStreams.fromString(str));
 
             SqlLexer lexer = new SqlLexer(input);
 
