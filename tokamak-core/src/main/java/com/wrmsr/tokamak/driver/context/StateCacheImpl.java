@@ -37,7 +37,7 @@ import java.util.stream.IntStream;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
 
-public class StateCache
+public class StateCacheImpl
 {
     @FunctionalInterface
     public interface AttributesSetCallback
@@ -60,7 +60,7 @@ public class StateCache
     private final Map<Integer, Set<Id>> pendingInvalidIdSetsByNodePriority;
     private final Set<State> attributesSetCallbackFiredStates;
 
-    public StateCache(
+    public StateCacheImpl(
             Plan plan,
             StateStorage storage,
             List<AttributesSetCallback> attributesSetCallbacks,

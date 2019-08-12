@@ -20,8 +20,8 @@ import com.wrmsr.tokamak.catalog.Catalog;
 import com.wrmsr.tokamak.catalog.Scanner;
 import com.wrmsr.tokamak.catalog.Table;
 import com.wrmsr.tokamak.driver.context.DriverContextImpl;
+import com.wrmsr.tokamak.driver.state.MapStateStorageImpl;
 import com.wrmsr.tokamak.driver.state.StateStorage;
-import com.wrmsr.tokamak.driver.state.StateStorageImpl;
 import com.wrmsr.tokamak.node.Node;
 import com.wrmsr.tokamak.node.ScanNode;
 import com.wrmsr.tokamak.plan.Plan;
@@ -47,7 +47,7 @@ public class DriverImpl
         this.catalog = checkNotNull(catalog);
         this.plan = checkNotNull(plan);
 
-        stateStorage = new StateStorageImpl();
+        stateStorage = new MapStateStorageImpl();
     }
 
     @Override

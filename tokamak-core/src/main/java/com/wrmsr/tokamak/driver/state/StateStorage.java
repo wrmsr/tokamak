@@ -14,11 +14,12 @@
 package com.wrmsr.tokamak.driver.state;
 
 import com.wrmsr.tokamak.api.Id;
-import com.wrmsr.tokamak.api.Row;
+import com.wrmsr.tokamak.driver.DriverRow;
 import com.wrmsr.tokamak.node.StatefulNode;
 import com.wrmsr.tokamak.util.Span;
 
 import java.io.IOException;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.OptionalInt;
@@ -29,51 +30,32 @@ public interface StateStorage
     void setup()
             throws IOException;
 
-    Map<StatefulNode, Map<Id, State>> get(
-            StateStorageContext ctx,
-            Map<StatefulNode, Set<Id>> idSetsByNode,
-            boolean create,
-            boolean linkage,
-            boolean attributes,
-            boolean share,
-            boolean noLock
-    )
+    StateStorageContext createContext();
+
+    enum GetFlag
+    {
+        CREATE,
+        LINKAGE,
+        ATTRIBUTES,
+        SHARE,
+        NOLOCK;
+    }
+
+    Map<StatefulNode, Map<Id, State>> get(StateStorageContext ctx, Map<StatefulNode, Set<Id>> idSetsByNode, EnumSet<GetFlag> flags)
             throws IOException;
 
-    void put(
-            StateStorageContext ctx,
-            List<State> states,
-            boolean create
-    )
+    void put(StateStorageContext ctx, List<State> states, boolean create)
             throws IOException;
 
-    State createPhantom(
-            StateStorageContext ctx,
-            StatefulNode node,
-            Id id,
-            Row row
-    )
+    State createPhantom(StateStorageContext ctx, StatefulNode node, Id id, DriverRow row)
             throws IOException;
 
-    void upgradePhantom(
-            StateStorageContext ctx,
-            State state,
-            boolean linkage,
-            boolean share
-    )
+    void upgradePhantom(StateStorageContext ctx, State state, boolean linkage, boolean share)
             throws IOException;
 
-    void allocate(
-            StateStorageContext ctx,
-            StatefulNode node,
-            Iterable<Id> ids
-    )
+    void allocate(StateStorageContext ctx, StatefulNode node, Iterable<Id> ids)
             throws IOException;
 
-    List<Id> getSpanIds(
-            StateStorageContext ctx,
-            StatefulNode node,
-            Span<Id> span,
-            OptionalInt limit)
+    List<Id> getSpanIds(StateStorageContext ctx, StatefulNode node, Span<Id> span, OptionalInt limit)
             throws IOException;
 }

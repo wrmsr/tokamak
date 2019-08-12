@@ -14,7 +14,8 @@
 package com.wrmsr.tokamak.driver.state;
 
 import com.wrmsr.tokamak.api.Id;
-import com.wrmsr.tokamak.api.Row;
+import com.wrmsr.tokamak.driver.DriverRow;
+import com.wrmsr.tokamak.node.StatefulNode;
 
 import java.util.Optional;
 
@@ -31,15 +32,27 @@ public final class State
         MODIFIED
     }
 
+    private final StateContext context;
     private final Id id;
     private Mode mode;
     private Optional<Linkage> linkage = Optional.empty();
-    private Optional<Row> row = Optional.empty();
+    private Optional<DriverRow> row = Optional.empty();
 
-    public State(Id id, Mode mode)
+    public State(StateContext context, Id id, Mode mode)
     {
+        this.context = checkNotNull(context);
         this.id = checkNotNull(id);
         this.mode = checkNotNull(mode);
+    }
+
+    public StateContext getContext()
+    {
+        return context;
+    }
+
+    public StatefulNode getNode()
+    {
+        return context.getNode();
     }
 
     public Id getId()
@@ -57,7 +70,7 @@ public final class State
         return linkage;
     }
 
-    public Optional<Row> getRow()
+    public Optional<DriverRow> getRow()
     {
         return row;
     }

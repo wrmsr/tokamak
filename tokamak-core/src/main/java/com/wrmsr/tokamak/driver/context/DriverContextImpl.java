@@ -14,36 +14,43 @@
 package com.wrmsr.tokamak.driver.context;
 
 import com.google.common.collect.ImmutableList;
+import com.wrmsr.tokamak.api.FieldKey;
+import com.wrmsr.tokamak.api.Id;
+import com.wrmsr.tokamak.api.IdKey;
 import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.catalog.Connection;
 import com.wrmsr.tokamak.catalog.Connector;
-import com.wrmsr.tokamak.driver.BuildNodeVisitor;
+import com.wrmsr.tokamak.driver.build.BuildNodeVisitor;
 import com.wrmsr.tokamak.driver.DriverContext;
 import com.wrmsr.tokamak.driver.DriverImpl;
 import com.wrmsr.tokamak.driver.DriverRow;
+import com.wrmsr.tokamak.driver.state.State;
 import com.wrmsr.tokamak.node.Node;
+import com.wrmsr.tokamak.node.StatefulNode;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 
-public final class DriverContextImpl
+public class DriverContextImpl
         implements DriverContext
 {
     private final DriverImpl driver;
 
     private final RowCache rowCache;
-    private final StateCache stateCache;
+    private final StateCacheImpl stateCache;
 
     public DriverContextImpl(
             DriverImpl driver)
     {
         this.driver = driver;
 
-        this.rowCache = new RowCache();
-        this.stateCache = new StateCache(
+        this.rowCache = new RowCacheImpl();
+        this.stateCache = new StateCacheImpl(
                 driver.getPlan(),
                 driver.getStateStorage(),
                 ImmutableList.of(),
@@ -64,11 +71,35 @@ public final class DriverContextImpl
         return connectionsByConnection.computeIfAbsent(connector, c -> connector.connect());
     }
 
-    public List<DriverRow> build(Node node, Key key)
+    protected Optional<Collection<State>> getStateCached(StatefulNode node, Key key)
     {
+        Id id;
+        if (key instanceof IdKey) {
+            id = ((IdKey) key).getId();
+        }
+        else if (key instanceof FieldKey) {
+            FieldKey fieldKey = (FieldKey) key;
+            if (!node.getIdFieldSets().contains(fieldKey.getFields())) {
+                return Optional.empty();
+            }
+            id =
+        }
+
+    }
+
+    public Collection<DriverRow> build(Node node, Key key)
+    {
+        Optional<Collection<DriverRow>> cached = rowCache.get(node, key);
+        if (cached.isPresent()) {
+            return checkNotEmpty(cached.get());
+        }
+
+        if (node instanceof StatefulNode && key instanceof IdKey || ((key instanceof FieldKey) && node.getIdFieldSets().contains((()))))
+
         List<DriverRow> output = node.accept(
                 new BuildNodeVisitor(this),
                 key);
+
         return checkNotEmpty(output);
     }
 

@@ -25,6 +25,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -69,6 +70,11 @@ public final class FieldKey
     public Map<String, Object> getValuesByField()
     {
         return valuesByField;
+    }
+
+    public Set<String> getFields()
+    {
+        return valuesByField.keySet();
     }
 
     @Override

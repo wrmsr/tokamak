@@ -11,6 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.wrmsr.tokamak.driver.context;
 
 import com.wrmsr.tokamak.api.Id;
@@ -23,15 +24,35 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 
-interface RowCache
+public final class NopRowCacheImpl
+        implements RowCache
 {
-    Optional<Collection<DriverRow>> get(Node node, Key key);
+    @Override
+    public Optional<Collection<DriverRow>> get(Node node, Key key)
+    {
+        return Optional.empty();
+    }
 
-    void put(Node node, Key key, Collection<DriverRow> rows);
+    @Override
+    public void put(Node node, Key key, Collection<DriverRow> rows)
+    {
+    }
 
-    Collection<DriverRow> get(Node node);
+    @Override
+    public Collection<DriverRow> get(Node node)
+    {
+        throw new UnsupportedOperationException();
+    }
 
-    Map<Node, Collection<DriverRow>> get();
+    @Override
+    public Map<Node, Collection<DriverRow>> get()
+    {
+        throw new UnsupportedOperationException();
+    }
 
-    DriverRow get(StatefulNode node, Id id);
+    @Override
+    public DriverRow get(StatefulNode node, Id id)
+    {
+        throw new UnsupportedOperationException();
+    }
 }
