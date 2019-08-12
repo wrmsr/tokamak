@@ -20,8 +20,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.wrmsr.tokamak.api.AllKey;
 import com.wrmsr.tokamak.api.FieldKey;
-import com.wrmsr.tokamak.api.Id;
-import com.wrmsr.tokamak.api.IdKey;
 import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.api.Row;
 import com.wrmsr.tokamak.api.SchemaTable;
@@ -189,7 +187,7 @@ public final class JdbcScanner
     }
 
     @Override
-    public List<Row> scan(Connection connection, Key key)
+    public List<Map<String, Object>> scan(Connection connection, Key key)
     {
         JdbcConnection jdbcConnection = (JdbcConnection) connection;
         Handle handle = jdbcConnection.getHandle();
@@ -198,12 +196,6 @@ public final class JdbcScanner
             FieldKey fieldKey = (FieldKey) key;
             Instance instance = getInstance(fieldKey.getValuesByField().keySet());
             return instance.getRows(handle, fieldKey.getValuesByField());
-        }
-        else if (key instanceof IdKey) {
-            IdKey idKey = (IdKey) key;
-            Instance instance = getInstance(idFields);
-            Map<String, Object> idValuesByField = rowIdCodec.decode(idKey.getId().getValue());
-            return instance.getRows(handle, idValuesByField);
         }
         else if (key instanceof AllKey) {
             Instance instance = getInstance(ImmutableSet.of());

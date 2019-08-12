@@ -14,17 +14,22 @@
 package com.wrmsr.tokamak.util;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static com.google.common.collect.Sets.newIdentityHashSet;
@@ -144,5 +149,17 @@ public final class MoreCollections
         {
             return data;
         }
+    }
+
+    public static <T extends Set<?>> T checkOrdered(T obj)
+    {
+        checkState(obj instanceof ImmutableSet || obj instanceof LinkedHashSet);
+        return obj;
+    }
+
+    public static <T extends Map<?, ?>> T checkOrdered(T obj)
+    {
+        checkState(obj instanceof ImmutableMap || obj instanceof LinkedHashMap || obj instanceof OrderPreservingImmutableMap);
+        return obj;
     }
 }
