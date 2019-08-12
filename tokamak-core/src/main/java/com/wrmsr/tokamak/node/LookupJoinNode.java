@@ -17,6 +17,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.node.visitor.NodeVisitor;
 import com.wrmsr.tokamak.type.Type;
 
@@ -24,7 +25,6 @@ import javax.annotation.concurrent.Immutable;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -41,15 +41,16 @@ public final class LookupJoinNode
     public static final class Branch
     {
         private final Node node;
-        private final String field;
+        private final Set<String> fields;
 
         @JsonCreator
         public Branch(
                 @JsonProperty("node") Node node,
-                @JsonProperty("field") String field)
+                @JsonProperty("fields") Set<String> fields)
         {
             this.node = node;
-            this.field = field;
+            this.fields = ImmutableSet.copyOf(fields);
+            this.fields.forEach(f -> checkArgument(node.getFields().containsKey(f)));
         }
 
         @JsonProperty("node")
@@ -58,39 +59,40 @@ public final class LookupJoinNode
             return node;
         }
 
-        @JsonProperty("field")
-        public String getField()
+        @JsonProperty("fields")
+        public Set<String> getFields()
         {
-            return field;
+            return fields;
         }
     }
 
     private final Node source;
+    private final Set<String> sourceKeyFields;
     private final List<Branch> branches;
-    private final Optional<String> sourceIdField;
 
-    private final Map<String, Branch> branchesByField;
+    private final Map<Set<String>, Branch> branchesByFieldSets;
 
     @JsonCreator
     public LookupJoinNode(
             @JsonProperty("name") String name,
             @JsonProperty("source") Node source,
-            @JsonProperty("branches") List<Branch> branches,
-            @JsonProperty("sourceIdField") Optional<String> sourceIdField)
+            @JsonProperty("sourceKeyFields") Set<String> sourceKeyFields,
+            @JsonProperty("branches") List<Branch> branches)
     {
         super(name);
 
         this.source = checkNotNull(source);
+        this.sourceKeyFields = ImmutableSet.copyOf(sourceKeyFields);
         this.branches = checkNotEmpty(ImmutableList.copyOf(branches));
-        this.sourceIdField = checkNotNull(sourceIdField);
 
-        ImmutableMap.Builder<String, Branch> branchesByField = ImmutableMap.builder();
+        this.sourceKeyFields.forEach(f -> checkArgument(source.getFields().containsKey(f)));
+
+        ImmutableMap.Builder<Set<String>, Branch> branchesByFieldSets = ImmutableMap.builder();
         for (Branch branch : this.branches) {
-            checkArgument(branch.getNode().getFields().containsKey(branch.getField()));
-            checkArgument(source.getFields().containsKey(branch.getField()));
-            branchesByField.put(branch.getField(), branch);
+            branch.getFields().forEach(f -> checkArgument(source.getFields().containsKey(f)));
+            branchesByFieldSets.put(branch.getFields(), branch);
         }
-        this.branchesByField = branchesByField.build();
+        this.branchesByFieldSets = branchesByFieldSets.build();
 
         checkInvariants();
     }
@@ -101,16 +103,16 @@ public final class LookupJoinNode
         return source;
     }
 
+    @JsonProperty("sourceKeyFields")
+    public Set<String> getSourceKeyFields()
+    {
+        return sourceKeyFields;
+    }
+
     @JsonProperty("branches")
     public List<Branch> getBranches()
     {
         return branches;
-    }
-
-    @JsonProperty("sourceIdField")
-    public Optional<String> getSourceIdField()
-    {
-        return sourceIdField;
     }
 
     @Override
@@ -122,21 +124,15 @@ public final class LookupJoinNode
                 .build();
     }
 
-    public Map<String, Branch> getBranchesByField()
-    {
-        return branchesByField;
-    }
-
     @Override
     public Map<String, Type> getFields()
     {
         return source.getFields();
     }
 
-    @Override
-    public Set<Set<String>> getIdFieldSets()
+    public Map<Set<String>, Branch> getBranchesByFieldSets()
     {
-        return source.getIdFieldSets();
+        return branchesByFieldSets;
     }
 
     @Override

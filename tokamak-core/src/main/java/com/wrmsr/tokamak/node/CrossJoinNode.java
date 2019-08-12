@@ -17,22 +17,16 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Sets;
 import com.wrmsr.tokamak.node.visitor.NodeVisitor;
 import com.wrmsr.tokamak.type.Type;
 
 import javax.annotation.concurrent.Immutable;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.collect.ImmutableList.toImmutableList;
-import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
-import static com.wrmsr.tokamak.util.MorePreconditions.checkSingle;
 
 @Immutable
 public final class CrossJoinNode
@@ -50,7 +44,6 @@ public final class CrossJoinNode
 
     private final Map<String, Type> fields;
     private final Map<String, Node> sourcesByField;
-    private final Set<Set<String>> idFieldSets;
 
     @JsonCreator
     public CrossJoinNode(
@@ -74,11 +67,6 @@ public final class CrossJoinNode
         this.fields = fields.build();
         this.sourcesByField = sourcesByField.build();
 
-        checkSingle(this.sources.stream().map(Node::getIdFieldSets).map(Set::size).collect(toImmutableSet()));
-        this.idFieldSets = Sets.cartesianProduct(this.sources.stream().map(Node::getIdFieldSets).collect(toImmutableList())).stream()
-                .map(l -> l.stream().flatMap(Collection::stream).collect(toImmutableSet()))
-                .collect(toImmutableSet());
-
         checkInvariants();
     }
 
@@ -99,12 +87,6 @@ public final class CrossJoinNode
     public Map<String, Type> getFields()
     {
         return fields;
-    }
-
-    @Override
-    public Set<Set<String>> getIdFieldSets()
-    {
-        return idFieldSets;
     }
 
     public Map<String, Node> getSourcesByField()

@@ -27,8 +27,8 @@ import com.wrmsr.tokamak.node.ScanNode;
 import com.wrmsr.tokamak.plan.Plan;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -89,18 +89,21 @@ public class DriverImpl
     }
 
     @Override
-    public List<Row> build(DriverContext context, Node node, Key key)
+    public Collection<Row> build(DriverContext context, Node node, Key key)
             throws IOException
     {
-        DriverContextImpl contextImpl = (DriverContextImpl) context;
-        return (List) contextImpl.build(node, key);
+        checkNotNull(node);
+        checkNotNull(key);
+        DriverContextImpl contextImpl = checkNotNull((DriverContextImpl) context);
+        return (Collection) contextImpl.build(node, key);
     }
 
     @Override
-    public List<Row> sync(DriverContext context, Map<Node, Set<Id>> idSetsByNode)
+    public Collection<Row> sync(DriverContext context, Map<Node, Set<Id>> idSetsByNode)
             throws IOException
     {
-        DriverContextImpl contextImpl = (DriverContextImpl) context;
+        checkNotNull(idSetsByNode);
+        DriverContextImpl contextImpl = checkNotNull((DriverContextImpl) context);
         throw new IllegalStateException();
     }
 }

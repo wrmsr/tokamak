@@ -22,7 +22,6 @@ import com.wrmsr.tokamak.type.Type;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
@@ -51,8 +50,6 @@ public interface Node
     List<Node> getSources();
 
     Map<String, Type> getFields();
-
-    Set<Set<String>> getIdFieldSets();
 
     default RowLayout getRowLayout()
     {

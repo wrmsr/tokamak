@@ -20,11 +20,9 @@ import com.wrmsr.tokamak.util.lazy.GetterLazyValue;
 
 import javax.annotation.concurrent.Immutable;
 
-import java.util.Set;
-
+import static com.google.common.base.Preconditions.checkState;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkUnique;
-import static org.weakref.jmx.internal.guava.base.Preconditions.checkState;
 
 @Immutable
 public abstract class AbstractNode
@@ -43,8 +41,6 @@ public abstract class AbstractNode
     {
         checkUnique(getSources());
         checkState(getSources().isEmpty() == (this instanceof GeneratorNode));
-        Set<String> fieldNames = getFields().keySet();
-        getIdFieldSets().forEach(fs -> fs.forEach(f -> checkState(fieldNames.contains(f))));
     }
 
     @Override

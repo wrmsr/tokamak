@@ -21,7 +21,7 @@ import com.wrmsr.tokamak.node.Node;
 import com.wrmsr.tokamak.plan.Plan;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
@@ -34,9 +34,9 @@ public interface Driver
     DriverContext createContext()
             throws IOException;
 
-    List<Row> build(DriverContext context, Node node, Key key)
+    Collection<Row> build(DriverContext context, Node node, Key key)
             throws IOException;
 
-    List<Row> sync(DriverContext context, Map<Node, Set<Id>> idSetsByNode)
+    Collection<Row> sync(DriverContext context, Map<Node, Set<Id>> idSetsByNode)
             throws IOException;
 }

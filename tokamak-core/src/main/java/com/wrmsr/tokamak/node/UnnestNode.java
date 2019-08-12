@@ -109,12 +109,6 @@ public final class UnnestNode
     }
 
     @Override
-    public Set<Set<String>> getIdFieldSets()
-    {
-        throw new IllegalStateException();
-    }
-
-    @Override
     public <R, C> R accept(NodeVisitor<R, C> visitor, C context)
     {
         return visitor.visitUnnestNode(this, context);

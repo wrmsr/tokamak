@@ -1,0 +1,46 @@
+cj
+        checkSingle(this.sources.stream().map(Node::getIdFieldSets).map(Set::size).collect(toImmutableSet()));
+        this.idFieldSets = Sets.cartesianProduct(this.sources.stream().map(Node::getIdFieldSets).collect(toImmutableList())).stream()
+                .map(l -> l.stream().flatMap(Collection::stream).collect(toImmutableSet()))
+                .collect(toImmutableSet());
+
+ej
+        branchSetsByIdFieldSet = this.branches.stream()
+                .flatMap(b -> b.getNode().getIdFieldSets().stream().map(fs -> Pair.immutable(fs, b)))
+                .collect(groupingBySet(Pair::first)).entrySet().stream()
+                .collect(toImmutableMap(Map.Entry::getKey, e -> e.getValue().stream().map(Pair::second).collect(toImmutableSet())));
+        idFieldSets = Sets.cartesianProduct(ImmutableList.copyOf(branchSetsByIdFieldSet.keySet())).stream()
+                .map(l -> ImmutableSet.<String>builder().addAll(l).build()).collect(toImmutableSet());
+
+prj
+        ImmutableSet.Builder<Set<String>> idFieldSets = ImmutableSet.builder();
+        for (Set<String> set : source.getIdFieldSets()) {
+            Set<List<String>> prods = Sets.cartesianProduct(
+                    set.stream()
+                            .map(projection.getOutputSetsByInputField()::get)
+                            .filter(Objects::nonNull)
+                            .collect(toImmutableList()));
+            for (List<String> prod : prods) {
+                idFieldSets.add(ImmutableSet.copyOf(prod));
+            }
+        }
+        this.idFieldSets = idFieldSets.build();
+
+union
+        if (indexField.isPresent()) {
+            Map<Set<String>, Long> idFieldSetCounts = this.sources.stream()
+                    .map(Node::getIdFieldSets)
+                    .flatMap(Set::stream)
+                    .collect(Collectors.groupingBy(identity(), Collectors.counting()));
+            ImmutableSet.Builder<Set<String>> idFieldSets = ImmutableSet.builder();
+            for (Map.Entry<Set<String>, Long> e : idFieldSetCounts.entrySet()) {
+                checkState(e.getValue() <= this.sources.size());
+                if (e.getValue() == this.sources.size()) {
+                    idFieldSets.add(ImmutableSet.<String>builder().addAll(e.getKey()).add(indexField.get()).build());
+                }
+            }
+            this.idFieldSets = idFieldSets.build();
+        }
+        else {
+            this.idFieldSets = ImmutableSet.of();
+        }

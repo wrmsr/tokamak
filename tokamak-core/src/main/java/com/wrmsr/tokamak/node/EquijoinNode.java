@@ -18,7 +18,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
 import com.wrmsr.tokamak.node.visitor.NodeVisitor;
 import com.wrmsr.tokamak.type.Type;
 import com.wrmsr.tokamak.util.MoreCollections;
@@ -120,8 +119,6 @@ public final class EquijoinNode
     private final Map<String, Type> fields;
     private final int keyLength;
     private final Set<Set<String>> guaranteedEqualFieldSets;
-    private final Map<Set<String>, Set<Branch>> branchSetsByIdFieldSet;
-    private final Set<Set<String>> idFieldSets;
 
     @JsonCreator
     public EquijoinNode(
@@ -170,13 +167,6 @@ public final class EquijoinNode
                 .mapToObj(i -> this.branches.stream().map(b -> b.getFields().get(i)).collect(toImmutableSet()))
                 .collect(toImmutableSet()));
 
-        branchSetsByIdFieldSet = this.branches.stream()
-                .flatMap(b -> b.getNode().getIdFieldSets().stream().map(fs -> Pair.immutable(fs, b)))
-                .collect(groupingBySet(Pair::first)).entrySet().stream()
-                .collect(toImmutableMap(Map.Entry::getKey, e -> e.getValue().stream().map(Pair::second).collect(toImmutableSet())));
-        idFieldSets = Sets.cartesianProduct(ImmutableList.copyOf(branchSetsByIdFieldSet.keySet())).stream()
-                .map(l -> ImmutableSet.<String>builder().addAll(l).build()).collect(toImmutableSet());
-
         checkInvariants();
     }
 
@@ -196,12 +186,6 @@ public final class EquijoinNode
     public Map<String, Type> getFields()
     {
         return fields;
-    }
-
-    @Override
-    public Set<Set<String>> getIdFieldSets()
-    {
-        return idFieldSets;
     }
 
     @Override
@@ -243,11 +227,6 @@ public final class EquijoinNode
     public Set<Set<String>> getGuaranteedEqualFieldSets()
     {
         return guaranteedEqualFieldSets;
-    }
-
-    public Map<Set<String>, Set<Branch>> getBranchSetsByIdFieldSet()
-    {
-        return branchSetsByIdFieldSet;
     }
 
     @Override

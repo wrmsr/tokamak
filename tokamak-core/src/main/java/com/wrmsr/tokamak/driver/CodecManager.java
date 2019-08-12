@@ -14,42 +14,55 @@
 
 package com.wrmsr.tokamak.driver;
 
+import com.wrmsr.tokamak.codec.CompositeRowIdCodec;
 import com.wrmsr.tokamak.codec.IdCodecs;
 import com.wrmsr.tokamak.codec.RowIdCodec;
 import com.wrmsr.tokamak.codec.ScalarRowIdCodec;
 import com.wrmsr.tokamak.node.EquijoinNode;
+import com.wrmsr.tokamak.node.FilterNode;
 import com.wrmsr.tokamak.node.ListAggregateNode;
 import com.wrmsr.tokamak.node.Node;
+import com.wrmsr.tokamak.node.ScanNode;
 import com.wrmsr.tokamak.node.visitor.NodeVisitor;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
-import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.collect.ImmutableList.toImmutableList;
+import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
+import static java.util.function.Function.identity;
 
 public class CodecManager
 {
-    private final Map<Node, Map<Set<String>, RowIdCodec>> rowIdCodecsByIdFieldSetsByNode = new HashMap<>();
+    private final Map<Node, RowIdCodec> rowIdCodecsByNode = new HashMap<>();
 
-    public RowIdCodec getRowIdCodec(Node node, Set<String> idFields)
+    public RowIdCodec getRowIdCodec(Node node)
     {
-        Map<Set<String>, RowIdCodec> nodeMap = rowIdCodecsByIdFieldSetsByNode.computeIfAbsent(node, n -> new HashMap<>());
-        RowIdCodec rowIdCodec = nodeMap.get(idFields);
+        RowIdCodec rowIdCodec = rowIdCodecsByNode.get(node);
         if (rowIdCodec != null) {
             return rowIdCodec;
         }
 
-        checkNotEmpty(idFields);
-        checkArgument(node.getIdFieldSets().contains(idFields));
+        checkNotEmpty(node.getIdFieldSets());
 
         rowIdCodec = node.accept(new NodeVisitor<RowIdCodec, Void>()
         {
             @Override
             public RowIdCodec visitEquijoinNode(EquijoinNode node, Void context)
             {
-                return super.visitEquijoinNode(node, context);
+                return new CompositeRowIdCodec(
+                        node.getBranches().stream()
+                                .map(EquijoinNode.Branch::getNode)
+                                .map(CodecManager.this::getRowIdCodec)
+                                .collect(toImmutableList()));
+            }
+
+            @Override
+            public RowIdCodec visitFilterNode(FilterNode node, Void context)
+            {
+                return getRowIdCodec(node.getSource());
             }
 
             @Override
@@ -58,9 +71,20 @@ public class CodecManager
                 return new ScalarRowIdCodec<>(
                         node.getGroupField(), IdCodecs.CODECS_BY_TYPE.get(node.getFields().get(node.getGroupField())));
             }
+
+            @Override
+            public RowIdCodec visitScanNode(ScanNode node, Void context)
+            {
+                List<String> orderedFields = node.getFields().keySet().stream()
+                        .filter(node.getIdFields()::contains)
+                        .collect(toImmutableList());
+                return IdCodecs.buildRowIdCodec(
+                        orderedFields.stream()
+                                .collect(toImmutableMap(identity(), node.getFields()::get)));
+            }
         }, null);
 
-        nodeMap.put(idFields, rowIdCodec);
+        rowIdCodecsByNode.put(node, rowIdCodec);
         return rowIdCodec;
     }
 }

@@ -96,12 +96,12 @@ public abstract class NodeRewriter<C>
         return new LookupJoinNode(
                 visitNodeName(node.getName(), context),
                 rewrite(node.getSource(), context),
+                node.getSourceKeyFields(),
                 node.getBranches().stream()
                         .map(b -> new LookupJoinNode.Branch(
                                 rewrite(b.getNode(), context),
-                                b.getField()))
-                        .collect(toImmutableList()),
-                node.getSourceIdField());
+                                b.getFields()))
+                        .collect(toImmutableList()));
     }
 
     @Override
@@ -135,7 +135,7 @@ public abstract class NodeRewriter<C>
                 visitNodeName(node.getName(), context),
                 node.getSchemaTable(),
                 node.getFields(),
-                node.getIdFieldSets(),
+                node.getIdFields(),
                 node.getIdNodes(),
                 node.getInvalidations().entrySet().stream()
                         .collect(ImmutableMap.toImmutableMap(e -> visitNodeName(e.getKey(), context), Map.Entry::getValue)),

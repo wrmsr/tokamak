@@ -14,11 +14,11 @@
 package com.wrmsr.tokamak.catalog;
 
 import com.wrmsr.tokamak.api.Key;
-import com.wrmsr.tokamak.api.Row;
 
 import java.util.List;
+import java.util.Map;
 
 public interface Scanner
 {
-    List<Row> scan(Connection connection, Key key);
+    List<Map<String, Object>> scan(Connection connection, Key key);
 }

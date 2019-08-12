@@ -51,7 +51,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
-import java.util.List;
+import java.util.Collection;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkState;
@@ -157,9 +157,7 @@ public class AppTest
                         "N_NAME", Type.STRING,
                         "N_REGIONKEY", Type.LONG
                 ),
-                ImmutableSet.of(
-                        ImmutableSet.of("N_NATIONKEY")
-                ),
+                ImmutableSet.of("N_NATIONKEY"),
                 ImmutableSet.of(),
                 ImmutableMap.of(),
                 ImmutableMap.of(),
@@ -184,7 +182,7 @@ public class AppTest
 
         DriverImpl driver = new DriverImpl(catalog, plan);
 
-        List<Row> buildRows = driver.build(
+        Collection<Row> buildRows = driver.build(
                 driver.createContext(),
                 plan.getRoot(),
                 Key.of("N_NATIONKEY", 10));
@@ -209,9 +207,7 @@ public class AppTest
                         "R_REGIONKEY", Type.LONG,
                         "R_NAME", Type.STRING
                 ),
-                ImmutableSet.of(
-                        ImmutableSet.of("R_REGIONKEY")
-                ),
+                ImmutableSet.of("R_REGIONKEY"),
                 ImmutableSet.of(),
                 ImmutableMap.of(),
                 ImmutableMap.of(),

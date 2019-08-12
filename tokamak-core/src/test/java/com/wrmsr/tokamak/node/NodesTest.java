@@ -52,7 +52,7 @@ public class NodesTest
                 "scan0",
                 SchemaTable.of("public", "hi"),
                 ImmutableMap.of("id", Type.LONG, "thing", Type.STRING),
-                ImmutableSet.of(ImmutableSet.of("id")),
+                ImmutableSet.of("id"),
                 ImmutableSet.of(),
                 ImmutableMap.of(),
                 ImmutableMap.of(),

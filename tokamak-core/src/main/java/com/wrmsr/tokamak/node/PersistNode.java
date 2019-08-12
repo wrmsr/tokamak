@@ -25,7 +25,6 @@ import javax.annotation.concurrent.Immutable;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -80,12 +79,6 @@ public final class PersistNode
     public Map<String, Type> getFields()
     {
         return source.getFields();
-    }
-
-    @Override
-    public Set<Set<String>> getIdFieldSets()
-    {
-        return source.getIdFieldSets();
     }
 
     @Override

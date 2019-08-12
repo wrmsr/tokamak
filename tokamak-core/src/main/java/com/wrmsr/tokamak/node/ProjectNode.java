@@ -16,21 +16,15 @@ package com.wrmsr.tokamak.node;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
 import com.wrmsr.tokamak.node.visitor.NodeVisitor;
 import com.wrmsr.tokamak.type.Type;
 
 import javax.annotation.concurrent.Immutable;
 
-import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.collect.ImmutableList.toImmutableList;
 
 @Immutable
 public final class ProjectNode
@@ -41,7 +35,6 @@ public final class ProjectNode
     private final Projection projection;
 
     private final Map<String, Type> fields;
-    private final Set<Set<String>> idFieldSets;
 
     @JsonCreator
     public ProjectNode(
@@ -72,19 +65,6 @@ public final class ProjectNode
         }
         this.fields = fields.build();
 
-        ImmutableSet.Builder<Set<String>> idFieldSets = ImmutableSet.builder();
-        for (Set<String> set : source.getIdFieldSets()) {
-            Set<List<String>> prods = Sets.cartesianProduct(
-                    set.stream()
-                            .map(projection.getOutputSetsByInputField()::get)
-                            .filter(Objects::nonNull)
-                            .collect(toImmutableList()));
-            for (List<String> prod : prods) {
-                idFieldSets.add(ImmutableSet.copyOf(prod));
-            }
-        }
-        this.idFieldSets = idFieldSets.build();
-
         checkInvariants();
     }
 
@@ -105,12 +85,6 @@ public final class ProjectNode
     public Map<String, Type> getFields()
     {
         return fields;
-    }
-
-    @Override
-    public Set<Set<String>> getIdFieldSets()
-    {
-        return idFieldSets;
     }
 
     @Override

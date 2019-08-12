@@ -15,6 +15,7 @@ package com.wrmsr.tokamak.driver.build;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.google.common.collect.Streams;
 import com.wrmsr.tokamak.api.AllKey;
 import com.wrmsr.tokamak.api.FieldKey;
@@ -65,6 +66,7 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static com.wrmsr.tokamak.util.MoreCollectors.toSingle;
+import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkSingle;
 
 public class BuildNodeVisitor
@@ -347,7 +349,25 @@ public class BuildNodeVisitor
         Scanner scanner = context.getDriver().getScanner(node);
         Schema schema = context.getDriver().getCatalog().getSchemasByName().get(node.getSchemaTable().getSchema());
         Connection connection = context.getConnection(schema.getConnector());
+
+        checkNotEmpty(node.getIdFields());
+
+        Key scanKey;
+        if (key instanceof FieldKey) {
+            FieldKey fieldKey = (FieldKey) key;
+        }
+        else if (key instanceof IdKey) {
+
+        }
+        else if (key instanceof AllKey) {
+
+        }
+        else {
+            throw new IllegalArgumentException(key.toString());
+        }
+
         List<Row> rows = scanner.scan(connection, key);
+
         checkState(!rows.isEmpty());
         return rows.stream()
                 .map(r -> new DriverRow(

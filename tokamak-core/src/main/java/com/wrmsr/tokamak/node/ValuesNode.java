@@ -19,7 +19,6 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.node.visitor.NodeVisitor;
 import com.wrmsr.tokamak.type.Type;
 import com.wrmsr.tokamak.util.OrderPreservingImmutableMap;
@@ -29,7 +28,6 @@ import javax.annotation.concurrent.Immutable;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
 @Immutable
 public final class ValuesNode
@@ -96,17 +94,6 @@ public final class ValuesNode
     public boolean isWeak()
     {
         return weak;
-    }
-
-    @Override
-    public Set<Set<String>> getIdFieldSets()
-    {
-        if (indexField.isPresent()) {
-            return ImmutableSet.of(ImmutableSet.of(indexField.get()));
-        }
-        else {
-            return ImmutableSet.of();
-        }
     }
 
     @Override

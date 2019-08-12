@@ -182,7 +182,7 @@ public class AppTest
                 "scan0",
                 SchemaTable.of("a", "b"),
                 ImmutableMap.of("id", Type.LONG),
-                ImmutableSet.of(ImmutableSet.of("id")),
+                ImmutableSet.of("id"),
                 ImmutableSet.of(),
                 ImmutableMap.of(),
                 ImmutableMap.of(),

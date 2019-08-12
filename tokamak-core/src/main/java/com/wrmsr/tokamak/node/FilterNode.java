@@ -22,7 +22,6 @@ import com.wrmsr.tokamak.type.Type;
 import javax.annotation.concurrent.Immutable;
 
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Predicate;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -75,12 +74,6 @@ public final class FilterNode
     public Map<String, Type> getFields()
     {
         return source.getFields();
-    }
-
-    @Override
-    public Set<Set<String>> getIdFieldSets()
-    {
-        return source.getIdFieldSets();
     }
 
     @Override

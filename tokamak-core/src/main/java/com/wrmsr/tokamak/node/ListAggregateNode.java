@@ -16,7 +16,6 @@ package com.wrmsr.tokamak.node;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.node.visitor.NodeVisitor;
 import com.wrmsr.tokamak.type.ListType;
 import com.wrmsr.tokamak.type.StructType;
@@ -25,7 +24,6 @@ import com.wrmsr.tokamak.type.Type;
 import javax.annotation.concurrent.Immutable;
 
 import java.util.Map;
-import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -90,12 +88,6 @@ public final class ListAggregateNode
     public Map<String, Type> getFields()
     {
         return fields;
-    }
-
-    @Override
-    public Set<Set<String>> getIdFieldSets()
-    {
-        return ImmutableSet.of(ImmutableSet.of(groupField));
     }
 
     @Override
