@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 
 public class DriverContextImpl
@@ -43,6 +44,9 @@ public class DriverContextImpl
 
     private final RowCache rowCache;
     private final StateCacheImpl stateCache;
+
+    private final boolean journaling;
+    private final List<JournalEntry> journalEntries;
 
     public DriverContextImpl(
             DriverImpl driver)
@@ -55,6 +59,18 @@ public class DriverContextImpl
                 driver.getStateStorage(),
                 ImmutableList.of(),
                 Stat.Updater.nop());
+
+        journaling = false;
+        journalEntries = null;
+    }
+
+    protected void addJournalEntry(JournalEntry entry)
+    {
+        if (!journaling) {
+            return;
+        }
+        checkNotNull(journalEntries);
+        journalEntries.add(entry);
     }
 
     @Override
@@ -89,18 +105,29 @@ public class DriverContextImpl
 
     public Collection<DriverRow> build(Node node, Key key)
     {
+        if (journaling) {
+            addJournalEntry(new JournalEntry.BuildInput(node, key));
+        }
+
         Optional<Collection<DriverRow>> cached = rowCache.get(node, key);
         if (cached.isPresent()) {
-            return checkNotEmpty(cached.get());
+            Collection<DriverRow> rows = checkNotEmpty(cached.get());
+            if (journaling) {
+                addJournalEntry(new JournalEntry.RowCachedBuildOutput(node, key, rows));
+            }
+            return rows;
         }
 
         // if (node instanceof StatefulNode && key instanceof IdKey || ((key instanceof FieldKey) && node.getIdFieldSets().contains((()))))
 
-        List<DriverRow> output = node.accept(
+        List<DriverRow> rows = node.accept(
                 new BuildNodeVisitor(this),
                 key);
-
-        return checkNotEmpty(output);
+        checkNotEmpty(rows);
+        if (journaling) {
+            addJournalEntry(new JournalEntry.UncachedBuildOutput(node, key, rows));
+        }
+        return rows;
     }
 
     @Override

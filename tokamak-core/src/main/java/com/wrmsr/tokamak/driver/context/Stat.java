@@ -48,7 +48,10 @@ public enum Stat
 
     public interface Updater
     {
-        void update(Node node, Stat stat);
+        default void update(Node node, Stat stat)
+        {
+            update(node, stat, 1L);
+        }
 
         void update(Node node, Stat stat, long num);
 
@@ -58,11 +61,6 @@ public enum Stat
         {
             return new Updater()
             {
-                @Override
-                public void update(Node node, Stat stat)
-                {
-                }
-
                 @Override
                 public void update(Node node, Stat stat, long num)
                 {

@@ -16,9 +16,14 @@ package com.wrmsr.tokamak.driver.context;
 import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.api.Key;
+import com.wrmsr.tokamak.driver.DriverRow;
+import com.wrmsr.tokamak.driver.state.State;
 import com.wrmsr.tokamak.node.Node;
 
+import java.util.Collection;
 import java.util.Set;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public abstract class JournalEntry
 {
@@ -31,7 +36,7 @@ public abstract class JournalEntry
         RECURSIVE,
     }
 
-    public final class Invalidate
+    public static final class Invalidate
             extends JournalEntry
     {
         private final Node node;
@@ -40,13 +45,13 @@ public abstract class JournalEntry
 
         public Invalidate(Node node, Set<Id> ids, InvalidateReason reason)
         {
-            this.node = node;
+            this.node = checkNotNull(node);
             this.ids = ImmutableSet.copyOf(ids);
-            this.reason = reason;
+            this.reason = checkNotNull(reason);
         }
     }
 
-    public final class BuildInput
+    public static final class BuildInput
             extends JournalEntry
     {
         private final Node node;
@@ -54,42 +59,57 @@ public abstract class JournalEntry
 
         public BuildInput(Node node, Key key)
         {
-            this.node = node;
-            this.key = key;
+            this.node = checkNotNull(node);
+            this.key = checkNotNull(key);
         }
     }
 
-    public final class BuildOutput
+    public static abstract class BuildOutput
             extends JournalEntry
     {
+        private final Node node;
+        private final Key key;
+        private final Collection<DriverRow> rows;
 
+        public BuildOutput(Node node, Key key, Collection<DriverRow> rows)
+        {
+            this.node = checkNotNull(node);
+            this.key = checkNotNull(key);
+            this.rows = checkNotNull(rows);
+        }
     }
 
-    public final class StateCachedBuildOutput
-            extends JournalEntry
+    public static final class RowCachedBuildOutput
+            extends BuildOutput
     {
-
+        public RowCachedBuildOutput(Node node, Key key, Collection<DriverRow> rows)
+        {
+            super(node, key, rows);
+        }
     }
 
-    public final class RowCachedBuildOutput
-            extends JournalEntry
+    public static final class StateCachedBuildOutput
+            extends BuildOutput
     {
+        private final State state;
 
+        public StateCachedBuildOutput(Node node, Key key, Collection<DriverRow> rows, State state)
+        {
+            super(node, key, rows);
+            this.state = checkNotNull(state);
+        }
     }
 
-    public final class UncachedBuildOutput
-            extends JournalEntry
+    public static final class UncachedBuildOutput
+            extends BuildOutput
     {
-
+        public UncachedBuildOutput(Node node, Key key, Collection<DriverRow> rows)
+        {
+            super(node, key, rows);
+        }
     }
 
-    public final class ScanBuildOutput
-            extends JournalEntry
-    {
-
-    }
-
-    public final class DenormalizedInputJournalEntry
+    public static final class DenormalizedInputJournalEntry
             extends JournalEntry
     {
 

@@ -38,6 +38,7 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
 
 public class StateCacheImpl
+        implements StateCache
 {
     @FunctionalInterface
     public interface AttributesSetCallback
