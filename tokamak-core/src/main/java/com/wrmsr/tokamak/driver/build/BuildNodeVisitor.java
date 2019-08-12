@@ -65,6 +65,7 @@ import com.wrmsr.tokamak.node.ValuesNode;
 import com.wrmsr.tokamak.node.visitor.NodeVisitor;
 import com.wrmsr.tokamak.util.Pair;
 
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -164,7 +165,7 @@ public class BuildNodeVisitor
             throw new IllegalStateException();
         }
 
-        List<DriverRow> lookupRows = context.build(branchFieldKeyPair.first().getNode(), branchFieldKeyPair.second());
+        Collection<DriverRow> lookupRows = context.build(branchFieldKeyPair.first().getNode(), branchFieldKeyPair.second());
         ImmutableList.Builder<DriverRow> ret = ImmutableList.builder();
         for (DriverRow lookupRow : lookupRows) {
             List<Object> keyValues = branchFieldKeyPair.first().getFields().stream()
@@ -172,7 +173,7 @@ public class BuildNodeVisitor
                     .collect(toImmutableList());
 
             ImmutableList.Builder<List<DriverRow>> innerRowLists = ImmutableList.builder();
-            innerRowLists.add(lookupRows);
+            innerRowLists.add(ImmutableList.copyOf(lookupRows));
             for (EquijoinNode.Branch nonLookupBranch : node.getBranches()) {
                 if (nonLookupBranch == branchFieldKeyPair.first()) {
                     continue;
@@ -183,7 +184,7 @@ public class BuildNodeVisitor
                                 .collect(toImmutableMap(
                                         i -> nonLookupBranch.getFields().get(i),
                                         keyValues::get)));
-                innerRowLists.add(context.build(nonLookupBranch.getNode(), nonLookupKey));
+                innerRowLists.add(ImmutableList.copyOf(context.build(nonLookupBranch.getNode(), nonLookupKey)));
             }
 
             for (List<DriverRow> product : Lists.cartesianProduct(innerRowLists.build())) {
@@ -256,8 +257,8 @@ public class BuildNodeVisitor
             throw new IllegalArgumentException(key.toString());
         }
 
-        List<DriverRow> rows = context.build(node.getSource(), key);
-        if (rows.size() == 1 && rows.get(0).isNull()) {
+        Collection<DriverRow> rows = context.build(node.getSource(), key);
+        if (rows.size() == 1 && checkSingle(rows).isNull()) {
 
         }
 
