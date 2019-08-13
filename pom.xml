@@ -127,6 +127,12 @@
             <!-- Other -->
 
             <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-core</artifactId>
+                <version>2.12.1</version>
+            </dependency>
+
+            <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
                 <version>28.0-jre</version>
@@ -243,26 +249,46 @@
             </dependency>
 
             <!-- Experimental -->
+            <!-- Experimental -->
+            <!-- Experimental -->
 
-            <dependency>
-                <groupId>org.apache.logging.log4j</groupId>
-                <artifactId>log4j-core</artifactId>
-                <version>2.12.1</version>
-            </dependency>
-
-            <!--
-            <dependency>
-                <groupId>org.rocksdb</groupId>
-                <artifactId>rocksdbjni</artifactId>
-                <version>6.0.1</version>
-            </dependency>
-            -->
+            <!-- Functions -->
 
             <!--
             <dependency>
                 <groupId>org.mozilla</groupId>
                 <artifactId>rhino</artifactId>
                 <version>1.7.11</version>
+            </dependency>
+            -->
+
+            <!-- Data Structures -->
+
+            <dependency>
+                <groupId>com.carrotsearch</groupId>
+                <artifactId>hppc</artifactId>
+                <version>0.8.1</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.tdunning</groupId>
+                <artifactId>t-digest</artifactId>
+                <version>3.2</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.hdrhistogram</groupId>
+                <artifactId>HdrHistogram</artifactId>
+                <version>2.1.11</version>
+            </dependency>
+
+            <!-- Other -->
+
+            <!--
+            <dependency>
+                <groupId>org.rocksdb</groupId>
+                <artifactId>rocksdbjni</artifactId>
+                <version>6.0.1</version>
             </dependency>
             -->
 
@@ -281,16 +307,6 @@
                 <version>0.1.1</version>
             </dependency>
             -->
-
-            <!--
-            <dependency>
-                <groupId>org.jooq</groupId>
-                <artifactId>jooq</artifactId>
-                <version>3.11.11</version>
-            </dependency>
-            -->
-
-
 
             <dependency>
                 <groupId>org.jdbi</groupId>
