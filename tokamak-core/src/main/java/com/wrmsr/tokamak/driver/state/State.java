@@ -35,6 +35,7 @@ public final class State
     private final StateContext context;
     private final Id id;
     private Mode mode;
+    private long version;
     private Optional<Linkage> linkage = Optional.empty();
     private Optional<DriverRow> row = Optional.empty();
 
@@ -63,6 +64,11 @@ public final class State
     public Mode getMode()
     {
         return mode;
+    }
+
+    public long getVersion()
+    {
+        return version;
     }
 
     public Optional<Linkage> getLinkage()
