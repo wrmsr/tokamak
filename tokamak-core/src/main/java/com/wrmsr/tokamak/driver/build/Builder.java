@@ -11,30 +11,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.wrmsr.tokamak.driver.build;
 
 import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.driver.DriverContext;
 import com.wrmsr.tokamak.driver.DriverRow;
-import com.wrmsr.tokamak.node.EquijoinNode;
 
 import java.util.Collection;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
-public class EquijoinBuilder
-        implements Builder
+public interface Builder
 {
-    private final EquijoinNode node;
-
-    public EquijoinBuilder(EquijoinNode node)
-    {
-        this.node = checkNotNull(node);
-    }
-
-    @Override
-    public Collection<DriverRow> build(DriverContext context, Key key)
-    {
-        return null;
-    }
+    Collection<DriverRow> build(DriverContext context, Key key);
 }
