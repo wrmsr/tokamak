@@ -14,11 +14,16 @@
 
 package com.wrmsr.tokamak.util.config;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-@JsonSerialize(using = ConfigObjectMapping.Serializer.class)
-@JsonDeserialize(using = ConfigObjectMapping.Deserializer.class)
-public interface Config
+@Documented
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.METHOD, ElementType.FIELD})
+public @interface ConfigProperty
 {
+    String name() default "";
 }

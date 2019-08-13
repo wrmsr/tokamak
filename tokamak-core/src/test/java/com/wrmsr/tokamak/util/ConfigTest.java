@@ -14,15 +14,23 @@
 
 package com.wrmsr.tokamak.util;
 
+import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.util.config.Config;
+import com.wrmsr.tokamak.util.config.ConfigProperty;
 import junit.framework.TestCase;
+
+import java.util.Map;
 
 public class ConfigTest
         extends TestCase
 {
     public static class ThingConfig
+            implements Config
     {
-        @Config
+        public ThingConfig()
+        {
+        }
+
         private int beanInt;
 
         public int getBeanInt()
@@ -30,13 +38,25 @@ public class ConfigTest
             return beanInt;
         }
 
+        @ConfigProperty
         public ThingConfig setBeanInt(int beanInt)
         {
             this.beanInt = beanInt;
             return this;
         }
 
-        @Config
+        @ConfigProperty
         public int fieldInt;
+    }
+
+    public void testConfig()
+            throws Throwable
+    {
+        Map map = ImmutableMap.of(
+                "beanInt", 1
+        );
+
+        ThingConfig cfg = Json.readValue(Json.writeValue(map), ThingConfig.class);
+        System.out.println(cfg);
     }
 }

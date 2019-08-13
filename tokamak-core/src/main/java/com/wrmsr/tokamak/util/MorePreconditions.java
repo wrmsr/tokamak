@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
@@ -106,5 +107,11 @@ public final class MorePreconditions
         checkNotNull(iterable);
         checkState(!iterable.iterator().hasNext());
         return iterable;
+    }
+
+    public static <T> Class<? extends T> checkSubclass(Class<?> cls, Class<? extends T> supcls)
+    {
+        checkArgument(supcls.isAssignableFrom(cls));
+        return (Class<? extends T>) cls;
     }
 }

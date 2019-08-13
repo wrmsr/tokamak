@@ -543,6 +543,7 @@
                     <encoding>UTF-8</encoding>
                     <compilerArgs>
                         <arg>-Xlint:all,-options,-path</arg>
+                        <arg>-parameters</arg>
                     </compilerArgs>
                 </configuration>
             </plugin>
