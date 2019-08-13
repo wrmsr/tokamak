@@ -48,6 +48,7 @@ booleanExpression
 
 literalExpression
     : NULL            #nullLiteral
+    | STRING_VALUE    #stringLiteral
     | INTEGER_VALUE   #integerLiteral
     ;
 
@@ -65,6 +66,10 @@ IDENTIFIER
 
 QUOTED_IDENTIFIER
     : '"' ( ~'"' | '""' )* '"'
+    ;
+
+STRING_VALUE
+    : '\'' ( ~'\'' | '\'\'' )* '\''
     ;
 
 INTEGER_VALUE

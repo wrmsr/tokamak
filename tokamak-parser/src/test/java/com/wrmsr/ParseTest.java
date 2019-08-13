@@ -20,9 +20,11 @@ import com.wrmsr.tokamak.parser.SqlParser;
 import com.wrmsr.tokamak.parser.tree.AllSelectItem;
 import com.wrmsr.tokamak.parser.tree.Expression;
 import com.wrmsr.tokamak.parser.tree.ExpressionSelectItem;
-import com.wrmsr.tokamak.parser.tree.Number;
+import com.wrmsr.tokamak.parser.tree.IntegerLiteral;
+import com.wrmsr.tokamak.parser.tree.NullLiteral;
 import com.wrmsr.tokamak.parser.tree.Select;
 import com.wrmsr.tokamak.parser.tree.SelectItem;
+import com.wrmsr.tokamak.parser.tree.StringLiteral;
 import com.wrmsr.tokamak.parser.tree.TreeNode;
 import junit.framework.TestCase;
 import org.antlr.v4.runtime.CharStream;
@@ -47,6 +49,7 @@ public class ParseTest
                 "select *",
                 "select 420",
                 "select /*+ hint */ 1",
+                "select 'hu'",
                 "select a",
                 "select a from a",
         }) {
@@ -113,7 +116,19 @@ public class ParseTest
                 @Override
                 public TreeNode visitIntegerLiteral(SqlParser.IntegerLiteralContext ctx)
                 {
-                    return new Number(ctx.getText());
+                    return new IntegerLiteral(Long.parseLong(ctx.getText()));
+                }
+
+                @Override
+                public TreeNode visitNullLiteral(SqlParser.NullLiteralContext ctx)
+                {
+                    return new NullLiteral();
+                }
+
+                @Override
+                public TreeNode visitStringLiteral(SqlParser.StringLiteralContext ctx)
+                {
+                    return new StringLiteral(ctx.STRING_VALUE().getText());
                 }
             });
 

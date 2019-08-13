@@ -13,12 +13,12 @@
  */
 package com.wrmsr.tokamak.parser.tree;
 
-public final class Number
+public final class IntegerLiteral
         extends Literal
 {
-    private final String value;
+    private final long value;
 
-    public Number(String value)
+    public IntegerLiteral(long value)
     {
         this.value = value;
     }

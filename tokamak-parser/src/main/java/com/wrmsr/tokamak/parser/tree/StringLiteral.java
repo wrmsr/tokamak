@@ -11,12 +11,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak;
+package com.wrmsr.tokamak.parser.tree;
 
-public class App
+public final class StringLiteral
+        extends Literal
 {
-    public static void main(String[] args)
-            throws Throwable
+    private final String value;
+
+    public StringLiteral(String value)
     {
+        this.value = value;
     }
 }
