@@ -14,16 +14,13 @@
 package com.wrmsr.tokamak.jdbc;
 
 import com.google.common.base.Joiner;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.wrmsr.tokamak.api.AllKey;
 import com.wrmsr.tokamak.api.FieldKey;
 import com.wrmsr.tokamak.api.Key;
-import com.wrmsr.tokamak.api.Row;
 import com.wrmsr.tokamak.api.SchemaTable;
-import com.wrmsr.tokamak.api.SimpleRow;
 import com.wrmsr.tokamak.catalog.Connection;
 import com.wrmsr.tokamak.catalog.Scanner;
 import com.wrmsr.tokamak.codec.IdCodecs;
@@ -42,6 +39,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
+import static com.wrmsr.tokamak.util.MoreCollections.checkOrdered;
 import static java.util.function.Function.identity;
 
 public final class JdbcScanner
@@ -64,7 +62,7 @@ public final class JdbcScanner
     {
         this.schemaTable = schemaTable;
         this.tableLayout = tableLayout;
-        this.fields = ImmutableSet.copyOf(fields);
+        this.fields = ImmutableSet.copyOf(checkOrdered(fields));
 
         for (String field : this.fields) {
             checkArgument(tableLayout.getRowLayout().getFields().contains(field));
@@ -142,7 +140,7 @@ public final class JdbcScanner
             this.stmt = stmt;
         }
 
-        public List<Row> getRows(Handle handle, Map<String, Object> keyValuesByField)
+        public List<Map<String, Object>> getRows(Handle handle, Map<String, Object> keyValuesByField)
         {
             checkArgument(keyValuesByField.keySet().equals(keyFields));
 
@@ -150,34 +148,9 @@ public final class JdbcScanner
             for (Map.Entry<String, Object> e : keyValuesByField.entrySet()) {
                 query = query.bind(e.getKey(), e.getValue());
             }
-            List<Map<String, Object>> rawRows = query
+            return query
                     .map(new MapMapper(false))
                     .list();
-
-            if (rawRows.isEmpty()) {
-                Id id;
-                if (keyHasIdFields) {
-                    id = Id.of(rowIdCodec.encode(keyValuesByField));
-                }
-                else {
-                    id = null;
-                }
-                return ImmutableList.of(
-                        new SimpleRow(
-                                id,
-                                null));
-            }
-
-            ImmutableList.Builder<Row> rows = ImmutableList.builder();
-            for (Map<String, Object> rawRow : rawRows) {
-                Id id = Id.of(rowIdCodec.encode(rawRow));
-                Object[] attributes = rawRow.entrySet().stream()
-                        .filter(e -> fields.contains(e.getKey()))
-                        .map(Map.Entry::getValue)
-                        .toArray(Object[]::new);
-                rows.add(new SimpleRow(id, attributes));
-            }
-            return rows.build();
         }
     }
 

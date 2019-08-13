@@ -15,19 +15,22 @@ package com.wrmsr.tokamak.node;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.node.visitor.NodeVisitor;
 import com.wrmsr.tokamak.type.Type;
+import com.wrmsr.tokamak.util.OrderPreservingImmutableMap;
 
 import javax.annotation.concurrent.Immutable;
 
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Maps.newLinkedHashMap;
+import static com.wrmsr.tokamak.util.MoreCollections.checkOrdered;
 
 @Immutable
 public final class UnnestNode
@@ -53,7 +56,7 @@ public final class UnnestNode
 
         this.source = checkNotNull(source);
         this.listField = checkNotNull(listField);
-        this.unnestedFields = ImmutableMap.copyOf(unnestedFields);
+        this.unnestedFields = ImmutableMap.copyOf(checkOrdered(unnestedFields));
         this.indexField = checkNotNull(indexField);
 
         Map<String, Type> fields = source.getFields();
@@ -90,6 +93,8 @@ public final class UnnestNode
         return listField;
     }
 
+    @JsonSerialize(using = OrderPreservingImmutableMap.Serializer.class)
+    @JsonDeserialize(using = OrderPreservingImmutableMap.Deserializer.class)
     @JsonProperty("unnestedFields")
     public Map<String, Type> getUnnestedFields()
     {

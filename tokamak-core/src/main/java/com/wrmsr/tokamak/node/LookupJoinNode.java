@@ -30,6 +30,7 @@ import java.util.Set;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableList.toImmutableList;
+import static com.wrmsr.tokamak.util.MoreCollections.checkOrdered;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 
 @Immutable
@@ -49,7 +50,7 @@ public final class LookupJoinNode
                 @JsonProperty("fields") Set<String> fields)
         {
             this.node = node;
-            this.fields = ImmutableSet.copyOf(fields);
+            this.fields = ImmutableSet.copyOf(checkOrdered(fields));
             this.fields.forEach(f -> checkArgument(node.getFields().containsKey(f)));
         }
 
@@ -82,7 +83,7 @@ public final class LookupJoinNode
         super(name);
 
         this.source = checkNotNull(source);
-        this.sourceKeyFields = ImmutableSet.copyOf(sourceKeyFields);
+        this.sourceKeyFields = ImmutableSet.copyOf(checkOrdered(sourceKeyFields));
         this.branches = checkNotEmpty(ImmutableList.copyOf(branches));
 
         this.sourceKeyFields.forEach(f -> checkArgument(source.getFields().containsKey(f)));

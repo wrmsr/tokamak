@@ -15,7 +15,7 @@
  */
 package com.wrmsr.tokamak.util.subprocess;
 
-import io.airlift.log.Logger;
+import com.wrmsr.tokamak.util.Logger;
 
 import java.io.BufferedReader;
 import java.io.Closeable;

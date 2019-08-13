@@ -13,8 +13,6 @@
  */
 package com.wrmsr.tokamak.util;
 
-import io.airlift.log.Logger;
-
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.concurrent.CountDownLatch;

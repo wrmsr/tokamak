@@ -51,6 +51,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static com.sun.tools.javac.util.Assert.checkNonNull;
+import static com.wrmsr.tokamak.util.MoreCollections.checkOrdered;
 import static java.util.function.Function.identity;
 
 @Immutable
@@ -162,7 +163,7 @@ public final class Projection
 
     public Projection(Map<String, Input> inputsByOutput)
     {
-        this.inputsByOutput = new OrderPreservingImmutableMap<>(ImmutableMap.copyOf(inputsByOutput));
+        this.inputsByOutput = new OrderPreservingImmutableMap<>(ImmutableMap.copyOf(checkOrdered(inputsByOutput)));
 
         ImmutableMap.Builder<String, String> inputFieldsByOutput = ImmutableMap.builder();
         Map<String, ImmutableSet.Builder<String>> outputSetsByInputField = new HashMap<>();

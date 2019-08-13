@@ -32,6 +32,7 @@ import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
+import static com.wrmsr.tokamak.util.MoreCollections.checkOrdered;
 
 @Immutable
 public final class ScanNode
@@ -57,7 +58,7 @@ public final class ScanNode
         super(name, invalidations, linkageMasks, lockOverride);
 
         this.schemaTable = checkNotNull(schemaTable);
-        this.fields = ImmutableMap.copyOf(fields);
+        this.fields = ImmutableMap.copyOf(checkOrdered(fields));
         this.idFields = ImmutableSet.copyOf(idFields);
         this.idNodes = ImmutableSet.copyOf(idNodes);
 
