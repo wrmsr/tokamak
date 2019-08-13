@@ -23,8 +23,6 @@ import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.catalog.Connection;
 import com.wrmsr.tokamak.catalog.Scanner;
-import com.wrmsr.tokamak.codec.IdCodecs;
-import com.wrmsr.tokamak.codec.RowIdCodec;
 import com.wrmsr.tokamak.layout.RowLayout;
 import com.wrmsr.tokamak.layout.TableLayout;
 import org.jdbi.v3.core.Handle;
@@ -51,7 +49,6 @@ public final class JdbcScanner
 
     private final RowLayout rowLayout;
     private final Set<String> idFields;
-    private final RowIdCodec rowIdCodec;
 
     private final Map<Set<String>, Instance> instancesByKeyFieldSets = new ConcurrentHashMap<>();
 
@@ -73,10 +70,6 @@ public final class JdbcScanner
                         .collect(toImmutableMap(identity(), tableLayout.getRowLayout().getTypesByField()::get)));
 
         idFields = ImmutableSet.copyOf(tableLayout.getPrimaryKey().getFields());
-
-        rowIdCodec = IdCodecs.buildRowIdCodec(
-                idFields.stream()
-                        .collect(toImmutableMap(identity(), tableLayout.getRowLayout().getTypesByField()::get)));
     }
 
     public SchemaTable getSchemaTable()
@@ -97,11 +90,6 @@ public final class JdbcScanner
     public RowLayout getRowLayout()
     {
         return rowLayout;
-    }
-
-    public RowIdCodec getRowIdCodec()
-    {
-        return rowIdCodec;
     }
 
     private final class Instance

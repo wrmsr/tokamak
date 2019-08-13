@@ -95,9 +95,9 @@ public class DriverContextImpl
         }
         else if (key instanceof FieldKey) {
             FieldKey fieldKey = (FieldKey) key;
-            if (!node.getIdFieldSets().contains(fieldKey.getFields())) {
-                return Optional.empty();
-            }
+            // if (!node.getIdFieldSets().contains(fieldKey.getFields())) {
+            //     return Optional.empty();
+            // }
             // id =
         }
         return Optional.empty();

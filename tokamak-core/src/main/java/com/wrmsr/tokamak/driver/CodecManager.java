@@ -31,7 +31,6 @@ import java.util.Map;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
-import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 import static java.util.function.Function.identity;
 
 public class CodecManager
@@ -44,8 +43,6 @@ public class CodecManager
         if (rowIdCodec != null) {
             return rowIdCodec;
         }
-
-        checkNotEmpty(node.getIdFieldSets());
 
         rowIdCodec = node.accept(new NodeVisitor<RowIdCodec, Void>()
         {

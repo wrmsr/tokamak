@@ -365,7 +365,7 @@ public class BuildNodeVisitor
             throw new IllegalArgumentException(key.toString());
         }
 
-        RowIdCodec rowIdCodec =
+        RowIdCodec rowIdCodec = context.getDriver().getCodecManager().getRowIdCodec(node);
 
         List<Map<String, Object>> scanRows = scanner.scan(connection, key);
         checkState(!scanRows.isEmpty());

@@ -39,13 +39,13 @@ public interface StateCache
 
     void upgradePhantom(StateStorageContext storageCtx, State state, boolean share);
 
-    Collection<State> getStates();
+    Collection<State> get();
 
     Map<Node, Set<Id>> getInvalid();
 
     Optional<Pair.Immutable<Node, Id>> getNextInvalid();
 
-    Map<Id, State> getIdMap(StatefulNode node);
+    Map<Id, State> get(StatefulNode node);
 
     void flush(StateStorageContext storageCtx);
 }

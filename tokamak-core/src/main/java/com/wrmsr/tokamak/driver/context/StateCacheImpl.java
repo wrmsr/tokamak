@@ -85,16 +85,19 @@ public class StateCacheImpl
         attributesSetCallbackFiredStates = new HashSet<>();
     }
 
+    @Override
     public boolean contains(State state)
     {
         return states.contains(state);
     }
 
+    @Override
     public void invalidate(StatefulNode node, Set<Id> ids)
     {
         throw new IllegalStateException();
     }
 
+    @Override
     public boolean isInvalidated(StatefulNode node, Id id)
     {
         throw new IllegalStateException();
@@ -128,11 +131,13 @@ public class StateCacheImpl
         throw new IllegalStateException();
     }
 
+    @Override
     public State setPhantomAttributes(StatefulNode node, Id id, Optional<Row> row)
     {
         throw new IllegalStateException();
     }
 
+    @Override
     public void upgradePhantom(
             StateStorageContext storageCtx,
             State state,
@@ -141,26 +146,31 @@ public class StateCacheImpl
         throw new IllegalStateException();
     }
 
-    public Collection<State> getStates()
+    @Override
+    public Collection<State> get()
     {
         return states;
     }
 
+    @Override
     public Map<Node, Set<Id>> getInvalid()
     {
         throw new IllegalStateException();
     }
 
+    @Override
     public Optional<Pair.Immutable<Node, Id>> getNextInvalid()
     {
         throw new IllegalStateException();
     }
 
-    public Map<Id, State> getIdMap(StatefulNode node)
+    @Override
+    public Map<Id, State> get(StatefulNode node)
     {
         throw new IllegalStateException();
     }
 
+    @Override
     public void flush(StateStorageContext storageCtx)
     {
         throw new IllegalStateException();
