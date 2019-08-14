@@ -23,7 +23,6 @@ import com.wrmsr.tokamak.codec.CompositeRowIdCodec;
 import com.wrmsr.tokamak.driver.DriverRow;
 import com.wrmsr.tokamak.driver.context.DriverContextImpl;
 import com.wrmsr.tokamak.node.EquijoinNode;
-import com.wrmsr.tokamak.node.Node;
 import com.wrmsr.tokamak.util.Pair;
 
 import java.util.Collection;
@@ -35,10 +34,7 @@ import java.util.stream.IntStream;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableList.toImmutableList;
-import static com.google.common.collect.ImmutableMap.toImmutableMap;
-import static com.google.common.collect.ImmutableSet.toImmutableSet;
-import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
-import static com.wrmsr.tokamak.util.MorePreconditions.checkSingle;
+import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 
 public class EquijoinBuilder
         extends AbstractBuilder<EquijoinNode>
@@ -51,7 +47,7 @@ public class EquijoinBuilder
     @Override
     public Collection<DriverRow> build(DriverContextImpl context, Key key)
     {
-        Pair<EquijoinNode.Branch, FieldKey> branchFieldKeyPair;
+        Map<EquijoinNode.Branch, List<Pair<String, Object>>> lookups;
 
         if (key instanceof IdKey) {
             throw new IllegalStateException();
@@ -65,33 +61,30 @@ public class EquijoinBuilder
                 throw new IllegalStateException();
             }
             else {
-                Map<EquijoinNode.Branch, List<Map.Entry<String, Object>>> keyValues = fieldKey.getValuesByField().entrySet().stream()
+                lookups = fieldKey.getValuesByField().entrySet().stream()
                         .map(e -> Pair.immutable(checkNotNull(node.getBranchesByUniqueField().get(e.getKey())), e))
                         .collect(Collectors.groupingBy(Pair::first)).entrySet().stream()
-                        .collect(toImmutableMap(Map.Entry::getKey, e -> e.getValue().stream().map(Pair::second).collect(toImmutableList())));
-
-                checkNotEmpty(keyValues);
-                if (keyValues.size() != 1) {
-                    throw new IllegalStateException("Multiple lookup branches: " + keyValues);
-                }
-
-                EquijoinNode.Branch lookupBranch = checkSingle(keyValues.keySet());
-                branchFieldKeyPair = Pair.immutable(lookupBranch, fieldKey);
+                        .collect(toImmutableMap(Map.Entry::getKey, e -> e.getValue().stream().map(p -> Pair.immutable(p.second())).collect(toImmutableList())));
             }
         }
         else {
             throw new IllegalStateException();
         }
 
-        Collection<DriverRow> lookupRows = context.build(branchFieldKeyPair.first().getNode(), branchFieldKeyPair.second());
+        Map<EquijoinNode.Branch, List<DriverRow>> lookupRowLists = lookups.entrySet().stream()
+                .collect(toImmutableMap(Map.Entry::getKey, e -> ImmutableList.copyOf(
+                        context.build(
+                                e.getKey().getNode(),
+                                Key.of(e.getValue().stream().collect(toImmutableMap()))))));
+
         ImmutableList.Builder<DriverRow> ret = ImmutableList.builder();
-        for (DriverRow lookupRow : lookupRows) {
+        for (List<Map.Entry<EquijoinNode.Branch, Collection<DriverRow>>> lookupRows : lookupRowLists) {
             List<Object> keyValues = branchFieldKeyPair.first().getFields().stream()
                     .map(lookupRow.getRowView()::get)
                     .collect(toImmutableList());
 
             ImmutableList.Builder<List<DriverRow>> innerRowLists = ImmutableList.builder();
-            innerRowLists.add(ImmutableList.copyOf(lookupRows));
+            innerRowLists.add(ImmutableList.copyOf(lookupRowLists));
             for (EquijoinNode.Branch nonLookupBranch : node.getBranches()) {
                 if (nonLookupBranch == branchFieldKeyPair.first()) {
                     continue;

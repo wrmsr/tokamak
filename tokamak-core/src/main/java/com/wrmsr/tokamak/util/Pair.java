@@ -125,6 +125,11 @@ public interface Pair<K, V>
         return new Immutable<>(first, second);
     }
 
+    static <K, V> Immutable<K, V> immutable(Map.Entry<K, V> entry)
+    {
+        return new Immutable<>(entry.getKey(), entry.getValue());
+    }
+
     @JsonSerialize(using = Pair.Serializer.class)
     @JsonDeserialize(using = Pair.MutableDeserializer.class)
     final class Mutable<K, V>
@@ -200,6 +205,11 @@ public interface Pair<K, V>
     static <K, V> Mutable<K, V> mutable(K first, V second)
     {
         return new Mutable<>(first, second);
+    }
+
+    static <K, V> Mutable<K, V> mutable(Map.Entry<K, V> entry)
+    {
+        return new Mutable<>(entry.getKey(), entry.getValue());
     }
 
     final class Serializer
