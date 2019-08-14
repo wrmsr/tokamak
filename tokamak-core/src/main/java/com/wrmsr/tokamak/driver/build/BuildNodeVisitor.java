@@ -349,25 +349,18 @@ public class BuildNodeVisitor
         Schema schema = context.getDriver().getCatalog().getSchemasByName().get(node.getSchemaTable().getSchema());
         Connection connection = context.getConnection(schema.getConnector());
 
-        checkNotEmpty(node.getIdFields());
-
-        Key scanKey;
-        if (key instanceof FieldKey) {
-            FieldKey fieldKey = (FieldKey) key;
-        }
-        else if (key instanceof IdKey) {
-
-        }
-        else if (key instanceof AllKey) {
-
-        }
-        else {
-            throw new IllegalArgumentException(key.toString());
-        }
-
         RowIdCodec rowIdCodec = context.getDriver().getCodecManager().getRowIdCodec(node);
 
-        List<Map<String, Object>> scanRows = scanner.scan(connection, key);
+        Key scanKey;
+        if (key instanceof IdKey) {
+            Map<String, Object> keyFields = rowIdCodec.decode(((IdKey) key).getId().getValue());
+            scanKey = Key.of(keyFields);
+        }
+        else {
+            scanKey = key;
+        }
+
+        List<Map<String, Object>> scanRows = scanner.scan(connection, scanKey);
         checkState(!scanRows.isEmpty());
 
         ImmutableList.Builder<DriverRow> rows = ImmutableList.builder();
