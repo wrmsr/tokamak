@@ -166,13 +166,25 @@ public class EquijoinBuilder
 
             ImmutableMap.Builder<String, Object> keyBuilder = ImmutableMap.builder();
             for (int i = 0; i < node.getKeyLength(); ++i) {
-                keyBuilder.put(branch.getFields().get(i), proto.get(prevLookup.first().getFields().get(i)));
+                keyBuilder.put(branch.getFields().get(i), keyValues[i]);
             }
             Key key = Key.of(keyBuilder.build());
 
-            Collection<DriverRow> rows = context.build(.getNode(), key);
+            Collection<DriverRow> rows = context.build(branch.getNode(), key);
+
+            for (DriverRow row : rows) {
+
+            }
         }
         else {
+
+            builder.add(
+                    new DriverRow(
+                            node,
+                            lineage,
+
+                    )
+            )
 
         }
 
