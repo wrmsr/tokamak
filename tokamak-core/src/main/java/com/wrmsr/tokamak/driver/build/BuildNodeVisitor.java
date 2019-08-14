@@ -132,7 +132,7 @@ public class BuildNodeVisitor
         else if (key instanceof FieldKey) {
             FieldKey fieldKey = (FieldKey) key;
             Set<EquijoinNode.Branch> idBranches = node.getBranchSetsByKeyFieldSet().get(fieldKey.getValuesByField().keySet());
-            if (idBranches == null) {
+            if (idBranches != null) {
                 EquijoinNode.Branch idBranch = checkNotNull(idBranches.iterator().next());
                 // branchFieldKeyPair = Pair.immutable(idBranch, Key.of())
                 throw new IllegalStateException();
