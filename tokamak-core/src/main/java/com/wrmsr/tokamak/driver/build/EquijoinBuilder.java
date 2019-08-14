@@ -37,6 +37,7 @@ import java.util.stream.IntStream;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
+import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 
 public class EquijoinBuilder
@@ -96,17 +97,17 @@ public class EquijoinBuilder
     {
         if (pos < lookups.size()) {
             Pair<EquijoinNode.Branch, Map<String, Object>> lookup = lookups.get(pos);
+
             ImmutableMap.Builder<String, Object> keyBuilder = ImmutableMap.<String, Object>builder()
                     .putAll(lookup.second());
             if (pos > 0) {
-                Pair<EquijoinNode.Branch, Map<String, Object>> prevLookup = lookups.get(pos - 1);
+                List<String> firstLookupKeyFields = lookups.get(0).getFirst().getFields();
                 for (int i = 0; i < node.getKeyLength(); ++i) {
-                    keyBuilder.put(lookup.first().getFields().get(i), proto.get(prevLookup.first().getFields().get(i)));
+                    keyBuilder.put(lookup.first().getFields().get(i), proto.get(firstLookupKeyFields.get(i)));
                 }
-
             }
-
             Key key = Key.of(keyBuilder.build());
+
             Collection<DriverRow> rows = context.build(lookup.first().getNode(), key);
 
             for (DriverRow row : rows) {
@@ -129,6 +130,47 @@ public class EquijoinBuilder
                         context.getDriver().getLineagePolicy().build(ImmutableSet.<DriverRow>builder().addAll(lineage).add(row).build()),
                         pos + 1);
             }
+        }
+        else {
+            Set<EquijoinNode.Branch> lookupBranches = lookups.stream().map(Pair::first).collect(toImmutableSet());
+            List<EquijoinNode.Branch> restBranches = node.getBranches().stream()
+                    .filter(b -> !lookupBranches.contains(b))
+                    .collect(toImmutableList());
+
+            List<Object> restKeyValues = lookups.get(0).first().getFields().stream()
+                    .map(proto::get)
+                    .collect(toImmutableList());
+
+            buildRest(
+                    context,
+                    restBranches,
+                    builder,
+                    proto,
+                    restKeyValues.toArray(),
+                    lineage,
+                    0);
+        }
+    }
+
+    protected void buildRest(
+            DriverContextImpl context,
+            List<EquijoinNode.Branch> branches,
+            ImmutableList.Builder<DriverRow> builder,
+            Map<String, Object> proto,
+            Object[] keyValues,
+            Set<DriverRow> lineage,
+            int pos)
+    {
+        if (pos < branches.size()) {
+            EquijoinNode.Branch branch = branches.get(pos);
+
+            ImmutableMap.Builder<String, Object> keyBuilder = ImmutableMap.builder();
+            for (int i = 0; i < node.getKeyLength(); ++i) {
+                keyBuilder.put(branch.getFields().get(i), proto.get(prevLookup.first().getFields().get(i)));
+            }
+            Key key = Key.of(keyBuilder.build());
+
+            Collection<DriverRow> rows = context.build(.getNode(), key);
         }
         else {
 
