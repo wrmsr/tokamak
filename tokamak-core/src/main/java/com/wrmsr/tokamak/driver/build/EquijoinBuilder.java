@@ -15,6 +15,7 @@ package com.wrmsr.tokamak.driver.build;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.wrmsr.tokamak.api.FieldKey;
 import com.wrmsr.tokamak.api.Id;
@@ -25,7 +26,6 @@ import com.wrmsr.tokamak.driver.DriverRow;
 import com.wrmsr.tokamak.driver.context.DriverContextImpl;
 import com.wrmsr.tokamak.node.EquijoinNode;
 import com.wrmsr.tokamak.util.Pair;
-import org.checkerframework.common.value.qual.IntRange;
 
 import java.util.Collection;
 import java.util.List;
@@ -35,6 +35,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 
@@ -74,69 +75,122 @@ public class EquijoinBuilder
             throw new IllegalStateException();
         }
 
-        throw new IllegalStateException();
+        ImmutableList.Builder<DriverRow> builder = ImmutableList.builder();
+        buildLookups(
+                context,
+                lookups,
+                builder,
+                ImmutableMap.of(),
+                context.getDriver().getLineagePolicy().build(),
+                0);
+        return builder.build();
     }
 
-    // protected List<DriverRow> buildLookups(Map<EquijoinNode.Branch, Map<String, Object>> lookups;
-    // List<Pair<EquijoinNode.Branch, Map<>>>
-    //
-    //     Map<EquijoinNode.Branch, List<DriverRow>> lookupRowMap = lookups.entrySet().stream()
-    //             .collect(toImmutableMap(Map.Entry::getKey, e -> ImmutableList.copyOf(
-    //                     context.build(
-    //                             e.getKey().getNode(),
-    //                             Key.of(e.getValue().stream().collect(toImmutableMap()))))));
-    //
-    //     List<Pair<EquijoinNode.Branch, List<DriverRow>>> lookupRowLists = lookupRowMap.entrySet().stream()
-    //             .map(Pair::immutable).collect(toImmutableList());
-    //     List<List<Integer>> idxProd = Lists.cartesianProduct(
-    //             lookupRowLists.stream()
-    //                     .map(p -> IntStream.range(0, p.second().size()).boxed().collect(toImmutableList()))
-    //                     .collect(toImmutableList());
-    //
-    //     ImmutableList.Builder<DriverRow> ret = ImmutableList.builder();
-    //     for (List<Integer> idxs : idxProd)) {
-    //         List<Object> keyValues = branchFieldKeyPair.first().getFields().stream()
-    //                 .map(lookupRow.getRowView()::get)
-    //                 .collect(toImmutableList());
-    //
-    //         ImmutableList.Builder<List<DriverRow>> innerRowLists = ImmutableList.builder();
-    //         innerRowLists.add(ImmutableList.copyOf(lookupRowLists));
-    //         for (EquijoinNode.Branch nonLookupBranch : node.getBranches()) {
-    //             if (nonLookupBranch == branchFieldKeyPair.first()) {
-    //                 continue;
-    //             }
-    //             FieldKey nonLookupKey = Key.of(
-    //                     IntStream.range(0, node.getKeyLength())
-    //                             .boxed()
-    //                             .collect(toImmutableMap(
-    //                                     i -> nonLookupBranch.getFields().get(i),
-    //                                     keyValues::get)));
-    //             innerRowLists.add(ImmutableList.copyOf(context.build(nonLookupBranch.getNode(), nonLookupKey)));
-    //         }
-    //
-    //         for (List<DriverRow> product : Lists.cartesianProduct(innerRowLists.build())) {
-    //             Object[] attributes = new Object[node.getRowLayout().getFields().size()];
-    //             for (DriverRow row : product) {
-    //                 for (Map.Entry<String, Object> e : row.getRowView()) {
-    //                     int pos = node.getRowLayout().getPositionsByField().get(e.getKey());
-    //                     attributes[pos] = e.getValue();
-    //                 }
-    //             }
-    //             Id id = Id.of(
-    //                     CompositeRowIdCodec.join(
-    //                             product.stream()
-    //                                     .map(DriverRow::getId)
-    //                                     .map(Id::getValue)
-    //                                     .collect(toImmutableList())));
-    //             ret.add(
-    //                     new DriverRow(
-    //                             node,
-    //                             context.getDriver().getLineagePolicy().build(product),
-    //                             id,
-    //                             attributes));
-    //         }
-    //     }
-    //
-    //     return ret.build();
-    // }
+    protected void buildLookups(
+            DriverContextImpl context,
+            List<Pair<EquijoinNode.Branch, Map<String, Object>>> lookups,
+            ImmutableList.Builder<DriverRow> builder,
+            Map<String, Object> proto,
+            Set<DriverRow> lineage,
+            int pos)
+    {
+        if (pos < lookups.size()) {
+            Pair<EquijoinNode.Branch, Map<String, Object>> lookup = lookups.get(pos);
+            ImmutableMap.Builder<String, Object> keyBuilder = ImmutableMap.<String, Object>builder()
+                    .putAll(lookup.second());
+            if (pos > 0) {
+                Pair<EquijoinNode.Branch, Map<String, Object>> prevLookup = lookups.get(pos - 1);
+                for (int i = 0; i < node.getKeyLength(); ++i) {
+                    keyBuilder.put(lookup.first().getFields().get(i), proto.get(prevLookup.first().getFields().get(i)));
+                }
+
+            }
+
+            Key key = Key.of(keyBuilder.build());
+            Collection<DriverRow> rows = context.build(lookup.first().getNode(), key);
+
+            for (DriverRow row : rows) {
+                ImmutableMap.Builder<String, Object> nextProto = ImmutableMap.<String, Object>builder()
+                        .putAll(proto);
+                for (Map.Entry<String, Object> e : row.getRowView().entrySet()) {
+                    if (proto.containsKey(e.getKey())) {
+                        checkState(proto.get(e.getKey()).equals(e.getValue()));
+                    }
+                    else {
+                        nextProto.put(e);
+                    }
+                }
+
+                buildLookups(
+                        context,
+                        lookups,
+                        builder,
+                        nextProto.build(),
+                        context.getDriver().getLineagePolicy().build(ImmutableSet.<DriverRow>builder().addAll(lineage).add(row).build()),
+                        pos + 1);
+            }
+        }
+        else {
+
+        }
+
+        Map<EquijoinNode.Branch, List<DriverRow>> lookupRowMap = lookups.entrySet().stream()
+                .collect(toImmutableMap(Map.Entry::getKey, e -> ImmutableList.copyOf(
+                        context.build(
+                                e.getKey().getNode(),
+                                Key.of(e.getValue().stream().collect(toImmutableMap()))))));
+
+        List<Pair<EquijoinNode.Branch, List<DriverRow>>> lookupRowLists = lookupRowMap.entrySet().stream()
+                .map(Pair::immutable).collect(toImmutableList());
+        List<List<Integer>> idxProd = Lists.cartesianProduct(
+                lookupRowLists.stream()
+                        .map(p -> IntStream.range(0, p.second().size()).boxed().collect(toImmutableList()))
+                        .collect(toImmutableList());
+
+        ImmutableList.Builder<DriverRow> ret = ImmutableList.builder();
+        for (List<Integer> idxs : idxProd)){
+        List<Object> keyValues = branchFieldKeyPair.first().getFields().stream()
+                .map(lookupRow.getRowView()::get)
+                .collect(toImmutableList());
+
+        ImmutableList.Builder<List<DriverRow>> innerRowLists = ImmutableList.builder();
+        innerRowLists.add(ImmutableList.copyOf(lookupRowLists));
+        for (EquijoinNode.Branch nonLookupBranch : node.getBranches()) {
+            if (nonLookupBranch == branchFieldKeyPair.first()) {
+                continue;
+            }
+            FieldKey nonLookupKey = Key.of(
+                    IntStream.range(0, node.getKeyLength())
+                            .boxed()
+                            .collect(toImmutableMap(
+                                    i -> nonLookupBranch.getFields().get(i),
+                                    keyValues::get)));
+            innerRowLists.add(ImmutableList.copyOf(context.build(nonLookupBranch.getNode(), nonLookupKey)));
+        }
+
+        for (List<DriverRow> product : Lists.cartesianProduct(innerRowLists.build())) {
+            Object[] attributes = new Object[node.getRowLayout().getFields().size()];
+            for (DriverRow row : product) {
+                for (Map.Entry<String, Object> e : row.getRowView()) {
+                    int pos = node.getRowLayout().getPositionsByField().get(e.getKey());
+                    attributes[pos] = e.getValue();
+                }
+            }
+            Id id = Id.of(
+                    CompositeRowIdCodec.join(
+                            product.stream()
+                                    .map(DriverRow::getId)
+                                    .map(Id::getValue)
+                                    .collect(toImmutableList())));
+            ret.add(
+                    new DriverRow(
+                            node,
+                            context.getDriver().getLineagePolicy().build(product),
+                            id,
+                            attributes));
+        }
+    }
+
+        return ret.build();
+    }
 }
