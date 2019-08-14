@@ -11,18 +11,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.wrmsr.tokamak.driver.build;
 
-import com.wrmsr.tokamak.api.Key;
-import com.wrmsr.tokamak.driver.DriverRow;
-import com.wrmsr.tokamak.driver.context.DriverContextImpl;
 import com.wrmsr.tokamak.node.Node;
 
-import java.util.Collection;
+import static com.google.common.base.Preconditions.checkNotNull;
 
-public interface Builder<T extends Node>
+public abstract class AbstractBuilder<T extends Node>
+        implements Builder<T>
 {
-    T getNode();
+    protected final T node;
 
-    Collection<DriverRow> build(DriverContextImpl context, Key key);
+    public AbstractBuilder(T node)
+    {
+        this.node = checkNotNull(node);
+    }
+
+    @Override
+    public T getNode()
+    {
+        return node;
+    }
 }

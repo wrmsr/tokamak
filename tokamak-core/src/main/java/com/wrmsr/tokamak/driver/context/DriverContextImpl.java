@@ -23,7 +23,7 @@ import com.wrmsr.tokamak.catalog.Connector;
 import com.wrmsr.tokamak.driver.DriverContext;
 import com.wrmsr.tokamak.driver.DriverImpl;
 import com.wrmsr.tokamak.driver.DriverRow;
-import com.wrmsr.tokamak.driver.build.BuildNodeVisitor;
+import com.wrmsr.tokamak.driver.build.BuildVisitor;
 import com.wrmsr.tokamak.driver.state.State;
 import com.wrmsr.tokamak.node.Node;
 import com.wrmsr.tokamak.node.StatefulNode;
@@ -120,8 +120,8 @@ public class DriverContextImpl
 
         // if (node instanceof StatefulNode && key instanceof IdKey || ((key instanceof FieldKey) && node.getIdFieldSets().contains((()))))
 
-        List<DriverRow> rows = node.accept(
-                new BuildNodeVisitor(this),
+        Collection<DriverRow> rows = node.accept(
+                new BuildVisitor(this),
                 key);
         checkNotEmpty(rows);
         if (journaling) {

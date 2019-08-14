@@ -14,14 +14,12 @@
 package com.wrmsr.tokamak.driver.build;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Streams;
 import com.wrmsr.tokamak.api.AllKey;
 import com.wrmsr.tokamak.api.FieldKey;
 import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.api.IdKey;
 import com.wrmsr.tokamak.api.Key;
-import com.wrmsr.tokamak.api.SimpleRow;
 import com.wrmsr.tokamak.catalog.Connection;
 import com.wrmsr.tokamak.catalog.Scanner;
 import com.wrmsr.tokamak.catalog.Schema;
@@ -52,24 +50,21 @@ import com.wrmsr.tokamak.node.visitor.NodeVisitor;
 import com.wrmsr.tokamak.util.Pair;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.IntStream;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
-import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static com.wrmsr.tokamak.util.MoreCollectors.toSingle;
-import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkSingle;
 
-public class BuildNodeVisitor
-        extends NodeVisitor<List<DriverRow>, Key>
+public class BuildVisitor
+        extends NodeVisitor<Collection<DriverRow>, Key>
 {
     /*
     TODO:
@@ -78,13 +73,13 @@ public class BuildNodeVisitor
     */
     private final DriverContextImpl context;
 
-    public BuildNodeVisitor(DriverContextImpl context)
+    public BuildVisitor(DriverContextImpl context)
     {
         this.context = checkNotNull(context);
     }
 
     @Override
-    public List<DriverRow> visitCrossJoinNode(CrossJoinNode node, Key key)
+    public Collection<DriverRow> visitCrossJoinNode(CrossJoinNode node, Key key)
     {
         List<Pair<Node, Key>> sourceKeyPairs;
         if (key instanceof AllKey) {
@@ -122,86 +117,13 @@ public class BuildNodeVisitor
     }
 
     @Override
-    public List<DriverRow> visitEquijoinNode(EquijoinNode node, Key key)
+    public Collection<DriverRow> visitEquijoinNode(EquijoinNode node, Key key)
     {
-        Pair<EquijoinNode.Branch, FieldKey> branchFieldKeyPair;
-
-        if (key instanceof IdKey) {
-            throw new IllegalStateException();
-        }
-        else if (key instanceof FieldKey) {
-            FieldKey fieldKey = (FieldKey) key;
-            Set<EquijoinNode.Branch> idBranches = node.getBranchSetsByKeyFieldSet().get(fieldKey.getValuesByField().keySet());
-            if (idBranches != null) {
-                EquijoinNode.Branch idBranch = checkNotNull(idBranches.iterator().next());
-                // branchFieldKeyPair = Pair.immutable(idBranch, Key.of())
-                throw new IllegalStateException();
-            }
-            else {
-                Set<EquijoinNode.Branch> lookupBranches = fieldKey.getValuesByField().keySet().stream()
-                        .map(f -> checkNotNull(node.getBranchesByUniqueField().get(f)))
-                        .collect(toImmutableSet());
-                if (lookupBranches.size() != 1) {
-                    throw new IllegalStateException("Multiple lookup branches: " + lookupBranches);
-                }
-                EquijoinNode.Branch lookupBranch = checkSingle(lookupBranches);
-                branchFieldKeyPair = Pair.immutable(lookupBranch, fieldKey);
-            }
-        }
-        else {
-            throw new IllegalStateException();
-        }
-
-        Collection<DriverRow> lookupRows = context.build(branchFieldKeyPair.first().getNode(), branchFieldKeyPair.second());
-        ImmutableList.Builder<DriverRow> ret = ImmutableList.builder();
-        for (DriverRow lookupRow : lookupRows) {
-            List<Object> keyValues = branchFieldKeyPair.first().getFields().stream()
-                    .map(lookupRow.getRowView()::get)
-                    .collect(toImmutableList());
-
-            ImmutableList.Builder<List<DriverRow>> innerRowLists = ImmutableList.builder();
-            innerRowLists.add(ImmutableList.copyOf(lookupRows));
-            for (EquijoinNode.Branch nonLookupBranch : node.getBranches()) {
-                if (nonLookupBranch == branchFieldKeyPair.first()) {
-                    continue;
-                }
-                FieldKey nonLookupKey = Key.of(
-                        IntStream.range(0, node.getKeyLength())
-                                .boxed()
-                                .collect(toImmutableMap(
-                                        i -> nonLookupBranch.getFields().get(i),
-                                        keyValues::get)));
-                innerRowLists.add(ImmutableList.copyOf(context.build(nonLookupBranch.getNode(), nonLookupKey)));
-            }
-
-            for (List<DriverRow> product : Lists.cartesianProduct(innerRowLists.build())) {
-                Object[] attributes = new Object[node.getRowLayout().getFields().size()];
-                for (DriverRow row : product) {
-                    for (Map.Entry<String, Object> e : row.getRowView()) {
-                        int pos = node.getRowLayout().getPositionsByField().get(e.getKey());
-                        attributes[pos] = e.getValue();
-                    }
-                }
-                Id id = Id.of(
-                        CompositeRowIdCodec.join(
-                                product.stream()
-                                        .map(DriverRow::getId)
-                                        .map(Id::getValue)
-                                        .collect(toImmutableList())));
-                ret.add(
-                        new DriverRow(
-                                node,
-                                context.getDriver().getLineagePolicy().build(product),
-                                id,
-                                attributes));
-            }
-        }
-
-        return ret.build();
+        return new EquijoinBuilder(node).build(context, key);
     }
 
     @Override
-    public List<DriverRow> visitFilterNode(FilterNode node, Key key)
+    public Collection<DriverRow> visitFilterNode(FilterNode node, Key key)
     {
         ImmutableList.Builder<DriverRow> ret = ImmutableList.builder();
         for (DriverRow row : context.build(node.getSource(), key)) {
@@ -223,7 +145,7 @@ public class BuildNodeVisitor
     }
 
     @Override
-    public List<DriverRow> visitListAggregateNode(ListAggregateNode node, Key key)
+    public Collection<DriverRow> visitListAggregateNode(ListAggregateNode node, Key key)
     {
         RowIdCodec idCodec = new ScalarRowIdCodec<>(
                 node.getGroupField(), IdCodecs.CODECS_BY_TYPE.get(node.getFields().get(node.getGroupField())));
@@ -262,13 +184,13 @@ public class BuildNodeVisitor
     }
 
     @Override
-    public List<DriverRow> visitLookupJoinNode(LookupJoinNode node, Key key)
+    public Collection<DriverRow> visitLookupJoinNode(LookupJoinNode node, Key key)
     {
         return super.visitLookupJoinNode(node, key);
     }
 
     @Override
-    public List<DriverRow> visitPersistNode(PersistNode node, Key key)
+    public Collection<DriverRow> visitPersistNode(PersistNode node, Key key)
     {
         return context.build(node.getSource(), key).stream()
                 .map(row -> new DriverRow(
@@ -280,7 +202,7 @@ public class BuildNodeVisitor
     }
 
     @Override
-    public List<DriverRow> visitProjectNode(ProjectNode node, Key key)
+    public Collection<DriverRow> visitProjectNode(ProjectNode node, Key key)
     {
         Key sourceKey;
         if (key instanceof IdKey || key instanceof AllKey) {
@@ -343,7 +265,7 @@ public class BuildNodeVisitor
     }
 
     @Override
-    public List<DriverRow> visitScanNode(ScanNode node, Key key)
+    public Collection<DriverRow> visitScanNode(ScanNode node, Key key)
     {
         Scanner scanner = context.getDriver().getScanner(node);
         Schema schema = context.getDriver().getCatalog().getSchemasByName().get(node.getSchemaTable().getSchema());
@@ -366,9 +288,7 @@ public class BuildNodeVisitor
         ImmutableList.Builder<DriverRow> rows = ImmutableList.builder();
         for (Map<String, Object> scanRow : scanRows) {
             Id id = Id.of(rowIdCodec.encode(scanRow));
-            Object[] attributes = scanRow.entrySet().stream()
-                    .map(Map.Entry::getValue)
-                    .toArray(Object[]::new);
+            Object[] attributes = scanRow.values().toArray();
             rows.add(
                     new DriverRow(
                             node,
@@ -381,19 +301,19 @@ public class BuildNodeVisitor
     }
 
     @Override
-    public List<DriverRow> visitUnionNode(UnionNode node, Key key)
+    public Collection<DriverRow> visitUnionNode(UnionNode node, Key key)
     {
         return super.visitUnionNode(node, key);
     }
 
     @Override
-    public List<DriverRow> visitUnnestNode(UnnestNode node, Key key)
+    public Collection<DriverRow> visitUnnestNode(UnnestNode node, Key key)
     {
         return super.visitUnnestNode(node, key);
     }
 
     @Override
-    public List<DriverRow> visitValuesNode(ValuesNode node, Key key)
+    public Collection<DriverRow> visitValuesNode(ValuesNode node, Key key)
     {
         return super.visitValuesNode(node, key);
     }
