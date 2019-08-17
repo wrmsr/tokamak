@@ -20,5 +20,15 @@ import java.util.Map;
 public interface RowIdCodec
         extends Codec<Map<String, Object>, byte[]>
 {
-    // TODO: key awareness, length awareness, packed, salting, vints, ...
+    /*
+    TODO:
+     - write to a bytebuffer not join arrs
+      - on variable prealloc size byte
+     - operate on object[] not maps
+     - key awareness
+     - length awareness
+     - packed
+     - salting
+     - vints
+    */
 }

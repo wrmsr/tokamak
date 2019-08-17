@@ -20,6 +20,7 @@ import com.wrmsr.tokamak.util.StreamableIterable;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -63,43 +64,54 @@ public final class CompositeRowIdCodec
         return parts.build();
     }
 
-    public static byte[] join(Iterable<byte[]> parts)
-    {
-        try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            for (byte[] part : parts) {
-                checkState(part.length < MAX_ID_LENGTH);
-                baos.write(new byte[] {(byte) part.length});
-                baos.write(part);
-            }
-            return baos.toByteArray();
-        }
-        catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
+    // public static byte[] join(Iterable<byte[]> parts)
+    // {
+    //     try {
+    //         ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    //         for (byte[] part : parts) {
+    //             checkState(part.length < MAX_ID_LENGTH);
+    //             baos.write(new byte[] {(byte) part.length});
+    //             baos.write(part);
+    //         }
+    //         return baos.toByteArray();
+    //     }
+    //     catch (IOException e) {
+    //         throw new RuntimeException(e);
+    //     }
+    // }
 
     @Override
     public Map<String, Object> decode(byte[] data)
     {
-        ImmutableMap.Builder<String, Object> builder = ImmutableMap.builder();
-        List<byte[]> parts = split(data);
-        checkState(parts.size() == components.size());
-        ByteArrayInputStream bais = new ByteArrayInputStream(data);
-        for (int i = 0; i < components.size(); ++i) {
-            Map<String, Object> out = components.get(i).decode(parts.get(i));
-            builder.putAll(out);
-        }
-        return builder.build();
+        throw new UnsupportedOperationException();
+        // ImmutableMap.Builder<String, Object> builder = ImmutableMap.builder();
+        // List<byte[]> parts = split(data);
+        // checkState(parts.size() == components.size());
+        // ByteArrayInputStream bais = new ByteArrayInputStream(data);
+        // for (int i = 0; i < components.size(); ++i) {
+        //     Map<String, Object> out = components.get(i).decode(parts.get(i));
+        //     builder.putAll(out);
+        // }
+        // return builder.build();
     }
 
     @Override
     public byte[] encode(Map<String, Object> data)
     {
-        ImmutableList.Builder<byte[]> parts = ImmutableList.builder();
+        List<byte[]> parts = new ArrayList<>();
+        int sz = 0;
         for (int i = 0; i < components.size(); ++i) {
-            parts.add(components.get(i).encode(data));
+            byte[] childData = components.get(i).encode(data);
+            parts.add(childData);
+            sz += childData.length;
         }
-        return join(parts.build());
+        byte[] buf = new byte[sz];
+        int pos = 0;
+        for (byte[] part : parts) {
+            System.arraycopy(part, 0, buf, pos, part.length);
+            pos += part.length;
+        }
+        return buf;
+        // return join(parts.build());
     }
 }
