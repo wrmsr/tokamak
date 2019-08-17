@@ -141,7 +141,7 @@ public class EquijoinBuilder
                     .map(proto::get)
                     .collect(toImmutableList());
 
-            buildRest(
+            buildNonLookups(
                     context,
                     restBranches,
                     builder,
@@ -152,7 +152,7 @@ public class EquijoinBuilder
         }
     }
 
-    protected void buildRest(
+    protected void buildNonLookups(
             DriverContextImpl context,
             List<EquijoinNode.Branch> branches,
             ImmutableList.Builder<DriverRow> builder,
