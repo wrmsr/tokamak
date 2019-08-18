@@ -82,9 +82,4 @@ public final class IdCodecs
             return new CompositeRowIdCodec(parts);
         }
     }
-
-    public static RowIdCodec opaque(RowIdCodec child)
-    {
-
-    }
 }

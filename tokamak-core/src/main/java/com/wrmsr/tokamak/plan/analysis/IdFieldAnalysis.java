@@ -11,11 +11,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.plan;
 
-public final class Analysis
+package com.wrmsr.tokamak.plan.analysis;
+
+import com.google.common.collect.ImmutableMap;
+import com.wrmsr.tokamak.node.Node;
+
+import javax.annotation.concurrent.Immutable;
+
+import java.util.Map;
+import java.util.Set;
+
+@Immutable
+public final class IdFieldAnalysis
 {
-    private Analysis()
+    private final Map<Node, Set<String>> fieldSetsByNode;
+
+    private IdFieldAnalysis(Map<Node, Set<String>> fieldSetsByNode)
     {
+        this.fieldSetsByNode = ImmutableMap.copyOf(fieldSetsByNode);
+    }
+
+    public static IdFieldAnalysis analyze(Node node)
+    {
+        
     }
 }

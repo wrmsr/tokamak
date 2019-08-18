@@ -21,6 +21,7 @@ import com.wrmsr.tokamak.node.EquijoinNode;
 import com.wrmsr.tokamak.node.FilterNode;
 import com.wrmsr.tokamak.node.ListAggregateNode;
 import com.wrmsr.tokamak.node.Node;
+import com.wrmsr.tokamak.node.ProjectNode;
 import com.wrmsr.tokamak.node.ScanNode;
 import com.wrmsr.tokamak.node.visitor.NodeVisitor;
 
@@ -67,6 +68,13 @@ public class CodecManager
             {
                 return new ScalarRowIdCodec<>(
                         node.getGroupField(), IdCodecs.CODECS_BY_TYPE.get(node.getFields().get(node.getGroupField())));
+            }
+
+            @Override
+            public RowIdCodec visitProjectNode(ProjectNode node, Void context)
+            {
+                // if (node.getProjection().getInputFieldsByOutput())
+                return super.visitProjectNode(node, context);
             }
 
             @Override
