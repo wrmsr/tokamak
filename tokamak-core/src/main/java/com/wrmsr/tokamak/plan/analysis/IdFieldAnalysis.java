@@ -15,39 +15,209 @@
 package com.wrmsr.tokamak.plan.analysis;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
+import com.wrmsr.tokamak.node.CrossJoinNode;
+import com.wrmsr.tokamak.node.EquijoinNode;
+import com.wrmsr.tokamak.node.FilterNode;
+import com.wrmsr.tokamak.node.ListAggregateNode;
+import com.wrmsr.tokamak.node.LookupJoinNode;
 import com.wrmsr.tokamak.node.Node;
+import com.wrmsr.tokamak.node.PersistNode;
+import com.wrmsr.tokamak.node.ProjectNode;
 import com.wrmsr.tokamak.node.ScanNode;
+import com.wrmsr.tokamak.node.UnionNode;
+import com.wrmsr.tokamak.node.UnnestNode;
+import com.wrmsr.tokamak.node.ValuesNode;
 import com.wrmsr.tokamak.node.visitor.CachingNodeVisitor;
+import com.wrmsr.tokamak.node.visitor.NodeVisitors;
+import com.wrmsr.tokamak.util.StreamableIterable;
 
 import javax.annotation.concurrent.Immutable;
 
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.collect.ImmutableList.toImmutableList;
+import static com.google.common.collect.ImmutableSet.toImmutableSet;
+import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 
 @Immutable
 public final class IdFieldAnalysis
 {
-    private final Map<Node, Set<String>> fieldSetsByNode;
-
-    private IdFieldAnalysis(Map<Node, Set<String>> fieldSetsByNode)
+    @Immutable
+    public static final class Entry
+            implements StreamableIterable<Set<String>>
     {
-        this.fieldSetsByNode = ImmutableMap.copyOf(fieldSetsByNode);
+        private final Node node;
+        private final Set<Set<String>> sets;
+
+        public Entry(Node node, Set<Set<String>> sets)
+        {
+            this.node = checkNotNull(node);
+            this.sets = sets.stream().map(ImmutableSet::copyOf).collect(toImmutableSet());
+            this.sets.forEach(s -> {
+                checkNotEmpty(s);
+                s.forEach(f -> checkState(node.getFields().containsKey(f)));
+            });
+        }
+
+        public Entry(Node node, Entry source)
+        {
+            this.node = checkNotNull(node);
+            sets = source.getSets();
+        }
+
+        public Node getNode()
+        {
+            return node;
+        }
+
+        public Set<Set<String>> getSets()
+        {
+            return sets;
+        }
+
+        public boolean isEmpty()
+        {
+            return sets.isEmpty();
+        }
+
+        @Override
+        public Iterator<Set<String>> iterator()
+        {
+            return sets.iterator();
+        }
+    }
+
+    private final Map<Node, Entry> entriesByNode;
+
+    private IdFieldAnalysis(Map<Node, Entry> entriesByNode)
+    {
+        this.entriesByNode = ImmutableMap.copyOf(entriesByNode);
+        this.entriesByNode.forEach((k, v) -> checkState(k == v.getNode()));
     }
 
     public static IdFieldAnalysis analyze(Node node)
     {
-        Map<Node, Set<String>> fieldSetsByNode = new HashMap<>();
+        Map<Node, Entry> entriesByNode = new HashMap<>();
 
-        node.accept(new CachingNodeVisitor<Set<String>, Void>(fieldSetsByNode)
+        NodeVisitors.preWalk(node, new CachingNodeVisitor<Entry, Void>(entriesByNode)
         {
             @Override
-            public Set<String> visitScanNode(ScanNode node, Void context)
+            public Entry visitCrossJoinNode(CrossJoinNode node, Void context)
             {
-                return node.getIdFields();
+                throw new IllegalStateException();
+            }
+
+            @Override
+            public Entry visitEquijoinNode(EquijoinNode node, Void context)
+            {
+                throw new IllegalStateException();
+            }
+
+            @Override
+            public Entry visitFilterNode(FilterNode node, Void context)
+            {
+                return new Entry(node, get(node.getSource(), context));
+            }
+
+            @Override
+            public Entry visitListAggregateNode(ListAggregateNode node, Void context)
+            {
+                return new Entry(node, ImmutableSet.of(ImmutableSet.of(node.getGroupField())));
+            }
+
+            @Override
+            public Entry visitLookupJoinNode(LookupJoinNode node, Void context)
+            {
+                throw new IllegalStateException();
+            }
+
+            @Override
+            public Entry visitPersistNode(PersistNode node, Void context)
+            {
+                return new Entry(node, get(node.getSource(), context));
+            }
+
+            @Override
+            public Entry visitProjectNode(ProjectNode node, Void context)
+            {
+                Entry source = get(node.getSource(), context);
+
+                ImmutableSet.Builder<Set<String>> builder = ImmutableSet.builder();
+                for (Set<String> set : source.getSets()) {
+                    List<Set<String>> outputSets = set.stream()
+                            .map(f -> node.getProjection().getOutputSetsByInputField().getOrDefault(f, ImmutableSet.of()))
+                            .collect(toImmutableList());
+                    if (outputSets.stream().anyMatch(Set::isEmpty)) {
+                        continue;
+                    }
+                    builder.addAll(Sets.cartesianProduct(outputSets).stream()
+                            .map(ImmutableSet::copyOf)
+                            .collect(toImmutableList()));
+                }
+
+                return new Entry(node, builder.build());
+            }
+
+            @Override
+            public Entry visitScanNode(ScanNode node, Void context)
+            {
+                return new Entry(node, ImmutableSet.of(node.getIdFields()));
+            }
+
+            @Override
+            public Entry visitUnionNode(UnionNode node, Void context)
+            {
+                if (node.getIndexField().isPresent() && node.getSources().stream().noneMatch(s -> get(s, context).isEmpty())) {
+                    List<Set<Set<String>>> sourceSets = node.getSources().stream()
+                            .map(s -> get(s, context).getSets())
+                            .collect(toImmutableList());
+                    Set<Set<String>> sets = Sets.cartesianProduct(sourceSets).stream()
+                            .map(ss -> ImmutableSet.<String>builder()
+                                    .addAll(ss.stream().flatMap(Set::stream).collect(toImmutableSet()))
+                                    .add(node.getIndexField().get())
+                                    .build())
+                            .collect(toImmutableSet());
+                    return new Entry(node, sets);
+                }
+                else {
+                    return new Entry(node, ImmutableSet.of());
+                }
+            }
+
+            @Override
+            public Entry visitUnnestNode(UnnestNode node, Void context)
+            {
+                if (node.getIndexField().isPresent()) {
+                    Set<Set<String>> sets = get(node.getSource(), context).getSets().stream()
+                            .map(s -> ImmutableSet.<String>builder().addAll(s).add(node.getIndexField().get()).build())
+                            .collect(toImmutableSet());
+                    return new Entry(node, sets);
+                }
+                else {
+                    return new Entry(node, ImmutableSet.of());
+                }
+            }
+
+            @Override
+            public Entry visitValuesNode(ValuesNode node, Void context)
+            {
+                if (node.getIndexField().isPresent()) {
+                    return new Entry(node, ImmutableSet.of(ImmutableSet.of(node.getIndexField().get())));
+                }
+                else {
+                    return new Entry(node, ImmutableSet.of(ImmutableSet.of()));
+                }
             }
         }, null);
 
-        return new IdFieldAnalysis(fieldSetsByNode);
+        return new IdFieldAnalysis(entriesByNode);
     }
 }

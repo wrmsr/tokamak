@@ -34,7 +34,7 @@ public abstract class CachingNodeVisitor<R, C>
         this.cache = cache;
     }
 
-    protected R recurse(Node node, C context)
+    protected R get(Node node, C context)
     {
         return cache.computeIfAbsent(node, n -> n.accept(this, context));
     }

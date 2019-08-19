@@ -45,7 +45,7 @@ public abstract class NodeRewriter<C>
     {
         return new CrossJoinNode(
                 visitNodeName(node.getName(), context),
-                node.getSources().stream().map(n -> recurse(n, context)).collect(toImmutableList()),
+                node.getSources().stream().map(n -> get(n, context)).collect(toImmutableList()),
                 node.getMode());
     }
 
@@ -56,7 +56,7 @@ public abstract class NodeRewriter<C>
                 visitNodeName(node.getName(), context),
                 node.getBranches().stream()
                         .map(b -> new EquijoinNode.Branch(
-                                recurse(b.getNode(), context),
+                                get(b.getNode(), context),
                                 b.getFields()))
                         .collect(toImmutableList()),
                 node.getMode());
@@ -67,7 +67,7 @@ public abstract class NodeRewriter<C>
     {
         return new FilterNode(
                 visitNodeName(node.getName(), context),
-                recurse(node.getSource(), context),
+                get(node.getSource(), context),
                 node.getPredicate(),
                 node.isUnlinked());
     }
@@ -77,7 +77,7 @@ public abstract class NodeRewriter<C>
     {
         return new ListAggregateNode(
                 visitNodeName(node.getName(), context),
-                recurse(node.getSource(), context),
+                get(node.getSource(), context),
                 node.getGroupField(),
                 node.getListField());
     }
@@ -87,11 +87,11 @@ public abstract class NodeRewriter<C>
     {
         return new LookupJoinNode(
                 visitNodeName(node.getName(), context),
-                recurse(node.getSource(), context),
+                get(node.getSource(), context),
                 node.getSourceKeyFields(),
                 node.getBranches().stream()
                         .map(b -> new LookupJoinNode.Branch(
-                                recurse(b.getNode(), context),
+                                get(b.getNode(), context),
                                 b.getFields()))
                         .collect(toImmutableList()));
     }
@@ -101,7 +101,7 @@ public abstract class NodeRewriter<C>
     {
         return new PersistNode(
                 visitNodeName(node.getName(), context),
-                recurse(node.getSource(), context),
+                get(node.getSource(), context),
                 node.getOutputTargets(),
                 node.isDenormalized(),
                 node.getInvalidations().entrySet().stream()
@@ -116,7 +116,7 @@ public abstract class NodeRewriter<C>
     {
         return new ProjectNode(
                 visitNodeName(node.getName(), context),
-                recurse(node.getSource(), context),
+                get(node.getSource(), context),
                 node.getProjection());
     }
 
@@ -141,7 +141,7 @@ public abstract class NodeRewriter<C>
     {
         return new UnionNode(
                 visitNodeName(node.getName(), context),
-                node.getSources().stream().map(n -> recurse(n, context)).collect(toImmutableList()),
+                node.getSources().stream().map(n -> get(n, context)).collect(toImmutableList()),
                 node.getIndexField());
     }
 
@@ -150,7 +150,7 @@ public abstract class NodeRewriter<C>
     {
         return new UnnestNode(
                 visitNodeName(node.getName(), context),
-                recurse(node.getSource(), context),
+                get(node.getSource(), context),
                 node.getListField(),
                 node.getUnnestedFields(),
                 node.getIndexField());
