@@ -21,7 +21,7 @@ import java.util.Map;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 
-public class KeyRemappingRowIdCodec
+public final class KeyRemappingRowIdCodec
         implements RowIdCodec
 {
     private final RowIdCodec child;

@@ -19,7 +19,7 @@ import java.util.Map;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
-public class VariableLengthRowIdCodec
+public final class VariableLengthRowIdCodec
         implements RowIdCodec
 {
     public static final int MAX_ID_LENGTH = 254;
