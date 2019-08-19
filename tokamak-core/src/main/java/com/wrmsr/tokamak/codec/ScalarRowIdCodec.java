@@ -13,8 +13,6 @@
  */
 package com.wrmsr.tokamak.codec;
 
-import com.google.common.collect.ImmutableMap;
-
 import javax.annotation.concurrent.Immutable;
 
 import java.util.Map;
@@ -83,8 +81,8 @@ public final class ScalarRowIdCodec<V>
     }
 
     @Override
-    public Map<String, Object> decode(Input input)
+    public void decode(Sink sink, Input input)
     {
-        return ImmutableMap.of(field, decoder.apply(input));
+        sink.put(field, decoder.apply(input));
     }
 }

@@ -21,31 +21,32 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public final class NullableRowIdCodec
         implements RowIdCodec
 {
+    private final String field;
     private final RowIdCodec child;
 
-    public NullableRowIdCodec(RowIdCodec child)
+    public NullableRowIdCodec(String field, RowIdCodec child)
     {
+        this.field = checkNotNull(field);
         this.child = checkNotNull(child);
     }
 
     @Override
-    public Map<String, Object> decode(byte[] data)
+    public void encode(Map<String, Object> row, Output output)
     {
-        throw new UnsupportedOperationException();
+        if (row.get(field) != null) {
+            output.put(0);
+            child.encode(row, output);
+        }
+        else {
+            output.put(1);
+        }
     }
 
     @Override
-    public byte[] encode(Map<String, Object> data)
+    public void decode(Sink sink, Input input)
     {
-        byte[] childData = child.encode(data);
-        if (childData == null) {
-            return new byte[] {(byte) 0};
-        }
-        else {
-            byte[] buf = new byte[childData.length + 1];
-            buf[0] = (byte) 1;
-            System.arraycopy(childData, 0, buf, 1, childData.length);
-            return buf;
+        if (input.get() == 0) {
+            child.decode(sink, input);
         }
     }
 }

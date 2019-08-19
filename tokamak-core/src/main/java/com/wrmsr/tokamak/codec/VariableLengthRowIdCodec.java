@@ -32,19 +32,20 @@ public final class VariableLengthRowIdCodec
     }
 
     @Override
-    public Map<String, Object> decode(byte[] data)
+    public void encode(Map<String, Object> row, Output output)
     {
-        throw new UnsupportedOperationException();
+        int pos = output.tell();
+        output.alloc(1);
+        child.encode(row, output);
+        int sz = output.tell() - pos;
+        checkState(sz < MAX_ID_LENGTH);
+        output.putAt(pos, (byte) sz);
     }
 
     @Override
-    public byte[] encode(Map<String, Object> data)
+    public void decode(Sink sink, Input input)
     {
-        byte[] childData = child.encode(data);
-        checkState(childData.length < MAX_ID_LENGTH);
-        byte[] buf = new byte[childData.length + 1];
-        buf[0] = (byte) childData.length;
-        System.arraycopy(childData, 0, buf, 1, childData.length);
-        return buf;
+        int sz = input.get();
+        child.decode(sink, input.nest(sz));
     }
 }

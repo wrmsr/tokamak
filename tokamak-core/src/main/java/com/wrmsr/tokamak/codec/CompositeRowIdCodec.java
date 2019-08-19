@@ -14,104 +14,48 @@
 package com.wrmsr.tokamak.codec;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.util.StreamableIterable;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
-import static com.google.common.base.Preconditions.checkState;
 
 public final class CompositeRowIdCodec
         implements RowIdCodec, StreamableIterable<RowIdCodec>
 {
     public static final int MAX_ID_LENGTH = 254;
 
-    private final List<RowIdCodec> components;
+    private final List<RowIdCodec> children;
 
-    public CompositeRowIdCodec(List<RowIdCodec> components)
+    public CompositeRowIdCodec(List<RowIdCodec> children)
     {
-        this.components = ImmutableList.copyOf(components);
+        this.children = ImmutableList.copyOf(children);
     }
 
-    public List<RowIdCodec> getComponents()
+    public List<RowIdCodec> getChildren()
     {
-        return components;
+        return children;
     }
 
     @Override
     public Iterator<RowIdCodec> iterator()
     {
-        return components.iterator();
-    }
-
-    public static List<byte[]> split(byte[] data)
-    {
-        ImmutableList.Builder<byte[]> parts = ImmutableList.builder();
-        ByteArrayInputStream bais = new ByteArrayInputStream(data);
-        while (bais.available() > 0) {
-            byte[] buf = new byte[1];
-            checkState(bais.read(buf, 0, 1) == 1);
-            byte[] part = new byte[buf[0]];
-            checkState(bais.read(part, 0, part.length) == part.length);
-            parts.add(part);
-        }
-        return parts.build();
-    }
-
-    // public static byte[] join(Iterable<byte[]> parts)
-    // {
-    //     try {
-    //         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    //         for (byte[] part : parts) {
-    //             checkState(part.length < MAX_ID_LENGTH);
-    //             baos.write(new byte[] {(byte) part.length});
-    //             baos.write(part);
-    //         }
-    //         return baos.toByteArray();
-    //     }
-    //     catch (IOException e) {
-    //         throw new RuntimeException(e);
-    //     }
-    // }
-
-    @Override
-    public Map<String, Object> decode(byte[] data)
-    {
-        throw new UnsupportedOperationException();
-        // ImmutableMap.Builder<String, Object> builder = ImmutableMap.builder();
-        // List<byte[]> parts = split(data);
-        // checkState(parts.size() == components.size());
-        // ByteArrayInputStream bais = new ByteArrayInputStream(data);
-        // for (int i = 0; i < components.size(); ++i) {
-        //     Map<String, Object> out = components.get(i).decode(parts.get(i));
-        //     builder.putAll(out);
-        // }
-        // return builder.build();
+        return children.iterator();
     }
 
     @Override
-    public byte[] encode(Map<String, Object> data)
+    public void encode(Map<String, Object> row, Output output)
     {
-        List<byte[]> parts = new ArrayList<>();
-        int sz = 0;
-        for (int i = 0; i < components.size(); ++i) {
-            byte[] childData = components.get(i).encode(data);
-            parts.add(childData);
-            sz += childData.length;
+        for (RowIdCodec child : children) {
+            child.encode(row, output);
         }
-        byte[] buf = new byte[sz];
-        int pos = 0;
-        for (byte[] part : parts) {
-            System.arraycopy(part, 0, buf, pos, part.length);
-            pos += part.length;
+    }
+
+    @Override
+    public void decode(Sink sink, Input input)
+    {
+        for (RowIdCodec child : children) {
+            child.decode(sink, input);
         }
-        return buf;
-        // return join(parts.build());
     }
 }

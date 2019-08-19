@@ -18,7 +18,9 @@ public interface Input
 {
     byte get();
 
-    long gutLong();
+    long getLong();
 
-    byte getBytes(int sz);
+    byte[] getBytes();
+
+    Input nest(int sz);
 }

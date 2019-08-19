@@ -36,19 +36,31 @@ public final class KeyRemappingRowIdCodec
     }
 
     @Override
-    public Map<String, Object> decode(byte[] data)
+    public void encode(Map<String, Object> row, Output output)
     {
-        throw new UnsupportedOperationException();
+
     }
 
     @Override
-    public byte[] encode(Map<String, Object> data)
+    public void decode(Sink sink, Input input)
     {
-        ImmutableMap.Builder<String, Object> childData = ImmutableMap.builder();
-        for (Map.Entry<String, Object> e : data.entrySet()) {
-            String remappedKey = inputsByOutput.get(e.getKey());
-            childData.put(remappedKey != null ? remappedKey : e.getKey(), e.getValue());
-        }
-        return child.encode(childData.build());
+
     }
+
+    // @Override
+    // public Map<String, Object> decode(byte[] data)
+    // {
+    //     throw new UnsupportedOperationException();
+    // }
+    //
+    // @Override
+    // public byte[] encode(Map<String, Object> data)
+    // {
+    //     ImmutableMap.Builder<String, Object> childData = ImmutableMap.builder();
+    //     for (Map.Entry<String, Object> e : data.entrySet()) {
+    //         String remappedKey = inputsByOutput.get(e.getKey());
+    //         childData.put(remappedKey != null ? remappedKey : e.getKey(), e.getValue());
+    //     }
+    //     return child.encode(childData.build());
+    // }
 }

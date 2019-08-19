@@ -31,15 +31,15 @@ public final class OpaqueRowIdCodec
     }
 
     @Override
-    public Map<String, Object> decode(byte[] data)
+    public void encode(Map<String, Object> row, Output output)
     {
-        throw new UnsupportedOperationException();
+        throw new IllegalStateException();
     }
 
     @Override
-    public byte[] encode(Map<String, Object> data)
+    public void decode(Sink sink, Input input)
     {
-        throw new UnsupportedOperationException();
+        throw new IllegalStateException();
     }
 
     public static RowIdCodec of(RowIdCodec child)

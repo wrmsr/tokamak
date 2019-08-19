@@ -31,5 +31,11 @@ public interface RowIdCodec
 
     void encode(Map<String, Object> row, Output output);
 
-    Map<String, Object> decode(Input input);
+    @FunctionalInterface
+    interface Sink
+    {
+        void put(String field, Object value);
+    }
+
+    void decode(Sink sink, Input input);
 }
