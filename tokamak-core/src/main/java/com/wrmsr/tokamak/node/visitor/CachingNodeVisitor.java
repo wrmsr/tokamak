@@ -11,29 +11,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.wrmsr.tokamak.node.visitor;
 
 import com.wrmsr.tokamak.node.Node;
 
-public final class NodeVisitors
+import java.util.HashMap;
+import java.util.Map;
+
+public abstract class CachingNodeVisitor<R, C>
+        extends NodeVisitor<R, C>
 {
-    private NodeVisitors()
+    protected final Map<Node, R> cache;
+
+    public CachingNodeVisitor()
     {
+        cache = new HashMap<>();
     }
 
-    public static <C, R> void preWalk(Node node, NodeVisitor<R, C> visitor, C context)
+    public CachingNodeVisitor(Map<Node, R> cache)
     {
-        node.accept(visitor, context);
-        for (Node child : node.getSources()) {
-            preWalk(child, visitor, context);
-        }
+        this.cache = cache;
     }
 
-    public static <C, R> void postWalk(Node node, NodeVisitor<R, C> visitor, C context)
+    protected R recurse(Node node, C context)
     {
-        for (Node child : node.getSources()) {
-            postWalk(child, visitor, context);
-        }
-        node.accept(visitor, context);
+        return cache.computeIfAbsent(node, n -> n.accept(this, context));
+    }
+
+    public Map<Node, R> getCache()
+    {
+        return cache;
     }
 }

@@ -28,21 +28,13 @@ import com.wrmsr.tokamak.node.UnionNode;
 import com.wrmsr.tokamak.node.UnnestNode;
 import com.wrmsr.tokamak.node.ValuesNode;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
 
 public abstract class NodeRewriter<C>
-        extends NodeVisitor<Node, C>
+        extends CachingNodeVisitor<Node, C>
 {
-    protected Map<Node, Node> nodeMap = new HashMap<>();
-
-    public Node rewrite(Node node, C context)
-    {
-        return nodeMap.computeIfAbsent(node, n -> n.accept(this, context));
-    }
-
     public String visitNodeName(String name, C context)
     {
         return name;
@@ -53,7 +45,7 @@ public abstract class NodeRewriter<C>
     {
         return new CrossJoinNode(
                 visitNodeName(node.getName(), context),
-                node.getSources().stream().map(n -> rewrite(n, context)).collect(toImmutableList()),
+                node.getSources().stream().map(n -> recurse(n, context)).collect(toImmutableList()),
                 node.getMode());
     }
 
@@ -64,7 +56,7 @@ public abstract class NodeRewriter<C>
                 visitNodeName(node.getName(), context),
                 node.getBranches().stream()
                         .map(b -> new EquijoinNode.Branch(
-                                rewrite(b.getNode(), context),
+                                recurse(b.getNode(), context),
                                 b.getFields()))
                         .collect(toImmutableList()),
                 node.getMode());
@@ -75,7 +67,7 @@ public abstract class NodeRewriter<C>
     {
         return new FilterNode(
                 visitNodeName(node.getName(), context),
-                rewrite(node.getSource(), context),
+                recurse(node.getSource(), context),
                 node.getPredicate(),
                 node.isUnlinked());
     }
@@ -85,7 +77,7 @@ public abstract class NodeRewriter<C>
     {
         return new ListAggregateNode(
                 visitNodeName(node.getName(), context),
-                rewrite(node.getSource(), context),
+                recurse(node.getSource(), context),
                 node.getGroupField(),
                 node.getListField());
     }
@@ -95,11 +87,11 @@ public abstract class NodeRewriter<C>
     {
         return new LookupJoinNode(
                 visitNodeName(node.getName(), context),
-                rewrite(node.getSource(), context),
+                recurse(node.getSource(), context),
                 node.getSourceKeyFields(),
                 node.getBranches().stream()
                         .map(b -> new LookupJoinNode.Branch(
-                                rewrite(b.getNode(), context),
+                                recurse(b.getNode(), context),
                                 b.getFields()))
                         .collect(toImmutableList()));
     }
@@ -109,7 +101,7 @@ public abstract class NodeRewriter<C>
     {
         return new PersistNode(
                 visitNodeName(node.getName(), context),
-                rewrite(node.getSource(), context),
+                recurse(node.getSource(), context),
                 node.getOutputTargets(),
                 node.isDenormalized(),
                 node.getInvalidations().entrySet().stream()
@@ -124,7 +116,7 @@ public abstract class NodeRewriter<C>
     {
         return new ProjectNode(
                 visitNodeName(node.getName(), context),
-                rewrite(node.getSource(), context),
+                recurse(node.getSource(), context),
                 node.getProjection());
     }
 
@@ -149,7 +141,7 @@ public abstract class NodeRewriter<C>
     {
         return new UnionNode(
                 visitNodeName(node.getName(), context),
-                node.getSources().stream().map(n -> rewrite(n, context)).collect(toImmutableList()),
+                node.getSources().stream().map(n -> recurse(n, context)).collect(toImmutableList()),
                 node.getIndexField());
     }
 
@@ -158,7 +150,7 @@ public abstract class NodeRewriter<C>
     {
         return new UnnestNode(
                 visitNodeName(node.getName(), context),
-                rewrite(node.getSource(), context),
+                recurse(node.getSource(), context),
                 node.getListField(),
                 node.getUnnestedFields(),
                 node.getIndexField());
