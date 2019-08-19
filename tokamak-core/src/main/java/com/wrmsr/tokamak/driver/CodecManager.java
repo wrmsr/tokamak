@@ -13,10 +13,9 @@
  */
 package com.wrmsr.tokamak.driver;
 
-import com.wrmsr.tokamak.codec.CompositeRowIdCodec;
-import com.wrmsr.tokamak.codec.IdCodecs;
-import com.wrmsr.tokamak.codec.RowIdCodec;
-import com.wrmsr.tokamak.codec.ScalarRowIdCodec;
+import com.wrmsr.tokamak.codec.CompositeRowCodec;
+import com.wrmsr.tokamak.codec.RowCodec;
+import com.wrmsr.tokamak.codec.RowCodecs;
 import com.wrmsr.tokamak.node.EquijoinNode;
 import com.wrmsr.tokamak.node.FilterNode;
 import com.wrmsr.tokamak.node.ListAggregateNode;
@@ -36,21 +35,21 @@ import static java.util.function.Function.identity;
 
 public class CodecManager
 {
-    private final Map<Node, RowIdCodec> rowIdCodecsByNode = new HashMap<>();
+    private final Map<Node, RowCodec> rowIdCodecsByNode = new HashMap<>();
 
-    public RowIdCodec getRowIdCodec(Node node)
+    public RowCodec getRowIdCodec(Node node)
     {
-        RowIdCodec rowIdCodec = rowIdCodecsByNode.get(node);
-        if (rowIdCodec != null) {
-            return rowIdCodec;
+        RowCodec rowCodec = rowIdCodecsByNode.get(node);
+        if (rowCodec != null) {
+            return rowCodec;
         }
 
-        rowIdCodec = node.accept(new NodeVisitor<RowIdCodec, Void>()
+        rowCodec = node.accept(new NodeVisitor<RowCodec, Void>()
         {
             @Override
-            public RowIdCodec visitEquijoinNode(EquijoinNode node, Void context)
+            public RowCodec visitEquijoinNode(EquijoinNode node, Void context)
             {
-                return new CompositeRowIdCodec(
+                return new CompositeRowCodec(
                         node.getBranches().stream()
                                 .map(EquijoinNode.Branch::getNode)
                                 .map(CodecManager.this::getRowIdCodec)
@@ -58,39 +57,38 @@ public class CodecManager
             }
 
             @Override
-            public RowIdCodec visitFilterNode(FilterNode node, Void context)
+            public RowCodec visitFilterNode(FilterNode node, Void context)
             {
                 return getRowIdCodec(node.getSource());
             }
 
             @Override
-            public RowIdCodec visitListAggregateNode(ListAggregateNode node, Void context)
+            public RowCodec visitListAggregateNode(ListAggregateNode node, Void context)
             {
-                return new ScalarRowIdCodec<>(
-                        node.getGroupField(), IdCodecs.CODECS_BY_TYPE.get(node.getFields().get(node.getGroupField())));
+                return RowCodecs.buildRowCodec(node.getGroupField(), node.getFields().get(node.getGroupField()));
             }
 
             @Override
-            public RowIdCodec visitProjectNode(ProjectNode node, Void context)
+            public RowCodec visitProjectNode(ProjectNode node, Void context)
             {
                 // if (node.getProjection().getInputFieldsByOutput())
                 return super.visitProjectNode(node, context);
             }
 
             @Override
-            public RowIdCodec visitScanNode(ScanNode node, Void context)
+            public RowCodec visitScanNode(ScanNode node, Void context)
             {
                 checkNotEmpty(node.getIdFields());
                 List<String> orderedFields = node.getFields().keySet().stream()
                         .filter(node.getIdFields()::contains)
                         .collect(toImmutableList());
-                return IdCodecs.buildRowIdCodec(
+                return RowCodecs.buildRowCodec(
                         orderedFields.stream()
                                 .collect(toImmutableMap(identity(), node.getFields()::get)));
             }
         }, null);
 
-        rowIdCodecsByNode.put(node, rowIdCodec);
-        return rowIdCodec;
+        rowIdCodecsByNode.put(node, rowCodec);
+        return rowCodec;
     }
 }

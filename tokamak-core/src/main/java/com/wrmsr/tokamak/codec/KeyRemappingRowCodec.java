@@ -11,7 +11,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.wrmsr.tokamak.codec;
 
 import com.google.common.collect.ImmutableMap;
@@ -21,14 +20,14 @@ import java.util.Map;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 
-public final class KeyRemappingRowIdCodec
-        implements RowIdCodec
+public final class KeyRemappingRowCodec
+        implements RowCodec
 {
-    private final RowIdCodec child;
+    private final RowCodec child;
     private final Map<String, String> inputsByOutput;
     private final Map<String, String> outputsByInput;
 
-    public KeyRemappingRowIdCodec(RowIdCodec child, Map<String, String> inputsByOutput)
+    public KeyRemappingRowCodec(RowCodec child, Map<String, String> inputsByOutput)
     {
         this.child = checkNotNull(child);
         this.inputsByOutput = ImmutableMap.copyOf(inputsByOutput);

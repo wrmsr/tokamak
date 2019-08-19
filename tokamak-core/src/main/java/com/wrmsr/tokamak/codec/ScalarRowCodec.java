@@ -22,8 +22,8 @@ import java.util.function.Function;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
-public final class ScalarRowIdCodec<V>
-        implements RowIdCodec
+public final class ScalarRowCodec<V>
+        implements RowCodec
 {
     @Immutable
     public static final class FunctionPair<V>
@@ -57,14 +57,14 @@ public final class ScalarRowIdCodec<V>
     private final BiConsumer<V, Output> encoder;
     private final Function<Input, V> decoder;
 
-    public ScalarRowIdCodec(String field, BiConsumer<V, Output> encoder, Function<Input, V> decoder)
+    public ScalarRowCodec(String field, BiConsumer<V, Output> encoder, Function<Input, V> decoder)
     {
         this.field = checkNotNull(field);
         this.encoder = checkNotNull(encoder);
         this.decoder = checkNotNull(decoder);
     }
 
-    public ScalarRowIdCodec(String field, FunctionPair<V> pair)
+    public ScalarRowCodec(String field, FunctionPair<V> pair)
     {
         this(field, pair.encoder, pair.decoder);
     }

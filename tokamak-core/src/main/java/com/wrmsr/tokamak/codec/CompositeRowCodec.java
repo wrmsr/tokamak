@@ -20,25 +20,25 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-public final class CompositeRowIdCodec
-        implements RowIdCodec, StreamableIterable<RowIdCodec>
+public final class CompositeRowCodec
+        implements RowCodec, StreamableIterable<RowCodec>
 {
     public static final int MAX_ID_LENGTH = 254;
 
-    private final List<RowIdCodec> children;
+    private final List<RowCodec> children;
 
-    public CompositeRowIdCodec(List<RowIdCodec> children)
+    public CompositeRowCodec(List<RowCodec> children)
     {
         this.children = ImmutableList.copyOf(children);
     }
 
-    public List<RowIdCodec> getChildren()
+    public List<RowCodec> getChildren()
     {
         return children;
     }
 
     @Override
-    public Iterator<RowIdCodec> iterator()
+    public Iterator<RowCodec> iterator()
     {
         return children.iterator();
     }
@@ -46,7 +46,7 @@ public final class CompositeRowIdCodec
     @Override
     public void encode(Map<String, Object> row, Output output)
     {
-        for (RowIdCodec child : children) {
+        for (RowCodec child : children) {
             child.encode(row, output);
         }
     }
@@ -54,7 +54,7 @@ public final class CompositeRowIdCodec
     @Override
     public void decode(Sink sink, Input input)
     {
-        for (RowIdCodec child : children) {
+        for (RowCodec child : children) {
             child.decode(sink, input);
         }
     }

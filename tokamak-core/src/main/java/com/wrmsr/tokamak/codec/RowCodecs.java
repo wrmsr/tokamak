@@ -24,38 +24,38 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.wrmsr.tokamak.util.MoreCollectors.toSingle;
 
-public final class IdCodecs
+public final class RowCodecs
 {
-    private IdCodecs()
+    private RowCodecs()
     {
     }
 
-    public static final ScalarRowIdCodec.FunctionPair<Boolean> BOOLEAN_SCALAR_PAIR = ScalarRowIdCodec.FunctionPair.of(
+    public static final ScalarRowCodec.FunctionPair<Boolean> BOOLEAN_SCALAR_PAIR = ScalarRowCodec.FunctionPair.of(
             (v, o) -> o.put((Boolean) v ? (byte) 1 : (byte) 0),
             i -> i.get() != 0
     );
 
-    public static final ScalarRowIdCodec.FunctionPair<Long> LONG_SCALAR_PAIR = ScalarRowIdCodec.FunctionPair.of(
+    public static final ScalarRowCodec.FunctionPair<Long> LONG_SCALAR_PAIR = ScalarRowCodec.FunctionPair.of(
             (v, o) -> o.put(((Number) v).longValue()),
             i -> i.getLong()
     );
 
-    public static final ScalarRowIdCodec.FunctionPair<Double> DOUBLE_SCALAR_PAIR = ScalarRowIdCodec.FunctionPair.of(
+    public static final ScalarRowCodec.FunctionPair<Double> DOUBLE_SCALAR_PAIR = ScalarRowCodec.FunctionPair.of(
             (v, o) -> o.put(Double.doubleToLongBits(((Number) v).doubleValue())),
             i -> Double.longBitsToDouble(i.getLong())
     );
 
-    public static final ScalarRowIdCodec.FunctionPair<byte[]> BYTES_SCALAR_PAIR = ScalarRowIdCodec.FunctionPair.of(
+    public static final ScalarRowCodec.FunctionPair<byte[]> BYTES_SCALAR_PAIR = ScalarRowCodec.FunctionPair.of(
             (v, o) -> o.put(v),
             i -> i.getBytes()
     );
 
-    public static final ScalarRowIdCodec.FunctionPair<String> STRING_SCALAR_PAIR = ScalarRowIdCodec.FunctionPair.of(
+    public static final ScalarRowCodec.FunctionPair<String> STRING_SCALAR_PAIR = ScalarRowCodec.FunctionPair.of(
             (v, o) -> o.put(v.getBytes(Charsets.UTF_8)),
             i -> new String(i.getBytes(), Charsets.UTF_8)
     );
 
-    public static final Map<Type, ScalarRowIdCodec.FunctionPair> SCALAR_PAIRS_BY_TYPE = ImmutableMap.<Type, ScalarRowIdCodec.FunctionPair>builder()
+    public static final Map<Type, ScalarRowCodec.FunctionPair> SCALAR_PAIRS_BY_TYPE = ImmutableMap.<Type, ScalarRowCodec.FunctionPair>builder()
             .put(Type.BOOLEAN, BOOLEAN_SCALAR_PAIR)
             .put(Type.LONG, LONG_SCALAR_PAIR)
             .put(Type.DOUBLE, DOUBLE_SCALAR_PAIR)
@@ -63,18 +63,23 @@ public final class IdCodecs
             .put(Type.STRING, STRING_SCALAR_PAIR)
             .build();
 
-    public static RowIdCodec buildRowIdCodec(Map<String, Type> typesByField)
+    public static ScalarRowCodec buildRowCodec(String field, Type type)
+    {
+        return new ScalarRowCodec(field, RowCodecs.SCALAR_PAIRS_BY_TYPE.get(type));
+    }
+
+    public static RowCodec buildRowCodec(Map<String, Type> typesByField)
     {
         checkArgument(!typesByField.isEmpty());
         if (typesByField.size() == 1) {
             Map.Entry<String, Type> e = typesByField.entrySet().stream().collect(toSingle());
-            return new ScalarRowIdCodec(e.getKey(), IdCodecs.SCALAR_PAIRS_BY_TYPE.get(e.getValue()));
+            return buildRowCodec(e.getKey(), e.getValue());
         }
         else {
-            List<RowIdCodec> parts = typesByField.entrySet().stream().map(e ->
-                    new ScalarRowIdCodec(e.getKey(), IdCodecs.SCALAR_PAIRS_BY_TYPE.get(e.getValue()))
-            ).collect(toImmutableList());
-            return new CompositeRowIdCodec(parts);
+            List<RowCodec> parts = typesByField.entrySet().stream()
+                    .map(e -> buildRowCodec(e.getKey(), e.getValue()))
+                    .collect(toImmutableList());
+            return new CompositeRowCodec(parts);
         }
     }
 }

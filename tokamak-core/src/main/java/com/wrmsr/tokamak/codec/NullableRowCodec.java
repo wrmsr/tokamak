@@ -11,20 +11,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.wrmsr.tokamak.codec;
 
 import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public final class NullableRowIdCodec
-        implements RowIdCodec
+public final class NullableRowCodec
+        implements RowCodec
 {
     private final String field;
-    private final RowIdCodec child;
+    private final RowCodec child;
 
-    public NullableRowIdCodec(String field, RowIdCodec child)
+    public NullableRowCodec(String field, RowCodec child)
     {
         this.field = checkNotNull(field);
         this.child = checkNotNull(child);

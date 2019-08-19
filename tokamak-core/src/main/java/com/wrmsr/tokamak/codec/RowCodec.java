@@ -15,7 +15,7 @@ package com.wrmsr.tokamak.codec;
 
 import java.util.Map;
 
-public interface RowIdCodec
+public interface RowCodec
 {
     /*
     TODO:

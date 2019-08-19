@@ -11,7 +11,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.wrmsr.tokamak.codec;
 
 import java.util.Map;
@@ -19,14 +18,14 @@ import java.util.Map;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
-public final class VariableLengthRowIdCodec
-        implements RowIdCodec
+public final class VariableLengthRowCodec
+        implements RowCodec
 {
     public static final int MAX_ID_LENGTH = 254;
 
-    private final RowIdCodec child;
+    private final RowCodec child;
 
-    public VariableLengthRowIdCodec(RowIdCodec child)
+    public VariableLengthRowCodec(RowCodec child)
     {
         this.child = checkNotNull(child);
     }

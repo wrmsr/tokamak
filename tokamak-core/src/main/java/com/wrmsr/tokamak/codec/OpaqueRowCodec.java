@@ -11,7 +11,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.wrmsr.tokamak.codec;
 
 import java.util.Map;
@@ -19,15 +18,15 @@ import java.util.Map;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public final class OpaqueRowIdCodec
-        implements RowIdCodec
+public final class OpaqueRowCodec
+        implements RowCodec
 {
-    private final RowIdCodec child;
+    private final RowCodec child;
 
-    private OpaqueRowIdCodec(RowIdCodec child)
+    private OpaqueRowCodec(RowCodec child)
     {
         this.child = checkNotNull(child);
-        checkArgument(!(child instanceof OpaqueRowIdCodec));
+        checkArgument(!(child instanceof OpaqueRowCodec));
     }
 
     @Override
@@ -42,13 +41,13 @@ public final class OpaqueRowIdCodec
         throw new IllegalStateException();
     }
 
-    public static RowIdCodec of(RowIdCodec child)
+    public static RowCodec of(RowCodec child)
     {
-        if (child instanceof OpaqueRowIdCodec) {
+        if (child instanceof OpaqueRowCodec) {
             return child;
         }
         else {
-            return new OpaqueRowIdCodec(child);
+            return new OpaqueRowCodec(child);
         }
     }
 }

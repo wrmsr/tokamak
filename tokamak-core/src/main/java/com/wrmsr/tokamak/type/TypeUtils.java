@@ -28,8 +28,8 @@ public final class TypeUtils
             .put(Type.BOOLEAN, "boolean")
             .put(Type.LONG, "long")
             .put(Type.DOUBLE, "double")
-            .put(Type.STRING, "string")
             .put(Type.BYTES, "bytes")
+            .put(Type.STRING, "string")
             .build();
 
     public static Type parseRepr(String str)
