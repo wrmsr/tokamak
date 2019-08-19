@@ -14,22 +14,61 @@
 package com.wrmsr.tokamak.codec;
 
 import com.google.common.collect.ImmutableMap;
-import com.wrmsr.tokamak.util.codec.Codec;
+
+import javax.annotation.concurrent.Immutable;
 
 import java.util.Map;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+@Immutable
 public final class ScalarRowIdCodec<V>
         implements RowIdCodec
 {
-    private final String field;
-    private final Codec<V, byte[]> child;
+    @Immutable
+    public static final class FunctionPair<V>
+    {
+        private final BiConsumer<V, Output> encoder;
+        private final Function<Input, V> decoder;
 
-    public ScalarRowIdCodec(String field, Codec<V, byte[]> child)
+        public FunctionPair(BiConsumer<V, Output> encoder, Function<Input, V> decoder)
+        {
+            this.encoder = checkNotNull(encoder);
+            this.decoder = checkNotNull(decoder);
+        }
+
+        public static <V> FunctionPair<V> of(BiConsumer<V, Output> encoder, Function<Input, V> decoder)
+        {
+            return new FunctionPair<>(encoder, decoder);
+        }
+
+        public BiConsumer<V, Output> getEncoder()
+        {
+            return encoder;
+        }
+
+        public Function<Input, V> getDecoder()
+        {
+            return decoder;
+        }
+    }
+
+    private final String field;
+    private final BiConsumer<V, Output> encoder;
+    private final Function<Input, V> decoder;
+
+    public ScalarRowIdCodec(String field, BiConsumer<V, Output> encoder, Function<Input, V> decoder)
     {
         this.field = checkNotNull(field);
-        this.child = checkNotNull(child);
+        this.encoder = checkNotNull(encoder);
+        this.decoder = checkNotNull(decoder);
+    }
+
+    public ScalarRowIdCodec(String field, FunctionPair<V> pair)
+    {
+        this(field, pair.encoder, pair.decoder);
     }
 
     public String getField()
@@ -37,20 +76,15 @@ public final class ScalarRowIdCodec<V>
         return field;
     }
 
-    public Codec<V, byte[]> getChild()
+    @Override
+    public void encode(Map<String, Object> row, Output output)
     {
-        return child;
+        encoder.accept((V) row.get(field), output);
     }
 
     @Override
-    public Map<String, Object> decode(byte[] data)
+    public Map<String, Object> decode(Input input)
     {
-        return ImmutableMap.of(field, child.decode(data));
-    }
-
-    @Override
-    public byte[] encode(Map<String, Object> data)
-    {
-        return child.encode((V) data.get(field));
+        return ImmutableMap.of(field, decoder.apply(input));
     }
 }

@@ -11,25 +11,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.wrmsr.tokamak.codec;
 
-import java.util.Map;
-
-public interface RowIdCodec
+public interface Input
 {
-    /*
-    TODO:
-     - write to a bytebuffer not join arrs
-      - on variable prealloc size byte
-     - operate on object[] not maps
-     - key awareness
-     - length awareness
-     - packed
-     - salting
-     - vints
-    */
+    byte get();
 
-    void encode(Map<String, Object> row, Output output);
+    long gutLong();
 
-    Map<String, Object> decode(Input input);
+    byte getBytes(int sz);
 }

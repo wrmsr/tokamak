@@ -32,30 +32,27 @@ public final class IdCodecs
     {
     }
 
-    private static final byte[] BYTES_ZERO = new byte[] {(byte) 0};
-    private static final byte[] BYTES_ONE = new byte[] {(byte) 1};
-
-    public static final Codec<Object, byte[]> BOOLEAN_CODEC = Codec.of(
-            v -> ((Boolean) v) ? BYTES_ONE : BYTES_ZERO,
-            b -> ByteBuffer.wrap(b).get() != 0
+    public static final ScalarRowIdCodec.FunctionPair<Boolean> BOOLEAN_SCALAR_PAIR = ScalarRowIdCodec.FunctionPair.of(
+            (v, o) -> o.put((Boolean) v ? (byte) 1 : (byte) 0),
+            i -> i.get() != 0
     );
 
-    public static final Codec<Object, byte[]> LONG_CODEC = Codec.of(
+    public static final Codec<Object, byte[]> LONG_SCALAR_PAIR = ScalarRowIdCodec.FunctionPair.of(
             v -> ByteBuffer.allocate(8).putLong(((Number) v).longValue()).array(),
             b -> ByteBuffer.wrap(b).getLong()
     );
 
-    public static final Codec<Object, byte[]> DOUBLE_CODEC = Codec.of(
+    public static final Codec<Object, byte[]> DOUBLE_SCALAR_PAIR = ScalarRowIdCodec.FunctionPair.of(
             v -> ByteBuffer.allocate(8).putDouble((double) v).array(),
             b -> ByteBuffer.wrap(b).getLong()
     );
 
-    public static final Codec<Object, byte[]> STRING_CODEC = Codec.of(
+    public static final Codec<Object, byte[]> STRING_SCALAR_PAIR = ScalarRowIdCodec.FunctionPair.of(
             v -> ((String) v).getBytes(Charsets.UTF_8),
             b -> new String(b, 0, b.length, Charsets.UTF_8)
     );
 
-    public static final Codec<Object, byte[]> BYTES_CODEC = Codec.of(
+    public static final Codec<Object, byte[]> BYTES_SCALAR_PAIR = ScalarRowIdCodec.FunctionPair.of(
             v -> (byte[]) v,
             b -> b
     );
