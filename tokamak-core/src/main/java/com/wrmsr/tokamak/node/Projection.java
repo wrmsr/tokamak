@@ -50,7 +50,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
-import static com.sun.tools.javac.util.Assert.checkNonNull;
 import static com.wrmsr.tokamak.util.MoreCollections.checkOrdered;
 import static java.util.function.Function.identity;
 
@@ -94,7 +93,7 @@ public final class Projection
 
         public FieldInput(String field)
         {
-            this.field = checkNonNull(field);
+            this.field = checkNotNull(field);
         }
 
         @Override
