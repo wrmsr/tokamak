@@ -111,12 +111,22 @@ public final class IdFieldAnalysis
             @Override
             public Entry visitCrossJoinNode(CrossJoinNode node, Void context)
             {
+                // checkSingle(this.sources.stream().map(Node::getIdFieldSets).map(Set::size).collect(toImmutableSet()));
+                // this.idFieldSets = Sets.cartesianProduct(this.sources.stream().map(Node::getIdFieldSets).collect(toImmutableList())).stream()
+                //         .map(l -> l.stream().flatMap(Collection::stream).collect(toImmutableSet()))
+                //         .collect(toImmutableSet());
                 throw new IllegalStateException();
             }
 
             @Override
             public Entry visitEquijoinNode(EquijoinNode node, Void context)
             {
+                // branchSetsByIdFieldSet = node.getBranches().stream()
+                //         .flatMap(b -> b.getNode().getIdFieldSets().stream().map(fs -> Pair.immutable(fs, b)))
+                //         .collect(groupingBySet(Pair::first)).entrySet().stream()
+                //         .collect(toImmutableMap(Map.Entry::getKey, e -> e.getValue().stream().map(Pair::second).collect(toImmutableSet())));
+                // idFieldSets = Sets.cartesianProduct(ImmutableList.copyOf(branchSetsByIdFieldSet.keySet())).stream()
+                //         .map(l -> ImmutableSet.<String>builder().addAll(l).build()).collect(toImmutableSet());
                 throw new IllegalStateException();
             }
 
@@ -135,7 +145,7 @@ public final class IdFieldAnalysis
             @Override
             public Entry visitLookupJoinNode(LookupJoinNode node, Void context)
             {
-                throw new IllegalStateException();
+                return new Entry(node, get(node.getSource(), context));
             }
 
             @Override
