@@ -49,6 +49,18 @@ public final class MorePreconditions
         return checkUnique(stream.collect(toImmutableList()));
     }
 
+    public static <T> Collection<T> checkUnique(Collection<T> collection)
+    {
+        checkUnique((Iterable<T>) collection);
+        return collection;
+    }
+
+    public static <T> List<T> checkUnique(List<T> list)
+    {
+        checkUnique((Iterable<T>) list);
+        return list;
+    }
+
     public static <T> T checkSingle(Iterator<T> iterator)
     {
         checkState(iterator.hasNext());
