@@ -17,9 +17,9 @@ public interface Output
 {
     void put(byte value);
 
-    void put(long value);
+    void putLong(long value);
 
-    void put(byte[] value);
+    void putBytes(byte[] value);
 
     int tell();
 
@@ -27,7 +27,7 @@ public interface Output
 
     void putAt(int pos, byte value);
 
-    void putAt(int pos, long value);
+    void putLongAt(int pos, long value);
 
-    void putAt(int pos, byte[] value);
+    void putBytesAt(int pos, byte[] value);
 }

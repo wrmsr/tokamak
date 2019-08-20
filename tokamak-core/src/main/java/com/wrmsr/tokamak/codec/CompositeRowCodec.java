@@ -23,8 +23,6 @@ import java.util.Map;
 public final class CompositeRowCodec
         implements RowCodec, StreamableIterable<RowCodec>
 {
-    public static final int MAX_ID_LENGTH = 254;
-
     private final List<RowCodec> children;
 
     public CompositeRowCodec(List<RowCodec> children)

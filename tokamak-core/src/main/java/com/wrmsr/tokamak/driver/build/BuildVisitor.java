@@ -14,7 +14,6 @@
 package com.wrmsr.tokamak.driver.build;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Streams;
 import com.wrmsr.tokamak.api.AllKey;
 import com.wrmsr.tokamak.api.FieldKey;
 import com.wrmsr.tokamak.api.Id;
@@ -23,10 +22,8 @@ import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.catalog.Connection;
 import com.wrmsr.tokamak.catalog.Scanner;
 import com.wrmsr.tokamak.catalog.Schema;
-import com.wrmsr.tokamak.codec.CompositeRowCodec;
-import com.wrmsr.tokamak.codec.RowCodecs;
+import com.wrmsr.tokamak.codec.ByteArrayInput;
 import com.wrmsr.tokamak.codec.RowCodec;
-import com.wrmsr.tokamak.codec.ScalarRowCodec;
 import com.wrmsr.tokamak.driver.DriverRow;
 import com.wrmsr.tokamak.driver.context.DriverContextImpl;
 import com.wrmsr.tokamak.function.Function;
@@ -100,13 +97,13 @@ public class BuildVisitor
                     .build();
         }
         else if (key instanceof IdKey) {
-            List<Key> idKeys = CompositeRowCodec.split(((IdKey) key).getId().getValue()).stream()
-                    .map(Id::of)
-                    .map(Key::of)
-                    .collect(toImmutableList());
-            checkState(idKeys.size() == node.getSources().size());
-            sourceKeyPairs = Streams.zip(node.getSources().stream(), idKeys.stream(), Pair::immutable)
-                    .collect(toImmutableList());
+            // List<Key> idKeys = CompositeRowCodec.split(((IdKey) key).getId().getValue()).stream()
+            //         .map(Id::of)
+            //         .map(Key::of)
+            //         .collect(toImmutableList());
+            // checkState(idKeys.size() == node.getSources().size());
+            // sourceKeyPairs = Streams.zip(node.getSources().stream(), idKeys.stream(), Pair::immutable)
+            //         .collect(toImmutableList());
         }
         else {
             throw new IllegalArgumentException(key.toString());
@@ -146,11 +143,11 @@ public class BuildVisitor
     @Override
     public Collection<DriverRow> visitListAggregateNode(ListAggregateNode node, Key key)
     {
-        RowCodec idCodec = new ScalarRowCodec<>(
-                node.getGroupField(), RowCodecs.CODECS_BY_TYPE.get(node.getFields().get(node.getGroupField())));
+        RowCodec idCodec = context.getDriver().getCodecManager().getRowIdCodec(node);
         Key childKey;
         if (key instanceof IdKey) {
-            childKey = Key.of(node.getGroupField(), idCodec.decode(((IdKey) key).getId().getValue()));
+            byte[] buf = ((IdKey) key).getId().getValue();
+            childKey = Key.of(node.getGroupField(), idCodec.decodeSingle(node.getGroupField(), new ByteArrayInput(buf)));
         }
         else if (key instanceof FieldKey) {
             FieldKey fieldKey = (FieldKey) key;
@@ -270,11 +267,12 @@ public class BuildVisitor
         Schema schema = context.getDriver().getCatalog().getSchemasByName().get(node.getSchemaTable().getSchema());
         Connection connection = context.getConnection(schema.getConnector());
 
-        RowCodec rowCodec = context.getDriver().getCodecManager().getRowIdCodec(node);
+        RowCodec idCodec = context.getDriver().getCodecManager().getRowIdCodec(node);
 
         Key scanKey;
         if (key instanceof IdKey) {
-            Map<String, Object> keyFields = rowCodec.decode(((IdKey) key).getId().getValue());
+            byte[] buf = ((IdKey) key).getId().getValue();
+            Map<String, Object> keyFields = idCodec.decodeMap(new ByteArrayInput(buf));
             scanKey = Key.of(keyFields);
         }
         else {
@@ -286,7 +284,7 @@ public class BuildVisitor
 
         ImmutableList.Builder<DriverRow> rows = ImmutableList.builder();
         for (Map<String, Object> scanRow : scanRows) {
-            Id id = Id.of(rowCodec.encode(scanRow));
+            Id id = Id.of(idCodec.encodeBytes(scanRow));
             Object[] attributes = scanRow.values().toArray();
             rows.add(
                     new DriverRow(

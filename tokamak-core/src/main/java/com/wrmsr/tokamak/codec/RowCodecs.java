@@ -35,23 +35,23 @@ public final class RowCodecs
             i -> i.get() != 0
     );
 
-    public static final ScalarRowCodec.FunctionPair<Long> LONG_SCALAR_PAIR = ScalarRowCodec.FunctionPair.of(
-            (v, o) -> o.put(((Number) v).longValue()),
+    public static final ScalarRowCodec.FunctionPair<Number> LONG_SCALAR_PAIR = ScalarRowCodec.FunctionPair.of(
+            (v, o) -> o.putLong(v.longValue()),
             i -> i.getLong()
     );
 
-    public static final ScalarRowCodec.FunctionPair<Double> DOUBLE_SCALAR_PAIR = ScalarRowCodec.FunctionPair.of(
-            (v, o) -> o.put(Double.doubleToLongBits(((Number) v).doubleValue())),
+    public static final ScalarRowCodec.FunctionPair<Number> DOUBLE_SCALAR_PAIR = ScalarRowCodec.FunctionPair.of(
+            (v, o) -> o.putLong(Double.doubleToLongBits(v.doubleValue())),
             i -> Double.longBitsToDouble(i.getLong())
     );
 
     public static final ScalarRowCodec.FunctionPair<byte[]> BYTES_SCALAR_PAIR = ScalarRowCodec.FunctionPair.of(
-            (v, o) -> o.put(v),
+            (v, o) -> o.putBytes(v),
             i -> i.getBytes()
     );
 
     public static final ScalarRowCodec.FunctionPair<String> STRING_SCALAR_PAIR = ScalarRowCodec.FunctionPair.of(
-            (v, o) -> o.put(v.getBytes(Charsets.UTF_8)),
+            (v, o) -> o.putBytes(v.getBytes(Charsets.UTF_8)),
             i -> new String(i.getBytes(), Charsets.UTF_8)
     );
 

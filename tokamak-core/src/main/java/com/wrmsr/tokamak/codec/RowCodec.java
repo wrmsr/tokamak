@@ -13,7 +13,12 @@
  */
 package com.wrmsr.tokamak.codec;
 
+import com.google.common.collect.ImmutableMap;
+import com.wrmsr.tokamak.util.Cell;
+
 import java.util.Map;
+
+import static com.google.common.base.Preconditions.checkState;
 
 public interface RowCodec
 {
@@ -31,6 +36,13 @@ public interface RowCodec
 
     void encode(Map<String, Object> row, Output output);
 
+    default byte[] encodeBytes(Map<String, Object> row)
+    {
+        ByteArrayOutput output = new ByteArrayOutput();
+        encode(row, output);
+        return output.getBuf();
+    }
+
     @FunctionalInterface
     interface Sink
     {
@@ -38,4 +50,21 @@ public interface RowCodec
     }
 
     void decode(Sink sink, Input input);
+
+    default <V> V decodeSingle(String field, Input input)
+    {
+        Cell<V> cell = Cell.optional();
+        decode((k, v) -> {
+            checkState(k.equals(field));
+            cell.set((V) v);
+        }, input);
+        return cell.get();
+    }
+
+    default Map<String, Object> decodeMap(Input input)
+    {
+        ImmutableMap.Builder<String, Object> builder = ImmutableMap.builder();
+        decode(builder::put, input);
+        return builder.build();
+    }
 }

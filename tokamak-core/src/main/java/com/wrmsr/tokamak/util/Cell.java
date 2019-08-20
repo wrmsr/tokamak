@@ -18,6 +18,12 @@ import java.util.function.Supplier;
 
 public interface Cell<T>
 {
+    /*
+    TODO:
+     - actual optional
+     - synchronized
+    */
+
     T get();
 
     void set(T value);
@@ -64,5 +70,64 @@ public interface Cell<T>
     static <T> Cell<T> of(T value)
     {
         return new DefaultImpl<>(value);
+    }
+
+    final class OptionalImpl<T>
+            implements Cell<T>
+    {
+        private boolean isSet;
+        private T value;
+
+        @Override
+        public T get()
+        {
+            if (!isSet) {
+                throw new IllegalStateException();
+            }
+            return value;
+        }
+
+        @Override
+        public void set(T value)
+        {
+            isSet = true;
+            this.value = value;
+        }
+    }
+
+    static <T> Cell<T> optional()
+    {
+        return new OptionalImpl<>();
+    }
+
+    final class SetOnceImpl<T>
+            implements Cell<T>
+    {
+        private boolean isSet;
+        private T value;
+
+        @Override
+        public T get()
+        {
+            if (!isSet) {
+                throw new IllegalStateException();
+            }
+            return value;
+        }
+
+        @Override
+        public void set(T value)
+        {
+            if (isSet) {
+                throw new IllegalStateException();
+            }
+            isSet = true;
+            this.value = value;
+        }
+    }
+
+    static <T> Cell<T> setOnce()
+    {
+        return new SetOnceImpl<>();
     }
 }

@@ -33,11 +33,11 @@ public final class NullableRowCodec
     public void encode(Map<String, Object> row, Output output)
     {
         if (row.get(field) != null) {
-            output.put(0);
+            output.putLong(0);
             child.encode(row, output);
         }
         else {
-            output.put(1);
+            output.putLong(1);
         }
     }
 
