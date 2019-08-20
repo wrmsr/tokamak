@@ -26,6 +26,7 @@ public final class GetterLazyValue<T>
             synchronized (this) {
                 if (!isSet) {
                     value = supplier.get();
+                    isSet = true;
                 }
             }
         }

@@ -22,9 +22,11 @@ import com.wrmsr.tokamak.node.visitor.NodeVisitor;
 import com.wrmsr.tokamak.type.Type;
 import com.wrmsr.tokamak.util.MoreCollections;
 import com.wrmsr.tokamak.util.Pair;
+import com.wrmsr.tokamak.util.lazy.GetterLazyValue;
 
 import javax.annotation.concurrent.Immutable;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +36,7 @@ import java.util.stream.IntStream;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
@@ -118,7 +121,6 @@ public final class EquijoinNode
     private final Map<String, Branch> branchesByUniqueField;
     private final Map<String, Type> fields;
     private final int keyLength;
-    private final Set<Set<String>> guaranteedEqualFieldSets;
 
     @JsonCreator
     public EquijoinNode(
@@ -163,9 +165,6 @@ public final class EquijoinNode
         this.fields = ImmutableMap.copyOf(fields);
 
         keyLength = this.branches.stream().map(b -> b.getFields().size()).distinct().collect(toSingle());
-        guaranteedEqualFieldSets = MoreCollections.unify(IntStream.range(0, keyLength)
-                .mapToObj(i -> this.branches.stream().map(b -> b.getFields().get(i)).collect(toImmutableSet()))
-                .collect(toImmutableSet()));
 
         checkInvariants();
     }
@@ -224,9 +223,41 @@ public final class EquijoinNode
         return keyLength;
     }
 
+    private final GetterLazyValue<Set<Set<String>>> guaranteedEqualFieldSets = new GetterLazyValue<>();
+
     public Set<Set<String>> getGuaranteedEqualFieldSets()
     {
-        return guaranteedEqualFieldSets;
+        return guaranteedEqualFieldSets.get(() -> {
+            if (mode == Mode.INNER) {
+                return MoreCollections.unify(IntStream.range(0, keyLength)
+                        .mapToObj(i -> branches.stream().map(b -> b.getFields().get(i)).collect(toImmutableSet()))
+                        .collect(toImmutableSet()));
+            }
+            else {
+                return ImmutableSet.of();
+            }
+        });
+    }
+
+    private final GetterLazyValue<Map<String, Set<String>>> equivalentFieldSetsByField = new GetterLazyValue<>();
+
+    public Map<String, Set<String>> getEquivalentFieldSetsByField()
+    {
+        return equivalentFieldSetsByField.get(() -> {
+            Map<String, Set<String>> equivalentFieldsByField = new HashMap<>();
+            for (Set<String> fieldSet : getGuaranteedEqualFieldSets()) {
+                for (String field : fieldSet) {
+                    checkState(!equivalentFieldsByField.containsKey(field));
+                    equivalentFieldsByField.put(field, fieldSet);
+                }
+            }
+            for (String field : fields.keySet()) {
+                if (!equivalentFieldsByField.containsKey(field)) {
+                    equivalentFieldsByField.put(field, ImmutableSet.of(field));
+                }
+            }
+            return ImmutableMap.copyOf(equivalentFieldsByField);
+        });
     }
 
     @Override

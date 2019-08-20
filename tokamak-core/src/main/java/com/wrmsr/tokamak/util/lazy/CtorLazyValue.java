@@ -33,6 +33,7 @@ public final class CtorLazyValue<T>
             synchronized (this) {
                 if (!isSet) {
                     value = supplier.get();
+                    isSet = true;
                 }
             }
         }
