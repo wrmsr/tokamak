@@ -14,20 +14,26 @@
 package com.wrmsr.tokamak.util;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Streams;
+import com.google.common.collect.ImmutableMap;
 
 import javax.annotation.concurrent.Immutable;
 
 import java.util.Arrays;
+import java.util.BitSet;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.Spliterator;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkUnique;
@@ -38,20 +44,35 @@ public final class ObjectArrayBackedMap<K>
 {
     @Immutable
     public static final class Shape<K>
-            implements StreamableIterable<K>
+            implements Set<K>
     {
-        private final List<K> keys;
         private final Map<K, Integer> indicesByKey;
+        private final int width;
+
+        public Shape(Map<K, Integer> indicesByKey, int width)
+        {
+            this.indicesByKey = ImmutableMap.copyOf(indicesByKey);
+            this.width = width;
+            checkArgument(width >= 0);
+            this.indicesByKey.values().forEach(i -> checkArgument(i >= 0 && i < width));
+        }
 
         public Shape(Iterable<K> keys)
         {
-            this.keys = checkUnique(ImmutableList.copyOf(keys));
-            indicesByKey = IntStream.range(0, this.keys.size()).boxed().collect(toImmutableMap(this.keys::get, identity()));
+            List<K> keyList = checkUnique(ImmutableList.copyOf(keys));
+            indicesByKey = IntStream.range(0, keyList.size()).boxed().collect(toImmutableMap(keyList::get, identity()));
+            width = indicesByKey.size();
         }
 
-        public List<K> getKeys()
+        public static <K> Shape<K> of(Iterable<K> keys)
         {
-            return keys;
+            checkNotNull(keys);
+            return keys instanceof Shape ? (Shape<K>) keys : new Shape<>(keys);
+        }
+
+        public Set<K> getKeys()
+        {
+            return indicesByKey.keySet();
         }
 
         public Map<K, Integer> getIndicesByKey()
@@ -59,30 +80,115 @@ public final class ObjectArrayBackedMap<K>
             return indicesByKey;
         }
 
+        public int getWidth()
+        {
+            return width;
+        }
+
         public int size()
         {
-            return keys.size();
+            return indicesByKey.size();
         }
 
         @Override
         public Iterator<K> iterator()
         {
-            return keys.iterator();
+            return indicesByKey.keySet().iterator();
+        }
+
+        @Override
+        public boolean isEmpty()
+        {
+            return indicesByKey.isEmpty();
+        }
+
+        @Override
+        public boolean contains(Object o)
+        {
+            return indicesByKey.containsKey((K) o);
+        }
+
+        @Override
+        public Object[] toArray()
+        {
+            return indicesByKey.keySet().toArray();
+        }
+
+        @Override
+        public <T> T[] toArray(T[] a)
+        {
+            return indicesByKey.keySet().toArray(a);
+        }
+
+        @Override
+        public boolean add(K k)
+        {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public boolean remove(Object o)
+        {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public boolean containsAll(Collection<?> c)
+        {
+            return indicesByKey.keySet().containsAll(c);
+        }
+
+        @Override
+        public boolean addAll(Collection<? extends K> c)
+        {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public boolean retainAll(Collection<?> c)
+        {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public boolean removeAll(Collection<?> c)
+        {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void clear()
+        {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public Spliterator<K> spliterator()
+        {
+            return indicesByKey.keySet().spliterator();
+        }
+
+        @Override
+        public Stream<K> stream()
+        {
+            return indicesByKey.keySet().stream();
         }
     }
 
     private final Shape<K> shape;
     private final Object[] values;
 
-    public ObjectArrayBackedMap(Shape<K> shape)
+    public ObjectArrayBackedMap(Shape<K> shape, Object[] values)
     {
+        checkArgument(values.length == shape.width);
         this.shape = checkNotNull(shape);
-        values = new Object[shape.size()];
+        this.values = checkNotNull(values);
     }
 
     public ObjectArrayBackedMap(Iterable<K> keys)
     {
-        this(new Shape<>(keys));
+        this.shape = Shape.of(keys);
+        values = new Object[shape.getWidth()];
     }
 
     public Shape<K> getShape()
@@ -104,7 +210,9 @@ public final class ObjectArrayBackedMap<K>
     @Override
     public Set<Entry<K, Object>> entrySet()
     {
-        return Streams.zip(shape.stream(), Arrays.stream(values), Pair::immutable).collect(toImmutableSet());
+        return shape.indicesByKey.entrySet().stream()
+                .map(e -> Pair.immutable(e.getKey(), values[e.getValue()]))
+                .collect(toImmutableSet());
     }
 
     @Override
@@ -130,13 +238,13 @@ public final class ObjectArrayBackedMap<K>
     @Override
     public boolean containsKey(Object key)
     {
-        return shape.indicesByKey.containsKey(key);
+        return shape.contains(key);
     }
 
     @Override
     public boolean containsValue(Object value)
     {
-        for (int i = 0; i < values.length; ++i) {
+        for (int i : shape.indicesByKey.values()) {
             if (Objects.equals(value, values[i])) {
                 return true;
             }
@@ -173,12 +281,53 @@ public final class ObjectArrayBackedMap<K>
     @Override
     public Set<K> keySet()
     {
-        return shape.indicesByKey.keySet();
+        return shape;
     }
 
     @Override
     public Collection<Object> values()
     {
-        return new ArrayListView<>(values);
+        return shape.indicesByKey.values().stream()
+                .map(i -> values[i])
+                .collect(toImmutableList());
+    }
+
+    public static final class Builder<K>
+    {
+        private final ObjectArrayBackedMap<K> map;
+        private final BitSet bitSet;
+
+        private Builder(Shape<K> shape)
+        {
+            map = new ObjectArrayBackedMap<>(shape);
+            bitSet = new BitSet(map.size());
+        }
+
+        public Builder<K> put(K key, Object value)
+        {
+            int idx = map.shape.indicesByKey.get(key);
+            checkState(!bitSet.get(idx));
+            map.values[idx] = value;
+            bitSet.set(idx);
+            return this;
+        }
+
+        public Builder<K> putAll(Map<? extends K, ?> map)
+        {
+            for (Map.Entry e : map.entrySet()) {
+                put((K) e.getKey(), e.getValue());
+            }
+            return this;
+        }
+
+        public ObjectArrayBackedMap<K> build()
+        {
+            return map;
+        }
+    }
+
+    public static <K> Builder<K> builder(Iterable<K> keys)
+    {
+        return new Builder<>(Shape.of(keys));
     }
 }
