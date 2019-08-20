@@ -14,68 +14,106 @@
 
 package com.wrmsr.tokamak.codec;
 
-import com.wrmsr.tokamak.util.OpenByteArrayOutputStream;
-
 import javax.annotation.concurrent.Immutable;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 @Immutable
 public final class ByteArrayOutput
         implements Output
 {
-    private final OpenByteArrayOutputStream bas = new OpenByteArrayOutputStream();
+    private byte[] buf;
+    private int pos;
+
+    public ByteArrayOutput()
+    {
+        buf = new byte[32];
+    }
+
+    public ByteArrayOutput(int sz)
+    {
+        buf = new byte[nearestPowerOfTwo(sz)];
+    }
+
+    private static int nearestPowerOfTwo(int n)
+    {
+        return 1 << (32 - Integer.numberOfLeadingZeros(n));
+    }
 
     public byte[] getBuf()
     {
-        return bas.getBuf();
+        return buf;
     }
 
-    @Override
-    public void put(byte value)
+    public byte[] toByteArray()
     {
-        bas.write(value);
+        if (pos != buf.length) {
+            return Arrays.copyOf(buf, pos);
+        }
+        else {
+            return buf;
+        }
     }
 
-    @Override
-    public void putLong(long value)
+    public ByteBuffer wrap()
     {
-        ByteBuffer.wrap(bas.getBuf()).putLong(value);
-    }
-
-    @Override
-    public void putBytes(byte[] value)
-    {
-        ByteBuffer.wrap(bas.getBuf()).put(value);
+        return ByteBuffer.wrap(buf, pos, buf.length - pos);
     }
 
     @Override
     public int tell()
     {
-        return bas.size();
+        return pos;
     }
 
     @Override
     public void alloc(int sz)
     {
-        ByteBuffer.wrap(bas.getBuf()).put(new byte[sz]);
+        int nlen = pos + sz;
+        if (nlen > buf.length) {
+            buf = Arrays.copyOf(buf, nearestPowerOfTwo(nlen));
+        }
+    }
+
+    @Override
+    public void put(byte value)
+    {
+        alloc(1);
+        buf[pos++] = value;
+    }
+
+    @Override
+    public void putLong(long value)
+    {
+        alloc(8);
+        wrap().putLong(value);
+        pos += 8;
+    }
+
+    @Override
+    public void putBytes(byte[] value)
+    {
+        alloc(value.length);
+        System.arraycopy(value, 0, buf, pos, value.length);
+        pos += value.length;
     }
 
     @Override
     public void putAt(int pos, byte value)
     {
-        bas.getBuf()[pos] = value;
+        buf[pos] = value;
     }
 
     @Override
     public void putLongAt(int pos, long value)
     {
-        ByteBuffer.wrap(bas.getBuf(), pos, bas.size() - pos).putLong(value);
+        ByteBuffer.wrap(buf, pos, 8).putLong(value);
     }
 
     @Override
     public void putBytesAt(int pos, byte[] value)
     {
-        ByteBuffer.wrap(bas.getBuf(), pos, bas.size() - pos).put(value);
+        System.arraycopy(value, 0, buf, pos, value.length);
     }
 }

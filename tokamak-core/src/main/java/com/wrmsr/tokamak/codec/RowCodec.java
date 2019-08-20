@@ -40,7 +40,7 @@ public interface RowCodec
     {
         ByteArrayOutput output = new ByteArrayOutput();
         encode(row, output);
-        return output.getBuf();
+        return output.toByteArray();
     }
 
     @FunctionalInterface

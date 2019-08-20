@@ -15,15 +15,15 @@ package com.wrmsr.tokamak.codec;
 
 public interface Output
 {
+    int tell();
+
+    void alloc(int sz);
+
     void put(byte value);
 
     void putLong(long value);
 
     void putBytes(byte[] value);
-
-    int tell();
-
-    void alloc(int sz);
 
     void putAt(int pos, byte value);
 
