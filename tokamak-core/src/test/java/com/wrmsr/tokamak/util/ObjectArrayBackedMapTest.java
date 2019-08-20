@@ -14,6 +14,7 @@
 
 package com.wrmsr.tokamak.util;
 
+import com.google.common.collect.ImmutableList;
 import junit.framework.TestCase;
 
 public class ObjectArrayBackedMapTest
@@ -22,8 +23,8 @@ public class ObjectArrayBackedMapTest
     public void testOabm()
             throws Throwable
     {
-        ObjectArrayBackedMap
-
-
+        ObjectArrayBackedMap<String> oabm = new ObjectArrayBackedMap<>(ImmutableList.of("a", "d", "b"));
+        oabm.put("d", 100);
+        System.out.println(oabm);
     }
 }

@@ -29,6 +29,7 @@ import java.util.Set;
 import java.util.Spliterator;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -70,6 +71,31 @@ public final class ObjectArrayBackedMap<K>
             return keys instanceof Shape ? (Shape<K>) keys : new Shape<>(keys);
         }
 
+        @Override
+        public String toString()
+        {
+            return "Shape{" +
+                    "indicesByKey=" + indicesByKey +
+                    ", width=" + width +
+                    '}';
+        }
+
+        @Override
+        public boolean equals(Object o)
+        {
+            if (this == o) { return true; }
+            if (o == null || getClass() != o.getClass()) { return false; }
+            Shape<?> shape = (Shape<?>) o;
+            return width == shape.width &&
+                    Objects.equals(indicesByKey, shape.indicesByKey);
+        }
+
+        @Override
+        public int hashCode()
+        {
+            return Objects.hash(indicesByKey, width);
+        }
+
         public Set<K> getKeys()
         {
             return indicesByKey.keySet();
@@ -85,6 +111,14 @@ public final class ObjectArrayBackedMap<K>
             return width;
         }
 
+        public Shape<K> subshape(Iterable<K> keys)
+        {
+            return new Shape<>(
+                    StreamSupport.stream(keys.spliterator(), false).collect(toImmutableMap(identity(), indicesByKey::get)),
+                    width);
+        }
+
+        @Override
         public int size()
         {
             return indicesByKey.size();
@@ -232,7 +266,7 @@ public final class ObjectArrayBackedMap<K>
     @Override
     public boolean isEmpty()
     {
-        return shape.size() == 0;
+        return shape.isEmpty();
     }
 
     @Override
