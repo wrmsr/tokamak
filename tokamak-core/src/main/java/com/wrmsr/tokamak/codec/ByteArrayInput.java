@@ -49,9 +49,11 @@ public final class ByteArrayInput
     @Override
     public long getLong()
     {
-        int npos = pos + 4;
-        checkState(npos < max);
-        return ByteBuffer.wrap(buf, (pos = npos), 4).getLong();
+        int npos = pos + 8;
+        checkState(npos <= max);
+        long ret = ByteBuffer.wrap(buf, pos, 8).getLong();
+        pos = npos;
+        return ret;
     }
 
     @Override
@@ -68,7 +70,7 @@ public final class ByteArrayInput
     @Override
     public Input nest(int sz)
     {
-        checkState(pos + sz < max);
+        checkState(pos + sz <= max);
         Input ret = new ByteArrayInput(buf, pos, sz);
         pos += sz;
         return ret;
