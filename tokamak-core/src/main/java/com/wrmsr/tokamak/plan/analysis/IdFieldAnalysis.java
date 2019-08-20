@@ -106,7 +106,7 @@ public final class IdFieldAnalysis
     {
         Map<Node, Entry> entriesByNode = new HashMap<>();
 
-        NodeVisitors.preWalk(node, new CachingNodeVisitor<Entry, Void>(entriesByNode)
+        NodeVisitors.cacheAll(node, new CachingNodeVisitor<Entry, Void>(entriesByNode)
         {
             @Override
             public Entry visitCrossJoinNode(CrossJoinNode node, Void context)
