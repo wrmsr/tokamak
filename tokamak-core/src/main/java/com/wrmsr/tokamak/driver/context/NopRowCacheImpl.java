@@ -13,11 +13,9 @@
  */
 package com.wrmsr.tokamak.driver.context;
 
-import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.driver.DriverRow;
 import com.wrmsr.tokamak.node.Node;
-import com.wrmsr.tokamak.node.StatefulNode;
 
 import java.util.Collection;
 import java.util.Map;
@@ -45,12 +43,6 @@ public final class NopRowCacheImpl
 
     @Override
     public Map<Node, Collection<DriverRow>> getNodeMap()
-    {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public DriverRow get(StatefulNode node, Id id)
     {
         throw new UnsupportedOperationException();
     }

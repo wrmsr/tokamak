@@ -43,6 +43,7 @@ public class RowCacheImpl
     /*
     TODO:
      - StatefulNodal
+     - share FieldKey structure
     */
 
     private class Nodal
