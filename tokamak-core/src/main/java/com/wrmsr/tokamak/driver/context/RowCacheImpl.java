@@ -45,6 +45,7 @@ public class RowCacheImpl
     TODO:
      - StatefulNodal
      - share FieldKey structure
+     - custom datastructure prob
     */
 
     private class Nodal
@@ -52,8 +53,9 @@ public class RowCacheImpl
         final Node node;
 
         final Set<DriverRow> allRows = new HashSet<>();
-        final Map<Id, Set<DriverRow>> rowsById = new HashMap<>();
-        final Map<ImmutableSet<String>, Map<ImmutableList<Object>, Set<DriverRow>>> rowsByValuesByFields = new HashMap<>();
+        final Map<Id, Set<DriverRow>> rowSetsById = new HashMap<>();
+        final Map<String, Map<Object, Set<DriverRow>>> rowSetsByValueByField = new HashMap<>();
+        final Map<ImmutableSet<String>, Map<ImmutableList<Object>, Set<DriverRow>>> rowSetsByValueListByFieldSet = new HashMap<>();
         boolean allRequested;
 
         final Map<ImmutableSet<String>, ImmutableSet<String>> orderedFieldSets = new HashMap<>();
@@ -87,21 +89,21 @@ public class RowCacheImpl
             }
 
             else if (key instanceof IdKey) {
-                return Optional.ofNullable(rowsById.get(((IdKey) key).getId()));
+                return Optional.ofNullable(rowSetsById.get(((IdKey) key).getId()));
             }
 
             else if (key instanceof FieldKey) {
                 FieldKey fieldKey = (FieldKey) key;
 
                 ImmutableSet<String> keyFields = ImmutableSet.copyOf(fieldKey.getValuesByField().keySet());
-                Map<ImmutableList<Object>, Set<DriverRow>> rowsByValues = rowsByValuesByFields.get(keyFields);
-                if (rowsByValues == null) {
+                Map<ImmutableList<Object>, Set<DriverRow>> rowSetsByValueList = rowSetsByValueListByFieldSet.get(keyFields);
+                if (rowSetsByValueList == null) {
                     return Optional.empty();
                 }
 
                 ImmutableSet<String> orderedKeyFields = orderFieldSet(keyFields);
                 ImmutableList<Object> orderedValues = orderValues(orderedKeyFields, fieldKey.getValuesByField());
-                Set<DriverRow> rows = rowsByValues.get(orderedValues);
+                Set<DriverRow> rows = rowSetsByValueList.get(orderedValues);
                 return Optional.ofNullable(rows);
             }
 
@@ -125,6 +127,8 @@ public class RowCacheImpl
             }
 
             else if (key instanceof FieldKey) {
+                FieldKey fieldKey = (FieldKey) key;
+
                 throw new IllegalArgumentException(key.toString());
             }
 
