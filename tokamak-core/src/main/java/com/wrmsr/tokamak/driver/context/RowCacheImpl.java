@@ -34,6 +34,7 @@ import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 
@@ -112,10 +113,24 @@ public class RowCacheImpl
         void put(Key key, Collection<DriverRow> rows)
         {
             checkArgument(!rows.isEmpty());
-            // if (rowSetsByKey.containsKey(Key.all())) {
-            //     throw new KeyException(key);
-            // }
-            throw new UnsupportedOperationException();
+
+            if (key instanceof AllKey) {
+                checkState(!allRequested);
+                // allRows = ImmutableSet.copyOf(rows);
+                throw new IllegalArgumentException(key.toString());
+            }
+
+            else if (key instanceof IdKey) {
+                throw new IllegalArgumentException(key.toString());
+            }
+
+            else if (key instanceof FieldKey) {
+                throw new IllegalArgumentException(key.toString());
+            }
+
+            else {
+                throw new IllegalArgumentException(key.toString());
+            }
         }
     }
 
