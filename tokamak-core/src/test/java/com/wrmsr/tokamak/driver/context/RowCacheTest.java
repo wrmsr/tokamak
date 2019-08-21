@@ -44,7 +44,7 @@ public class RowCacheTest
         );
 
         assertEquals("ab", m2.get(ImmutableList.of("a", "b")));
-        assertEquals("ab", m2.get(new ArrayList() {{ add("b"); add("a"); }}));
-        assertNull(m2.get(ImmutableList.of("a", "b")));
+        assertEquals("ab", m2.get(new ArrayList() {{ add("a"); add("b"); }}));
+        assertNull(m2.get(ImmutableList.of("b", "a")));
     }
 }
