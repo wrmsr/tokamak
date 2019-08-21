@@ -40,7 +40,7 @@ import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
-import static com.wrmsr.tokamak.util.MoreCollectors.groupingBySet;
+import static com.wrmsr.tokamak.util.MoreCollectors.groupingByImmutableSet;
 import static com.wrmsr.tokamak.util.MoreCollectors.toSingle;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 import static java.util.stream.Collectors.groupingBy;
@@ -134,9 +134,9 @@ public final class EquijoinNode
         this.mode = checkNotNull(mode);
 
         branchSetsByNode = this.branches.stream()
-                .collect(groupingBySet(Branch::getNode));
+                .collect(groupingByImmutableSet(Branch::getNode));
         branchSetsByKeyFieldSet = this.branches.stream()
-                .collect(groupingBySet(b -> ImmutableSet.copyOf(b.getFields())));
+                .collect(groupingByImmutableSet(b -> ImmutableSet.copyOf(b.getFields())));
 
         branchSetsByField = this.branches.stream()
                 .flatMap(b -> b.getNode().getFields().keySet().stream().map(f -> Pair.immutable(f, b)))

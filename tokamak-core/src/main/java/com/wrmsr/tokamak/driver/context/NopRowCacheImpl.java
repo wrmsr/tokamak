@@ -38,13 +38,13 @@ public final class NopRowCacheImpl
     }
 
     @Override
-    public Collection<DriverRow> get(Node node)
+    public Collection<DriverRow> getForNode(Node node)
     {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public Map<Node, Collection<DriverRow>> get()
+    public Map<Node, Collection<DriverRow>> getNodeMap()
     {
         throw new UnsupportedOperationException();
     }

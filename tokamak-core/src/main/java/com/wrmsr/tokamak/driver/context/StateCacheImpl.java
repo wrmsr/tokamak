@@ -103,7 +103,7 @@ public class StateCacheImpl
         throw new IllegalStateException();
     }
 
-    public Optional<State> get(
+    public Optional<State> getAll(
             StateStorageContext storageCtx,
             StatefulNode node,
             Id id,
@@ -138,16 +138,7 @@ public class StateCacheImpl
     }
 
     @Override
-    public void upgradePhantom(
-            StateStorageContext storageCtx,
-            State state,
-            boolean share)
-    {
-        throw new IllegalStateException();
-    }
-
-    @Override
-    public Collection<State> get()
+    public Collection<State> getAll()
     {
         return states;
     }
@@ -165,7 +156,7 @@ public class StateCacheImpl
     }
 
     @Override
-    public Map<Id, State> get(StatefulNode node)
+    public Map<Id, State> getIdMap(StatefulNode node)
     {
         throw new IllegalStateException();
     }
@@ -174,5 +165,11 @@ public class StateCacheImpl
     public void flush(StateStorageContext storageCtx)
     {
         throw new IllegalStateException();
+    }
+
+    @Override
+    public Optional<State> get(StatefulNode node, Id id)
+    {
+        return Optional.empty();
     }
 }

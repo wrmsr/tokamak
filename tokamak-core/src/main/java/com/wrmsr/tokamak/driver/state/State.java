@@ -14,14 +14,21 @@
 package com.wrmsr.tokamak.driver.state;
 
 import com.wrmsr.tokamak.api.Id;
-import com.wrmsr.tokamak.driver.DriverRow;
+import com.wrmsr.tokamak.api.Row;
 import com.wrmsr.tokamak.node.StatefulNode;
 
-import java.util.Optional;
+import javax.annotation.Nullable;
 
+import java.util.BitSet;
+import java.util.Set;
+
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.collect.ImmutableSet.toImmutableSet;
 
 public final class State
+        implements Row
 {
     public enum Mode
     {
@@ -32,18 +39,63 @@ public final class State
         MODIFIED
     }
 
+    public static class ModeException
+            extends RuntimeException
+    {
+        private final State state;
+
+        public ModeException(State state)
+        {
+            this.state = checkNotNull(state);
+        }
+
+        @Override
+        public String toString()
+        {
+            return "State.ModeException{" +
+                    "state=" + state +
+                    '}';
+        }
+    }
+
     private final StateContext context;
     private final Id id;
     private Mode mode;
     private long version;
-    private Optional<Linkage> linkage = Optional.empty();
-    private Optional<DriverRow> row = Optional.empty();
+
+    @Nullable
+    private Object[] attributes;
+
+    @Nullable
+    private Linkage linkage;
+
+    @Nullable
+    private BitSet updatedFieldBitSet;
+
+    @FunctionalInterface
+    public interface ModeCallback
+    {
+        void onMode(State state, Mode oldMode, Mode newMode);
+    }
+
+    @Nullable
+    private ModeCallback modeCallback;
 
     public State(StateContext context, Id id, Mode mode)
     {
         this.context = checkNotNull(context);
         this.id = checkNotNull(id);
         this.mode = checkNotNull(mode);
+    }
+
+    @Override
+    public String toString()
+    {
+        return "State{" +
+                "node=" + getNode() +
+                ", id=" + id +
+                ", mode=" + mode +
+                '}';
     }
 
     public StateContext getContext()
@@ -56,6 +108,7 @@ public final class State
         return context.getNode();
     }
 
+    @Override
     public Id getId()
     {
         return id;
@@ -71,13 +124,56 @@ public final class State
         return version;
     }
 
-    public Optional<Linkage> getLinkage()
+    @Nullable
+    public Object[] getAttributes()
     {
+        checkMode(mode != Mode.INVALID && mode != Mode.PHANTOM);
+        return attributes;
+    }
+
+    @Nullable
+    public Linkage getLinkage()
+    {
+        checkMode(mode != Mode.INVALID);
         return linkage;
     }
 
-    public Optional<DriverRow> getRow()
+    public BitSet getUpdatedFieldBitSet()
     {
-        return row;
+        checkMode(mode != Mode.MODIFIED);
+        return checkNotNull(updatedFieldBitSet);
+    }
+
+    public Set<String> getUpdatedFields()
+    {
+        return getUpdatedFieldBitSet().stream().mapToObj(getNode().getRowLayout().getFields()::get).collect(toImmutableSet());
+    }
+
+    public State setModeCallback(ModeCallback modeCallback)
+    {
+        checkState(this.modeCallback == null);
+        this.modeCallback = checkNotNull(modeCallback);
+        return this;
+    }
+
+    public void setAttributes(@Nullable Object[] attributes)
+    {
+        checkMode(mode == Mode.INVALID);
+        if (attributes != null) {
+            checkArgument(attributes.length == getNode().getRowLayout().getFields().size());
+        }
+        // if (this.row != null)
+    }
+
+    public void setLinkage(Linkage linkage)
+    {
+        checkNotNull(linkage);
+    }
+
+    private void checkMode(boolean condition)
+    {
+        if (!condition) {
+            throw new ModeException(this);
+        }
     }
 }

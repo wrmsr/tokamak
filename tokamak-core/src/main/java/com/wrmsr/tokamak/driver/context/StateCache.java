@@ -28,6 +28,8 @@ import java.util.Set;
 
 public interface StateCache
 {
+    Optional<State> get(StatefulNode node, Id id);
+
     boolean contains(State state);
 
     void invalidate(StatefulNode node, Set<Id> ids);
@@ -36,15 +38,13 @@ public interface StateCache
 
     State setPhantomAttributes(StatefulNode node, Id id, Optional<Row> row);
 
-    void upgradePhantom(StateStorageContext storageCtx, State state, boolean share);
-
-    Collection<State> get();
+    Collection<State> getAll();
 
     Map<Node, Set<Id>> getInvalid();
 
     Optional<Pair.Immutable<Node, Id>> getNextInvalid();
 
-    Map<Id, State> get(StatefulNode node);
+    Map<Id, State> getIdMap(StatefulNode node);
 
     void flush(StateStorageContext storageCtx);
 }

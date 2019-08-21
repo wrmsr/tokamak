@@ -18,6 +18,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableMultiset;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.SetMultimap;
 
 import java.util.ArrayList;
@@ -255,5 +256,18 @@ public final class MoreCollectors
     public static <T, K> Collector<T, ?, Map<K, Set<T>>> groupingBySet(Function<? super T, ? extends K> classifier)
     {
         return groupingBy(classifier, LinkedHashMap::new, Collectors.toSet());
+    }
+
+    public static <T, K> Collector<T, ?, Map<K, Set<T>>> groupingByImmutableSet(Function<? super T, ? extends K> classifier)
+    {
+        return groupingBy(classifier, LinkedHashMap::new, Collector.<T, ImmutableSet.Builder<T>, Set<T>>of(
+                ImmutableSet::builder,
+                ImmutableSet.Builder::add,
+                (left, right) -> {
+                    left.addAll(right.build());
+                    return left;
+                },
+                ImmutableSet.Builder::build,
+                Collector.Characteristics.UNORDERED));
     }
 }

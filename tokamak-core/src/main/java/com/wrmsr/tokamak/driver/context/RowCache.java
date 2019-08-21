@@ -18,10 +18,13 @@ import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.driver.DriverRow;
 import com.wrmsr.tokamak.node.Node;
 import com.wrmsr.tokamak.node.StatefulNode;
+import com.wrmsr.tokamak.util.MorePreconditions;
 
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 interface RowCache
 {
@@ -29,9 +32,31 @@ interface RowCache
 
     void put(Node node, Key key, Collection<DriverRow> rows);
 
-    Collection<DriverRow> get(Node node);
+    Collection<DriverRow> getForNode(Node node);
 
-    Map<Node, Collection<DriverRow>> get();
+    Map<Node, Collection<DriverRow>> getNodeMap();
 
-    DriverRow get(StatefulNode node, Id id);
+    default Optional<DriverRow> get(StatefulNode node, Id id)
+    {
+        return get(node, Key.of(id)).map(MorePreconditions::checkSingle);
+    }
+
+    class KeyException
+            extends RuntimeException
+    {
+        private final Key key;
+
+        public KeyException(Key key)
+        {
+            this.key = checkNotNull(key);
+        }
+
+        @Override
+        public String toString()
+        {
+            return "RowCache.KeyException{" +
+                    "key=" + key +
+                    '}';
+        }
+    }
 }

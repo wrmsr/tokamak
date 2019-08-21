@@ -144,7 +144,7 @@ public final class JdbcScanner
 
     private Instance getInstance(Set<String> keyFields)
     {
-        return instancesByKeyFieldSets.computeIfAbsent(keyFields, Instance::new);
+        return instancesByKeyFieldSets.computeIfAbsent(ImmutableSet.copyOf(keyFields), Instance::new);
     }
 
     @Override

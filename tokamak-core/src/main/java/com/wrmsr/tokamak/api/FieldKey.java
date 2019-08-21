@@ -30,6 +30,7 @@ import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 
 @Immutable
 public final class FieldKey
@@ -40,8 +41,7 @@ public final class FieldKey
     public FieldKey(
             Map<String, Object> valuesByField)
     {
-        this.valuesByField = ImmutableMap.copyOf(valuesByField);
-        checkArgument(!valuesByField.isEmpty());
+        this.valuesByField = checkNotEmpty(ImmutableMap.copyOf(valuesByField));
     }
 
     @Override

@@ -15,7 +15,7 @@ package com.wrmsr.tokamak.util;
 
 import java.io.ByteArrayOutputStream;
 
-public class OpenByteArrayOutputStream
+public final class OpenByteArrayOutputStream
     extends ByteArrayOutputStream
 {
     public OpenByteArrayOutputStream()
