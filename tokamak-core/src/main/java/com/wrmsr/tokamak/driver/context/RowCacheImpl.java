@@ -29,6 +29,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -37,6 +38,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
+import static com.wrmsr.tokamak.util.MorePreconditions.checkSingle;
 
 public class RowCacheImpl
         implements RowCache
@@ -128,6 +130,16 @@ public class RowCacheImpl
 
             else if (key instanceof FieldKey) {
                 FieldKey fieldKey = (FieldKey) key;
+
+                boolean isNull = rows.size() == 1 && checkSingle(rows).isNull();
+
+                for (Map.Entry<String, Object> keyEntry : fieldKey.getValuesByField().entrySet()) {
+                    int pos = node.getRowLayout().getPositionsByField().get(keyEntry.getKey());
+                    Object value = keyEntry.getValue();
+                    for (DriverRow row : rows) {
+                        checkState(Objects.equals(row.getAttributes()[pos], value));
+                    }
+                }
 
                 throw new IllegalArgumentException(key.toString());
             }

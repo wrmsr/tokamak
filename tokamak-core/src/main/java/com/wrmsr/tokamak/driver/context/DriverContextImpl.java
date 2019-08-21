@@ -127,6 +127,9 @@ public class DriverContextImpl
         if (journaling) {
             addJournalEntry(new JournalEntry.UncachedBuildOutput(node, key, rows));
         }
+
+        rowCache.put(node, key, rows);
+
         return rows;
     }
 
