@@ -208,7 +208,10 @@ public class RowCacheImpl
                 }
 
                 for (Map.Entry<String, Map<Object, KeyFieldValueEntry>> e : keyFieldValueEntriesByValueByKeyField.entrySet()) {
+                    String field = e.getKey();
+                    Map<Object, KeyFieldValueEntry> map = e.getValue();
                     for (DriverRow row : rows) {
+
 
                     }
                 }
