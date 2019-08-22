@@ -23,8 +23,6 @@ import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.driver.DriverRow;
 import com.wrmsr.tokamak.node.Node;
 
-import javax.management.ListenerNotFoundException;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -50,14 +48,23 @@ public class RowCacheImpl
      - StatefulNodal
      - share FieldKey structure
      - custom datastructure prob
-     - at least two modes:
-      - fallthrough to joins and validate (less intermediate data) (with kkv's just bools, a set (or trie..)) OR
-      - aggressively hold all keyed lookups BY FIELD and return when both satisfied
+     - kfv map values are bools? just usedForKey?
+      - hppc
+      - diff strats: when all fk's kv's have been usedForKey return (and thus store maps per kv) or just block puts?
+       - Policys
+
+    Map<String, Map<Object, Boolean>> isKeyByValueByKeyField = new HashMap<>();
     */
 
     private class Nodal
     {
         final Node node;
+
+        private static final class KeyFieldValueEntry
+        {
+            boolean usedForKey;
+            Set<DriverRow>
+        }
 
         final Set<DriverRow> allRows = new HashSet<>();
         final Map<Id, Set<DriverRow>> rowSetsById = new HashMap<>();
@@ -129,7 +136,6 @@ public class RowCacheImpl
                     continue;
                 }
                 Object value = row.getAttributes()[pos];
-
             }
         }
 
