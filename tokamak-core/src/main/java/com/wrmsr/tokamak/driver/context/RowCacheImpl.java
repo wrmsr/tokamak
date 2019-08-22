@@ -48,6 +48,9 @@ public class RowCacheImpl
      - StatefulNodal
      - share FieldKey structure
      - custom datastructure prob
+     - at least two modes:
+      - fallthrough to joins and validate (less intermediate data) (with kkv's just bools, a set (or trie..)) OR
+      - aggressively hold all keyed lookups BY FIELD and return when both satisfied
     */
 
     private class Nodal
@@ -67,7 +70,7 @@ public class RowCacheImpl
             this.node = checkNotNull(node);
         }
 
-        ImmutableSet<String> orderFieldSet(ImmutableSet<String> fields)
+        ImmutableSet<String> orderKeyFields(Set<String> fields)
         {
             return orderedFieldSets.computeIfAbsent(ImmutableSet.copyOf(fields), fs ->
                     fs.asList().stream()
@@ -75,7 +78,7 @@ public class RowCacheImpl
                             .collect(toImmutableSet()));
         }
 
-        ImmutableList<Object> orderValues(Collection<String> orderedFields, Map<String, Object> valuesByField)
+        ImmutableList<Object> orderKeyValues(ImmutableSet<String> orderedFields, Map<String, Object> valuesByField)
         {
             ImmutableList.Builder<Object> builder = ImmutableList.builderWithExpectedSize(orderedFields.size());
             for (String field : orderedFields) {
@@ -97,15 +100,14 @@ public class RowCacheImpl
             else if (key instanceof FieldKey) {
                 FieldKey fieldKey = (FieldKey) key;
 
-                ImmutableSet<String> keyFields = ImmutableSet.copyOf(fieldKey.getValuesByField().keySet());
-                Map<ImmutableList<Object>, Set<DriverRow>> rowSetsByValueList = rowSetsByValueListByFieldSet.get(keyFields);
+                ImmutableSet<String> orderedKeyFields = orderKeyFields(fieldKey.getFields());
+                Map<ImmutableList<Object>, Set<DriverRow>> rowSetsByValueList = rowSetsByValueListByFieldSet.get(orderedKeyFields);
                 if (rowSetsByValueList == null) {
                     return Optional.empty();
                 }
 
-                ImmutableSet<String> orderedKeyFields = orderFieldSet(keyFields);
-                ImmutableList<Object> orderedValues = orderValues(orderedKeyFields, fieldKey.getValuesByField());
-                Set<DriverRow> rows = rowSetsByValueList.get(orderedValues);
+                ImmutableList<Object> orderedKeyValues = orderKeyValues(orderedKeyFields, fieldKey.getValuesByField());
+                Set<DriverRow> rows = rowSetsByValueList.get(orderedKeyValues);
                 return Optional.ofNullable(rows);
             }
 
@@ -131,23 +133,27 @@ public class RowCacheImpl
             else if (key instanceof FieldKey) {
                 FieldKey fieldKey = (FieldKey) key;
 
+                rows.forEach(r -> checkArgument(!allRows.contains(r)));
+
                 boolean isNull = rows.size() == 1 && checkSingle(rows).isNull();
                 if (!isNull) {
                     rows.forEach(r -> checkArgument(!r.isNull()));
                 }
 
-                // ImmutableSet<String> keyFields = ImmutableSet.copyOf(fieldKey.getValuesByField().keySet());
-                // Map<ImmutableList<Object>, Set<DriverRow>> rowSetsByValueList = rowSetsByValueListByFieldSet.get(keyFields);
-                //
-                // ImmutableSet<String> orderedKeyFields = orderFieldSet(keyFields);
-                // ImmutableList<Object> orderedValues = orderValues(orderedKeyFields, fieldKey.getValuesByField());
-                // Set<DriverRow> rows = rowSetsByValueList.get(orderedValues);
+                ImmutableSet<String> orderedKeyFields = orderKeyFields(fieldKey.getFields());
+                ImmutableList<Object> orderedKeyValues = orderKeyValues(orderedKeyFields, fieldKey.getValuesByField());
+
+                Map<ImmutableList<Object>, Set<DriverRow>> rowSetsByValueList =
+                        rowSetsByValueListByFieldSet.computeIfAbsent(orderedKeyFields, kf -> new HashMap<>());
+                if (rowSetsByValueList.get(orderedKeyValues) != null) {
+                    throw new KeyException(key);
+                }
 
                 for (Map.Entry<String, Object> keyEntry : fieldKey.getValuesByField().entrySet()) {
                     int pos = node.getRowLayout().getPositionsByField().get(keyEntry.getKey());
                     Object value = keyEntry.getValue();
                     for (DriverRow row : rows) {
-                        checkState(Objects.equals(row.getAttributes()[pos], value));
+                        checkArgument(Objects.equals(row.getAttributes()[pos], value));
                     }
                 }
 
@@ -156,7 +162,7 @@ public class RowCacheImpl
                     int pos = node.getRowLayout().getPositionsByField().get(field);
                     Object value = keyEntry.getValue();
                     Map<Object, Set<DriverRow>> rowSetsByValue = rowSetsByValueByField.computeIfAbsent(field, f -> new HashMap<>());
-                    Set<DriverRow> rowSet = rowSetsByValue.computeIfAbsent(value, v -> new HashSet<>());
+                    rowSet = rowSetsByValue.computeIfAbsent(value, v -> new HashSet<>());
                 }
 
                 throw new IllegalArgumentException(key.toString());
