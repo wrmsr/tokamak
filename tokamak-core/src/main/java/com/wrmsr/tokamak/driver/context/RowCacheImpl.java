@@ -23,6 +23,8 @@ import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.driver.DriverRow;
 import com.wrmsr.tokamak.node.Node;
 
+import javax.annotation.Nullable;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -58,8 +60,19 @@ public class RowCacheImpl
 
     private static final class KeyFieldValueEntry
     {
+        final String field;
+
+        @Nullable
+        final Object value;
+
         boolean usedForKey;
         final Set<DriverRow> rows = new HashSet<>();
+
+        KeyFieldValueEntry(String field, @Nullable Object value)
+        {
+            this.field = checkNotNull(field);
+            this.value = value;
+        }
     }
 
     private final class Nodal
@@ -68,7 +81,7 @@ public class RowCacheImpl
 
         final Set<DriverRow> allRows = new HashSet<>();
         final Map<Id, Set<DriverRow>> rowSetsById = new HashMap<>();
-        final Map<String, Map<Object, Set<DriverRow>>> rowSetsByValueByKeyField = new HashMap<>();
+        final Map<String, Map<Object, KeyFieldValueEntry>> keyFieldValueEntriesByValueByKeyField = new HashMap<>();
         final Map<ImmutableSet<String>, Map<ImmutableList<Object>, Set<DriverRow>>> rowSetsByKeyValueListByKeyFieldSet = new HashMap<>();
         boolean allRequested;
 
@@ -127,15 +140,28 @@ public class RowCacheImpl
 
         void backfillKeyField(String field)
         {
-            checkState(!rowSetsByValueByKeyField.containsKey(field));
-            Map<Object, Set<DriverRow>> rowSetsByValue = new HashMap<>();
-            rowSetsByValueByKeyField.put(field, rowSetsByValue);
+            checkState(!keyFieldValueEntriesByValueByKeyField.containsKey(field));
+            Map<Object, KeyFieldValueEntry> map = new HashMap<>();
+            keyFieldValueEntriesByValueByKeyField.put(field, map);
             int pos = node.getRowLayout().getPositionsByField().get(field);
             for (DriverRow row : allRows) {
                 if (row.isNull()) {
                     continue;
                 }
                 Object value = row.getAttributes()[pos];
+                KeyFieldValueEntry entry = map.computeIfAbsent(value, v -> new KeyFieldValueEntry(field, value));
+                entry.rows.add(row);
+            }
+        }
+
+        boolean maybeBackfillKeyField(String field)
+        {
+            if (!keyFieldValueEntriesByValueByKeyField.containsKey(field)) {
+                backfillKeyField(field);
+                return true;
+            }
+            else {
+                return false;
             }
         }
 
@@ -163,9 +189,10 @@ public class RowCacheImpl
                     rows.forEach(r -> checkArgument(!r.isNull()));
                 }
 
+                fieldKey.getValuesByField().keySet().forEach(this::maybeBackfillKeyField);
+
                 ImmutableSet<String> orderedKeyFields = orderKeyFields(fieldKey.getFields());
                 ImmutableList<Object> orderedKeyValues = orderKeyValues(orderedKeyFields, fieldKey.getValuesByField());
-
                 Map<ImmutableList<Object>, Set<DriverRow>> rowSetsBykeyValueList =
                         rowSetsByKeyValueListByKeyFieldSet.computeIfAbsent(orderedKeyFields, kf -> new HashMap<>());
                 if (rowSetsBykeyValueList.get(orderedKeyValues) != null) {
@@ -180,12 +207,20 @@ public class RowCacheImpl
                     }
                 }
 
+                for (Map.Entry<String, Map<Object, KeyFieldValueEntry>> e : keyFieldValueEntriesByValueByKeyField.entrySet()) {
+                    for (DriverRow row : rows) {
+
+                    }
+                }
+
                 for (Map.Entry<String, Object> keyEntry : fieldKey.getValuesByField().entrySet()) {
                     String field = keyEntry.getKey();
                     int pos = node.getRowLayout().getPositionsByField().get(field);
                     Object value = keyEntry.getValue();
-                    Map<Object, Set<DriverRow>> rowSetsByValue = rowSetsByValueByKeyField.computeIfAbsent(field, f -> new HashMap<>());
-                    rowSet = rowSetsByValue.computeIfAbsent(value, v -> new HashSet<>());
+                    Map<Object, KeyFieldValueEntry> entriesByValue = checkNotNull(keyFieldValueEntriesByValueByKeyField.get(field));
+                    for (DriverRow row : rows) {
+                        KeyFieldValueEntry entry = entriesByValue.get()
+                    }
                 }
 
                 throw new IllegalArgumentException(key.toString());
