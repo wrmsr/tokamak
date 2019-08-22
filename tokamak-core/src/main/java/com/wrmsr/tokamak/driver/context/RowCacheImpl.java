@@ -49,27 +49,27 @@ public class RowCacheImpl
      - share FieldKey structure
      - custom datastructure prob
      - kfv map values are bools? just usedForKey?
-      - hppc
       - diff strats: when all fk's kv's have been usedForKey return (and thus store maps per kv) or just block puts?
-       - Policys
+       - policies
 
-    Map<String, Map<Object, Boolean>> isKeyByValueByKeyField = new HashMap<>();
+    Map<String, Map<Object, Boolean>> isKeyByValueByKeyField = new HashMap<>(); // TODO: HPPC
+    Map<String, Map<Object, KeyFieldValueEntry>> keyFieldValueEntriesByValueByKeyField = new HashMap<>();
     */
 
-    private class Nodal
+    private static final class KeyFieldValueEntry
+    {
+        boolean usedForKey;
+        final Set<DriverRow> rows = new HashSet<>();
+    }
+
+    private final class Nodal
     {
         final Node node;
-
-        private static final class KeyFieldValueEntry
-        {
-            boolean usedForKey;
-            Set<DriverRow>
-        }
 
         final Set<DriverRow> allRows = new HashSet<>();
         final Map<Id, Set<DriverRow>> rowSetsById = new HashMap<>();
         final Map<String, Map<Object, Set<DriverRow>>> rowSetsByValueByKeyField = new HashMap<>();
-        final Map<ImmutableSet<String>, Map<ImmutableList<Object>, Set<DriverRow>>> rowSetsByValueListByKeyFieldSet = new HashMap<>();
+        final Map<ImmutableSet<String>, Map<ImmutableList<Object>, Set<DriverRow>>> rowSetsByKeyValueListByKeyFieldSet = new HashMap<>();
         boolean allRequested;
 
         final Map<ImmutableSet<String>, ImmutableSet<String>> orderedFieldSets = new HashMap<>();
@@ -110,13 +110,13 @@ public class RowCacheImpl
                 FieldKey fieldKey = (FieldKey) key;
 
                 ImmutableSet<String> orderedKeyFields = orderKeyFields(fieldKey.getFields());
-                Map<ImmutableList<Object>, Set<DriverRow>> rowSetsByValueList = rowSetsByValueListByKeyFieldSet.get(orderedKeyFields);
-                if (rowSetsByValueList == null) {
+                Map<ImmutableList<Object>, Set<DriverRow>> rowSetsByKeyValueList = rowSetsByKeyValueListByKeyFieldSet.get(orderedKeyFields);
+                if (rowSetsByKeyValueList == null) {
                     return Optional.empty();
                 }
 
                 ImmutableList<Object> orderedKeyValues = orderKeyValues(orderedKeyFields, fieldKey.getValuesByField());
-                Set<DriverRow> rows = rowSetsByValueList.get(orderedKeyValues);
+                Set<DriverRow> rows = rowSetsByKeyValueList.get(orderedKeyValues);
                 return Optional.ofNullable(rows);
             }
 
@@ -166,9 +166,9 @@ public class RowCacheImpl
                 ImmutableSet<String> orderedKeyFields = orderKeyFields(fieldKey.getFields());
                 ImmutableList<Object> orderedKeyValues = orderKeyValues(orderedKeyFields, fieldKey.getValuesByField());
 
-                Map<ImmutableList<Object>, Set<DriverRow>> rowSetsByValueList =
-                        rowSetsByValueListByKeyFieldSet.computeIfAbsent(orderedKeyFields, kf -> new HashMap<>());
-                if (rowSetsByValueList.get(orderedKeyValues) != null) {
+                Map<ImmutableList<Object>, Set<DriverRow>> rowSetsBykeyValueList =
+                        rowSetsByKeyValueListByKeyFieldSet.computeIfAbsent(orderedKeyFields, kf -> new HashMap<>());
+                if (rowSetsBykeyValueList.get(orderedKeyValues) != null) {
                     throw new KeyException(key);
                 }
 
