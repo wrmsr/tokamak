@@ -23,6 +23,8 @@ import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.driver.DriverRow;
 import com.wrmsr.tokamak.node.Node;
 
+import javax.management.ListenerNotFoundException;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -59,8 +61,8 @@ public class RowCacheImpl
 
         final Set<DriverRow> allRows = new HashSet<>();
         final Map<Id, Set<DriverRow>> rowSetsById = new HashMap<>();
-        final Map<String, Map<Object, Set<DriverRow>>> rowSetsByValueByField = new HashMap<>();
-        final Map<ImmutableSet<String>, Map<ImmutableList<Object>, Set<DriverRow>>> rowSetsByValueListByFieldSet = new HashMap<>();
+        final Map<String, Map<Object, Set<DriverRow>>> rowSetsByValueByKeyField = new HashMap<>();
+        final Map<ImmutableSet<String>, Map<ImmutableList<Object>, Set<DriverRow>>> rowSetsByValueListByKeyFieldSet = new HashMap<>();
         boolean allRequested;
 
         final Map<ImmutableSet<String>, ImmutableSet<String>> orderedFieldSets = new HashMap<>();
@@ -101,7 +103,7 @@ public class RowCacheImpl
                 FieldKey fieldKey = (FieldKey) key;
 
                 ImmutableSet<String> orderedKeyFields = orderKeyFields(fieldKey.getFields());
-                Map<ImmutableList<Object>, Set<DriverRow>> rowSetsByValueList = rowSetsByValueListByFieldSet.get(orderedKeyFields);
+                Map<ImmutableList<Object>, Set<DriverRow>> rowSetsByValueList = rowSetsByValueListByKeyFieldSet.get(orderedKeyFields);
                 if (rowSetsByValueList == null) {
                     return Optional.empty();
                 }
@@ -113,6 +115,21 @@ public class RowCacheImpl
 
             else {
                 throw new IllegalArgumentException(key.toString());
+            }
+        }
+
+        void backfillKeyField(String field)
+        {
+            checkState(!rowSetsByValueByKeyField.containsKey(field));
+            Map<Object, Set<DriverRow>> rowSetsByValue = new HashMap<>();
+            rowSetsByValueByKeyField.put(field, rowSetsByValue);
+            int pos = node.getRowLayout().getPositionsByField().get(field);
+            for (DriverRow row : allRows) {
+                if (row.isNull()) {
+                    continue;
+                }
+                Object value = row.getAttributes()[pos];
+
             }
         }
 
@@ -144,7 +161,7 @@ public class RowCacheImpl
                 ImmutableList<Object> orderedKeyValues = orderKeyValues(orderedKeyFields, fieldKey.getValuesByField());
 
                 Map<ImmutableList<Object>, Set<DriverRow>> rowSetsByValueList =
-                        rowSetsByValueListByFieldSet.computeIfAbsent(orderedKeyFields, kf -> new HashMap<>());
+                        rowSetsByValueListByKeyFieldSet.computeIfAbsent(orderedKeyFields, kf -> new HashMap<>());
                 if (rowSetsByValueList.get(orderedKeyValues) != null) {
                     throw new KeyException(key);
                 }
@@ -161,7 +178,7 @@ public class RowCacheImpl
                     String field = keyEntry.getKey();
                     int pos = node.getRowLayout().getPositionsByField().get(field);
                     Object value = keyEntry.getValue();
-                    Map<Object, Set<DriverRow>> rowSetsByValue = rowSetsByValueByField.computeIfAbsent(field, f -> new HashMap<>());
+                    Map<Object, Set<DriverRow>> rowSetsByValue = rowSetsByValueByKeyField.computeIfAbsent(field, f -> new HashMap<>());
                     rowSet = rowSetsByValue.computeIfAbsent(value, v -> new HashSet<>());
                 }
 
