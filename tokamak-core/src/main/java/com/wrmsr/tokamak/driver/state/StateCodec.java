@@ -19,12 +19,12 @@ import com.wrmsr.tokamak.util.codec.Codec;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public final class StateStorageCodec
+public final class StateCodec
     implements Codec<State, StorageState>
 {
     private final StatefulNode node;
 
-    public StateStorageCodec(StatefulNode node)
+    public StateCodec(StatefulNode node)
     {
         this.node = checkNotNull(node);
     }

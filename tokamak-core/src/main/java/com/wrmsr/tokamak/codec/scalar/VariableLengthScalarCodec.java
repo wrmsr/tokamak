@@ -23,7 +23,7 @@ import static com.google.common.base.Preconditions.checkState;
 public final class VariableLengthScalarCodec<V>
         implements ScalarCodec<V>
 {
-    public static final int MAX_BYTE_LENGTH = 254;
+    public static final int MAX_BYTE_LENGTH = 255;
     public static final int DEFAULT_MAX_LENGTH = MAX_BYTE_LENGTH;
 
     private final ScalarCodec<V> child;
@@ -49,7 +49,7 @@ public final class VariableLengthScalarCodec<V>
         child.encode(value, output);
         int sz = output.tell() - pos;
         checkState(sz < maxLength);
-        if (maxLength < MAX_BYTE_LENGTH) {
+        if (maxLength <= MAX_BYTE_LENGTH) {
             output.putAt(pos, (byte) sz);
         }
         else {
@@ -61,7 +61,7 @@ public final class VariableLengthScalarCodec<V>
     public V decode(Input input)
     {
         int sz;
-        if (maxLength < 254) {
+        if (maxLength <= MAX_BYTE_LENGTH) {
             sz = input.get() & 0xFF;
         }
         else {
