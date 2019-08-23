@@ -30,6 +30,11 @@ import java.util.Set;
 public class MapStateStorageImpl
         implements StateStorage
 {
+    /*
+    TODO:
+     - locks
+    */
+
     private final Map<StatefulNode, Map<Id, StorageState>> statesByIdByNode = new HashMap<>();
 
     @Override

@@ -17,27 +17,30 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
-public interface QueueStorage
+public class HeapQueueStorageImpl
+        implements QueueStorage
 {
-    interface Context
-            extends AutoCloseable
+    /*
+    TODO:
+     - locks
+    */
+
+    @Override
+    public Context createContext()
     {
-        @Override
-        default void close()
-                throws Exception
-        {
-        }
+        return new Context() {};
     }
 
-    Context createContext();
-
-    Optional<List<QueueEntry>> enqueue(Context context, Iterable<QueueInsertion> insertions, boolean returnEntries, boolean coalesce)
-            throws IOException;
-
-    interface Dequeuer
-            extends Iterable<QueueEntry>, AutoCloseable
+    @Override
+    public Optional<List<QueueEntry>> enqueue(Context context, Iterable<QueueInsertion> insertions, boolean returnEntries, boolean coalesce)
+            throws IOException
     {
+        return Optional.empty();
     }
 
-    Dequeuer createDequeuer(Context context);
+    @Override
+    public Dequeuer createDequeuer(Context context)
+    {
+        return null;
+    }
 }

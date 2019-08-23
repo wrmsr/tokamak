@@ -32,6 +32,7 @@ public final class StateStorageCodec
     @Override
     public StorageState encode(State state)
     {
+        checkNotNull(state);
         checkArgument(state.getNode() == node);
         return null;
     }
@@ -39,6 +40,7 @@ public final class StateStorageCodec
     @Override
     public State decode(StorageState storageState)
     {
+        checkNotNull(storageState);
         checkArgument(storageState.getNode() == node);
         return null;
     }

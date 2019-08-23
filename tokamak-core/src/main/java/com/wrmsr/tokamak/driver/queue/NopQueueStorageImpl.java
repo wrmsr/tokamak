@@ -11,52 +11,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.jdbc;
 
-import com.wrmsr.tokamak.driver.queue.QueueEntry;
-import com.wrmsr.tokamak.driver.queue.QueueInsertion;
-import com.wrmsr.tokamak.driver.queue.QueueStorage;
-import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.Jdbi;
+package com.wrmsr.tokamak.driver.queue;
+
+import com.google.common.collect.ImmutableList;
 
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
-public class JdbcQueueStorage
+public class NopQueueStorageImpl
         implements QueueStorage
 {
-    private final Jdbi jdbi;
-
-    public JdbcQueueStorage(Jdbi jdbi)
-    {
-        this.jdbi = checkNotNull(jdbi);
-    }
-
-    static class ContextImpl
-            implements QueueStorage.Context
-    {
-        final Handle handle;
-
-        ContextImpl(Handle handle)
-        {
-            this.handle = checkNotNull(handle);
-        }
-
-        @Override
-        public void close()
-                throws Exception
-        {
-            handle.close();
-        }
-    }
-
     @Override
     public Context createContext()
     {
-        return new ContextImpl(jdbi.open());
+        return new Context() {};
     }
 
     @Override
@@ -69,6 +40,19 @@ public class JdbcQueueStorage
     @Override
     public Dequeuer createDequeuer(Context context)
     {
-        return null;
+        return new Dequeuer()
+        {
+            @Override
+            public void close()
+                    throws Exception
+            {
+            }
+
+            @Override
+            public Iterator<QueueEntry> iterator()
+            {
+                return ImmutableList.<QueueEntry>of().iterator();
+            }
+        };
     }
 }
