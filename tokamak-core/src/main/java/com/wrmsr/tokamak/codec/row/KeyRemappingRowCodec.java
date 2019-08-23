@@ -11,9 +11,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.codec;
+package com.wrmsr.tokamak.codec.row;
 
 import com.google.common.collect.ImmutableMap;
+import com.wrmsr.tokamak.codec.Input;
+import com.wrmsr.tokamak.codec.Output;
 
 import java.util.Map;
 

@@ -11,40 +11,46 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.codec;
+package com.wrmsr.tokamak.codec.row;
+
+import com.wrmsr.tokamak.codec.Input;
+import com.wrmsr.tokamak.codec.Output;
 
 import java.util.Map;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
 
-public final class VariableLengthRowCodec
+public final class OpaqueRowCodec
         implements RowCodec
 {
-    public static final int MAX_ID_LENGTH = 254;
-
     private final RowCodec child;
 
-    public VariableLengthRowCodec(RowCodec child)
+    private OpaqueRowCodec(RowCodec child)
     {
         this.child = checkNotNull(child);
+        checkArgument(!(child instanceof OpaqueRowCodec));
     }
 
     @Override
     public void encode(Map<String, Object> row, Output output)
     {
-        int pos = output.tell();
-        output.alloc(1);
-        child.encode(row, output);
-        int sz = output.tell() - pos;
-        checkState(sz < MAX_ID_LENGTH);
-        output.putAt(pos, (byte) sz);
+        throw new IllegalStateException();
     }
 
     @Override
     public void decode(Sink sink, Input input)
     {
-        int sz = input.get();
-        child.decode(sink, input.nest(sz));
+        throw new IllegalStateException();
+    }
+
+    public static RowCodec of(RowCodec child)
+    {
+        if (child instanceof OpaqueRowCodec) {
+            return child;
+        }
+        else {
+            return new OpaqueRowCodec(child);
+        }
     }
 }

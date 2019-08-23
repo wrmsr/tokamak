@@ -14,7 +14,6 @@
 package com.wrmsr.tokamak.driver.state;
 
 import com.wrmsr.tokamak.api.Id;
-import com.wrmsr.tokamak.driver.DriverRow;
 import com.wrmsr.tokamak.node.StatefulNode;
 import com.wrmsr.tokamak.util.Span;
 

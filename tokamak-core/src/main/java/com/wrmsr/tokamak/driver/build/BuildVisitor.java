@@ -23,7 +23,7 @@ import com.wrmsr.tokamak.catalog.Connection;
 import com.wrmsr.tokamak.catalog.Scanner;
 import com.wrmsr.tokamak.catalog.Schema;
 import com.wrmsr.tokamak.codec.ByteArrayInput;
-import com.wrmsr.tokamak.codec.RowCodec;
+import com.wrmsr.tokamak.codec.row.RowCodec;
 import com.wrmsr.tokamak.driver.DriverRow;
 import com.wrmsr.tokamak.driver.context.DriverContextImpl;
 import com.wrmsr.tokamak.function.Function;

@@ -13,9 +13,9 @@
  */
 package com.wrmsr.tokamak.driver;
 
-import com.wrmsr.tokamak.codec.CompositeRowCodec;
-import com.wrmsr.tokamak.codec.RowCodec;
-import com.wrmsr.tokamak.codec.RowCodecs;
+import com.wrmsr.tokamak.codec.row.CompositeRowCodec;
+import com.wrmsr.tokamak.codec.row.RowCodec;
+import com.wrmsr.tokamak.codec.row.RowCodecs;
 import com.wrmsr.tokamak.node.EquijoinNode;
 import com.wrmsr.tokamak.node.FilterNode;
 import com.wrmsr.tokamak.node.ListAggregateNode;

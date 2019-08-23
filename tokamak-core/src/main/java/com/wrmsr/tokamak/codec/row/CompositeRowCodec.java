@@ -11,40 +11,50 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.codec;
+package com.wrmsr.tokamak.codec.row;
 
+import com.google.common.collect.ImmutableList;
+import com.wrmsr.tokamak.codec.Input;
+import com.wrmsr.tokamak.codec.Output;
+import com.wrmsr.tokamak.util.StreamableIterable;
+
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
-public final class NullableRowCodec
-        implements RowCodec
+public final class CompositeRowCodec
+        implements RowCodec, StreamableIterable<RowCodec>
 {
-    private final String field;
-    private final RowCodec child;
+    private final List<RowCodec> children;
 
-    public NullableRowCodec(String field, RowCodec child)
+    public CompositeRowCodec(List<RowCodec> children)
     {
-        this.field = checkNotNull(field);
-        this.child = checkNotNull(child);
+        this.children = ImmutableList.copyOf(children);
+    }
+
+    public List<RowCodec> getChildren()
+    {
+        return children;
+    }
+
+    @Override
+    public Iterator<RowCodec> iterator()
+    {
+        return children.iterator();
     }
 
     @Override
     public void encode(Map<String, Object> row, Output output)
     {
-        if (row.get(field) != null) {
-            output.putLong(0);
+        for (RowCodec child : children) {
             child.encode(row, output);
-        }
-        else {
-            output.putLong(1);
         }
     }
 
     @Override
     public void decode(Sink sink, Input input)
     {
-        if (input.get() == 0) {
+        for (RowCodec child : children) {
             child.decode(sink, input);
         }
     }
