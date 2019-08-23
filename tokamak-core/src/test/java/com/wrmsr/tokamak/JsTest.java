@@ -27,6 +27,8 @@ import javax.script.ScriptEngineManager;
 import javax.script.SimpleScriptContext;
 
 import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 public class JsTest
         extends TestCase
@@ -86,7 +88,9 @@ public class JsTest
         //https://cran.r-project.org/web/packages/V8/vignettes/npm.html
         //https://github.com/jeroen/V8/blob/a9308d21b087a0ac38e6babe7ff01bc7d98c43c1/src/legacy/V8.cpp#L114
 
-        V8 v8 = V8.createV8Runtime();
+        Path tmp = Files.createTempDirectory("tokamak-v8");
+        tmp.toFile().deleteOnExit();
+        V8 v8 = V8.createV8Runtime(null, tmp.toString());
 
         String src = CharStreams.toString(new InputStreamReader(AppTest.class.getResourceAsStream("blob.js.txt")));
         V8Function ret = (V8Function) v8.executeObjectScript(src);

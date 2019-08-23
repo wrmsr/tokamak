@@ -22,7 +22,7 @@ import java.util.Set;
 
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
 
-public class QueueInvalidations
+public final class QueueInvalidations
 {
     private final Map<NodeId, Set<Id>> invalidations;
 
