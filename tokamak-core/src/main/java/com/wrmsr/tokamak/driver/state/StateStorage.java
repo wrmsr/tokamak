@@ -30,7 +30,17 @@ public interface StateStorage
     void setup()
             throws IOException;
 
-    StateStorageContext createContext();
+    interface Context
+            extends AutoCloseable
+    {
+        @Override
+        default void close()
+                throws Exception
+        {
+        }
+    }
+
+    Context createContext();
 
     enum GetFlag
     {
@@ -41,21 +51,21 @@ public interface StateStorage
         NOLOCK;
     }
 
-    Map<StatefulNode, Map<Id, State>> get(StateStorageContext ctx, Map<StatefulNode, Set<Id>> idSetsByNode, EnumSet<GetFlag> flags)
+    Map<StatefulNode, Map<Id, State>> get(Context ctx, Map<StatefulNode, Set<Id>> idSetsByNode, EnumSet<GetFlag> flags)
             throws IOException;
 
-    void put(StateStorageContext ctx, List<State> states, boolean create)
+    void put(Context ctx, List<State> states, boolean create)
             throws IOException;
 
-    State createPhantom(StateStorageContext ctx, StatefulNode node, Id id, DriverRow row)
+    State createPhantom(Context ctx, StatefulNode node, Id id, DriverRow row)
             throws IOException;
 
-    void upgradePhantom(StateStorageContext ctx, State state, boolean linkage, boolean share)
+    void upgradePhantom(Context ctx, State state, boolean linkage, boolean share)
             throws IOException;
 
-    void allocate(StateStorageContext ctx, StatefulNode node, Iterable<Id> ids)
+    void allocate(Context ctx, StatefulNode node, Iterable<Id> ids)
             throws IOException;
 
-    List<Id> getSpanIds(StateStorageContext ctx, StatefulNode node, Span<Id> span, OptionalInt limit)
+    List<Id> getSpanIds(Context ctx, StatefulNode node, Span<Id> span, OptionalInt limit)
             throws IOException;
 }

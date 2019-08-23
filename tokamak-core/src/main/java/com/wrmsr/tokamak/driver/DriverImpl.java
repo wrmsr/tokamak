@@ -90,27 +90,27 @@ public class DriverImpl
     }
 
     @Override
-    public DriverContext createContext()
+    public Context createContext()
     {
         return new DriverContextImpl(this);
     }
 
     @Override
-    public Collection<Row> build(DriverContext context, Node node, Key key)
+    public Collection<Row> build(Context context, Node node, Key key)
             throws IOException
     {
         checkNotNull(node);
         checkNotNull(key);
-        DriverContextImpl contextImpl = checkNotNull((DriverContextImpl) context);
-        return (Collection) contextImpl.build(node, key);
+        DriverContextImpl driverContextImpl = checkNotNull((DriverContextImpl) context);
+        return (Collection) driverContextImpl.build(node, key);
     }
 
     @Override
-    public Collection<Row> sync(DriverContext context, Map<Node, Set<Id>> idSetsByNode)
+    public Collection<Row> sync(Context context, Map<Node, Set<Id>> idSetsByNode)
             throws IOException
     {
         checkNotNull(idSetsByNode);
-        DriverContextImpl contextImpl = checkNotNull((DriverContextImpl) context);
+        DriverContextImpl driverContextImpl = checkNotNull((DriverContextImpl) context);
         throw new IllegalStateException();
     }
 }

@@ -11,17 +11,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.driver;
 
-import com.wrmsr.tokamak.catalog.Connection;
-import com.wrmsr.tokamak.catalog.Connector;
+package com.wrmsr.tokamak.jdbc;
 
-public interface DriverContext
-        extends AutoCloseable
+public class JdbcStateStorage
 {
-    Driver getDriver();
-
-    Connection getConnection(Connector connector);
-
-    void commit();
 }

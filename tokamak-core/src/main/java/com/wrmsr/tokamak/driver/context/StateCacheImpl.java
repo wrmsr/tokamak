@@ -18,7 +18,6 @@ import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.api.Row;
 import com.wrmsr.tokamak.driver.state.State;
 import com.wrmsr.tokamak.driver.state.StateStorage;
-import com.wrmsr.tokamak.driver.state.StateStorageContext;
 import com.wrmsr.tokamak.node.Node;
 import com.wrmsr.tokamak.node.StatefulNode;
 import com.wrmsr.tokamak.plan.Plan;
@@ -104,7 +103,7 @@ public class StateCacheImpl
     }
 
     public Optional<State> getAll(
-            StateStorageContext storageCtx,
+            StateStorage.Context storageCtx,
             StatefulNode node,
             Id id,
             boolean create,
@@ -162,7 +161,7 @@ public class StateCacheImpl
     }
 
     @Override
-    public void flush(StateStorageContext storageCtx)
+    public void flush(StateStorage.Context storageCtx)
     {
         throw new IllegalStateException();
     }

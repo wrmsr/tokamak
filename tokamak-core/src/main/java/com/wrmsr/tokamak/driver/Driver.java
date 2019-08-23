@@ -17,6 +17,8 @@ import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.api.Row;
 import com.wrmsr.tokamak.catalog.Catalog;
+import com.wrmsr.tokamak.catalog.Connection;
+import com.wrmsr.tokamak.catalog.Connector;
 import com.wrmsr.tokamak.node.Node;
 import com.wrmsr.tokamak.plan.Plan;
 
@@ -31,12 +33,28 @@ public interface Driver
 
     Catalog getCatalog();
 
-    DriverContext createContext()
+    interface Context
+            extends AutoCloseable
+    {
+        @Override
+        default void close()
+                throws Exception
+        {
+        }
+
+        Driver getDriver();
+
+        Connection getConnection(Connector connector);
+
+        void commit();
+    }
+
+    Context createContext()
             throws IOException;
 
-    Collection<Row> build(DriverContext context, Node node, Key key)
+    Collection<Row> build(Context context, Node node, Key key)
             throws IOException;
 
-    Collection<Row> sync(DriverContext context, Map<Node, Set<Id>> idSetsByNode)
+    Collection<Row> sync(Context context, Map<Node, Set<Id>> idSetsByNode)
             throws IOException;
 }

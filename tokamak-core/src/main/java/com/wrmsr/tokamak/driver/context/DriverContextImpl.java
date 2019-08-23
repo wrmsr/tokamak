@@ -20,7 +20,7 @@ import com.wrmsr.tokamak.api.IdKey;
 import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.catalog.Connection;
 import com.wrmsr.tokamak.catalog.Connector;
-import com.wrmsr.tokamak.driver.DriverContext;
+import com.wrmsr.tokamak.driver.Driver;
 import com.wrmsr.tokamak.driver.DriverImpl;
 import com.wrmsr.tokamak.driver.DriverRow;
 import com.wrmsr.tokamak.driver.build.BuildVisitor;
@@ -38,7 +38,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 
 public class DriverContextImpl
-        implements DriverContext
+        implements Driver.Context
 {
     private final DriverImpl driver;
 

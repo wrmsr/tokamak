@@ -40,13 +40,13 @@ public class MapStateStorageImpl
     }
 
     @Override
-    public StateStorageContext createContext()
+    public Context createContext()
     {
-        return new StateStorageContext() {};
+        return new Context() {};
     }
 
     @Override
-    public Map<StatefulNode, Map<Id, State>> get(StateStorageContext ctx, Map<StatefulNode, Set<Id>> idSetsByNode, EnumSet<GetFlag> flags)
+    public Map<StatefulNode, Map<Id, State>> get(Context ctx, Map<StatefulNode, Set<Id>> idSetsByNode, EnumSet<GetFlag> flags)
             throws IOException
     {
         ImmutableMap.Builder<StatefulNode, Map<Id, State>> ret = ImmutableMap.builder();
@@ -78,7 +78,7 @@ public class MapStateStorageImpl
     }
 
     @Override
-    public void put(StateStorageContext ctx, List<State> states, boolean create)
+    public void put(Context ctx, List<State> states, boolean create)
             throws IOException
     {
         for (State state : states) {
@@ -90,7 +90,7 @@ public class MapStateStorageImpl
     }
 
     @Override
-    public State createPhantom(StateStorageContext ctx, StatefulNode node, Id id, DriverRow row)
+    public State createPhantom(Context ctx, StatefulNode node, Id id, DriverRow row)
             throws IOException
     {
         // return new State(
@@ -101,19 +101,19 @@ public class MapStateStorageImpl
     }
 
     @Override
-    public void upgradePhantom(StateStorageContext ctx, State state, boolean linkage, boolean share)
+    public void upgradePhantom(Context ctx, State state, boolean linkage, boolean share)
             throws IOException
     {
     }
 
     @Override
-    public void allocate(StateStorageContext ctx, StatefulNode node, Iterable<Id> ids)
+    public void allocate(Context ctx, StatefulNode node, Iterable<Id> ids)
             throws IOException
     {
     }
 
     @Override
-    public List<Id> getSpanIds(StateStorageContext ctx, StatefulNode node, Span<Id> span, OptionalInt limit)
+    public List<Id> getSpanIds(Context ctx, StatefulNode node, Span<Id> span, OptionalInt limit)
             throws IOException
     {
         throw new UnsupportedOperationException();

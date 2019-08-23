@@ -14,12 +14,30 @@
 package com.wrmsr.tokamak.driver.queue;
 
 import java.io.IOException;
-import java.sql.Connection;
 import java.util.List;
 import java.util.Optional;
 
 public interface QueueStorage
 {
-    Optional<List<QueueEntry>> insert(Connection conn, Iterable<QueueInsertion> insertions, boolean returnEntries, boolean coalesce)
+    interface Context
+            extends AutoCloseable
+    {
+        @Override
+        default void close()
+                throws Exception
+        {
+        }
+    }
+
+    Context createContext();
+
+    Optional<List<QueueEntry>> insert(Context context, Iterable<QueueInsertion> insertions, boolean returnEntries, boolean coalesce)
             throws IOException;
+
+    interface Dequeuer
+            extends Iterable<QueueEntry>, AutoCloseable
+    {
+    }
+
+    Dequeuer createDequeuer(Context context);
 }

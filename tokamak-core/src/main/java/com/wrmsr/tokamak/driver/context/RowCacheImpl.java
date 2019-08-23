@@ -182,11 +182,21 @@ public class RowCacheImpl
             else if (key instanceof FieldKey) {
                 FieldKey fieldKey = (FieldKey) key;
 
-                rows.forEach(r -> checkArgument(!allRows.contains(r)));
-
                 boolean isNull = rows.size() == 1 && checkSingle(rows).isNull();
                 if (!isNull) {
                     rows.forEach(r -> checkArgument(!r.isNull()));
+                }
+
+                for (DriverRow row : rows) {
+                    checkArgument(!allRows.contains(row));
+                }
+
+                for (Map.Entry<String, Object> keyEntry : fieldKey.getValuesByField().entrySet()) {
+                    int pos = node.getRowLayout().getPositionsByField().get(keyEntry.getKey());
+                    Object value = keyEntry.getValue();
+                    for (DriverRow row : rows) {
+                        checkArgument(Objects.equals(row.getAttributes()[pos], value));
+                    }
                 }
 
                 fieldKey.getValuesByField().keySet().forEach(this::maybeBackfillKeyField);
@@ -199,32 +209,32 @@ public class RowCacheImpl
                     throw new KeyException(key);
                 }
 
-                for (Map.Entry<String, Object> keyEntry : fieldKey.getValuesByField().entrySet()) {
-                    int pos = node.getRowLayout().getPositionsByField().get(keyEntry.getKey());
-                    Object value = keyEntry.getValue();
-                    for (DriverRow row : rows) {
-                        checkArgument(Objects.equals(row.getAttributes()[pos], value));
-                    }
-                }
+                allRows.addAll(rows);
+                rowSetsBykeyValueList.put(orderedKeyValues, ImmutableSet.copyOf(rows));
 
                 for (Map.Entry<String, Map<Object, KeyFieldValueEntry>> e : keyFieldValueEntriesByValueByKeyField.entrySet()) {
                     String field = e.getKey();
+                    int pos = node.getRowLayout().getPositionsByField().get(field);
                     Map<Object, KeyFieldValueEntry> map = e.getValue();
                     for (DriverRow row : rows) {
-
-
+                        Object value = row.getAttributes()[pos];
+                        KeyFieldValueEntry entry = map.computeIfAbsent(value, v -> new KeyFieldValueEntry(field, value));
+                        if (entry.usedForKey) {
+                            throw new KeyException(key);
+                        }
+                        entry.rows.add(row);
                     }
                 }
 
-                for (Map.Entry<String, Object> keyEntry : fieldKey.getValuesByField().entrySet()) {
-                    String field = keyEntry.getKey();
-                    int pos = node.getRowLayout().getPositionsByField().get(field);
-                    Object value = keyEntry.getValue();
-                    Map<Object, KeyFieldValueEntry> entriesByValue = checkNotNull(keyFieldValueEntriesByValueByKeyField.get(field));
-                    for (DriverRow row : rows) {
-                        KeyFieldValueEntry entry = entriesByValue.get()
-                    }
-                }
+                // for (Map.Entry<String, Object> keyEntry : fieldKey.getValuesByField().entrySet()) {
+                //     String field = keyEntry.getKey();
+                //     int pos = node.getRowLayout().getPositionsByField().get(field);
+                //     Object value = keyEntry.getValue();
+                //     Map<Object, KeyFieldValueEntry> entriesByValue = checkNotNull(keyFieldValueEntriesByValueByKeyField.get(field));
+                //     for (DriverRow row : rows) {
+                //         KeyFieldValueEntry entry = entriesByValue.get()
+                //     }
+                // }
 
                 throw new IllegalArgumentException(key.toString());
             }
