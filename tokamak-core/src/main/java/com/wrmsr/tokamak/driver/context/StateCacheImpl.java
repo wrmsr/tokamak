@@ -137,7 +137,13 @@ public class StateCacheImpl
     }
 
     @Override
-    public State setPhantomAttributes(StatefulNode node, Id id, Optional<Row> row)
+    public State createPhantom(StatefulNode node, Row row)
+    {
+        return null;
+    }
+
+    @Override
+    public State setPhantomAttributes(StatefulNode node, Row row)
     {
         throw new IllegalStateException();
     }

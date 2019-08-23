@@ -11,7 +11,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.wrmsr.tokamak.driver.state;
 
 import com.wrmsr.tokamak.api.Id;
@@ -19,8 +18,6 @@ import com.wrmsr.tokamak.node.StatefulNode;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
-
-import java.util.Arrays;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 

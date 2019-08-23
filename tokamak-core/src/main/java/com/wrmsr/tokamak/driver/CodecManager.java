@@ -22,6 +22,7 @@ import com.wrmsr.tokamak.node.ListAggregateNode;
 import com.wrmsr.tokamak.node.Node;
 import com.wrmsr.tokamak.node.ProjectNode;
 import com.wrmsr.tokamak.node.ScanNode;
+import com.wrmsr.tokamak.node.StatefulNode;
 import com.wrmsr.tokamak.node.visitor.NodeVisitor;
 
 import java.util.HashMap;
@@ -91,4 +92,19 @@ public class CodecManager
         rowIdCodecsByNode.put(node, rowCodec);
         return rowCodec;
     }
+
+    private final Map<StatefulNode, RowCodec> rowCodecsByStatefulNode = new HashMap<>();
+
+    public RowCodec getRowIdCodec(StatefulNode node)
+    {
+        RowCodec rowCodec = rowCodecsByStatefulNode.get(node);
+        if (rowCodec != null) {
+            return rowCodec;
+        }
+
+        rowCodec = RowCodecs.buildRowCodec(node.getFields());
+        rowIdCodecsByNode.put(node, rowCodec);
+        return rowCodec;
+    }
+
 }
