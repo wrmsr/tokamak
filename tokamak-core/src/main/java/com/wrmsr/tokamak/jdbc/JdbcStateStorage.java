@@ -14,9 +14,8 @@
 package com.wrmsr.tokamak.jdbc;
 
 import com.wrmsr.tokamak.api.Id;
-import com.wrmsr.tokamak.driver.DriverRow;
-import com.wrmsr.tokamak.driver.state.State;
 import com.wrmsr.tokamak.driver.state.StateStorage;
+import com.wrmsr.tokamak.driver.state.StorageState;
 import com.wrmsr.tokamak.node.StatefulNode;
 import com.wrmsr.tokamak.util.Span;
 import org.jdbi.v3.core.Handle;
@@ -82,28 +81,14 @@ public class JdbcStateStorage
     }
 
     @Override
-    public Map<StatefulNode, Map<Id, State>> get(Context ctx, Map<StatefulNode, Set<Id>> idSetsByNode, EnumSet<GetFlag> flags)
+    public Map<StatefulNode, Map<Id, StorageState>> get(Context ctx, Map<StatefulNode, Set<Id>> idSetsByNode, EnumSet<GetFlag> flags)
             throws IOException
     {
         return null;
     }
 
     @Override
-    public void put(Context ctx, List<State> states, boolean create)
-            throws IOException
-    {
-
-    }
-
-    @Override
-    public State createPhantom(Context ctx, StatefulNode node, Id id, DriverRow row)
-            throws IOException
-    {
-        return null;
-    }
-
-    @Override
-    public void upgradePhantom(Context ctx, State state, boolean linkage, boolean share)
+    public void put(Context ctx, List<StorageState> states, boolean create)
             throws IOException
     {
 

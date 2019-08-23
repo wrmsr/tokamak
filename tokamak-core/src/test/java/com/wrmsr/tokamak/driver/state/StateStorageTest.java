@@ -43,7 +43,7 @@ public class StateStorageTest
                 Optional.empty());
 
         StateStorage ss = new MapStateStorageImpl();
-        Map<StatefulNode, Map<Id, State>> map = ss.get(
+        Map<StatefulNode, Map<Id, StorageState>> map = ss.get(
                 ss.createContext(),
                 ImmutableMap.of(scanNode, ImmutableSet.of(Id.of(420))),
                 EnumSet.of(StateStorage.GetFlag.CREATE));
