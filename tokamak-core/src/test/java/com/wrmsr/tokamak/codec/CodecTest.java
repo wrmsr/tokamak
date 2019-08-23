@@ -13,10 +13,12 @@
  */
 package com.wrmsr.tokamak.codec;
 
+import com.google.common.collect.ImmutableMap;
+import com.wrmsr.tokamak.codec.scalar.FixedKeyObjectMapScalarCodec;
+import com.wrmsr.tokamak.codec.scalar.ScalarCodecs;
 import com.wrmsr.tokamak.util.OpenByteArrayOutputStream;
 import junit.framework.TestCase;
 
-import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
 
 public class CodecTest
@@ -32,5 +34,21 @@ public class CodecTest
         System.out.println(bas);
         ByteBuffer.wrap(bas.getBuf()).putShort((short) 0x1234);
         System.out.println(bas);
+    }
+
+    public void testScalarCodec()
+            throws Throwable
+    {
+        FixedKeyObjectMapScalarCodec codec = new FixedKeyObjectMapScalarCodec(ImmutableMap.of(
+                "long", ScalarCodecs.LONG_SCALAR_PAIR,
+                "string", ScalarCodecs.STRING_SCALAR_PAIR
+        ), false);
+
+        byte[] bytes = codec.encodeBytes(ImmutableMap.of(
+                "long", 420L,
+                "string", "abcd"
+        ));
+
+        System.out.println(bytes);
     }
 }

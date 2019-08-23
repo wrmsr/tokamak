@@ -153,13 +153,13 @@ public final class MoreCollections
 
     public static <T extends Set<?>> T checkOrdered(T obj)
     {
-        checkState(obj instanceof ImmutableSet || obj instanceof LinkedHashSet);
+        checkState(obj instanceof ImmutableSet || obj instanceof LinkedHashSet || obj instanceof Ordered);
         return obj;
     }
 
     public static <T extends Map<?, ?>> T checkOrdered(T obj)
     {
-        checkState(obj instanceof ImmutableMap || obj instanceof LinkedHashMap || obj instanceof OrderPreservingImmutableMap);
+        checkState(obj instanceof ImmutableMap || obj instanceof LinkedHashMap || obj instanceof Ordered);
         return obj;
     }
 }

@@ -41,7 +41,7 @@ import static com.wrmsr.tokamak.util.MorePreconditions.checkUnique;
 import static java.util.function.Function.identity;
 
 public final class ObjectArrayBackedMap<K>
-        implements Map<K, Object>
+        implements Map<K, Object>, Ordered
 {
     @Immutable
     public static final class Shape<K>

@@ -44,7 +44,7 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 @JsonSerialize(using = OrderPreservingImmutableMap.Serializer.class)
 @JsonDeserialize(using = OrderPreservingImmutableMap.Deserializer.class)
 public final class OrderPreservingImmutableMap<K, V>
-        implements Map<K, V>
+        implements Map<K, V>, Ordered
 {
     private final Map<K, V> map;
 
