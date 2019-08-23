@@ -27,9 +27,6 @@ import java.util.Set;
 
 public interface StateStorage
 {
-    void setup()
-            throws IOException;
-
     interface Context
             extends AutoCloseable
     {
@@ -42,6 +39,9 @@ public interface StateStorage
 
     Context createContext();
 
+    void setup()
+            throws IOException;
+
     enum GetFlag
     {
         CREATE,
@@ -51,16 +51,10 @@ public interface StateStorage
         NOLOCK;
     }
 
-    Map<StatefulNode, Map<Id, State>> get(Context ctx, Map<StatefulNode, Set<Id>> idSetsByNode, EnumSet<GetFlag> flags)
+    Map<StatefulNode, Map<Id, StorageState>> get(Context ctx, Map<StatefulNode, Set<Id>> idSetsByNode, EnumSet<GetFlag> flags)
             throws IOException;
 
-    void put(Context ctx, List<State> states, boolean create)
-            throws IOException;
-
-    State createPhantom(Context ctx, StatefulNode node, Id id, DriverRow row)
-            throws IOException;
-
-    void upgradePhantom(Context ctx, State state, boolean linkage, boolean share)
+    void put(Context ctx, List<StorageState> states, boolean create)
             throws IOException;
 
     void allocate(Context ctx, StatefulNode node, Iterable<Id> ids)

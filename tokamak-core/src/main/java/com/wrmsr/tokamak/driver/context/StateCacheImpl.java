@@ -85,6 +85,12 @@ public class StateCacheImpl
     }
 
     @Override
+    public Optional<State> get(StatefulNode node, Id id)
+    {
+        return Optional.empty();
+    }
+
+    @Override
     public boolean contains(State state)
     {
         return states.contains(state);
@@ -164,11 +170,5 @@ public class StateCacheImpl
     public void flush(StateStorage.Context storageCtx)
     {
         throw new IllegalStateException();
-    }
-
-    @Override
-    public Optional<State> get(StatefulNode node, Id id)
-    {
-        return Optional.empty();
     }
 }

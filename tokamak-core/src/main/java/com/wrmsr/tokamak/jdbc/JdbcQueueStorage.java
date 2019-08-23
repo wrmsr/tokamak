@@ -14,6 +14,62 @@
 
 package com.wrmsr.tokamak.jdbc;
 
+import com.wrmsr.tokamak.driver.queue.QueueEntry;
+import com.wrmsr.tokamak.driver.queue.QueueInsertion;
+import com.wrmsr.tokamak.driver.queue.QueueStorage;
+import org.jdbi.v3.core.Handle;
+import org.jdbi.v3.core.Jdbi;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Optional;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+
 public class JdbcQueueStorage
+        implements QueueStorage
 {
+    private final Jdbi jdbi;
+
+    public JdbcQueueStorage(Jdbi jdbi)
+    {
+        this.jdbi = checkNotNull(jdbi);
+    }
+
+    static class ContextImpl
+            implements QueueStorage.Context
+    {
+        final Handle handle;
+
+        ContextImpl(Handle handle)
+        {
+            this.handle = checkNotNull(handle);
+        }
+
+        @Override
+        public void close()
+                throws Exception
+        {
+            handle.close();
+        }
+    }
+
+    @Override
+    public Context createContext()
+    {
+        return new ContextImpl(jdbi.open());
+    }
+
+    @Override
+    public Optional<List<QueueEntry>> insert(Context context, Iterable<QueueInsertion> insertions, boolean returnEntries, boolean coalesce)
+            throws IOException
+    {
+        return Optional.empty();
+    }
+
+    @Override
+    public Dequeuer createDequeuer(Context context)
+    {
+        return null;
+    }
 }

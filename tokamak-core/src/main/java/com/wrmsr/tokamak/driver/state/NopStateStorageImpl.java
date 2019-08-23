@@ -15,7 +15,6 @@ package com.wrmsr.tokamak.driver.state;
 
 import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.api.Id;
-import com.wrmsr.tokamak.driver.DriverRow;
 import com.wrmsr.tokamak.node.StatefulNode;
 import com.wrmsr.tokamak.util.Span;
 
@@ -30,39 +29,26 @@ public final class NopStateStorageImpl
         implements StateStorage
 {
     @Override
-    public void setup()
-            throws IOException
-    {
-    }
-
-    @Override
     public Context createContext()
     {
         return new Context() {};
     }
 
     @Override
-    public Map<StatefulNode, Map<Id, State>> get(Context ctx, Map<StatefulNode, Set<Id>> idSetsByNode, EnumSet<GetFlag> flags)
+    public void setup()
+            throws IOException
+    {
+    }
+
+    @Override
+    public Map<StatefulNode, Map<Id, StorageState>> get(Context ctx, Map<StatefulNode, Set<Id>> idSetsByNode, EnumSet<GetFlag> flags)
             throws IOException
     {
         return ImmutableMap.of();
     }
 
     @Override
-    public void put(Context ctx, List<State> states, boolean create)
-            throws IOException
-    {
-    }
-
-    @Override
-    public State createPhantom(Context ctx, StatefulNode node, Id id, DriverRow row)
-            throws IOException
-    {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void upgradePhantom(Context ctx, State state, boolean linkage, boolean share)
+    public void put(Context ctx, List<StorageState> states, boolean create)
             throws IOException
     {
     }

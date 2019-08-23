@@ -15,7 +15,6 @@ package com.wrmsr.tokamak.driver.state;
 
 import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.api.Id;
-import com.wrmsr.tokamak.driver.DriverRow;
 import com.wrmsr.tokamak.node.StatefulNode;
 import com.wrmsr.tokamak.util.Span;
 
@@ -31,13 +30,7 @@ import java.util.Set;
 public class MapStateStorageImpl
         implements StateStorage
 {
-    private final Map<StatefulNode, Map<Id, State>> statesByIdByNode = new HashMap<>();
-
-    @Override
-    public void setup()
-            throws IOException
-    {
-    }
+    private final Map<StatefulNode, Map<Id, StorageState>> statesByIdByNode = new HashMap<>();
 
     @Override
     public Context createContext()
@@ -46,23 +39,34 @@ public class MapStateStorageImpl
     }
 
     @Override
-    public Map<StatefulNode, Map<Id, State>> get(Context ctx, Map<StatefulNode, Set<Id>> idSetsByNode, EnumSet<GetFlag> flags)
+    public void setup()
             throws IOException
     {
-        ImmutableMap.Builder<StatefulNode, Map<Id, State>> ret = ImmutableMap.builder();
+    }
+
+    @Override
+    public Map<StatefulNode, Map<Id, StorageState>> get(Context ctx, Map<StatefulNode, Set<Id>> idSetsByNode, EnumSet<GetFlag> flags)
+            throws IOException
+    {
+        ImmutableMap.Builder<StatefulNode, Map<Id, StorageState>> ret = ImmutableMap.builder();
         for (Map.Entry<StatefulNode, Set<Id>> entry : idSetsByNode.entrySet()) {
             StatefulNode node = entry.getKey();
-            Map<Id, State> nodeMap = statesByIdByNode.computeIfAbsent(node, n -> new HashMap<>());
-            Map<Id, State> retMap = new LinkedHashMap<>();
+            Map<Id, StorageState> nodeMap = statesByIdByNode.computeIfAbsent(node, n -> new HashMap<>());
+            Map<Id, StorageState> retMap = new LinkedHashMap<>();
 
             for (Id id : entry.getValue()) {
-                State state = nodeMap.get(id);
+                StorageState state = nodeMap.get(id);
 
                 if (state == null && flags.contains(GetFlag.CREATE)) {
-                    state = new State(
-                            new StateContext(node),
+                    state = new StorageState(
+                            node,
                             id,
-                            State.Mode.INVALID);
+                            0L,
+                            -1.0f,
+                            -1.0f,
+                            null,
+                            null,
+                            null);
                 }
 
                 if (state != null) {
@@ -78,32 +82,15 @@ public class MapStateStorageImpl
     }
 
     @Override
-    public void put(Context ctx, List<State> states, boolean create)
+    public void put(Context ctx, List<StorageState> states, boolean create)
             throws IOException
     {
-        for (State state : states) {
-            Map<Id, State> nodeMap = statesByIdByNode.computeIfAbsent(state.getNode(), n -> new HashMap<>());
+        for (StorageState state : states) {
+            Map<Id, StorageState> nodeMap = statesByIdByNode.computeIfAbsent(state.getNode(), n -> new HashMap<>());
             if (create || nodeMap.containsKey(state.getId())) {
                 nodeMap.put(state.getId(), state);
             }
         }
-    }
-
-    @Override
-    public State createPhantom(Context ctx, StatefulNode node, Id id, DriverRow row)
-            throws IOException
-    {
-        // return new State(
-        //         new StateContext(node),
-        //
-        // )
-        throw new IllegalStateException();
-    }
-
-    @Override
-    public void upgradePhantom(Context ctx, State state, boolean linkage, boolean share)
-            throws IOException
-    {
     }
 
     @Override

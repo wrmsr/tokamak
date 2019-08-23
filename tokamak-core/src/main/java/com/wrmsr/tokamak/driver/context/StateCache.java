@@ -36,6 +36,8 @@ public interface StateCache
 
     boolean isInvalidated(StatefulNode node, Id id);
 
+    State createPhantom(StatefulNode node, Id id, Row row);
+
     State setPhantomAttributes(StatefulNode node, Id id, Optional<Row> row);
 
     Collection<State> getAll();
