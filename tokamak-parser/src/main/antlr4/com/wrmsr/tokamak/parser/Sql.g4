@@ -47,9 +47,9 @@ booleanExpression
     ;
 
 literalExpression
-    : NULL            #nullLiteral
-    | STRING_VALUE    #stringLiteral
-    | INTEGER_VALUE   #integerLiteral
+    : NULL           #nullLiteral
+    | STRING_VALUE   #stringLiteral
+    | INTEGER_VALUE  #integerLiteral
     ;
 
 FROM: 'FROM';
@@ -65,11 +65,11 @@ IDENTIFIER
     ;
 
 QUOTED_IDENTIFIER
-    : '"' ( ~'"' | '""' )* '"'
+    : '"' (~'"' | '""')* '"'
     ;
 
 STRING_VALUE
-    : '\'' ( ~'\'' | '\'\'' )* '\''
+    : '\'' (~'\'' | '\'\'')* '\''
     ;
 
 INTEGER_VALUE

@@ -24,7 +24,7 @@ import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.catalog.Catalog;
 import com.wrmsr.tokamak.catalog.Schema;
 import com.wrmsr.tokamak.driver.DriverImpl;
-import com.wrmsr.tokamak.function.RowViewFunction;
+import com.wrmsr.tokamak.func.RowViewFunction;
 import com.wrmsr.tokamak.jdbc.JdbcConnector;
 import com.wrmsr.tokamak.jdbc.JdbcUtils;
 import com.wrmsr.tokamak.node.EquijoinNode;

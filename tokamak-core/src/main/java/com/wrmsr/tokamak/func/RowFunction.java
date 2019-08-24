@@ -11,41 +11,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.function;
+package com.wrmsr.tokamak.func;
 
-import com.google.common.collect.ImmutableList;
+import com.wrmsr.tokamak.api.Row;
 import com.wrmsr.tokamak.type.Type;
 
-import java.util.List;
-
-public interface NullaryFunction<T>
-        extends ScalarFunction<T>
+public interface RowFunction<T>
+        extends Function
 {
-    T invoke();
+    T invoke(Row row);
 
-    @Override
-    default T invoke(Object... args)
+    static <T> RowFunction<T> of(String name, Type type, java.util.function.Function<Row, T> fn)
     {
-        return invoke();
-    }
-
-    @Override
-    default List<Type> getArgTypes()
-    {
-        return ImmutableList.of();
-    }
-
-    static <T> NullaryFunction<T> of(
-            String name,
-            Type type,
-            java.util.function.Supplier<T> fn)
-    {
-        return new NullaryFunction<T>()
+        return new RowFunction<T>()
         {
             @Override
             public String toString()
             {
-                return "NullaryFunction{name='" + getName() + "'}";
+                return "RowFunction{name='" + getName() + "'}";
             }
 
             @Override
@@ -61,16 +44,14 @@ public interface NullaryFunction<T>
             }
 
             @Override
-            public T invoke()
+            public T invoke(Row row)
             {
-                return fn.get();
+                return fn.apply(row);
             }
         };
     }
 
-    static <T> NullaryFunction<T> anon(
-            Type type,
-            java.util.function.Supplier<T> fn)
+    static <T> RowFunction<T> anon(Type type, java.util.function.Function<Row, T> fn)
     {
         return of(Function.genAnonName(), type, fn);
     }

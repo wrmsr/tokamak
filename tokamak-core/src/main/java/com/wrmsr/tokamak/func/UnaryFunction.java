@@ -11,29 +11,47 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.function;
+package com.wrmsr.tokamak.func;
 
 import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.type.Type;
 
 import java.util.List;
 
-public interface VariadicFunction<T>
-        extends ScalarFunction<T>
+import static com.google.common.base.Preconditions.checkArgument;
+
+public interface UnaryFunction<T, R>
+        extends ScalarFunction<R>
 {
-    static <T> VariadicFunction<T> of(
-            String name,
-            List<Type> argTypes,
-            Type type,
-            java.util.function.Function<Object[], T> fn)
+    R invoke(T arg);
+
+    Type getArgType();
+
+    @Override
+    default R invoke(Object... args)
     {
-        List<Type> argTypes_ = ImmutableList.copyOf(argTypes);
-        return new VariadicFunction<T>()
+        checkArgument(args.length == 1);
+        return invoke((T) args[0]);
+    }
+
+    @Override
+    default List<Type> getArgTypes()
+    {
+        return ImmutableList.of(getArgType());
+    }
+
+    static <T, R> UnaryFunction<T, R> of(
+            String name,
+            Type argType,
+            Type type,
+            java.util.function.Function<T, R> fn)
+    {
+        return new UnaryFunction<T, R>()
         {
             @Override
             public String toString()
             {
-                return "VariadicFunction{name='" + getName() + "'}";
+                return "UnaryFunction{name='" + getName() + "'}";
             }
 
             @Override
@@ -49,24 +67,24 @@ public interface VariadicFunction<T>
             }
 
             @Override
-            public List<Type> getArgTypes()
+            public Type getArgType()
             {
-                return argTypes_;
+                return argType;
             }
 
             @Override
-            public T invoke(Object... args)
+            public R invoke(T arg)
             {
-                return fn.apply(args);
+                return fn.apply(arg);
             }
         };
     }
 
-    static <T> VariadicFunction<T> anon(
-            List<Type> argTypes,
+    static <T, R> UnaryFunction<T, R> anon(
+            Type argType,
             Type type,
-            java.util.function.Function<Object[], T> fn)
+            java.util.function.Function<T, R> fn)
     {
-        return of(Function.genAnonName(), argTypes, type, fn);
+        return of(Function.genAnonName(), argType, type, fn);
     }
 }

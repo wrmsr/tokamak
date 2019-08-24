@@ -11,8 +11,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.function.subprocess;
+package com.wrmsr.tokamak.func;
 
-public class SubprocessFunctionExecutor
+import com.wrmsr.tokamak.type.Type;
+
+import java.util.concurrent.atomic.AtomicInteger;
+
+public interface Function
 {
+    String getName();
+
+    Type getType();
+
+    AtomicInteger anonCount = new AtomicInteger();
+
+    static String genAnonName()
+    {
+        return "anon$" + anonCount.getAndIncrement();
+    }
 }

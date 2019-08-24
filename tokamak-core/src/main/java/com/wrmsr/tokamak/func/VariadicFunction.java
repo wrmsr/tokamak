@@ -11,24 +11,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.function;
+package com.wrmsr.tokamak.func;
 
-import com.wrmsr.tokamak.layout.RowView;
+import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.type.Type;
 
-public interface RowViewFunction<T>
-        extends Function
-{
-    T invoke(RowView rowView);
+import java.util.List;
 
-    static <T> RowViewFunction<T> of(String name, Type type, java.util.function.Function<RowView, T> fn)
+public interface VariadicFunction<T>
+        extends ScalarFunction<T>
+{
+    static <T> VariadicFunction<T> of(
+            String name,
+            List<Type> argTypes,
+            Type type,
+            java.util.function.Function<Object[], T> fn)
     {
-        return new RowViewFunction<T>()
+        List<Type> argTypes_ = ImmutableList.copyOf(argTypes);
+        return new VariadicFunction<T>()
         {
             @Override
             public String toString()
             {
-                return "RowViewFunction{name='" + getName() + "'}";
+                return "VariadicFunction{name='" + getName() + "'}";
             }
 
             @Override
@@ -44,15 +49,24 @@ public interface RowViewFunction<T>
             }
 
             @Override
-            public T invoke(RowView rowView)
+            public List<Type> getArgTypes()
             {
-                return fn.apply(rowView);
+                return argTypes_;
+            }
+
+            @Override
+            public T invoke(Object... args)
+            {
+                return fn.apply(args);
             }
         };
     }
 
-    static <T> RowViewFunction<T> anon(Type type, java.util.function.Function<RowView, T> fn)
+    static <T> VariadicFunction<T> anon(
+            List<Type> argTypes,
+            Type type,
+            java.util.function.Function<Object[], T> fn)
     {
-        return of(Function.genAnonName(), type, fn);
+        return of(Function.genAnonName(), argTypes, type, fn);
     }
 }

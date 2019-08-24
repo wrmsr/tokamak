@@ -11,24 +11,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.function;
+package com.wrmsr.tokamak.func;
 
-import com.wrmsr.tokamak.api.Row;
+import com.wrmsr.tokamak.layout.RowView;
 import com.wrmsr.tokamak.type.Type;
 
-public interface RowFunction<T>
+public interface RowViewFunction<T>
         extends Function
 {
-    T invoke(Row row);
+    T invoke(RowView rowView);
 
-    static <T> RowFunction<T> of(String name, Type type, java.util.function.Function<Row, T> fn)
+    static <T> RowViewFunction<T> of(String name, Type type, java.util.function.Function<RowView, T> fn)
     {
-        return new RowFunction<T>()
+        return new RowViewFunction<T>()
         {
             @Override
             public String toString()
             {
-                return "RowFunction{name='" + getName() + "'}";
+                return "RowViewFunction{name='" + getName() + "'}";
             }
 
             @Override
@@ -44,14 +44,14 @@ public interface RowFunction<T>
             }
 
             @Override
-            public T invoke(Row row)
+            public T invoke(RowView rowView)
             {
-                return fn.apply(row);
+                return fn.apply(rowView);
             }
         };
     }
 
-    static <T> RowFunction<T> anon(Type type, java.util.function.Function<Row, T> fn)
+    static <T> RowViewFunction<T> anon(Type type, java.util.function.Function<RowView, T> fn)
     {
         return of(Function.genAnonName(), type, fn);
     }

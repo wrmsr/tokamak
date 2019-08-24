@@ -11,22 +11,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.function;
+package com.wrmsr.tokamak.func;
 
-import com.wrmsr.tokamak.type.Type;
-
-import java.util.concurrent.atomic.AtomicInteger;
-
-public interface Function
+public interface FunctionExecutor
 {
-    String getName();
-
-    Type getType();
-
-    AtomicInteger anonCount = new AtomicInteger();
-
-    static String genAnonName()
-    {
-        return "anon$" + anonCount.getAndIncrement();
-    }
 }

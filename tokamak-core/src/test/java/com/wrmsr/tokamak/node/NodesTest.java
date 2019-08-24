@@ -18,7 +18,7 @@ import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.api.NodeId;
 import com.wrmsr.tokamak.api.SchemaTable;
-import com.wrmsr.tokamak.function.RowFunction;
+import com.wrmsr.tokamak.func.RowFunction;
 import com.wrmsr.tokamak.type.Type;
 import com.wrmsr.tokamak.util.Json;
 import org.junit.Test;

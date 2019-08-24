@@ -14,7 +14,7 @@
 package com.wrmsr.tokamak.catalog;
 
 import com.wrmsr.tokamak.api.SchemaTable;
-import com.wrmsr.tokamak.function.Function;
+import com.wrmsr.tokamak.func.Function;
 
 import java.util.Collections;
 import java.util.HashMap;

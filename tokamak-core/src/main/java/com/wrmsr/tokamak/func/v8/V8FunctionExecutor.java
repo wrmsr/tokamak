@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.function.v8;
+package com.wrmsr.tokamak.func.v8;
 
 public class V8FunctionExecutor
 {

@@ -11,16 +11,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.function;
+package com.wrmsr.tokamak.func;
 
 import com.wrmsr.tokamak.type.Type;
+import junit.framework.TestCase;
 
-import java.util.List;
+import java.lang.reflect.Method;
 
-public interface ScalarFunction<T>
-        extends Function
+public class FunctionTest
+        extends TestCase
 {
-    List<Type> getArgTypes();
+    public void testReflection()
+            throws Throwable
+    {
+        Function f = RowFunction.anon(Type.LONG, r -> 0L);
+        System.out.println(f);
 
-    T invoke(Object... args);
+        Method method = System.class.getDeclaredMethod("currentTimeMillis");
+        ScalarFunction function = Reflection.reflect(method);
+        System.out.println(function);
+        System.out.println(function.invoke());
+    }
 }

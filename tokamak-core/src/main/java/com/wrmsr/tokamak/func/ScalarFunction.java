@@ -11,8 +11,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.function.mustache;
+package com.wrmsr.tokamak.func;
 
-public class MustacheFunctionExecutor
+import com.wrmsr.tokamak.type.Type;
+
+import java.util.List;
+
+public interface ScalarFunction<T>
+        extends Function
 {
+    List<Type> getArgTypes();
+
+    T invoke(Object... args);
 }
