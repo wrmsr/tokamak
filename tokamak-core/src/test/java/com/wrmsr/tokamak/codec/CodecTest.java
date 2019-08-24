@@ -38,7 +38,7 @@ public class CodecTest
         System.out.println(bas);
     }
 
-    public void testScalarCodec()
+    public void testFixedKeyObjectMapScalarCodec()
             throws Throwable
     {
         FixedKeyObjectMapScalarCodec<String> codec = new FixedKeyObjectMapScalarCodec<>(ImmutableMap.of(
