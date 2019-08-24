@@ -28,12 +28,14 @@ public final class VariableLengthScalarCodec<V>
 
     private final ScalarCodec<V> child;
     private final int maxLength;
+    private final boolean isByte;
 
     public VariableLengthScalarCodec(ScalarCodec<V> child, int maxLength)
     {
         checkArgument(maxLength > 0);
         this.child = checkNotNull(child);
         this.maxLength = maxLength;
+        isByte = maxLength <= MAX_BYTE_LENGTH;
     }
 
     public VariableLengthScalarCodec(ScalarCodec<V> child)
@@ -44,12 +46,17 @@ public final class VariableLengthScalarCodec<V>
     @Override
     public void encode(V value, Output output)
     {
-        int pos = output.tell();
-        output.alloc(1);
+       int pos = output.tell();
+        if (isByte) {
+            output.put((byte)0);
+        }
+        else{
+            output.putLong(0);
+        }
         child.encode(value, output);
         int sz = output.tell() - pos;
         checkState(sz < maxLength);
-        if (maxLength <= MAX_BYTE_LENGTH) {
+        if (isByte) {
             output.putAt(pos, (byte) sz);
         }
         else {
@@ -61,7 +68,7 @@ public final class VariableLengthScalarCodec<V>
     public V decode(Input input)
     {
         int sz;
-        if (maxLength <= MAX_BYTE_LENGTH) {
+        if (isByte) {
             sz = input.get() & 0xFF;
         }
         else {

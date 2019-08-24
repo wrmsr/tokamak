@@ -25,36 +25,36 @@ public final class ScalarCodecs
     {
     }
 
-    public static final FunctionPairScalarCodec<Boolean> BOOLEAN_SCALAR_PAIR = FunctionPairScalarCodec.of(
+    public static final FunctionPairScalarCodec<Boolean> BOOLEAN_SCALAR_CODEC = FunctionPairScalarCodec.of(
             (v, o) -> o.put((Boolean) v ? (byte) 1 : (byte) 0),
             i -> i.get() != 0
     );
 
-    public static final FunctionPairScalarCodec<Number> LONG_SCALAR_PAIR = FunctionPairScalarCodec.of(
+    public static final FunctionPairScalarCodec<Number> LONG_SCALAR_CODEC = FunctionPairScalarCodec.of(
             (v, o) -> o.putLong(v.longValue()),
             i -> i.getLong()
     );
 
-    public static final FunctionPairScalarCodec<Number> DOUBLE_SCALAR_PAIR = FunctionPairScalarCodec.of(
+    public static final FunctionPairScalarCodec<Number> DOUBLE_SCALAR_CODEC = FunctionPairScalarCodec.of(
             (v, o) -> o.putLong(Double.doubleToLongBits(v.doubleValue())),
             i -> Double.longBitsToDouble(i.getLong())
     );
 
-    public static final FunctionPairScalarCodec<byte[]> BYTES_SCALAR_PAIR = FunctionPairScalarCodec.of(
+    public static final FunctionPairScalarCodec<byte[]> BYTES_SCALAR_CODEC = FunctionPairScalarCodec.of(
             (v, o) -> o.putBytes(v),
             i -> i.getBytes()
     );
 
-    public static final FunctionPairScalarCodec<String> STRING_SCALAR_PAIR = FunctionPairScalarCodec.of(
+    public static final FunctionPairScalarCodec<String> STRING_SCALAR_CODEC = FunctionPairScalarCodec.of(
             (v, o) -> o.putBytes(v.getBytes(Charsets.UTF_8)),
             i -> new String(i.getBytes(), Charsets.UTF_8)
     );
 
     public static final Map<Type, ScalarCodec> SCALAR_CODECS_BY_TYPE = ImmutableMap.<Type, ScalarCodec>builder()
-            .put(Type.BOOLEAN, BOOLEAN_SCALAR_PAIR)
-            .put(Type.LONG, LONG_SCALAR_PAIR)
-            .put(Type.DOUBLE, DOUBLE_SCALAR_PAIR)
-            .put(Type.BYTES, BYTES_SCALAR_PAIR)
-            .put(Type.STRING, STRING_SCALAR_PAIR)
+            .put(Type.BOOLEAN, BOOLEAN_SCALAR_CODEC)
+            .put(Type.LONG, LONG_SCALAR_CODEC)
+            .put(Type.DOUBLE, DOUBLE_SCALAR_CODEC)
+            .put(Type.BYTES, BYTES_SCALAR_CODEC)
+            .put(Type.STRING, STRING_SCALAR_CODEC)
             .build();
 }

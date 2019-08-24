@@ -15,7 +15,9 @@ package com.wrmsr.tokamak.codec;
 
 import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.codec.scalar.FixedKeyObjectMapScalarCodec;
+import com.wrmsr.tokamak.codec.scalar.ScalarCodec;
 import com.wrmsr.tokamak.codec.scalar.ScalarCodecs;
+import com.wrmsr.tokamak.codec.scalar.VariableLengthScalarCodec;
 import com.wrmsr.tokamak.util.OpenByteArrayOutputStream;
 import junit.framework.TestCase;
 
@@ -39,9 +41,9 @@ public class CodecTest
     public void testScalarCodec()
             throws Throwable
     {
-        FixedKeyObjectMapScalarCodec codec = new FixedKeyObjectMapScalarCodec(ImmutableMap.of(
-                "long", ScalarCodecs.LONG_SCALAR_PAIR,
-                "string", ScalarCodecs.STRING_SCALAR_PAIR
+        FixedKeyObjectMapScalarCodec<String> codec = new FixedKeyObjectMapScalarCodec<>(ImmutableMap.of(
+                "long", ScalarCodecs.LONG_SCALAR_CODEC,
+                "string", new VariableLengthScalarCodec<>(ScalarCodecs.STRING_SCALAR_CODEC)
         ), false);
 
         byte[] bytes = codec.encodeBytes(ImmutableMap.of(
