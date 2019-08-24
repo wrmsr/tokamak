@@ -50,8 +50,8 @@ public final class DriverRow
     public String toString()
     {
         return "DriverRow{" +
-                "node=" + node.getName() +
-                "id=" + id +
+                "node=" + node +
+                ", id=" + id +
                 ", attributes=" + Arrays.toString(attributes) +
                 '}';
     }
