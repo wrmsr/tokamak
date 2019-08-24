@@ -46,21 +46,22 @@ public final class VariableLengthScalarCodec<V>
     @Override
     public void encode(V value, Output output)
     {
-       int pos = output.tell();
+        int startPos = output.tell();
         if (isByte) {
-            output.put((byte)0);
+            output.put((byte) 0);
         }
-        else{
+        else {
             output.putLong(0);
         }
         child.encode(value, output);
-        int sz = output.tell() - pos;
+        int endPos = output.tell();
+        int sz = endPos - startPos - (isByte ? 1 : 8);
         checkState(sz < maxLength);
         if (isByte) {
-            output.putAt(pos, (byte) sz);
+            output.putAt(startPos, (byte) sz);
         }
         else {
-            output.putLongAt(pos, sz);
+            output.putLongAt(startPos, sz);
         }
     }
 
