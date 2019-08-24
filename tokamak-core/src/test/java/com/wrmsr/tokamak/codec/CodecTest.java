@@ -41,7 +41,6 @@ public class CodecTest
     public void testScalarCodec()
             throws Throwable
     {
-
         FixedKeyObjectMapScalarCodec<String> codec = new FixedKeyObjectMapScalarCodec<>(ImmutableMap.of(
                 "long", ScalarCodecs.LONG_SCALAR_CODEC,
                 "string", new VariableLengthScalarCodec<>(ScalarCodecs.STRING_SCALAR_CODEC)
@@ -54,11 +53,7 @@ public class CodecTest
 
         byte[] bytes = codec.encodeBytes(expectedMap);
 
-        System.out.println(bytes);
-
         Map<String, Object> givenMap = codec.decodeBytes(bytes);
-
-        System.out.println(givenMap);
 
         assertEquals(expectedMap, givenMap);
     }
