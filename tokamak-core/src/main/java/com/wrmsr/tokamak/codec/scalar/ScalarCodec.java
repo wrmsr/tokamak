@@ -13,6 +13,7 @@
  */
 package com.wrmsr.tokamak.codec.scalar;
 
+import com.wrmsr.tokamak.codec.ByteArrayInput;
 import com.wrmsr.tokamak.codec.ByteArrayOutput;
 import com.wrmsr.tokamak.codec.Input;
 import com.wrmsr.tokamak.codec.Output;
@@ -29,4 +30,9 @@ public interface ScalarCodec<V>
     }
 
     V decode(Input input);
+
+    default V decodeBytes(byte[] value)
+    {
+        return decode(new ByteArrayInput(value));
+    }
 }
