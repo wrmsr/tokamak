@@ -73,7 +73,7 @@ public final class ListScalarCodec<V>
         else {
             sz = (int) input.getLong();
         }
-        ImmutableList.Builder<V> builder = ImmutableList.builder();
+        ImmutableList.Builder<V> builder = ImmutableList.builderWithExpectedSize(sz);
         for (int i = 0; i < sz; ++i) {
             builder.add(child.decode(input));
         }

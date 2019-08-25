@@ -73,7 +73,7 @@ public final class SetScalarCodec<V>
         else {
             sz = (int) input.getLong();
         }
-        ImmutableSet.Builder<V> builder = ImmutableSet.builder();
+        ImmutableSet.Builder<V> builder = ImmutableSet.builderWithExpectedSize(sz);
         for (int i = 0; i < sz; ++i) {
             builder.add(child.decode(input));
         }

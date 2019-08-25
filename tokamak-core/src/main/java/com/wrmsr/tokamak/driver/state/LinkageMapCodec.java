@@ -14,8 +14,11 @@
 package com.wrmsr.tokamak.driver.state;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.api.NodeId;
+import com.wrmsr.tokamak.codec.ByteArrayOutput;
+import com.wrmsr.tokamak.codec.Input;
 import com.wrmsr.tokamak.codec.Output;
 import com.wrmsr.tokamak.codec.scalar.ScalarCodec;
 import com.wrmsr.tokamak.codec.scalar.ScalarCodecs;
@@ -31,8 +34,8 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 
-public final class LinkageCodec
-        implements Codec<Linkage, byte[]>
+public final class LinkageMapCodec
+        implements Codec<Map<NodeId, Linkage.Links>, byte[]>
 {
     private static final ScalarCodec<Number> LONG_CODEC = ScalarCodecs.LONG_SCALAR_CODEC;
     private static final ScalarCodec<byte[]> VAR_BYTES_CODEC = new VariableLengthScalarCodec<>(ScalarCodecs.BYTES_SCALAR_CODEC);
@@ -40,7 +43,7 @@ public final class LinkageCodec
     private final StatefulNode node;
     private final Map<NodeId, ScalarCodec<Object[]>> attributesCodecsByNodeId;
 
-    public LinkageCodec(StatefulNode node, Map<NodeId, ScalarCodec<Object[]>> attributesCodecsByNodeId)
+    public LinkageMapCodec(StatefulNode node, Map<NodeId, ScalarCodec<Object[]>> attributesCodecsByNodeId)
     {
         this.node = checkNotNull(node);
         this.attributesCodecsByNodeId = ImmutableMap.copyOf(attributesCodecsByNodeId);
@@ -48,17 +51,27 @@ public final class LinkageCodec
         checkArgument(sourceNodeIds.equals(attributesCodecsByNodeId.keySet()));
     }
 
-    public LinkageCodec(StatefulNode node)
+    public LinkageMapCodec(StatefulNode node)
     {
         this(node, ImmutableMap.of());
     }
 
-    private void encodeIdLinks(Linkage.IdLinks idLinks, Output output)
+    private void encodeIdLinks(NodeId nodeId, Linkage.IdLinks idLinks, Output output)
     {
         LONG_CODEC.encode(idLinks.getIds().size(), output);
         for (Id id : idLinks.getIds()) {
             VAR_BYTES_CODEC.encode(id.getValue(), output);
         }
+    }
+
+    private Linkage.IdLinks decodeIdLinks(NodeId nodeId, Input input)
+    {
+        int sz = (int) LONG_CODEC.decode(input);
+        ImmutableSet.Builder<Id> builder = ImmutableSet.builderWithExpectedSize(sz);
+        for (int i = 0; i < sz; ++i) {
+            builder.add(Id.of(VAR_BYTES_CODEC.decode(input)));
+        }
+        return new Linkage.IdLinks(builder.build());
     }
 
     private void encodeDenormalizedLinks(NodeId nodeId, Linkage.DenormalizedLinks denormalizedLinks, Output output)
@@ -71,11 +84,24 @@ public final class LinkageCodec
         }
     }
 
+    private Linkage.DenormalizedLinks decodeDenormalizedLinks(NodeId nodeId, Input input)
+    {
+        ScalarCodec<Object[]> attributesCodec = checkNotNull(attributesCodecsByNodeId.get(nodeId));
+        int sz = (int) LONG_CODEC.decode(input);
+        ImmutableMap.Builder<Id, Object[]> builder = ImmutableMap.builderWithExpectedSize(sz);
+        for (int i = 0; i < sz; ++i) {
+            builder.put(
+                    Id.of(VAR_BYTES_CODEC.decode(input)),
+                    attributesCodec.decode(input));
+        }
+        return new Linkage.DenormalizedLinks(builder.build());
+    }
+
     private void encodeLinks(NodeId nodeId, Linkage.Links links, Output output)
     {
         LONG_CODEC.encode(nodeId.getValue(), output);
         if (links instanceof Linkage.IdLinks) {
-            encodeIdLinks((Linkage.IdLinks) links, output);
+            encodeIdLinks(nodeId, (Linkage.IdLinks) links, output);
         }
         else if (links instanceof Linkage.DenormalizedLinks) {
             encodeDenormalizedLinks(nodeId, (Linkage.DenormalizedLinks) links, output);
@@ -85,22 +111,19 @@ public final class LinkageCodec
         }
     }
 
-    private void encodeLinksMap(Map<NodeId, Linkage.Links> linksMap, Output output)
+    @Override
+    public byte[] encode(Map<NodeId, Linkage.Links> linksMap)
     {
+        ByteArrayOutput output = new ByteArrayOutput();
         output.putLong(linksMap.size());
         for (Map.Entry<NodeId, Linkage.Links> entry : linksMap.entrySet()) {
             encodeLinks(entry.getKey(), entry.getValue(), output);
         }
+        return output.toByteArray();
     }
 
     @Override
-    public byte[] encode(Linkage data)
-    {
-        return new byte[0];
-    }
-
-    @Override
-    public Linkage decode(byte[] data)
+    public Map<NodeId, Linkage.Links> decode(byte[] data)
     {
         return null;
     }

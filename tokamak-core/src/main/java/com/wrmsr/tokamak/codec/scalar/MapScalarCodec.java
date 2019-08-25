@@ -76,7 +76,7 @@ public final class MapScalarCodec<K, V>
         else {
             sz = (int) input.getLong();
         }
-        ImmutableMap.Builder<K, V> builder = ImmutableMap.builder();
+        ImmutableMap.Builder<K, V> builder = ImmutableMap.builderWithExpectedSize(sz);
         for (int i = 0; i < sz; ++i) {
             builder.put(keyChild.decode(input), valueChild.decode(input));
         }

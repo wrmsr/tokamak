@@ -25,13 +25,13 @@ public final class StateCodec
 {
     private final StatefulNode node;
     private final ScalarCodec<Object[]> attributesCodec;
-    private final LinkageCodec linkageCodec;
+    private final LinkageMapCodec linkageMapCodec;
 
-    public StateCodec(StatefulNode node, ScalarCodec<Object[]> attributesCodec, LinkageCodec linkageCodec)
+    public StateCodec(StatefulNode node, ScalarCodec<Object[]> attributesCodec, LinkageMapCodec linkageMapCodec)
     {
         this.node = checkNotNull(node);
         this.attributesCodec = checkNotNull(attributesCodec);
-        this.linkageCodec = checkNotNull(linkageCodec);
+        this.linkageMapCodec = checkNotNull(linkageMapCodec);
     }
 
     @Override
