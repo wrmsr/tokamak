@@ -20,6 +20,11 @@ import static com.google.common.base.Preconditions.checkState;
 public final class ByteArrayInput
         implements Input
 {
+    /*
+    TODO:
+     - check all input consumed
+    */
+
     private final byte[] buf;
     private int pos;
     private int max;

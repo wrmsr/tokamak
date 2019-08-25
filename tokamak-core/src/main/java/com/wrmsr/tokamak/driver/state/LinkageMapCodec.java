@@ -17,6 +17,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.api.NodeId;
+import com.wrmsr.tokamak.codec.ByteArrayInput;
 import com.wrmsr.tokamak.codec.ByteArrayOutput;
 import com.wrmsr.tokamak.codec.Input;
 import com.wrmsr.tokamak.codec.Output;
@@ -97,27 +98,24 @@ public final class LinkageMapCodec
         return new Linkage.DenormalizedLinks(builder.build());
     }
 
-    private void encodeLinks(NodeId nodeId, Linkage.Links links, Output output)
-    {
-        LONG_CODEC.encode(nodeId.getValue(), output);
-        if (links instanceof Linkage.IdLinks) {
-            encodeIdLinks(nodeId, (Linkage.IdLinks) links, output);
-        }
-        else if (links instanceof Linkage.DenormalizedLinks) {
-            encodeDenormalizedLinks(nodeId, (Linkage.DenormalizedLinks) links, output);
-        }
-        else {
-            throw new IllegalArgumentException(links.toString());
-        }
-    }
-
     @Override
     public byte[] encode(Map<NodeId, Linkage.Links> linksMap)
     {
         ByteArrayOutput output = new ByteArrayOutput();
-        output.putLong(linksMap.size());
+        LONG_CODEC.encode(linksMap.size(), output);
         for (Map.Entry<NodeId, Linkage.Links> entry : linksMap.entrySet()) {
-            encodeLinks(entry.getKey(), entry.getValue(), output);
+            NodeId nodeId = entry.getKey();
+            Linkage.Links links = entry.getValue();
+            LONG_CODEC.encode(nodeId.getValue(), output);
+            if (links instanceof Linkage.IdLinks) {
+                encodeIdLinks(nodeId, (Linkage.IdLinks) links, output);
+            }
+            else if (links instanceof Linkage.DenormalizedLinks) {
+                encodeDenormalizedLinks(nodeId, (Linkage.DenormalizedLinks) links, output);
+            }
+            else {
+                throw new IllegalArgumentException(links.toString());
+            }
         }
         return output.toByteArray();
     }
@@ -125,6 +123,10 @@ public final class LinkageMapCodec
     @Override
     public Map<NodeId, Linkage.Links> decode(byte[] data)
     {
-        return null;
+        ByteArrayInput input = new ByteArrayInput(data);
+        int sz = (int) LONG_CODEC.decode(input);
+        ImmutableMap.Builder<NodeId, Linkage.Links> builder = ImmutableMap.builderWithExpectedSize(sz);
+
+        return builder.build();
     }
 }
