@@ -21,7 +21,7 @@ import java.util.List;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-public class HeterogeneousObjectArrayScalarCodec
+public final class HeterogeneousObjectArrayScalarCodec
         implements ScalarCodec<Object[]>
 {
     private final List<ScalarCodec> children;

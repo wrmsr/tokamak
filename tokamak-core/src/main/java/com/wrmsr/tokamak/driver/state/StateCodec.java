@@ -40,7 +40,7 @@ public final class StateCodec
         checkNotNull(state);
         checkArgument(state.getNode() == node);
 
-        byte[] attributes = null;
+        byte[] attributes = attributesCodec.encodeBytes(state.getAttributes());
         byte[] input = null;
         byte[] output = null;
 

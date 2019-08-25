@@ -11,7 +11,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.wrmsr.tokamak.codec.scalar;
 
 import com.google.common.collect.ImmutableMap;
@@ -27,7 +26,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.wrmsr.tokamak.util.MoreCollections.checkOrdered;
 
-public class FixedKeyObjectMapScalarCodec<K>
+public final class FixedKeyObjectMapScalarCodec<K>
         implements ScalarCodec<Map<K, Object>>
 {
     private final Map<K, ScalarCodec> childrenByKey;
