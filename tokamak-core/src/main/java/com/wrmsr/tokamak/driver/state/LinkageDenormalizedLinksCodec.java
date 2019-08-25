@@ -13,6 +13,20 @@
  */
 package com.wrmsr.tokamak.driver.state;
 
-public class LinkageDenormalizedLinksCodec
+import com.wrmsr.tokamak.util.codec.Codec;
+
+public final class LinkageDenormalizedLinksCodec
+        implements Codec<Linkage.DenormalizedLinks, byte[]>
 {
+    @Override
+    public byte[] encode(Linkage.DenormalizedLinks data)
+    {
+        return new byte[0];
+    }
+
+    @Override
+    public Linkage.DenormalizedLinks decode(byte[] data)
+    {
+        return null;
+    }
 }
