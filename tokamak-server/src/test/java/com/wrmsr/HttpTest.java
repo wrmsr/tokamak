@@ -13,12 +13,14 @@
  */
 package com.wrmsr;
 
+import com.wrmsr.util.HttpClient;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import org.glassfish.hk2.api.Factory;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.netty.httpserver.NettyHttpContainerProvider;
 import org.glassfish.jersey.process.internal.RequestScoped;
+import org.glassfish.jersey.server.ContainerRequest;
 import org.glassfish.jersey.server.ResourceConfig;
 
 import javax.inject.Inject;
@@ -45,6 +47,7 @@ public class HttpTest
         @GET
         public String get(
                 @Context UriInfo urlInfo,
+                @Context ContainerRequest request,
                 @Context MyObj myObj,
                 @Context ChannelHandlerContext channelHandlerContext)
         {
@@ -110,6 +113,10 @@ public class HttpTest
         ResourceConfig resourceConfig = new ResourceConfig(HelloWorldResource.class);
         resourceConfig.register(new MyObjFactory.Binder());
         Channel server = NettyHttpContainerProvider.createServer(baseUri, resourceConfig, false);
+
+        Thread.currentThread().sleep(500);
+
+        new HttpClient("localhost", 9998).request("GET", "helloworld");
 
         Thread.currentThread().sleep(300000);
 

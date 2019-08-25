@@ -32,6 +32,7 @@ public final class State
 {
     public enum Mode
     {
+        NOT_SET,
         INVALID,
         PHANTOM,
         SHARED,
@@ -58,7 +59,7 @@ public final class State
         }
     }
 
-    private final StateContext context;
+    private final StatefulNode node;
     private final Id id;
     private Mode mode;
     private long version;
@@ -81,11 +82,42 @@ public final class State
     @Nullable
     private ModeCallback modeCallback;
 
-    public State(StateContext context, Id id, Mode mode)
+    public State(StatefulNode node, Id id, Mode mode)
     {
-        this.context = checkNotNull(context);
+        checkArgument(mode != Mode.NOT_SET);
+        this.node = checkNotNull(node);
         this.id = checkNotNull(id);
         this.mode = checkNotNull(mode);
+    }
+
+    private State(
+            StatefulNode node,
+            Id id,
+            long version,
+            @Nullable Object[] attributes,
+            @Nullable Linkage linkage)
+    {
+        this.node = checkNotNull(node);
+        this.id = checkNotNull(id);
+        this.version = version;
+        this.attributes = attributes;
+        this.linkage = linkage;
+        mode = Mode.NOT_SET;
+    }
+
+    public static State newFromStorage(
+            StatefulNode node,
+            Id id,
+            long version,
+            @Nullable Object[] attributes,
+            @Nullable Linkage linkage)
+    {
+        return new State(
+                node,
+                id,
+                version,
+                attributes,
+                linkage);
     }
 
     @Override
@@ -98,14 +130,9 @@ public final class State
                 '}';
     }
 
-    public StateContext getContext()
-    {
-        return context;
-    }
-
     public StatefulNode getNode()
     {
-        return context.getNode();
+        return node;
     }
 
     @Override
@@ -170,9 +197,16 @@ public final class State
         checkNotNull(linkage);
     }
 
+    private void checkMode()
+    {
+        if (mode == Mode.NOT_SET) {
+            throw new ModeException(this);
+        }
+    }
+
     private void checkMode(boolean condition)
     {
-        if (!condition) {
+        if (mode == Mode.NOT_SET || !condition) {
             throw new ModeException(this);
         }
     }

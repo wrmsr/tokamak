@@ -21,6 +21,8 @@ import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.driver.DriverRow;
 import com.wrmsr.tokamak.driver.LineagePolicy;
+import com.wrmsr.tokamak.driver.context.row.RowCache;
+import com.wrmsr.tokamak.driver.context.row.RowCacheImpl;
 import com.wrmsr.tokamak.node.ScanNode;
 import com.wrmsr.tokamak.type.Type;
 import junit.framework.TestCase;

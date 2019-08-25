@@ -11,26 +11,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.wrmsr.tokamak.driver.state;
 
-import com.wrmsr.tokamak.node.StatefulNode;
+import com.wrmsr.tokamak.util.codec.Codec;
 
-import javax.annotation.concurrent.Immutable;
-
-import static com.google.common.base.Preconditions.checkNotNull;
-
-@Immutable
-public final class StateContext
+public final class LinkageCodec
+        implements Codec<Linkage, byte[]>
 {
-    private final StatefulNode node;
-
-    public StateContext(StatefulNode node)
+    @Override
+    public byte[] encode(Linkage data)
     {
-        this.node = checkNotNull(node);
+        return new byte[0];
     }
 
-    public StatefulNode getNode()
+    @Override
+    public Linkage decode(byte[] data)
     {
-        return node;
+        return null;
     }
 }

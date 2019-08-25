@@ -20,7 +20,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public final class StateCodec
-    implements Codec<State, StorageState>
+        implements Codec<State, StorageState>
 {
     private final StatefulNode node;
 
@@ -34,7 +34,20 @@ public final class StateCodec
     {
         checkNotNull(state);
         checkArgument(state.getNode() == node);
-        return null;
+
+        byte[] attributes = null;
+        byte[] input = null;
+        byte[] output = null;
+
+        return new StorageState(
+                node,
+                state.getId(),
+                state.getVersion(),
+                0.0f,
+                0.0f,
+                attributes,
+                input,
+                output);
     }
 
     @Override
@@ -42,6 +55,15 @@ public final class StateCodec
     {
         checkNotNull(storageState);
         checkArgument(storageState.getNode() == node);
-        return null;
+
+        Object[] attributes = null;
+        Linkage linkage = null;
+
+        return State.newFromStorage(
+                node,
+                storageState.getId(),
+                storageState.getVersion(),
+                attributes,
+                linkage);
     }
 }
