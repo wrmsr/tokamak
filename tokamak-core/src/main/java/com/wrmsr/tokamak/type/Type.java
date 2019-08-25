@@ -18,14 +18,15 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import com.google.common.collect.ImmutableMap;
 
 import java.util.Map;
+import java.util.OptionalInt;
 
 public interface Type
 {
-    PrimitiveType BOOLEAN = new PrimitiveType<>(Boolean.class);
-    PrimitiveType LONG = new PrimitiveType<>(Long.class);
-    PrimitiveType DOUBLE = new PrimitiveType<>(Double.class);
-    PrimitiveType STRING = new PrimitiveType<>(String.class);
-    PrimitiveType BYTES = new PrimitiveType<>(byte[].class);
+    PrimitiveType BOOLEAN = new PrimitiveType<>(Boolean.class, OptionalInt.of(1));
+    PrimitiveType LONG = new PrimitiveType<>(Long.class, OptionalInt.of(8));
+    PrimitiveType DOUBLE = new PrimitiveType<>(Double.class, OptionalInt.of(8));
+    PrimitiveType STRING = new PrimitiveType<>(String.class, OptionalInt.empty());
+    PrimitiveType BYTES = new PrimitiveType<>(byte[].class, OptionalInt.empty());
 
     Map<Class<?>, Type> FROM_JAVA_TYPE = ImmutableMap.<Class<?>, Type>builder()
             .put(Boolean.class, BOOLEAN)
@@ -34,6 +35,11 @@ public interface Type
             .put(String.class, STRING)
             .put(byte[].class, BYTES)
             .build();
+
+    default OptionalInt getFixedSize()
+    {
+        return OptionalInt.empty();
+    }
 
     @JsonValue
     default String toRepr()

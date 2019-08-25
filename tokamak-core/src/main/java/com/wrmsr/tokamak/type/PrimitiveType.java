@@ -15,15 +15,21 @@ package com.wrmsr.tokamak.type;
 
 import javax.annotation.concurrent.Immutable;
 
+import java.util.OptionalInt;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+
 @Immutable
 public final class PrimitiveType<T>
         implements Type
 {
     private final Class<T> cls;
+    private final OptionalInt fixedSize;
 
-    public PrimitiveType(Class<T> cls)
+    public PrimitiveType(Class<T> cls, OptionalInt fixedSize)
     {
         this.cls = cls;
+        this.fixedSize = checkNotNull(fixedSize);
     }
 
     @Override
@@ -31,7 +37,14 @@ public final class PrimitiveType<T>
     {
         return "PrimitiveType{" +
                 "cls=" + cls +
+                ", fixedSize=" + fixedSize +
                 '}';
+    }
+
+    @Override
+    public OptionalInt getFixedSize()
+    {
+        return fixedSize;
     }
 
     public Class<T> getCls()

@@ -16,6 +16,11 @@ package com.wrmsr.tokamak.driver;
 import com.wrmsr.tokamak.codec.row.CompositeRowCodec;
 import com.wrmsr.tokamak.codec.row.RowCodec;
 import com.wrmsr.tokamak.codec.row.RowCodecs;
+import com.wrmsr.tokamak.codec.scalar.HeterogeneousObjectArrayScalarCodec;
+import com.wrmsr.tokamak.codec.scalar.NullableScalarCodec;
+import com.wrmsr.tokamak.codec.scalar.ScalarCodec;
+import com.wrmsr.tokamak.codec.scalar.ScalarCodecs;
+import com.wrmsr.tokamak.codec.scalar.VariableLengthScalarCodec;
 import com.wrmsr.tokamak.node.EquijoinNode;
 import com.wrmsr.tokamak.node.FilterNode;
 import com.wrmsr.tokamak.node.ListAggregateNode;
@@ -29,6 +34,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
@@ -95,7 +101,7 @@ public final class CodecManager
 
     private final Map<StatefulNode, RowCodec> rowCodecsByStatefulNode = new HashMap<>();
 
-    public RowCodec getRowIdCodec(StatefulNode node)
+    public RowCodec getRowCodec(StatefulNode node)
     {
         RowCodec rowCodec = rowCodecsByStatefulNode.get(node);
         if (rowCodec != null) {
@@ -105,5 +111,30 @@ public final class CodecManager
         rowCodec = RowCodecs.buildRowCodec(node.getFields());
         rowCodecsByStatefulNode.put(node, rowCodec);
         return rowCodec;
+    }
+
+    private final Map<StatefulNode, ScalarCodec<Object[]>> attributesCodecsByStatefulNode = new HashMap<>();
+
+    public ScalarCodec<Object[]> getAttributesCodec(StatefulNode node)
+    {
+        ScalarCodec<Object[]> attributesCodec = attributesCodecsByStatefulNode.get(node);
+        if (attributesCodec != null) {
+            return attributesCodec;
+        }
+
+        List<ScalarCodec> parts = node.getFields().values().stream()
+                .map(t -> {
+                    ScalarCodec codec = checkNotNull(ScalarCodecs.SCALAR_CODECS_BY_TYPE.get(t));
+                    if (!t.getFixedSize().isPresent()) {
+                        codec = new VariableLengthScalarCodec(codec);
+                    }
+                    codec = new NullableScalarCodec(codec);
+                    return codec;
+                })
+                .collect(toImmutableList());
+        attributesCodec = new HeterogeneousObjectArrayScalarCodec(parts);
+
+        attributesCodecsByStatefulNode.put(node, attributesCodec);
+        return attributesCodec;
     }
 }

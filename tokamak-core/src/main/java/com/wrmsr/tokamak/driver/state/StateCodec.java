@@ -13,6 +13,7 @@
  */
 package com.wrmsr.tokamak.driver.state;
 
+import com.wrmsr.tokamak.codec.scalar.ScalarCodec;
 import com.wrmsr.tokamak.node.StatefulNode;
 import com.wrmsr.tokamak.util.codec.Codec;
 
@@ -23,10 +24,14 @@ public final class StateCodec
         implements Codec<State, StorageState>
 {
     private final StatefulNode node;
+    private final ScalarCodec<Object[]> attributesCodec;
+    private final LinkageCodec linkageCodec;
 
-    public StateCodec(StatefulNode node)
+    public StateCodec(StatefulNode node, ScalarCodec<Object[]> attributesCodec, LinkageCodec linkageCodec)
     {
         this.node = checkNotNull(node);
+        this.attributesCodec = checkNotNull(attributesCodec);
+        this.linkageCodec = checkNotNull(linkageCodec);
     }
 
     @Override
