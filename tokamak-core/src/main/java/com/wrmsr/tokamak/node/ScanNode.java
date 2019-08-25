@@ -22,7 +22,7 @@ import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.node.visitor.NodeVisitor;
 import com.wrmsr.tokamak.type.Type;
-import com.wrmsr.tokamak.util.OrderPreservingImmutableMap;
+import com.wrmsr.tokamak.util.collect.OrderPreservingImmutableMap;
 
 import javax.annotation.concurrent.Immutable;
 

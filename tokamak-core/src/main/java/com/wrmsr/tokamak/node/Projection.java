@@ -33,8 +33,8 @@ import com.wrmsr.tokamak.func.RowViewFunction;
 import com.wrmsr.tokamak.func.UnaryFunction;
 import com.wrmsr.tokamak.func.VariadicFunction;
 import com.wrmsr.tokamak.type.Type;
-import com.wrmsr.tokamak.util.OrderPreservingImmutableMap;
-import com.wrmsr.tokamak.util.StreamableIterable;
+import com.wrmsr.tokamak.util.collect.OrderPreservingImmutableMap;
+import com.wrmsr.tokamak.util.collect.StreamableIterable;
 
 import javax.annotation.concurrent.Immutable;
 

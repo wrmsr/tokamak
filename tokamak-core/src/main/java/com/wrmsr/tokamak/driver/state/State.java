@@ -15,6 +15,7 @@ package com.wrmsr.tokamak.driver.state;
 
 import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.api.Row;
+import com.wrmsr.tokamak.layout.RowView;
 import com.wrmsr.tokamak.node.StatefulNode;
 
 import javax.annotation.Nullable;
@@ -165,6 +166,18 @@ public final class State
         return linkage;
     }
 
+    public boolean isNull()
+    {
+        checkMode(mode != Mode.INVALID);
+        return attributes == null;
+    }
+
+    public RowView getRowView()
+    {
+        checkMode(mode != Mode.INVALID);
+        return new RowView(node.getRowLayout(), attributes);
+    }
+
     public BitSet getUpdatedFieldBitSet()
     {
         checkMode(mode != Mode.MODIFIED);
@@ -173,7 +186,9 @@ public final class State
 
     public Set<String> getUpdatedFields()
     {
-        return getUpdatedFieldBitSet().stream().mapToObj(getNode().getRowLayout().getFields()::get).collect(toImmutableSet());
+        return getUpdatedFieldBitSet().stream()
+                .mapToObj(getNode().getRowLayout().getFields()::get)
+                .collect(toImmutableSet());
     }
 
     public State setModeCallback(ModeCallback modeCallback)

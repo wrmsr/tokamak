@@ -16,7 +16,7 @@ package com.wrmsr.tokamak.codec.row;
 import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.codec.Input;
 import com.wrmsr.tokamak.codec.Output;
-import com.wrmsr.tokamak.util.StreamableIterable;
+import com.wrmsr.tokamak.util.collect.StreamableIterable;
 
 import java.util.Iterator;
 import java.util.List;

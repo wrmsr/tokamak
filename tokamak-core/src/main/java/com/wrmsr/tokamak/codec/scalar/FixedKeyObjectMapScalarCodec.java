@@ -17,7 +17,7 @@ package com.wrmsr.tokamak.codec.scalar;
 import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.codec.Input;
 import com.wrmsr.tokamak.codec.Output;
-import com.wrmsr.tokamak.util.ObjectArrayBackedMap;
+import com.wrmsr.tokamak.util.collect.ObjectArrayBackedMap;
 import com.wrmsr.tokamak.util.Pair;
 
 import java.util.List;

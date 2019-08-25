@@ -34,7 +34,7 @@ import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 import static java.util.function.Function.identity;
 
-public class CodecManager
+public final class CodecManager
 {
     private final Map<Node, RowCodec> rowIdCodecsByNode = new HashMap<>();
 
@@ -103,8 +103,7 @@ public class CodecManager
         }
 
         rowCodec = RowCodecs.buildRowCodec(node.getFields());
-        rowIdCodecsByNode.put(node, rowCodec);
+        rowCodecsByStatefulNode.put(node, rowCodec);
         return rowCodec;
     }
-
 }

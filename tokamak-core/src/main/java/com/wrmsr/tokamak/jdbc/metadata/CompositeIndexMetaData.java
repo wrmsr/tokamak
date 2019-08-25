@@ -15,7 +15,7 @@ package com.wrmsr.tokamak.jdbc.metadata;
 
 import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.jdbc.JdbcTableIdentifier;
-import com.wrmsr.tokamak.util.StreamableIterable;
+import com.wrmsr.tokamak.util.collect.StreamableIterable;
 
 import java.util.Iterator;
 import java.util.List;

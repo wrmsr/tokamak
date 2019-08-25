@@ -17,6 +17,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
+import com.wrmsr.tokamak.util.collect.Ordered;
 
 import java.util.ArrayList;
 import java.util.Collection;

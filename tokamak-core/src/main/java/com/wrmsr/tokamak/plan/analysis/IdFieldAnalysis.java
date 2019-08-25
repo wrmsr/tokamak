@@ -30,7 +30,7 @@ import com.wrmsr.tokamak.node.UnnestNode;
 import com.wrmsr.tokamak.node.ValuesNode;
 import com.wrmsr.tokamak.node.visitor.CachingNodeVisitor;
 import com.wrmsr.tokamak.node.visitor.NodeVisitors;
-import com.wrmsr.tokamak.util.StreamableIterable;
+import com.wrmsr.tokamak.util.collect.StreamableIterable;
 
 import javax.annotation.concurrent.Immutable;
 

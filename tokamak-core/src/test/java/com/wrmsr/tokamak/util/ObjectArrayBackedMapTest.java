@@ -14,6 +14,7 @@
 package com.wrmsr.tokamak.util;
 
 import com.google.common.collect.ImmutableList;
+import com.wrmsr.tokamak.util.collect.ObjectArrayBackedMap;
 import junit.framework.TestCase;
 
 public class ObjectArrayBackedMapTest

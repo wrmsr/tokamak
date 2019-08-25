@@ -14,7 +14,7 @@
 package com.wrmsr.tokamak.layout;
 
 import com.google.common.collect.ImmutableList;
-import com.wrmsr.tokamak.util.StreamableIterable;
+import com.wrmsr.tokamak.util.collect.StreamableIterable;
 
 import javax.annotation.concurrent.Immutable;
 
