@@ -15,60 +15,72 @@ package com.wrmsr.tokamak.layout;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
+import com.wrmsr.tokamak.type.StructType;
 import com.wrmsr.tokamak.type.Type;
+import com.wrmsr.tokamak.util.collect.ObjectArrayBackedMap;
 
 import javax.annotation.concurrent.Immutable;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.IntStream;
 
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
+import static com.wrmsr.tokamak.util.MoreCollections.checkOrdered;
 import static java.util.function.Function.identity;
 
 @Immutable
 public final class RowLayout
 {
-    private final List<String> fields;
-    private final Set<String> fieldSet;
-    private final Map<String, Type> typesByField;
+    private final Map<String, Type> fields;
+
+    private final List<String> fieldNames;
     private final Map<String, Integer> positionsByField;
 
-    public RowLayout(Map<String, Type> typesByField)
+    private final StructType structType;
+    private final ObjectArrayBackedMap.Shape<String> shape;
+
+    public RowLayout(Map<String, Type> fields)
     {
-        this.typesByField = ImmutableMap.copyOf(typesByField);
-        fields = ImmutableList.copyOf(typesByField.keySet());
-        fieldSet = ImmutableSet.copyOf(fields);
-        positionsByField = IntStream.range(0, fields.size()).boxed().collect(toImmutableMap(fields::get, identity()));
+        this.fields = ImmutableMap.copyOf(checkOrdered(fields));
+
+        fieldNames = ImmutableList.copyOf(this.fields.keySet());
+        positionsByField = IntStream.range(0, fields.size()).boxed().collect(toImmutableMap(fieldNames::get, identity()));
+
+        structType = new StructType(this.fields);
+        shape = ObjectArrayBackedMap.Shape.of(fieldNames);
     }
 
     @Override
     public String toString()
     {
         return "RowLayout{" +
-                "typesByField=" + typesByField +
+                "fields=" + fields +
                 '}';
     }
 
-    public List<String> getFields()
+    public Map<String, Type> getFields()
     {
         return fields;
     }
 
-    public Set<String> getFieldSet()
+    public List<String> getFieldNames()
     {
-        return fieldSet;
-    }
-
-    public Map<String, Type> getTypesByField()
-    {
-        return typesByField;
+        return fieldNames;
     }
 
     public Map<String, Integer> getPositionsByField()
     {
         return positionsByField;
+    }
+
+    public StructType getStructType()
+    {
+        return structType;
+    }
+
+    public ObjectArrayBackedMap.Shape<String> getShape()
+    {
+        return shape;
     }
 }

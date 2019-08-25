@@ -74,7 +74,7 @@ public final class RowView
     @Override
     public boolean containsKey(Object key)
     {
-        return rowLayout.getFieldSet().contains(key);
+        return rowLayout.getFields().containsKey(key);
     }
 
     @Override
@@ -128,7 +128,7 @@ public final class RowView
     @Override
     public Set<String> keySet()
     {
-        return rowLayout.getFieldSet();
+        return rowLayout.getFields().keySet();
     }
 
     @Override
@@ -141,7 +141,7 @@ public final class RowView
     public Set<Entry<String, Object>> entrySet()
     {
         return IntStream.range(0, rowLayout.getFields().size()).mapToObj(
-                i -> new Pair.Immutable<String, Object>(rowLayout.getFields().get(i), attributes[i])
+                i -> Pair.immutable(rowLayout.getFieldNames().get(i), attributes[i])
         ).collect(toImmutableSet());
     }
 }

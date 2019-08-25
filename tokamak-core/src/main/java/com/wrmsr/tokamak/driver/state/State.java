@@ -187,7 +187,7 @@ public final class State
     public Set<String> getUpdatedFields()
     {
         return getUpdatedFieldBitSet().stream()
-                .mapToObj(getNode().getRowLayout().getFields()::get)
+                .mapToObj(getNode().getRowLayout().getFieldNames()::get)
                 .collect(toImmutableSet());
     }
 

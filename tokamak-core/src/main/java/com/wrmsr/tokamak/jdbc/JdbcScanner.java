@@ -62,12 +62,12 @@ public final class JdbcScanner
         this.fields = ImmutableSet.copyOf(checkOrdered(fields));
 
         for (String field : this.fields) {
-            checkArgument(tableLayout.getRowLayout().getFields().contains(field));
+            checkArgument(tableLayout.getRowLayout().getFields().containsKey(field));
         }
 
         rowLayout = new RowLayout(
                 fields.stream()
-                        .collect(toImmutableMap(identity(), tableLayout.getRowLayout().getTypesByField()::get)));
+                        .collect(toImmutableMap(identity(), tableLayout.getRowLayout().getFields()::get)));
 
         idFields = ImmutableSet.copyOf(tableLayout.getPrimaryKey().getFields());
     }
@@ -103,7 +103,7 @@ public final class JdbcScanner
         private Instance(Set<String> keyFields)
         {
             this.keyFields = ImmutableSet.copyOf(keyFields);
-            this.keyFields.forEach(f -> checkArgument(tableLayout.getRowLayout().getFields().contains(f)));
+            this.keyFields.forEach(f -> checkArgument(tableLayout.getRowLayout().getFields().containsKey(f)));
 
             keyHasIdFields = Sets.difference(idFields, keyFields).isEmpty();
 
