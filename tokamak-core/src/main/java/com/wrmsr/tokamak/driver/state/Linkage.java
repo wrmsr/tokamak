@@ -98,6 +98,10 @@ public final class Linkage
     private final Map<NodeId, Links> input;
     private final Map<NodeId, Links> output;
 
+    public static final Linkage EMPTY = new Linkage(
+            ImmutableMap.of(),
+            ImmutableMap.of());
+
     public Linkage(Map<NodeId, Links> input, Map<NodeId, Links> output)
     {
         this.input = ImmutableMap.copyOf(input);

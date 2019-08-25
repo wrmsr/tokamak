@@ -108,9 +108,11 @@ public final class LinkageMapCodec
             Linkage.Links links = entry.getValue();
             LONG_CODEC.encode(nodeId.getValue(), output);
             if (links instanceof Linkage.IdLinks) {
+                output.put((byte) 0);
                 encodeIdLinks(nodeId, (Linkage.IdLinks) links, output);
             }
             else if (links instanceof Linkage.DenormalizedLinks) {
+                output.put((byte) 1);
                 encodeDenormalizedLinks(nodeId, (Linkage.DenormalizedLinks) links, output);
             }
             else {
@@ -126,7 +128,21 @@ public final class LinkageMapCodec
         ByteArrayInput input = new ByteArrayInput(data);
         int sz = (int) LONG_CODEC.decode(input);
         ImmutableMap.Builder<NodeId, Linkage.Links> builder = ImmutableMap.builderWithExpectedSize(sz);
-
+        for (int i = 0; i < sz; ++i) {
+            NodeId nodeId = NodeId.of((int) LONG_CODEC.decode(input));
+            byte tag = input.get();
+            Linkage.Links links;
+            if (tag == (byte) 0) {
+                links = decodeIdLinks(nodeId, input);
+            }
+            else if (tag == (byte) 1) {
+                links = decodeDenormalizedLinks(nodeId, input);
+            }
+            else {
+                throw new IllegalStateException(Byte.toString(tag));
+            }
+            builder.put(nodeId, links);
+        }
         return builder.build();
     }
 }

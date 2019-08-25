@@ -58,6 +58,11 @@ public final class NodeId
         return new NodeId(Integer.parseInt(string, 16));
     }
 
+    public static NodeId of(int value)
+    {
+        return new NodeId(value);
+    }
+
     public static NodeId of(String name)
     {
         checkNotEmpty(name);

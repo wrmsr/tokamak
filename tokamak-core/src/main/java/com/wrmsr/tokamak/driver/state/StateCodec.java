@@ -27,7 +27,10 @@ public final class StateCodec
     private final ScalarCodec<Object[]> attributesCodec;
     private final LinkageMapCodec linkageMapCodec;
 
-    public StateCodec(StatefulNode node, ScalarCodec<Object[]> attributesCodec, LinkageMapCodec linkageMapCodec)
+    public StateCodec(
+            StatefulNode node,
+            ScalarCodec<Object[]> attributesCodec,
+            LinkageMapCodec linkageMapCodec)
     {
         this.node = checkNotNull(node);
         this.attributesCodec = checkNotNull(attributesCodec);
@@ -40,9 +43,17 @@ public final class StateCodec
         checkNotNull(state);
         checkArgument(state.getNode() == node);
 
-        byte[] attributes = attributesCodec.encodeBytes(state.getAttributes());
+        byte[] attributes = null;
+        if (state.getAttributes() != null) {
+            attributes = attributesCodec.encodeBytes(state.getAttributes());
+        }
+
         byte[] input = null;
         byte[] output = null;
+        if (state.getLinkage() != null) {
+            input = linkageMapCodec.encode(state.getLinkage().getInput());
+            output = linkageMapCodec.encode(state.getLinkage().getOutput());
+        }
 
         return new StorageState(
                 node,
@@ -62,7 +73,17 @@ public final class StateCodec
         checkArgument(storageState.getNode() == node);
 
         Object[] attributes = null;
+        if (storageState.getAttributes() != null) {
+            attributes = attributesCodec.decodeBytes(storageState.getAttributes());
+        }
+
         Linkage linkage = null;
+        if (storageState.getInput() != null || storageState.getOutput() != null) {
+            checkArgument(storageState.getInput() != null && storageState.getOutput() != null);
+            linkage = new Linkage(
+                    linkageMapCodec.decode(storageState.getInput()),
+                    linkageMapCodec.decode(storageState.getOutput()));
+        }
 
         return State.newFromStorage(
                 node,

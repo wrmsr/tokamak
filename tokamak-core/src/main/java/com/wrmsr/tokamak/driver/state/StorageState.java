@@ -19,6 +19,7 @@ import com.wrmsr.tokamak.node.StatefulNode;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
@@ -50,6 +51,7 @@ public final class StorageState
             @Nullable byte[] input,
             @Nullable byte[] output)
     {
+        checkArgument((input == null) == (output == null));
         this.node = checkNotNull(node);
         this.id = checkNotNull(id);
         this.version = version;
