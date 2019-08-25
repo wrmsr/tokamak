@@ -17,12 +17,12 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.CharStreams;
-import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.api.Row;
 import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.catalog.Catalog;
 import com.wrmsr.tokamak.catalog.Schema;
+import com.wrmsr.tokamak.driver.Driver;
 import com.wrmsr.tokamak.driver.DriverImpl;
 import com.wrmsr.tokamak.func.RowViewFunction;
 import com.wrmsr.tokamak.jdbc.JdbcConnector;
@@ -33,15 +33,16 @@ import com.wrmsr.tokamak.node.Node;
 import com.wrmsr.tokamak.node.ProjectNode;
 import com.wrmsr.tokamak.node.Projection;
 import com.wrmsr.tokamak.node.ScanNode;
+import com.wrmsr.tokamak.plan.Dot;
 import com.wrmsr.tokamak.plan.Plan;
 import com.wrmsr.tokamak.type.Type;
-import com.wrmsr.tokamak.util.MoreBytes;
 import io.airlift.tpch.TpchTable;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import org.jdbi.v3.core.Jdbi;
 
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
@@ -122,15 +123,20 @@ public class AppTest
 
     // https://docs.oracle.com/javase/tutorial/jdbc/basics/prepared.html
 
-    public void testTpch()
-            throws Throwable
+    private void clearDatabase()
+            throws IOException
     {
-        String ddl = CharStreams.toString(new InputStreamReader(AppTest.class.getResourceAsStream("tpch_ddl.sql")));
         // String url = "jdbc:h2:mem:test";
         try (DirectoryStream<Path> ds = Files.newDirectoryStream(Paths.get("temp"), "test.db*")) {
             ds.forEach(p -> checkState(p.toFile().delete()));
         }
-        String url = "jdbc:h2:file:./temp/test.db;USER=username;PASSWORD=password";
+    }
+
+    private void buildDatabase(String url)
+            throws IOException
+    {
+        String ddl = CharStreams.toString(new InputStreamReader(AppTest.class.getResourceAsStream("tpch_ddl.sql")));
+
         Jdbi jdbi = Jdbi.create(url);
         jdbi.withHandle(handle -> {
             for (String stmt : JdbcUtils.splitSql(ddl)) {
@@ -142,13 +148,20 @@ public class AppTest
             handle.commit();
             return null;
         });
+    }
 
+    private Catalog buildCatalog(String url)
+    {
         Catalog catalog = new Catalog();
         JdbcConnector jdbcConnector = new JdbcConnector("jdbc", url);
         Schema schema = catalog.getOrBuildSchema("PUBLIC", jdbcConnector);
         schema.getOrBuildTable("NATION");
         schema.getOrBuildTable("REGION");
+        return catalog;
+    }
 
+    private Plan buildPlan(Catalog catalog)
+    {
         Node scanNode0 = new ScanNode(
                 "scan0",
                 SchemaTable.of("PUBLIC", "NATION"),
@@ -178,28 +191,6 @@ public class AppTest
                         "N_REGIONKEY", "N_REGIONKEY"
                 ));
 
-        Plan plan = new Plan(projectNode0);
-
-        DriverImpl driver = new DriverImpl(catalog, plan);
-
-        Collection<Row> buildRows = driver.build(
-                driver.createContext(),
-                plan.getRoot(),
-                Key.of("N_NATIONKEY", 10));
-        System.out.println(buildRows);
-
-        buildRows = driver.build(
-                driver.createContext(),
-                plan.getRoot(),
-                Key.of(Id.of(MoreBytes.fromHex("0000000000000001"))));
-        System.out.println(buildRows);
-
-        buildRows = driver.build(
-                driver.createContext(),
-                plan.getRoot(),
-                Key.all());
-        System.out.println(buildRows);
-
         Node scanNode1 = new ScanNode(
                 "scan1",
                 SchemaTable.of("PUBLIC", "REGION"),
@@ -221,14 +212,30 @@ public class AppTest
                 ),
                 EquijoinNode.Mode.INNER);
 
-        plan = new Plan(equijoinNode0);
+        return new Plan(equijoinNode0);
+    }
 
-        driver = new DriverImpl(catalog, plan);
+    public void testTpch()
+            throws Throwable
+    {
+        clearDatabase();
 
-        buildRows = driver.build(
+        String url = "jdbc:h2:file:./temp/test.db;USER=username;PASSWORD=password";
+
+        buildDatabase(url);
+
+        Catalog catalog = buildCatalog(url);
+
+        Plan plan = buildPlan(catalog);
+
+        Driver driver = new DriverImpl(catalog, plan);
+
+        Collection<Row> buildRows = driver.build(
                 driver.createContext(),
                 plan.getRoot(),
                 Key.of("N_NATIONKEY", 10));
         System.out.println(buildRows);
+
+        Dot.openDot(Dot.buildPlanDot(plan));
     }
 }

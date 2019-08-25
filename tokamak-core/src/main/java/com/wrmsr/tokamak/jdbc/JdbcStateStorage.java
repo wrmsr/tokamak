@@ -34,13 +34,15 @@ public class JdbcStateStorage
         implements StateStorage
 {
     /*
-    byte[] id primary key;
-    datetime created_at
-    datetime updated_at
-    long version;
-    byte[] attributes;
-    byte[] input;
-    byte[] output;
+    create table state(
+        id varbinary(255) not null primary key,
+        version version not null,
+        created_at datetime not null default current_timestamp,
+        updated_at datetime not null default current_timestamp,
+        attributes longblob,
+        input longblob,
+        output longblob
+    );
     */
 
     private final Jdbi jdbi;

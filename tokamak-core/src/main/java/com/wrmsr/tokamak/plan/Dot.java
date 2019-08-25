@@ -13,9 +13,14 @@
  */
 package com.wrmsr.tokamak.plan;
 
+import com.wrmsr.tokamak.node.Node;
+import com.wrmsr.tokamak.node.visitor.CachingNodeVisitor;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.TimeUnit;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public final class Dot
 {
@@ -23,10 +28,39 @@ public final class Dot
     {
     }
 
+    public static class Visitor
+            extends CachingNodeVisitor<String, Void>
+    {
+        private final Plan plan;
+
+        public Visitor(Plan plan)
+        {
+            this.plan = checkNotNull(plan);
+        }
+
+        @Override
+        protected String visitNode(Node node, Void context)
+        {
+            return String.format("%s [label=%s];", node.getName(), node.getName());
+        }
+    }
+
     public static String buildPlanDot(Plan plan)
     {
         StringBuilder sb = new StringBuilder();
         sb.append("digraph G {\n");
+
+        Visitor visitor = new Visitor(plan);
+        for (Node node : plan.getToposortedNodes()) {
+            sb.append(node.accept(visitor, null));
+            sb.append("\n");
+        }
+
+        for (Node node : plan.getToposortedNodes()) {
+            for (Node source : node.getSources()) {
+                sb.append(String.format("%s -> %s;\n", source.getName(), node.getName()));
+            }
+        }
 
         sb.append("}\n");
         return sb.toString();
