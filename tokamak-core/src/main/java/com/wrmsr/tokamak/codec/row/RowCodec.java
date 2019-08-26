@@ -35,6 +35,8 @@ public interface RowCodec
      - packed
      - salting
      - vints
+     - bulks (for denorms)
+     - dumbass jackson/json Maps for dbg
     */
 
     void encode(Map<String, Object> row, Output output);

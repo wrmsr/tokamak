@@ -13,22 +13,39 @@
  */
 package com.wrmsr.tokamak.catalog.heap;
 
+import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.catalog.Connection;
 import com.wrmsr.tokamak.catalog.Scanner;
+import com.wrmsr.tokamak.catalog.heap.table.HeapTable;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public class HeapScanner
         implements Scanner
 {
+    private final HeapConnector connector;
+    private final HeapTable table;
+    private final Set<String> fields;
+
+    public HeapScanner(HeapConnector connector, HeapTable table, Set<String> fields)
+    {
+        this.connector = checkNotNull(connector);
+        this.table = checkNotNull(table);
+        this.fields = ImmutableSet.copyOf(fields);
+        checkArgument(table.getTableLayout().getRowLayout().getFields().keySet().containsAll(this.fields));
+    }
+
     @Override
     public List<Map<String, Object>> scan(Connection connection, Key key)
     {
         HeapConnection heapConnection = (HeapConnection) checkNotNull(connection);
-        return null;
+        checkArgument(heapConnection.getHeapConnector() == connector);
+        return table.scan(fields, key);
     }
 }

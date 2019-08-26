@@ -18,34 +18,57 @@ import com.wrmsr.tokamak.catalog.Connection;
 import com.wrmsr.tokamak.catalog.Connector;
 import com.wrmsr.tokamak.catalog.Scanner;
 import com.wrmsr.tokamak.catalog.Table;
+import com.wrmsr.tokamak.catalog.heap.table.HeapTable;
 import com.wrmsr.tokamak.layout.TableLayout;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public class HeapConnector
         implements Connector
 {
+    private final String name;
+    private final Map<SchemaTable, HeapTable> heapTablesBySchemaTable = new HashMap<>();
+
+    public HeapConnector(String name)
+    {
+        this.name = checkNotNull(name);
+    }
+
+    public HeapConnector addTable(HeapTable heapTable)
+    {
+        checkArgument(!heapTablesBySchemaTable.containsKey(heapTable.getSchemaTable()));
+        heapTablesBySchemaTable.put(heapTable.getSchemaTable(), heapTable);
+        return this;
+    }
+
     @Override
     public String getName()
     {
-        return null;
+        return name;
     }
 
     @Override
     public Connection connect()
     {
-        return null;
+        return new HeapConnection(this);
     }
 
     @Override
     public TableLayout getTableLayout(SchemaTable schemaTable)
     {
-        return null;
+        HeapTable heapTable = checkNotNull(heapTablesBySchemaTable.get(schemaTable));
+        return heapTable.getTableLayout();
     }
 
     @Override
     public Scanner createScanner(Table table, Set<String> fields)
     {
-        return null;
+        HeapTable heapTable = checkNotNull(heapTablesBySchemaTable.get(table.getSchemaTable()));
+        return new HeapScanner(this, heapTable, fields);
     }
 }

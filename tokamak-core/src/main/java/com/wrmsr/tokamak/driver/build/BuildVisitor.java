@@ -280,6 +280,7 @@ public class BuildVisitor
         }
 
         List<Map<String, Object>> scanRows = scanner.scan(connection, scanKey);
+        // FIXME: scanners can return empty, driver compensates
         checkState(!scanRows.isEmpty());
 
         ImmutableList.Builder<DriverRow> rows = ImmutableList.builder();

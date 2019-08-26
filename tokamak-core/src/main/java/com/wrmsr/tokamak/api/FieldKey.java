@@ -72,6 +72,11 @@ public final class FieldKey
         return valuesByField;
     }
 
+    public Object get(String field)
+    {
+        return valuesByField.get(field);
+    }
+
     public Set<String> getFields()
     {
         return valuesByField.keySet();
