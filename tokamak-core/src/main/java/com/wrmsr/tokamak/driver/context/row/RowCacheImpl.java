@@ -182,11 +182,6 @@ public class RowCacheImpl
             else if (key instanceof FieldKey) {
                 FieldKey fieldKey = (FieldKey) key;
 
-                boolean isNull = rows.size() == 1 && checkSingle(rows).isNull();
-                if (!isNull) {
-                    rows.forEach(r -> checkArgument(!r.isNull()));
-                }
-
                 for (DriverRow row : rows) {
                     checkArgument(!allRows.contains(row));
                 }
@@ -225,18 +220,6 @@ public class RowCacheImpl
                         entry.rows.add(row);
                     }
                 }
-
-                // for (Map.Entry<String, Object> keyEntry : fieldKey.getValuesByField().entrySet()) {
-                //     String field = keyEntry.getKey();
-                //     int pos = node.getRowLayout().getPositionsByField().get(field);
-                //     Object value = keyEntry.getValue();
-                //     Map<Object, KeyFieldValueEntry> entriesByValue = checkNotNull(keyFieldValueEntriesByValueByKeyField.get(field));
-                //     for (DriverRow row : rows) {
-                //         KeyFieldValueEntry entry = entriesByValue.get()
-                //     }
-                // }
-
-                throw new IllegalArgumentException(key.toString());
             }
 
             else {

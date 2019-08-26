@@ -133,7 +133,7 @@ public class DriverContextImpl
             addJournalEntry(new JournalEntry.UncachedBuildOutput(node, key, rows));
         }
 
-        // rowCache.put(node, key, rows);
+        rowCache.put(node, key, rows);
 
         return rows;
     }
