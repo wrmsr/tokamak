@@ -13,6 +13,11 @@
  */
 package com.wrmsr.tokamak.codec;
 
+import java.io.IOException;
+import java.io.OutputStream;
+
+import static com.google.common.base.Preconditions.checkArgument;
+
 public interface Output
 {
     int tell();
@@ -25,9 +30,39 @@ public interface Output
 
     void putBytes(byte[] value);
 
+    void putBytes(byte[] value, int offset, int length);
+
     void putAt(int pos, byte value);
 
     void putLongAt(int pos, long value);
 
     void putBytesAt(int pos, byte[] value);
+
+    default OutputStream toOutputStream()
+    {
+        return new OutputStream()
+        {
+            @Override
+            public void write(int b)
+                    throws IOException
+            {
+                checkArgument((b & 0xFF00) == 0);
+                put((byte) b);
+            }
+
+            @Override
+            public void write(byte[] b)
+                    throws IOException
+            {
+                putBytes(b);
+            }
+
+            @Override
+            public void write(byte[] b, int off, int len)
+                    throws IOException
+            {
+                putBytes(b, off, len);
+            }
+        };
+    }
 }

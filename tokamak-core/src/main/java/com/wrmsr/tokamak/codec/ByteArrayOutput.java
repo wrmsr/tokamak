@@ -99,6 +99,14 @@ public final class ByteArrayOutput
     }
 
     @Override
+    public void putBytes(byte[] value, int offset, int length)
+    {
+        alloc(length);
+        System.arraycopy(value, offset, buf, pos, length);
+        pos += length;
+    }
+
+    @Override
     public void putAt(int pos, byte value)
     {
         buf[pos] = value;

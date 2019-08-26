@@ -20,6 +20,7 @@ import com.wrmsr.tokamak.codec.Input;
 import com.wrmsr.tokamak.codec.Output;
 import com.wrmsr.tokamak.util.Json;
 
+import java.io.IOException;
 import java.lang.reflect.Type;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -71,12 +72,22 @@ public final class JacksonScalarCodec<V>
     @Override
     public void encode(V value, Output output)
     {
-
+        try {
+            objectMapper.writeValue(output.toOutputStream(), value);
+        }
+        catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public V decode(Input input)
     {
-        return null;
+        try {
+            return objectMapper.readValue(input.getBytes(), typeReference);
+        }
+        catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
