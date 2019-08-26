@@ -19,57 +19,41 @@ import com.wrmsr.tokamak.codec.Output;
 import javax.annotation.concurrent.Immutable;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
 
 @Immutable
-public final class VariableLengthScalarCodec<V>
+public abstract class CollectionScalarCodec<V>
         implements ScalarCodec<V>
 {
     public static final int MAX_BYTE_LENGTH = 255;
     public static final int DEFAULT_MAX_LENGTH = MAX_BYTE_LENGTH;
 
-    private final ScalarCodec<V> child;
-    private final int maxLength;
-    private final boolean isByte;
+    protected final int maxLength;
+    protected final boolean isByte;
 
-    public VariableLengthScalarCodec(ScalarCodec<V> child, int maxLength)
+    public CollectionScalarCodec(int maxLength)
     {
         checkArgument(maxLength > 0);
-        this.child = checkNotNull(child);
         this.maxLength = maxLength;
         isByte = maxLength <= MAX_BYTE_LENGTH;
     }
 
-    public VariableLengthScalarCodec(ScalarCodec<V> child)
+    public CollectionScalarCodec()
     {
-        this(child, DEFAULT_MAX_LENGTH);
+        this(DEFAULT_MAX_LENGTH);
     }
 
-    @Override
-    public void encode(V value, Output output)
+    protected void encodeSize(int sz, Output output)
     {
-        int startPos = output.tell();
         if (isByte) {
-            output.put((byte) 0);
+            checkArgument(sz < DEFAULT_MAX_LENGTH);
+            output.put((byte) sz);
         }
         else {
-            output.putLong(0);
-        }
-        child.encode(value, output);
-        int endPos = output.tell();
-        int sz = endPos - startPos - (isByte ? 1 : 8);
-        checkState(sz < maxLength);
-        if (isByte) {
-            output.putAt(startPos, (byte) sz);
-        }
-        else {
-            output.putLongAt(startPos, sz);
+            output.putLong(sz);
         }
     }
 
-    @Override
-    public V decode(Input input)
+    protected int decodeSize(Input input)
     {
         int sz;
         if (isByte) {
@@ -78,6 +62,6 @@ public final class VariableLengthScalarCodec<V>
         else {
             sz = (int) input.getLong();
         }
-        return child.decode(input.nest(sz));
+        return sz;
     }
 }

@@ -35,8 +35,6 @@ public final class Json
 
     public static ObjectMapper newObjectMapper()
     {
-        // TODO: guice -> io.airlift.json
-        // seriously
         ObjectMapper objectMapper = new ObjectMapper();
 
         // ignore unknown fields (for backwards compatibility)

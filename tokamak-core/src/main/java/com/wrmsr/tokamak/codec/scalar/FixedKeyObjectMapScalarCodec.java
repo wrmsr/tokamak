@@ -19,6 +19,8 @@ import com.wrmsr.tokamak.codec.Output;
 import com.wrmsr.tokamak.util.collect.ObjectArrayBackedMap;
 import com.wrmsr.tokamak.util.Pair;
 
+import javax.annotation.concurrent.Immutable;
+
 import java.util.List;
 import java.util.Map;
 
@@ -26,6 +28,8 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.wrmsr.tokamak.util.MoreCollections.checkOrdered;
 
+@Immutable
+@SuppressWarnings({"rawtypes"})
 public final class FixedKeyObjectMapScalarCodec<K>
         implements ScalarCodec<Map<K, Object>>
 {
@@ -53,6 +57,7 @@ public final class FixedKeyObjectMapScalarCodec<K>
     }
 
     @Override
+    @SuppressWarnings({"unchecked"})
     public void encode(Map<K, Object> value, Output output)
     {
         if (strict) {

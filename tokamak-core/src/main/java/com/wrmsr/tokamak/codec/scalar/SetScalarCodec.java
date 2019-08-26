@@ -21,26 +21,18 @@ import javax.annotation.concurrent.Immutable;
 
 import java.util.Set;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
 public final class SetScalarCodec<V>
-        implements ScalarCodec<Set<V>>
+        extends CollectionScalarCodec<Set<V>>
 {
-    public static final int MAX_BYTE_LENGTH = 255;
-    public static final int DEFAULT_MAX_LENGTH = MAX_BYTE_LENGTH;
-
     private final ScalarCodec<V> child;
-    private final int maxLength;
-    private final boolean isByte;
 
     public SetScalarCodec(ScalarCodec<V> child, int maxLength)
     {
-        checkArgument(maxLength > 0);
+        super(maxLength);
         this.child = checkNotNull(child);
-        this.maxLength = maxLength;
-        isByte = maxLength <= MAX_BYTE_LENGTH;
     }
 
     public SetScalarCodec(ScalarCodec<V> child)
@@ -51,13 +43,7 @@ public final class SetScalarCodec<V>
     @Override
     public void encode(Set<V> value, Output output)
     {
-        if (isByte) {
-            checkArgument(value.size() < DEFAULT_MAX_LENGTH);
-            output.put((byte) value.size());
-        }
-        else {
-            output.putLong(value.size());
-        }
+        encodeSize(value.size(), output);
         for (V item : value) {
             child.encode(item, output);
         }
@@ -66,13 +52,7 @@ public final class SetScalarCodec<V>
     @Override
     public Set<V> decode(Input input)
     {
-        int sz;
-        if (isByte) {
-            sz = input.get() & 0xFF;
-        }
-        else {
-            sz = (int) input.getLong();
-        }
+        int sz = decodeSize(input);
         ImmutableSet.Builder<V> builder = ImmutableSet.builderWithExpectedSize(sz);
         for (int i = 0; i < sz; ++i) {
             builder.add(child.decode(input));

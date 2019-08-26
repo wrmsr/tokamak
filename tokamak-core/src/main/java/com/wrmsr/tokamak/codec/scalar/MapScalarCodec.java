@@ -21,28 +21,20 @@ import javax.annotation.concurrent.Immutable;
 
 import java.util.Map;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
 public final class MapScalarCodec<K, V>
-        implements ScalarCodec<Map<K, V>>
+        extends CollectionScalarCodec<Map<K, V>>
 {
-    public static final int MAX_BYTE_LENGTH = 255;
-    public static final int DEFAULT_MAX_LENGTH = MAX_BYTE_LENGTH;
-
     private final ScalarCodec<K> keyChild;
     private final ScalarCodec<V> valueChild;
-    private final int maxLength;
-    private final boolean isByte;
 
     public MapScalarCodec(ScalarCodec<K> keyChild, ScalarCodec<V> valueChild, int maxLength)
     {
-        checkArgument(maxLength > 0);
+        super(maxLength);
         this.keyChild = checkNotNull(keyChild);
         this.valueChild = checkNotNull(valueChild);
-        this.maxLength = maxLength;
-        isByte = maxLength <= MAX_BYTE_LENGTH;
     }
 
     public MapScalarCodec(ScalarCodec<K> keyChild, ScalarCodec<V> valueChild)
@@ -53,13 +45,7 @@ public final class MapScalarCodec<K, V>
     @Override
     public void encode(Map<K, V> value, Output output)
     {
-        if (isByte) {
-            checkArgument(value.size() < DEFAULT_MAX_LENGTH);
-            output.put((byte) value.size());
-        }
-        else {
-            output.putLong(value.size());
-        }
+        encodeSize(value.size(), output);
         for (Map.Entry<K, V> entry : value.entrySet()) {
             keyChild.encode(entry.getKey(), output);
             valueChild.encode(entry.getValue(), output);
@@ -69,13 +55,7 @@ public final class MapScalarCodec<K, V>
     @Override
     public Map<K, V> decode(Input input)
     {
-        int sz;
-        if (isByte) {
-            sz = input.get() & 0xFF;
-        }
-        else {
-            sz = (int) input.getLong();
-        }
+        int sz = decodeSize(input);
         ImmutableMap.Builder<K, V> builder = ImmutableMap.builderWithExpectedSize(sz);
         for (int i = 0; i < sz; ++i) {
             builder.put(keyChild.decode(input), valueChild.decode(input));

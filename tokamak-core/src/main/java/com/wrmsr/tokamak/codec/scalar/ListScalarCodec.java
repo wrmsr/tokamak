@@ -26,21 +26,15 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
 public final class ListScalarCodec<V>
-        implements ScalarCodec<List<V>>
+        extends CollectionScalarCodec<List<V>>
 {
-    public static final int MAX_BYTE_LENGTH = 255;
-    public static final int DEFAULT_MAX_LENGTH = MAX_BYTE_LENGTH;
-
     private final ScalarCodec<V> child;
-    private final int maxLength;
-    private final boolean isByte;
 
     public ListScalarCodec(ScalarCodec<V> child, int maxLength)
     {
+        super(maxLength);
         checkArgument(maxLength > 0);
         this.child = checkNotNull(child);
-        this.maxLength = maxLength;
-        isByte = maxLength <= MAX_BYTE_LENGTH;
     }
 
     public ListScalarCodec(ScalarCodec<V> child)
@@ -51,13 +45,7 @@ public final class ListScalarCodec<V>
     @Override
     public void encode(List<V> value, Output output)
     {
-        if (isByte) {
-            checkArgument(value.size() < DEFAULT_MAX_LENGTH);
-            output.put((byte) value.size());
-        }
-        else {
-            output.putLong(value.size());
-        }
+        encodeSize(value.size(), output);
         for (V item : value) {
             child.encode(item, output);
         }
@@ -66,13 +54,7 @@ public final class ListScalarCodec<V>
     @Override
     public List<V> decode(Input input)
     {
-        int sz;
-        if (isByte) {
-            sz = input.get() & 0xFF;
-        }
-        else {
-            sz = (int) input.getLong();
-        }
+        int sz = decodeSize(input);
         ImmutableList.Builder<V> builder = ImmutableList.builderWithExpectedSize(sz);
         for (int i = 0; i < sz; ++i) {
             builder.add(child.decode(input));

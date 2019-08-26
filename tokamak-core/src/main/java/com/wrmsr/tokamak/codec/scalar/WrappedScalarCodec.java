@@ -15,42 +15,34 @@ package com.wrmsr.tokamak.codec.scalar;
 
 import com.wrmsr.tokamak.codec.Input;
 import com.wrmsr.tokamak.codec.Output;
+import com.wrmsr.tokamak.util.codec.Codec;
 
 import javax.annotation.concurrent.Immutable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
-public final class NullableScalarCodec<V>
-        implements ScalarCodec<V>
+public final class WrappedScalarCodec<F, T>
+        implements ScalarCodec<F>
 {
-    private final ScalarCodec<V> child;
+    private final Codec<F, T> codec;
+    private final ScalarCodec<T> child;
 
-    public NullableScalarCodec(ScalarCodec<V> child)
+    public WrappedScalarCodec(Codec<F, T> codec, ScalarCodec<T> child)
     {
+        this.codec = checkNotNull(codec);
         this.child = checkNotNull(child);
     }
 
     @Override
-    public void encode(V value, Output output)
+    public void encode(F value, Output output)
     {
-        if (value != null) {
-            output.putLong(0);
-            child.encode(value, output);
-        }
-        else {
-            output.putLong(1);
-        }
+        child.encode(codec.encode(value), output);
     }
 
     @Override
-    public V decode(Input input)
+    public F decode(Input input)
     {
-        if (input.get() == 0) {
-            return child.decode(input);
-        }
-        else {
-            return null;
-        }
+        return codec.decode(child.decode(input));
     }
 }

@@ -16,11 +16,14 @@ package com.wrmsr.tokamak.codec.scalar;
 import com.wrmsr.tokamak.codec.Input;
 import com.wrmsr.tokamak.codec.Output;
 
+import javax.annotation.concurrent.Immutable;
+
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+@Immutable
 public final class FunctionPairScalarCodec<V>
         implements ScalarCodec<V>
 {
