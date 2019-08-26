@@ -60,7 +60,7 @@ public final class Dot
 
         for (Node node : plan.getToposortedNodes()) {
             for (Node source : node.getSources()) {
-                sb.append(String.format("%s -> %s [dir=back];\n", source.getName(), node.getName()));
+                sb.append(String.format("%s -> %s [dir=back];\n", node.getName(), source.getName()));
             }
         }
 
