@@ -80,9 +80,9 @@ public class RowCacheImpl
         final Node node;
 
         final Set<DriverRow> allRows = new HashSet<>();
-        final Map<Id, Set<DriverRow>> rowSetsById = new HashMap<>();
-        final Map<String, Map<Object, KeyFieldValueEntry>> keyFieldValueEntriesByValueByKeyField = new HashMap<>();
         final Map<ImmutableSet<String>, Map<ImmutableList<Object>, Set<DriverRow>>> rowSetsByKeyValueListByKeyFieldSet = new HashMap<>();
+        final Map<String, Map<Object, KeyFieldValueEntry>> keyFieldValueEntriesByValueByKeyField = new HashMap<>();
+        final Map<Id, Set<DriverRow>> rowSetsById = new HashMap<>();
         boolean allRequested;
 
         final Map<ImmutableSet<String>, ImmutableSet<String>> orderedFieldSets = new HashMap<>();
@@ -182,20 +182,21 @@ public class RowCacheImpl
             else if (key instanceof FieldKey) {
                 FieldKey fieldKey = (FieldKey) key;
 
-                for (DriverRow row : rows) {
-                    checkArgument(!allRows.contains(row));
-                }
+                checkState(!allRequested);
 
+                // Check all rows have correct key fields
                 for (Map.Entry<String, Object> keyEntry : fieldKey.getValuesByField().entrySet()) {
                     int pos = node.getRowLayout().getPositionsByField().get(keyEntry.getKey());
                     Object value = keyEntry.getValue();
                     for (DriverRow row : rows) {
+                        if (row.isNull()) {
+                            continue;
+                        }
                         checkArgument(Objects.equals(row.getAttributes()[pos], value));
                     }
                 }
 
-                fieldKey.getValuesByField().keySet().forEach(this::maybeBackfillKeyField);
-
+                // Add to FieldKey map
                 ImmutableSet<String> orderedKeyFields = orderKeyFields(fieldKey.getFields());
                 ImmutableList<Object> orderedKeyValues = orderKeyValues(orderedKeyFields, fieldKey.getValuesByField());
                 Map<ImmutableList<Object>, Set<DriverRow>> rowSetsBykeyValueList =
@@ -203,23 +204,56 @@ public class RowCacheImpl
                 if (rowSetsBykeyValueList.get(orderedKeyValues) != null) {
                     throw new KeyException(key);
                 }
-
-                allRows.addAll(rows);
                 rowSetsBykeyValueList.put(orderedKeyValues, ImmutableSet.copyOf(rows));
 
+                // Backfill any FieldValue maps *before* adding to all rows
+                fieldKey.getValuesByField().keySet().forEach(this::maybeBackfillKeyField);
+
+                // Add FieldKey fields to FieldValue map marked as usedForKey
+                for (Map.Entry<String, Object> keyEntry : fieldKey.getValuesByField().entrySet()) {
+                    String field = keyEntry.getKey();
+                    Object value = keyEntry.getValue();
+                    int pos = node.getRowLayout().getPositionsByField().get(field);
+                    Map<Object, KeyFieldValueEntry> map = keyFieldValueEntriesByValueByKeyField.get(field);
+                    KeyFieldValueEntry entry = map.computeIfAbsent(value, v -> new KeyFieldValueEntry(field, value));
+                    if (entry.usedForKey) {
+                        if (!entry.rows.equals(rows)) {
+                            throw new KeyException(key);
+                        }
+                    }
+                    else {
+                        if (!rows.containsAll(entry.rows)) {
+                            throw new KeyException(key);
+                        }
+                        entry.rows.addAll(rows);
+                        entry.usedForKey = true;
+                    }
+                }
+
+                // Add non-FieldKey fields to FieldValue map and check not usedForKey
                 for (Map.Entry<String, Map<Object, KeyFieldValueEntry>> e : keyFieldValueEntriesByValueByKeyField.entrySet()) {
                     String field = e.getKey();
+                    if (fieldKey.getFields().contains(field)) {
+                        continue;
+                    }
                     int pos = node.getRowLayout().getPositionsByField().get(field);
                     Map<Object, KeyFieldValueEntry> map = e.getValue();
                     for (DriverRow row : rows) {
                         Object value = row.getAttributes()[pos];
                         KeyFieldValueEntry entry = map.computeIfAbsent(value, v -> new KeyFieldValueEntry(field, value));
                         if (entry.usedForKey) {
-                            throw new KeyException(key);
+                            if (!entry.rows.contains(row)) {
+                                throw new KeyException(key);
+                            }
                         }
-                        entry.rows.add(row);
+                        else {
+                            entry.rows.add(row);
+                        }
                     }
                 }
+
+                // Finally add to all rows
+                allRows.addAll(rows);
             }
 
             else {
