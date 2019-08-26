@@ -11,10 +11,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.plan;
+package com.wrmsr.tokamak.plan.dot;
 
 import com.wrmsr.tokamak.node.Node;
 import com.wrmsr.tokamak.node.visitor.CachingNodeVisitor;
+import com.wrmsr.tokamak.plan.Plan;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -41,7 +42,8 @@ public final class Dot
         @Override
         protected String visitNode(Node node, Void context)
         {
-            return String.format("%s [label=%s];", node.getName(), node.getName());
+            NodeRendering rendering = checkNotNull(NodeRenderings.NODE_RENDERING_MAP.get().get(node.getClass()));
+            return String.format("%s [style=filled, fillcolor=\"%s\", label=%s];", node.getName(), rendering.getColor().toString(), node.getName());
         }
     }
 
@@ -51,14 +53,14 @@ public final class Dot
         sb.append("digraph G {\n");
 
         Visitor visitor = new Visitor(plan);
-        for (Node node : plan.getToposortedNodes()) {
+        for (Node node : plan.getReverseToposortedNodes()) {
             sb.append(node.accept(visitor, null));
             sb.append("\n");
         }
 
         for (Node node : plan.getToposortedNodes()) {
             for (Node source : node.getSources()) {
-                sb.append(String.format("%s -> %s;\n", source.getName(), node.getName()));
+                sb.append(String.format("%s -> %s [dir=back];\n", source.getName(), node.getName()));
             }
         }
 

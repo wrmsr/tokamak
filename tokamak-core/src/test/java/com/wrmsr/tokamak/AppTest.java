@@ -33,7 +33,7 @@ import com.wrmsr.tokamak.node.Node;
 import com.wrmsr.tokamak.node.ProjectNode;
 import com.wrmsr.tokamak.node.Projection;
 import com.wrmsr.tokamak.node.ScanNode;
-import com.wrmsr.tokamak.plan.Dot;
+import com.wrmsr.tokamak.plan.dot.Dot;
 import com.wrmsr.tokamak.plan.Plan;
 import com.wrmsr.tokamak.type.Type;
 import io.airlift.tpch.TpchTable;
@@ -235,6 +235,14 @@ public class AppTest
                 plan.getRoot(),
                 Key.of("N_NATIONKEY", 10));
         System.out.println(buildRows);
+    }
+
+    public void testDot()
+            throws Throwable
+    {
+        Catalog catalog = new Catalog();
+
+        Plan plan = buildPlan(catalog);
 
         Dot.openDot(Dot.buildPlanDot(plan));
     }
