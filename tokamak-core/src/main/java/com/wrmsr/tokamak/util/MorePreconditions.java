@@ -121,6 +121,7 @@ public final class MorePreconditions
         return iterable;
     }
 
+    @SuppressWarnings({"unchecked"})
     public static <T> Class<? extends T> checkSubclass(Class<?> cls, Class<? extends T> supcls)
     {
         checkArgument(supcls.isAssignableFrom(cls));

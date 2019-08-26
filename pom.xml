@@ -16,7 +16,6 @@
         <protobuf.input.directory>${project.basedir}/src/main/proto</protobuf.input.directory>
         <protobuf.output.directory>${project.build.directory}/generated-sources</protobuf.output.directory>
 
-        <dep.airlift.version>0.183</dep.airlift.version>
         <dep.antlr4.version>4.7.2</dep.antlr4.version>
         <dep.guice.version>4.2.2</dep.guice.version>
         <dep.jackson.version>2.9.9</dep.jackson.version>
@@ -124,6 +123,18 @@
                 <version>${dep.jackson.version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>com.fasterxml.jackson.dataformat</groupId>
+                <artifactId>jackson-dataformat-cbor</artifactId>
+                <version>${dep.jackson.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.fasterxml.jackson.dataformat</groupId>
+                <artifactId>jackson-dataformat-smile</artifactId>
+                <version>${dep.jackson.version}</version>
+            </dependency>
+
             <!-- Other -->
 
             <dependency>
@@ -162,20 +173,6 @@
                 <groupId>com.google.inject.extensions</groupId>
                 <artifactId>guice-assistedinject</artifactId>
                 <version>${dep.guice.version}</version>
-            </dependency>
-
-            <!-- Airlift -->
-
-            <dependency>
-                <groupId>io.airlift</groupId>
-                <artifactId>bootstrap</artifactId>
-                <version>${dep.airlift.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>io.airlift</groupId>
-                <artifactId>json</artifactId>
-                <version>${dep.airlift.version}</version>
             </dependency>
 
             <!-- JDBC Drivers -->
