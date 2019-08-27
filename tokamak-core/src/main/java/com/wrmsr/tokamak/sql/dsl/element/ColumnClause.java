@@ -11,9 +11,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.sql.dsl.ele;
+package com.wrmsr.tokamak.sql.dsl.element;
 
-import com.wrmsr.tokamak.sql.dsl.ele.sel.Selectable;
+import com.wrmsr.tokamak.sql.dsl.element.select.Selectable;
 import com.wrmsr.tokamak.sql.dsl.TypeEngine;
 
 import javax.annotation.Nullable;

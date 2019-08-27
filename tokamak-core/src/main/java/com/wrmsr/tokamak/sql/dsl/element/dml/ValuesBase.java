@@ -11,11 +11,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.sql.dsl.ele;
+package com.wrmsr.tokamak.sql.dsl.element.dml;
 
-import com.wrmsr.tokamak.sql.dsl.Visitable;
-
-public interface Element
-        extends Visitable
+public abstract class ValuesBase
+        extends UpdateBase
 {
 }

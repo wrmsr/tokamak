@@ -11,9 +11,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.sql.dsl.ele.dml;
+package com.wrmsr.tokamak.sql.dsl.element.dml;
 
-public class Delete
-        extends ValuesBase
+import com.wrmsr.tokamak.sql.dsl.element.ClauseElement;
+
+public abstract class UpdateBase
+        extends ClauseElement
 {
 }

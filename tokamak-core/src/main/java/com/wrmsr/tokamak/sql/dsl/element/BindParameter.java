@@ -11,11 +11,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.sql.dsl.ele;
+package com.wrmsr.tokamak.sql.dsl.element;
 
-import com.wrmsr.tokamak.sql.dsl.Visitable;
-
-public abstract class ClauseElement
-        implements Element
+public class BindParameter
+    extends ColumnElement
 {
+    static final Object NOT_SET = new Object();
+
+    private final String key;
+    private final Object value;
+
+    public BindParameter(String key, Object value)
+    {
+        this.key = key;
+        this.value = value;
+    }
 }

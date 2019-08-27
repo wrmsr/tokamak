@@ -11,9 +11,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.sql.dsl.ele;
+package com.wrmsr.tokamak.sql.dsl.element;
 
-public class TypeClause
-        extends ClauseElement
+import com.google.common.collect.ImmutableList;
+import com.wrmsr.tokamak.sql.dsl.element.select.FromClause;
+
+import java.util.List;
+
+public class TableClause
+        extends FromClause
 {
+    private final String name;
+    private final List<ColumnClause> columns;
+
+    public TableClause(
+            String name,
+            List<ColumnClause> columns)
+    {
+        this.name = name;
+        this.columns = ImmutableList.copyOf(columns);
+        // primaryKey, foreignKeys
+    }
 }

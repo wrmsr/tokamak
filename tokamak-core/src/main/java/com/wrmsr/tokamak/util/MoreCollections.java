@@ -152,15 +152,49 @@ public final class MoreCollections
         }
     }
 
+    public static <T extends Set<?>> boolean isOrdered(T obj)
+    {
+        return obj instanceof ImmutableSet || obj instanceof LinkedHashSet || obj instanceof Ordered;
+    }
+
     public static <T extends Set<?>> T checkOrdered(T obj)
     {
-        checkState(obj instanceof ImmutableSet || obj instanceof LinkedHashSet || obj instanceof Ordered);
+        checkState(isOrdered(obj));
         return obj;
+    }
+
+    public static <T extends Map<?, ?>> boolean isOrdered(T obj)
+    {
+        return obj instanceof ImmutableMap || obj instanceof LinkedHashMap || obj instanceof Ordered;
     }
 
     public static <T extends Map<?, ?>> T checkOrdered(T obj)
     {
-        checkState(obj instanceof ImmutableMap || obj instanceof LinkedHashMap || obj instanceof Ordered);
+        checkState(isOrdered(obj));
+        return obj;
+    }
+
+    public static <T extends Collection<?>> boolean isOrdered(T obj)
+    {
+        return obj instanceof List ||
+                (obj instanceof Map && isOrdered((Map) obj)) ||
+                (obj instanceof Set && isOrdered((Set) obj));
+    }
+
+    public static <T extends Collection<?>> T checkOrdered(T obj)
+    {
+        checkState(isOrdered(obj));
+        return obj;
+    }
+
+    public static <T extends Iterable<?>> boolean isOrdered(T obj)
+    {
+        return (obj instanceof Collection && isOrdered((Collection) obj));
+    }
+
+    public static <T extends Iterable<?>> T checkOrdered(T obj)
+    {
+        checkState(isOrdered(obj));
         return obj;
     }
 }

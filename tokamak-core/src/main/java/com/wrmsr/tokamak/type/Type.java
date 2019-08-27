@@ -22,6 +22,25 @@ import java.util.OptionalInt;
 
 public interface Type
 {
+    /*
+    TODO:
+     - coerce, check
+     - serdes
+     - sql:
+      - bigint
+      - decimal
+     - presto:
+      - json - jsr353? over jackson/glassfish? jackson JsonObjects? reparse? ..all..
+       - JsonExtract.java, JsonPathType, JsonParser walking
+       - https://github.com/json-path/JsonPath
+      - datetime
+      - interval
+      - digest
+      - ip
+     - hppc
+     - pluggability
+    */
+
     PrimitiveType BOOLEAN = new PrimitiveType<>(Boolean.class, OptionalInt.of(1));
     PrimitiveType LONG = new PrimitiveType<>(Long.class, OptionalInt.of(8));
     PrimitiveType DOUBLE = new PrimitiveType<>(Double.class, OptionalInt.of(8));

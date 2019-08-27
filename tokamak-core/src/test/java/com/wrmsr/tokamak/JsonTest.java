@@ -13,10 +13,14 @@
  */
 package com.wrmsr.tokamak;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.api.SimpleRow;
 import com.wrmsr.tokamak.util.Json;
+import jdk.nashorn.internal.ir.ObjectNode;
 import junit.framework.TestCase;
 
 public class JsonTest
@@ -38,5 +42,25 @@ public class JsonTest
                                         420,
                                         new byte[] {(byte) 0x01, (byte) 0x34}
                                 })));
+
+        Object obj = ImmutableMap.of(
+                "a", 0,
+                "b", "one",
+                "c", ImmutableList.of("a", "b", "c"),
+                "d", ImmutableMap.of(
+                        "e", 420,
+                        "f", ImmutableList.of(1, "a"),
+                        "g", ImmutableMap.of(
+                                0, "hi",
+                                "h", "no"
+                        )
+                )
+        );
+
+        String blob = Json.writeValue(obj);
+
+        JsonNode node = Json.OBJECT_MAPPER_SUPPLIER.get().readTree(blob);
+
+        System.out.println(node);
     }
 }

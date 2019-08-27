@@ -11,11 +11,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.sql.dsl.ele.dml;
+package com.wrmsr.tokamak.sql.dsl.element;
 
-import com.wrmsr.tokamak.sql.dsl.ele.ClauseElement;
-
-public abstract class UpdateBase
-        extends ClauseElement
+public class NullElement
+    extends ColumnElement
 {
 }

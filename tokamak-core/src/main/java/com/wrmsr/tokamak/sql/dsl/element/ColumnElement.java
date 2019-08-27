@@ -11,9 +11,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.sql.dsl.ele;
+package com.wrmsr.tokamak.sql.dsl.element;
 
-public class TextClause
+import com.wrmsr.tokamak.sql.dsl.element.select.Selectable;
+
+public abstract class ColumnElement
         extends ClauseElement
+        implements Selectable
 {
 }

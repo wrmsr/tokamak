@@ -53,7 +53,7 @@ public final class Invalidation
         return fields;
     }
 
-    @JsonProperty("isSoft")
+    @JsonProperty("soft")
     public boolean isSoft()
     {
         return soft;

@@ -22,19 +22,24 @@ import com.wrmsr.tokamak.api.Row;
 import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.catalog.Catalog;
 import com.wrmsr.tokamak.catalog.Schema;
+import com.wrmsr.tokamak.catalog.Table;
+import com.wrmsr.tokamak.catalog.heap.HeapConnector;
+import com.wrmsr.tokamak.catalog.heap.table.MapHeapTable;
 import com.wrmsr.tokamak.driver.Driver;
 import com.wrmsr.tokamak.driver.DriverImpl;
 import com.wrmsr.tokamak.func.RowViewFunction;
 import com.wrmsr.tokamak.jdbc.JdbcConnector;
 import com.wrmsr.tokamak.jdbc.JdbcUtils;
+import com.wrmsr.tokamak.layout.RowLayout;
+import com.wrmsr.tokamak.layout.TableLayout;
 import com.wrmsr.tokamak.node.EquijoinNode;
 import com.wrmsr.tokamak.node.FilterNode;
 import com.wrmsr.tokamak.node.Node;
 import com.wrmsr.tokamak.node.ProjectNode;
 import com.wrmsr.tokamak.node.Projection;
 import com.wrmsr.tokamak.node.ScanNode;
-import com.wrmsr.tokamak.plan.dot.Dot;
 import com.wrmsr.tokamak.plan.Plan;
+import com.wrmsr.tokamak.plan.dot.Dot;
 import com.wrmsr.tokamak.type.Type;
 import io.airlift.tpch.TpchTable;
 import junit.framework.Test;
@@ -234,6 +239,7 @@ public class AppTest
                 driver.createContext(),
                 plan.getRoot(),
                 Key.of("N_NATIONKEY", 10));
+
         System.out.println(buildRows);
     }
 
@@ -245,5 +251,60 @@ public class AppTest
         Plan plan = buildPlan(catalog);
 
         Dot.openDot(Dot.buildPlanDot(plan));
+    }
+
+    public void testHeapTable()
+            throws Throwable
+    {
+        MapHeapTable mapHeapTable = new MapHeapTable(
+                SchemaTable.of("stuff_schema", "stuff_table"),
+                new TableLayout(
+                        new RowLayout(ImmutableMap.of(
+                                "id", Type.LONG,
+                                "str", Type.STRING
+                        )),
+                        new TableLayout.Key(ImmutableList.of("id")),
+                        ImmutableList.of()));
+
+        mapHeapTable.addRows(ImmutableList.of(
+                ImmutableMap.of(
+                        "id", 1,
+                        "str", "one"
+                ),
+                ImmutableMap.of(
+                        "id", 2,
+                        "str", "two"
+                )
+        ));
+
+        HeapConnector connector = new HeapConnector("stuff_connector");
+        connector.addTable(mapHeapTable);
+
+        Catalog catalog = new Catalog();
+        Table table = catalog.getOrBuildSchema("stuff_schema", connector).getOrBuildTable("stuff_table");
+
+        ScanNode scan0 = new ScanNode(
+                "scan0",
+                SchemaTable.of("stuff_schema", "stuff_table"),
+                ImmutableMap.of(
+                        "id", Type.LONG,
+                        "str", Type.STRING
+                ),
+                ImmutableSet.of("id"),
+                ImmutableSet.of(),
+                ImmutableMap.of(),
+                ImmutableMap.of(),
+                Optional.empty());
+
+        Plan plan = new Plan(scan0);
+
+        Driver driver = new DriverImpl(catalog, plan);
+
+        Collection<Row> buildRows = driver.build(
+                driver.createContext(),
+                plan.getRoot(),
+                Key.of("id", 1));
+
+        System.out.println(buildRows);
     }
 }

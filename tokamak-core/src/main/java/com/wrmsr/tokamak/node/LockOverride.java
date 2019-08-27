@@ -25,14 +25,17 @@ public final class LockOverride
 {
     private final String node;
     private final String field;
+    private final boolean spill;
 
     @JsonCreator
     public LockOverride(
             @JsonProperty("node") String node,
-            @JsonProperty("field") String field)
+            @JsonProperty("field") String field,
+            @JsonProperty("spill") boolean spill)
     {
         this.node = checkNotNull(node);
         this.field = checkNotNull(field);
+        this.spill = spill;
     }
 
     @Override
@@ -41,6 +44,7 @@ public final class LockOverride
         return "LockOverride{" +
                 "node='" + node + '\'' +
                 ", field='" + field + '\'' +
+                ", spill=" + field + +
                 '}';
     }
 
@@ -54,5 +58,11 @@ public final class LockOverride
     public String getField()
     {
         return field;
+    }
+
+    @JsonProperty("spill")
+    public boolean isSpill()
+    {
+        return spill;
     }
 }
