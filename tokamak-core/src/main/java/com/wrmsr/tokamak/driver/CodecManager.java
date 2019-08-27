@@ -16,10 +16,10 @@ package com.wrmsr.tokamak.driver;
 import com.wrmsr.tokamak.codec.row.CompositeRowCodec;
 import com.wrmsr.tokamak.codec.row.RowCodec;
 import com.wrmsr.tokamak.codec.row.RowCodecs;
-import com.wrmsr.tokamak.codec.scalar.HeterogeneousObjectArrayScalarCodec;
 import com.wrmsr.tokamak.codec.scalar.NullableScalarCodec;
 import com.wrmsr.tokamak.codec.scalar.ScalarCodec;
 import com.wrmsr.tokamak.codec.scalar.ScalarCodecs;
+import com.wrmsr.tokamak.codec.scalar.TupleScalarCodec;
 import com.wrmsr.tokamak.codec.scalar.VariableLengthScalarCodec;
 import com.wrmsr.tokamak.node.EquijoinNode;
 import com.wrmsr.tokamak.node.FilterNode;
@@ -132,7 +132,7 @@ public final class CodecManager
                     return codec;
                 })
                 .collect(toImmutableList());
-        attributesCodec = new HeterogeneousObjectArrayScalarCodec(parts);
+        attributesCodec = new TupleScalarCodec(parts);
 
         attributesCodecsByStatefulNode.put(node, attributesCodec);
         return attributesCodec;

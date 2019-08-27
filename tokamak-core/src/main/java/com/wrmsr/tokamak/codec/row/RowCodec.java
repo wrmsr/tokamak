@@ -27,16 +27,11 @@ public interface RowCodec
 {
     /*
     TODO:
-     - write to a bytebuffer not join arrs
-      - on variable prealloc size byte
-     - operate on object[] not maps
-     - key awareness
      - length awareness
      - packed
      - salting
      - vints
      - bulks (for denorms)
-     - dumbass jackson/json Maps for dbg
     */
 
     void encode(Map<String, Object> row, Output output);

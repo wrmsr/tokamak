@@ -24,12 +24,12 @@ import java.util.List;
 import static com.google.common.base.Preconditions.checkArgument;
 
 @Immutable
-public final class HeterogeneousObjectArrayScalarCodec
+public final class TupleScalarCodec
         implements ScalarCodec<Object[]>
 {
     private final List<ScalarCodec> children;
 
-    public HeterogeneousObjectArrayScalarCodec(List<ScalarCodec> children)
+    public TupleScalarCodec(List<ScalarCodec> children)
     {
         this.children = ImmutableList.copyOf(children);
     }

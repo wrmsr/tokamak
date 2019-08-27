@@ -20,6 +20,12 @@ import com.wrmsr.tokamak.codec.Output;
 
 public interface ScalarCodec<V>
 {
+    /*
+    TODO:
+     - operate on object[] not maps
+     - key awareness
+    */
+
     void encode(V value, Output output);
 
     default byte[] encodeBytes(V value)
