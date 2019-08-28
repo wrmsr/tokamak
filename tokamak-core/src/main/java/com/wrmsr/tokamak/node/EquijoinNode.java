@@ -43,6 +43,7 @@ import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static com.wrmsr.tokamak.util.MoreCollectors.groupingByImmutableSet;
 import static com.wrmsr.tokamak.util.MoreCollectors.toSingle;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
+import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.groupingBy;
 
 @Immutable
@@ -116,6 +117,7 @@ public final class EquijoinNode
 
     private final Map<Node, Set<Branch>> branchSetsByNode;
     private final Map<Set<String>, Set<Branch>> branchSetsByKeyFieldSet;
+    private final Map<Branch, Integer> indicesByBranch;
     private final Map<String, Set<Branch>> branchSetsByField;
     private final Set<String> keyFields;
     private final Map<String, Branch> branchesByUniqueField;
@@ -137,6 +139,7 @@ public final class EquijoinNode
                 .collect(groupingByImmutableSet(Branch::getNode));
         branchSetsByKeyFieldSet = this.branches.stream()
                 .collect(groupingByImmutableSet(b -> ImmutableSet.copyOf(b.getFields())));
+        indicesByBranch = IntStream.range(0, this.branches.size()).boxed().collect(toImmutableMap(this.branches::get, identity()));
 
         branchSetsByField = this.branches.stream()
                 .flatMap(b -> b.getNode().getFields().keySet().stream().map(f -> Pair.immutable(f, b)))
@@ -201,6 +204,11 @@ public final class EquijoinNode
     public Map<Set<String>, Set<Branch>> getBranchSetsByKeyFieldSet()
     {
         return branchSetsByKeyFieldSet;
+    }
+
+    public Map<Branch, Integer> getIndicesByBranch()
+    {
+        return indicesByBranch;
     }
 
     public Map<String, Set<Branch>> getBranchSetsByField()

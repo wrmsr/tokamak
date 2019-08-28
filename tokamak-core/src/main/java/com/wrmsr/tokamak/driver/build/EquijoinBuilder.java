@@ -17,8 +17,14 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.api.FieldKey;
+import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.api.IdKey;
 import com.wrmsr.tokamak.api.Key;
+import com.wrmsr.tokamak.codec.scalar.NullableScalarCodec;
+import com.wrmsr.tokamak.codec.scalar.ScalarCodec;
+import com.wrmsr.tokamak.codec.scalar.ScalarCodecs;
+import com.wrmsr.tokamak.codec.scalar.TupleScalarCodec;
+import com.wrmsr.tokamak.codec.scalar.VariableLengthScalarCodec;
 import com.wrmsr.tokamak.driver.DriverRow;
 import com.wrmsr.tokamak.driver.context.DriverContextImpl;
 import com.wrmsr.tokamak.node.EquijoinNode;
@@ -39,6 +45,11 @@ import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 public class EquijoinBuilder
         extends AbstractBuilder<EquijoinNode>
 {
+    private static final ScalarCodec<byte[]> NULLABLE_BYTES_SCALAR_CODEC =
+            new NullableScalarCodec<>(
+                    new VariableLengthScalarCodec<>(
+                            ScalarCodecs.BYTES_SCALAR_CODEC));
+
     public EquijoinBuilder(EquijoinNode node)
     {
         super(node);
@@ -78,6 +89,7 @@ public class EquijoinBuilder
                 context,
                 lookups,
                 builder,
+                new byte[node.getBranches().size()][],
                 ImmutableMap.of(),
                 context.getDriver().getLineagePolicy().build(),
                 0);
@@ -89,6 +101,7 @@ public class EquijoinBuilder
             DriverContextImpl context,
             List<Pair<EquijoinNode.Branch, Map<String, Object>>> lookups,
             ImmutableList.Builder<DriverRow> builder,
+            byte[][] idProto,
             Map<String, Object> proto,
             Set<DriverRow> lineage,
             int pos)
@@ -106,6 +119,8 @@ public class EquijoinBuilder
             }
             Key key = Key.of(keyBuilder.build());
 
+            int branchIdx = node.getIndicesByBranch().get(lookup.first());
+
             Collection<DriverRow> rows = context.build(lookup.first().getNode(), key);
 
             for (DriverRow row : rows) {
@@ -120,10 +135,14 @@ public class EquijoinBuilder
                     }
                 }
 
+                byte[][] nextIdProto = idProto.clone();
+                nextIdProto[branchIdx] = row.getId().getValue();
+
                 buildLookups(
                         context,
                         lookups,
                         builder,
+                        nextIdProto,
                         nextProto.build(),
                         context.getDriver().getLineagePolicy().build(ImmutableSet.<DriverRow>builder().addAll(lineage).add(row).build()),
                         pos + 1);
@@ -143,6 +162,7 @@ public class EquijoinBuilder
                     context,
                     restBranches,
                     builder,
+                    idProto,
                     proto,
                     restKeyValues.toArray(),
                     lineage,
@@ -154,6 +174,7 @@ public class EquijoinBuilder
             DriverContextImpl context,
             List<EquijoinNode.Branch> branches,
             ImmutableList.Builder<DriverRow> builder,
+            byte[][] idProto,
             Map<String, Object> proto,
             Object[] keyValues,
             Set<DriverRow> lineage,
@@ -167,6 +188,8 @@ public class EquijoinBuilder
                 keyBuilder.put(branch.getFields().get(i), keyValues[i]);
             }
             Key key = Key.of(keyBuilder.build());
+
+            int branchIdx = node.getIndicesByBranch().get(branch);
 
             Collection<DriverRow> rows = context.build(branch.getNode(), key);
 
@@ -182,10 +205,14 @@ public class EquijoinBuilder
                     }
                 }
 
+                byte[][] nextIdProto = idProto.clone();
+                nextIdProto[branchIdx] = row.getId().getValue();
+
                 buildNonLookups(
                         context,
                         branches,
                         builder,
+                        nextIdProto,
                         nextProto.build(),
                         keyValues,
                         context.getDriver().getLineagePolicy().build(ImmutableSet.<DriverRow>builder().addAll(lineage).add(row).build()),
@@ -198,11 +225,17 @@ public class EquijoinBuilder
                 attributes[node.getRowLayout().getPositionsByField().get(e.getKey())] = e.getValue();
             }
 
+            ScalarCodec<Object[]> idCodec = new TupleScalarCodec(
+                    node.getBranches().stream().map(b -> NULLABLE_BYTES_SCALAR_CODEC).collect(toImmutableList()));
+            Object[] idBytesObjects = new Object[node.getBranches().size()];
+            System.arraycopy(idProto, 0, idBytesObjects, 0, idProto.length);
+            Id id = new Id(idCodec.encodeBytes(idBytesObjects));
+
             builder.add(
                     new DriverRow(
                             node,
                             lineage,
-                            null,  // FIXME
+                            id,
                             attributes));
         }
     }

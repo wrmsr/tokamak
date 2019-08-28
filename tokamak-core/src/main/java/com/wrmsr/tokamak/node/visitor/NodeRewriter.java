@@ -108,7 +108,7 @@ public abstract class NodeRewriter<C>
                         .collect(ImmutableMap.toImmutableMap(e -> visitNodeName(e.getKey(), context), Map.Entry::getValue)),
                 node.getLinkageMasks().entrySet().stream()
                         .collect(ImmutableMap.toImmutableMap(e -> visitNodeName(e.getKey(), context), Map.Entry::getValue)),
-                node.getLockOverride().map(lo -> new LockOverride(visitNodeName(lo.getNode(), context), lo.getField())));
+                node.getLockOverride().map(lo -> new LockOverride(visitNodeName(lo.getNode(), context), lo.getField(), false)));
     }
 
     @Override
@@ -133,7 +133,7 @@ public abstract class NodeRewriter<C>
                         .collect(ImmutableMap.toImmutableMap(e -> visitNodeName(e.getKey(), context), Map.Entry::getValue)),
                 node.getLinkageMasks().entrySet().stream()
                         .collect(ImmutableMap.toImmutableMap(e -> visitNodeName(e.getKey(), context), Map.Entry::getValue)),
-                node.getLockOverride().map(lo -> new LockOverride(visitNodeName(lo.getNode(), context), lo.getField())));
+                node.getLockOverride().map(lo -> new LockOverride(visitNodeName(lo.getNode(), context), lo.getField(), false)));
     }
 
     @Override
