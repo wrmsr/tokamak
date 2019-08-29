@@ -47,19 +47,29 @@ public final class ScalarCodecs
             false
     );
 
-    public static final FunctionPairScalarCodec<byte[]> BYTES_SCALAR_CODEC = FunctionPairScalarCodec.of(
-            (v, o) -> o.putBytes(v),
-            i -> i.getBytes(),
-            OptionalInt.empty(),
-            false
-    );
+    public static final FunctionPairScalarCodec<byte[]> buildBytes(OptionalInt size)
+    {
+        return FunctionPairScalarCodec.of(
+                (v, o) -> o.putBytes(v),
+                i -> i.getBytes(),
+                size,
+                false
+        );
+    }
 
-    public static final FunctionPairScalarCodec<String> STRING_SCALAR_CODEC = FunctionPairScalarCodec.of(
-            (v, o) -> o.putBytes(v.getBytes(Charsets.UTF_8)),
-            i -> new String(i.getBytes(), Charsets.UTF_8),
-            OptionalInt.empty(),
-            false
-    );
+    public static final FunctionPairScalarCodec<byte[]> BYTES_SCALAR_CODEC = buildBytes(OptionalInt.empty());
+
+    public static FunctionPairScalarCodec<String> buildString(OptionalInt size)
+    {
+        return FunctionPairScalarCodec.of(
+                (v, o) -> o.putBytes(v.getBytes(Charsets.UTF_8)),
+                i -> new String(i.getBytes(), Charsets.UTF_8),
+                size,
+                false
+        );
+    }
+
+    public static final FunctionPairScalarCodec<String> STRING_SCALAR_CODEC = buildString(OptionalInt.empty());
 
     public static final Map<Type, ScalarCodec> SCALAR_CODECS_BY_TYPE = ImmutableMap.<Type, ScalarCodec>builder()
             .put(Type.BOOLEAN, BOOLEAN_SCALAR_CODEC)

@@ -16,7 +16,7 @@ package com.wrmsr.tokamak.node;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wrmsr.tokamak.api.NodeId;
 import com.wrmsr.tokamak.layout.RowLayout;
-import com.wrmsr.tokamak.util.lazy.GetterLazyValue;
+import com.wrmsr.tokamak.util.lazy.SupplierLazyValue;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -65,7 +65,7 @@ public abstract class AbstractNode
         return nodeId;
     }
 
-    private final GetterLazyValue<RowLayout> rowLayout = new GetterLazyValue<>();
+    private final SupplierLazyValue<RowLayout> rowLayout = new SupplierLazyValue<>();
 
     @Override
     public RowLayout getRowLayout()

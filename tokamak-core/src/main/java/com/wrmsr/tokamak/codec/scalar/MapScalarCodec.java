@@ -30,16 +30,16 @@ public final class MapScalarCodec<K, V>
     private final ScalarCodec<K> keyChild;
     private final ScalarCodec<V> valueChild;
 
-    public MapScalarCodec(ScalarCodec<K> keyChild, ScalarCodec<V> valueChild, int maxLength)
+    public MapScalarCodec(ScalarCodec<K> keyChild, ScalarCodec<V> valueChild, int size, boolean fixed)
     {
-        super(maxLength);
+        super(size, fixed);
         this.keyChild = checkNotNull(keyChild);
         this.valueChild = checkNotNull(valueChild);
     }
 
     public MapScalarCodec(ScalarCodec<K> keyChild, ScalarCodec<V> valueChild)
     {
-        this(keyChild, valueChild, DEFAULT_MAX_LENGTH);
+        this(keyChild, valueChild, DEFAULT_MAX_SIZE, false);
     }
 
     @Override

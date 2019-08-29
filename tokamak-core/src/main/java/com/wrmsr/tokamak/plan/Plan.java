@@ -22,7 +22,7 @@ import com.wrmsr.tokamak.api.NodeId;
 import com.wrmsr.tokamak.node.Node;
 import com.wrmsr.tokamak.util.MoreCollections;
 import com.wrmsr.tokamak.util.Pair;
-import com.wrmsr.tokamak.util.lazy.GetterLazyValue;
+import com.wrmsr.tokamak.util.lazy.SupplierLazyValue;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -99,7 +99,7 @@ public final class Plan
         return nodesByNodeId;
     }
 
-    private final GetterLazyValue<List<Node>> nameSortedNodes = new GetterLazyValue<>();
+    private final SupplierLazyValue<List<Node>> nameSortedNodes = new SupplierLazyValue<>();
 
     public List<Node> getNameSortedNodes()
     {
@@ -117,7 +117,7 @@ public final class Plan
                 .collect(toImmutableList()));
     }
 
-    private final GetterLazyValue<Set<Node>> leafNodes = new GetterLazyValue<>();
+    private final SupplierLazyValue<Set<Node>> leafNodes = new SupplierLazyValue<>();
 
     public Set<Node> getLeafNodes()
     {
@@ -126,7 +126,7 @@ public final class Plan
                 .collect(toImmutableSet()));
     }
 
-    private final GetterLazyValue<List<Set<Node>>> nodeToposort = new GetterLazyValue<>();
+    private final SupplierLazyValue<List<Set<Node>>> nodeToposort = new SupplierLazyValue<>();
 
     public List<Set<Node>> getNodeToposort()
     {
@@ -134,14 +134,14 @@ public final class Plan
                 .collect(toImmutableMap(identity(), n -> ImmutableSet.copyOf(n.getSources())))));
     }
 
-    private final GetterLazyValue<List<Set<Node>>> nodeReverseToposort = new GetterLazyValue<>();
+    private final SupplierLazyValue<List<Set<Node>>> nodeReverseToposort = new SupplierLazyValue<>();
 
     public List<Set<Node>> getNodeReverseToposort()
     {
         return nodeReverseToposort.get(() -> ImmutableList.copyOf(Lists.reverse(getNodeToposort())));
     }
 
-    private final GetterLazyValue<List<Node>> toposortedNodes = new GetterLazyValue<>();
+    private final SupplierLazyValue<List<Node>> toposortedNodes = new SupplierLazyValue<>();
 
     public List<Node> getToposortedNodes()
     {
@@ -150,7 +150,7 @@ public final class Plan
                 .collect(toImmutableList()));
     }
 
-    private final GetterLazyValue<List<Node>> reverseToposortedNodes = new GetterLazyValue<>();
+    private final SupplierLazyValue<List<Node>> reverseToposortedNodes = new SupplierLazyValue<>();
 
     public List<Node> getReverseToposortedNodes()
     {
@@ -159,7 +159,7 @@ public final class Plan
                 .collect(toImmutableList()));
     }
 
-    private final GetterLazyValue<Map<Node, Integer>> toposortIndicesByNode = new GetterLazyValue<>();
+    private final SupplierLazyValue<Map<Node, Integer>> toposortIndicesByNode = new SupplierLazyValue<>();
 
     public Map<Node, Integer> getToposortIndicesByNode()
     {
@@ -171,7 +171,7 @@ public final class Plan
                         .collect(toImmutableMap()));
     }
 
-    private final GetterLazyValue<Map<Node, Integer>> reverseToposortIndicesByNode = new GetterLazyValue<>();
+    private final SupplierLazyValue<Map<Node, Integer>> reverseToposortIndicesByNode = new SupplierLazyValue<>();
 
     public Map<Node, Integer> getReverseToposortIndicesByNode()
     {

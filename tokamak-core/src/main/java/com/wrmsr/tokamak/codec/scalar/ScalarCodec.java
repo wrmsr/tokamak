@@ -32,9 +32,10 @@ public interface ScalarCodec<V>
      - back-loaded lengths (lexical sorting, currently length-prefixed - is this even bad?)
       - double-ended output (same interface but paired, one reverses)
       - alt: compress keys & fuck locality lol
+     - Union?
     */
 
-    default OptionalInt getLength()
+    default OptionalInt getFixedWidth()
     {
         return OptionalInt.empty();
     }

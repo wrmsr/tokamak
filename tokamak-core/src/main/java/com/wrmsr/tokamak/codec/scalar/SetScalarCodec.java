@@ -29,15 +29,15 @@ public final class SetScalarCodec<V>
 {
     private final ScalarCodec<V> child;
 
-    public SetScalarCodec(ScalarCodec<V> child, int maxLength)
+    public SetScalarCodec(ScalarCodec<V> child, int size, boolean fixed)
     {
-        super(maxLength);
+        super(size, fixed);
         this.child = checkNotNull(child);
     }
 
     public SetScalarCodec(ScalarCodec<V> child)
     {
-        this(child, DEFAULT_MAX_LENGTH);
+        this(child, DEFAULT_MAX_SIZE, false);
     }
 
     @Override

@@ -21,7 +21,7 @@ import com.wrmsr.tokamak.catalog.Table;
 import com.wrmsr.tokamak.jdbc.metadata.MetaDataReflection;
 import com.wrmsr.tokamak.jdbc.metadata.TableDescription;
 import com.wrmsr.tokamak.layout.TableLayout;
-import com.wrmsr.tokamak.util.lazy.GetterLazyValue;
+import com.wrmsr.tokamak.util.lazy.SupplierLazyValue;
 import org.jdbi.v3.core.Jdbi;
 
 import java.sql.DatabaseMetaData;
@@ -58,7 +58,7 @@ public final class JdbcConnector
         return name;
     }
 
-    private final GetterLazyValue<Jdbi> jdbi = new GetterLazyValue<>();
+    private final SupplierLazyValue<Jdbi> jdbi = new SupplierLazyValue<>();
 
     private Jdbi getJdbi()
     {

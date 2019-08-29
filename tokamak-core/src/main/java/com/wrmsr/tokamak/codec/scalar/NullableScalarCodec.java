@@ -45,9 +45,9 @@ public final class NullableScalarCodec<V>
     }
 
     @Override
-    public OptionalInt getLength()
+    public OptionalInt getFixedWidth()
     {
-        return mapOptional(child.getLength(), l -> l + 1);
+        return mapOptional(child.getFixedWidth(), l -> l + 1);
     }
 
     @Override

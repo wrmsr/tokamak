@@ -26,31 +26,31 @@ import static com.google.common.base.Preconditions.checkState;
 public final class VariableLengthScalarCodec<V>
         implements ScalarCodec<V>
 {
-    public static final int MAX_BYTE_LENGTH = 255;
-    public static final int DEFAULT_MAX_LENGTH = MAX_BYTE_LENGTH;
+    public static final int MAX_BYTE_SIZE = 255;
+    public static final int DEFAULT_MAX_SIZE = MAX_BYTE_SIZE;
 
     private final ScalarCodec<V> child;
-    private final int maxLength;
-    private final boolean isByte;
+    private final int size;
+    private final boolean byteSized;
 
-    public VariableLengthScalarCodec(ScalarCodec<V> child, int maxLength)
+    public VariableLengthScalarCodec(ScalarCodec<V> child, int size)
     {
-        checkArgument(maxLength > 0);
+        checkArgument(size > 0);
         this.child = checkNotNull(child);
-        this.maxLength = maxLength;
-        isByte = maxLength <= MAX_BYTE_LENGTH;
+        this.size = size;
+        byteSized = size <= MAX_BYTE_SIZE;
     }
 
     public VariableLengthScalarCodec(ScalarCodec<V> child)
     {
-        this(child, DEFAULT_MAX_LENGTH);
+        this(child, DEFAULT_MAX_SIZE);
     }
 
     @Override
     public void encode(V value, Output output)
     {
         int startPos = output.tell();
-        if (isByte) {
+        if (byteSized) {
             output.put((byte) 0);
         }
         else {
@@ -58,9 +58,9 @@ public final class VariableLengthScalarCodec<V>
         }
         child.encode(value, output);
         int endPos = output.tell();
-        int sz = endPos - startPos - (isByte ? 1 : 8);
-        checkState(sz < maxLength);
-        if (isByte) {
+        int sz = endPos - startPos - (byteSized ? 1 : 8);
+        checkState(sz < size);
+        if (byteSized) {
             output.putAt(startPos, (byte) sz);
         }
         else {
@@ -72,7 +72,7 @@ public final class VariableLengthScalarCodec<V>
     public V decode(Input input)
     {
         int sz;
-        if (isByte) {
+        if (byteSized) {
             sz = input.get() & 0xFF;
         }
         else {

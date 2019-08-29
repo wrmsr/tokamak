@@ -16,13 +16,15 @@ package com.wrmsr.tokamak.codec.scalar;
 import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.codec.Input;
 import com.wrmsr.tokamak.codec.Output;
-import com.wrmsr.tokamak.util.collect.ObjectArrayBackedMap;
 import com.wrmsr.tokamak.util.Pair;
+import com.wrmsr.tokamak.util.collect.ObjectArrayBackedMap;
+import com.wrmsr.tokamak.util.lazy.SupplierLazyValue;
 
 import javax.annotation.concurrent.Immutable;
 
 import java.util.List;
 import java.util.Map;
+import java.util.OptionalInt;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.ImmutableList.toImmutableList;
@@ -44,6 +46,25 @@ public final class FixedKeyObjectMapScalarCodec<K>
         this.keyChildPairs = this.childrenByKey.entrySet().stream().map(Pair::immutable).collect(toImmutableList());
         this.shape = ObjectArrayBackedMap.Shape.of(this.childrenByKey.keySet());
         this.strict = strict;
+    }
+
+    private final SupplierLazyValue<OptionalInt> fixedWidth = new SupplierLazyValue<>();
+
+    @Override
+    public OptionalInt getFixedWidth()
+    {
+        return fixedWidth.get(() -> {
+            int ret = 0;
+            for (ScalarCodec child : childrenByKey.values()) {
+                if (!child.getFixedWidth().isPresent()) {
+                    return OptionalInt.empty();
+                }
+                else {
+                    ret += child.getFixedWidth().getAsInt();
+                }
+            }
+            return OptionalInt.of(ret);
+        });
     }
 
     public Map<K, ScalarCodec> getChildrenByKey()

@@ -22,7 +22,7 @@ import com.wrmsr.tokamak.node.visitor.NodeVisitor;
 import com.wrmsr.tokamak.type.Type;
 import com.wrmsr.tokamak.util.MoreCollections;
 import com.wrmsr.tokamak.util.Pair;
-import com.wrmsr.tokamak.util.lazy.GetterLazyValue;
+import com.wrmsr.tokamak.util.lazy.SupplierLazyValue;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -231,7 +231,7 @@ public final class EquijoinNode
         return keyLength;
     }
 
-    private final GetterLazyValue<Set<Set<String>>> guaranteedEqualFieldSets = new GetterLazyValue<>();
+    private final SupplierLazyValue<Set<Set<String>>> guaranteedEqualFieldSets = new SupplierLazyValue<>();
 
     public Set<Set<String>> getGuaranteedEqualFieldSets()
     {
@@ -247,7 +247,7 @@ public final class EquijoinNode
         });
     }
 
-    private final GetterLazyValue<Map<String, Set<String>>> equivalentFieldSetsByField = new GetterLazyValue<>();
+    private final SupplierLazyValue<Map<String, Set<String>>> equivalentFieldSetsByField = new SupplierLazyValue<>();
 
     public Map<String, Set<String>> getEquivalentFieldSetsByField()
     {

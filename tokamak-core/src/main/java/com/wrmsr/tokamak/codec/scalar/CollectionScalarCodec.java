@@ -24,28 +24,34 @@ import static com.google.common.base.Preconditions.checkArgument;
 public abstract class CollectionScalarCodec<V>
         implements ScalarCodec<V>
 {
-    public static final int MAX_BYTE_LENGTH = 255;
-    public static final int DEFAULT_MAX_LENGTH = MAX_BYTE_LENGTH;
+    public static final int MAX_BYTE_SIZE = 255;
+    public static final int DEFAULT_MAX_SIZE = MAX_BYTE_SIZE;
 
-    protected final int maxLength;
-    protected final boolean isByte;
+    protected final int size;
+    protected final boolean fixed;
 
-    public CollectionScalarCodec(int maxLength)
+    protected final boolean byteSized;
+
+    public CollectionScalarCodec(int size, boolean fixed)
     {
-        checkArgument(maxLength > 0);
-        this.maxLength = maxLength;
-        isByte = maxLength <= MAX_BYTE_LENGTH;
+        checkArgument(size > 0);
+        this.size = size;
+        this.fixed = fixed;
+        byteSized = size <= MAX_BYTE_SIZE;
     }
 
     public CollectionScalarCodec()
     {
-        this(DEFAULT_MAX_LENGTH);
+        this(DEFAULT_MAX_SIZE, false);
     }
 
     protected void encodeSize(int sz, Output output)
     {
-        if (isByte) {
-            checkArgument(sz < DEFAULT_MAX_LENGTH);
+        if (fixed) {
+            checkArgument(sz == size);
+        }
+        else if (byteSized) {
+            checkArgument(sz < DEFAULT_MAX_SIZE);
             output.put((byte) sz);
         }
         else {
@@ -55,13 +61,14 @@ public abstract class CollectionScalarCodec<V>
 
     protected int decodeSize(Input input)
     {
-        int sz;
-        if (isByte) {
-            sz = input.get() & 0xFF;
+        if (fixed) {
+            return size;
+        }
+        else if (byteSized) {
+            return input.get() & 0xFF;
         }
         else {
-            sz = (int) input.getLong();
+            return (int) input.getLong();
         }
-        return sz;
     }
 }

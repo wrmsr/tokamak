@@ -79,7 +79,7 @@ public final class FunctionPairScalarCodec<V>
     }
 
     @Override
-    public OptionalInt getLength()
+    public OptionalInt getFixedWidth()
     {
         return length;
     }

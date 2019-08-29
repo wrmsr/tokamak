@@ -30,16 +30,16 @@ public final class ListScalarCodec<V>
 {
     private final ScalarCodec<V> child;
 
-    public ListScalarCodec(ScalarCodec<V> child, int maxLength)
+    public ListScalarCodec(ScalarCodec<V> child, int size, boolean fixed)
     {
-        super(maxLength);
-        checkArgument(maxLength > 0);
+        super(size, fixed);
+        checkArgument(size > 0);
         this.child = checkNotNull(child);
     }
 
     public ListScalarCodec(ScalarCodec<V> child)
     {
-        this(child, DEFAULT_MAX_LENGTH);
+        this(child, DEFAULT_MAX_SIZE, false);
     }
 
     @Override

@@ -15,7 +15,7 @@ package com.wrmsr.tokamak.util.lazy;
 
 import java.util.function.Supplier;
 
-public final class GetterLazyValue<T>
+public final class SupplierLazyValue<T>
 {
     private volatile boolean isSet = false;
     private volatile T value = null;
