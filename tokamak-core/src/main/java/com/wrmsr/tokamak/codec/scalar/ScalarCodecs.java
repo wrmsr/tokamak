@@ -18,6 +18,7 @@ import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.type.Type;
 
 import java.util.Map;
+import java.util.OptionalInt;
 
 public final class ScalarCodecs
 {
@@ -27,27 +28,37 @@ public final class ScalarCodecs
 
     public static final FunctionPairScalarCodec<Boolean> BOOLEAN_SCALAR_CODEC = FunctionPairScalarCodec.of(
             (v, o) -> o.put((Boolean) v ? (byte) 1 : (byte) 0),
-            i -> i.get() != 0
+            i -> i.get() != 0,
+            OptionalInt.of(1),
+            false
     );
 
     public static final FunctionPairScalarCodec<Number> LONG_SCALAR_CODEC = FunctionPairScalarCodec.of(
             (v, o) -> o.putLong(v.longValue()),
-            i -> i.getLong()
+            i -> i.getLong(),
+            OptionalInt.of(8),
+            false
     );
 
     public static final FunctionPairScalarCodec<Number> DOUBLE_SCALAR_CODEC = FunctionPairScalarCodec.of(
             (v, o) -> o.putLong(Double.doubleToLongBits(v.doubleValue())),
-            i -> Double.longBitsToDouble(i.getLong())
+            i -> Double.longBitsToDouble(i.getLong()),
+            OptionalInt.of(8),
+            false
     );
 
     public static final FunctionPairScalarCodec<byte[]> BYTES_SCALAR_CODEC = FunctionPairScalarCodec.of(
             (v, o) -> o.putBytes(v),
-            i -> i.getBytes()
+            i -> i.getBytes(),
+            OptionalInt.empty(),
+            false
     );
 
     public static final FunctionPairScalarCodec<String> STRING_SCALAR_CODEC = FunctionPairScalarCodec.of(
             (v, o) -> o.putBytes(v.getBytes(Charsets.UTF_8)),
-            i -> new String(i.getBytes(), Charsets.UTF_8)
+            i -> new String(i.getBytes(), Charsets.UTF_8),
+            OptionalInt.empty(),
+            false
     );
 
     public static final Map<Type, ScalarCodec> SCALAR_CODECS_BY_TYPE = ImmutableMap.<Type, ScalarCodec>builder()

@@ -18,13 +18,31 @@ import com.wrmsr.tokamak.codec.ByteArrayOutput;
 import com.wrmsr.tokamak.codec.Input;
 import com.wrmsr.tokamak.codec.Output;
 
+import java.util.OptionalInt;
+
 public interface ScalarCodec<V>
 {
     /*
     TODO:
-     - operate on object[] not maps
-     - key awareness
+     - length awareness
+     - packed
+     - salting
+     - vints
+     - bulks (for denorms)
+     - back-loaded lengths (lexical sorting, currently length-prefixed - is this even bad?)
+      - double-ended output (same interface but paired, one reverses)
+      - alt: compress keys & fuck locality lol
     */
+
+    default OptionalInt getLength()
+    {
+        return OptionalInt.empty();
+    }
+
+    default boolean isNullable()
+    {
+        return false;
+    }
 
     void encode(V value, Output output);
 

@@ -18,6 +18,7 @@ import com.wrmsr.tokamak.codec.Output;
 
 import javax.annotation.concurrent.Immutable;
 
+import java.util.OptionalInt;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
@@ -29,14 +30,40 @@ public final class FunctionPairScalarCodec<V>
 {
     private final BiConsumer<V, Output> encoder;
     private final Function<Input, V> decoder;
+    private final OptionalInt length;
+    private final boolean isNullable;
 
-    public FunctionPairScalarCodec(BiConsumer<V, Output> encoder, Function<Input, V> decoder)
+    public FunctionPairScalarCodec(
+            BiConsumer<V, Output> encoder,
+            Function<Input, V> decoder,
+            OptionalInt length,
+            boolean isNullable)
     {
         this.encoder = checkNotNull(encoder);
         this.decoder = checkNotNull(decoder);
+        this.length = checkNotNull(length);
+        this.isNullable = isNullable;
     }
 
-    public static <V> FunctionPairScalarCodec<V> of(BiConsumer<V, Output> encoder, Function<Input, V> decoder)
+    public FunctionPairScalarCodec(
+            BiConsumer<V, Output> encoder,
+            Function<Input, V> decoder)
+    {
+        this(encoder, decoder, OptionalInt.empty(), false);
+    }
+
+    public static <V> FunctionPairScalarCodec<V> of(
+            BiConsumer<V, Output> encoder,
+            Function<Input, V> decoder,
+            OptionalInt length,
+            boolean isNullable)
+    {
+        return new FunctionPairScalarCodec<>(encoder, decoder, length, isNullable);
+    }
+
+    public static <V> FunctionPairScalarCodec<V> of(
+            BiConsumer<V, Output> encoder,
+            Function<Input, V> decoder)
     {
         return new FunctionPairScalarCodec<>(encoder, decoder);
     }
@@ -49,6 +76,18 @@ public final class FunctionPairScalarCodec<V>
     public Function<Input, V> getDecoder()
     {
         return decoder;
+    }
+
+    @Override
+    public OptionalInt getLength()
+    {
+        return length;
+    }
+
+    @Override
+    public boolean isNullable()
+    {
+        return isNullable;
     }
 
     @Override

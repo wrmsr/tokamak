@@ -13,6 +13,7 @@
  */
 package com.wrmsr.util;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.CharStreams;
@@ -111,7 +112,7 @@ public final class HttpClient
             try {
                 responseCode = urlConnection.getResponseCode();
                 InputStream inputStream = urlConnection.getInputStream();
-                Map<String, Object> response = Json.OBJECT_MAPPER_SUPPLIER.get().readValue(inputStream, Map.class);
+                Map<String, Object> response = Json.OBJECT_MAPPER_SUPPLIER.get().readValue(inputStream, new TypeReference<Map<String, Object>>() {});
                 return new HttpClientResponse(response, responseCode, null);
             }
             catch (Exception e) {

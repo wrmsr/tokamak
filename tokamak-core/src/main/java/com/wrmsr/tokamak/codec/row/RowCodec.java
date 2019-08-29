@@ -27,11 +27,8 @@ public interface RowCodec
 {
     /*
     TODO:
-     - length awareness
-     - packed
-     - salting
-     - vints
-     - bulks (for denorms)
+     - operate on object[] not maps
+     - key awareness
     */
 
     void encode(Map<String, Object> row, Output output);

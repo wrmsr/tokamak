@@ -18,7 +18,10 @@ import com.wrmsr.tokamak.codec.Output;
 
 import javax.annotation.concurrent.Immutable;
 
+import java.util.OptionalInt;
+
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.wrmsr.tokamak.util.MoreOptionals.mapOptional;
 
 @Immutable
 public final class NullableScalarCodec<V>
@@ -31,22 +34,44 @@ public final class NullableScalarCodec<V>
         this.child = checkNotNull(child);
     }
 
+    public static <V> ScalarCodec<V> of(ScalarCodec<V> child)
+    {
+        if (child.isNullable()) {
+            return child;
+        }
+        else {
+            return new NullableScalarCodec<>(child);
+        }
+    }
+
+    @Override
+    public OptionalInt getLength()
+    {
+        return mapOptional(child.getLength(), l -> l + 1);
+    }
+
+    @Override
+    public boolean isNullable()
+    {
+        return true;
+    }
+
     @Override
     public void encode(V value, Output output)
     {
         if (value != null) {
-            output.putLong(0);
+            output.put((byte) 0);
             child.encode(value, output);
         }
         else {
-            output.putLong(1);
+            output.put((byte) 1);
         }
     }
 
     @Override
     public V decode(Input input)
     {
-        if (input.get() == 0) {
+        if (input.get() == (byte) 0) {
             return child.decode(input);
         }
         else {
