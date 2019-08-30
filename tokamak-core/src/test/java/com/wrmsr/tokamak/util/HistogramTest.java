@@ -48,11 +48,13 @@ public final class HistogramTest
         s = h.get();
         System.out.println(s);
 
-        for (int i = 0; i < 10000; ++i) {
-            h.add(ThreadLocalRandom.current().nextFloat() * 10.0f);
-        }
+        for (int j = 0; j < 10; ++j) {
+            for (int i = 0; i < 500; ++i) {
+                h.add(ThreadLocalRandom.current().nextFloat() * 10.0f);
+            }
 
-        s = h.get();
-        System.out.println(s);
+            s = h.get();
+            System.out.println(s);
+        }
     }
 }
