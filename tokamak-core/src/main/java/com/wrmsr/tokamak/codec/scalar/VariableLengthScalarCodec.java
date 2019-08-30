@@ -50,7 +50,7 @@ public final class VariableLengthScalarCodec<V>
     @Override
     public Width getWidth()
     {
-       
+        return child.getWidth().map(w -> w + (byteSized ? 1 : 8));
     }
 
     @Override
