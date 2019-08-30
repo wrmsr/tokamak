@@ -63,7 +63,7 @@ public abstract class CollectionScalarCodec<V>
             }
 
             @Override
-            public Width visitBounded(Width.Bounded width)
+            public Width visitBounded(Width.Range width)
             {
                 return super.visitBounded(width);
             }

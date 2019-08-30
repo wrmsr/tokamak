@@ -22,7 +22,6 @@ import java.util.OptionalInt;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.wrmsr.tokamak.util.MoreOptionals.mapOptional;
 import static com.wrmsr.tokamak.util.MoreOptionals.sumOptionals;
@@ -65,7 +64,7 @@ public interface Width
             return visitWidth(width);
         }
 
-        public R visitBounded(Bounded width)
+        public R visitRange(Range width)
         {
             return visitWidth(width);
         }
@@ -112,20 +111,18 @@ public interface Width
         }
     }
 
-    static Width unknown()
-    {
-        return Unknown.INSTANCE;
-    }
-
-    final class Bounded
+    final class Range
             implements Width
     {
         private final OptionalInt minValue;
         private final OptionalInt maxValue;
 
-        public Bounded(OptionalInt minValue, OptionalInt maxValue)
+        public Range(OptionalInt minValue, OptionalInt maxValue)
         {
             checkArgument(checkNotNull(minValue).isPresent() || checkNotNull(maxValue).isPresent());
+            if (minValue.isPresent() && maxValue.isPresent()) {
+                checkArgument(minValue.getAsInt() < maxValue.getAsInt());
+            }
             this.minValue = minValue;
             this.maxValue = maxValue;
         }
@@ -137,15 +134,21 @@ public interface Width
         }
 
         @Override
-        public OptionalInt getFixed()
+        public OptionalInt getMax()
         {
             return maxValue;
         }
 
         @Override
+        public OptionalInt getFixed()
+        {
+            return OptionalInt.empty();
+        }
+
+        @Override
         public Width map(IntFunctor fn)
         {
-            return new Bounded(
+            return of(
                     mapOptional(minValue, fn::apply),
                     mapOptional(maxValue, fn::apply));
         }
@@ -153,23 +156,8 @@ public interface Width
         @Override
         public <R> R accept(Visitor<R> visitor)
         {
-            return visitor.visitBounded(this);
+            return visitor.visitRange(this);
         }
-    }
-
-    static Width min(int min)
-    {
-        return new Bounded(OptionalInt.of(min), OptionalInt.empty());
-    }
-
-    static Width max(int max)
-    {
-        return new Bounded(OptionalInt.empty(), OptionalInt.of(max));
-    }
-
-    static Width bounded(int min, int max)
-    {
-        return new Bounded(OptionalInt.of(min), OptionalInt.of(max));
     }
 
     final class Fixed
@@ -214,21 +202,44 @@ public interface Width
         }
     }
 
+    static Width unknown()
+    {
+        return Unknown.INSTANCE;
+    }
+
+    static Width of(OptionalInt min, OptionalInt max)
+    {
+        if (min.isPresent() && max.isPresent()) {
+            if (min.getAsInt() == max.getAsInt()) {
+                return new Fixed(min.getAsInt());
+            }
+            else {
+                return new Range(min, max);
+            }
+        }
+        else if (min.isPresent() || max.isPresent()) {
+            return new Range(min, max);
+        }
+        else {
+            return Unknown.INSTANCE;
+        }
+    }
+
+    static Width of(int value)
+    {
+        return new Fixed(value);
+    }
+
+    static Width of(int min, int max)
+    {
+        return new Range(OptionalInt.of(min), OptionalInt.of(max));
+    }
+
     static Width sum(Iterable<Width> widths)
     {
         List<Width> lst = ImmutableList.copyOf(widths);
+        OptionalInt min = sumOptionals(lst.stream().map(Width::getMin).collect(toImmutableList()));
         OptionalInt max = sumOptionals(lst.stream().map(Width::getMax).collect(toImmutableList()));
-        OptionalInt fixed = sumOptionals(lst.stream().map(Width::getFixed).collect(toImmutableList()));
-        if (fixed.isPresent()) {
-            checkState(max.isPresent());
-            checkState(max.getAsInt() == fixed.getAsInt());
-            return new Fixed(fixed.getAsInt());
-        }
-        else if (max.isPresent()) {
-            return new Bounded(max.getAsInt());
-        }
-        else {
-            return unknown();
-        }
+        return of(min, max);
     }
 }
