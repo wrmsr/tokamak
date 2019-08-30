@@ -23,15 +23,11 @@ import java.util.Map;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 public final class Properties
 {
-    /*
-    TODO:
-     - isBool lol
-    */
-
     private Properties()
     {
     }
@@ -46,7 +42,7 @@ public final class Properties
                 if (method.isAnnotationPresent(com.wrmsr.tokamak.util.config.ConfigProperty.class)) {
                     String methodName = method.getName();
                     if (methodName.startsWith("set") || methodName.startsWith("get") || methodName.startsWith("is")) {
-                        boolean isGetter = !methodName.startsWith("set")
+                        boolean isGetter = !methodName.startsWith("set");
                         String name = methodName.substring(methodName.startsWith("is") ? 2 : 3);
                         checkArgument(Character.isUpperCase(name.charAt(0)));
                         if (isGetter) {
@@ -70,7 +66,9 @@ public final class Properties
         }
 
         for (Map.Entry<String, Method> e : getters.entrySet()) {
-
+            BeanProperty p = (BeanProperty) checkNotNull(properties.get(e.getKey()));
+            checkState(!p.getGetter().isPresent());
+            properties.put(e.getKey(), new BeanProperty(p.getName(), p.getSetter(), Optional.of(e.getValue())));
         }
 
         return ImmutableMap.copyOf(properties);

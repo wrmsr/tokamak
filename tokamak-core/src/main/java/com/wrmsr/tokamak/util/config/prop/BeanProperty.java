@@ -34,6 +34,16 @@ public final class BeanProperty
         this.getter = checkNotNull(getter);
     }
 
+    public Method getSetter()
+    {
+        return setter;
+    }
+
+    public Optional<Method> getGetter()
+    {
+        return getter;
+    }
+
     @Override
     public Object get(Config cfg)
     {
