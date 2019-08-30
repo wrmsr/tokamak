@@ -16,8 +16,8 @@ package com.wrmsr.tokamak.util.config;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-@JsonSerialize(using = ConfigObjectMapping.Serializer.class)
-@JsonDeserialize(using = ConfigObjectMapping.Deserializer.class)
+@JsonSerialize(using = ObjectMapping.Serializer.class)
+@JsonDeserialize(using = ObjectMapping.Deserializer.class)
 public interface Config
 {
 }

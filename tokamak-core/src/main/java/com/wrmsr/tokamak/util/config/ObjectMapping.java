@@ -34,9 +34,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkSubclass;
 
-public final class ConfigObjectMapping
+final class ObjectMapping
 {
-    private ConfigObjectMapping()
+    private ObjectMapping()
     {
     }
 

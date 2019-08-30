@@ -16,38 +16,63 @@ package com.wrmsr.tokamak.util.config.prop;
 import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.util.config.Config;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkState;
 
 public final class Properties
 {
+    /*
+    TODO:
+     - isBool lol
+    */
+
     private Properties()
     {
     }
 
     public static Map<String, Property> build(Class<? extends Config> cls)
     {
-        ImmutableMap.Builder<String, Property> map = ImmutableMap.builder();
+        Map<String, Property> properties = new LinkedHashMap<>();
+        Map<String, Method> getters = new LinkedHashMap<>();
+
         for (Class<?> cur = cls; (cur != null) && !cur.equals(Object.class); cur = cur.getSuperclass()) {
             for (Method method : cur.getDeclaredMethods()) {
                 if (method.isAnnotationPresent(com.wrmsr.tokamak.util.config.ConfigProperty.class)) {
-                    checkArgument(method.getName().startsWith("set"));
-                    String name = method.getName().substring(3);
-                    checkArgument(Character.isUpperCase(name.charAt(0)));
-                    name = Character.toLowerCase(name.charAt(0)) + name.substring(1);
-                    map.put(name, new BeanProperty(name, method, Optional.empty()));
+                    String methodName = method.getName();
+                    if (methodName.startsWith("set") || methodName.startsWith("get") || methodName.startsWith("is")) {
+                        boolean isGetter = !methodName.startsWith("set")
+                        String name = methodName.substring(methodName.startsWith("is") ? 2 : 3);
+                        checkArgument(Character.isUpperCase(name.charAt(0)));
+                        if (isGetter) {
+                            checkState(!getters.containsKey(name));
+                            getters.put(name, method);
+                        }
+                        else {
+                            checkState(!properties.containsKey(name));
+                            properties.put(name, new BeanProperty(name, method, Optional.empty()));
+                        }
+                    }
                 }
             }
-            for (java.lang.reflect.Field field : cur.getDeclaredFields()) {
+
+            for (Field field : cur.getDeclaredFields()) {
                 if (field.isAnnotationPresent(com.wrmsr.tokamak.util.config.ConfigProperty.class)) {
                     String name = field.getName();
-                    map.put(name, new FieldProperty(name, field));
+                    properties.put(name, new FieldProperty(name, field));
                 }
             }
         }
-        return map.build();
+
+        for (Map.Entry<String, Method> e : getters.entrySet()) {
+
+        }
+
+        return ImmutableMap.copyOf(properties);
     }
 }

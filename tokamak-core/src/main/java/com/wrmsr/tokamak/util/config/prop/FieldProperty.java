@@ -16,12 +16,14 @@ package com.wrmsr.tokamak.util.config.prop;
 
 import com.wrmsr.tokamak.util.config.Config;
 
+import java.lang.reflect.Field;
+
 public final class FieldProperty
         extends Property
 {
-    private final java.lang.reflect.Field field;
+    private final Field field;
 
-    FieldProperty(String name, java.lang.reflect.Field field)
+    FieldProperty(String name, Field field)
     {
         super(name);
         this.field = field;
