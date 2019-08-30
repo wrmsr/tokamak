@@ -25,7 +25,10 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.wrmsr.tokamak.util.MoreCollections.arrayWithReplaced;
 import static com.wrmsr.tokamak.util.MoreCollections.concatArrays;
@@ -122,14 +125,67 @@ public class ConfigTest
             return builder.build();
         }
 
+        private interface UnflattenNode<K>
+        {
+            Object get(K key);
+
+
+            void put(K key, Object value);
+
+            default <V> V setDefault(K key, Class<V> cls, Supplier<V> supplier)
+            {
+                V ret = (V) get(key);
+                if (ret != null) {
+                    checkState(cls.isInstance(ret));
+                }
+                else {
+                    ret = supplier.get();
+                    put(key, ret);
+                }
+                return ret;
+
+            }
+        }
+
         private static final class UnflattenMap
+                implements UnflattenNode<String>
         {
             private final Map<String, Object> map = new LinkedHashMap<>();
+
+            @Override
+            public Object get(String key)
+            {
+                return map.get(key);
+            }
+
+            @Override
+            public void put(String key, Object value)
+            {
+                checkState(!map.containsKey(key));
+                map.put(key, value);
+            }
         }
 
         private static final class UnflattenList
+                implements UnflattenNode<Integer>
         {
-            private final List<Object> list = new ArrayList<>();
+            private final ArrayList<Object> list = new ArrayList<>();
+
+            @Override
+            public Object get(Integer key)
+            {
+                checkArgument(key >= 0);
+                return list.get(key);
+            }
+
+            @Override
+            public void put(Integer key, Object value)
+            {
+                checkArgument(key >= 0);
+                list.ensureCapacity(key + 1);
+                checkState(list.get(key) == null);
+                list.set(key, value);
+            }
         }
 
         public Map<String, Object> unflatten(Map<String, Object> flattened)
@@ -143,10 +199,11 @@ public class ConfigTest
                         checkState(k.endsWith(indexClose));
                         int p = k.indexOf(indexOpen);
                         int i = Integer.parseInt(k.substring(p, k.length() - indexClose.length()));
-                        k = k.substring(p);
+                        node = node.child(k.substring(p));
                     }
                     else {
                         checkState(!k.contains(indexClose));
+                        node = node.child(k);
                     }
                 }
             }
