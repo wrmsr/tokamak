@@ -50,7 +50,7 @@ public class ConfigTest
         public int fieldInt;
     }
 
-    public void testConfig()
+    public void testThingConfig()
             throws Throwable
     {
         Map map = ImmutableMap.of(
@@ -59,6 +59,47 @@ public class ConfigTest
 
         ThingConfig cfg = Json.readValue(Json.writeValue(map), ThingConfig.class);
         System.out.println(cfg);
+
+        map = (Map) Json.roundTrip(cfg);
+        cfg = Json.readValue(Json.writeValue(map), ThingConfig.class);
+        System.out.println(cfg);
+    }
+
+    public static class OuterConfig
+            implements Config
+    {
+        public OuterConfig()
+        {
+        }
+
+        private ThingConfig thing;
+
+        @ConfigProperty
+        public ThingConfig getThing()
+        {
+            return thing;
+        }
+
+        @ConfigProperty
+        public OuterConfig setThing(ThingConfig thing)
+        {
+            this.thing = thing;
+            return this;
+        }
+    }
+
+    public void testOuterConfig()
+            throws Throwable
+    {
+        OuterConfig oc = new OuterConfig()
+                .setThing(new ThingConfig()
+                        .setBeanInt(420));
+
+        Map map = (Map) Json.roundTrip(oc);
+
+        OuterConfig oc2 = Json.readValue(Json.writeValue(map), OuterConfig.class);
+
+        System.out.println(oc2);
     }
 
     public void testFlattening()
