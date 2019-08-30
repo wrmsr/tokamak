@@ -45,6 +45,15 @@ public final class Histogram
             this.value = value;
         }
 
+        @Override
+        public String toString()
+        {
+            return "Percentile{" +
+                    "p=" + p +
+                    ", value=" + value +
+                    '}';
+        }
+
         public float getP()
         {
             return p;
@@ -79,6 +88,18 @@ public final class Histogram
             this.samplePercentiles = samplePercentiles;
         }
 
+        @Override
+        public String toString()
+        {
+            return "Stats{" +
+                    "count=" + count +
+                    ", min=" + min +
+                    ", max=" + max +
+                    ", lastPercentiles=" + lastPercentiles +
+                    ", samplePercentiles=" + samplePercentiles +
+                    '}';
+        }
+
         public int getCount()
         {
             return count;
@@ -108,6 +129,8 @@ public final class Histogram
     private final int size;
     private final List<Float> percentiles;
 
+    private final long baseMillis;
+
     private volatile int count;
     private volatile float min = Float.POSITIVE_INFINITY;
     private volatile float max = Float.NEGATIVE_INFINITY;
@@ -126,6 +149,8 @@ public final class Histogram
         this.size = size;
         this.percentiles = ImmutableList.copyOf(percentiles);
         this.percentiles.forEach(p -> checkArgument(p >= 0.0f));
+
+        baseMillis = System.currentTimeMillis();
 
         percentilePosList = calcPercentilePosList(size);
 
@@ -148,19 +173,14 @@ public final class Histogram
         return percentiles;
     }
 
-    public static float now()
+    private long makeEntry(long timestamp, float value)
     {
-        return System.currentTimeMillis() / 1000.0f;
+        return ((timestamp - baseMillis) << 32) | Float.floatToIntBits(value);
     }
 
-    private static long makeEntry(float timestamp, float value)
+    private long getEntryTimestamp(long entry)
     {
-        return ((long) Float.floatToIntBits(now()) << 32) | Float.floatToIntBits(value);
-    }
-
-    private static float getEntryTimestamp(long entry)
-    {
-        return Float.intBitsToFloat((int) (entry >>> 32));
+        return baseMillis + (entry >>> 32);
     }
 
     private static float getEntryValue(long entry)
@@ -172,9 +192,9 @@ public final class Histogram
     {
         count += 1;
         min = Float.min(min, value);
-        max = Float.min(max, value);
+        max = Float.max(max, value);
 
-        long entry = makeEntry(now(), value);
+        long entry = makeEntry(System.currentTimeMillis(), value);
 
         ring.set(ringPos, entry);
         int nextRingPos = ringPos + 1;
@@ -200,7 +220,7 @@ public final class Histogram
         return Math.round((p * sz) - 1);
     }
 
-    private List<Integer> calcPercentilePosList(int sz)
+    private List<Integer> calcPercentilePosList(int size)
     {
         return percentiles.stream().map(p -> calcPercentilePos(p, size)).collect(toImmutableList());
     }
@@ -221,7 +241,7 @@ public final class Histogram
         }
 
         List<Integer> posList = size == this.size ? percentilePosList : calcPercentilePosList(size);
-        Arrays.sort(values);
+        Arrays.sort(values, 0, size);
         return Streams.zip(percentiles.stream(), posList.stream(), (p, pos) -> new Percentile(p, values[pos])).collect(toImmutableList());
     }
 
@@ -240,7 +260,7 @@ public final class Histogram
         return get(e -> true);
     }
 
-    public Stats getSince(float timestamp)
+    public Stats getSince(long timestamp)
     {
         return get(e -> getEntryTimestamp(e) >= timestamp);
     }
