@@ -22,7 +22,6 @@ import com.wrmsr.tokamak.util.Json;
 import javax.annotation.concurrent.Immutable;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -41,14 +40,7 @@ public final class JsonValueCodec<V>
 
     public JsonValueCodec(Class<V> cls, ObjectMapper objectMapper)
     {
-        this(new TypeReference<V>()
-        {
-            @Override
-            public Type getType()
-            {
-                return cls;
-            }
-        }, objectMapper);
+        this(Json.typeReference(cls), objectMapper);
     }
 
     public JsonValueCodec(TypeReference<V> typeReference)

@@ -26,6 +26,7 @@ import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 
 public final class Json
 {
@@ -130,5 +131,17 @@ public final class Json
     public static Object roundTrip(Object value)
     {
         return roundTrip(value, new TypeReference<Object>() {});
+    }
+
+    public static <V> TypeReference<V> typeReference(Class<V> cls)
+    {
+        return new TypeReference<V>()
+        {
+            @Override
+            public Type getType()
+            {
+                return cls;
+            }
+        };
     }
 }

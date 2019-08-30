@@ -28,6 +28,12 @@ import static com.google.common.base.Preconditions.checkState;
 
 public final class Properties
 {
+    /*
+    TODO:
+     - name overrides
+     - toString
+    */
+
     private Properties()
     {
     }
@@ -45,6 +51,7 @@ public final class Properties
                         boolean isGetter = !methodName.startsWith("set");
                         String name = methodName.substring(methodName.startsWith("is") ? 2 : 3);
                         checkArgument(Character.isUpperCase(name.charAt(0)));
+                        name = Character.toLowerCase(name.charAt(0)) + name.substring(1);
                         if (isGetter) {
                             checkState(!getters.containsKey(name));
                             getters.put(name, method);
@@ -60,6 +67,7 @@ public final class Properties
             for (Field field : cur.getDeclaredFields()) {
                 if (field.isAnnotationPresent(com.wrmsr.tokamak.util.config.ConfigProperty.class)) {
                     String name = field.getName();
+                    checkState(!properties.containsKey(name));
                     properties.put(name, new FieldProperty(name, field));
                 }
             }

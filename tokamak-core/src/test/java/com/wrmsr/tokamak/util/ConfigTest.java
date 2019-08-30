@@ -34,6 +34,7 @@ public class ConfigTest
 
         private int beanInt;
 
+        @ConfigProperty
         public int getBeanInt()
         {
             return beanInt;
@@ -63,6 +64,8 @@ public class ConfigTest
         map = (Map) Json.roundTrip(cfg);
         cfg = Json.readValue(Json.writeValue(map), ThingConfig.class);
         System.out.println(cfg);
+
+        assertEquals(1, cfg.getBeanInt());
     }
 
     public static class OuterConfig
@@ -100,6 +103,8 @@ public class ConfigTest
         OuterConfig oc2 = Json.readValue(Json.writeValue(map), OuterConfig.class);
 
         System.out.println(oc2);
+
+        assertEquals(1, oc2.getThing().getBeanInt());
     }
 
     public void testFlattening()

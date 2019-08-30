@@ -14,6 +14,7 @@
 
 package com.wrmsr.tokamak.util.config.prop;
 
+import com.wrmsr.tokamak.util.Json;
 import com.wrmsr.tokamak.util.config.Config;
 
 import java.lang.reflect.Field;
@@ -25,7 +26,7 @@ public final class FieldProperty
 
     FieldProperty(String name, Field field)
     {
-        super(name);
+        super(name, Json.typeReference(field.getType()));
         this.field = field;
     }
 

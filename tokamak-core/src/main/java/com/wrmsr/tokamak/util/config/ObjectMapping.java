@@ -104,7 +104,7 @@ final class ObjectMapping
                     String name = parser.getValueAsString();
                     Property prop = checkNotNull(metadata.getProperties().get(name));
                     parser.nextToken();
-                    Object value = codec.readValue(codec.treeAsTokens(parser.readValueAsTree()), Object.class);
+                    Object value = codec.readValue(codec.treeAsTokens(parser.readValueAsTree()), prop.getType());
                     prop.set(cfg, value);
                 }
                 return cfg;

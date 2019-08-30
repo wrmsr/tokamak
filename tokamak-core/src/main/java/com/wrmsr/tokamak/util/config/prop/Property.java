@@ -14,22 +14,31 @@
 
 package com.wrmsr.tokamak.util.config.prop;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.wrmsr.tokamak.util.config.Config;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 
 public abstract class Property
 {
     private String name;
+    private TypeReference type;
 
-    Property(String name)
+    Property(String name, TypeReference type)
     {
         this.name = checkNotEmpty(name);
+        this.type = checkNotNull(type);
     }
 
     public String getName()
     {
         return name;
+    }
+
+    public TypeReference getType()
+    {
+        return type;
     }
 
     public abstract Object get(Config cfg);
