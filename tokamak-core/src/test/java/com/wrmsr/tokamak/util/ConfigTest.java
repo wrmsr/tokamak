@@ -13,12 +13,17 @@
  */
 package com.wrmsr.tokamak.util;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.util.config.Config;
 import com.wrmsr.tokamak.util.config.ConfigProperty;
 import junit.framework.TestCase;
 
+import java.util.List;
 import java.util.Map;
+
+import static com.wrmsr.tokamak.util.MoreCollections.concat;
+import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 
 public class ConfigTest
         extends TestCase
@@ -57,5 +62,51 @@ public class ConfigTest
 
         ThingConfig cfg = Json.readValue(Json.writeValue(map), ThingConfig.class);
         System.out.println(cfg);
+    }
+
+    @SuppressWarnings({"unchecked"})
+    public static class Flattening
+    {
+        private final String delimiter;
+        private final String indexOpen;
+        private final String indexClose;
+
+        public Flattening(String delimiter, String indexOpen, String indexClose)
+        {
+            this.delimiter = checkNotEmpty(delimiter);
+            this.indexOpen = checkNotEmpty(indexOpen);
+            this.indexClose = checkNotEmpty(indexClose);
+        }
+
+        private void flatten(ImmutableMap.Builder<String, Object> builder, String[] prefix, Object value)
+        {
+            if (value instanceof Map) {
+                Map<String, Object> m = (Map<String, Object>) value;
+                for (Map.Entry<String, Object> e : m.entrySet()) {
+                    flatten(builder, concat(prefix, new String[] {e.getKey()}), e.getValue());
+                }
+            }
+            else if (value instanceof List) {
+                List<Object> l = (List<Object>) value;
+                for (int i = 0; i < l.size(); ++i) {
+                    flatten(builder, concat(prefix, new String[] {indexOpen + i + indexClose}), l.get(i));
+                }
+            }
+            else {
+                builder.put(Joiner.on(delimiter).join(prefix), value);
+            }
+        }
+
+        public Map<String, Object> flatten(Map<String, Object> unflattened)
+        {
+            ImmutableMap.Builder<String, Object> builder = ImmutableMap.builder();
+            flatten(builder, new String[] {}, unflattened);
+            return builder.build();
+        }
+
+        public Map<String, Object> unflatten(Map<String, String> flattened)
+        {
+            throw new IllegalStateException();
+        }
     }
 }

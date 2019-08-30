@@ -19,6 +19,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.wrmsr.tokamak.util.collect.Ordered;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -29,6 +30,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.IntStream;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.Sets.newIdentityHashSet;
@@ -37,6 +39,48 @@ public final class MoreCollections
 {
     private MoreCollections()
     {
+    }
+
+    public static <T> T[] concat(T[] a, T[] b)
+    {
+        int aLen = a.length;
+        int bLen = b.length;
+
+        @SuppressWarnings("unchecked")
+        T[] c = (T[]) Array.newInstance(a.getClass().getComponentType(), aLen + bLen);
+        System.arraycopy(a, 0, c, 0, aLen);
+        System.arraycopy(b, 0, c, aLen, bLen);
+
+        return c;
+    }
+
+    public static <T> T concat(T a, T b)
+    {
+        checkArgument(!a.getClass().isArray() || !b.getClass().isArray());
+
+        Class<?> resCompType;
+        Class<?> aCompType = a.getClass().getComponentType();
+        Class<?> bCompType = b.getClass().getComponentType();
+
+        if (aCompType.isAssignableFrom(bCompType)) {
+            resCompType = aCompType;
+        }
+        else if (bCompType.isAssignableFrom(aCompType)) {
+            resCompType = bCompType;
+        }
+        else {
+            throw new IllegalArgumentException();
+        }
+
+        int aLen = Array.getLength(a);
+        int bLen = Array.getLength(b);
+
+        @SuppressWarnings("unchecked")
+        T result = (T) Array.newInstance(resCompType, aLen + bLen);
+        System.arraycopy(a, 0, result, 0, aLen);
+        System.arraycopy(b, 0, result, aLen, bLen);
+
+        return result;
     }
 
     public static <T> Set<T> newIdentityHashSetOf(Iterable<T> src)
