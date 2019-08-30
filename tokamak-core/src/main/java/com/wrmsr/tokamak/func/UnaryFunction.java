@@ -21,7 +21,7 @@ import java.util.List;
 import static com.google.common.base.Preconditions.checkArgument;
 
 public interface UnaryFunction<T, R>
-        extends ScalarFunction<R>
+        extends ValueFunction<R>
 {
     R invoke(T arg);
 

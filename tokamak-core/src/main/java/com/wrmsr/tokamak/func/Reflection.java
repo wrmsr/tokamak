@@ -24,7 +24,7 @@ public final class Reflection
     {
     }
 
-    public static ScalarFunction reflect(Method method)
+    public static ValueFunction reflect(Method method)
     {
         Class<?>[] params = method.getParameterTypes();
         if (params.length == 0) {

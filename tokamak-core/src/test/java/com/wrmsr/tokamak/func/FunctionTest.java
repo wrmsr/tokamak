@@ -28,7 +28,7 @@ public class FunctionTest
         System.out.println(f);
 
         Method method = System.class.getDeclaredMethod("currentTimeMillis");
-        ScalarFunction function = Reflection.reflect(method);
+        ValueFunction function = Reflection.reflect(method);
         System.out.println(function);
         System.out.println(function.invoke());
     }

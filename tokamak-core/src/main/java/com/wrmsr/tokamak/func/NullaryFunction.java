@@ -19,7 +19,7 @@ import com.wrmsr.tokamak.type.Type;
 import java.util.List;
 
 public interface NullaryFunction<T>
-        extends ScalarFunction<T>
+        extends ValueFunction<T>
 {
     T invoke();
 

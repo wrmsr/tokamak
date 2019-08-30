@@ -17,7 +17,7 @@ import com.wrmsr.tokamak.type.Type;
 
 import java.util.List;
 
-public interface ScalarFunction<T>
+public interface ValueFunction<T>
         extends Function
 {
     List<Type> getArgTypes();

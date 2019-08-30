@@ -19,7 +19,7 @@ import com.wrmsr.tokamak.type.Type;
 import java.util.List;
 
 public interface VariadicFunction<T>
-        extends ScalarFunction<T>
+        extends ValueFunction<T>
 {
     static <T> VariadicFunction<T> of(
             String name,
