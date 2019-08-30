@@ -26,11 +26,13 @@ import com.wrmsr.tokamak.node.UnionNode;
 import com.wrmsr.tokamak.node.UnnestNode;
 import com.wrmsr.tokamak.node.ValuesNode;
 
+import java.util.Objects;
+
 public abstract class NodeVisitor<R, C>
 {
     protected R visitNode(Node node, C context)
     {
-        throw new IllegalStateException(node.toString());
+        throw new IllegalStateException(Objects.toString(node));
     }
 
     public R visitCrossJoinNode(CrossJoinNode node, C context)

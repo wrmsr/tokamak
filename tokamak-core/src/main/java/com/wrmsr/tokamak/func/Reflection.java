@@ -16,6 +16,7 @@ package com.wrmsr.tokamak.func;
 import com.wrmsr.tokamak.type.Type;
 
 import java.lang.reflect.Method;
+import java.util.Objects;
 
 public final class Reflection
 {
@@ -40,7 +41,7 @@ public final class Reflection
                     });
         }
         else {
-            throw new IllegalArgumentException(method.toString());
+            throw new IllegalArgumentException(Objects.toString(method));
         }
     }
 }

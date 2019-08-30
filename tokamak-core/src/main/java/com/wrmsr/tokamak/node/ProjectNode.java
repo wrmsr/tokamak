@@ -22,6 +22,7 @@ import com.wrmsr.tokamak.type.Type;
 import javax.annotation.concurrent.Immutable;
 
 import java.util.Map;
+import java.util.Objects;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -60,7 +61,7 @@ public final class ProjectNode
                 fields.put(entry.getKey(), functionInput.getType());
             }
             else {
-                throw new IllegalArgumentException(entry.getValue().toString());
+                throw new IllegalArgumentException(Objects.toString(entry.getValue()));
             }
         }
         this.fields = fields.build();

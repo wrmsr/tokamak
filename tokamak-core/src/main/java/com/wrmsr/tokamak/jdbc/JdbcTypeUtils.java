@@ -17,6 +17,7 @@ import com.wrmsr.tokamak.jdbc.metadata.ColumnMetaData;
 import com.wrmsr.tokamak.type.Type;
 
 import java.sql.Types;
+import java.util.Objects;
 
 public final class JdbcTypeUtils
 {
@@ -63,7 +64,7 @@ public final class JdbcTypeUtils
                 return Type.BYTES;
 
             default:
-                throw new IllegalArgumentException(cmd.toString());
+                throw new IllegalArgumentException(Objects.toString(cmd));
         }
     }
 }

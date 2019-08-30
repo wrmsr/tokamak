@@ -43,6 +43,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.StreamSupport;
 
@@ -242,12 +243,12 @@ public final class Projection
                     funcArgs = ImmutableList.copyOf((String[]) args[i++]);
                 }
                 else {
-                    throw new IllegalArgumentException(func.toString());
+                    throw new IllegalArgumentException(Objects.toString(func));
                 }
                 input = new FunctionInput(func.getName(), func.getType(), funcArgs);
             }
             else {
-                throw new IllegalArgumentException(inputObj.toString());
+                throw new IllegalArgumentException(Objects.toString(inputObj));
             }
             builder.put(output, input);
         }

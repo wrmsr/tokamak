@@ -131,7 +131,7 @@ public final class FieldKey
             return 1;
         }
         else {
-            throw new IllegalArgumentException(o.toString());
+            throw new IllegalArgumentException(Objects.toString(o));
         }
     }
 }

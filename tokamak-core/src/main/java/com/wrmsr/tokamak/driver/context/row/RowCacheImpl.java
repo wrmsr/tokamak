@@ -134,7 +134,7 @@ public class RowCacheImpl
             }
 
             else {
-                throw new IllegalArgumentException(key.toString());
+                throw new IllegalArgumentException(Objects.toString(key));
             }
         }
 
@@ -172,11 +172,11 @@ public class RowCacheImpl
             if (key instanceof AllKey) {
                 checkState(!allRequested);
                 // allRows = ImmutableSet.copyOf(rows);
-                throw new IllegalArgumentException(key.toString());
+                throw new IllegalArgumentException(Objects.toString(key));
             }
 
             else if (key instanceof IdKey) {
-                throw new IllegalArgumentException(key.toString());
+                throw new IllegalArgumentException(Objects.toString(key));
             }
 
             else if (key instanceof FieldKey) {
@@ -257,7 +257,7 @@ public class RowCacheImpl
             }
 
             else {
-                throw new IllegalArgumentException(key.toString());
+                throw new IllegalArgumentException(Objects.toString(key));
             }
         }
     }

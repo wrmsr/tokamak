@@ -29,6 +29,7 @@ import com.wrmsr.tokamak.node.StatefulNode;
 import com.wrmsr.tokamak.util.codec.Codec;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -116,7 +117,7 @@ public final class LinkageMapCodec
                 encodeDenormalizedLinks(nodeId, (Linkage.DenormalizedLinks) links, output);
             }
             else {
-                throw new IllegalArgumentException(links.toString());
+                throw new IllegalArgumentException(Objects.toString(links));
             }
         }
         return output.toByteArray();

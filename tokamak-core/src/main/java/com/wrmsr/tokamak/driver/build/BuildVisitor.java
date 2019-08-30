@@ -50,6 +50,7 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -106,7 +107,7 @@ public class BuildVisitor
             //         .collect(toImmutableList());
         }
         else {
-            throw new IllegalArgumentException(key.toString());
+            throw new IllegalArgumentException(Objects.toString(key));
         }
 
         throw new IllegalStateException();
@@ -159,7 +160,7 @@ public class BuildVisitor
             childKey = key;
         }
         else {
-            throw new IllegalArgumentException(key.toString());
+            throw new IllegalArgumentException(Objects.toString(key));
         }
 
         Collection<DriverRow> rows = context.build(node.getSource(), key);
@@ -213,7 +214,7 @@ public class BuildVisitor
                                     Map.Entry::getValue)));
         }
         else {
-            throw new IllegalArgumentException(key.toString());
+            throw new IllegalArgumentException(Objects.toString(key));
         }
 
         ImmutableList.Builder<DriverRow> ret = ImmutableList.builder();
@@ -239,11 +240,11 @@ public class BuildVisitor
                         value = ((RowViewFunction) function).invoke(rowView);
                     }
                     else {
-                        throw new IllegalStateException(function.toString());
+                        throw new IllegalStateException(Objects.toString(function));
                     }
                 }
                 else {
-                    throw new IllegalStateException(entry.toString());
+                    throw new IllegalStateException(Objects.toString(entry));
                 }
 
                 attributes[pos++] = value;

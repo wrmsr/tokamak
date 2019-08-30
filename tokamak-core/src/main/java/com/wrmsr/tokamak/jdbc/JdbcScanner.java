@@ -31,6 +31,7 @@ import org.jdbi.v3.core.statement.Query;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -163,7 +164,7 @@ public final class JdbcScanner
             return instance.getRows(handle, ImmutableMap.of());
         }
         else {
-            throw new IllegalArgumentException(key.toString());
+            throw new IllegalArgumentException(Objects.toString(key));
         }
     }
 }
