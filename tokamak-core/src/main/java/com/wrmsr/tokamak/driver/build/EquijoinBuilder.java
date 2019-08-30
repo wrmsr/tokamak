@@ -21,9 +21,9 @@ import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.api.IdKey;
 import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.codec.value.NullableValueCodec;
+import com.wrmsr.tokamak.codec.value.TupleValueCodec;
 import com.wrmsr.tokamak.codec.value.ValueCodec;
 import com.wrmsr.tokamak.codec.value.ValueCodecs;
-import com.wrmsr.tokamak.codec.value.TupleValueCodec;
 import com.wrmsr.tokamak.codec.value.VariableLengthValueCodec;
 import com.wrmsr.tokamak.driver.DriverImpl;
 import com.wrmsr.tokamak.driver.DriverRow;
@@ -45,7 +45,7 @@ import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 
 public class EquijoinBuilder
-        extends AbstractBuilder<EquijoinNode>
+        extends Builder<EquijoinNode>
 {
     private static final ValueCodec<byte[]> NULLABLE_BYTES_VALUE_CODEC =
             new NullableValueCodec<>(
@@ -58,7 +58,7 @@ public class EquijoinBuilder
     }
 
     @Override
-    public Collection<DriverRow> build(DriverContextImpl context, Key key)
+    protected Collection<DriverRow> innerBuild(DriverContextImpl context, Key key)
     {
         checkArgument(context.getDriver() == driver);
 

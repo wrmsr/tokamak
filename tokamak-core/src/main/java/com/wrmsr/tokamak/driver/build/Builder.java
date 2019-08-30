@@ -14,15 +14,44 @@
 package com.wrmsr.tokamak.driver.build;
 
 import com.wrmsr.tokamak.api.Key;
+import com.wrmsr.tokamak.driver.DriverImpl;
 import com.wrmsr.tokamak.driver.DriverRow;
 import com.wrmsr.tokamak.driver.context.DriverContextImpl;
 import com.wrmsr.tokamak.node.Node;
 
 import java.util.Collection;
 
-public interface Builder<T extends Node>
-{
-    T getNode();
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
-    Collection<DriverRow> build(DriverContextImpl context, Key key);
+public abstract class Builder<T extends Node>
+{
+    protected final DriverImpl driver;
+    protected final T node;
+
+    public Builder(DriverImpl driver, T node)
+    {
+        this.driver = checkNotNull(driver);
+        this.node = checkNotNull(node);
+    }
+
+    public DriverImpl getDriver()
+    {
+        return driver;
+    }
+
+    public T getNode()
+    {
+        return node;
+    }
+
+    public final Collection<DriverRow> build(DriverContextImpl context, Key key)
+    {
+        checkNotNull(context);
+        checkNotNull(key);
+        checkArgument(context.getDriver() == driver);
+        return innerBuild(context, key);
+    }
+
+    protected abstract Collection<DriverRow> innerBuild(DriverContextImpl context, Key key);
 }

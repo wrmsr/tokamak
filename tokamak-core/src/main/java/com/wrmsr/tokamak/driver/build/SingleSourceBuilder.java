@@ -11,33 +11,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.wrmsr.tokamak.driver.build;
 
 import com.wrmsr.tokamak.driver.DriverImpl;
-import com.wrmsr.tokamak.node.Node;
+import com.wrmsr.tokamak.node.SingleSourceNode;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public abstract class AbstractBuilder<T extends Node>
-        implements Builder<T>
+public abstract class SingleSourceBuilder<T extends SingleSourceNode>
+        extends Builder<T>
 {
-    protected final DriverImpl driver;
-    protected final T node;
+    protected final Builder<?> source;
 
-    public AbstractBuilder(DriverImpl driver, T node)
+    public SingleSourceBuilder(DriverImpl driver, T node, Builder<?> source)
     {
-        this.driver = checkNotNull(driver);
-        this.node = checkNotNull(node);
-    }
-
-    public DriverImpl getDriver()
-    {
-        return driver;
-    }
-
-    @Override
-    public T getNode()
-    {
-        return node;
+        super(driver, node);
+        this.source = checkNotNull(source);
+        checkArgument(source.getNode() == node.getSource());
     }
 }

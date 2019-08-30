@@ -32,6 +32,7 @@ public final class Properties
     TODO:
      - name overrides
      - toString
+     - field getter + explicit setter
     */
 
     private Properties()
