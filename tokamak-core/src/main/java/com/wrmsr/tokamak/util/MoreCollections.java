@@ -41,7 +41,7 @@ public final class MoreCollections
     {
     }
 
-    public static <T> T[] concat(T[] a, T[] b)
+    public static <T> T[] concatArrays(T[] a, T[] b)
     {
         int aLen = a.length;
         int bLen = b.length;
@@ -54,7 +54,7 @@ public final class MoreCollections
         return c;
     }
 
-    public static <T> T concat(T a, T b)
+    public static <T> T concatArrays(T a, T b)
     {
         checkArgument(!a.getClass().isArray() || !b.getClass().isArray());
 
@@ -81,6 +81,13 @@ public final class MoreCollections
         System.arraycopy(b, 0, result, aLen, bLen);
 
         return result;
+    }
+
+    public static <T> T[] arrayWithReplaced(T[] a, int idx, T obj)
+    {
+        T[] b = a.clone();
+        b[idx] = obj;
+        return b;
     }
 
     public static <T> Set<T> newIdentityHashSetOf(Iterable<T> src)
