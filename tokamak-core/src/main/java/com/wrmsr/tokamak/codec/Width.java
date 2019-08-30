@@ -50,31 +50,6 @@ public interface Width
 
     Width map(IntFunctor fn);
 
-    <R> R accept(Visitor<R> visitor);
-
-    abstract class Visitor<R>
-    {
-        public R visitWidth(Width width)
-        {
-            throw new IllegalArgumentException(Objects.toString(width));
-        }
-
-        public R visitUnknown(Unknown width)
-        {
-            return visitWidth(width);
-        }
-
-        public R visitRange(Range width)
-        {
-            return visitWidth(width);
-        }
-
-        public R visitFixed(Fixed width)
-        {
-            return visitWidth(width);
-        }
-    }
-
     final class Unknown
             implements Width
     {
@@ -102,12 +77,6 @@ public interface Width
         public Width map(IntFunctor fn)
         {
             return this;
-        }
-
-        @Override
-        public <R> R accept(Visitor<R> visitor)
-        {
-            return visitor.visitUnknown(this);
         }
     }
 
@@ -152,12 +121,6 @@ public interface Width
                     mapOptional(minValue, fn::apply),
                     mapOptional(maxValue, fn::apply));
         }
-
-        @Override
-        public <R> R accept(Visitor<R> visitor)
-        {
-            return visitor.visitRange(this);
-        }
     }
 
     final class Fixed
@@ -193,12 +156,6 @@ public interface Width
         public Width map(IntFunctor fn)
         {
             return new Fixed(fn.apply(value));
-        }
-
-        @Override
-        public <R> R accept(Visitor<R> visitor)
-        {
-            return visitor.visitFixed(this);
         }
     }
 

@@ -21,6 +21,7 @@ import com.wrmsr.tokamak.util.lazy.SupplierLazyValue;
 import javax.annotation.concurrent.Immutable;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.wrmsr.tokamak.util.MoreOptionals.mapOptional;
 
 @Immutable
 public abstract class CollectionScalarCodec<V>
@@ -54,25 +55,11 @@ public abstract class CollectionScalarCodec<V>
     @Override
     public Width getWidth()
     {
-        return width.get(() -> getEntryWidth().accept(new Width.Visitor<Width>()
-        {
-            @Override
-            public Width visitUnknown(Width.Unknown width)
-            {
-                return super.visitUnknown(width);
-            }
-
-            @Override
-            public Width visitBounded(Width.Range width)
-            {
-                return super.visitBounded(width);
-            }
-
-            @Override
-            public Width visitFixed(Width.Fixed width)
-            {
-                return super.visitFixed(width);
-            }
+        return width.get(() -> {
+            Width entryWidth = getEntryWidth();
+            return Width.of(
+                    mapOptional(entryWidth.getMin(), w -> fixed ? (w * size) : (byteSized ? 1 : 8)),
+                    mapOptional(entryWidth.getMax(), w -> fixed ? (w * size) : ((byteSized ? 1 : 8) + (w * size))));
         });
     }
 
