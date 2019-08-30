@@ -17,6 +17,7 @@ import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.codec.Input;
 import com.wrmsr.tokamak.codec.Output;
 import com.wrmsr.tokamak.codec.Width;
+import com.wrmsr.tokamak.util.lazy.SupplierLazyValue;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -41,10 +42,12 @@ public final class TupleScalarCodec
         return children;
     }
 
+    private final SupplierLazyValue<Width> width = new SupplierLazyValue<>();
+
     @Override
     public Width getWidth()
     {
-        return Width.sum(children.stream().map(ScalarCodec::getWidth).collect(toImmutableList()));
+        return width.get(() -> Width.sum(children.stream().map(ScalarCodec::getWidth).collect(toImmutableList())));
     }
 
     @Override

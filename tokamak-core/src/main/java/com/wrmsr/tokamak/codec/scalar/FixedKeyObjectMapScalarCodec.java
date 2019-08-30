@@ -49,12 +49,12 @@ public final class FixedKeyObjectMapScalarCodec<K>
         this.strict = strict;
     }
 
-    private final SupplierLazyValue<Width> fixedWidth = new SupplierLazyValue<>();
+    private final SupplierLazyValue<Width> width = new SupplierLazyValue<>();
 
     @Override
     public Width getWidth()
     {
-        return fixedWidth.get(() -> {
+        return width.get(() -> {
             List<Width> childWidths = childrenByKey.values().stream().map(ScalarCodec::getWidth).collect(toImmutableList());
             return Width.of(
                     childWidths.stream().map(Width::getMin).reduce(0, Integer::sum),
