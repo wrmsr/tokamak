@@ -378,6 +378,12 @@
                 <version>1.4.199</version>
             </dependency>
 
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-jdk14</artifactId>
+                <version>1.7.28</version>
+            </dependency>
+
             <!--
             <dependency>
                 <groupId>org.xerial</groupId>
@@ -502,6 +508,8 @@
                 <version>0.192</version>
             </dependency>
             -->
+
+
 
             <dependency>
                 <groupId>com.esotericsoftware</groupId>

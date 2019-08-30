@@ -28,8 +28,7 @@ import com.wrmsr.tokamak.driver.DriverRow;
 import com.wrmsr.tokamak.driver.context.DriverContextImpl;
 import com.wrmsr.tokamak.func.Function;
 import com.wrmsr.tokamak.func.RowFunction;
-import com.wrmsr.tokamak.func.RowViewFunction;
-import com.wrmsr.tokamak.layout.RowView;
+import com.wrmsr.tokamak.func.RowMapFunction;
 import com.wrmsr.tokamak.node.CrossJoinNode;
 import com.wrmsr.tokamak.node.EquijoinNode;
 import com.wrmsr.tokamak.node.FilterNode;
@@ -219,7 +218,7 @@ public class BuildVisitor
 
         ImmutableList.Builder<DriverRow> ret = ImmutableList.builder();
         for (DriverRow row : context.build(node.getSource(), sourceKey)) {
-            RowView rowView = row.getRowView();
+            Map<String, Object> rowMap = row.getMap();
             Object[] attributes = new Object[node.getFields().size()];
             int pos = 0;
             for (Map.Entry<String, Projection.Input> entry : node.getProjection()) {
@@ -227,7 +226,7 @@ public class BuildVisitor
 
                 if (entry.getValue() instanceof Projection.FieldInput) {
                     Projection.FieldInput fieldInput = (Projection.FieldInput) entry.getValue();
-                    value = rowView.get(fieldInput.getField());
+                    value = rowMap.get(fieldInput.getField());
                 }
                 else if (entry.getValue() instanceof Projection.FunctionInput) {
                     Projection.FunctionInput functionInput = (Projection.FunctionInput) entry.getValue();
@@ -236,8 +235,8 @@ public class BuildVisitor
                     if (function instanceof RowFunction) {
                         value = ((RowFunction) function).invoke(row);
                     }
-                    else if (function instanceof RowViewFunction) {
-                        value = ((RowViewFunction) function).invoke(rowView);
+                    else if (function instanceof RowMapFunction) {
+                        value = ((RowMapFunction) function).invoke(rowMap);
                     }
                     else {
                         throw new IllegalStateException(Objects.toString(function));

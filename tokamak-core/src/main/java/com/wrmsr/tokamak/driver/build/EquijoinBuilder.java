@@ -130,7 +130,7 @@ public class EquijoinBuilder
             for (DriverRow row : rows) {
                 ImmutableMap.Builder<String, Object> nextProto = ImmutableMap.<String, Object>builder()
                         .putAll(proto);
-                for (Map.Entry<String, Object> e : row.getRowView().entrySet()) {
+                for (Map.Entry<String, Object> e : row.getMap().entrySet()) {
                     if (proto.containsKey(e.getKey())) {
                         checkState(proto.get(e.getKey()).equals(e.getValue()));
                     }
@@ -200,7 +200,7 @@ public class EquijoinBuilder
             for (DriverRow row : rows) {
                 ImmutableMap.Builder<String, Object> nextProto = ImmutableMap.<String, Object>builder()
                         .putAll(proto);
-                for (Map.Entry<String, Object> e : row.getRowView().entrySet()) {
+                for (Map.Entry<String, Object> e : row.getMap().entrySet()) {
                     if (proto.containsKey(e.getKey())) {
                         checkState(proto.get(e.getKey()).equals(e.getValue()));
                     }

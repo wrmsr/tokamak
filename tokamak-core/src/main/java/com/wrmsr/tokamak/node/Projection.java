@@ -29,7 +29,7 @@ import com.wrmsr.tokamak.func.BinaryFunction;
 import com.wrmsr.tokamak.func.Function;
 import com.wrmsr.tokamak.func.NullaryFunction;
 import com.wrmsr.tokamak.func.RowFunction;
-import com.wrmsr.tokamak.func.RowViewFunction;
+import com.wrmsr.tokamak.func.RowMapFunction;
 import com.wrmsr.tokamak.func.UnaryFunction;
 import com.wrmsr.tokamak.func.VariadicFunction;
 import com.wrmsr.tokamak.type.Type;
@@ -230,7 +230,7 @@ public final class Projection
             else if (inputObj instanceof Function) {
                 Function func = (Function) inputObj;
                 List<String> funcArgs;
-                if (func instanceof RowFunction || func instanceof RowViewFunction || func instanceof NullaryFunction) {
+                if (func instanceof RowFunction || func instanceof RowMapFunction || func instanceof NullaryFunction) {
                     funcArgs = ImmutableList.of();
                 }
                 else if (func instanceof UnaryFunction) {

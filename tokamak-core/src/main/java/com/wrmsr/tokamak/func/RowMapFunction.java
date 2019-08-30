@@ -13,22 +13,23 @@
  */
 package com.wrmsr.tokamak.func;
 
-import com.wrmsr.tokamak.layout.RowView;
 import com.wrmsr.tokamak.type.Type;
 
-public interface RowViewFunction<T>
+import java.util.Map;
+
+public interface RowMapFunction<T>
         extends Function
 {
-    T invoke(RowView rowView);
+    T invoke(Map<String, Object> rowMap);
 
-    static <T> RowViewFunction<T> of(String name, Type type, java.util.function.Function<RowView, T> fn)
+    static <T> RowMapFunction<T> of(String name, Type type, java.util.function.Function<Map<String, Object>, T> fn)
     {
-        return new RowViewFunction<T>()
+        return new RowMapFunction<T>()
         {
             @Override
             public String toString()
             {
-                return "RowViewFunction{name='" + getName() + "'}";
+                return "RowMapFunction{name='" + getName() + "'}";
             }
 
             @Override
@@ -44,14 +45,14 @@ public interface RowViewFunction<T>
             }
 
             @Override
-            public T invoke(RowView rowView)
+            public T invoke(Map<String, Object> rowMap)
             {
-                return fn.apply(rowView);
+                return fn.apply(rowMap);
             }
         };
     }
 
-    static <T> RowViewFunction<T> anon(Type type, java.util.function.Function<RowView, T> fn)
+    static <T> RowMapFunction<T> anon(Type type, java.util.function.Function<Map<String, Object>, T> fn)
     {
         return of(Function.genAnonName(), type, fn);
     }

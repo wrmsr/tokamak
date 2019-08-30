@@ -15,12 +15,14 @@ package com.wrmsr.tokamak.driver.state;
 
 import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.api.Row;
-import com.wrmsr.tokamak.layout.RowView;
 import com.wrmsr.tokamak.node.StatefulNode;
+import com.wrmsr.tokamak.util.collect.ObjectArrayBackedMap;
 
 import javax.annotation.Nullable;
 
 import java.util.BitSet;
+import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -44,6 +46,8 @@ public final class State
     public static class ModeException
             extends RuntimeException
     {
+        private static final long serialVersionUID = -7720805908630032266L;
+
         private final State state;
 
         public ModeException(State state)
@@ -172,10 +176,10 @@ public final class State
         return attributes == null;
     }
 
-    public RowView getRowView()
+    public Map<String, Object> getRowMap()
     {
         checkMode(mode != Mode.INVALID);
-        return new RowView(node.getRowLayout(), attributes);
+        return Collections.unmodifiableMap(new ObjectArrayBackedMap<>(node.getRowLayout().getShape(), attributes));
     }
 
     public BitSet getUpdatedFieldBitSet()

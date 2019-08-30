@@ -27,7 +27,7 @@ import com.wrmsr.tokamak.catalog.heap.HeapConnector;
 import com.wrmsr.tokamak.catalog.heap.table.MapHeapTable;
 import com.wrmsr.tokamak.driver.Driver;
 import com.wrmsr.tokamak.driver.DriverImpl;
-import com.wrmsr.tokamak.func.RowViewFunction;
+import com.wrmsr.tokamak.func.RowMapFunction;
 import com.wrmsr.tokamak.jdbc.JdbcConnector;
 import com.wrmsr.tokamak.jdbc.JdbcUtils;
 import com.wrmsr.tokamak.layout.RowLayout;
@@ -192,7 +192,7 @@ public class AppTest
                 filterNode0,
                 Projection.of(
                         "N_NATIONKEY", "N_NATIONKEY",
-                        "N_NAME", catalog.addFunction(RowViewFunction.anon(Type.STRING, rv -> rv.get("N_NAME") + "!")),
+                        "N_NAME", catalog.addFunction(RowMapFunction.anon(Type.STRING, rv -> rv.get("N_NAME") + "!")),
                         "N_REGIONKEY", "N_REGIONKEY"
                 ));
 
