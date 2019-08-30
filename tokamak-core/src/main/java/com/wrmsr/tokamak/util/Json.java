@@ -70,7 +70,7 @@ public final class Json
     public static String writeValue(Object object)
     {
         try {
-            return Json.OBJECT_MAPPER_SUPPLIER.get().writeValueAsString(object);
+            return OBJECT_MAPPER_SUPPLIER.get().writeValueAsString(object);
         }
         catch (IOException e) {
             throw new RuntimeException(e);
@@ -80,7 +80,7 @@ public final class Json
     public static String writeValuePretty(Object object)
     {
         try {
-            return Json.OBJECT_MAPPER_SUPPLIER.get().writerWithDefaultPrettyPrinter().writeValueAsString(object);
+            return OBJECT_MAPPER_SUPPLIER.get().writerWithDefaultPrettyPrinter().writeValueAsString(object);
         }
         catch (IOException e) {
             throw new RuntimeException(e);
@@ -90,7 +90,7 @@ public final class Json
     public static <T> T readValue(String src, Class<T> valueType)
     {
         try {
-            return Json.OBJECT_MAPPER_SUPPLIER.get().readValue(src, valueType);
+            return OBJECT_MAPPER_SUPPLIER.get().readValue(src, valueType);
         }
         catch (IOException e) {
             throw new RuntimeException(e);
@@ -100,10 +100,35 @@ public final class Json
     public static <T> T readValue(String src, TypeReference<T> valueType)
     {
         try {
-            return Json.OBJECT_MAPPER_SUPPLIER.get().readValue(src, valueType);
+            return OBJECT_MAPPER_SUPPLIER.get().readValue(src, valueType);
         }
         catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static <T> T roundTrip(ObjectMapper mapper, Object value, TypeReference<T> valueType)
+    {
+        try {
+            return mapper.readValue(mapper.writeValueAsBytes(value), valueType);
+        }
+        catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static Object roundTrip(ObjectMapper mapper, Object value)
+    {
+        return roundTrip(mapper, value, new TypeReference<Object>() {});
+    }
+
+    public static <T> T roundTrip(Object value, TypeReference<T> valueType)
+    {
+        return roundTrip(OBJECT_MAPPER_SUPPLIER.get(), value, valueType);
+    }
+
+    public static Object roundTrip(Object value)
+    {
+        return roundTrip(value, new TypeReference<Object>() {});
     }
 }
