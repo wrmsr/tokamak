@@ -19,7 +19,6 @@ import com.wrmsr.tokamak.codec.Width;
 
 import javax.annotation.concurrent.Immutable;
 
-import java.util.OptionalInt;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
@@ -50,7 +49,7 @@ public final class FunctionPairScalarCodec<V>
             BiConsumer<V, Output> encoder,
             Function<Input, V> decoder)
     {
-        this(encoder, decoder, Width.unbounded(), false);
+        this(encoder, decoder, Width.any(), false);
     }
 
     public static <V> FunctionPairScalarCodec<V> of(

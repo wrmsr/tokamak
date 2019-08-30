@@ -36,7 +36,7 @@ public interface ScalarCodec<V>
 
     default Width getWidth()
     {
-        return Width.unbounded();
+        return Width.any();
     }
 
     default boolean isNullable()

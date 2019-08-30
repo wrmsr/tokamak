@@ -47,7 +47,7 @@ public final class MapScalarCodec<K, V>
     @Override
     public Width getEntryWidth()
     {
-        return Width.sum(ImmutableList.of(keyChild.getWidth(), valueChild.getWidth()));
+        return Width.sum(keyChild.getWidth(), valueChild.getWidth());
     }
 
     @Override

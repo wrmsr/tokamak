@@ -14,6 +14,8 @@
 package com.wrmsr.tokamak.codec;
 
 import com.google.common.collect.ImmutableList;
+import com.wrmsr.tokamak.util.function.ToIntIntBifunction;
+import com.wrmsr.tokamak.util.function.ToIntIntFunction;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -68,13 +70,13 @@ public final class Width
         return new Width(value, OptionalInt.of(value));
     }
 
-    private static final Width UNBOUNDED = new Width(
+    private static final Width ANY = new Width(
             0,
             OptionalInt.empty());
 
-    public static Width unbounded()
+    public static Width any()
     {
-        return UNBOUNDED;
+        return ANY;
     }
 
     @Override
@@ -127,24 +129,28 @@ public final class Width
         return min == 0 && !max.isPresent();
     }
 
-    @FunctionalInterface
-    public interface IntFunction
-    {
-        int apply(int value);
-    }
-
-    public Width map(IntFunction fn)
+    public Width map(ToIntIntFunction fn)
     {
         return of(
                 fn.apply(min),
                 mapOptional(max, fn::apply));
     }
 
-    public static Width sum(Iterable<Width> widths)
+    public static Width reduce(int identity, ToIntIntBifunction accumulator, Iterable<Width> widths)
     {
         List<Width> lst = ImmutableList.copyOf(widths);
         return of(
-                lst.stream().map(Width::getMin).reduce(0, Integer::sum),
-                reduceOptionals(0, Integer::sum, lst.stream().map(Width::getMax).iterator()));
+                lst.stream().map(Width::getMin).reduce(identity, accumulator::apply),
+                reduceOptionals(identity, accumulator, lst.stream().map(Width::getMax).iterator()));
+    }
+
+    public static Width sum(Iterable<Width> widths)
+    {
+        return reduce(0, Integer::sum, widths);
+    }
+
+    public static Width sum(Width... widths)
+    {
+        return sum(ImmutableList.copyOf(widths));
     }
 }
