@@ -13,7 +13,7 @@
  */
 package com.wrmsr.tokamak.util;
 
-import com.wrmsr.tokamak.util.function.ToIntIntBifunction;
+import com.wrmsr.tokamak.util.func.ToIntIntBifunction;
 
 import java.util.Iterator;
 import java.util.OptionalInt;

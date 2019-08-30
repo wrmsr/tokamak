@@ -14,8 +14,8 @@
 package com.wrmsr.tokamak.codec;
 
 import com.google.common.collect.ImmutableList;
-import com.wrmsr.tokamak.util.function.ToIntIntBifunction;
-import com.wrmsr.tokamak.util.function.ToIntIntFunction;
+import com.wrmsr.tokamak.util.func.ToIntIntBifunction;
+import com.wrmsr.tokamak.util.func.ToIntIntFunction;
 
 import javax.annotation.concurrent.Immutable;
 

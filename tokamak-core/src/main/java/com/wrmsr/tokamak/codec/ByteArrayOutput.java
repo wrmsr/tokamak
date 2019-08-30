@@ -13,12 +13,9 @@
  */
 package com.wrmsr.tokamak.codec;
 
-import javax.annotation.concurrent.Immutable;
-
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
-@Immutable
 public final class ByteArrayOutput
         implements Output
 {

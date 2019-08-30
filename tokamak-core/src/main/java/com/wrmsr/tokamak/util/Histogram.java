@@ -46,7 +46,7 @@ public final class Histogram
         private final float p;
         private final float value;
 
-        public Percentile(float p, float value)
+        private Percentile(float p, float value)
         {
             this.p = p;
             this.value = value;

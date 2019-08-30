@@ -11,10 +11,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.util.function;
+package com.wrmsr.tokamak.util.func;
 
 @FunctionalInterface
-public interface ToIntIntBifunction
+public interface ToIntIntFunction
 {
-    int apply(int left, int right);
+    int apply(int value);
 }
