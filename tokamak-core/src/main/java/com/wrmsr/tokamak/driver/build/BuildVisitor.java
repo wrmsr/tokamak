@@ -115,7 +115,7 @@ public class BuildVisitor
     @Override
     public Collection<DriverRow> visitEquijoinNode(EquijoinNode node, Key key)
     {
-        return new EquijoinBuilder(node).build(context, key);
+        return new EquijoinBuilder(context.getDriver(), node).build(context, key);
     }
 
     @Override

@@ -13,6 +13,7 @@
  */
 package com.wrmsr.tokamak.driver.build;
 
+import com.wrmsr.tokamak.driver.DriverImpl;
 import com.wrmsr.tokamak.node.Node;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -20,11 +21,18 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public abstract class AbstractBuilder<T extends Node>
         implements Builder<T>
 {
+    protected final DriverImpl driver;
     protected final T node;
 
-    public AbstractBuilder(T node)
+    public AbstractBuilder(DriverImpl driver, T node)
     {
+        this.driver = checkNotNull(driver);
         this.node = checkNotNull(node);
+    }
+
+    public DriverImpl getDriver()
+    {
+        return driver;
     }
 
     @Override

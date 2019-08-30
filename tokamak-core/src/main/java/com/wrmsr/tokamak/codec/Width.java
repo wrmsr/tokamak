@@ -124,11 +124,6 @@ public final class Width
         }
     }
 
-    public boolean isUnbounded()
-    {
-        return min == 0 && !max.isPresent();
-    }
-
     public Width map(ToIntIntFunction fn)
     {
         return of(

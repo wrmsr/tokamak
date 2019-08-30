@@ -20,6 +20,7 @@ import com.wrmsr.tokamak.codec.Width;
 import javax.annotation.concurrent.Immutable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.wrmsr.tokamak.util.MoreOptionals.mapOptional;
 
 @Immutable
 public final class NullableScalarCodec<V>
@@ -45,7 +46,7 @@ public final class NullableScalarCodec<V>
     @Override
     public Width getWidth()
     {
-        return child.getWidth().map(w -> w + 1);
+        return Width.of(1, mapOptional(child.getWidth().getMax(), v -> v + 1));
     }
 
     @Override

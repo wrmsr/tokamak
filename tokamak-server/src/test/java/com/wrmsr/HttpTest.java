@@ -114,11 +114,11 @@ public class HttpTest
         resourceConfig.register(new MyObjFactory.Binder());
         Channel server = NettyHttpContainerProvider.createServer(baseUri, resourceConfig, false);
 
-        Thread.currentThread().sleep(500);
+        Thread.sleep(500);
 
         new HttpClient("localhost", 9998).request("GET", "helloworld");
 
-        Thread.currentThread().sleep(300000);
+        Thread.sleep(300000);
 
         server.close().sync();
 

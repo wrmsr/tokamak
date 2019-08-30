@@ -25,6 +25,7 @@ import com.wrmsr.tokamak.codec.scalar.ScalarCodec;
 import com.wrmsr.tokamak.codec.scalar.ScalarCodecs;
 import com.wrmsr.tokamak.codec.scalar.TupleScalarCodec;
 import com.wrmsr.tokamak.codec.scalar.VariableLengthScalarCodec;
+import com.wrmsr.tokamak.driver.DriverImpl;
 import com.wrmsr.tokamak.driver.DriverRow;
 import com.wrmsr.tokamak.driver.context.DriverContextImpl;
 import com.wrmsr.tokamak.node.EquijoinNode;
@@ -36,6 +37,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
@@ -50,14 +52,16 @@ public class EquijoinBuilder
                     new VariableLengthScalarCodec<>(
                             ScalarCodecs.BYTES_SCALAR_CODEC));
 
-    public EquijoinBuilder(EquijoinNode node)
+    public EquijoinBuilder(DriverImpl driver, EquijoinNode node)
     {
-        super(node);
+        super(driver, node);
     }
 
     @Override
     public Collection<DriverRow> build(DriverContextImpl context, Key key)
     {
+        checkArgument(context.getDriver() == driver);
+
         List<Pair<EquijoinNode.Branch, Map<String, Object>>> lookups;
 
         if (key instanceof IdKey) {
