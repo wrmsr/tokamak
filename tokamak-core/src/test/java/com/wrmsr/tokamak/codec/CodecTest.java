@@ -14,9 +14,9 @@
 package com.wrmsr.tokamak.codec;
 
 import com.google.common.collect.ImmutableMap;
-import com.wrmsr.tokamak.codec.scalar.FixedKeyObjectMapScalarCodec;
-import com.wrmsr.tokamak.codec.scalar.ScalarCodecs;
-import com.wrmsr.tokamak.codec.scalar.VariableLengthScalarCodec;
+import com.wrmsr.tokamak.codec.value.FixedKeyObjectMapValueCodec;
+import com.wrmsr.tokamak.codec.value.ValueCodecs;
+import com.wrmsr.tokamak.codec.value.VariableLengthValueCodec;
 import com.wrmsr.tokamak.util.OpenByteArrayOutputStream;
 import junit.framework.TestCase;
 
@@ -41,9 +41,9 @@ public class CodecTest
     public void testFixedKeyObjectMapScalarCodec()
             throws Throwable
     {
-        FixedKeyObjectMapScalarCodec<String> codec = new FixedKeyObjectMapScalarCodec<>(ImmutableMap.of(
-                "long", ScalarCodecs.LONG_SCALAR_CODEC,
-                "string", new VariableLengthScalarCodec<>(ScalarCodecs.STRING_SCALAR_CODEC)
+        FixedKeyObjectMapValueCodec<String> codec = new FixedKeyObjectMapValueCodec<>(ImmutableMap.of(
+                "long", ValueCodecs.LONG_VALUE_CODEC,
+                "string", new VariableLengthValueCodec<>(ValueCodecs.STRING_VALUE_CODEC)
         ), false);
 
         Map<String, Object> expectedMap = ImmutableMap.of(

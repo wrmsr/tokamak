@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.codec.scalar;
+package com.wrmsr.tokamak.codec.value;
 
 import com.wrmsr.tokamak.codec.Input;
 import com.wrmsr.tokamak.codec.Output;
@@ -24,17 +24,17 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 @Immutable
-public final class VariableLengthScalarCodec<V>
-        implements ScalarCodec<V>
+public final class VariableLengthValueCodec<V>
+        implements ValueCodec<V>
 {
     public static final int MAX_BYTE_SIZE = 255;
     public static final int DEFAULT_MAX_SIZE = MAX_BYTE_SIZE;
 
-    private final ScalarCodec<V> child;
+    private final ValueCodec<V> child;
     private final int size;
     private final boolean byteSized;
 
-    public VariableLengthScalarCodec(ScalarCodec<V> child, int size)
+    public VariableLengthValueCodec(ValueCodec<V> child, int size)
     {
         checkArgument(size > 0);
         this.child = checkNotNull(child);
@@ -42,7 +42,7 @@ public final class VariableLengthScalarCodec<V>
         byteSized = size <= MAX_BYTE_SIZE;
     }
 
-    public VariableLengthScalarCodec(ScalarCodec<V> child)
+    public VariableLengthValueCodec(ValueCodec<V> child)
     {
         this(child, DEFAULT_MAX_SIZE);
     }

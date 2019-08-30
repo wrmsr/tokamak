@@ -20,11 +20,11 @@ import com.wrmsr.tokamak.api.FieldKey;
 import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.api.IdKey;
 import com.wrmsr.tokamak.api.Key;
-import com.wrmsr.tokamak.codec.scalar.NullableScalarCodec;
-import com.wrmsr.tokamak.codec.scalar.ScalarCodec;
-import com.wrmsr.tokamak.codec.scalar.ScalarCodecs;
-import com.wrmsr.tokamak.codec.scalar.TupleScalarCodec;
-import com.wrmsr.tokamak.codec.scalar.VariableLengthScalarCodec;
+import com.wrmsr.tokamak.codec.value.NullableValueCodec;
+import com.wrmsr.tokamak.codec.value.ValueCodec;
+import com.wrmsr.tokamak.codec.value.ValueCodecs;
+import com.wrmsr.tokamak.codec.value.TupleValueCodec;
+import com.wrmsr.tokamak.codec.value.VariableLengthValueCodec;
 import com.wrmsr.tokamak.driver.DriverImpl;
 import com.wrmsr.tokamak.driver.DriverRow;
 import com.wrmsr.tokamak.driver.context.DriverContextImpl;
@@ -47,10 +47,10 @@ import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 public class EquijoinBuilder
         extends AbstractBuilder<EquijoinNode>
 {
-    private static final ScalarCodec<byte[]> NULLABLE_BYTES_SCALAR_CODEC =
-            new NullableScalarCodec<>(
-                    new VariableLengthScalarCodec<>(
-                            ScalarCodecs.BYTES_SCALAR_CODEC));
+    private static final ValueCodec<byte[]> NULLABLE_BYTES_VALUE_CODEC =
+            new NullableValueCodec<>(
+                    new VariableLengthValueCodec<>(
+                            ValueCodecs.BYTES_VALUE_CODEC));
 
     public EquijoinBuilder(DriverImpl driver, EquijoinNode node)
     {
@@ -229,8 +229,8 @@ public class EquijoinBuilder
                 attributes[node.getRowLayout().getPositionsByField().get(e.getKey())] = e.getValue();
             }
 
-            ScalarCodec<Object[]> idCodec = new TupleScalarCodec(
-                    node.getBranches().stream().map(b -> NULLABLE_BYTES_SCALAR_CODEC).collect(toImmutableList()));
+            ValueCodec<Object[]> idCodec = new TupleValueCodec(
+                    node.getBranches().stream().map(b -> NULLABLE_BYTES_VALUE_CODEC).collect(toImmutableList()));
             Object[] idBytesObjects = new Object[node.getBranches().size()];
             System.arraycopy(idProto, 0, idBytesObjects, 0, idProto.length);
             Id id = new Id(idCodec.encodeBytes(idBytesObjects));

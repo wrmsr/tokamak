@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.codec.scalar;
+package com.wrmsr.tokamak.codec.value;
 
 import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.codec.Input;
@@ -27,17 +27,17 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 
 @Immutable
-public final class TupleScalarCodec
-        implements ScalarCodec<Object[]>
+public final class TupleValueCodec
+        implements ValueCodec<Object[]>
 {
-    private final List<ScalarCodec> children;
+    private final List<ValueCodec> children;
 
-    public TupleScalarCodec(List<ScalarCodec> children)
+    public TupleValueCodec(List<ValueCodec> children)
     {
         this.children = ImmutableList.copyOf(children);
     }
 
-    public List<ScalarCodec> getChildren()
+    public List<ValueCodec> getChildren()
     {
         return children;
     }
@@ -47,7 +47,7 @@ public final class TupleScalarCodec
     @Override
     public Width getWidth()
     {
-        return width.get(() -> Width.sum(children.stream().map(ScalarCodec::getWidth).collect(toImmutableList())));
+        return width.get(() -> Width.sum(children.stream().map(ValueCodec::getWidth).collect(toImmutableList())));
     }
 
     @Override

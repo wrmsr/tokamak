@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.codec.scalar;
+package com.wrmsr.tokamak.codec.value;
 
 import com.wrmsr.tokamak.codec.Input;
 import com.wrmsr.tokamak.codec.Output;
@@ -23,13 +23,13 @@ import javax.annotation.concurrent.Immutable;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
-public final class WrappedScalarCodec<F, T>
-        implements ScalarCodec<F>
+public final class WrappedValueCodec<F, T>
+        implements ValueCodec<F>
 {
     private final Codec<F, T> codec;
-    private final ScalarCodec<T> child;
+    private final ValueCodec<T> child;
 
-    public WrappedScalarCodec(Codec<F, T> codec, ScalarCodec<T> child)
+    public WrappedValueCodec(Codec<F, T> codec, ValueCodec<T> child)
     {
         this.codec = checkNotNull(codec);
         this.child = checkNotNull(child);

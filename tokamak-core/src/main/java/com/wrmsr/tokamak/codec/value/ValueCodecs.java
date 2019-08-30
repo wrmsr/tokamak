@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.codec.scalar;
+package com.wrmsr.tokamak.codec.value;
 
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableMap;
@@ -21,36 +21,36 @@ import com.wrmsr.tokamak.type.Type;
 import java.util.Map;
 import java.util.OptionalInt;
 
-public final class ScalarCodecs
+public final class ValueCodecs
 {
-    private ScalarCodecs()
+    private ValueCodecs()
     {
     }
 
-    public static final FunctionPairScalarCodec<Boolean> BOOLEAN_SCALAR_CODEC = FunctionPairScalarCodec.of(
+    public static final FunctionPairValueCodec<Boolean> BOOLEAN_VALUE_CODEC = FunctionPairValueCodec.of(
             (v, o) -> o.put(v ? (byte) 1 : (byte) 0),
             i -> i.get() != 0,
             Width.fixed(1),
             false
     );
 
-    public static final FunctionPairScalarCodec<Number> LONG_SCALAR_CODEC = FunctionPairScalarCodec.of(
+    public static final FunctionPairValueCodec<Number> LONG_VALUE_CODEC = FunctionPairValueCodec.of(
             (v, o) -> o.putLong(v.longValue()),
             i -> i.getLong(),
             Width.fixed(8),
             false
     );
 
-    public static final FunctionPairScalarCodec<Number> DOUBLE_SCALAR_CODEC = FunctionPairScalarCodec.of(
+    public static final FunctionPairValueCodec<Number> DOUBLE_VALUE_CODEC = FunctionPairValueCodec.of(
             (v, o) -> o.putLong(Double.doubleToLongBits(v.doubleValue())),
             i -> Double.longBitsToDouble(i.getLong()),
             Width.fixed(8),
             false
     );
 
-    public static FunctionPairScalarCodec<byte[]> buildBytes(OptionalInt size)
+    public static FunctionPairValueCodec<byte[]> buildBytes(OptionalInt size)
     {
-        return FunctionPairScalarCodec.of(
+        return FunctionPairValueCodec.of(
                 (v, o) -> o.putBytes(v),
                 i -> i.getBytes(),
                 Width.of(0, size),
@@ -58,16 +58,16 @@ public final class ScalarCodecs
         );
     }
 
-    public static FunctionPairScalarCodec<byte[]> buildBytes(int size)
+    public static FunctionPairValueCodec<byte[]> buildBytes(int size)
     {
         return buildBytes(OptionalInt.of(size));
     }
 
-    public static final FunctionPairScalarCodec<byte[]> BYTES_SCALAR_CODEC = buildBytes(OptionalInt.empty());
+    public static final FunctionPairValueCodec<byte[]> BYTES_VALUE_CODEC = buildBytes(OptionalInt.empty());
 
-    public static FunctionPairScalarCodec<String> buildString(OptionalInt size)
+    public static FunctionPairValueCodec<String> buildString(OptionalInt size)
     {
-        return FunctionPairScalarCodec.of(
+        return FunctionPairValueCodec.of(
                 (v, o) -> o.putBytes(v.getBytes(Charsets.UTF_8)),
                 i -> new String(i.getBytes(), Charsets.UTF_8),
                 Width.of(0, size),
@@ -75,19 +75,19 @@ public final class ScalarCodecs
         );
     }
 
-    public static FunctionPairScalarCodec<String> buildString(int size)
+    public static FunctionPairValueCodec<String> buildString(int size)
     {
         return buildString(OptionalInt.of(size));
     }
 
-    public static final FunctionPairScalarCodec<String> STRING_SCALAR_CODEC = buildString(OptionalInt.empty());
+    public static final FunctionPairValueCodec<String> STRING_VALUE_CODEC = buildString(OptionalInt.empty());
 
     @SuppressWarnings({"rawtypes"})
-    public static final Map<Type, ScalarCodec> SCALAR_CODECS_BY_TYPE = ImmutableMap.<Type, ScalarCodec>builder()
-            .put(Type.BOOLEAN, BOOLEAN_SCALAR_CODEC)
-            .put(Type.LONG, LONG_SCALAR_CODEC)
-            .put(Type.DOUBLE, DOUBLE_SCALAR_CODEC)
-            .put(Type.BYTES, BYTES_SCALAR_CODEC)
-            .put(Type.STRING, STRING_SCALAR_CODEC)
+    public static final Map<Type, ValueCodec> VALUE_CODECS_BY_TYPE = ImmutableMap.<Type, ValueCodec>builder()
+            .put(Type.BOOLEAN, BOOLEAN_VALUE_CODEC)
+            .put(Type.LONG, LONG_VALUE_CODEC)
+            .put(Type.DOUBLE, DOUBLE_VALUE_CODEC)
+            .put(Type.BYTES, BYTES_VALUE_CODEC)
+            .put(Type.STRING, STRING_VALUE_CODEC)
             .build();
 }

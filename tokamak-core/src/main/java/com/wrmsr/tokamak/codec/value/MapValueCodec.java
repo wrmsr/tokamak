@@ -11,9 +11,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.codec.scalar;
+package com.wrmsr.tokamak.codec.value;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.codec.Input;
 import com.wrmsr.tokamak.codec.Output;
@@ -26,20 +25,20 @@ import java.util.Map;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
-public final class MapScalarCodec<K, V>
-        extends CollectionScalarCodec<Map<K, V>>
+public final class MapValueCodec<K, V>
+        extends CollectionValueCodec<Map<K, V>>
 {
-    private final ScalarCodec<K> keyChild;
-    private final ScalarCodec<V> valueChild;
+    private final ValueCodec<K> keyChild;
+    private final ValueCodec<V> valueChild;
 
-    public MapScalarCodec(ScalarCodec<K> keyChild, ScalarCodec<V> valueChild, int size, boolean fixed)
+    public MapValueCodec(ValueCodec<K> keyChild, ValueCodec<V> valueChild, int size, boolean fixed)
     {
         super(size, fixed);
         this.keyChild = checkNotNull(keyChild);
         this.valueChild = checkNotNull(valueChild);
     }
 
-    public MapScalarCodec(ScalarCodec<K> keyChild, ScalarCodec<V> valueChild)
+    public MapValueCodec(ValueCodec<K> keyChild, ValueCodec<V> valueChild)
     {
         this(keyChild, valueChild, DEFAULT_MAX_SIZE, false);
     }

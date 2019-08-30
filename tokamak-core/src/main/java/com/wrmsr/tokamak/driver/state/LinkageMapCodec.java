@@ -21,9 +21,9 @@ import com.wrmsr.tokamak.codec.ByteArrayInput;
 import com.wrmsr.tokamak.codec.ByteArrayOutput;
 import com.wrmsr.tokamak.codec.Input;
 import com.wrmsr.tokamak.codec.Output;
-import com.wrmsr.tokamak.codec.scalar.ScalarCodec;
-import com.wrmsr.tokamak.codec.scalar.ScalarCodecs;
-import com.wrmsr.tokamak.codec.scalar.VariableLengthScalarCodec;
+import com.wrmsr.tokamak.codec.value.ValueCodec;
+import com.wrmsr.tokamak.codec.value.ValueCodecs;
+import com.wrmsr.tokamak.codec.value.VariableLengthValueCodec;
 import com.wrmsr.tokamak.node.Node;
 import com.wrmsr.tokamak.node.StatefulNode;
 import com.wrmsr.tokamak.util.codec.Codec;
@@ -38,13 +38,13 @@ import static com.google.common.collect.ImmutableSet.toImmutableSet;
 public final class LinkageMapCodec
         implements Codec<Map<NodeId, Linkage.Links>, byte[]>
 {
-    private static final ScalarCodec<Number> LONG_CODEC = ScalarCodecs.LONG_SCALAR_CODEC;
-    private static final ScalarCodec<byte[]> VAR_BYTES_CODEC = new VariableLengthScalarCodec<>(ScalarCodecs.BYTES_SCALAR_CODEC);
+    private static final ValueCodec<Number> LONG_CODEC = ValueCodecs.LONG_VALUE_CODEC;
+    private static final ValueCodec<byte[]> VAR_BYTES_CODEC = new VariableLengthValueCodec<>(ValueCodecs.BYTES_VALUE_CODEC);
 
     private final StatefulNode node;
-    private final Map<NodeId, ScalarCodec<Object[]>> attributesCodecsByNodeId;
+    private final Map<NodeId, ValueCodec<Object[]>> attributesCodecsByNodeId;
 
-    public LinkageMapCodec(StatefulNode node, Map<NodeId, ScalarCodec<Object[]>> attributesCodecsByNodeId)
+    public LinkageMapCodec(StatefulNode node, Map<NodeId, ValueCodec<Object[]>> attributesCodecsByNodeId)
     {
         this.node = checkNotNull(node);
         this.attributesCodecsByNodeId = ImmutableMap.copyOf(attributesCodecsByNodeId);
@@ -77,7 +77,7 @@ public final class LinkageMapCodec
 
     private void encodeDenormalizedLinks(NodeId nodeId, Linkage.DenormalizedLinks denormalizedLinks, Output output)
     {
-        ScalarCodec<Object[]> attributesCodec = checkNotNull(attributesCodecsByNodeId.get(nodeId));
+        ValueCodec<Object[]> attributesCodec = checkNotNull(attributesCodecsByNodeId.get(nodeId));
         LONG_CODEC.encode(denormalizedLinks.getAttributesById().size(), output);
         for (Map.Entry<Id, Object[]> entry : denormalizedLinks.getAttributesById().entrySet()) {
             VAR_BYTES_CODEC.encode(entry.getKey().getValue(), output);
@@ -87,7 +87,7 @@ public final class LinkageMapCodec
 
     private Linkage.DenormalizedLinks decodeDenormalizedLinks(NodeId nodeId, Input input)
     {
-        ScalarCodec<Object[]> attributesCodec = checkNotNull(attributesCodecsByNodeId.get(nodeId));
+        ValueCodec<Object[]> attributesCodec = checkNotNull(attributesCodecsByNodeId.get(nodeId));
         int sz = (int) LONG_CODEC.decode(input);
         ImmutableMap.Builder<Id, Object[]> builder = ImmutableMap.builderWithExpectedSize(sz);
         for (int i = 0; i < sz; ++i) {

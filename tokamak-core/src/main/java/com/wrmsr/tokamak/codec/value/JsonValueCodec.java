@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.codec.scalar;
+package com.wrmsr.tokamak.codec.value;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -27,19 +27,19 @@ import java.lang.reflect.Type;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
-public final class JsonScalarCodec<V>
-        implements ScalarCodec<V>
+public final class JsonValueCodec<V>
+        implements ValueCodec<V>
 {
     private final TypeReference<V> typeReference;
     private final ObjectMapper objectMapper;
 
-    public JsonScalarCodec(TypeReference<V> typeReference, ObjectMapper objectMapper)
+    public JsonValueCodec(TypeReference<V> typeReference, ObjectMapper objectMapper)
     {
         this.typeReference = checkNotNull(typeReference);
         this.objectMapper = checkNotNull(objectMapper);
     }
 
-    public JsonScalarCodec(Class<V> cls, ObjectMapper objectMapper)
+    public JsonValueCodec(Class<V> cls, ObjectMapper objectMapper)
     {
         this(new TypeReference<V>()
         {
@@ -51,12 +51,12 @@ public final class JsonScalarCodec<V>
         }, objectMapper);
     }
 
-    public JsonScalarCodec(TypeReference<V> typeReference)
+    public JsonValueCodec(TypeReference<V> typeReference)
     {
         this(typeReference, Json.OBJECT_MAPPER_SUPPLIER.get());
     }
 
-    public JsonScalarCodec(Class<V> cls)
+    public JsonValueCodec(Class<V> cls)
     {
         this(cls, Json.OBJECT_MAPPER_SUPPLIER.get());
     }

@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.codec.scalar;
+package com.wrmsr.tokamak.codec.value;
 
 import com.wrmsr.tokamak.codec.Input;
 import com.wrmsr.tokamak.codec.Output;
@@ -25,15 +25,15 @@ import java.util.function.Function;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
-public final class FunctionPairScalarCodec<V>
-        implements ScalarCodec<V>
+public final class FunctionPairValueCodec<V>
+        implements ValueCodec<V>
 {
     private final BiConsumer<V, Output> encoder;
     private final Function<Input, V> decoder;
     private final Width width;
     private final boolean isNullable;
 
-    public FunctionPairScalarCodec(
+    public FunctionPairValueCodec(
             BiConsumer<V, Output> encoder,
             Function<Input, V> decoder,
             Width width,
@@ -45,27 +45,27 @@ public final class FunctionPairScalarCodec<V>
         this.isNullable = isNullable;
     }
 
-    public FunctionPairScalarCodec(
+    public FunctionPairValueCodec(
             BiConsumer<V, Output> encoder,
             Function<Input, V> decoder)
     {
         this(encoder, decoder, Width.any(), false);
     }
 
-    public static <V> FunctionPairScalarCodec<V> of(
+    public static <V> FunctionPairValueCodec<V> of(
             BiConsumer<V, Output> encoder,
             Function<Input, V> decoder,
             Width width,
             boolean isNullable)
     {
-        return new FunctionPairScalarCodec<>(encoder, decoder, width, isNullable);
+        return new FunctionPairValueCodec<>(encoder, decoder, width, isNullable);
     }
 
-    public static <V> FunctionPairScalarCodec<V> of(
+    public static <V> FunctionPairValueCodec<V> of(
             BiConsumer<V, Output> encoder,
             Function<Input, V> decoder)
     {
-        return new FunctionPairScalarCodec<>(encoder, decoder);
+        return new FunctionPairValueCodec<>(encoder, decoder);
     }
 
     public BiConsumer<V, Output> getEncoder()

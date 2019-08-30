@@ -13,7 +13,7 @@
  */
 package com.wrmsr.tokamak.codec.row;
 
-import com.wrmsr.tokamak.codec.scalar.ScalarCodecs;
+import com.wrmsr.tokamak.codec.value.ValueCodecs;
 import com.wrmsr.tokamak.type.Type;
 
 import java.util.List;
@@ -29,9 +29,9 @@ public final class RowCodecs
     {
     }
 
-    public static ScalarRowCodec buildRowCodec(String field, Type type)
+    public static ValueRowCodec buildRowCodec(String field, Type type)
     {
-        return new ScalarRowCodec(field, ScalarCodecs.SCALAR_CODECS_BY_TYPE.get(type));
+        return new ValueRowCodec(field, ValueCodecs.VALUE_CODECS_BY_TYPE.get(type));
     }
 
     public static RowCodec buildRowCodec(Map<String, Type> typesByField)

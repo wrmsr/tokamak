@@ -15,7 +15,7 @@ package com.wrmsr.tokamak.codec.row;
 
 import com.wrmsr.tokamak.codec.Input;
 import com.wrmsr.tokamak.codec.Output;
-import com.wrmsr.tokamak.codec.scalar.ScalarCodec;
+import com.wrmsr.tokamak.codec.value.ValueCodec;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -24,16 +24,16 @@ import java.util.Map;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
-public final class ScalarRowCodec<V>
+public final class ValueRowCodec<V>
         implements RowCodec
 {
     private final String field;
-    private final ScalarCodec<V> scalarCodec;
+    private final ValueCodec<V> valueCodec;
 
-    public ScalarRowCodec(String field, ScalarCodec<V> scalarCodec)
+    public ValueRowCodec(String field, ValueCodec<V> valueCodec)
     {
         this.field = checkNotNull(field);
-        this.scalarCodec = checkNotNull(scalarCodec);
+        this.valueCodec = checkNotNull(valueCodec);
     }
 
     public String getField()
@@ -41,20 +41,20 @@ public final class ScalarRowCodec<V>
         return field;
     }
 
-    public ScalarCodec<V> getScalarCodec()
+    public ValueCodec<V> getValueCodec()
     {
-        return scalarCodec;
+        return valueCodec;
     }
 
     @Override
     public void encode(Map<String, Object> row, Output output)
     {
-        scalarCodec.encode((V) row.get(field), output);
+        valueCodec.encode((V) row.get(field), output);
     }
 
     @Override
     public void decode(Sink sink, Input input)
     {
-        sink.put(field, scalarCodec.decode(input));
+        sink.put(field, valueCodec.decode(input));
     }
 }

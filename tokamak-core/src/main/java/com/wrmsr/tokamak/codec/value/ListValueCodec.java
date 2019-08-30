@@ -11,32 +11,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.codec.scalar;
+package com.wrmsr.tokamak.codec.value;
 
-import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.codec.Input;
 import com.wrmsr.tokamak.codec.Output;
 import com.wrmsr.tokamak.codec.Width;
 
 import javax.annotation.concurrent.Immutable;
 
-import java.util.Set;
+import java.util.List;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
-public final class SetScalarCodec<V>
-        extends CollectionScalarCodec<Set<V>>
+public final class ListValueCodec<V>
+        extends CollectionValueCodec<List<V>>
 {
-    private final ScalarCodec<V> child;
+    private final ValueCodec<V> child;
 
-    public SetScalarCodec(ScalarCodec<V> child, int size, boolean fixed)
+    public ListValueCodec(ValueCodec<V> child, int size, boolean fixed)
     {
         super(size, fixed);
+        checkArgument(size > 0);
         this.child = checkNotNull(child);
     }
 
-    public SetScalarCodec(ScalarCodec<V> child)
+    public ListValueCodec(ValueCodec<V> child)
     {
         this(child, DEFAULT_MAX_SIZE, false);
     }
@@ -48,7 +50,7 @@ public final class SetScalarCodec<V>
     }
 
     @Override
-    public void encode(Set<V> value, Output output)
+    public void encode(List<V> value, Output output)
     {
         encodeSize(value.size(), output);
         for (V item : value) {
@@ -57,10 +59,10 @@ public final class SetScalarCodec<V>
     }
 
     @Override
-    public Set<V> decode(Input input)
+    public List<V> decode(Input input)
     {
         int sz = decodeSize(input);
-        ImmutableSet.Builder<V> builder = ImmutableSet.builderWithExpectedSize(sz);
+        ImmutableList.Builder<V> builder = ImmutableList.builderWithExpectedSize(sz);
         for (int i = 0; i < sz; ++i) {
             builder.add(child.decode(input));
         }

@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.codec.scalar;
+package com.wrmsr.tokamak.codec.value;
 
 import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.codec.Input;
@@ -33,15 +33,15 @@ import static com.wrmsr.tokamak.util.MoreOptionals.reduceOptionals;
 
 @Immutable
 @SuppressWarnings({"rawtypes"})
-public final class FixedKeyObjectMapScalarCodec<K>
-        implements ScalarCodec<Map<K, Object>>
+public final class FixedKeyObjectMapValueCodec<K>
+        implements ValueCodec<Map<K, Object>>
 {
-    private final Map<K, ScalarCodec> childrenByKey;
-    private final List<Pair<K, ScalarCodec>> keyChildPairs;
+    private final Map<K, ValueCodec> childrenByKey;
+    private final List<Pair<K, ValueCodec>> keyChildPairs;
     private final ObjectArrayBackedMap.Shape<K> shape;
     private final boolean strict;
 
-    public FixedKeyObjectMapScalarCodec(Map<K, ScalarCodec> childrenByKey, boolean strict)
+    public FixedKeyObjectMapValueCodec(Map<K, ValueCodec> childrenByKey, boolean strict)
     {
         this.childrenByKey = ImmutableMap.copyOf(checkOrdered(childrenByKey));
         this.keyChildPairs = this.childrenByKey.entrySet().stream().map(Pair::immutable).collect(toImmutableList());
@@ -55,14 +55,14 @@ public final class FixedKeyObjectMapScalarCodec<K>
     public Width getWidth()
     {
         return width.get(() -> {
-            List<Width> childWidths = childrenByKey.values().stream().map(ScalarCodec::getWidth).collect(toImmutableList());
+            List<Width> childWidths = childrenByKey.values().stream().map(ValueCodec::getWidth).collect(toImmutableList());
             return Width.of(
                     childWidths.stream().map(Width::getMin).reduce(0, Integer::sum),
                     reduceOptionals(0, Integer::sum, childWidths.stream().map(Width::getMax).iterator()));
         });
     }
 
-    public Map<K, ScalarCodec> getChildrenByKey()
+    public Map<K, ValueCodec> getChildrenByKey()
     {
         return childrenByKey;
     }
@@ -79,7 +79,7 @@ public final class FixedKeyObjectMapScalarCodec<K>
         if (strict) {
             checkArgument(value.keySet().equals(childrenByKey.keySet()));
         }
-        for (Pair<K, ScalarCodec> e : keyChildPairs) {
+        for (Pair<K, ValueCodec> e : keyChildPairs) {
             e.getValue().encode(value.get(e.getKey()), output);
         }
     }
@@ -89,7 +89,7 @@ public final class FixedKeyObjectMapScalarCodec<K>
     {
         Object[] values = new Object[childrenByKey.size()];
         for (int i = 0; i < childrenByKey.size(); ++i) {
-            Pair<K, ScalarCodec> e = keyChildPairs.get(i);
+            Pair<K, ValueCodec> e = keyChildPairs.get(i);
             values[i] = e.getValue().decode(input);
         }
         return new ObjectArrayBackedMap<>(shape, values);

@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.codec.scalar;
+package com.wrmsr.tokamak.codec.value;
 
 import com.wrmsr.tokamak.codec.Input;
 import com.wrmsr.tokamak.codec.Output;
@@ -23,23 +23,23 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.wrmsr.tokamak.util.MoreOptionals.mapOptional;
 
 @Immutable
-public final class NullableScalarCodec<V>
-        implements ScalarCodec<V>
+public final class NullableValueCodec<V>
+        implements ValueCodec<V>
 {
-    private final ScalarCodec<V> child;
+    private final ValueCodec<V> child;
 
-    public NullableScalarCodec(ScalarCodec<V> child)
+    public NullableValueCodec(ValueCodec<V> child)
     {
         this.child = checkNotNull(child);
     }
 
-    public static <V> ScalarCodec<V> of(ScalarCodec<V> child)
+    public static <V> ValueCodec<V> of(ValueCodec<V> child)
     {
         if (child.isNullable()) {
             return child;
         }
         else {
-            return new NullableScalarCodec<>(child);
+            return new NullableValueCodec<>(child);
         }
     }
 

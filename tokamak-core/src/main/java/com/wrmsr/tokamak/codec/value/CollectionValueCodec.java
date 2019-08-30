@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.codec.scalar;
+package com.wrmsr.tokamak.codec.value;
 
 import com.wrmsr.tokamak.codec.Input;
 import com.wrmsr.tokamak.codec.Output;
@@ -24,8 +24,8 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.wrmsr.tokamak.util.MoreOptionals.mapOptional;
 
 @Immutable
-public abstract class CollectionScalarCodec<V>
-        implements ScalarCodec<V>
+public abstract class CollectionValueCodec<V>
+        implements ValueCodec<V>
 {
     public static final int MAX_BYTE_SIZE = 255;
     public static final int DEFAULT_MAX_SIZE = MAX_BYTE_SIZE;
@@ -35,7 +35,7 @@ public abstract class CollectionScalarCodec<V>
 
     protected final boolean byteSized;
 
-    public CollectionScalarCodec(int size, boolean fixed)
+    public CollectionValueCodec(int size, boolean fixed)
     {
         checkArgument(size > 0);
         this.size = size;
@@ -43,7 +43,7 @@ public abstract class CollectionScalarCodec<V>
         byteSized = size <= MAX_BYTE_SIZE;
     }
 
-    public CollectionScalarCodec()
+    public CollectionValueCodec()
     {
         this(DEFAULT_MAX_SIZE, false);
     }
