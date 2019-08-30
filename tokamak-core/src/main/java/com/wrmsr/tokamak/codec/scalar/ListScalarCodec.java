@@ -16,6 +16,7 @@ package com.wrmsr.tokamak.codec.scalar;
 import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.codec.Input;
 import com.wrmsr.tokamak.codec.Output;
+import com.wrmsr.tokamak.codec.Width;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -40,6 +41,12 @@ public final class ListScalarCodec<V>
     public ListScalarCodec(ScalarCodec<V> child)
     {
         this(child, DEFAULT_MAX_SIZE, false);
+    }
+
+    @Override
+    public Width getEntryWidth()
+    {
+        return child.getWidth();
     }
 
     @Override

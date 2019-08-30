@@ -15,6 +15,7 @@ package com.wrmsr.tokamak.codec.scalar;
 
 import com.wrmsr.tokamak.codec.Input;
 import com.wrmsr.tokamak.codec.Output;
+import com.wrmsr.tokamak.codec.Width;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -30,18 +31,18 @@ public final class FunctionPairScalarCodec<V>
 {
     private final BiConsumer<V, Output> encoder;
     private final Function<Input, V> decoder;
-    private final OptionalInt length;
+    private final Width width;
     private final boolean isNullable;
 
     public FunctionPairScalarCodec(
             BiConsumer<V, Output> encoder,
             Function<Input, V> decoder,
-            OptionalInt length,
+            Width width,
             boolean isNullable)
     {
         this.encoder = checkNotNull(encoder);
         this.decoder = checkNotNull(decoder);
-        this.length = checkNotNull(length);
+        this.width = checkNotNull(width);
         this.isNullable = isNullable;
     }
 
@@ -49,16 +50,16 @@ public final class FunctionPairScalarCodec<V>
             BiConsumer<V, Output> encoder,
             Function<Input, V> decoder)
     {
-        this(encoder, decoder, OptionalInt.empty(), false);
+        this(encoder, decoder, Width.unknown(), false);
     }
 
     public static <V> FunctionPairScalarCodec<V> of(
             BiConsumer<V, Output> encoder,
             Function<Input, V> decoder,
-            OptionalInt length,
+            Width width,
             boolean isNullable)
     {
-        return new FunctionPairScalarCodec<>(encoder, decoder, length, isNullable);
+        return new FunctionPairScalarCodec<>(encoder, decoder, width, isNullable);
     }
 
     public static <V> FunctionPairScalarCodec<V> of(
@@ -79,9 +80,9 @@ public final class FunctionPairScalarCodec<V>
     }
 
     @Override
-    public OptionalInt getFixedWidth()
+    public Width getWidth()
     {
-        return length;
+        return width;
     }
 
     @Override

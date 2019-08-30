@@ -15,6 +15,7 @@ package com.wrmsr.tokamak.codec.scalar;
 
 import com.wrmsr.tokamak.codec.Input;
 import com.wrmsr.tokamak.codec.Output;
+import com.wrmsr.tokamak.codec.Width;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -44,6 +45,12 @@ public final class VariableLengthScalarCodec<V>
     public VariableLengthScalarCodec(ScalarCodec<V> child)
     {
         this(child, DEFAULT_MAX_SIZE);
+    }
+
+    @Override
+    public Width getWidth()
+    {
+       
     }
 
     @Override

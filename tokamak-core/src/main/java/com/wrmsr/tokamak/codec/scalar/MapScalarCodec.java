@@ -13,9 +13,11 @@
  */
 package com.wrmsr.tokamak.codec.scalar;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.codec.Input;
 import com.wrmsr.tokamak.codec.Output;
+import com.wrmsr.tokamak.codec.Width;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -40,6 +42,12 @@ public final class MapScalarCodec<K, V>
     public MapScalarCodec(ScalarCodec<K> keyChild, ScalarCodec<V> valueChild)
     {
         this(keyChild, valueChild, DEFAULT_MAX_SIZE, false);
+    }
+
+    @Override
+    public Width getEntryWidth()
+    {
+        return Width.sum(ImmutableList.of(keyChild.getWidth(), valueChild.getWidth()));
     }
 
     @Override

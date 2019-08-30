@@ -15,11 +15,10 @@ package com.wrmsr.tokamak.codec.scalar;
 
 import com.wrmsr.tokamak.codec.Input;
 import com.wrmsr.tokamak.codec.Output;
+import com.wrmsr.tokamak.codec.Width;
 import com.wrmsr.tokamak.util.codec.Codec;
 
 import javax.annotation.concurrent.Immutable;
-
-import java.util.OptionalInt;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -37,9 +36,9 @@ public final class WrappedScalarCodec<F, T>
     }
 
     @Override
-    public OptionalInt getFixedWidth()
+    public Width getWidth()
     {
-        return child.getFixedWidth();
+        return child.getWidth();
     }
 
     @Override

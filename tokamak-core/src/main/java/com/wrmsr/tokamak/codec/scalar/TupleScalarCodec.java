@@ -16,12 +16,14 @@ package com.wrmsr.tokamak.codec.scalar;
 import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.codec.Input;
 import com.wrmsr.tokamak.codec.Output;
+import com.wrmsr.tokamak.codec.Width;
 
 import javax.annotation.concurrent.Immutable;
 
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.collect.ImmutableList.toImmutableList;
 
 @Immutable
 public final class TupleScalarCodec
@@ -37,6 +39,12 @@ public final class TupleScalarCodec
     public List<ScalarCodec> getChildren()
     {
         return children;
+    }
+
+    @Override
+    public Width getWidth()
+    {
+        return Width.sum(children.stream().map(ScalarCodec::getWidth).collect(toImmutableList()));
     }
 
     @Override

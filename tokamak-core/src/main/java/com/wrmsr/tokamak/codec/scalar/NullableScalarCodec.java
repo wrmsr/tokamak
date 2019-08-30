@@ -15,13 +15,11 @@ package com.wrmsr.tokamak.codec.scalar;
 
 import com.wrmsr.tokamak.codec.Input;
 import com.wrmsr.tokamak.codec.Output;
+import com.wrmsr.tokamak.codec.Width;
 
 import javax.annotation.concurrent.Immutable;
 
-import java.util.OptionalInt;
-
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.wrmsr.tokamak.util.MoreOptionals.mapOptional;
 
 @Immutable
 public final class NullableScalarCodec<V>
@@ -45,9 +43,9 @@ public final class NullableScalarCodec<V>
     }
 
     @Override
-    public OptionalInt getFixedWidth()
+    public Width getWidth()
     {
-        return mapOptional(child.getFixedWidth(), l -> l + 1);
+        return child.getWidth().map(w -> w + 1);
     }
 
     @Override
