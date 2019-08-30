@@ -25,15 +25,11 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
-import com.google.common.collect.ImmutableMap;
+import com.wrmsr.tokamak.util.config.prop.Property;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.Map;
-import java.util.Optional;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkSubclass;
@@ -44,113 +40,6 @@ public final class ConfigObjectMapping
     {
     }
 
-    public static abstract class Property
-    {
-        private String name;
-
-        public Property(String name)
-        {
-            this.name = name;
-        }
-
-        public abstract Object get(Config cfg);
-
-        public abstract void set(Config cfg, Object value);
-    }
-
-    public static final class BeanProperty
-            extends Property
-    {
-        private final Method setter;
-        private final Optional<Method> getter;
-
-        public BeanProperty(String name, Method setter, Optional<Method> getter)
-        {
-            super(name);
-            this.setter = setter;
-            this.getter = getter;
-        }
-
-        @Override
-        public Object get(Config cfg)
-        {
-            try {
-                return getter.get().invoke(cfg);
-            }
-            catch (ReflectiveOperationException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        @Override
-        public void set(Config cfg, Object value)
-        {
-            try {
-                setter.invoke(cfg, value);
-            }
-            catch (ReflectiveOperationException e) {
-                throw new RuntimeException(e);
-            }
-        }
-    }
-
-    public static final class FieldProperty
-            extends Property
-    {
-        private final Field field;
-
-        public FieldProperty(String name, Field field)
-        {
-            super(name);
-            this.field = field;
-        }
-
-        @Override
-        public Object get(Config cfg)
-        {
-            try {
-                return field.get(cfg);
-            }
-            catch (ReflectiveOperationException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        @Override
-        public void set(Config cfg, Object value)
-        {
-            try {
-                field.set(cfg, value);
-            }
-            catch (ReflectiveOperationException e) {
-                throw new RuntimeException(e);
-            }
-        }
-    }
-
-    public static Map<String, Property> buildProperties(Class<? extends Config> cls)
-    {
-        ImmutableMap.Builder<String, Property> map = ImmutableMap.builder();
-        for (Class<?> cur = cls; (cur != null) && !cur.equals(Object.class); cur = cur.getSuperclass()) {
-            for (Method method : cur.getDeclaredMethods()) {
-                if (method.isAnnotationPresent(ConfigProperty.class)) {
-                    checkArgument(method.getName().startsWith("set"));
-                    String name = method.getName().substring(3);
-                    checkArgument(Character.isUpperCase(name.charAt(0)));
-                    name = Character.toLowerCase(name.charAt(0)) + name.substring(1);
-                    map.put(name, new BeanProperty(name, method, Optional.empty()));
-                }
-            }
-            for (Field field : cur.getDeclaredFields()) {
-                if (field.isAnnotationPresent(ConfigProperty.class)) {
-                    String name = field.getName();
-                    map.put(name, new FieldProperty(name, field));
-                }
-            }
-        }
-        return map.build();
-    }
-
     public static class Serializer
             extends JsonSerializer<Config>
     {
@@ -159,8 +48,8 @@ public final class ConfigObjectMapping
                 throws IOException
         {
             gen.writeStartObject();
-            Map<String, Property> properties = buildProperties(value.getClass());
-            for (Map.Entry<String, Property> e : properties.entrySet()) {
+            ConfigMetadata md = Configs.getMetadata(value.getClass());
+            for (Map.Entry<String, Property> e : md.getProperties().entrySet()) {
                 Object pv = e.getValue().get(value);
                 if (pv != null) {
                     gen.writeObjectField(e.getKey(), pv);
@@ -168,57 +57,57 @@ public final class ConfigObjectMapping
             }
             gen.writeEndObject();
         }
+        }
+
+        public static class Deserializer
+                extends JsonDeserializer<Config>
+                implements ContextualDeserializer
+        {
+            private JavaType type;
+            private Class<? extends Config> cls;
+            private ConfigMetadata metadata;
+
+            public Deserializer()
+            {
+            }
+
+            public Deserializer(JavaType type)
+            {
+                this.type = checkNotNull(type);
+                cls = checkSubclass(type.getRawClass(), Config.class);
+                metadata = Configs.getMetadata(cls);
+            }
+
+            @Override
+            public JsonDeserializer<?> createContextual(DeserializationContext ctx, com.fasterxml.jackson.databind.BeanProperty property)
+                    throws JsonMappingException
+            {
+                return new Deserializer(property != null ? property.getType() : ctx.getContextualType());
+            }
+
+            @Override
+            public Config deserialize(JsonParser parser, DeserializationContext ctx)
+                    throws IOException, JsonProcessingException
+            {
+                checkNotNull(metadata);
+                Config cfg;
+                try {
+                    cfg = cls.getDeclaredConstructor().newInstance();
+                }
+                catch (ReflectiveOperationException e) {
+                    throw new RuntimeException(e);
+                }
+                checkState(parser.currentToken() == JsonToken.START_OBJECT);
+                ObjectCodec codec = parser.getCodec();
+                while (parser.nextToken() != JsonToken.END_OBJECT) {
+                    checkState(parser.currentToken() == JsonToken.FIELD_NAME);
+                    String name = parser.getValueAsString();
+                    Property prop = checkNotNull(metadata.getProperties().get(name));
+                    parser.nextToken();
+                    Object value = codec.readValue(codec.treeAsTokens(parser.readValueAsTree()), Object.class);
+                    prop.set(cfg, value);
+                }
+                return cfg;
+            }
+        }
     }
-
-    public static class Deserializer
-            extends JsonDeserializer<Config>
-            implements ContextualDeserializer
-    {
-        private JavaType type;
-        private Class<? extends Config> cls;
-        private Map<String, Property> properties;
-
-        public Deserializer()
-        {
-        }
-
-        public Deserializer(JavaType type)
-        {
-            this.type = checkNotNull(type);
-            cls = checkSubclass(type.getRawClass(), Config.class);
-            properties = buildProperties(cls);
-        }
-
-        @Override
-        public JsonDeserializer<?> createContextual(DeserializationContext ctx, com.fasterxml.jackson.databind.BeanProperty property)
-                throws JsonMappingException
-        {
-            return new Deserializer(property != null ? property.getType() : ctx.getContextualType());
-        }
-
-        @Override
-        public Config deserialize(JsonParser parser, DeserializationContext ctx)
-                throws IOException, JsonProcessingException
-        {
-            checkNotNull(properties);
-            Config cfg;
-            try {
-                cfg = cls.getDeclaredConstructor().newInstance();
-            }
-            catch (ReflectiveOperationException e) {
-                throw new RuntimeException(e);
-            }
-            checkState(parser.currentToken() == JsonToken.START_OBJECT);
-            ObjectCodec codec = parser.getCodec();
-            while (parser.nextToken() != JsonToken.END_OBJECT) {
-                checkState(parser.currentToken() == JsonToken.FIELD_NAME);
-                String name = parser.getValueAsString();
-                Property prop = checkNotNull(properties.get(name));
-                parser.nextToken();
-                Object value = codec.readValue(codec.treeAsTokens(parser.readValueAsTree()), Object.class);
-                prop.set(cfg, value);
-            }
-            return cfg;
-        }
-    }
-}
