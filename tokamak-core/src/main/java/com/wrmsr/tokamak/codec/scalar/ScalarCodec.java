@@ -17,8 +17,7 @@ import com.wrmsr.tokamak.codec.ByteArrayInput;
 import com.wrmsr.tokamak.codec.ByteArrayOutput;
 import com.wrmsr.tokamak.codec.Input;
 import com.wrmsr.tokamak.codec.Output;
-
-import java.util.OptionalInt;
+import com.wrmsr.tokamak.codec.Width;
 
 public interface ScalarCodec<V>
 {
@@ -35,9 +34,9 @@ public interface ScalarCodec<V>
      - Union?
     */
 
-    default OptionalInt getFixedWidth()
+    default Width getWidth()
     {
-        return OptionalInt.empty();
+        return Width.unknown();
     }
 
     default boolean isNullable()

@@ -27,7 +27,7 @@ public final class ScalarCodecs
     }
 
     public static final FunctionPairScalarCodec<Boolean> BOOLEAN_SCALAR_CODEC = FunctionPairScalarCodec.of(
-            (v, o) -> o.put((Boolean) v ? (byte) 1 : (byte) 0),
+            (v, o) -> o.put(v ? (byte) 1 : (byte) 0),
             i -> i.get() != 0,
             OptionalInt.of(1),
             false
@@ -47,7 +47,7 @@ public final class ScalarCodecs
             false
     );
 
-    public static final FunctionPairScalarCodec<byte[]> buildBytes(OptionalInt size)
+    public static FunctionPairScalarCodec<byte[]> buildBytes(OptionalInt size)
     {
         return FunctionPairScalarCodec.of(
                 (v, o) -> o.putBytes(v),
@@ -71,6 +71,7 @@ public final class ScalarCodecs
 
     public static final FunctionPairScalarCodec<String> STRING_SCALAR_CODEC = buildString(OptionalInt.empty());
 
+    @SuppressWarnings({"rawtypes"})
     public static final Map<Type, ScalarCodec> SCALAR_CODECS_BY_TYPE = ImmutableMap.<Type, ScalarCodec>builder()
             .put(Type.BOOLEAN, BOOLEAN_SCALAR_CODEC)
             .put(Type.LONG, LONG_SCALAR_CODEC)

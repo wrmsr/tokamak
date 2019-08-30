@@ -19,6 +19,8 @@ import com.wrmsr.tokamak.util.codec.Codec;
 
 import javax.annotation.concurrent.Immutable;
 
+import java.util.OptionalInt;
+
 import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
@@ -32,6 +34,18 @@ public final class WrappedScalarCodec<F, T>
     {
         this.codec = checkNotNull(codec);
         this.child = checkNotNull(child);
+    }
+
+    @Override
+    public OptionalInt getFixedWidth()
+    {
+        return child.getFixedWidth();
+    }
+
+    @Override
+    public boolean isNullable()
+    {
+        return child.isNullable();
     }
 
     @Override

@@ -15,10 +15,14 @@ package com.wrmsr.tokamak.codec.scalar;
 
 import com.wrmsr.tokamak.codec.Input;
 import com.wrmsr.tokamak.codec.Output;
+import com.wrmsr.tokamak.util.lazy.SupplierLazyValue;
 
 import javax.annotation.concurrent.Immutable;
 
+import java.util.OptionalInt;
+
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.wrmsr.tokamak.util.MoreOptionals.mapOptional;
 
 @Immutable
 public abstract class CollectionScalarCodec<V>
@@ -43,6 +47,26 @@ public abstract class CollectionScalarCodec<V>
     public CollectionScalarCodec()
     {
         this(DEFAULT_MAX_SIZE, false);
+    }
+
+    public abstract OptionalInt getEntryFixedWidth();
+
+    public abstract OptionalInt getEntryMaxWidth();
+
+    private final SupplierLazyValue<OptionalInt> fixedWidth = new SupplierLazyValue<>();
+
+    @Override
+    public OptionalInt getFixedWidth()
+    {
+        return fixedWidth.get(() -> fixed ? mapOptional(getEntryFixedWidth(), w -> w * size) : OptionalInt.empty());
+    }
+
+    private final SupplierLazyValue<OptionalInt> maxWidth = new SupplierLazyValue<>();
+
+    @Override
+    public OptionalInt getMaxWidth()
+    {
+        return maxWidth.get(() -> mapOptional(getEntryMaxWidth(), w -> w * size));
     }
 
     protected void encodeSize(int sz, Output output)

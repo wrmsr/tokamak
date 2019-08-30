@@ -33,4 +33,26 @@ public final class MoreOptionals
             return OptionalInt.empty();
         }
     }
+
+    public static OptionalInt sumOptionals(OptionalInt left, OptionalInt right)
+    {
+        if (left.isPresent() && right.isPresent()) {
+            return OptionalInt.of(left.getAsInt() + right.getAsInt());
+        }
+        else {
+            return OptionalInt.empty();
+        }
+    }
+
+    public static OptionalInt sumOptionals(Iterable<OptionalInt> values)
+    {
+        int sum = 0;
+        for (OptionalInt value : values) {
+            if (!value.isPresent()) {
+                return OptionalInt.empty();
+            }
+            sum += value.getAsInt();
+        }
+        return OptionalInt.of(sum);
+    }
 }
