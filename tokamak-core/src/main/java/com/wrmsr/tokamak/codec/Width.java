@@ -23,9 +23,8 @@ import java.util.OptionalInt;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.wrmsr.tokamak.util.MoreOptionals.mapOptional;
-import static com.wrmsr.tokamak.util.MoreOptionals.sumOptionals;
+import static com.wrmsr.tokamak.util.MoreOptionals.reduceOptionals;
 
 @Immutable
 public final class Width
@@ -116,7 +115,7 @@ public final class Width
     public OptionalInt getFixed()
     {
         if (max.isPresent() && min == max.getAsInt()) {
-            return OptionalInt.of(min);
+            return max;
         }
         else {
             return OptionalInt.empty();
@@ -146,6 +145,6 @@ public final class Width
         List<Width> lst = ImmutableList.copyOf(widths);
         return of(
                 lst.stream().map(Width::getMin).reduce(0, Integer::sum),
-                sumOptionals(lst.stream().map(Width::getMax).collect(toImmutableList())));
+                reduceOptionals(0, Integer::sum, lst.stream().map(Width::getMax).iterator()));
     }
 }

@@ -29,7 +29,7 @@ import java.util.Map;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.wrmsr.tokamak.util.MoreCollections.checkOrdered;
-import static com.wrmsr.tokamak.util.MoreOptionals.sumOptionals;
+import static com.wrmsr.tokamak.util.MoreOptionals.reduceOptionals;
 
 @Immutable
 @SuppressWarnings({"rawtypes"})
@@ -58,7 +58,7 @@ public final class FixedKeyObjectMapScalarCodec<K>
             List<Width> childWidths = childrenByKey.values().stream().map(ScalarCodec::getWidth).collect(toImmutableList());
             return Width.of(
                     childWidths.stream().map(Width::getMin).reduce(0, Integer::sum),
-                    sumOptionals(childWidths.stream().map(Width::getMax).collect(toImmutableList())));
+                    reduceOptionals(0, Integer::sum, childWidths.stream().map(Width::getMax).iterator()));
         });
     }
 

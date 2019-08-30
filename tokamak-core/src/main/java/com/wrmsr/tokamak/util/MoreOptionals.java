@@ -13,6 +13,7 @@
  */
 package com.wrmsr.tokamak.util;
 
+import java.util.Iterator;
 import java.util.OptionalInt;
 import java.util.function.IntFunction;
 
@@ -34,25 +35,21 @@ public final class MoreOptionals
     }
 
     @FunctionalInterface
-    interface IntBifunction
+    public interface IntBifunction
     {
         int apply(int left, int right);
     }
 
-    public static OptionalInt reduceOptionals(IntBifunction fn, int identity, Iterable<OptionalInt> accumulator)
+    public static OptionalInt reduceOptionals(int identity, IntBifunction accumulator, Iterator<OptionalInt> values)
     {
         int result = identity;
-        for (OptionalInt value : accumulator) {
+        while (values.hasNext()) {
+            OptionalInt value = values.next();
             if (!value.isPresent()) {
                 return OptionalInt.empty();
             }
-            result = fn.apply(identity, value.getAsInt());
+            result = accumulator.apply(identity, value.getAsInt());
         }
         return OptionalInt.of(result);
-    }
-
-    public static OptionalInt sumOptionals(Iterable<OptionalInt> values)
-    {
-        return reduceOptionals(Integer::sum, 0, values);
     }
 }
