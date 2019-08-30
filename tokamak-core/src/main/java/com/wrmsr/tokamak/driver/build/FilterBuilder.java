@@ -14,6 +14,9 @@
 
 package com.wrmsr.tokamak.driver.build;
 
-public class FilterBuilder
+import com.wrmsr.tokamak.node.FilterNode;
+
+public final class FilterBuilder
+        extends SingleSourceBuilder<FilterNode>
 {
 }

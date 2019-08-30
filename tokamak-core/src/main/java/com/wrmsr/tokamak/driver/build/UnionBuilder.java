@@ -14,6 +14,9 @@
 
 package com.wrmsr.tokamak.driver.build;
 
-public class UnionBuilder
+import com.wrmsr.tokamak.node.UnionNode;
+
+public final class UnionBuilder
+        extends Builder<UnionNode>
 {
 }

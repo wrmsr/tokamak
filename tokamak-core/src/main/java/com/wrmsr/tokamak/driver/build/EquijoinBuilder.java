@@ -44,7 +44,7 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 
-public class EquijoinBuilder
+public final class EquijoinBuilder
         extends Builder<EquijoinNode>
 {
     private static final ValueCodec<byte[]> NULLABLE_BYTES_VALUE_CODEC =

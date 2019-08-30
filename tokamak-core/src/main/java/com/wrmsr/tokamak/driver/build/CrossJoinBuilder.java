@@ -14,6 +14,9 @@
 
 package com.wrmsr.tokamak.driver.build;
 
-public class CrossJoinBuilder
+import com.wrmsr.tokamak.node.CrossJoinNode;
+
+public final class CrossJoinBuilder
+        extends Builder<CrossJoinNode>
 {
 }

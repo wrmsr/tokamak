@@ -14,6 +14,9 @@
 
 package com.wrmsr.tokamak.driver.build;
 
+import com.wrmsr.tokamak.node.ScanNode;
+
 public class ScanBuilder
+        extends Builder<ScanNode>
 {
 }

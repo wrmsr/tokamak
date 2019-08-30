@@ -14,6 +14,9 @@
 
 package com.wrmsr.tokamak.driver.build;
 
-public class ValuesBuilder
+import com.wrmsr.tokamak.node.ValuesNode;
+
+public final class ValuesBuilder
+        extends Builder<ValuesNode>
 {
 }

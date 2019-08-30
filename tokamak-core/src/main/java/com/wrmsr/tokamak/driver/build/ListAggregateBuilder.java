@@ -14,6 +14,10 @@
 
 package com.wrmsr.tokamak.driver.build;
 
-public class ListAggregateBuilder
+import com.wrmsr.tokamak.node.ListAggregateNode;
+import com.wrmsr.tokamak.node.SingleSourceNode;
+
+public final class ListAggregateBuilder
+        extends SingleSourceNode<ListAggregateNode>
 {
 }

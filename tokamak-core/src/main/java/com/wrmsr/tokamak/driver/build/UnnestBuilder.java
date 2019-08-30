@@ -14,6 +14,9 @@
 
 package com.wrmsr.tokamak.driver.build;
 
-public class UnnestBuilder
+import com.wrmsr.tokamak.node.UnnestNode;
+
+public final class UnnestBuilder
+        extends Builder<UnnestNode>
 {
 }

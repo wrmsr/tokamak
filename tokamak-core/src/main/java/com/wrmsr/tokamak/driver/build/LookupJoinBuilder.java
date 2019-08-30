@@ -14,6 +14,9 @@
 
 package com.wrmsr.tokamak.driver.build;
 
-public class LookupJoinBuilder
+import com.wrmsr.tokamak.node.LookupJoinNode;
+
+public final class LookupJoinBuilder
+        extends Builder<LookupJoinNode>
 {
 }

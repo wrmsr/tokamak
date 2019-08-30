@@ -14,6 +14,9 @@
 
 package com.wrmsr.tokamak.driver.build;
 
-public class PersistBuilder
+import com.wrmsr.tokamak.node.PersistNode;
+
+public final class PersistBuilder
+        extends SingleSourceBuilder<PersistNode>
 {
 }

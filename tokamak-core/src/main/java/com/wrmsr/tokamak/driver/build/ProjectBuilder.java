@@ -14,6 +14,9 @@
 
 package com.wrmsr.tokamak.driver.build;
 
-public class ProjectBuilder
+import com.wrmsr.tokamak.node.ProjectNode;
+
+public final class ProjectBuilder
+        extends SingleSourceBuilder<ProjectNode>
 {
 }
