@@ -17,23 +17,64 @@ package com.wrmsr.tokamak.codec;
 import com.google.common.collect.ImmutableList;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.OptionalInt;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
+import static com.wrmsr.tokamak.util.MoreOptionals.mapOptional;
 import static com.wrmsr.tokamak.util.MoreOptionals.sumOptionals;
 
 public interface Width
 {
     /*
     TODO:
-     - min?
+     - monoid lol
+     - god, is this just a Span<Integer>
+      - span wastefully supports inexactly-comparable (via ABOVE/BELOW)
+      - well min/max/fixed is.. stupid..
     */
+
+    OptionalInt getMin();
+
+    OptionalInt getMax();
 
     OptionalInt getFixed();
 
-    OptionalInt getMax();
+    @FunctionalInterface
+    interface IntFunctor
+    {
+        int apply(int value);
+    }
+
+    Width map(IntFunctor fn);
+
+    <R> R accept(Visitor<R> visitor);
+
+    abstract class Visitor<R>
+    {
+        public R visitWidth(Width width)
+        {
+            throw new IllegalArgumentException(Objects.toString(width));
+        }
+
+        public R visitUnknown(Unknown width)
+        {
+            return visitWidth(width);
+        }
+
+        public R visitBounded(Bounded width)
+        {
+            return visitWidth(width);
+        }
+
+        public R visitFixed(Fixed width)
+        {
+            return visitWidth(width);
+        }
+    }
 
     final class Unknown
             implements Width
@@ -41,7 +82,7 @@ public interface Width
         private static final Unknown INSTANCE = new Unknown();
 
         @Override
-        public OptionalInt getFixed()
+        public OptionalInt getMin()
         {
             return OptionalInt.empty();
         }
@@ -50,6 +91,24 @@ public interface Width
         public OptionalInt getMax()
         {
             return OptionalInt.empty();
+        }
+
+        @Override
+        public OptionalInt getFixed()
+        {
+            return OptionalInt.empty();
+        }
+
+        @Override
+        public Width map(IntFunctor fn)
+        {
+            return this;
+        }
+
+        @Override
+        public <R> R accept(Visitor<R> visitor)
+        {
+            return visitor.visitUnknown(this);
         }
     }
 
@@ -61,61 +120,105 @@ public interface Width
     final class Bounded
             implements Width
     {
-        private final int max;
+        private final OptionalInt minValue;
+        private final OptionalInt maxValue;
 
-        public Bounded(int max)
+        public Bounded(OptionalInt minValue, OptionalInt maxValue)
         {
-            checkArgument(max >= 0);
-            this.max = max;
+            checkArgument(checkNotNull(minValue).isPresent() || checkNotNull(maxValue).isPresent());
+            this.minValue = minValue;
+            this.maxValue = maxValue;
+        }
+
+        @Override
+        public OptionalInt getMin()
+        {
+            return minValue;
         }
 
         @Override
         public OptionalInt getFixed()
         {
-            return OptionalInt.empty();
+            return maxValue;
         }
 
         @Override
-        public OptionalInt getMax()
+        public Width map(IntFunctor fn)
         {
-            return OptionalInt.of(max);
+            return new Bounded(
+                    mapOptional(minValue, fn::apply),
+                    mapOptional(maxValue, fn::apply));
+        }
+
+        @Override
+        public <R> R accept(Visitor<R> visitor)
+        {
+            return visitor.visitBounded(this);
         }
     }
 
-    static Width bounded(int max)
+    static Width min(int min)
     {
-        return new Bounded(max);
+        return new Bounded(OptionalInt.of(min), OptionalInt.empty());
+    }
+
+    static Width max(int max)
+    {
+        return new Bounded(OptionalInt.empty(), OptionalInt.of(max));
+    }
+
+    static Width bounded(int min, int max)
+    {
+        return new Bounded(OptionalInt.of(min), OptionalInt.of(max));
     }
 
     final class Fixed
             implements Width
     {
-        private final int fixed;
+        private final int value;
 
-        public Fixed(int fixed)
+        public Fixed(int value)
         {
-            checkArgument(fixed >= 0);
-            this.fixed = fixed;
+            checkArgument(value >= 0);
+            this.value = value;
         }
 
         @Override
-        public OptionalInt getFixed()
+        public OptionalInt getMin()
         {
-            return OptionalInt.of(fixed);
+            return OptionalInt.of(value);
         }
 
         @Override
         public OptionalInt getMax()
         {
-            return OptionalInt.of(fixed);
+            return OptionalInt.of(value);
+        }
+
+        @Override
+        public OptionalInt getFixed()
+        {
+            return OptionalInt.of(value);
+        }
+
+        @Override
+        public Width map(IntFunctor fn)
+        {
+            return new Fixed(fn.apply(value));
+        }
+
+        @Override
+        public <R> R accept(Visitor<R> visitor)
+        {
+            return visitor.visitFixed(this);
         }
     }
 
     static Width sum(Iterable<Width> widths)
     {
         List<Width> lst = ImmutableList.copyOf(widths);
-        OptionalInt fixed = sumOptionals(lst.stream().map(Width::getFixed).collect(toImmutableList()));
         OptionalInt max = sumOptionals(lst.stream().map(Width::getMax).collect(toImmutableList()));
+        OptionalInt fixed = sumOptionals(lst.stream().map(Width::getFixed).collect(toImmutableList()));
         if (fixed.isPresent()) {
             checkState(max.isPresent());
             checkState(max.getAsInt() == fixed.getAsInt());
@@ -129,4 +232,3 @@ public interface Width
         }
     }
 }
-
