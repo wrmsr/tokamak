@@ -50,7 +50,7 @@ public final class FunctionPairScalarCodec<V>
             BiConsumer<V, Output> encoder,
             Function<Input, V> decoder)
     {
-        this(encoder, decoder, Width.unknown(), false);
+        this(encoder, decoder, Width.unbounded(), false);
     }
 
     public static <V> FunctionPairScalarCodec<V> of(

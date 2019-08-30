@@ -57,8 +57,8 @@ public final class FixedKeyObjectMapScalarCodec<K>
         return fixedWidth.get(() -> {
             List<Width> childWidths = childrenByKey.values().stream().map(ScalarCodec::getWidth).collect(toImmutableList());
             return Width.of(
-                    sumOptionals(childWidths.stream().map(Width::getMin).collect(toImmutableList())),
-                    sumOptionals(childWidths.stream().map(Width::getMin).collect(toImmutableList())));
+                    childWidths.stream().map(Width::getMin).reduce(0, Integer::sum),
+                    sumOptionals(childWidths.stream().map(Width::getMax).collect(toImmutableList())));
         });
     }
 

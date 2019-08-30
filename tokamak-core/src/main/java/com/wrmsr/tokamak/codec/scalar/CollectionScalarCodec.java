@@ -58,7 +58,7 @@ public abstract class CollectionScalarCodec<V>
         return width.get(() -> {
             Width entryWidth = getEntryWidth();
             return Width.of(
-                    mapOptional(entryWidth.getMin(), w -> fixed ? (w * size) : (byteSized ? 1 : 8)),
+                    fixed ? (entryWidth.getMin() * size) : (byteSized ? 1 : 8),
                     mapOptional(entryWidth.getMax(), w -> fixed ? (w * size) : ((byteSized ? 1 : 8) + (w * size))));
         });
     }

@@ -11,7 +11,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.wrmsr.tokamak.util;
 
 import java.util.OptionalInt;
@@ -34,25 +33,26 @@ public final class MoreOptionals
         }
     }
 
-    public static OptionalInt sumOptionals(OptionalInt left, OptionalInt right)
+    @FunctionalInterface
+    interface IntBifunction
     {
-        if (left.isPresent() && right.isPresent()) {
-            return OptionalInt.of(left.getAsInt() + right.getAsInt());
+        int apply(int left, int right);
+    }
+
+    public static OptionalInt reduceOptionals(IntBifunction fn, int identity, Iterable<OptionalInt> accumulator)
+    {
+        int result = identity;
+        for (OptionalInt value : accumulator) {
+            if (!value.isPresent()) {
+                return OptionalInt.empty();
+            }
+            result = fn.apply(identity, value.getAsInt());
         }
-        else {
-            return OptionalInt.empty();
-        }
+        return OptionalInt.of(result);
     }
 
     public static OptionalInt sumOptionals(Iterable<OptionalInt> values)
     {
-        int sum = 0;
-        for (OptionalInt value : values) {
-            if (!value.isPresent()) {
-                return OptionalInt.empty();
-            }
-            sum += value.getAsInt();
-        }
-        return OptionalInt.of(sum);
+        return reduceOptionals(Integer::sum, 0, values);
     }
 }

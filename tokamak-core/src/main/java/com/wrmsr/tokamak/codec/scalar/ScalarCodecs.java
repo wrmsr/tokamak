@@ -15,6 +15,7 @@ package com.wrmsr.tokamak.codec.scalar;
 
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableMap;
+import com.wrmsr.tokamak.codec.Width;
 import com.wrmsr.tokamak.type.Type;
 
 import java.util.Map;
@@ -29,21 +30,21 @@ public final class ScalarCodecs
     public static final FunctionPairScalarCodec<Boolean> BOOLEAN_SCALAR_CODEC = FunctionPairScalarCodec.of(
             (v, o) -> o.put(v ? (byte) 1 : (byte) 0),
             i -> i.get() != 0,
-            OptionalInt.of(1),
+            Width.fixed(1),
             false
     );
 
     public static final FunctionPairScalarCodec<Number> LONG_SCALAR_CODEC = FunctionPairScalarCodec.of(
             (v, o) -> o.putLong(v.longValue()),
             i -> i.getLong(),
-            OptionalInt.of(8),
+            Width.fixed(8),
             false
     );
 
     public static final FunctionPairScalarCodec<Number> DOUBLE_SCALAR_CODEC = FunctionPairScalarCodec.of(
             (v, o) -> o.putLong(Double.doubleToLongBits(v.doubleValue())),
             i -> Double.longBitsToDouble(i.getLong()),
-            OptionalInt.of(8),
+            Width.fixed(8),
             false
     );
 
@@ -52,9 +53,14 @@ public final class ScalarCodecs
         return FunctionPairScalarCodec.of(
                 (v, o) -> o.putBytes(v),
                 i -> i.getBytes(),
-                size,
+                Width.of(0, size),
                 false
         );
+    }
+
+    public static FunctionPairScalarCodec<byte[]> buildBytes(int size)
+    {
+        return buildBytes(OptionalInt.of(size));
     }
 
     public static final FunctionPairScalarCodec<byte[]> BYTES_SCALAR_CODEC = buildBytes(OptionalInt.empty());
@@ -64,9 +70,14 @@ public final class ScalarCodecs
         return FunctionPairScalarCodec.of(
                 (v, o) -> o.putBytes(v.getBytes(Charsets.UTF_8)),
                 i -> new String(i.getBytes(), Charsets.UTF_8),
-                size,
+                Width.of(0, size),
                 false
         );
+    }
+
+    public static FunctionPairScalarCodec<String> buildString(int size)
+    {
+        return buildString(OptionalInt.of(size));
     }
 
     public static final FunctionPairScalarCodec<String> STRING_SCALAR_CODEC = buildString(OptionalInt.empty());
