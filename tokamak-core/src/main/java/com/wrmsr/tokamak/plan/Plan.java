@@ -22,6 +22,7 @@ import com.wrmsr.tokamak.api.NodeId;
 import com.wrmsr.tokamak.node.Node;
 import com.wrmsr.tokamak.util.MoreCollections;
 import com.wrmsr.tokamak.util.Pair;
+import com.wrmsr.tokamak.util.collect.Toposort;
 import com.wrmsr.tokamak.util.lazy.SupplierLazyValue;
 
 import javax.annotation.concurrent.Immutable;
@@ -130,7 +131,7 @@ public final class Plan
 
     public List<Set<Node>> getNodeToposort()
     {
-        return nodeToposort.get(() -> MoreCollections.toposort(getNameSortedNodes().stream()
+        return nodeToposort.get(() -> Toposort.toposort(getNameSortedNodes().stream()
                 .collect(toImmutableMap(identity(), n -> ImmutableSet.copyOf(n.getSources())))));
     }
 

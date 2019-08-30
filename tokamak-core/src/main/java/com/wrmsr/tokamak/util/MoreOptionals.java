@@ -48,4 +48,9 @@ public final class MoreOptionals
         }
         return OptionalInt.of(result);
     }
+
+    public static OptionalInt sumOptionals(Iterator<OptionalInt> values)
+    {
+        return reduceOptionals(0, Integer::sum, values);
+    }
 }

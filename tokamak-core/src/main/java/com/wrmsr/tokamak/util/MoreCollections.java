@@ -27,14 +27,11 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
-import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static com.google.common.collect.Sets.newIdentityHashSet;
-import static java.util.function.Function.identity;
 
 public final class MoreCollections
 {
@@ -86,70 +83,6 @@ public final class MoreCollections
             ret.add(cur);
         }
         return ret;
-    }
-
-    public static <T> List<Set<T>> toposort(Map<T, Set<T>> data)
-    {
-        data = data.entrySet().stream().collect(
-                MoreCollectors.toHashMap(
-                        Map.Entry::getKey,
-                        e -> e.getValue().stream().filter(v -> !v.equals(e.getKey())).collect(MoreCollectors.toHashSet())));
-
-        Set<T> extraItemsInDeps = Sets.difference(data.values().stream()
-                .flatMap(Set::stream)
-                .collect(Collectors.toSet()), data.keySet());
-        data.putAll(extraItemsInDeps.stream().collect(Collectors.toMap(identity(), k -> new HashSet<>())));
-
-        ImmutableList.Builder<Set<T>> ret = ImmutableList.builder();
-        while (true) {
-            Set<T> step = data.entrySet().stream()
-                    .filter(e -> e.getValue().isEmpty())
-                    .map(Map.Entry::getKey)
-                    .collect(toImmutableSet());
-            if (step.isEmpty()) {
-                break;
-            }
-            ret.add(step);
-
-            data = data.entrySet().stream()
-                    .filter(e -> !step.contains(e.getKey()))
-                    .collect(
-                            MoreCollectors.toHashMap(
-                                    Map.Entry::getKey,
-                                    e -> e.getValue().stream()
-                                            .filter(d -> !step.contains(d))
-                                            .collect(MoreCollectors.toHashSet())));
-        }
-
-        if (!data.isEmpty()) {
-            throw new ToposortCycleException((Map) data);
-        }
-
-        return ret.build();
-    }
-
-    public static final class ToposortCycleException
-            extends RuntimeException
-    {
-        private final Map<?, Set<?>> data;
-
-        public ToposortCycleException(Map<?, Set<?>> data)
-        {
-            this.data = data;
-        }
-
-        @Override
-        public String toString()
-        {
-            return "ToposortCycleException{" +
-                    "data=" + data +
-                    '}';
-        }
-
-        public Map<?, Set<?>> getData()
-        {
-            return data;
-        }
     }
 
     public static <T extends Set<?>> boolean isOrdered(T obj)

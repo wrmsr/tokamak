@@ -16,6 +16,7 @@ package com.wrmsr.tokamak.util;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.wrmsr.tokamak.util.collect.Toposort;
 import junit.framework.TestCase;
 
 import java.util.List;
@@ -34,7 +35,7 @@ public class ToposortTest
                 "D", ImmutableSet.of("B")
         );
 
-        List<Set<String>> ts = MoreCollections.toposort(data);
+        List<Set<String>> ts = Toposort.toposort(data);
 
         assertEquals(ts, ImmutableList.of(
                 ImmutableSet.of("B"),
