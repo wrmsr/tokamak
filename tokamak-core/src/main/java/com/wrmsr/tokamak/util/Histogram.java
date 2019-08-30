@@ -31,6 +31,13 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 
 public final class Histogram
 {
+    /*
+    TODO:
+     - 46 day rollover lols
+     - reservoir
+     - windowing
+    */
+
     public static final List<Float> DEFAULT_PERCENTILES = ImmutableList.of(0.5f, 0.75f, 0.9f, 0.95f, 0.99f);
 
     @Immutable
@@ -129,18 +136,18 @@ public final class Histogram
     private final int size;
     private final List<Float> percentiles;
 
-    private final long baseMillis;
-
     private volatile int count;
     private volatile float min = Float.POSITIVE_INFINITY;
     private volatile float max = Float.NEGATIVE_INFINITY;
 
+    private final long baseMillis;
+
     private final List<Integer> percentilePosList;
 
-    private volatile AtomicLongArray ring;
+    private final AtomicLongArray ring;
     private volatile int ringPos;
 
-    private volatile AtomicLongArray sample;
+    private final AtomicLongArray sample;
     private volatile @Nullable AtomicInteger nextSamplePos = new AtomicInteger();
 
     public Histogram(int size, List<Float> percentiles)
@@ -150,7 +157,7 @@ public final class Histogram
         this.percentiles = ImmutableList.copyOf(percentiles);
         this.percentiles.forEach(p -> checkArgument(p >= 0.0f));
 
-        baseMillis = System.currentTimeMillis();
+        baseMillis = System.currentTimeMillis() - 1;
 
         percentilePosList = calcPercentilePosList(size);
 
