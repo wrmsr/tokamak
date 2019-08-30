@@ -53,6 +53,8 @@ public final class ConfigObjectMapping
             this.name = name;
         }
 
+        public abstract Object get(Config cfg);
+
         public abstract void set(Config cfg, Object value);
     }
 
@@ -67,6 +69,17 @@ public final class ConfigObjectMapping
             super(name);
             this.setter = setter;
             this.getter = getter;
+        }
+
+        @Override
+        public Object get(Config cfg)
+        {
+            try {
+                return getter.get().invoke(cfg);
+            }
+            catch (ReflectiveOperationException e) {
+                throw new RuntimeException(e);
+            }
         }
 
         @Override
@@ -90,6 +103,17 @@ public final class ConfigObjectMapping
         {
             super(name);
             this.field = field;
+        }
+
+        @Override
+        public Object get(Config cfg)
+        {
+            try {
+                return field.get(cfg);
+            }
+            catch (ReflectiveOperationException e) {
+                throw new RuntimeException(e);
+            }
         }
 
         @Override
@@ -134,7 +158,15 @@ public final class ConfigObjectMapping
         public void serialize(Config value, JsonGenerator gen, SerializerProvider serializers)
                 throws IOException
         {
-            throw new IllegalStateException();
+            gen.writeStartObject();
+            Map<String, Property> properties = buildProperties(value.getClass());
+            for (Map.Entry<String, Property> e : properties.entrySet()) {
+                Object pv = e.getValue().get(value);
+                if (pv != null) {
+                    gen.writeObjectField(e.getKey(), pv);
+                }
+            }
+            gen.writeEndObject();
         }
     }
 
