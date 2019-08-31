@@ -116,7 +116,12 @@ public final class JRenderer
 
     private void renderAccess(Set<JAccess> access)
     {
-        code.add(Joiner.on("").join(Arrays.stream(JAccess.values()).filter(access::contains).map(a -> a.name().toLowerCase() + " ").collect(toImmutableList())));
+        code.add(
+                Joiner.on("").join(
+                        Arrays.stream(JAccess.values())
+                                .filter(access::contains)
+                                .map(a -> a.name().toLowerCase() + " ")
+                                .collect(toImmutableList())));
     }
 
     public void renderCompilationUnit(JCompilationUnit compilationUnit)
@@ -199,7 +204,7 @@ public final class JRenderer
                     comma = true;
                 }
                 renderTypeSpecifier(arg.getType());
-                code.add(" $L", arg.getName());
+                code.add(" $L", arg.getName().getValue());
             }
             code.add(")");
             code.unindent().unindent();
@@ -215,7 +220,7 @@ public final class JRenderer
                     comma = true;
                 }
                 renderTypeSpecifier(arg.getType());
-                code.add(" $L", arg.getName());
+                code.add(" $L", arg.getName().getValue());
             }
             code.add(")");
         }
@@ -250,7 +255,7 @@ public final class JRenderer
             public Void visitJConstructor(JConstructor jdeclaration, Void context)
             {
                 renderAccess(jdeclaration.getAccess());
-                code.add("$L", jdeclaration.getName());
+                code.add("$L", jdeclaration.getName().getValue());
                 renderArgs(jdeclaration.getArgs());
                 code.add("\n");
                 renderStatement(jdeclaration.getBody());
@@ -269,7 +274,7 @@ public final class JRenderer
             {
                 renderAccess(jdeclaration.getAccess());
                 renderTypeSpecifier(jdeclaration.getType());
-                code.add(" $L", jdeclaration.getName());
+                code.add(" $L", jdeclaration.getName().getValue());
                 jdeclaration.getValue().ifPresent(v -> {
                     code.add(" = ");
                     renderExpression(v);
@@ -290,7 +295,7 @@ public final class JRenderer
             {
                 renderAccess(jdeclaration.getAccess());
                 renderTypeSpecifier(jdeclaration.getType());
-                code.add(" $L", jdeclaration.getName());
+                code.add(" $L", jdeclaration.getName().getValue());
                 renderArgs(jdeclaration.getArgs());
                 if (jdeclaration.getBody().isPresent()) {
                     code.add("\n");
@@ -306,7 +311,7 @@ public final class JRenderer
             public Void visitJType(JType jdeclaration, Void context)
             {
                 renderAccess(jdeclaration.getAccess());
-                code.add("$L $L\n", jdeclaration.getKind().toString().toLowerCase(), jdeclaration.getName());
+                code.add("$L $L\n", jdeclaration.getKind().toString().toLowerCase(), jdeclaration.getName().getValue());
                 if (!jdeclaration.getInheritances().isEmpty()) {
                     code.indent().indent();
                     boolean newline = false;
@@ -541,7 +546,7 @@ public final class JRenderer
             public Void visitJVariable(JVariable jstatement, Void context)
             {
                 renderTypeSpecifier(jstatement.getType());
-                code.add(" $L", jstatement.getName());
+                code.add(" $L", jstatement.getName().getValue());
                 jstatement.getValue().ifPresent(v -> {
                     code.add(" = ");
                     renderExpression(v);
@@ -781,7 +786,7 @@ public final class JRenderer
 
     public void renderQualifiedName(JQualifiedName name)
     {
-        code.add("$L", Joiner.on('.').join(name.getParts()));
+        code.add("$L", Joiner.on('.').join(name.getParts().stream().map(JName::getValue).collect(toImmutableList())));
     }
 
     public void renderLiteralValue(Object value)
