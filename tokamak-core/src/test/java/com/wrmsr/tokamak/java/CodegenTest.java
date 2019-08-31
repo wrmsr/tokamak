@@ -15,12 +15,14 @@ package com.wrmsr.tokamak.java;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.wrmsr.tokamak.java.compile.javac.InProcJavaCompiler;
 import com.wrmsr.tokamak.java.lang.JAccess;
 import com.wrmsr.tokamak.java.lang.JName;
 import com.wrmsr.tokamak.java.lang.JRenderer;
 import com.wrmsr.tokamak.java.lang.tree.declaration.JConstructor;
 import com.wrmsr.tokamak.java.lang.tree.declaration.JDeclaration;
 import com.wrmsr.tokamak.java.lang.tree.declaration.JType;
+import com.wrmsr.tokamak.java.lang.tree.expression.JLiteral;
 import com.wrmsr.tokamak.java.lang.tree.expression.JMethodInvocation;
 import com.wrmsr.tokamak.java.lang.tree.statement.JExpressionStatement;
 import com.wrmsr.tokamak.java.lang.unit.JCompilationUnit;
@@ -36,6 +38,7 @@ public class CodegenTest
         extends TestCase
 {
     public void testCodegen()
+            throws Throwable
     {
         JCompilationUnit cu = new JCompilationUnit(
                 Optional.of(new JPackageSpec(JName.of("com", "wrmsr", "tokamak"))),
@@ -53,10 +56,15 @@ public class CodegenTest
                                         jblockify(
                                                 new JExpressionStatement(
                                                         JMethodInvocation.of(
-                                                                JName.of("super"),
-                                                                ImmutableList.of())))))));
+                                                                JName.of("System", "out", "println"),
+                                                                ImmutableList.of(
+                                                                        new JLiteral("hi")))))))));
 
         String rendered = JRenderer.renderWithIndent(cu, "    ");
         System.out.println(rendered);
+
+        Class<?> cls = InProcJavaCompiler.compileAndLoad(rendered, "com.wrmsr.tokamak.Thing", "Thing");
+        Object obj = cls.getDeclaredConstructor().newInstance();
+        // ((Runnable) obj).run();
     }
 }

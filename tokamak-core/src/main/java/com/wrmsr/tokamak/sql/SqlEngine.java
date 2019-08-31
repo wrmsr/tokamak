@@ -19,6 +19,7 @@ import java.sql.SQLException;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public class SqlEngine
+        implements AutoCloseable
 {
     private final String url;
 
@@ -40,5 +41,10 @@ public class SqlEngine
         catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public void close()
+    {
     }
 }

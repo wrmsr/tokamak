@@ -845,7 +845,6 @@ public final class JRenderer
         renderWithIndent(block, indent, appendable);
     }
 
-    @VisibleForTesting
     public static String renderWithIndent(JCompilationUnit jcompilationUnit, String indent)
     {
         StringWriter out = new StringWriter();
@@ -853,7 +852,6 @@ public final class JRenderer
         return out.toString();
     }
 
-    @VisibleForTesting
     public static String renderWithIndent(JDeclaration jdeclaration, String indent)
     {
         StringWriter out = new StringWriter();

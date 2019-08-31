@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 
 public final class InProcJavaCompiler
 {
-    public void compileJava(List<JavacOption> options, List<File> sourceFiles)
+    public static void compileJava(List<JavacOption> options, List<File> sourceFiles)
     {
         List<String> args = ImmutableList.<String>builder()
                 .addAll(options.stream().map(JavacOption::getArgs).flatMap(List::stream).iterator())
@@ -41,7 +41,7 @@ public final class InProcJavaCompiler
         javac.run(null, null, null, args.toArray(new String[args.size()]));
     }
 
-    public Class<?> compileAndLoad(String script, String fullClassName, String simpleClassName)
+    public static Class<?> compileAndLoad(String script, String fullClassName, String simpleClassName)
     {
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
         final DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
