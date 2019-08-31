@@ -11,7 +11,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.wrmsr.tokamak.util.config;
 
 import java.util.Map;
@@ -19,6 +18,14 @@ import java.util.WeakHashMap;
 
 public final class Configs
 {
+    /*
+    TODO:
+     - mutability
+      - jit subclasses blocking setters
+      - callbacks
+      - dynamic sources (ala archaius) - zk + jdbccoord
+    */
+
     private Configs()
     {
     }

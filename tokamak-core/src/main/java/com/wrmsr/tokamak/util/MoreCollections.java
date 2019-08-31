@@ -13,6 +13,7 @@
  */
 package com.wrmsr.tokamak.util;
 
+import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -23,17 +24,25 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.Spliterator;
+import java.util.Spliterators;
+import java.util.stream.Collector;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.Sets.newIdentityHashSet;
+import static java.util.Objects.requireNonNull;
 
 public final class MoreCollections
 {
@@ -99,16 +108,6 @@ public final class MoreCollections
         return set;
     }
 
-    public static <T> List<Pair<Integer, T>> enumerate(Iterable<T> it)
-    {
-        List<T> list = ImmutableList.copyOf(it);
-        ImmutableList.Builder<Pair<Integer, T>> builder = ImmutableList.builder();
-        for (int i = 0; i < list.size(); ++i) {
-            builder.add(new Pair.Immutable<>(i, list.get(i)));
-        }
-        return builder.build();
-    }
-
     public static <T> List<T> listOf(int size, T value)
     {
         return IntStream.range(0, size).boxed().map(i -> value).collect(toImmutableList());
@@ -134,6 +133,129 @@ public final class MoreCollections
             ret.add(cur);
         }
         return ret;
+    }
+
+    public static final class EnumeratedElement<T>
+            implements Comparable<EnumeratedElement<T>>
+    {
+        private final int index;
+        private final T item;
+
+        public EnumeratedElement(int index, T item)
+        {
+            this.index = index;
+            this.item = requireNonNull(item);
+        }
+
+        @Override
+        public boolean equals(Object o)
+        {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            EnumeratedElement<?> that = (EnumeratedElement<?>) o;
+            return index == that.index &&
+                    Objects.equals(item, that.item);
+        }
+
+        @Override
+        public int hashCode()
+        {
+            return Objects.hash(index, item);
+        }
+
+        @Override
+        public String toString()
+        {
+            return MoreObjects.toStringHelper(this)
+                    .add("index", index)
+                    .add("item", item)
+                    .toString();
+        }
+
+        public int getIndex()
+        {
+            return index;
+        }
+
+        public T getItem()
+        {
+            return item;
+        }
+
+        @Override
+        @SuppressWarnings({"unchecked"})
+        public int compareTo(EnumeratedElement<T> o)
+        {
+            int ret = Integer.compare(index, o.index);
+            if (ret != 0) {
+                return ret;
+            }
+            return ((Comparable) item).compareTo(o.item);
+        }
+    }
+
+    public static <T> Iterator<EnumeratedElement<T>> enumerate(Iterator<T> iterator)
+    {
+        return new Iterator<EnumeratedElement<T>>()
+        {
+            private int index = 0;
+
+            @Override
+            public boolean hasNext()
+            {
+                return iterator.hasNext();
+            }
+
+            @Override
+            public EnumeratedElement<T> next()
+            {
+                return new EnumeratedElement<>(index++, iterator.next());
+            }
+        };
+    }
+
+    public static <T> Iterable<EnumeratedElement<T>> enumerate(Iterable<T> iterable)
+    {
+        return new Iterable<EnumeratedElement<T>>()
+        {
+            @Override
+            public Iterator<EnumeratedElement<T>> iterator()
+            {
+                return enumerate(iterable.iterator());
+            }
+        };
+    }
+
+    public static <T> Spliterator<EnumeratedElement<T>> enumerate(Spliterator<T> spliterator)
+    {
+        int characteristics = spliterator.characteristics() | Spliterator.NONNULL & ~Spliterator.CONCURRENT;
+        return Spliterators.spliterator(enumerate(Spliterators.iterator(spliterator)), spliterator.estimateSize(), characteristics);
+    }
+
+    public static <T> Stream<EnumeratedElement<T>> enumerate(Stream<T> stream)
+    {
+        return StreamSupport.stream(enumerate(stream.spliterator()), false);
+    }
+
+    public static <T extends Comparable<S>, S> int compareIterators(Iterator<T> a, Iterator<S> b)
+    {
+        while (a.hasNext() && b.hasNext()) {
+            int comparison = a.next().compareTo(b.next());
+            if (comparison != 0) {
+                return comparison;
+            }
+        }
+        if (a.hasNext()) {
+            return 1;
+        }
+        if (b.hasNext()) {
+            return -1;
+        }
+        return 0;
     }
 
     public static <T extends Set<?>> boolean isOrdered(T obj)

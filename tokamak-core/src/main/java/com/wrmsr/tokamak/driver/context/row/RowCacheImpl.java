@@ -53,6 +53,7 @@ public class RowCacheImpl
      - kfv map values are bools? just usedForKey?
       - diff strats: when all fk's kv's have been usedForKey return (and thus store maps per kv) or just block puts?
        - policies
+     - limited storage / eviction ala mysql joincache
 
     Map<String, Map<Object, Boolean>> isKeyByValueByKeyField = new HashMap<>(); // TODO: HPPC
     Map<String, Map<Object, KeyFieldValueEntry>> keyFieldValueEntriesByValueByKeyField = new HashMap<>();

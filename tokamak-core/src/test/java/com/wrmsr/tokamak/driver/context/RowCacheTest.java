@@ -36,6 +36,7 @@ import java.util.Optional;
 public class RowCacheTest
         extends TestCase
 {
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public void testKeys()
             throws Throwable
     {

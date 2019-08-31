@@ -270,4 +270,16 @@ public final class MoreCollectors
                 ImmutableSet.Builder::build,
                 Collector.Characteristics.UNORDERED));
     }
+
+    public static Collector<Character, StringBuilder, String> collectString()
+    {
+        return Collector.<Character, StringBuilder, String>of(
+                StringBuilder::new,
+                StringBuilder::append,
+                (left, right) -> {
+                    left.append(right.toString());
+                    return left;
+                },
+                StringBuilder::toString);
+    }
 }
