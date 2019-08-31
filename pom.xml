@@ -318,11 +318,13 @@
             </dependency>
             -->
 
+            <!--
             <dependency>
                 <groupId>org.jdbi</groupId>
                 <artifactId>jdbi3-core</artifactId>
                 <version>3.9.1</version>
             </dependency>
+            -->
 
             <!--
             <dependency>

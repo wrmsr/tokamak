@@ -38,7 +38,6 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static com.wrmsr.tokamak.sql.SqlUtils.execute;
 import static com.wrmsr.tokamak.util.MoreCollections.checkOrdered;
-import static com.wrmsr.tokamak.util.MoreCollections.enumerate;
 import static java.util.function.Function.identity;
 
 public final class JdbcScanner
@@ -97,7 +96,6 @@ public final class JdbcScanner
     {
         private final Set<String> keyFields;
 
-        private final Map<String, Integer> keyFieldIndices;
         private final Set<String> selectedFields;
         private final String stmt;
 
@@ -105,8 +103,6 @@ public final class JdbcScanner
         {
             this.keyFields = ImmutableSet.copyOf(checkOrdered(keyFields));
             this.keyFields.forEach(f -> checkArgument(tableLayout.getRowLayout().getFields().containsKey(f)));
-
-            keyFieldIndices = enumerate(this.keyFields.stream()).collect(toImmutableMap(e -> e.getItem(), e -> e.getIndex()));
 
             selectedFields = ImmutableSet.<String>builder()
                     .addAll(this.keyFields)
@@ -133,7 +129,11 @@ public final class JdbcScanner
         {
             checkArgument(keyValuesByField.keySet().equals(keyFields));
 
-            Object[] args = keyFieldIndices.entrySet().stream().map(keyValuesByField::get).toArray();
+            Object[] args = new Object[keyFields.size()];
+            int i = 0;
+            for (String kf : keyFields) {
+                args[i++] = keyValuesByField.get(kf);
+            }
 
             try {
                 return execute(conn.getConnection(), stmt, args);

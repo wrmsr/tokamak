@@ -17,9 +17,9 @@ import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.driver.state.StateStorage;
 import com.wrmsr.tokamak.driver.state.StorageState;
 import com.wrmsr.tokamak.node.StatefulNode;
+import com.wrmsr.tokamak.sql.SqlConnection;
+import com.wrmsr.tokamak.sql.SqlEngine;
 import com.wrmsr.tokamak.util.Span;
-import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.Jdbi;
 
 import java.io.IOException;
 import java.util.EnumSet;
@@ -45,34 +45,34 @@ public class JdbcStateStorage
     );
     */
 
-    private final Jdbi jdbi;
+    private final SqlEngine sqlEngine;
 
-    public JdbcStateStorage(Jdbi jdbi)
+    public JdbcStateStorage(SqlEngine sqlEngine)
     {
-        this.jdbi = checkNotNull(jdbi);
+        this.sqlEngine = checkNotNull(sqlEngine);
     }
 
     static class ContextImpl
             implements Context
     {
-        final Handle handle;
+        final SqlConnection sqlConnection;
 
-        ContextImpl(Handle handle)
+        ContextImpl(SqlConnection sqlConnection)
         {
-            this.handle = checkNotNull(handle);
+            this.sqlConnection = checkNotNull(sqlConnection);
         }
 
         @Override
         public void close()
         {
-            handle.close();
+            sqlConnection.close();
         }
     }
 
     @Override
     public Context createContext()
     {
-        return new ContextImpl(jdbi.open());
+        return new ContextImpl(sqlEngine.connect());
     }
 
     @Override

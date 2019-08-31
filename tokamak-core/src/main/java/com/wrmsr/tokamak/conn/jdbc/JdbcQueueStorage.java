@@ -16,8 +16,8 @@ package com.wrmsr.tokamak.conn.jdbc;
 import com.wrmsr.tokamak.driver.queue.QueueEntry;
 import com.wrmsr.tokamak.driver.queue.QueueInsertion;
 import com.wrmsr.tokamak.driver.queue.QueueStorage;
-import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.Jdbi;
+import com.wrmsr.tokamak.sql.SqlConnection;
+import com.wrmsr.tokamak.sql.SqlEngine;
 
 import java.io.IOException;
 import java.util.List;
@@ -28,35 +28,34 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class JdbcQueueStorage
         implements QueueStorage
 {
-    private final Jdbi jdbi;
+    private final SqlEngine sqlEngine;
 
-    public JdbcQueueStorage(Jdbi jdbi)
+    public JdbcQueueStorage(SqlEngine sqlEngine)
     {
-        this.jdbi = checkNotNull(jdbi);
+        this.sqlEngine = checkNotNull(sqlEngine);
     }
 
     static class ContextImpl
             implements QueueStorage.Context
     {
-        final Handle handle;
+        final SqlConnection sqlConnection;
 
-        ContextImpl(Handle handle)
+        ContextImpl(SqlConnection sqlConnection)
         {
-            this.handle = checkNotNull(handle);
+            this.sqlConnection = checkNotNull(sqlConnection);
         }
 
         @Override
         public void close()
-                throws Exception
         {
-            handle.close();
+            sqlConnection.close();
         }
     }
 
     @Override
     public Context createContext()
     {
-        return new ContextImpl(jdbi.open());
+        return new ContextImpl(sqlEngine.connect());
     }
 
     @Override
