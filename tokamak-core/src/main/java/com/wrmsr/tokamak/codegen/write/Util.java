@@ -11,63 +11,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.codegen.poet;
+package com.wrmsr.tokamak.codegen.write;
 
-import javax.lang.model.element.Modifier;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.Character.isISOControl;
 
-/**
- * Like Guava, but worse and standalone. This makes it easier to mix JavaPoet with libraries that
- * bring their own version of Guava.
- */
 final class Util
 {
-    /**
-     * Modifier.DEFAULT doesn't exist until Java 8, but we want to run on earlier releases.
-     */
-    static final Modifier DEFAULT;
-
     private Util()
     {
-    }
-
-    static <K, V> Map<K, List<V>> immutableMultimap(Map<K, List<V>> multimap)
-    {
-        LinkedHashMap<K, List<V>> result = new LinkedHashMap<>();
-        for (Map.Entry<K, List<V>> entry : multimap.entrySet()) {
-            if (entry.getValue().isEmpty()) {
-                continue;
-            }
-            result.put(entry.getKey(), immutableList(entry.getValue()));
-        }
-        return Collections.unmodifiableMap(result);
-    }
-
-    static <K, V> Map<K, V> immutableMap(Map<K, V> map)
-    {
-        return Collections.unmodifiableMap(new LinkedHashMap<>(map));
-    }
-
-    static <T> List<T> immutableList(Collection<T> collection)
-    {
-        return Collections.unmodifiableList(new ArrayList<>(collection));
-    }
-
-    static <T> Set<T> immutableSet(Collection<T> set)
-    {
-        return Collections.unmodifiableSet(new LinkedHashSet<>(set));
     }
 
     static String join(String separator, List<String> parts)
@@ -81,34 +34,6 @@ final class Util
             result.append(separator).append(parts.get(i));
         }
         return result.toString();
-    }
-
-    static <T> Set<T> union(Set<T> a, Set<T> b)
-    {
-        Set<T> result = new LinkedHashSet<>();
-        result.addAll(a);
-        result.addAll(b);
-        return result;
-    }
-
-    static void requireExactlyOneOf(Set<Modifier> modifiers, Modifier... mutuallyExclusive)
-    {
-        int count = 0;
-        for (Modifier modifier : mutuallyExclusive) {
-            if (modifier == null && DEFAULT == null) {
-                continue; // Skip 'DEFAULT' if it doesn't exist!
-            }
-            if (modifiers.contains(modifier)) {
-                count++;
-            }
-        }
-        checkArgument(count == 1, "modifiers %s must contain one of %s",
-                modifiers, Arrays.toString(mutuallyExclusive));
-    }
-
-    static boolean hasDefaultModifier(Collection<Modifier> modifiers)
-    {
-        return DEFAULT != null && modifiers.contains(DEFAULT);
     }
 
     static String characterLiteralWithoutSingleQuotes(char c)
@@ -164,15 +89,5 @@ final class Util
         }
         result.append('"');
         return result.toString();
-    }
-
-    static {
-        Modifier def = null;
-        try {
-            def = Modifier.valueOf("DEFAULT");
-        }
-        catch (IllegalArgumentException ignored) {
-        }
-        DEFAULT = def;
     }
 }

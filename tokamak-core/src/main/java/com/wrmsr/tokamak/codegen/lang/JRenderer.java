@@ -67,8 +67,8 @@ import com.wrmsr.tokamak.codegen.lang.tree.statement.JSwitch;
 import com.wrmsr.tokamak.codegen.lang.tree.statement.JThrow;
 import com.wrmsr.tokamak.codegen.lang.tree.statement.JVariable;
 import com.wrmsr.tokamak.codegen.lang.tree.statement.JWhileLoop;
-import com.wrmsr.tokamak.codegen.poet.CodeBlock;
-import com.wrmsr.tokamak.codegen.poet.CodeWriter;
+import com.wrmsr.tokamak.codegen.write.CodeBlock;
+import com.wrmsr.tokamak.codegen.write.CodeWriter;
 
 import java.io.IOException;
 import java.io.StringWriter;

@@ -11,49 +11,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.codegen.poet;
+package com.wrmsr.tokamak.codegen.write;
 
-import javax.lang.model.element.Element;
-import javax.lang.model.type.TypeMirror;
+import com.google.common.collect.ImmutableList;
 
 import java.io.IOException;
 import java.io.StringWriter;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-/**
- * A fragment of a .java file, potentially containing declarations, statements, and documentation.
- * Code blocks are not necessarily well-formed Java code, and are not validated. This class assumes
- * javac will check correctness later!
- * <p>
- * <p>Code blocks support placeholders like {@link java.text.Format}. Where {@link String#format}
- * uses percent {@code %} to reference target values, this class uses dollar sign {@code $} and has
- * its own set of permitted placeholders:
- * <p>
- * <ul>
- * <li>{@code $L} emits a <em>literal</em> value with no escaping. Arguments for literals may be
- * strings, primitives, {@linkplain TypeSpec type declarations}, {@linkplain AnnotationSpec
- * annotations} and even other code blocks.
- * <li>{@code $N} emits a <em>name</em>, using name collision avoidance where necessary. Arguments
- * for names may be strings (actually any {@linkplain CharSequence character sequence}),
- * {@linkplain ParameterSpec parameters}, {@linkplain FieldSpec fields}, {@linkplain
- * com.wrmsr.tokamak.codegen.poet.MethodSpec methods}, and {@linkplain TypeSpec types}.
- * <li>{@code $S} escapes the value as a <em>string</em>, wraps it with double quotes, and emits
- * that. For example, {@code 6" sandwich} is emitted {@code "6\" sandwich"}.
- * <li>{@code $T} emits a <em>type</em> reference. Types will be imported if possible. Arguments
- * for types may be {@linkplain Class classes}, {@linkplain TypeMirror
- * ,*       type mirrors}, and {@linkplain Element elements}.
- * <li>{@code $$} emits a dollar sign.
- * <li>{@code $&gt;} increases the indentation level.
- * <li>{@code $&lt;} decreases the indentation level.
- * <li>{@code $[} begins a statement. For multiline statements, every line after the first line
- * is double-indented.
- * <li>{@code $]} ends a statement.
- * </ul>
- */
 public final class CodeBlock
 {
     /**
@@ -64,8 +32,8 @@ public final class CodeBlock
 
     private CodeBlock(Builder builder)
     {
-        this.formatParts = Util.immutableList(builder.formatParts);
-        this.args = Util.immutableList(builder.args);
+        this.formatParts = ImmutableList.copyOf(builder.formatParts);
+        this.args = ImmutableList.copyOf(builder.args);
     }
 
     public static CodeBlock of(String format, Object... args)
@@ -199,9 +167,6 @@ public final class CodeBlock
                     case 'S':
                         this.args.add(argToString(args[index]));
                         break;
-                    case 'T':
-                        this.args.add(argToType(args[index]));
-                        break;
                     default:
                         throw new IllegalArgumentException(
                                 String.format("invalid format string: '%s'", format));
@@ -232,18 +197,6 @@ public final class CodeBlock
             if (o instanceof CharSequence) {
                 return o.toString();
             }
-            if (o instanceof ParameterSpec) {
-                return ((ParameterSpec) o).name;
-            }
-            if (o instanceof FieldSpec) {
-                return ((FieldSpec) o).name;
-            }
-            if (o instanceof MethodSpec) {
-                return ((MethodSpec) o).name;
-            }
-            if (o instanceof TypeSpec) {
-                return ((TypeSpec) o).name;
-            }
             throw new IllegalArgumentException("expected name but was " + o);
         }
 
@@ -255,23 +208,6 @@ public final class CodeBlock
         private String argToString(Object o)
         {
             return o != null ? String.valueOf(o) : null;
-        }
-
-        private TypeName argToType(Object o)
-        {
-            if (o instanceof TypeName) {
-                return (TypeName) o;
-            }
-            if (o instanceof TypeMirror) {
-                return TypeName.get((TypeMirror) o);
-            }
-            if (o instanceof Element) {
-                return TypeName.get(((Element) o).asType());
-            }
-            if (o instanceof Type) {
-                return TypeName.get((Type) o);
-            }
-            throw new IllegalArgumentException("expected type but was " + o);
         }
 
         /**
