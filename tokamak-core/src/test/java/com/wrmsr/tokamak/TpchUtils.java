@@ -20,10 +20,13 @@ import io.airlift.tpch.TpchEntity;
 import io.airlift.tpch.TpchTable;
 import org.jdbi.v3.core.Handle;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.stream.IntStream;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
+import static com.wrmsr.tokamak.util.jdbc.JdbcUtils.executeUpdate;
 
 public final class TpchUtils
 {
@@ -65,6 +68,30 @@ public final class TpchUtils
                     .collect(toImmutableList());
 
             handle.execute(stmt, f.toArray());
+        }
+    }
+
+    public static <E extends TpchEntity> void insertEntities(Connection conn, TpchTable<E> table, Iterable<E> entities)
+    {
+        String stmt = String.format(
+                "insert into %s (%s) values (%s)",
+                table.getTableName(),
+                Joiner.on(", ").join(
+                        table.getColumns().stream().map(TpchColumn::getColumnName).collect(toImmutableList())),
+                Joiner.on(", ").join(
+                        IntStream.range(0, table.getColumns().size()).mapToObj(i -> "?").collect(toImmutableList())));
+
+        try {
+            for (E entity : entities) {
+                List<Object> f = table.getColumns().stream()
+                        .map(c -> getColumnValue(c, entity))
+                        .collect(toImmutableList());
+
+                executeUpdate(conn, stmt, f.toArray());
+            }
+        }
+        catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 }

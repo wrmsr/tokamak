@@ -29,7 +29,7 @@ import com.wrmsr.tokamak.driver.Driver;
 import com.wrmsr.tokamak.driver.DriverImpl;
 import com.wrmsr.tokamak.func.RowMapFunction;
 import com.wrmsr.tokamak.jdbc.JdbcConnector;
-import com.wrmsr.tokamak.jdbc.JdbcUtils;
+import com.wrmsr.tokamak.util.jdbc.JdbcUtils;
 import com.wrmsr.tokamak.layout.RowLayout;
 import com.wrmsr.tokamak.layout.TableLayout;
 import com.wrmsr.tokamak.node.EquijoinNode;
@@ -56,11 +56,13 @@ import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Collection;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkState;
+import static com.wrmsr.tokamak.util.jdbc.JdbcUtils.executeUpdate;
 
 public class AppTest
         extends TestCase
@@ -109,21 +111,8 @@ public class AppTest
             throws Throwable
     {
         try (Connection conn = DriverManager.getConnection("jdbc:h2:mem:test", "root", "tokamak")) {
-            assertEquals(JdbcUtils.scalar(conn, "select 420"), 420);
+            assertEquals(JdbcUtils.executeScalar(conn, "select 420"), 420);
         }
-    }
-
-    public void testJdbi()
-            throws Throwable
-    {
-        // DataSource ds = JdbcConnectionPool.create("jdbc:h2:mem:test", "username", "password");
-
-        Jdbi jdbi = Jdbi.create("jdbc:mysql://0.0.0.0:21211", "root", "tokamak");
-
-        jdbi.withHandle(handle -> {
-            handle.execute("create database `tokamak`");
-            return null;
-        });
     }
 
     // https://docs.oracle.com/javase/tutorial/jdbc/basics/prepared.html
@@ -142,17 +131,17 @@ public class AppTest
     {
         String ddl = CharStreams.toString(new InputStreamReader(AppTest.class.getResourceAsStream("tpch_ddl.sql")));
 
-        Jdbi jdbi = Jdbi.create(url);
-        jdbi.withHandle(handle -> {
+        try (Connection conn = DriverManager.getConnection(url)) {
             for (String stmt : JdbcUtils.splitSql(ddl)) {
-                handle.execute(stmt);
+                executeUpdate(conn, stmt);
             }
             for (TpchTable table : TpchTable.getTables()) {
-                TpchUtils.insertEntities(handle, table, table.createGenerator(0.01, 1, 1));
+                TpchUtils.insertEntities(conn, table, table.createGenerator(0.01, 1, 1));
             }
-            handle.commit();
-            return null;
-        });
+        }
+        catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private Catalog buildCatalog(String url)

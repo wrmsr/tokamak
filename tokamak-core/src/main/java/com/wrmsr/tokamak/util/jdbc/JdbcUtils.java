@@ -11,11 +11,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.jdbc;
+package com.wrmsr.tokamak.util.jdbc;
 
 import com.google.common.collect.ImmutableList;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -29,6 +30,15 @@ import static com.google.common.base.Preconditions.checkState;
 
 public final class JdbcUtils
 {
+    /*
+    TODO:
+     - jettison jdbi
+      - object mapping?
+      - parameter binding
+      - txn mgmt
+      - batching?
+    */
+
     private JdbcUtils()
     {
     }
@@ -64,7 +74,20 @@ public final class JdbcUtils
         }
     }
 
-    public static Object scalar(Connection conn, String sql)
+    public static List<Map<String, Object>> execute(Connection conn, String sql, Object... args)
+            throws SQLException
+    {
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            for (int i = 0; i < args.length; ++i) {
+                stmt.setObject(i + 1, args);
+            }
+            try (ResultSet rs = stmt.executeQuery()) {
+                return readRows(rs);
+            }
+        }
+    }
+
+    public static Object executeScalar(Connection conn, String sql)
             throws SQLException
     {
         try (Statement stmt = conn.createStatement()) {
@@ -73,6 +96,40 @@ public final class JdbcUtils
                 checkState(rs.getMetaData().getColumnCount() == 1);
                 return rs.getObject(1);
             }
+        }
+    }
+
+    public static Object executeScalar(Connection conn, String sql, Object... args)
+            throws SQLException
+    {
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            for (int i = 0; i < args.length; ++i) {
+                stmt.setObject(i + 1, args);
+            }
+            try (ResultSet rs = stmt.executeQuery()) {
+                checkState(rs.next());
+                checkState(rs.getMetaData().getColumnCount() == 1);
+                return rs.getObject(1);
+            }
+        }
+    }
+
+    public static int executeUpdate(Connection conn, String sql)
+            throws SQLException
+    {
+        try (Statement stmt = conn.createStatement()) {
+            return stmt.executeUpdate(sql);
+        }
+    }
+
+    public static int executeUpdate(Connection conn, String sql, Object... args)
+            throws SQLException
+    {
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            for (int i = 0; i < args.length; ++i) {
+                stmt.setObject(i + 1, args[i]);
+            }
+            return stmt.executeUpdate();
         }
     }
 

@@ -14,7 +14,7 @@
 package com.wrmsr.tokamak.jdbc.metadata;
 
 import com.google.common.collect.ImmutableMap;
-import com.wrmsr.tokamak.jdbc.JdbcUtils;
+import com.wrmsr.tokamak.util.jdbc.JdbcUtils;
 import com.wrmsr.tokamak.jdbc.JdbcTableIdentifier;
 
 import java.sql.DatabaseMetaData;
