@@ -11,30 +11,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.catalog.heap;
+package com.wrmsr.tokamak.conn.heap.table;
 
-import com.wrmsr.tokamak.catalog.Connection;
+import com.wrmsr.tokamak.api.Key;
+import com.wrmsr.tokamak.api.SchemaTable;
+import com.wrmsr.tokamak.layout.TableLayout;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-public class HeapConnection
-        implements Connection
+public interface HeapTable
 {
-    private final HeapConnector heapConnector;
+    SchemaTable getSchemaTable();
 
-    public HeapConnection(HeapConnector heapConnector)
-    {
-        this.heapConnector = checkNotNull(heapConnector);
-    }
+    TableLayout getTableLayout();
 
-    public HeapConnector getHeapConnector()
-    {
-        return heapConnector;
-    }
-
-    @Override
-    public void close()
-            throws Exception
-    {
-    }
+    List<Map<String, Object>> scan(Set<String> fields, Key key);
 }

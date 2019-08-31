@@ -11,12 +11,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.jdbc;
+package com.wrmsr.tokamak.conn.jdbc;
 
-import com.wrmsr.tokamak.jdbc.metadata.ColumnMetaData;
-import com.wrmsr.tokamak.jdbc.metadata.IndexMetaData;
-import com.wrmsr.tokamak.jdbc.metadata.PrimaryKeyMetaData;
-import com.wrmsr.tokamak.jdbc.metadata.TableDescription;
+import com.wrmsr.tokamak.sql.metadata.ColumnMetaData;
+import com.wrmsr.tokamak.sql.metadata.IndexMetaData;
+import com.wrmsr.tokamak.sql.metadata.PrimaryKeyMetaData;
+import com.wrmsr.tokamak.sql.metadata.TableDescription;
 import com.wrmsr.tokamak.layout.RowLayout;
 import com.wrmsr.tokamak.layout.TableLayout;
 

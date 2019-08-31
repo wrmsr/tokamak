@@ -11,12 +11,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.jdbc;
+package com.wrmsr.tokamak.conn.jdbc;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
 import com.wrmsr.tokamak.api.AllKey;
 import com.wrmsr.tokamak.api.FieldKey;
 import com.wrmsr.tokamak.api.Key;
@@ -25,10 +24,9 @@ import com.wrmsr.tokamak.catalog.Connection;
 import com.wrmsr.tokamak.catalog.Scanner;
 import com.wrmsr.tokamak.layout.RowLayout;
 import com.wrmsr.tokamak.layout.TableLayout;
-import org.jdbi.v3.core.Handle;
-import org.jdbi.v3.core.mapper.MapMapper;
-import org.jdbi.v3.core.statement.Query;
+import com.wrmsr.tokamak.sql.SqlConnection;
 
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -38,7 +36,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
+import static com.wrmsr.tokamak.sql.SqlUtils.execute;
 import static com.wrmsr.tokamak.util.MoreCollections.checkOrdered;
+import static com.wrmsr.tokamak.util.MoreCollections.enumerate;
 import static java.util.function.Function.identity;
 
 public final class JdbcScanner
@@ -97,16 +97,16 @@ public final class JdbcScanner
     {
         private final Set<String> keyFields;
 
-        private final boolean keyHasIdFields;
+        private final Map<String, Integer> keyFieldIndices;
         private final Set<String> selectedFields;
         private final String stmt;
 
         private Instance(Set<String> keyFields)
         {
-            this.keyFields = ImmutableSet.copyOf(keyFields);
+            this.keyFields = ImmutableSet.copyOf(checkOrdered(keyFields));
             this.keyFields.forEach(f -> checkArgument(tableLayout.getRowLayout().getFields().containsKey(f)));
 
-            keyHasIdFields = Sets.difference(idFields, keyFields).isEmpty();
+            keyFieldIndices = enumerate(this.keyFields.stream()).collect(toImmutableMap(e -> e.getItem(), e -> e.getIndex()));
 
             selectedFields = ImmutableSet.<String>builder()
                     .addAll(this.keyFields)
@@ -123,23 +123,24 @@ public final class JdbcScanner
             if (!this.keyFields.isEmpty()) {
                 stmt += "" +
                         " where " +
-                        Joiner.on(" and ").join(this.keyFields.stream().map(f -> String.format("%s = :%s", f, f)).collect(toImmutableList()));
+                        Joiner.on(" and ").join(this.keyFields.stream().map(f -> String.format("%s = ?", f, f)).collect(toImmutableList()));
             }
 
             this.stmt = stmt;
         }
 
-        public List<Map<String, Object>> getRows(Handle handle, Map<String, Object> keyValuesByField)
+        public List<Map<String, Object>> getRows(SqlConnection conn, Map<String, Object> keyValuesByField)
         {
             checkArgument(keyValuesByField.keySet().equals(keyFields));
 
-            Query query = handle.createQuery(stmt);
-            for (Map.Entry<String, Object> e : keyValuesByField.entrySet()) {
-                query = query.bind(e.getKey(), e.getValue());
+            Object[] args = keyFieldIndices.entrySet().stream().map(keyValuesByField::get).toArray();
+
+            try {
+                return execute(conn.getConnection(), stmt, args);
             }
-            return query
-                    .map(new MapMapper(false))
-                    .list();
+            catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
@@ -152,16 +153,16 @@ public final class JdbcScanner
     public List<Map<String, Object>> scan(Connection connection, Key key)
     {
         JdbcConnection jdbcConnection = (JdbcConnection) connection;
-        Handle handle = jdbcConnection.getHandle();
+        SqlConnection sqlConnection = jdbcConnection.getSqlConnection();
 
         if (key instanceof FieldKey) {
             FieldKey fieldKey = (FieldKey) key;
             Instance instance = getInstance(fieldKey.getValuesByField().keySet());
-            return instance.getRows(handle, fieldKey.getValuesByField());
+            return instance.getRows(sqlConnection, fieldKey.getValuesByField());
         }
         else if (key instanceof AllKey) {
             Instance instance = getInstance(ImmutableSet.of());
-            return instance.getRows(handle, ImmutableMap.of());
+            return instance.getRows(sqlConnection, ImmutableMap.of());
         }
         else {
             throw new IllegalArgumentException(Objects.toString(key));

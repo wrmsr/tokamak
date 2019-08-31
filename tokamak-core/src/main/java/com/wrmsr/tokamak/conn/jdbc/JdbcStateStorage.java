@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.jdbc;
+package com.wrmsr.tokamak.conn.jdbc;
 
 import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.driver.state.StateStorage;
@@ -64,7 +64,6 @@ public class JdbcStateStorage
 
         @Override
         public void close()
-                throws Exception
         {
             handle.close();
         }

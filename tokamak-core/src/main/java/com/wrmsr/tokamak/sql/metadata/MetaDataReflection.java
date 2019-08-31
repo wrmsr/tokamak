@@ -11,11 +11,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.jdbc.metadata;
+package com.wrmsr.tokamak.sql.metadata;
 
 import com.google.common.collect.ImmutableMap;
-import com.wrmsr.tokamak.util.jdbc.JdbcUtils;
-import com.wrmsr.tokamak.jdbc.JdbcTableIdentifier;
+import com.wrmsr.tokamak.sql.SqlUtils;
+import com.wrmsr.tokamak.conn.jdbc.JdbcTableIdentifier;
 
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
@@ -78,7 +78,7 @@ public final class MetaDataReflection
     public static TableMetaData getTableMetadata(DatabaseMetaData metaData, JdbcTableIdentifier tableIdentifier)
             throws SQLException
     {
-        return JdbcUtils.readRows(
+        return SqlUtils.readRows(
                 metaData.getTables(
                         tableIdentifier.getCatalog(),
                         tableIdentifier.getSchema(),
@@ -93,7 +93,7 @@ public final class MetaDataReflection
     public static List<TableMetaData> getTableMetadatas(DatabaseMetaData metaData)
             throws SQLException
     {
-        return JdbcUtils.readRows(
+        return SqlUtils.readRows(
                 metaData.getTables(
                         null,
                         null,
@@ -107,7 +107,7 @@ public final class MetaDataReflection
     public static List<ColumnMetaData> getColumnMetaData(DatabaseMetaData metaData, JdbcTableIdentifier tableIdentifier)
             throws SQLException
     {
-        return JdbcUtils.readRows(
+        return SqlUtils.readRows(
                 metaData.getColumns(
                         tableIdentifier.getCatalog(),
                         tableIdentifier.getSchema(),
@@ -121,7 +121,7 @@ public final class MetaDataReflection
     public static List<IndexMetaData> getIndexMetaData(DatabaseMetaData metaData, JdbcTableIdentifier tableIdentifier)
             throws SQLException
     {
-        return JdbcUtils.readRows(
+        return SqlUtils.readRows(
                 metaData.getIndexInfo(
                         tableIdentifier.getCatalog(),
                         tableIdentifier.getSchema(),
@@ -151,7 +151,7 @@ public final class MetaDataReflection
     public static List<PrimaryKeyMetaData> getPrimaryKeyMetaData(DatabaseMetaData metaData, JdbcTableIdentifier tableIdentifier)
             throws SQLException
     {
-        return JdbcUtils.readRows(
+        return SqlUtils.readRows(
                 metaData.getPrimaryKeys(
                         tableIdentifier.getCatalog(),
                         tableIdentifier.getSchema(),

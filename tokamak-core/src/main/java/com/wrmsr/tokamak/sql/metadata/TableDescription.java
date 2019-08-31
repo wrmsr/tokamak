@@ -11,10 +11,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.jdbc.metadata;
+package com.wrmsr.tokamak.sql.metadata;
 
 import com.google.common.collect.ImmutableList;
-import com.wrmsr.tokamak.jdbc.JdbcTableIdentifier;
+import com.wrmsr.tokamak.conn.jdbc.JdbcTableIdentifier;
 
 import java.util.Comparator;
 import java.util.List;

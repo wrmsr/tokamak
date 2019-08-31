@@ -11,45 +11,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.jdbc.metadata;
+package com.wrmsr.tokamak.sql.metadata;
 
 import com.google.common.collect.ImmutableList;
-import com.wrmsr.tokamak.jdbc.JdbcTableIdentifier;
 import com.wrmsr.tokamak.util.collect.StreamableIterable;
 
 import java.util.Iterator;
 import java.util.List;
 
-import static com.google.common.base.Preconditions.checkArgument;
-
-public final class CompositeIndexMetaData
-        implements StreamableIterable<IndexMetaData>
+public final class CompositePrimaryKeyMetaData
+        implements StreamableIterable<PrimaryKeyMetaData>
 {
-    private final List<IndexMetaData> components;
+    private final List<PrimaryKeyMetaData> components;
 
-    public CompositeIndexMetaData(List<IndexMetaData> components)
+    public CompositePrimaryKeyMetaData(List<PrimaryKeyMetaData> components)
     {
         this.components = ImmutableList.copyOf(components);
-        checkArgument(!components.isEmpty());
     }
 
-    public String getIndexName()
-    {
-        return components.get(0).getIndexName();
-    }
-
-    public JdbcTableIdentifier getTableIdentifier()
-    {
-        return components.get(0).getTableIdentifier();
-    }
-
-    public List<IndexMetaData> getComponents()
+    public List<PrimaryKeyMetaData> getComponents()
     {
         return components;
     }
 
     @Override
-    public Iterator<IndexMetaData> iterator()
+    public Iterator<PrimaryKeyMetaData> iterator()
     {
         return components.iterator();
     }

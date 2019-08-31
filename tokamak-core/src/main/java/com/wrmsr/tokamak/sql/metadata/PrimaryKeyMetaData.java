@@ -11,52 +11,40 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.jdbc.metadata;
+package com.wrmsr.tokamak.sql.metadata;
 
-import com.google.common.collect.ImmutableSet;
-import com.wrmsr.tokamak.jdbc.JdbcTableIdentifier;
+import com.wrmsr.tokamak.conn.jdbc.JdbcTableIdentifier;
 
 import java.util.Map;
-import java.util.Set;
 
-public final class TableMetaData
+public final class PrimaryKeyMetaData
 {
-    public static final Set<String> TABLE_TYPES = ImmutableSet.of(
-            "TABLE",
-            "VIEW",
-            "SYSTEM TABLE",
-            "GLOBAL TEMPORARY",
-            "LOCAL TEMPORARY",
-            "ALIAS",
-            "SYNONYM"
-    );
-
     private final String tableCatalog;
     private final String tableSchema;
     private final String tableName;
-    private final String tableType;
-    private final String remarks;
-    private final String typeName;
-    private final String sql;
+    private final String columnName;
+    private final Short ordinalPosition;
+    private final String pkName;
 
-    public TableMetaData(Map<String, Object> map)
+    public PrimaryKeyMetaData(Map<String, Object> map)
     {
         tableCatalog = (String) map.get("TABLE_CATALOG");
         tableSchema = (String) map.get("TABLE_SCHEMA");
         tableName = (String) map.get("TABLE_NAME");
-        tableType = (String) map.get("TABLE_TYPE");
-        remarks = (String) map.get("REMARKS");
-        typeName = (String) map.get("TYPE_NAME");
-        sql = (String) map.get("SQL");
+        columnName = (String) map.get("COLUMN_NAME");
+        ordinalPosition = (Short) map.get("ORDINAL_POSITION");
+        pkName = (String) map.get("PK_NAME");
     }
 
     @Override
     public String toString()
     {
-        return "TableMetaData{" +
+        return "PrimaryKeyMetaData{" +
                 "tableCatalog='" + tableCatalog + '\'' +
                 ", tableSchema='" + tableSchema + '\'' +
                 ", tableName='" + tableName + '\'' +
+                ", columnName='" + columnName + '\'' +
+                ", ordinalPosition=" + ordinalPosition +
                 '}';
     }
 
@@ -80,23 +68,18 @@ public final class TableMetaData
         return tableName;
     }
 
-    public String getTableType()
+    public String getColumnName()
     {
-        return tableType;
+        return columnName;
     }
 
-    public String getRemarks()
+    public Short getOrdinalPosition()
     {
-        return remarks;
+        return ordinalPosition;
     }
 
-    public String getTypeName()
+    public String getPkName()
     {
-        return typeName;
-    }
-
-    public String getSql()
-    {
-        return sql;
+        return pkName;
     }
 }

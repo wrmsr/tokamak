@@ -23,13 +23,14 @@ import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.catalog.Catalog;
 import com.wrmsr.tokamak.catalog.Schema;
 import com.wrmsr.tokamak.catalog.Table;
-import com.wrmsr.tokamak.catalog.heap.HeapConnector;
-import com.wrmsr.tokamak.catalog.heap.table.MapHeapTable;
+import com.wrmsr.tokamak.conn.heap.HeapConnector;
+import com.wrmsr.tokamak.conn.heap.table.MapHeapTable;
 import com.wrmsr.tokamak.driver.Driver;
 import com.wrmsr.tokamak.driver.DriverImpl;
 import com.wrmsr.tokamak.func.RowMapFunction;
-import com.wrmsr.tokamak.jdbc.JdbcConnector;
-import com.wrmsr.tokamak.util.jdbc.JdbcUtils;
+import com.wrmsr.tokamak.conn.jdbc.JdbcConnector;
+import com.wrmsr.tokamak.sql.SqlEngine;
+import com.wrmsr.tokamak.sql.SqlUtils;
 import com.wrmsr.tokamak.layout.RowLayout;
 import com.wrmsr.tokamak.layout.TableLayout;
 import com.wrmsr.tokamak.node.EquijoinNode;
@@ -45,7 +46,6 @@ import io.airlift.tpch.TpchTable;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import org.jdbi.v3.core.Jdbi;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -62,7 +62,7 @@ import java.util.Collection;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkState;
-import static com.wrmsr.tokamak.util.jdbc.JdbcUtils.executeUpdate;
+import static com.wrmsr.tokamak.sql.SqlUtils.executeUpdate;
 
 public class AppTest
         extends TestCase
@@ -111,7 +111,7 @@ public class AppTest
             throws Throwable
     {
         try (Connection conn = DriverManager.getConnection("jdbc:h2:mem:test", "root", "tokamak")) {
-            assertEquals(JdbcUtils.executeScalar(conn, "select 420"), 420);
+            assertEquals(SqlUtils.executeScalar(conn, "select 420"), 420);
         }
     }
 
@@ -132,7 +132,7 @@ public class AppTest
         String ddl = CharStreams.toString(new InputStreamReader(AppTest.class.getResourceAsStream("tpch_ddl.sql")));
 
         try (Connection conn = DriverManager.getConnection(url)) {
-            for (String stmt : JdbcUtils.splitSql(ddl)) {
+            for (String stmt : SqlUtils.splitSql(ddl)) {
                 executeUpdate(conn, stmt);
             }
             for (TpchTable table : TpchTable.getTables()) {
@@ -147,7 +147,7 @@ public class AppTest
     private Catalog buildCatalog(String url)
     {
         Catalog catalog = new Catalog();
-        JdbcConnector jdbcConnector = new JdbcConnector("jdbc", url);
+        JdbcConnector jdbcConnector = new JdbcConnector("jdbc", new SqlEngine(url));
         Schema schema = catalog.getOrBuildSchema("PUBLIC", jdbcConnector);
         schema.getOrBuildTable("NATION");
         schema.getOrBuildTable("REGION");

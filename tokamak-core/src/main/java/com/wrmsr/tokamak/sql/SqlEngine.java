@@ -11,32 +11,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.jdbc;
 
-import com.wrmsr.tokamak.catalog.Connection;
-import org.jdbi.v3.core.Handle;
+package com.wrmsr.tokamak.sql;
+
+import java.sql.DriverManager;
+import java.sql.SQLException;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-final class JdbcConnection
-        implements Connection
+public class SqlEngine
 {
-    private final Handle handle;
+    private final String url;
 
-    public JdbcConnection(Handle handle)
+    public SqlEngine(String url)
     {
-        this.handle = checkNotNull(handle);
+        this.url = checkNotNull(url);
     }
 
-    public Handle getHandle()
+    public String getUrl()
     {
-        return handle;
+        return url;
     }
 
-    @Override
-    public void close()
-            throws Exception
+    public SqlConnection connect()
     {
-        handle.close();
+        try {
+            return new SqlConnection(this, DriverManager.getConnection(url));
+        }
+        catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.jdbc;
+package com.wrmsr.tokamak.conn.jdbc;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;

@@ -11,18 +11,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.jdbc;
+package com.wrmsr.tokamak.conn.jdbc;
 
 import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.catalog.Connection;
 import com.wrmsr.tokamak.catalog.Connector;
 import com.wrmsr.tokamak.catalog.Scanner;
 import com.wrmsr.tokamak.catalog.Table;
-import com.wrmsr.tokamak.jdbc.metadata.MetaDataReflection;
-import com.wrmsr.tokamak.jdbc.metadata.TableDescription;
 import com.wrmsr.tokamak.layout.TableLayout;
-import com.wrmsr.tokamak.util.lazy.SupplierLazyValue;
-import org.jdbi.v3.core.Jdbi;
+import com.wrmsr.tokamak.sql.SqlConnection;
+import com.wrmsr.tokamak.sql.SqlEngine;
+import com.wrmsr.tokamak.sql.metadata.MetaDataReflection;
+import com.wrmsr.tokamak.sql.metadata.TableDescription;
 
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
@@ -36,12 +36,12 @@ public final class JdbcConnector
         implements Connector
 {
     private final String name;
-    private final String url;
+    private final SqlEngine sqlEngine;
 
-    public JdbcConnector(String name, String url)
+    public JdbcConnector(String name, SqlEngine sqlEngine)
     {
         this.name = checkNotEmpty(name);
-        this.url = checkNotNull(url);
+        this.sqlEngine = checkNotNull(sqlEngine);
     }
 
     @Override
@@ -58,35 +58,26 @@ public final class JdbcConnector
         return name;
     }
 
-    private final SupplierLazyValue<Jdbi> jdbi = new SupplierLazyValue<>();
-
-    private Jdbi getJdbi()
-    {
-        return jdbi.get(() -> Jdbi.create(url));
-    }
-
     @Override
     public Connection connect()
     {
-        return new JdbcConnection(getJdbi().open());
+        return new JdbcConnection(this, sqlEngine.connect());
     }
 
     @Override
     public TableLayout getTableLayout(SchemaTable schemaTable)
     {
-        return getJdbi().withHandle(handle -> {
-            try {
-                DatabaseMetaData metaData = handle.getConnection().getMetaData();
+        try (SqlConnection sqlConnection = sqlEngine.connect()) {
+            DatabaseMetaData metaData = sqlConnection.getConnection().getMetaData();
 
-                TableDescription tableDescription = MetaDataReflection.getTableDescription(
-                        metaData, JdbcTableIdentifier.of("TEST.DB", "PUBLIC", schemaTable.getTable()));
+            TableDescription tableDescription = MetaDataReflection.getTableDescription(
+                    metaData, JdbcTableIdentifier.of("TEST.DB", "PUBLIC", schemaTable.getTable()));
 
-                return JdbcLayoutUtils.buildTableLayout(tableDescription);
-            }
-            catch (SQLException e) {
-                throw new RuntimeException();
-            }
-        });
+            return JdbcLayoutUtils.buildTableLayout(tableDescription);
+        }
+        catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
