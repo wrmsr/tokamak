@@ -49,10 +49,10 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
-import static java.util.Objects.requireNonNull;
 import static java.util.function.Function.identity;
 
 public final class Jars
@@ -124,7 +124,7 @@ public final class Jars
         public BuildEntry(String name, long time)
         {
             checkArgument(time >= 0);
-            this.name = requireNonNull(name);
+            this.name = checkNotNull(name);
             this.time = time;
         }
 
@@ -167,7 +167,7 @@ public final class Jars
             public Bytes(String name, long time, byte[] bytes)
             {
                 super(name, time);
-                this.bytes = requireNonNull(bytes);
+                this.bytes = checkNotNull(bytes);
             }
 
             public byte[] getBytes()

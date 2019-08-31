@@ -19,7 +19,7 @@ import javax.annotation.concurrent.Immutable;
 
 import java.util.Objects;
 
-import static java.util.Objects.requireNonNull;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
 public final class JBinary
@@ -31,9 +31,9 @@ public final class JBinary
 
     public JBinary(JBinaryOp op, JExpression left, JExpression right)
     {
-        this.op = requireNonNull(op);
-        this.left = requireNonNull(left);
-        this.right = requireNonNull(right);
+        this.op = checkNotNull(op);
+        this.left = checkNotNull(left);
+        this.right = checkNotNull(right);
     }
 
     @Override

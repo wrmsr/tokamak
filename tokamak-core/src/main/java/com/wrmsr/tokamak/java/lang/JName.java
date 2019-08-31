@@ -13,43 +13,132 @@
  */
 package com.wrmsr.tokamak.java.lang;
 
-import com.wrmsr.tokamak.util.box.Box;
+import com.google.common.base.Joiner;
+import com.google.common.base.MoreObjects;
+import com.google.common.base.Splitter;
+import com.google.common.collect.ImmutableList;
+import com.wrmsr.tokamak.util.collect.StreamableIterable;
 
 import javax.annotation.concurrent.Immutable;
 
+import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
-import java.util.stream.IntStream;
+import java.util.Objects;
+import java.util.stream.Stream;
 
-import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableList.toImmutableList;
+import static com.wrmsr.tokamak.util.MoreCollections.compareIterators;
 
 @Immutable
 public final class JName
-        extends Box<String>
-        implements Comparable<JName>
+        implements StreamableIterable<String>, Comparable<JName>
 {
-    public JName(String value)
+    private final List<String> parts;
+
+    public JName(List<String> parts)
     {
-        super(value);
-        checkValid(value);
+        checkNotNull(parts);
+        checkArgument(!parts.isEmpty());
+        this.parts = ImmutableList.copyOf(parts);
     }
 
-    public static JName of(String value)
+    public static JName of(String name)
     {
-        return new JName(value);
+        return new JName(ImmutableList.of(name));
+    }
+
+    public static JName of(Object... parts)
+    {
+        return new JName(Arrays.stream(parts).flatMap(o -> {
+            if (o instanceof JName) {
+                return ((JName) o).getParts().stream();
+            }
+            else if (o instanceof String) {
+                return Stream.of((String) o);
+            }
+            else {
+                throw new IllegalArgumentException();
+            }
+        }).collect(toImmutableList()));
+    }
+
+    public static JName parse(String str)
+    {
+        return new JName(Splitter.on('.').splitToList(str));
+    }
+
+    public List<String> getParts()
+    {
+        return parts;
+    }
+
+    @Override
+    public Iterator<String> iterator()
+    {
+        return parts.iterator();
+    }
+
+    public int size()
+    {
+        return parts.size();
+    }
+
+    public String get(int index)
+    {
+        return parts.get(index);
     }
 
     @Override
     public int compareTo(JName o)
     {
-        return value.compareTo(o.value);
+        return compareIterators(parts.iterator(), o.getParts().iterator());
     }
 
-    public static void checkValid(String value)
+    @Override
+    public boolean equals(Object o)
     {
-        List<Integer> codePoints = value.codePoints().boxed().collect(toImmutableList());
-        checkState(!codePoints.isEmpty());
-        checkState(Character.isJavaIdentifierStart(codePoints.get(0)));
-        checkState(IntStream.range(1, codePoints.size()).allMatch(i -> Character.isJavaIdentifierPart(codePoints.get(i))));
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        JName that = (JName) o;
+        return Objects.equals(parts, that.parts);
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return Objects.hash(parts);
+    }
+
+    @Override
+    public String toString()
+    {
+        return MoreObjects.toStringHelper(this)
+                .add("parts", parts)
+                .toString();
+    }
+
+    public String join()
+    {
+        return Joiner.on('.').join(parts);
+    }
+
+    public boolean startsWith(JName prefix)
+    {
+        if (size() < prefix.size()) {
+            return false;
+        }
+        for (int i = 0; i < prefix.size(); ++i) {
+            if (!parts.get(i).equals(prefix.get(i))) {
+                return false;
+            }
+        }
+        return true;
     }
 }

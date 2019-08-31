@@ -16,7 +16,6 @@ package com.wrmsr.tokamak.java.lang.tree.declaration;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.java.lang.JAccess;
-import com.wrmsr.tokamak.java.lang.JName;
 import com.wrmsr.tokamak.java.lang.tree.JInheritance;
 
 import javax.annotation.concurrent.Immutable;
@@ -25,7 +24,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
-import static java.util.Objects.requireNonNull;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
 public final class JType
@@ -40,15 +39,15 @@ public final class JType
 
     private final Set<JAccess> access;
     private final Kind kind;
-    private final JName name;
+    private final String name;
     private final List<JInheritance> inheritances;
     private final List<JDeclaration> body;
 
-    public JType(Set<JAccess> access, Kind kind, JName name, List<JInheritance> inheritances, List<JDeclaration> body)
+    public JType(Set<JAccess> access, Kind kind, String name, List<JInheritance> inheritances, List<JDeclaration> body)
     {
         this.access = ImmutableSet.copyOf(access);
-        this.kind = requireNonNull(kind);
-        this.name = requireNonNull(name);
+        this.kind = checkNotNull(kind);
+        this.name = checkNotNull(name);
         this.inheritances = ImmutableList.copyOf(inheritances);
         this.body = ImmutableList.copyOf(body);
     }
@@ -86,7 +85,7 @@ public final class JType
         return kind;
     }
 
-    public JName getName()
+    public String getName()
     {
         return name;
     }

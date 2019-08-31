@@ -19,7 +19,7 @@ import javax.annotation.concurrent.Immutable;
 
 import java.util.Objects;
 
-import static java.util.Objects.requireNonNull;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
 public final class JDoWhileLoop
@@ -30,8 +30,8 @@ public final class JDoWhileLoop
 
     public JDoWhileLoop(JBlock body, JExpression condition)
     {
-        this.body = requireNonNull(body);
-        this.condition = requireNonNull(condition);
+        this.body = checkNotNull(body);
+        this.condition = checkNotNull(condition);
     }
 
     @Override

@@ -13,24 +13,22 @@
  */
 package com.wrmsr.tokamak.java.lang.tree.statement;
 
-import com.wrmsr.tokamak.java.lang.JName;
-
 import javax.annotation.concurrent.Immutable;
 
 import java.util.Objects;
 import java.util.Optional;
 
-import static java.util.Objects.requireNonNull;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
 public final class JBreak
         extends JStatement
 {
-    private final Optional<JName> label;
+    private final Optional<String> label;
 
-    public JBreak(Optional<JName> label)
+    public JBreak(Optional<String> label)
     {
-        this.label = requireNonNull(label);
+        this.label = checkNotNull(label);
     }
 
     @Override
@@ -52,7 +50,7 @@ public final class JBreak
         return Objects.hash(label);
     }
 
-    public Optional<JName> getLabel()
+    public Optional<String> getLabel()
     {
         return label;
     }

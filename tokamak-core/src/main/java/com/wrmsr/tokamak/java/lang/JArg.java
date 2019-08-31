@@ -23,9 +23,9 @@ import java.util.Objects;
 public final class JArg
 {
     private final JTypeSpecifier type;
-    private final JName name;
+    private final String name;
 
-    public JArg(JTypeSpecifier type, JName name)
+    public JArg(JTypeSpecifier type, String name)
     {
         this.type = type;
         this.name = name;
@@ -65,7 +65,7 @@ public final class JArg
         return type;
     }
 
-    public JName getName()
+    public String getName()
     {
         return name;
     }

@@ -19,7 +19,7 @@ import javax.annotation.concurrent.Immutable;
 
 import java.util.Objects;
 
-import static java.util.Objects.requireNonNull;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
 public final class JThrow
@@ -29,7 +29,7 @@ public final class JThrow
 
     public JThrow(JExpression exception)
     {
-        this.exception = requireNonNull(exception);
+        this.exception = checkNotNull(exception);
     }
 
     @Override

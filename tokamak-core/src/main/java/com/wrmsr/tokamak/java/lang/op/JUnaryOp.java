@@ -13,7 +13,7 @@
  */
 package com.wrmsr.tokamak.java.lang.op;
 
-import static java.util.Objects.requireNonNull;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public enum JUnaryOp
 {
@@ -31,8 +31,8 @@ public enum JUnaryOp
 
     JUnaryOp(String prefix, String suffix)
     {
-        this.prefix = requireNonNull(prefix);
-        this.suffix = requireNonNull(suffix);
+        this.prefix = checkNotNull(prefix);
+        this.suffix = checkNotNull(suffix);
     }
 
     public String getPrefix()

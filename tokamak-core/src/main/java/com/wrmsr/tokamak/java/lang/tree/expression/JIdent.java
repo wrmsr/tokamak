@@ -15,28 +15,27 @@ package com.wrmsr.tokamak.java.lang.tree.expression;
 
 import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.java.lang.JName;
-import com.wrmsr.tokamak.java.lang.JQualifiedName;
 
 import javax.annotation.concurrent.Immutable;
 
 import java.util.Objects;
 
-import static java.util.Objects.requireNonNull;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
 public final class JIdent
         extends JExpression
 {
-    private final JQualifiedName name;
+    private final JName name;
 
-    public JIdent(JQualifiedName name)
+    public JIdent(JName name)
     {
-        this.name = requireNonNull(name);
+        this.name = checkNotNull(name);
     }
 
-    public static JIdent of(JName name)
+    public static JIdent of(String name)
     {
-        return new JIdent(new JQualifiedName(ImmutableList.of(name)));
+        return new JIdent(new JName(ImmutableList.of(name)));
     }
 
     @Override
@@ -58,7 +57,7 @@ public final class JIdent
         return Objects.hash(name);
     }
 
-    public JQualifiedName getName()
+    public JName getName()
     {
         return name;
     }

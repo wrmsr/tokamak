@@ -17,7 +17,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.java.lang.JAccess;
 import com.wrmsr.tokamak.java.lang.JName;
-import com.wrmsr.tokamak.java.lang.JQualifiedName;
 import com.wrmsr.tokamak.java.lang.JRenderer;
 import com.wrmsr.tokamak.java.lang.tree.declaration.JConstructor;
 import com.wrmsr.tokamak.java.lang.tree.declaration.JDeclaration;
@@ -39,7 +38,7 @@ public class CodegenTest
     public void testCodegen()
     {
         JCompilationUnit cu = new JCompilationUnit(
-                Optional.of(new JPackageSpec(JQualifiedName.of("com", "wrmsr", "tokamak"))),
+                Optional.of(new JPackageSpec(JName.of("com", "wrmsr", "tokamak"))),
                 ImmutableSet.of(),
                 new JType(
                         immutableEnumSet(JAccess.PUBLIC, JAccess.FINAL),
@@ -54,7 +53,7 @@ public class CodegenTest
                                         jblockify(
                                                 new JExpressionStatement(
                                                         JMethodInvocation.of(
-                                                                JQualifiedName.of("super"),
+                                                                JName.of("super"),
                                                                 ImmutableList.of())))))));
 
         String rendered = JRenderer.renderWithIndent(cu, "    ");

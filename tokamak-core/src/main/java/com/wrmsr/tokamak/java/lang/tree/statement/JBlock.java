@@ -22,7 +22,7 @@ import java.util.Objects;
 
 @Immutable
 public final class JBlock
-    extends JStatement
+        extends JStatement
 {
     private List<JStatement> body;
 

@@ -13,7 +13,6 @@
  */
 package com.wrmsr.tokamak.java.lang.tree.statement;
 
-import com.wrmsr.tokamak.java.lang.JName;
 import com.wrmsr.tokamak.java.lang.JTypeSpecifier;
 import com.wrmsr.tokamak.java.lang.tree.expression.JExpression;
 
@@ -21,23 +20,23 @@ import javax.annotation.concurrent.Immutable;
 
 import java.util.Objects;
 
-import static java.util.Objects.requireNonNull;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
 public final class JForEach
         extends JStatement
 {
     private final JTypeSpecifier type;
-    private final JName item;
+    private final String item;
     private final JExpression iterable;
     private final JBlock body;
 
-    public JForEach(JTypeSpecifier type, JName item, JExpression iterable, JBlock body)
+    public JForEach(JTypeSpecifier type, String item, JExpression iterable, JBlock body)
     {
-        this.type = requireNonNull(type);
-        this.item = requireNonNull(item);
-        this.iterable = requireNonNull(iterable);
-        this.body = requireNonNull(body);
+        this.type = checkNotNull(type);
+        this.item = checkNotNull(item);
+        this.iterable = checkNotNull(iterable);
+        this.body = checkNotNull(body);
     }
 
     @Override
@@ -67,7 +66,7 @@ public final class JForEach
         return type;
     }
 
-    public JName getItem()
+    public String getItem()
     {
         return item;
     }

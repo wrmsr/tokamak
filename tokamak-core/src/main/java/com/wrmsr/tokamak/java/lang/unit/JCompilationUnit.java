@@ -22,7 +22,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
-import static java.util.Objects.requireNonNull;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
 public final class JCompilationUnit
@@ -33,9 +33,9 @@ public final class JCompilationUnit
 
     public JCompilationUnit(Optional<JPackageSpec> packageSpec, Set<JImportSpec> importSpecs, JDeclaration body)
     {
-        this.packageSpec = requireNonNull(packageSpec);
+        this.packageSpec = checkNotNull(packageSpec);
         this.importSpecs = ImmutableSet.copyOf(importSpecs);
-        this.body = requireNonNull(body);
+        this.body = checkNotNull(body);
     }
 
     @Override

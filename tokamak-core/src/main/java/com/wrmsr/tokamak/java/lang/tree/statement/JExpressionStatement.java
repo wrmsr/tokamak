@@ -19,7 +19,7 @@ import javax.annotation.concurrent.Immutable;
 
 import java.util.Objects;
 
-import static java.util.Objects.requireNonNull;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
 public final class JExpressionStatement
@@ -29,7 +29,7 @@ public final class JExpressionStatement
 
     public JExpressionStatement(JExpression expression)
     {
-        this.expression = requireNonNull(expression);
+        this.expression = checkNotNull(expression);
     }
 
     @Override

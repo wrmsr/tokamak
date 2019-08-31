@@ -20,28 +20,28 @@ import javax.annotation.concurrent.Immutable;
 import java.util.List;
 import java.util.Objects;
 
-import static java.util.Objects.requireNonNull;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
 public final class JTypeSpecifier
 {
-    private final JQualifiedName name;
+    private final JName name;
     private final List<JArray> arrays;
 
-    public JTypeSpecifier(JQualifiedName name, List<JArray> arrays)
+    public JTypeSpecifier(JName name, List<JArray> arrays)
     {
-        this.name = requireNonNull(name);
+        this.name = checkNotNull(name);
         this.arrays = ImmutableList.copyOf(arrays);
     }
 
-    public static JTypeSpecifier of(JQualifiedName name)
+    public static JTypeSpecifier of(JName name)
     {
         return new JTypeSpecifier(name, ImmutableList.of());
     }
 
     public static JTypeSpecifier of(String... parts)
     {
-        return new JTypeSpecifier(JQualifiedName.of((Object[]) parts), ImmutableList.of());
+        return new JTypeSpecifier(JName.of((Object[]) parts), ImmutableList.of());
     }
 
     @Override
@@ -64,7 +64,7 @@ public final class JTypeSpecifier
         return Objects.hash(name, arrays);
     }
 
-    public JQualifiedName getName()
+    public JName getName()
     {
         return name;
     }

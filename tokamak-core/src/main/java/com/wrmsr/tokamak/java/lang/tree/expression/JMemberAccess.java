@@ -13,25 +13,23 @@
  */
 package com.wrmsr.tokamak.java.lang.tree.expression;
 
-import com.wrmsr.tokamak.java.lang.JName;
-
 import javax.annotation.concurrent.Immutable;
 
 import java.util.Objects;
 
-import static java.util.Objects.requireNonNull;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
 public final class JMemberAccess
         extends JExpression
 {
     private final JExpression instance;
-    private final JName member;
+    private final String member;
 
-    public JMemberAccess(JExpression instance, JName member)
+    public JMemberAccess(JExpression instance, String member)
     {
-        this.instance = requireNonNull(instance);
-        this.member = requireNonNull(member);
+        this.instance = checkNotNull(instance);
+        this.member = checkNotNull(member);
     }
 
     @Override
@@ -59,7 +57,7 @@ public final class JMemberAccess
         return instance;
     }
 
-    public JName getMember()
+    public String getMember()
     {
         return member;
     }

@@ -15,7 +15,6 @@ package com.wrmsr.tokamak.java.lang.tree.declaration;
 
 import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.java.lang.JAccess;
-import com.wrmsr.tokamak.java.lang.JName;
 import com.wrmsr.tokamak.java.lang.JTypeSpecifier;
 import com.wrmsr.tokamak.java.lang.tree.expression.JExpression;
 
@@ -25,7 +24,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
-import static java.util.Objects.requireNonNull;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
 public final class JField
@@ -33,15 +32,15 @@ public final class JField
 {
     private final Set<JAccess> access;
     private final JTypeSpecifier type;
-    private final JName name;
+    private final String name;
     private final Optional<JExpression> value;
 
-    public JField(Set<JAccess> access, JTypeSpecifier type, JName name, Optional<JExpression> value)
+    public JField(Set<JAccess> access, JTypeSpecifier type, String name, Optional<JExpression> value)
     {
         this.access = ImmutableSet.copyOf(access);
-        this.type = requireNonNull(type);
-        this.name = requireNonNull(name);
-        this.value = requireNonNull(value);
+        this.type = checkNotNull(type);
+        this.name = checkNotNull(name);
+        this.value = checkNotNull(value);
     }
 
     @Override
@@ -76,7 +75,7 @@ public final class JField
         return type;
     }
 
-    public JName getName()
+    public String getName()
     {
         return name;
     }

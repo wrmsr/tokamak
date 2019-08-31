@@ -20,7 +20,7 @@ import javax.annotation.concurrent.Immutable;
 import java.io.File;
 import java.util.List;
 
-import static java.util.Objects.requireNonNull;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
 public abstract class DirectoryOption
@@ -30,7 +30,7 @@ public abstract class DirectoryOption
 
     public DirectoryOption(File directory)
     {
-        this.directory = requireNonNull(directory);
+        this.directory = checkNotNull(directory);
     }
 
     public File getDirectory()

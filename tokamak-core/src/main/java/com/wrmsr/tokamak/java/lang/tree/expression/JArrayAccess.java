@@ -17,7 +17,7 @@ import javax.annotation.concurrent.Immutable;
 
 import java.util.Objects;
 
-import static java.util.Objects.requireNonNull;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
 public final class JArrayAccess
@@ -28,8 +28,8 @@ public final class JArrayAccess
 
     public JArrayAccess(JExpression array, JExpression index)
     {
-        this.array = requireNonNull(array);
-        this.index = requireNonNull(index);
+        this.array = checkNotNull(array);
+        this.index = checkNotNull(index);
     }
 
     @Override

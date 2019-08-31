@@ -21,7 +21,7 @@ import javax.annotation.concurrent.Immutable;
 import java.util.List;
 import java.util.Objects;
 
-import static java.util.Objects.requireNonNull;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
 public final class JNew
@@ -32,7 +32,7 @@ public final class JNew
 
     public JNew(JTypeSpecifier type, List<JExpression> operands)
     {
-        this.type = requireNonNull(type);
+        this.type = checkNotNull(type);
         this.operands = ImmutableList.copyOf(operands);
     }
 

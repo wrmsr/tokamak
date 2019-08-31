@@ -13,13 +13,13 @@
  */
 package com.wrmsr.tokamak.java.lang.tree.expression;
 
-import com.wrmsr.tokamak.java.lang.JQualifiedName;
+import com.wrmsr.tokamak.java.lang.JName;
 
 import javax.annotation.concurrent.Immutable;
 
 import java.util.Objects;
 
-import static java.util.Objects.requireNonNull;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
 public final class JAssignment
@@ -30,11 +30,11 @@ public final class JAssignment
 
     public JAssignment(JExpression left, JExpression right)
     {
-        this.left = requireNonNull(left);
-        this.right = requireNonNull(right);
+        this.left = checkNotNull(left);
+        this.right = checkNotNull(right);
     }
 
-    public static JAssignment of(JQualifiedName left, JExpression right)
+    public static JAssignment of(JName left, JExpression right)
     {
         return new JAssignment(new JIdent(left), right);
     }

@@ -14,14 +14,14 @@
 package com.wrmsr.tokamak.java.lang.tree.expression;
 
 import com.google.common.collect.ImmutableList;
-import com.wrmsr.tokamak.java.lang.JQualifiedName;
+import com.wrmsr.tokamak.java.lang.JName;
 
 import javax.annotation.concurrent.Immutable;
 
 import java.util.List;
 import java.util.Objects;
 
-import static java.util.Objects.requireNonNull;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
 public final class JMethodInvocation
@@ -32,11 +32,11 @@ public final class JMethodInvocation
 
     public JMethodInvocation(JExpression method, List<JExpression> operands)
     {
-        this.method = requireNonNull(method);
+        this.method = checkNotNull(method);
         this.operands = ImmutableList.copyOf(operands);
     }
 
-    public static JMethodInvocation of(JQualifiedName name, List<JExpression> operands)
+    public static JMethodInvocation of(JName name, List<JExpression> operands)
     {
         return new JMethodInvocation(new JIdent(name), operands);
     }

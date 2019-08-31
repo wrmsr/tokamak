@@ -20,17 +20,17 @@ import javax.annotation.concurrent.Immutable;
 import java.util.Objects;
 import java.util.Optional;
 
-import static java.util.Objects.requireNonNull;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
 public final class JReturn
-    extends JStatement
+        extends JStatement
 {
     private final Optional<JExpression> value;
 
     public JReturn(Optional<JExpression> value)
     {
-        this.value = requireNonNull(value);
+        this.value = checkNotNull(value);
     }
 
     @Override

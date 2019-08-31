@@ -22,7 +22,7 @@ import java.io.File;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static java.util.Objects.requireNonNull;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
 public abstract class PathOption
@@ -32,7 +32,7 @@ public abstract class PathOption
 
     public PathOption(List<String> items)
     {
-        requireNonNull(items);
+        checkNotNull(items);
         checkArgument(items.stream().allMatch(s -> s.indexOf(File.pathSeparatorChar) < 0));
         this.items = ImmutableList.copyOf(items);
     }

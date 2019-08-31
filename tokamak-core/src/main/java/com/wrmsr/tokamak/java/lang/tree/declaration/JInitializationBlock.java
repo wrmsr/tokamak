@@ -19,7 +19,7 @@ import javax.annotation.concurrent.Immutable;
 
 import java.util.Objects;
 
-import static java.util.Objects.requireNonNull;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
 public final class JInitializationBlock
@@ -29,7 +29,7 @@ public final class JInitializationBlock
 
     public JInitializationBlock(JBlock block)
     {
-        this.block = requireNonNull(block);
+        this.block = checkNotNull(block);
     }
 
     @Override

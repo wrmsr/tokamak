@@ -13,22 +13,22 @@
  */
 package com.wrmsr.tokamak.java.lang.unit;
 
-import com.wrmsr.tokamak.java.lang.JQualifiedName;
+import com.wrmsr.tokamak.java.lang.JName;
 
 import javax.annotation.concurrent.Immutable;
 
 import java.util.Objects;
 
-import static java.util.Objects.requireNonNull;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
 public final class JPackageSpec
 {
-    private final JQualifiedName name;
+    private final JName name;
 
-    public JPackageSpec(JQualifiedName name)
+    public JPackageSpec(JName name)
     {
-        this.name = requireNonNull(name);
+        this.name = checkNotNull(name);
     }
 
     @Override
@@ -50,7 +50,7 @@ public final class JPackageSpec
         return Objects.hash(name);
     }
 
-    public JQualifiedName getName()
+    public JName getName()
     {
         return name;
     }

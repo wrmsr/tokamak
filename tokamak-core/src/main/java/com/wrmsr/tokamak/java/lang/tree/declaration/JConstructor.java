@@ -17,7 +17,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.java.lang.JAccess;
 import com.wrmsr.tokamak.java.lang.JArg;
-import com.wrmsr.tokamak.java.lang.JName;
 import com.wrmsr.tokamak.java.lang.tree.statement.JBlock;
 
 import javax.annotation.concurrent.Immutable;
@@ -26,23 +25,23 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
-import static java.util.Objects.requireNonNull;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
 public final class JConstructor
         extends JDeclaration
 {
     private final Set<JAccess> access;
-    private final JName name;
+    private final String name;
     private final List<JArg> args;
     private final com.wrmsr.tokamak.java.lang.tree.statement.JBlock body;
 
-    public JConstructor(Set<JAccess> access, JName name, List<JArg> args, JBlock body)
+    public JConstructor(Set<JAccess> access, String name, List<JArg> args, JBlock body)
     {
         this.access = ImmutableSet.copyOf(access);
-        this.name = requireNonNull(name);
+        this.name = checkNotNull(name);
         this.args = ImmutableList.copyOf(args);
-        this.body = requireNonNull(body);
+        this.body = checkNotNull(body);
     }
 
     @Override
@@ -72,7 +71,7 @@ public final class JConstructor
         return access;
     }
 
-    public JName getName()
+    public String getName()
     {
         return name;
     }

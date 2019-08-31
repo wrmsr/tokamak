@@ -19,7 +19,7 @@ import javax.annotation.concurrent.Immutable;
 
 import java.util.Objects;
 
-import static java.util.Objects.requireNonNull;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
 public final class JCast
@@ -30,8 +30,8 @@ public final class JCast
 
     public JCast(JTypeSpecifier type, JExpression value)
     {
-        this.type = requireNonNull(type);
-        this.value = requireNonNull(value);
+        this.type = checkNotNull(type);
+        this.value = checkNotNull(value);
     }
 
     @Override

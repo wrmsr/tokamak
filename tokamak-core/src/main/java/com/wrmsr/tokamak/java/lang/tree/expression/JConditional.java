@@ -17,11 +17,11 @@ import javax.annotation.concurrent.Immutable;
 
 import java.util.Objects;
 
-import static java.util.Objects.requireNonNull;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
 public final class JConditional
-    extends JExpression
+        extends JExpression
 {
     private final JExpression condition;
     private final JExpression ifTrue;
@@ -29,9 +29,9 @@ public final class JConditional
 
     public JConditional(JExpression condition, JExpression ifTrue, JExpression ifFalse)
     {
-        this.condition = requireNonNull(condition);
-        this.ifTrue = requireNonNull(ifTrue);
-        this.ifFalse = requireNonNull(ifFalse);
+        this.condition = checkNotNull(condition);
+        this.ifTrue = checkNotNull(ifTrue);
+        this.ifFalse = checkNotNull(ifFalse);
     }
 
     @Override

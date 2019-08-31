@@ -13,26 +13,26 @@
  */
 package com.wrmsr.tokamak.java.lang.unit;
 
-import com.wrmsr.tokamak.java.lang.JQualifiedName;
+import com.wrmsr.tokamak.java.lang.JName;
 
 import javax.annotation.concurrent.Immutable;
 
 import java.util.Objects;
 
-import static java.util.Objects.requireNonNull;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
 public final class JImportSpec
         implements Comparable<JImportSpec>
 {
     private final boolean isStatic;
-    private final JQualifiedName name;
+    private final JName name;
     private final boolean isWildcard;
 
-    public JImportSpec(boolean isStatic, JQualifiedName name, boolean isWildcard)
+    public JImportSpec(boolean isStatic, JName name, boolean isWildcard)
     {
         this.isStatic = isStatic;
-        this.name = requireNonNull(name);
+        this.name = checkNotNull(name);
         this.isWildcard = isWildcard;
     }
 
@@ -84,7 +84,7 @@ public final class JImportSpec
         return isStatic;
     }
 
-    public JQualifiedName getName()
+    public JName getName()
     {
         return name;
     }

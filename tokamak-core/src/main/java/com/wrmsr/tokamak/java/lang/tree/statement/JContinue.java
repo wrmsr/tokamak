@@ -13,24 +13,22 @@
  */
 package com.wrmsr.tokamak.java.lang.tree.statement;
 
-import com.wrmsr.tokamak.java.lang.JName;
-
 import javax.annotation.concurrent.Immutable;
 
 import java.util.Objects;
 import java.util.Optional;
 
-import static java.util.Objects.requireNonNull;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
 public final class JContinue
-    extends JStatement
+        extends JStatement
 {
-    private final Optional<JName> label;
+    private final Optional<String> label;
 
-    public JContinue(Optional<JName> label)
+    public JContinue(Optional<String> label)
     {
-        this.label = requireNonNull(label);
+        this.label = checkNotNull(label);
     }
 
     @Override
@@ -52,7 +50,7 @@ public final class JContinue
         return Objects.hash(label);
     }
 
-    public Optional<JName> getLabel()
+    public Optional<String> getLabel()
     {
         return label;
     }

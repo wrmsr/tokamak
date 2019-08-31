@@ -20,7 +20,7 @@ import javax.annotation.concurrent.Immutable;
 import java.util.Objects;
 import java.util.Optional;
 
-import static java.util.Objects.requireNonNull;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
 public final class JIf
@@ -35,9 +35,9 @@ public final class JIf
             JBlock ifTrue,
             Optional<JBlock> ifFalse)
     {
-        this.condition = requireNonNull(condition);
-        this.ifTrue = requireNonNull(ifTrue);
-        this.ifFalse = requireNonNull(ifFalse);
+        this.condition = checkNotNull(condition);
+        this.ifTrue = checkNotNull(ifTrue);
+        this.ifFalse = checkNotNull(ifFalse);
     }
 
     @Override

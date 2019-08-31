@@ -20,7 +20,7 @@ import javax.annotation.concurrent.Immutable;
 import java.util.List;
 import java.util.Objects;
 
-import static java.util.Objects.requireNonNull;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
 public final class JCase
@@ -34,7 +34,7 @@ public final class JCase
     {
         this.values = ImmutableList.copyOf(values);
         this.isDefault = isDefault;
-        this.block = requireNonNull(block);
+        this.block = checkNotNull(block);
     }
 
     @Override

@@ -13,7 +13,6 @@
  */
 package com.wrmsr.tokamak.java.lang.tree.statement;
 
-import com.wrmsr.tokamak.java.lang.JName;
 import com.wrmsr.tokamak.java.lang.JTypeSpecifier;
 import com.wrmsr.tokamak.java.lang.tree.expression.JExpression;
 
@@ -22,21 +21,21 @@ import javax.annotation.concurrent.Immutable;
 import java.util.Objects;
 import java.util.Optional;
 
-import static java.util.Objects.requireNonNull;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
 public final class JVariable
         extends JStatement
 {
     private final JTypeSpecifier type;
-    private final JName name;
+    private final String name;
     private final Optional<JExpression> value;
 
-    public JVariable(JTypeSpecifier type, JName name, Optional<JExpression> value)
+    public JVariable(JTypeSpecifier type, String name, Optional<JExpression> value)
     {
-        this.type = requireNonNull(type);
-        this.name = requireNonNull(name);
-        this.value = requireNonNull(value);
+        this.type = checkNotNull(type);
+        this.name = checkNotNull(name);
+        this.value = checkNotNull(value);
     }
 
     @Override
@@ -65,7 +64,7 @@ public final class JVariable
         return type;
     }
 
-    public JName getName()
+    public String getName()
     {
         return name;
     }

@@ -17,9 +17,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.wrmsr.tokamak.java.lang.unit.JCompilationUnit;
-import com.wrmsr.tokamak.java.lang.unit.JImportSpec;
-import com.wrmsr.tokamak.java.lang.unit.JPackageSpec;
 import com.wrmsr.tokamak.java.lang.tree.JInheritance;
 import com.wrmsr.tokamak.java.lang.tree.declaration.JAnnotatedDeclaration;
 import com.wrmsr.tokamak.java.lang.tree.declaration.JConstructor;
@@ -67,6 +64,9 @@ import com.wrmsr.tokamak.java.lang.tree.statement.JSwitch;
 import com.wrmsr.tokamak.java.lang.tree.statement.JThrow;
 import com.wrmsr.tokamak.java.lang.tree.statement.JVariable;
 import com.wrmsr.tokamak.java.lang.tree.statement.JWhileLoop;
+import com.wrmsr.tokamak.java.lang.unit.JCompilationUnit;
+import com.wrmsr.tokamak.java.lang.unit.JImportSpec;
+import com.wrmsr.tokamak.java.lang.unit.JPackageSpec;
 import com.wrmsr.tokamak.java.write.CodeBlock;
 import com.wrmsr.tokamak.java.write.CodeWriter;
 
@@ -81,29 +81,29 @@ import java.util.TreeSet;
 import java.util.function.Consumer;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableList.toImmutableList;
-import static java.util.Objects.requireNonNull;
 
 public final class JRenderer
 {
-    public static final List<Set<JQualifiedName>> DEFAULT_IMPORT_BLOCKS = ImmutableList.<Set<JQualifiedName>>builder()
-            .add(ImmutableSet.of(JQualifiedName.of("javax")))
-            .add(ImmutableSet.of(JQualifiedName.of("java")))
+    public static final List<Set<JName>> DEFAULT_IMPORT_BLOCKS = ImmutableList.<Set<JName>>builder()
+            .add(ImmutableSet.of(JName.of("javax")))
+            .add(ImmutableSet.of(JName.of("java")))
             .build();
 
     public static final int DEFAULT_LONG_STRING_LITERAL_LENGTH = 120;
     public static final int DEFAULT_MULTILINE_ARG_CUTOFF = 6;
 
     private final CodeBlock.Builder code;
-    private final List<Set<JQualifiedName>> importBlocks;
+    private final List<Set<JName>> importBlocks;
     private final int longStringLiteralLength;
     private final int multilineArgCutoff;
 
-    public JRenderer(CodeBlock.Builder code, List<Set<JQualifiedName>> importBlocks, int longStringLiteralLength, int multilineArgCutoff)
+    public JRenderer(CodeBlock.Builder code, List<Set<JName>> importBlocks, int longStringLiteralLength, int multilineArgCutoff)
     {
         checkArgument(longStringLiteralLength > 0);
         checkArgument(multilineArgCutoff > 0);
-        this.code = requireNonNull(code);
+        this.code = checkNotNull(code);
         this.importBlocks = ImmutableList.copyOf(importBlocks);
         this.longStringLiteralLength = longStringLiteralLength;
         this.multilineArgCutoff = multilineArgCutoff;
@@ -145,7 +145,7 @@ public final class JRenderer
                 continue;
             }
             for (int i = 0; i < importBlocks.size(); ++i) {
-                for (JQualifiedName n : importBlocks.get(i)) {
+                for (JName n : importBlocks.get(i)) {
                     if (importSpec.getName().startsWith(n)) {
                         blocks.get(i).add(importSpec);
                         continue outer;
@@ -176,7 +176,7 @@ public final class JRenderer
         if (importSpec.isStatic()) {
             code.add("static ");
         }
-        renderQualifiedName(importSpec.getName());
+        renderName(importSpec.getName());
         if (importSpec.isWildcard()) {
             code.add(".*");
         }
@@ -186,7 +186,7 @@ public final class JRenderer
     public void renderPackageSpec(JPackageSpec packageSpec)
     {
         code.add("package ");
-        renderQualifiedName(packageSpec.getName());
+        renderName(packageSpec.getName());
         code.add(";\n");
     }
 
@@ -204,7 +204,7 @@ public final class JRenderer
                     comma = true;
                 }
                 renderTypeSpecifier(arg.getType());
-                code.add(" $L", arg.getName().getValue());
+                code.add(" $L", arg.getName());
             }
             code.add(")");
             code.unindent().unindent();
@@ -220,7 +220,7 @@ public final class JRenderer
                     comma = true;
                 }
                 renderTypeSpecifier(arg.getType());
-                code.add(" $L", arg.getName().getValue());
+                code.add(" $L", arg.getName());
             }
             code.add(")");
         }
@@ -240,7 +240,7 @@ public final class JRenderer
             public Void visitJAnnotatedDeclaration(JAnnotatedDeclaration jdeclaration, Void context)
             {
                 code.add("@");
-                renderQualifiedName(jdeclaration.getAnnotation());
+                renderName(jdeclaration.getAnnotation());
                 jdeclaration.getOperands().ifPresent(operands -> {
                     code.add("(");
                     renderOperands(operands);
@@ -255,7 +255,7 @@ public final class JRenderer
             public Void visitJConstructor(JConstructor jdeclaration, Void context)
             {
                 renderAccess(jdeclaration.getAccess());
-                code.add("$L", jdeclaration.getName().getValue());
+                code.add("$L", jdeclaration.getName());
                 renderArgs(jdeclaration.getArgs());
                 code.add("\n");
                 renderStatement(jdeclaration.getBody());
@@ -274,7 +274,7 @@ public final class JRenderer
             {
                 renderAccess(jdeclaration.getAccess());
                 renderTypeSpecifier(jdeclaration.getType());
-                code.add(" $L", jdeclaration.getName().getValue());
+                code.add(" $L", jdeclaration.getName());
                 jdeclaration.getValue().ifPresent(v -> {
                     code.add(" = ");
                     renderExpression(v);
@@ -295,7 +295,7 @@ public final class JRenderer
             {
                 renderAccess(jdeclaration.getAccess());
                 renderTypeSpecifier(jdeclaration.getType());
-                code.add(" $L", jdeclaration.getName().getValue());
+                code.add(" $L", jdeclaration.getName());
                 renderArgs(jdeclaration.getArgs());
                 if (jdeclaration.getBody().isPresent()) {
                     code.add("\n");
@@ -311,7 +311,7 @@ public final class JRenderer
             public Void visitJType(JType jdeclaration, Void context)
             {
                 renderAccess(jdeclaration.getAccess());
-                code.add("$L $L\n", jdeclaration.getKind().toString().toLowerCase(), jdeclaration.getName().getValue());
+                code.add("$L $L\n", jdeclaration.getKind().toString().toLowerCase(), jdeclaration.getName());
                 if (!jdeclaration.getInheritances().isEmpty()) {
                     code.indent().indent();
                     boolean newline = false;
@@ -323,7 +323,7 @@ public final class JRenderer
                             newline = true;
                         }
                         code.add("$L ", jinheritance.getKind().toString().toLowerCase());
-                        renderQualifiedName(jinheritance.getName());
+                        renderName(jinheritance.getName());
                     }
                     code.add("\n");
                     code.unindent().unindent();
@@ -368,7 +368,7 @@ public final class JRenderer
             public Void visitJAnnotatedStatement(JAnnotatedStatement jstatement, Void context)
             {
                 code.add("@");
-                renderQualifiedName(jstatement.getAnnotation());
+                renderName(jstatement.getAnnotation());
                 jstatement.getOperands().ifPresent(operands -> {
                     code.add("(");
                     renderOperands(operands);
@@ -546,7 +546,7 @@ public final class JRenderer
             public Void visitJVariable(JVariable jstatement, Void context)
             {
                 renderTypeSpecifier(jstatement.getType());
-                code.add(" $L", jstatement.getName().getValue());
+                code.add(" $L", jstatement.getName());
                 jstatement.getValue().ifPresent(v -> {
                     code.add(" = ");
                     renderExpression(v);
@@ -631,7 +631,7 @@ public final class JRenderer
             @Override
             public Void visitJIdent(JIdent jexpression, Void context)
             {
-                renderQualifiedName(jexpression.getName());
+                renderName(jexpression.getName());
                 return null;
             }
 
@@ -705,7 +705,7 @@ public final class JRenderer
             @Override
             public Void visitJMethodReference(JMethodReference jexpression, Void context)
             {
-                renderQualifiedName(jexpression.getClassName());
+                renderName(jexpression.getClassName());
                 code.add("::$L", jexpression.getMethodName());
                 return null;
             }
@@ -776,7 +776,7 @@ public final class JRenderer
 
     public void renderTypeSpecifier(JTypeSpecifier type)
     {
-        renderQualifiedName(type.getName());
+        renderName(type.getName());
         for (JArray a : type.getArrays()) {
             code.add("[");
             a.getSize().ifPresent(this::renderExpression);
@@ -784,9 +784,9 @@ public final class JRenderer
         }
     }
 
-    public void renderQualifiedName(JQualifiedName name)
+    public void renderName(JName name)
     {
-        code.add("$L", Joiner.on('.').join(name.getParts().stream().map(JName::getValue).collect(toImmutableList())));
+        code.add("$L", Joiner.on('.').join(name.getParts()));
     }
 
     public void renderLiteralValue(Object value)

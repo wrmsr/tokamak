@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-import static java.util.Objects.requireNonNull;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
 public final class JNewArray
@@ -33,8 +33,8 @@ public final class JNewArray
 
     public JNewArray(JTypeSpecifier type, Optional<List<JExpression>> items)
     {
-        this.type = requireNonNull(type);
-        this.items = requireNonNull(items).map(ImmutableList::copyOf);
+        this.type = checkNotNull(type);
+        this.items = checkNotNull(items).map(ImmutableList::copyOf);
     }
 
     @Override

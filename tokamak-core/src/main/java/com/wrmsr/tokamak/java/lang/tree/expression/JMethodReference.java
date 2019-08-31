@@ -14,25 +14,24 @@
 package com.wrmsr.tokamak.java.lang.tree.expression;
 
 import com.wrmsr.tokamak.java.lang.JName;
-import com.wrmsr.tokamak.java.lang.JQualifiedName;
 
 import javax.annotation.concurrent.Immutable;
 
 import java.util.Objects;
 
-import static java.util.Objects.requireNonNull;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
 public final class JMethodReference
         extends JExpression
 {
-    private final JQualifiedName className;
-    private final JName methodName;
+    private final JName className;
+    private final String methodName;
 
-    public JMethodReference(JQualifiedName className, JName methodName)
+    public JMethodReference(JName className, String methodName)
     {
-        this.className = requireNonNull(className);
-        this.methodName = requireNonNull(methodName);
+        this.className = checkNotNull(className);
+        this.methodName = checkNotNull(methodName);
     }
 
     @Override
@@ -55,12 +54,12 @@ public final class JMethodReference
         return Objects.hash(className, methodName);
     }
 
-    public JQualifiedName getClassName()
+    public JName getClassName()
     {
         return className;
     }
 
-    public JName getMethodName()
+    public String getMethodName()
     {
         return methodName;
     }

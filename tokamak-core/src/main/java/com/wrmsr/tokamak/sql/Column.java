@@ -13,26 +13,17 @@
  */
 package com.wrmsr.tokamak.sql;
 
-import com.wrmsr.tokamak.sql.dsl.TypeEngine;
-
 public final class Column
 {
     private final String name;
-    private final TypeEngine type;
 
-    public Column(String name, TypeEngine type)
+    public Column(String name)
     {
         this.name = name;
-        this.type = type;
     }
 
     public String getName()
     {
         return name;
-    }
-
-    public TypeEngine getType()
-    {
-        return type;
     }
 }

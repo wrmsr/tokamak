@@ -13,13 +13,13 @@
  */
 package com.wrmsr.tokamak.java.lang.tree;
 
-import com.wrmsr.tokamak.java.lang.JQualifiedName;
+import com.wrmsr.tokamak.java.lang.JName;
 
 import javax.annotation.concurrent.Immutable;
 
 import java.util.Objects;
 
-import static java.util.Objects.requireNonNull;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
 public final class JInheritance
@@ -31,12 +31,12 @@ public final class JInheritance
     }
 
     private final Kind kind;
-    private final JQualifiedName name;
+    private final JName name;
 
-    public JInheritance(Kind kind, JQualifiedName name)
+    public JInheritance(Kind kind, JName name)
     {
-        this.kind = requireNonNull(kind);
-        this.name = requireNonNull(name);
+        this.kind = checkNotNull(kind);
+        this.name = checkNotNull(name);
     }
 
     @Override
@@ -64,7 +64,7 @@ public final class JInheritance
         return kind;
     }
 
-    public JQualifiedName getName()
+    public JName getName()
     {
         return name;
     }

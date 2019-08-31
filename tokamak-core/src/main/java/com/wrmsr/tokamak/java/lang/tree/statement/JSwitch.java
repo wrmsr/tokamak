@@ -21,7 +21,7 @@ import javax.annotation.concurrent.Immutable;
 import java.util.List;
 import java.util.Objects;
 
-import static java.util.Objects.requireNonNull;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
 public final class JSwitch
@@ -32,7 +32,7 @@ public final class JSwitch
 
     public JSwitch(JExpression selector, List<JCase> cases)
     {
-        this.selector = requireNonNull(selector);
+        this.selector = checkNotNull(selector);
         this.cases = ImmutableList.copyOf(cases);
     }
 

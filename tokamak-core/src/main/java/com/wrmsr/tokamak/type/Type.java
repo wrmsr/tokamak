@@ -41,11 +41,11 @@ public interface Type
      - pluggability
     */
 
-    PrimitiveType BOOLEAN = new PrimitiveType<>(Boolean.class, OptionalInt.of(1));
-    PrimitiveType LONG = new PrimitiveType<>(Long.class, OptionalInt.of(8));
-    PrimitiveType DOUBLE = new PrimitiveType<>(Double.class, OptionalInt.of(8));
-    PrimitiveType STRING = new PrimitiveType<>(String.class, OptionalInt.empty());
-    PrimitiveType BYTES = new PrimitiveType<>(byte[].class, OptionalInt.empty());
+    PrimitiveType<Boolean> BOOLEAN = new PrimitiveType<>(Boolean.class, OptionalInt.of(1));
+    PrimitiveType<Long> LONG = new PrimitiveType<>(Long.class, OptionalInt.of(8));
+    PrimitiveType<Double> DOUBLE = new PrimitiveType<>(Double.class, OptionalInt.of(8));
+    PrimitiveType<String> STRING = new PrimitiveType<>(String.class, OptionalInt.empty());
+    PrimitiveType<byte[]> BYTES = new PrimitiveType<>(byte[].class, OptionalInt.empty());
 
     Map<Class<?>, Type> FROM_JAVA_TYPE = ImmutableMap.<Class<?>, Type>builder()
             .put(Boolean.class, BOOLEAN)

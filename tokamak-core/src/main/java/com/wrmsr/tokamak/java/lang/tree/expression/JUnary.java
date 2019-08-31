@@ -19,7 +19,7 @@ import javax.annotation.concurrent.Immutable;
 
 import java.util.Objects;
 
-import static java.util.Objects.requireNonNull;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
 public final class JUnary
@@ -30,8 +30,8 @@ public final class JUnary
 
     public JUnary(JUnaryOp op, JExpression value)
     {
-        this.op = requireNonNull(op);
-        this.value = requireNonNull(value);
+        this.op = checkNotNull(op);
+        this.value = checkNotNull(value);
     }
 
     @Override

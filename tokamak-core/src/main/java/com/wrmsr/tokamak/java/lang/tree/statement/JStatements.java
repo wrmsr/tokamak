@@ -16,7 +16,7 @@ package com.wrmsr.tokamak.java.lang.tree.statement;
 import java.util.List;
 import java.util.Optional;
 
-import static java.util.Objects.requireNonNull;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public final class JStatements
 {
@@ -26,7 +26,7 @@ public final class JStatements
 
     public static JStatement toSingle(List<JStatement> statements)
     {
-        requireNonNull(statements);
+        checkNotNull(statements);
         if (statements.isEmpty()) {
             return new JEmpty();
         }
@@ -40,7 +40,7 @@ public final class JStatements
 
     public static Optional<JStatement> toOptional(List<JStatement> statements)
     {
-        requireNonNull(statements);
+        checkNotNull(statements);
         if (statements.isEmpty()) {
             return Optional.empty();
         }

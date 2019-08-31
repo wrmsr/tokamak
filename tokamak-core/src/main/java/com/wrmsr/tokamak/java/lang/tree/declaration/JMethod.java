@@ -17,7 +17,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.java.lang.JAccess;
 import com.wrmsr.tokamak.java.lang.JArg;
-import com.wrmsr.tokamak.java.lang.JName;
 import com.wrmsr.tokamak.java.lang.JTypeSpecifier;
 import com.wrmsr.tokamak.java.lang.tree.statement.JBlock;
 
@@ -28,7 +27,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
-import static java.util.Objects.requireNonNull;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
 public final class JMethod
@@ -36,17 +35,17 @@ public final class JMethod
 {
     private final Set<JAccess> access;
     private final JTypeSpecifier type;
-    private final JName name;
+    private final String name;
     private final List<JArg> args;
     private final Optional<JBlock> body;
 
-    public JMethod(Set<JAccess> access, JTypeSpecifier type, JName name, List<JArg> args, Optional<JBlock> body)
+    public JMethod(Set<JAccess> access, JTypeSpecifier type, String name, List<JArg> args, Optional<JBlock> body)
     {
         this.access = ImmutableSet.copyOf(access);
-        this.type = requireNonNull(type);
-        this.name = requireNonNull(name);
+        this.type = checkNotNull(type);
+        this.name = checkNotNull(name);
         this.args = ImmutableList.copyOf(args);
-        this.body = requireNonNull(body);
+        this.body = checkNotNull(body);
     }
 
     @Override
@@ -82,7 +81,7 @@ public final class JMethod
         return type;
     }
 
-    public JName getName()
+    public String getName()
     {
         return name;
     }

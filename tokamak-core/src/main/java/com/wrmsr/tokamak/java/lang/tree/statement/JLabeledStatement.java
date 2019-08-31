@@ -13,25 +13,23 @@
  */
 package com.wrmsr.tokamak.java.lang.tree.statement;
 
-import com.wrmsr.tokamak.java.lang.JName;
-
 import javax.annotation.concurrent.Immutable;
 
 import java.util.Objects;
 
-import static java.util.Objects.requireNonNull;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
 public final class JLabeledStatement
         extends JStatement
 {
-    private final JName label;
+    private final String label;
     private final JStatement statement;
 
-    public JLabeledStatement(JName label, JStatement statement)
+    public JLabeledStatement(String label, JStatement statement)
     {
-        this.label = requireNonNull(label);
-        this.statement = requireNonNull(statement);
+        this.label = checkNotNull(label);
+        this.statement = checkNotNull(statement);
     }
 
     @Override
@@ -54,7 +52,7 @@ public final class JLabeledStatement
         return Objects.hash(label, statement);
     }
 
-    public JName getLabel()
+    public String getLabel()
     {
         return label;
     }

@@ -17,7 +17,7 @@ import javax.annotation.concurrent.Immutable;
 
 import java.util.Objects;
 
-import static java.util.Objects.requireNonNull;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
 public final class JVerbatimDeclaration
@@ -27,7 +27,7 @@ public final class JVerbatimDeclaration
 
     public JVerbatimDeclaration(String text)
     {
-        this.text = requireNonNull(text);
+        this.text = checkNotNull(text);
     }
 
     @Override

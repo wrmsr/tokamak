@@ -13,7 +13,7 @@
  */
 package com.wrmsr.tokamak.java.lang.tree.statement;
 
-import com.wrmsr.tokamak.java.lang.JQualifiedName;
+import com.wrmsr.tokamak.java.lang.JName;
 import com.wrmsr.tokamak.java.lang.tree.expression.JExpression;
 
 import javax.annotation.concurrent.Immutable;
@@ -22,21 +22,21 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-import static java.util.Objects.requireNonNull;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
 public final class JAnnotatedStatement
         extends JStatement
 {
-    private final JQualifiedName annotation;
+    private final JName annotation;
     private final Optional<List<JExpression>> operands;
     private final JStatement statement;
 
-    public JAnnotatedStatement(JQualifiedName annotation, Optional<List<JExpression>> operands, JStatement statement)
+    public JAnnotatedStatement(JName annotation, Optional<List<JExpression>> operands, JStatement statement)
     {
-        this.annotation = requireNonNull(annotation);
-        this.operands = requireNonNull(operands);
-        this.statement = requireNonNull(statement);
+        this.annotation = checkNotNull(annotation);
+        this.operands = checkNotNull(operands);
+        this.statement = checkNotNull(statement);
     }
 
     @Override
@@ -60,7 +60,7 @@ public final class JAnnotatedStatement
         return Objects.hash(annotation, operands, statement);
     }
 
-    public JQualifiedName getAnnotation()
+    public JName getAnnotation()
     {
         return annotation;
     }

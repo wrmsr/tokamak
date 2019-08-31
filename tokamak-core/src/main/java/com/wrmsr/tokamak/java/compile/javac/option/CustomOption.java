@@ -17,7 +17,7 @@ import javax.annotation.concurrent.Immutable;
 
 import java.util.List;
 
-import static java.util.Objects.requireNonNull;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
 public final class CustomOption
@@ -27,7 +27,7 @@ public final class CustomOption
 
     public CustomOption(List<String> args)
     {
-        this.args = requireNonNull(args);
+        this.args = checkNotNull(args);
     }
 
     @Override

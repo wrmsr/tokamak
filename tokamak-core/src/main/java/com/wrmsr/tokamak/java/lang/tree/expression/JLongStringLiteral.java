@@ -17,7 +17,7 @@ import javax.annotation.concurrent.Immutable;
 
 import java.util.Objects;
 
-import static java.util.Objects.requireNonNull;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
 public final class JLongStringLiteral
@@ -27,7 +27,7 @@ public final class JLongStringLiteral
 
     public JLongStringLiteral(String value)
     {
-        this.value = requireNonNull(value);
+        this.value = checkNotNull(value);
     }
 
     @Override
