@@ -11,15 +11,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.sql.query.tree.statement;
 
-import com.wrmsr.tokamak.sql.query.tree.QTree;
+package com.wrmsr.tokamak.sql.query.tree.expression;
 
 import javax.annotation.concurrent.Immutable;
 
 @Immutable
-public abstract class QStatement
-        extends QTree
+public final class QBinary
+        extends QExpression
 {
-    public abstract <R, C> R accept(QStatementVisitor<R, C> visitor, C context);
+    @Override
+    public <R, C> R accept(QExpressionVisitor<R, C> visitor, C context)
+    {
+        return visitor.visitQBinary(this, context);
+    }
 }

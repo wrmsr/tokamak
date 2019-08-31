@@ -11,15 +11,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.sql.query.tree.statement;
 
-import com.wrmsr.tokamak.sql.query.tree.QTree;
+package com.wrmsr.tokamak.sql.query.tree.relation;
 
-import javax.annotation.concurrent.Immutable;
+import java.util.Objects;
 
-@Immutable
-public abstract class QStatement
-        extends QTree
+public class QRelationVisitor<R, C>
 {
-    public abstract <R, C> R accept(QStatementVisitor<R, C> visitor, C context);
+    protected R visitQRelation(QRelation qrelation, C context)
+    {
+        throw new IllegalStateException(Objects.toString(qrelation));
+    }
+
+    public R visitQReferenceRelation(QReferenceRelation qrelation, C context)
+    {
+        return visitQRelation(qrelation, context);
+    }
 }

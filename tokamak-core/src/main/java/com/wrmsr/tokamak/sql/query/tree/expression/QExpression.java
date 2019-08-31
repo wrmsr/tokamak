@@ -27,10 +27,13 @@
  */
 package com.wrmsr.tokamak.sql.query.tree.expression;
 
+import com.wrmsr.tokamak.sql.query.tree.QTree;
+
 import javax.annotation.concurrent.Immutable;
 
 @Immutable
 public abstract class QExpression
+        extends QTree
 {
     public abstract <R, C> R accept(QExpressionVisitor<R, C> visitor, C context);
 }

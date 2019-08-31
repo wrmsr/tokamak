@@ -13,6 +13,15 @@
  */
 package com.wrmsr.tokamak.sql.query.tree.statement;
 
-public class QUpdate
+import javax.annotation.concurrent.Immutable;
+
+@Immutable
+public final class QUpdate
+        extends QStatement
 {
+    @Override
+    public <R, C> R accept(QStatementVisitor<R, C> visitor, C context)
+    {
+        return visitor.visitQUpdate(this, context);
+    }
 }

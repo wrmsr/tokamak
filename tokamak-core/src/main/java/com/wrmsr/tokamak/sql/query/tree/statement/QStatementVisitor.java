@@ -21,4 +21,24 @@ public class QStatementVisitor<R, C>
     {
         throw new IllegalStateException(Objects.toString(qstatement));
     }
+
+    public R visitQDelete(QDelete qstatement, C context)
+    {
+        return visitQStatement(qstatement, context);
+    }
+
+    public R visitQInsert(QInsert qstatement, C context)
+    {
+        return visitQStatement(qstatement, context);
+    }
+
+    public R visitQSelect(QSelect qstatement, C context)
+    {
+        return visitQStatement(qstatement, context);
+    }
+
+    public R visitQUpdate(QUpdate qstatement, C context)
+    {
+        return visitQStatement(qstatement, context);
+    }
 }

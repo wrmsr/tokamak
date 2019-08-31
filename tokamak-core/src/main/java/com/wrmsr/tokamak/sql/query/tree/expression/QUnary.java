@@ -11,28 +11,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.sql.query.tree.expression;
 
-import com.wrmsr.tokamak.sql.query.QName;
+package com.wrmsr.tokamak.sql.query.tree.expression;
 
 import javax.annotation.concurrent.Immutable;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 @Immutable
-public final class QReference
+public final class QUnary
         extends QExpression
 {
-    private final QName name;
-
-    public QReference(QName name)
-    {
-        this.name = checkNotNull(name);
-    }
-
     @Override
     public <R, C> R accept(QExpressionVisitor<R, C> visitor, C context)
     {
-        return visitor.visitQReference(this, context);
+        return visitor.visitQUnary(this, context);
     }
 }

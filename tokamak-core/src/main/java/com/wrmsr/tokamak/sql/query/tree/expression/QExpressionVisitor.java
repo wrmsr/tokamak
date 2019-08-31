@@ -22,8 +22,18 @@ public class QExpressionVisitor<R, C>
         throw new IllegalStateException(Objects.toString(qexpression));
     }
 
-    public R visitQReference(QReference qreference, C context)
+    public R visitQBinary(QBinary qexpression, C context)
     {
-        return visitQExpression(qreference, context);
+        return visitQExpression(qexpression, context);
+    }
+
+    public R visitQReferenceExpression(QReferenceExpression qexpression, C context)
+    {
+        return visitQExpression(qexpression, context);
+    }
+
+    public R visitQUnary(QUnary qexpression, C context)
+    {
+        return visitQExpression(qexpression, context);
     }
 }
