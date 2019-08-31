@@ -32,6 +32,11 @@ public class QExpressionVisitor<R, C>
         return visitQExpression(qexpression, context);
     }
 
+    public R visitQSubqueryExpression(QSubqueryExpression qexpression, C context)
+    {
+        return visitQExpression(qexpression, context);
+    }
+
     public R visitQUnary(QUnary qexpression, C context)
     {
         return visitQExpression(qexpression, context);

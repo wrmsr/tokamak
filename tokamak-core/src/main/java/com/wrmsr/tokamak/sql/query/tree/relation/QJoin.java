@@ -14,27 +14,15 @@
 
 package com.wrmsr.tokamak.sql.query.tree.relation;
 
-import java.util.Objects;
+import javax.annotation.concurrent.Immutable;
 
-public class QRelationVisitor<R, C>
+@Immutable
+public final class QJoin
+        extends QRelation
 {
-    protected R visitQRelation(QRelation qrelation, C context)
+    @Override
+    public <R, C> R accept(QRelationVisitor<R, C> visitor, C context)
     {
-        throw new IllegalStateException(Objects.toString(qrelation));
-    }
-
-    public R visitQJoin(QJoin qrelation, C context)
-    {
-        return visitQRelation(qrelation, context);
-    }
-
-    public R visitQReferenceRelation(QReferenceRelation qrelation, C context)
-    {
-        return visitQRelation(qrelation, context);
-    }
-
-    public R visitQSubqueryRelation(QSubqueryRelation qrelation, C context)
-    {
-        return visitQRelation(qrelation, context);
+        return visitor.visitQJoin(this, context);
     }
 }

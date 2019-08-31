@@ -13,12 +13,55 @@
  */
 package com.wrmsr.tokamak.sql.query.tree.statement;
 
+import com.google.common.collect.ImmutableList;
+import com.wrmsr.tokamak.sql.query.tree.expression.QExpression;
+import com.wrmsr.tokamak.sql.query.tree.relation.QRelation;
+
 import javax.annotation.concurrent.Immutable;
+
+import java.util.List;
+import java.util.Optional;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
 public final class QSelect
         extends QStatement
 {
+    @Immutable
+    public static final class Item
+    {
+        private final QExpression expression;
+        private final Optional<String> label;
+
+        public Item(QExpression expression, Optional<String> label)
+        {
+            this.expression = checkNotNull(expression);
+            this.label = checkNotNull(label);
+        }
+
+        public QExpression getExpression()
+        {
+            return expression;
+        }
+
+        public Optional<String> getLabel()
+        {
+            return label;
+        }
+    }
+
+    private final List<Item> items;
+    private final QRelation relation;
+    private final Optional<QExpression> where;
+
+    public QSelect(List<Item> items, QRelation relation, Optional<QExpression> where)
+    {
+        this.items = ImmutableList.copyOf(items);
+        this.relation = checkNotNull(relation);
+        this.where = checkNotNull(where);
+    }
+
     @Override
     public <R, C> R accept(QStatementVisitor<R, C> visitor, C context)
     {
