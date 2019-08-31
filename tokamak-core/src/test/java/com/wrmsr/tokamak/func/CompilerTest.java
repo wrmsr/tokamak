@@ -50,7 +50,7 @@ public class CompilerTest
 
         List<String> args = newArrayList(
                 "-Xlint:-options",
-                "-source", "1.5"
+                "-source", "1.8"
         );
         args.addAll(sourceFiles.stream().map(f -> f.getPath()).collect(Collectors.toList()));
         compiler.run(null, null, null, args.toArray(new String[args.size()]));

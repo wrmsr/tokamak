@@ -14,9 +14,25 @@
 
 package com.wrmsr.tokamak.driver.build;
 
+import com.wrmsr.tokamak.api.Key;
+import com.wrmsr.tokamak.driver.DriverImpl;
+import com.wrmsr.tokamak.driver.DriverRow;
+import com.wrmsr.tokamak.driver.context.DriverContextImpl;
 import com.wrmsr.tokamak.node.ScanNode;
+
+import java.util.Collection;
 
 public final class ScanBuilder
         extends Builder<ScanNode>
 {
+    public ScanBuilder(DriverImpl driver, ScanNode node)
+    {
+        super(driver, node);
+    }
+
+    @Override
+    protected Collection<DriverRow> innerBuild(DriverContextImpl context, Key key)
+    {
+        return null;
+    }
 }

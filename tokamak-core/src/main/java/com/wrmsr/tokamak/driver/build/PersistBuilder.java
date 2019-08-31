@@ -14,9 +14,25 @@
 
 package com.wrmsr.tokamak.driver.build;
 
+import com.wrmsr.tokamak.api.Key;
+import com.wrmsr.tokamak.driver.DriverImpl;
+import com.wrmsr.tokamak.driver.DriverRow;
+import com.wrmsr.tokamak.driver.context.DriverContextImpl;
 import com.wrmsr.tokamak.node.PersistNode;
+
+import java.util.Collection;
 
 public final class PersistBuilder
         extends SingleSourceBuilder<PersistNode>
 {
+    public PersistBuilder(DriverImpl driver, PersistNode node, Builder<?> source)
+    {
+        super(driver, node, source);
+    }
+
+    @Override
+    protected Collection<DriverRow> innerBuild(DriverContextImpl context, Key key)
+    {
+        return null;
+    }
 }

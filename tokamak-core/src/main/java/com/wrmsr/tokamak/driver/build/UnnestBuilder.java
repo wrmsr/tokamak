@@ -14,9 +14,25 @@
 
 package com.wrmsr.tokamak.driver.build;
 
+import com.wrmsr.tokamak.api.Key;
+import com.wrmsr.tokamak.driver.DriverImpl;
+import com.wrmsr.tokamak.driver.DriverRow;
+import com.wrmsr.tokamak.driver.context.DriverContextImpl;
 import com.wrmsr.tokamak.node.UnnestNode;
+
+import java.util.Collection;
 
 public final class UnnestBuilder
         extends Builder<UnnestNode>
 {
+    public UnnestBuilder(DriverImpl driver, UnnestNode node)
+    {
+        super(driver, node);
+    }
+
+    @Override
+    protected Collection<DriverRow> innerBuild(DriverContextImpl context, Key key)
+    {
+        return null;
+    }
 }
