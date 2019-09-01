@@ -19,15 +19,17 @@ import com.wrmsr.tokamak.driver.DriverImpl;
 import com.wrmsr.tokamak.driver.DriverRow;
 import com.wrmsr.tokamak.driver.context.DriverContextImpl;
 import com.wrmsr.tokamak.node.FilterNode;
+import com.wrmsr.tokamak.node.Node;
 
 import java.util.Collection;
+import java.util.Map;
 
 public final class FilterBuilder
         extends SingleSourceBuilder<FilterNode>
 {
-    public FilterBuilder(DriverImpl driver, FilterNode node, Builder<?> source)
+    public FilterBuilder(DriverImpl driver, FilterNode node, Map<Node, Builder> sources)
     {
-        super(driver, node, source);
+        super(driver, node, sources);
     }
 
     @Override

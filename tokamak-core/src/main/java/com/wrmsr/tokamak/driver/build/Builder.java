@@ -13,6 +13,7 @@
  */
 package com.wrmsr.tokamak.driver.build;
 
+import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.driver.DriverImpl;
 import com.wrmsr.tokamak.driver.DriverRow;
@@ -20,6 +21,7 @@ import com.wrmsr.tokamak.driver.context.DriverContextImpl;
 import com.wrmsr.tokamak.node.Node;
 
 import java.util.Collection;
+import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -28,11 +30,13 @@ public abstract class Builder<T extends Node>
 {
     protected final DriverImpl driver;
     protected final T node;
+    protected final Map<Node, Builder> sources;
 
-    public Builder(DriverImpl driver, T node)
+    public Builder(DriverImpl driver, T node, Map<Node, Builder> sources)
     {
         this.driver = checkNotNull(driver);
         this.node = checkNotNull(node);
+        this.sources = ImmutableMap.copyOf(sources);
     }
 
     public DriverImpl getDriver()
@@ -43,6 +47,11 @@ public abstract class Builder<T extends Node>
     public T getNode()
     {
         return node;
+    }
+
+    public Map<Node, Builder> getSources()
+    {
+        return sources;
     }
 
     public final Collection<DriverRow> build(DriverContextImpl context, Key key)

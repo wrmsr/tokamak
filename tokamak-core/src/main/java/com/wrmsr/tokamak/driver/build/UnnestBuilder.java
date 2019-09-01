@@ -17,16 +17,18 @@ import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.driver.DriverImpl;
 import com.wrmsr.tokamak.driver.DriverRow;
 import com.wrmsr.tokamak.driver.context.DriverContextImpl;
+import com.wrmsr.tokamak.node.Node;
 import com.wrmsr.tokamak.node.UnnestNode;
 
 import java.util.Collection;
+import java.util.Map;
 
 public final class UnnestBuilder
         extends SingleSourceBuilder<UnnestNode>
 {
-    public UnnestBuilder(DriverImpl driver, UnnestNode node, Builder source)
+    public UnnestBuilder(DriverImpl driver, UnnestNode node, Map<Node, Builder> sources)
     {
-        super(driver, node, source);
+        super(driver, node, sources);
     }
 
     @Override

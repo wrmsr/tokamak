@@ -14,20 +14,29 @@
 package com.wrmsr.tokamak.driver.build;
 
 import com.wrmsr.tokamak.driver.DriverImpl;
+import com.wrmsr.tokamak.node.Node;
 import com.wrmsr.tokamak.node.SingleSourceNode;
 
+import java.util.Map;
+
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
+import static com.wrmsr.tokamak.util.MorePreconditions.checkSingle;
 
 public abstract class SingleSourceBuilder<T extends SingleSourceNode>
         extends Builder<T>
 {
-    protected final Builder<?> source;
+    protected final Builder source;
 
-    public SingleSourceBuilder(DriverImpl driver, T node, Builder<?> source)
+    public SingleSourceBuilder(DriverImpl driver, T node, Map<Node, Builder> sources)
     {
-        super(driver, node);
-        this.source = checkNotNull(source);
+        super(driver, node, sources);
+        Builder source = checkSingle(this.sources.values());
         checkArgument(source.getNode() == node.getSource());
+        this.source = source;
+    }
+
+    public Builder getSource()
+    {
+        return source;
     }
 }

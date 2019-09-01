@@ -17,18 +17,20 @@ import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.driver.DriverImpl;
 import com.wrmsr.tokamak.driver.DriverRow;
 import com.wrmsr.tokamak.driver.context.DriverContextImpl;
+import com.wrmsr.tokamak.node.Node;
 import com.wrmsr.tokamak.node.PersistNode;
 
 import java.util.Collection;
+import java.util.Map;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
 
 public final class PersistBuilder
         extends SingleSourceBuilder<PersistNode>
 {
-    public PersistBuilder(DriverImpl driver, PersistNode node, Builder<?> source)
+    public PersistBuilder(DriverImpl driver, PersistNode node, Map<Node, Builder> sources)
     {
-        super(driver, node, source);
+        super(driver, node, sources);
     }
 
     @Override

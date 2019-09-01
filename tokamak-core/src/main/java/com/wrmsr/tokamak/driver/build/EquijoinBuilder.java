@@ -28,7 +28,9 @@ import com.wrmsr.tokamak.codec.value.VariableLengthValueCodec;
 import com.wrmsr.tokamak.driver.DriverImpl;
 import com.wrmsr.tokamak.driver.DriverRow;
 import com.wrmsr.tokamak.driver.context.DriverContextImpl;
+import com.wrmsr.tokamak.node.CrossJoinNode;
 import com.wrmsr.tokamak.node.EquijoinNode;
+import com.wrmsr.tokamak.node.Node;
 import com.wrmsr.tokamak.util.Pair;
 
 import java.util.Collection;
@@ -52,9 +54,9 @@ public final class EquijoinBuilder
                     new VariableLengthValueCodec<>(
                             ValueCodecs.BYTES_VALUE_CODEC));
 
-    public EquijoinBuilder(DriverImpl driver, EquijoinNode node)
+    public EquijoinBuilder(DriverImpl driver, EquijoinNode node, Map<Node, Builder> sources)
     {
-        super(driver, node);
+        super(driver, node, sources);
     }
 
     @Override

@@ -24,6 +24,7 @@ import com.wrmsr.tokamak.driver.context.DriverContextImpl;
 import com.wrmsr.tokamak.func.Function;
 import com.wrmsr.tokamak.func.RowFunction;
 import com.wrmsr.tokamak.func.RowMapFunction;
+import com.wrmsr.tokamak.node.Node;
 import com.wrmsr.tokamak.node.ProjectNode;
 import com.wrmsr.tokamak.node.Projection;
 
@@ -37,9 +38,9 @@ import static com.google.common.collect.ImmutableMap.toImmutableMap;
 public final class ProjectBuilder
         extends SingleSourceBuilder<ProjectNode>
 {
-    public ProjectBuilder(DriverImpl driver, ProjectNode node, Builder<?> source)
+    public ProjectBuilder(DriverImpl driver, ProjectNode node, Map<Node, Builder> sources)
     {
-        super(driver, node, source);
+        super(driver, node, sources);
     }
 
     @Override

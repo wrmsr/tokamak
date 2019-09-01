@@ -17,16 +17,18 @@ import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.driver.DriverImpl;
 import com.wrmsr.tokamak.driver.DriverRow;
 import com.wrmsr.tokamak.driver.context.DriverContextImpl;
+import com.wrmsr.tokamak.node.Node;
 import com.wrmsr.tokamak.node.UnionNode;
 
 import java.util.Collection;
+import java.util.Map;
 
 public final class UnionBuilder
         extends Builder<UnionNode>
 {
-    public UnionBuilder(DriverImpl driver, UnionNode node)
+    public UnionBuilder(DriverImpl driver, UnionNode node, Map<Node, Builder> sources)
     {
-        super(driver, node);
+        super(driver, node, sources);
     }
 
     @Override

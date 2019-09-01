@@ -18,15 +18,17 @@ import com.wrmsr.tokamak.driver.DriverImpl;
 import com.wrmsr.tokamak.driver.DriverRow;
 import com.wrmsr.tokamak.driver.context.DriverContextImpl;
 import com.wrmsr.tokamak.node.LookupJoinNode;
+import com.wrmsr.tokamak.node.Node;
 
 import java.util.Collection;
+import java.util.Map;
 
 public final class LookupJoinBuilder
         extends Builder<LookupJoinNode>
 {
-    public LookupJoinBuilder(DriverImpl driver, LookupJoinNode node)
+    public LookupJoinBuilder(DriverImpl driver, LookupJoinNode node, Map<Node, Builder> sources)
     {
-        super(driver, node);
+        super(driver, node, sources);
     }
 
     @Override

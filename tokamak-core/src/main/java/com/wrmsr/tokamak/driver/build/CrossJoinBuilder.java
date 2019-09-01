@@ -27,6 +27,7 @@ import com.wrmsr.tokamak.util.Pair;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -36,9 +37,9 @@ import static com.wrmsr.tokamak.util.MoreCollectors.toSingle;
 public final class CrossJoinBuilder
         extends Builder<CrossJoinNode>
 {
-    public CrossJoinBuilder(DriverImpl driver, CrossJoinNode node)
+    public CrossJoinBuilder(DriverImpl driver, CrossJoinNode node, Map<Node, Builder> sources)
     {
-        super(driver, node);
+        super(driver, node, sources);
     }
 
     @Override

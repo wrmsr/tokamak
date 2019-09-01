@@ -23,6 +23,7 @@ import com.wrmsr.tokamak.driver.DriverImpl;
 import com.wrmsr.tokamak.driver.DriverRow;
 import com.wrmsr.tokamak.driver.context.DriverContextImpl;
 import com.wrmsr.tokamak.node.ListAggregateNode;
+import com.wrmsr.tokamak.node.Node;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -36,9 +37,9 @@ import static com.wrmsr.tokamak.util.MorePreconditions.checkSingle;
 public final class ListAggregateBuilder
         extends SingleSourceBuilder<ListAggregateNode>
 {
-    public ListAggregateBuilder(DriverImpl driver, ListAggregateNode node, Builder<?> source)
+    public ListAggregateBuilder(DriverImpl driver, ListAggregateNode node, Map<Node, Builder> sources)
     {
-        super(driver, node, source);
+        super(driver, node, sources);
     }
 
     @Override

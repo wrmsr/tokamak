@@ -25,6 +25,7 @@ import com.wrmsr.tokamak.codec.row.RowCodec;
 import com.wrmsr.tokamak.driver.DriverImpl;
 import com.wrmsr.tokamak.driver.DriverRow;
 import com.wrmsr.tokamak.driver.context.DriverContextImpl;
+import com.wrmsr.tokamak.node.Node;
 import com.wrmsr.tokamak.node.ScanNode;
 
 import java.util.Collection;
@@ -36,9 +37,9 @@ import static com.google.common.base.Preconditions.checkState;
 public final class ScanBuilder
         extends Builder<ScanNode>
 {
-    public ScanBuilder(DriverImpl driver, ScanNode node)
+    public ScanBuilder(DriverImpl driver, ScanNode node, Map<Node, Builder> sources)
     {
-        super(driver, node);
+        super(driver, node, sources);
     }
 
     @Override
