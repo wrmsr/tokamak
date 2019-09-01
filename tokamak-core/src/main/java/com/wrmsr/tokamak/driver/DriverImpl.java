@@ -19,20 +19,24 @@ import com.wrmsr.tokamak.api.Row;
 import com.wrmsr.tokamak.catalog.Catalog;
 import com.wrmsr.tokamak.catalog.Scanner;
 import com.wrmsr.tokamak.catalog.Table;
+import com.wrmsr.tokamak.driver.build.Builder;
+import com.wrmsr.tokamak.driver.build.BuilderFactory;
 import com.wrmsr.tokamak.driver.context.DriverContextImpl;
 import com.wrmsr.tokamak.driver.state.MapStateStorageImpl;
 import com.wrmsr.tokamak.driver.state.StateStorage;
 import com.wrmsr.tokamak.node.Node;
 import com.wrmsr.tokamak.node.ScanNode;
 import com.wrmsr.tokamak.plan.Plan;
+import com.wrmsr.tokamak.util.lazy.SupplierLazyValue;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
+import static java.util.function.Function.identity;
 
 public class DriverImpl
         implements Driver
@@ -79,13 +83,26 @@ public class DriverImpl
         return stateStorage;
     }
 
-    private final Map<ScanNode, Scanner> scannersByScanNode = new HashMap<>();
+    private final SupplierLazyValue<Map<ScanNode, Scanner>> scannersByScanNode = new SupplierLazyValue<>();
 
-    public Scanner getScanner(ScanNode scanNode)
+    public Map<ScanNode, Scanner> getScannersByNode()
     {
-        return scannersByScanNode.computeIfAbsent(scanNode, sn -> {
-            Table table = catalog.lookupSchemaTable(scanNode.getSchemaTable());
-            return table.getSchema().getConnector().createScanner(table, scanNode.getFields().keySet());
+        return scannersByScanNode.get(() ->
+                plan.getNodeTypeList(ScanNode.class).stream()
+                        .collect(toImmutableMap(identity(), scanNode -> {
+                            Table table = catalog.lookupSchemaTable(scanNode.getSchemaTable());
+                            return table.getSchema().getConnector().createScanner(table, scanNode.getFields().keySet());
+                        })));
+    }
+
+    private final SupplierLazyValue<Map<Node, Builder>> buildersByNode = new SupplierLazyValue<>();
+
+    public Map<Node, Builder> getBuildersByNode()
+    {
+        return buildersByNode.get(() -> {
+            BuilderFactory factory = new BuilderFactory(this);
+            return plan.getToposortedNodes().stream()
+                    .collect(toImmutableMap(identity(), factory::get));
         });
     }
 

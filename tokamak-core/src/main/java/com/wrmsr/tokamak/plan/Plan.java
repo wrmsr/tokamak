@@ -20,7 +20,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Streams;
 import com.wrmsr.tokamak.api.NodeId;
 import com.wrmsr.tokamak.node.Node;
-import com.wrmsr.tokamak.util.MoreCollections;
 import com.wrmsr.tokamak.util.Pair;
 import com.wrmsr.tokamak.util.collect.Toposort;
 import com.wrmsr.tokamak.util.lazy.SupplierLazyValue;
@@ -109,13 +108,20 @@ public final class Plan
                 .collect(toImmutableList()));
     }
 
-    private final Map<Class<? extends Node>, List<Node>> nodeListsByType = new HashMap<>();
+    private final Map<Class<? extends Node>, List> nodeListsByType = new HashMap<>();
 
-    public List<Node> getNodeTypeList(Class<? extends Node> nodeType)
+    @SuppressWarnings({"unchecked"})
+    public <T extends Node> List<T> getNodeTypeList(Class<T> nodeType)
     {
-        return nodeListsByType.computeIfAbsent(nodeType, nt -> getNameSortedNodes().stream()
-                .filter(nodeType::isInstance)
-                .collect(toImmutableList()));
+        return nodeListsByType.computeIfAbsent(nodeType, nt -> {
+            ImmutableList.Builder<T> ret = ImmutableList.builder();
+            for (Node node : getNameSortedNodes()) {
+                if (nodeType.isInstance(node)) {
+                    ret.add((T) node);
+                }
+            }
+            return ret.build();
+        });
     }
 
     private final SupplierLazyValue<Set<Node>> leafNodes = new SupplierLazyValue<>();

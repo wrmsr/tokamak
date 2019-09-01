@@ -20,7 +20,6 @@ import com.wrmsr.tokamak.java.lang.JAccess;
 import com.wrmsr.tokamak.java.lang.JName;
 import com.wrmsr.tokamak.java.lang.JRenderer;
 import com.wrmsr.tokamak.java.lang.tree.declaration.JConstructor;
-import com.wrmsr.tokamak.java.lang.tree.declaration.JDeclaration;
 import com.wrmsr.tokamak.java.lang.tree.declaration.JType;
 import com.wrmsr.tokamak.java.lang.tree.expression.JLiteral;
 import com.wrmsr.tokamak.java.lang.tree.expression.JMethodInvocation;
@@ -48,7 +47,7 @@ public class CodegenTest
                         JType.Kind.CLASS,
                         "Thing",
                         ImmutableList.of(),
-                        ImmutableList.<JDeclaration>of(
+                        ImmutableList.of(
                                 new JConstructor(
                                         immutableEnumSet(JAccess.PUBLIC),
                                         "Thing",
@@ -63,8 +62,45 @@ public class CodegenTest
         String rendered = JRenderer.renderWithIndent(cu, "    ");
         System.out.println(rendered);
 
-        Class<?> cls = InProcJavaCompiler.compileAndLoad(rendered, "com.wrmsr.tokamak.Thing", "Thing");
+        Class<?> cls = InProcJavaCompiler.compileAndLoad(
+                rendered,
+                "com.wrmsr.tokamak.Thing",
+                "Thing",
+                ImmutableList.of());
         Object obj = cls.getDeclaredConstructor().newInstance();
         // ((Runnable) obj).run();
+    }
+
+    public static class BaseThing
+    {
+        public int x()
+        {
+            return 420;
+        }
+    }
+
+    public void testClasspath()
+            throws Throwable
+    {
+        // ClassLoader cl0 = ClassLoader.getSystemClassLoader();
+        // ClassLoader cl1 = InProcJavaCompiler.class.getClassLoader();
+        String cp = System.getProperty("java.class.path");
+
+        String src = "" +
+                "package com.wrmsr.tokamak.java;\n" +
+                "public class SubThing extends CodegenTest.BaseThing {\n" +
+                "    public int x() { return super.x() + 10; }\n" +
+                "}\n";
+
+        Class<?> cls = InProcJavaCompiler.compileAndLoad(
+                src,
+                "com.wrmsr.tokamak.java.SubThing",
+                "SubThing",
+                ImmutableList.of(
+                        "-classpath", cp
+                ));
+
+        BaseThing obj = (BaseThing) cls.getDeclaredConstructor().newInstance();
+        System.out.println(obj.x());
     }
 }

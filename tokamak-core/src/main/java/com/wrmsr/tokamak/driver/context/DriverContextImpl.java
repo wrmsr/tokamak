@@ -23,7 +23,7 @@ import com.wrmsr.tokamak.catalog.Connector;
 import com.wrmsr.tokamak.driver.Driver;
 import com.wrmsr.tokamak.driver.DriverImpl;
 import com.wrmsr.tokamak.driver.DriverRow;
-import com.wrmsr.tokamak.driver.build.BuildVisitor;
+import com.wrmsr.tokamak.driver.build.Builder;
 import com.wrmsr.tokamak.driver.context.diag.JournalEntry;
 import com.wrmsr.tokamak.driver.context.diag.Stat;
 import com.wrmsr.tokamak.driver.context.row.RowCache;
@@ -108,6 +108,7 @@ public class DriverContextImpl
         return Optional.empty();
     }
 
+    @SuppressWarnings({"unchecked"})
     public Collection<DriverRow> build(Node node, Key key)
     {
         if (journaling) {
@@ -125,9 +126,8 @@ public class DriverContextImpl
 
         // if (node instanceof StatefulNode && key instanceof IdKey || ((key instanceof FieldKey) && node.getIdFieldSets().contains((()))))
 
-        Collection<DriverRow> rows = node.accept(
-                new BuildVisitor(this),
-                key);
+        Builder builder = driver.getBuildersByNode().get(node);
+        Collection<DriverRow> rows = builder.build(this, key);
         checkNotEmpty(rows);
         if (journaling) {
             addJournalEntry(new JournalEntry.UncachedBuildOutput(node, key, rows));

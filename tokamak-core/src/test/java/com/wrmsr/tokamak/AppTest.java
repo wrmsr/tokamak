@@ -126,6 +126,7 @@ public class AppTest
         }
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     private void buildDatabase(String url)
             throws IOException
     {

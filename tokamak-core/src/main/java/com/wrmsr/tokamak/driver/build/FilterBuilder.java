@@ -13,6 +13,7 @@
  */
 package com.wrmsr.tokamak.driver.build;
 
+import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.driver.DriverImpl;
 import com.wrmsr.tokamak.driver.DriverRow;
@@ -32,6 +33,22 @@ public final class FilterBuilder
     @Override
     protected Collection<DriverRow> innerBuild(DriverContextImpl context, Key key)
     {
-        return null;
+        ImmutableList.Builder<DriverRow> ret = ImmutableList.builder();
+        for (DriverRow row : context.build(node.getSource(), key)) {
+            Object[] attributes;
+            if (node.getPredicate().test(row)) {
+                attributes = row.getAttributes();
+            }
+            else {
+                attributes = null;
+            }
+            ret.add(
+                    new DriverRow(
+                            node,
+                            context.getDriver().getLineagePolicy().build(row),
+                            row.getId(),
+                            attributes));
+        }
+        return ret.build();
     }
 }

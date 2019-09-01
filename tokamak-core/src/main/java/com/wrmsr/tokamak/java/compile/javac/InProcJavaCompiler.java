@@ -31,6 +31,11 @@ import java.util.stream.Collectors;
 
 public final class InProcJavaCompiler
 {
+    /*
+    http://www.javased.com/?api=javax.tools.ToolProvider
+    https://www.programcreek.com/java-api-examples/?class=javax.tools.ToolProvider&method=getSystemJavaCompiler
+    */
+
     public static void compileJava(List<JavacOption> options, List<File> sourceFiles)
     {
         List<String> args = ImmutableList.<String>builder()
@@ -41,10 +46,10 @@ public final class InProcJavaCompiler
         javac.run(null, null, null, args.toArray(new String[args.size()]));
     }
 
-    public static Class<?> compileAndLoad(String script, String fullClassName, String simpleClassName)
+    public static Class<?> compileAndLoad(String script, String fullClassName, String simpleClassName, List<String> options)
     {
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-        final DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
+        DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
         StandardJavaFileManager standardFileManager = compiler.getStandardFileManager(diagnostics, null, null);
         MemoryFileManager memoryFileManager = new MemoryFileManager(standardFileManager);
 
@@ -54,7 +59,7 @@ public final class InProcJavaCompiler
                 null,
                 memoryFileManager,
                 diagnostics,
-                null,
+                options,
                 null,
                 Arrays.asList(scriptSource));
 

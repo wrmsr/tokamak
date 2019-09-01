@@ -13,14 +13,25 @@
  */
 package com.wrmsr.tokamak.driver.build;
 
+import com.wrmsr.tokamak.api.AllKey;
+import com.wrmsr.tokamak.api.FieldKey;
+import com.wrmsr.tokamak.api.IdKey;
 import com.wrmsr.tokamak.api.Key;
+import com.wrmsr.tokamak.codec.ByteArrayInput;
+import com.wrmsr.tokamak.codec.row.RowCodec;
 import com.wrmsr.tokamak.driver.DriverImpl;
 import com.wrmsr.tokamak.driver.DriverRow;
 import com.wrmsr.tokamak.driver.context.DriverContextImpl;
 import com.wrmsr.tokamak.node.ListAggregateNode;
-import com.wrmsr.tokamak.node.SingleSourceNode;
 
 import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.wrmsr.tokamak.util.MorePreconditions.checkSingle;
 
 public final class ListAggregateBuilder
         extends SingleSourceBuilder<ListAggregateNode>
@@ -33,6 +44,39 @@ public final class ListAggregateBuilder
     @Override
     protected Collection<DriverRow> innerBuild(DriverContextImpl context, Key key)
     {
-        return null;
+        RowCodec idCodec = context.getDriver().getCodecManager().getRowIdCodec(node);
+        Key childKey;
+        if (key instanceof IdKey) {
+            byte[] buf = ((IdKey) key).getId().getValue();
+            childKey = Key.of(node.getGroupField(), idCodec.decodeSingle(node.getGroupField(), new ByteArrayInput(buf)));
+        }
+        else if (key instanceof FieldKey) {
+            FieldKey fieldKey = (FieldKey) key;
+            Map.Entry<String, Object> fieldKeyEntry = checkSingle(fieldKey);
+            checkArgument(fieldKeyEntry.getKey().equals(node.getGroupField()));
+            childKey = Key.of(node.getGroupField(), fieldKeyEntry.getValue());
+        }
+        else if (key instanceof AllKey) {
+            childKey = key;
+        }
+        else {
+            throw new IllegalArgumentException(Objects.toString(key));
+        }
+
+        Collection<DriverRow> rows = context.build(node.getSource(), key);
+        if (rows.size() == 1 && checkSingle(rows).isNull()) {
+
+        }
+
+        Map<Object, List<DriverRow>> groups = new LinkedHashMap<>();
+        for (DriverRow row : rows) {
+            if (row.isNull()) {
+
+            }
+            // Object group =
+            //         groups.computeIfAbsent(ro)
+        }
+
+        throw new IllegalStateException();
     }
 }

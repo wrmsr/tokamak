@@ -21,6 +21,8 @@ import com.wrmsr.tokamak.node.PersistNode;
 
 import java.util.Collection;
 
+import static com.google.common.collect.ImmutableList.toImmutableList;
+
 public final class PersistBuilder
         extends SingleSourceBuilder<PersistNode>
 {
@@ -32,6 +34,12 @@ public final class PersistBuilder
     @Override
     protected Collection<DriverRow> innerBuild(DriverContextImpl context, Key key)
     {
-        return null;
+        return context.build(node.getSource(), key).stream()
+                .map(row -> new DriverRow(
+                        node,
+                        context.getDriver().getLineagePolicy().build(row),
+                        row.getId(),
+                        row.getAttributes()))
+                .collect(toImmutableList());
     }
 }

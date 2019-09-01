@@ -21,6 +21,11 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class SqlEngine
         implements AutoCloseable
 {
+    /*
+    TODO:
+     - dialect
+    */
+
     private final String url;
 
     public SqlEngine(String url)

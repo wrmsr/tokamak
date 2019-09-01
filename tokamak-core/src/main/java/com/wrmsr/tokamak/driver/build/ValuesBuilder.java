@@ -32,6 +32,6 @@ public final class ValuesBuilder
     @Override
     protected Collection<DriverRow> innerBuild(DriverContextImpl context, Key key)
     {
-        return null;
+        throw new IllegalStateException();
     }
 }

@@ -22,16 +22,16 @@ import com.wrmsr.tokamak.node.UnnestNode;
 import java.util.Collection;
 
 public final class UnnestBuilder
-        extends Builder<UnnestNode>
+        extends SingleSourceBuilder<UnnestNode>
 {
-    public UnnestBuilder(DriverImpl driver, UnnestNode node)
+    public UnnestBuilder(DriverImpl driver, UnnestNode node, Builder source)
     {
-        super(driver, node);
+        super(driver, node, source);
     }
 
     @Override
     protected Collection<DriverRow> innerBuild(DriverContextImpl context, Key key)
     {
-        return null;
+        throw new IllegalStateException();
     }
 }

@@ -25,9 +25,10 @@ public final class MoreSystem
     public static OptionalLong getPid()
     {
         try {
-            Class.forName("ProcessHandle");
-            // ProcessHandle.current().pid()
-            return OptionalLong.empty();
+            Class<?> cls = Class.forName("java.lang.ProcessHandle");
+            Object current = cls.getDeclaredMethod("current").invoke(null);
+            long pid = (long) cls.getDeclaredMethod("pid").invoke(current);
+            return OptionalLong.of(pid);
         }
         catch (ReflectiveOperationException e) {
             return OptionalLong.empty();

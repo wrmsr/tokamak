@@ -11,9 +11,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.sql;
 
-public class SqlContext
+package com.wrmsr.tokamak.util;
+
+import junit.framework.TestCase;
+
+public class SystemTest
+        extends TestCase
 {
-    // dialect, options
+    public void testSystem()
+    {
+        System.out.println(MoreSystem.getPid());
+    }
 }

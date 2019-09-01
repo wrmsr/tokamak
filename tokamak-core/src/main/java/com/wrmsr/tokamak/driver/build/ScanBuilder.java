@@ -13,13 +13,25 @@
  */
 package com.wrmsr.tokamak.driver.build;
 
+import com.google.common.collect.ImmutableList;
+import com.wrmsr.tokamak.api.Id;
+import com.wrmsr.tokamak.api.IdKey;
 import com.wrmsr.tokamak.api.Key;
+import com.wrmsr.tokamak.catalog.Connection;
+import com.wrmsr.tokamak.catalog.Scanner;
+import com.wrmsr.tokamak.catalog.Schema;
+import com.wrmsr.tokamak.codec.ByteArrayInput;
+import com.wrmsr.tokamak.codec.row.RowCodec;
 import com.wrmsr.tokamak.driver.DriverImpl;
 import com.wrmsr.tokamak.driver.DriverRow;
 import com.wrmsr.tokamak.driver.context.DriverContextImpl;
 import com.wrmsr.tokamak.node.ScanNode;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+
+import static com.google.common.base.Preconditions.checkState;
 
 public final class ScanBuilder
         extends Builder<ScanNode>
@@ -32,6 +44,38 @@ public final class ScanBuilder
     @Override
     protected Collection<DriverRow> innerBuild(DriverContextImpl context, Key key)
     {
-        return null;
+        Scanner scanner = driver.getScannersByNode().get(node);
+        Schema schema = context.getDriver().getCatalog().getSchemasByName().get(node.getSchemaTable().getSchema());
+        Connection connection = context.getConnection(schema.getConnector());
+
+        RowCodec idCodec = context.getDriver().getCodecManager().getRowIdCodec(node);
+
+        Key scanKey;
+        if (key instanceof IdKey) {
+            byte[] buf = ((IdKey) key).getId().getValue();
+            Map<String, Object> keyFields = idCodec.decodeMap(new ByteArrayInput(buf));
+            scanKey = Key.of(keyFields);
+        }
+        else {
+            scanKey = key;
+        }
+
+        List<Map<String, Object>> scanRows = scanner.scan(connection, scanKey);
+        // FIXME: scanners can return empty, driver compensates
+        checkState(!scanRows.isEmpty());
+
+        ImmutableList.Builder<DriverRow> rows = ImmutableList.builder();
+        for (Map<String, Object> scanRow : scanRows) {
+            Id id = Id.of(idCodec.encodeBytes(scanRow));
+            Object[] attributes = scanRow.values().toArray();
+            rows.add(
+                    new DriverRow(
+                            node,
+                            context.getDriver().getLineagePolicy().build(),
+                            id,
+                            attributes));
+        }
+
+        return rows.build();
     }
 }

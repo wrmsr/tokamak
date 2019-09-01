@@ -32,6 +32,6 @@ public final class LookupJoinBuilder
     @Override
     protected Collection<DriverRow> innerBuild(DriverContextImpl context, Key key)
     {
-        return null;
+        throw new IllegalStateException();
     }
 }

@@ -20,7 +20,6 @@ import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.api.SimpleRow;
 import com.wrmsr.tokamak.util.Json;
-import jdk.nashorn.internal.ir.ObjectNode;
 import junit.framework.TestCase;
 
 public class JsonTest
