@@ -14,10 +14,12 @@
 package com.wrmsr.tokamak.sql.query;
 
 import com.google.common.base.Joiner;
+import com.wrmsr.tokamak.sql.query.tree.expression.QBinary;
 import com.wrmsr.tokamak.sql.query.tree.expression.QExpression;
 import com.wrmsr.tokamak.sql.query.tree.expression.QExpressionVisitor;
 import com.wrmsr.tokamak.sql.query.tree.expression.QParen;
 import com.wrmsr.tokamak.sql.query.tree.expression.QTextExpression;
+import com.wrmsr.tokamak.sql.query.tree.expression.QUnary;
 import com.wrmsr.tokamak.sql.query.tree.relation.QReferenceRelation;
 import com.wrmsr.tokamak.sql.query.tree.relation.QRelation;
 import com.wrmsr.tokamak.sql.query.tree.relation.QRelationVisitor;
@@ -114,6 +116,23 @@ public class QRenderer
         expression.accept(new QExpressionVisitor<Void, Void>()
         {
             @Override
+            public Void visitQBinary(QBinary qexpression, Void context)
+            {
+                renderExpression(qexpression.getLeft());
+                sb.append(" ");
+                if (qexpression.getOp().isRequiresSpace()) {
+                    sb.append(" ");
+                }
+                sb.append(qexpression.getOp().getAnsi().get());
+                if (qexpression.getOp().isRequiresSpace()) {
+                    sb.append(" ");
+                }
+                sb.append(" ");
+                renderExpression(qexpression.getRight());
+                return null;
+            }
+
+            @Override
             public Void visitQParen(QParen qexpression, Void context)
             {
                 sb.append("(");
@@ -126,6 +145,17 @@ public class QRenderer
             public Void visitQTextExpression(QTextExpression qexpression, Void context)
             {
                 sb.append(qexpression.getText());
+                return null;
+            }
+
+            @Override
+            public Void visitQUnary(QUnary qexpression, Void context)
+            {
+                sb.append(qexpression.getOp().getAnsi().get());
+                if (qexpression.getOp().isRequiresSpace()) {
+                    sb.append(" ");
+                }
+                renderExpression(qexpression.getChild());
                 return null;
             }
         }, null);

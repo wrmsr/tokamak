@@ -13,12 +13,35 @@
  */
 package com.wrmsr.tokamak.sql.query.tree.expression;
 
+import com.wrmsr.tokamak.sql.query.tree.op.QUnaryOp;
+
 import javax.annotation.concurrent.Immutable;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
 public final class QUnary
         extends QExpression
 {
+    private final QUnaryOp op;
+    private final QExpression child;
+
+    public QUnary(QUnaryOp op, QExpression child)
+    {
+        this.op = checkNotNull(op);
+        this.child = checkNotNull(child);
+    }
+
+    public QUnaryOp getOp()
+    {
+        return op;
+    }
+
+    public QExpression getChild()
+    {
+        return child;
+    }
+
     @Override
     public <R, C> R accept(QExpressionVisitor<R, C> visitor, C context)
     {

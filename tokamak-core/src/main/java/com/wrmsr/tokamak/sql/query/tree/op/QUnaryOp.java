@@ -18,13 +18,13 @@ import java.util.Optional;
 public class QUnaryOp
         extends QOp
 {
-    public QUnaryOp(Optional<String> ansi)
+    public QUnaryOp(Optional<String> ansi, boolean requiresSpace)
     {
-        super(1, ansi);
+        super(1, ansi, requiresSpace);
     }
 
     public QUnaryOp(String ansi)
     {
-        this(Optional.of(ansi));
+        this(Optional.of(ansi), false);
     }
 }

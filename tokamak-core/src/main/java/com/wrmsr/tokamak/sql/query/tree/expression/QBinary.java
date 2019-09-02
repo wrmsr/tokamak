@@ -13,12 +13,42 @@
  */
 package com.wrmsr.tokamak.sql.query.tree.expression;
 
+import com.wrmsr.tokamak.sql.query.tree.op.QBinaryOp;
+
 import javax.annotation.concurrent.Immutable;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
 public final class QBinary
         extends QExpression
 {
+    private final QExpression left;
+    private final QBinaryOp op;
+    private final QExpression right;
+
+    public QBinary(QExpression left, QBinaryOp op, QExpression right)
+    {
+        this.left = checkNotNull(left);
+        this.op = checkNotNull(op);
+        this.right = checkNotNull(right);
+    }
+
+    public QExpression getLeft()
+    {
+        return left;
+    }
+
+    public QBinaryOp getOp()
+    {
+        return op;
+    }
+
+    public QExpression getRight()
+    {
+        return right;
+    }
+
     @Override
     public <R, C> R accept(QExpressionVisitor<R, C> visitor, C context)
     {

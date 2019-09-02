@@ -13,6 +13,8 @@
  */
 package com.wrmsr.tokamak.sql.query.tree.op;
 
+import java.util.Optional;
+
 public final class QOps
 {
     private QOps()
@@ -24,7 +26,7 @@ public final class QOps
     public static final QBinaryOp MUL = new QBinaryOp("*");
     public static final QBinaryOp DIV = new QBinaryOp("/");
 
-    public static final QBinaryOp AND = new QBinaryOp("AND");
-    public static final QBinaryOp OR = new QBinaryOp("OR");
-    public static final QUnaryOp NOT = new QUnaryOp("NOT");
+    public static final QBinaryOp AND = new QBinaryOp(Optional.of("AND"), true);
+    public static final QBinaryOp OR = new QBinaryOp(Optional.of("OR"), true);
+    public static final QUnaryOp NOT = new QUnaryOp(Optional.of("NOT"), true);
 }

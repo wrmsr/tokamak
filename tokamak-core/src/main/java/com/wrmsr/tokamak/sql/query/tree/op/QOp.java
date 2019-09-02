@@ -25,12 +25,14 @@ public abstract class QOp
 {
     private final int arity;
     private final Optional<String> ansi;
+    private final boolean requiresSpace;
 
-    public QOp(int arity, Optional<String> ansi)
+    public QOp(int arity, Optional<String> ansi, boolean requiresSpace)
     {
         checkArgument(arity > 0);
         this.arity = arity;
         this.ansi = checkNotNull(ansi);
+        this.requiresSpace = requiresSpace;
     }
 
     public int getArity()
@@ -41,5 +43,10 @@ public abstract class QOp
     public Optional<String> getAnsi()
     {
         return ansi;
+    }
+
+    public boolean isRequiresSpace()
+    {
+        return requiresSpace;
     }
 }
