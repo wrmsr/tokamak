@@ -147,7 +147,7 @@ public class StateCacheImpl
         }
 
         checkNotNull(state);
-        checkState(state.getMode() == State.Mode.NOT_SET);
+        checkState(state.getMode().isStorageMode());
 
         State.Mode initialMode;
         int nodePriority = prioritiesByNode.get(node);
@@ -186,7 +186,7 @@ public class StateCacheImpl
 
     private void trackStateStatus(State state)
     {
-        checkArgument(state.getMode() != State.Mode.NOT_SET);
+        checkArgument(!state.getMode().isStorageMode());
         int nodePriority = prioritiesByNode.get(state.getNode());
 
         State.Mode oldState = modesByState.get(state);

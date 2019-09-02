@@ -36,6 +36,10 @@ public interface QueueStorage
     interface Dequeuer
             extends Iterable<QueueEntry>, AutoCloseable
     {
+        @Override
+        default void close()
+        {
+        }
     }
 
     Dequeuer createDequeuer(Context context);

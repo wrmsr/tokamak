@@ -46,16 +46,15 @@ public interface Kv<K, V>
     interface ManagedIterator<K>
             extends Iterator<K>, AutoCloseable
     {
+        @Override
+        default void close()
+        {
+        }
+
         static <K> ManagedIterator<K> wrap(Iterator<K> target)
         {
             return new ManagedIterator<K>()
             {
-                @Override
-                public void close()
-                        throws Exception
-                {
-                }
-
                 @Override
                 public boolean hasNext()
                 {
@@ -430,7 +429,6 @@ public interface Kv<K, V>
             {
                 @Override
                 public void close()
-                        throws Exception
                 {
                     it.close();
                 }

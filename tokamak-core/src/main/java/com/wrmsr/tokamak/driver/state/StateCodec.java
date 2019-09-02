@@ -63,6 +63,7 @@ public final class StateCodec
         return new StorageState(
                 node,
                 state.getId(),
+                StorageState.Mode.EXCLUSIVE,
                 state.getVersion(),
                 0.0f,
                 0.0f,
@@ -93,6 +94,7 @@ public final class StateCodec
         return State.newFromStorage(
                 node,
                 storageState.getId(),
+                storageState.getMode(),
                 storageState.getVersion(),
                 attributes,
                 linkage);

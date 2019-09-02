@@ -225,8 +225,9 @@ public class AppTest
 
         Driver driver = new DriverImpl(catalog, plan);
 
+        Driver.Context driverContext = driver.createContext();
         Collection<Row> buildRows = driver.build(
-                driver.createContext(),
+                driverContext,
                 plan.getRoot(),
                 Key.of("N_NATIONKEY", 10));
 

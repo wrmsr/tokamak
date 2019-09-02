@@ -66,6 +66,7 @@ public class MapStateStorageImpl
                     state = new StorageState(
                             node,
                             id,
+                            StorageState.Mode.CREATED,
                             0L,
                             -1.0f,
                             -1.0f,

@@ -38,7 +38,6 @@ public interface Driver
     {
         @Override
         default void close()
-                throws Exception
         {
         }
 

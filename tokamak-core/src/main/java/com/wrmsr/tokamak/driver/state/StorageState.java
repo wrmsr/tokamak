@@ -34,6 +34,7 @@ public final class StorageState
 
     private final StatefulNode node;
     private final Id id;
+    private final Mode mode;
     private final long version;
 
     private final float createdAtUtc;
@@ -51,6 +52,7 @@ public final class StorageState
     public StorageState(
             StatefulNode node,
             Id id,
+            Mode mode,
             long version,
             float createdAtUtc,
             float updatedAtUtc,
@@ -61,6 +63,7 @@ public final class StorageState
         checkArgument((input == null) == (output == null));
         this.node = checkNotNull(node);
         this.id = checkNotNull(id);
+        this.mode = checkNotNull(mode);
         this.version = version;
         this.createdAtUtc = createdAtUtc;
         this.updatedAtUtc = updatedAtUtc;
@@ -75,6 +78,7 @@ public final class StorageState
         return "StorageState{" +
                 "node=" + node +
                 ", id=" + id +
+                ", mode=" + mode +
                 ", version=" + version +
                 '}';
     }
@@ -87,6 +91,11 @@ public final class StorageState
     public Id getId()
     {
         return id;
+    }
+
+    public Mode getMode()
+    {
+        return mode;
     }
 
     public long getVersion()

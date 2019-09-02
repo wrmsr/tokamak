@@ -144,8 +144,8 @@ public final class State
 
     public static State newFromStorage(
             StatefulNode node,
-            StorageState.Mode storageMode,
             Id id,
+            StorageState.Mode storageMode,
             long version,
             @Nullable Object[] attributes,
             @Nullable Linkage linkage)
