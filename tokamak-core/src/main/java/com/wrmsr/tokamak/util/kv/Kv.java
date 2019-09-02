@@ -13,6 +13,7 @@
  */
 package com.wrmsr.tokamak.util.kv;
 
+import com.wrmsr.tokamak.util.NoExceptAutoCloseable;
 import com.wrmsr.tokamak.util.codec.Codec;
 
 import java.util.Collection;
@@ -44,13 +45,8 @@ public interface Kv<K, V>
     }
 
     interface ManagedIterator<K>
-            extends Iterator<K>, AutoCloseable
+            extends Iterator<K>, NoExceptAutoCloseable
     {
-        @Override
-        default void close()
-        {
-        }
-
         static <K> ManagedIterator<K> wrap(Iterator<K> target)
         {
             return new ManagedIterator<K>()

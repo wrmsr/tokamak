@@ -21,6 +21,7 @@ import com.wrmsr.tokamak.catalog.Connection;
 import com.wrmsr.tokamak.catalog.Connector;
 import com.wrmsr.tokamak.node.Node;
 import com.wrmsr.tokamak.plan.Plan;
+import com.wrmsr.tokamak.util.NoExceptAutoCloseable;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -34,13 +35,8 @@ public interface Driver
     Catalog getCatalog();
 
     interface Context
-            extends AutoCloseable
+            extends NoExceptAutoCloseable
     {
-        @Override
-        default void close()
-        {
-        }
-
         Driver getDriver();
 
         Connection getConnection(Connector connector);

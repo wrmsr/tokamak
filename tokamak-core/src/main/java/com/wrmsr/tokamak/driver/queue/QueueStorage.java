@@ -13,6 +13,8 @@
  */
 package com.wrmsr.tokamak.driver.queue;
 
+import com.wrmsr.tokamak.util.NoExceptAutoCloseable;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
@@ -20,12 +22,8 @@ import java.util.Optional;
 public interface QueueStorage
 {
     interface Context
-            extends AutoCloseable
+            extends NoExceptAutoCloseable
     {
-        @Override
-        default void close()
-        {
-        }
     }
 
     Context createContext();
@@ -34,12 +32,8 @@ public interface QueueStorage
             throws IOException;
 
     interface Dequeuer
-            extends Iterable<QueueEntry>, AutoCloseable
+            extends Iterable<QueueEntry>, NoExceptAutoCloseable
     {
-        @Override
-        default void close()
-        {
-        }
     }
 
     Dequeuer createDequeuer(Context context);

@@ -21,7 +21,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
 public final class Indenter
-        implements AutoCloseable
+        implements NoExceptAutoCloseable
 {
     @FunctionalInterface
     public interface Target
@@ -103,10 +103,5 @@ public final class Indenter
         catch (IOException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    @Override
-    public void close()
-    {
     }
 }

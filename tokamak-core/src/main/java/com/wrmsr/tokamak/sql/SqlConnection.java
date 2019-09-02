@@ -13,6 +13,8 @@
  */
 package com.wrmsr.tokamak.sql;
 
+import com.wrmsr.tokamak.util.NoExceptAutoCloseable;
+
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -20,7 +22,7 @@ import java.sql.SQLException;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public class SqlConnection
-        implements AutoCloseable
+        implements NoExceptAutoCloseable
 {
     private final SqlEngine engine;
     private final Connection connection;

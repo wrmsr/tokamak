@@ -15,6 +15,7 @@ package com.wrmsr.tokamak.driver.state;
 
 import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.node.StatefulNode;
+import com.wrmsr.tokamak.util.NoExceptAutoCloseable;
 import com.wrmsr.tokamak.util.Span;
 
 import java.io.IOException;
@@ -27,12 +28,8 @@ import java.util.Set;
 public interface StateStorage
 {
     interface Context
-            extends AutoCloseable
+            extends NoExceptAutoCloseable
     {
-        @Override
-        default void close()
-        {
-        }
     }
 
     Context createContext();
