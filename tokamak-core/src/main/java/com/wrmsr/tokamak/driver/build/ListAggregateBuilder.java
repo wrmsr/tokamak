@@ -45,11 +45,11 @@ public final class ListAggregateBuilder
     @Override
     protected Collection<DriverRow> innerBuild(DriverContextImpl context, Key key)
     {
-        RowCodec idCodec = context.getDriver().getCodecManager().getRowIdCodec(node);
+        // RowCodec idCodec = context.getDriver().getCodecManager().getRowIdCodec(node);
         Key childKey;
         if (key instanceof IdKey) {
             byte[] buf = ((IdKey) key).getId().getValue();
-            childKey = Key.of(node.getGroupField(), idCodec.decodeSingle(node.getGroupField(), new ByteArrayInput(buf)));
+            // childKey = Key.of(node.getGroupField(), idCodec.decodeSingle(node.getGroupField(), new ByteArrayInput(buf)));
         }
         else if (key instanceof FieldKey) {
             FieldKey fieldKey = (FieldKey) key;

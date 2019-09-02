@@ -48,6 +48,7 @@ public interface RowCodec
 
     void decode(Sink sink, Input input);
 
+    @SuppressWarnings({"unchecked"})
     default <V> V decodeSingle(String field, Input input)
     {
         Cell<V> cell = Cell.optional();

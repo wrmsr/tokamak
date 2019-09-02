@@ -13,7 +13,6 @@
  */
 package com.wrmsr.tokamak.driver;
 
-import com.wrmsr.tokamak.codec.row.CompositeRowCodec;
 import com.wrmsr.tokamak.codec.row.RowCodec;
 import com.wrmsr.tokamak.codec.row.RowCodecs;
 import com.wrmsr.tokamak.codec.value.NullableValueCodec;
@@ -21,12 +20,7 @@ import com.wrmsr.tokamak.codec.value.TupleValueCodec;
 import com.wrmsr.tokamak.codec.value.ValueCodec;
 import com.wrmsr.tokamak.codec.value.ValueCodecs;
 import com.wrmsr.tokamak.codec.value.VariableLengthValueCodec;
-import com.wrmsr.tokamak.node.EquijoinNode;
-import com.wrmsr.tokamak.node.ListAggregateNode;
-import com.wrmsr.tokamak.node.Node;
-import com.wrmsr.tokamak.node.ScanNode;
 import com.wrmsr.tokamak.node.StatefulNode;
-import com.wrmsr.tokamak.node.visitor.NodeVisitor;
 
 import java.util.HashMap;
 import java.util.List;
@@ -34,61 +28,9 @@ import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableList.toImmutableList;
-import static com.google.common.collect.ImmutableMap.toImmutableMap;
-import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
-import static java.util.function.Function.identity;
 
 public final class CodecManager
 {
-    /*
-    TODO:
-     - some row->byte[] (scan), some byte[]->byte[] (persist(nop)), some byte[][]->byte[] (ej)
-    */
-
-    private final Map<Node, RowCodec> rowIdCodecsByNode = new HashMap<>();
-
-    public RowCodec getRowIdCodec(Node node)
-    {
-        RowCodec rowCodec = rowIdCodecsByNode.get(node);
-        if (rowCodec != null) {
-            return rowCodec;
-        }
-
-        rowCodec = node.accept(new NodeVisitor<RowCodec, Void>()
-        {
-            @Override
-            public RowCodec visitEquijoinNode(EquijoinNode node, Void context)
-            {
-                return new CompositeRowCodec(
-                        node.getBranches().stream()
-                                .map(EquijoinNode.Branch::getNode)
-                                .map(CodecManager.this::getRowIdCodec)
-                                .collect(toImmutableList()));
-            }
-
-            @Override
-            public RowCodec visitListAggregateNode(ListAggregateNode node, Void context)
-            {
-                return RowCodecs.buildRowCodec(node.getGroupField(), node.getFields().get(node.getGroupField()));
-            }
-
-            @Override
-            public RowCodec visitScanNode(ScanNode node, Void context)
-            {
-                checkNotEmpty(node.getIdFields());
-                List<String> orderedFields = node.getFields().keySet().stream()
-                        .filter(node.getIdFields()::contains)
-                        .collect(toImmutableList());
-                return RowCodecs.buildRowCodec(
-                        orderedFields.stream()
-                                .collect(toImmutableMap(identity(), node.getFields()::get)));
-            }
-        }, null);
-
-        rowIdCodecsByNode.put(node, rowCodec);
-        return rowCodec;
-    }
-
     private final Map<StatefulNode, RowCodec> rowCodecsByStatefulNode = new HashMap<>();
 
     public RowCodec getRowCodec(StatefulNode node)

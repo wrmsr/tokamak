@@ -22,6 +22,7 @@ import com.wrmsr.tokamak.catalog.Scanner;
 import com.wrmsr.tokamak.catalog.Schema;
 import com.wrmsr.tokamak.codec.ByteArrayInput;
 import com.wrmsr.tokamak.codec.row.RowCodec;
+import com.wrmsr.tokamak.codec.row.RowCodecs;
 import com.wrmsr.tokamak.driver.DriverImpl;
 import com.wrmsr.tokamak.driver.DriverRow;
 import com.wrmsr.tokamak.driver.context.DriverContextImpl;
@@ -33,13 +34,27 @@ import java.util.List;
 import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.collect.ImmutableList.toImmutableList;
+import static com.google.common.collect.ImmutableMap.toImmutableMap;
+import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
+import static java.util.function.Function.identity;
 
 public final class ScanBuilder
         extends Builder<ScanNode>
 {
+    private final RowCodec idCodec;
+
     public ScanBuilder(DriverImpl driver, ScanNode node, Map<Node, Builder> sources)
     {
         super(driver, node, sources);
+
+        checkNotEmpty(node.getIdFields());
+        List<String> orderedFields = node.getFields().keySet().stream()
+                .filter(node.getIdFields()::contains)
+                .collect(toImmutableList());
+        idCodec = RowCodecs.buildRowCodec(
+                orderedFields.stream()
+                        .collect(toImmutableMap(identity(), node.getFields()::get)));
     }
 
     @Override
@@ -48,8 +63,6 @@ public final class ScanBuilder
         Scanner scanner = driver.getScannersByNode().get(node);
         Schema schema = context.getDriver().getCatalog().getSchemasByName().get(node.getSchemaTable().getSchema());
         Connection connection = context.getConnection(schema.getConnector());
-
-        RowCodec idCodec = context.getDriver().getCodecManager().getRowIdCodec(node);
 
         Key scanKey;
         if (key instanceof IdKey) {
