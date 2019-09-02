@@ -42,7 +42,6 @@ final class JdbcConnection
 
     @Override
     public void close()
-            throws Exception
     {
         sqlConnection.close();
     }

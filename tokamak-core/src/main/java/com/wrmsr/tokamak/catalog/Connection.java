@@ -16,4 +16,8 @@ package com.wrmsr.tokamak.catalog;
 public interface Connection
         extends AutoCloseable
 {
+    @Override
+    default void close()
+    {
+    }
 }

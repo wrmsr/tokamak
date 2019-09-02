@@ -190,7 +190,6 @@ public class DriverContextImpl
 
     @Override
     public void close()
-            throws Exception
     {
         for (Connection connection : connectionsByConnection.values()) {
             connection.close();

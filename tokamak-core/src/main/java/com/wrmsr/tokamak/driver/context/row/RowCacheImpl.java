@@ -23,6 +23,7 @@ import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.driver.DriverRow;
 import com.wrmsr.tokamak.driver.context.diag.Stat;
 import com.wrmsr.tokamak.node.Node;
+import com.wrmsr.tokamak.node.StatefulNode;
 
 import javax.annotation.Nullable;
 
@@ -250,6 +251,16 @@ public class RowCacheImpl
                             entry.rows.add(row);
                         }
                     }
+                }
+
+                // Add to Id map if necessary
+                for (DriverRow row : rows) {
+                    if (row.getId() == null) {
+                        checkState(row.isNull());
+                        continue;
+                    }
+                    checkState(!rowSetsById.containsKey(row.getId()));
+                    rowSetsById.put(row.getId(), ImmutableSet.of(row);
                 }
 
                 // Finally add to all rows

@@ -43,7 +43,6 @@ public class NopQueueStorageImpl
         {
             @Override
             public void close()
-                    throws Exception
             {
             }
 

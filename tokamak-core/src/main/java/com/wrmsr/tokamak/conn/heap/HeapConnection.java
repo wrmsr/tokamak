@@ -34,7 +34,6 @@ public class HeapConnection
 
     @Override
     public void close()
-            throws Exception
     {
     }
 }
