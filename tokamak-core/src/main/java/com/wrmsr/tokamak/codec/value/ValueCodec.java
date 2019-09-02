@@ -31,7 +31,7 @@ public interface ValueCodec<V>
      - back-loaded lengths (lexical sorting, currently length-prefixed - is this even bad?)
       - double-ended output (same interface but paired, one reverses)
       - alt: compress keys & fuck locality lol
-     - Union?
+     - Union - use for versioning
     */
 
     default Width getWidth()

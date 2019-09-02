@@ -38,6 +38,14 @@ import static java.util.function.Function.identity;
 
 public final class CodecManager
 {
+    /*
+    TODO:
+     - prefix w version byte
+    */
+
+    private static final int MAX_LINKAGE_SIZE = 128 * 1024 * 1024;
+    private static final int MAX_ATTRIBUTES_SIZE = 128 * 1024 * 1024;
+
     private final Plan plan;
 
     public CodecManager(Plan plan)
@@ -70,7 +78,7 @@ public final class CodecManager
                         .map(t -> {
                             ValueCodec codec = checkNotNull(ValueCodecs.VALUE_CODECS_BY_TYPE.get(t));
                             if (!t.getFixedSize().isPresent()) {
-                                codec = new VariableLengthValueCodec(codec);
+                                codec = new VariableLengthValueCodec(codec, MAX_ATTRIBUTES_SIZE);
                             }
                             codec = new NullableValueCodec(codec);
                             return codec;
@@ -98,7 +106,8 @@ public final class CodecManager
                             getAttributesCodecByStatefulNode().get(n),
                             new LinkageMapCodec(
                                     n,
-                                    attributesCodecsByNodeId)))
+                                    attributesCodecsByNodeId,
+                                    MAX_LINKAGE_SIZE)))
                     .collect(toImmutableMap(StateCodec::getNode, identity()));
         });
     }

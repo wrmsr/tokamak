@@ -40,24 +40,26 @@ public final class LinkageMapCodec
         implements Codec<Map<NodeId, Linkage.Links>, byte[]>
 {
     private static final ValueCodec<Number> LONG_CODEC = ValueCodecs.LONG_VALUE_CODEC;
-    private static final ValueCodec<byte[]> VAR_BYTES_CODEC = new VariableLengthValueCodec<>(ValueCodecs.BYTES_VALUE_CODEC);
 
     private final StatefulNode node;
     private final Map<NodeId, ValueCodec<Object[]>> attributesCodecsByNodeId;
+    private final int size;
+
+    private final ValueCodec<byte[]> varBytesCodec;
 
     public LinkageMapCodec(
             StatefulNode node,
-            Map<NodeId, ValueCodec<Object[]>> attributesCodecsByNodeId)
+            Map<NodeId, ValueCodec<Object[]>> attributesCodecsByNodeId,
+            int size)
     {
+        checkArgument(size >= 0);
         this.node = checkNotNull(node);
         this.attributesCodecsByNodeId = ImmutableMap.copyOf(attributesCodecsByNodeId);
+        this.size = size;
         Set<NodeId> sourceNodeIds = node.getSources().stream().map(Node::getId).collect(toImmutableSet());
         sourceNodeIds.forEach(sni -> checkArgument(attributesCodecsByNodeId.containsKey(sni)));
-    }
 
-    public LinkageMapCodec(StatefulNode node)
-    {
-        this(node, ImmutableMap.of());
+        varBytesCodec = new VariableLengthValueCodec<>(ValueCodecs.BYTES_VALUE_CODEC);
     }
 
     public StatefulNode getNode()
@@ -69,7 +71,7 @@ public final class LinkageMapCodec
     {
         LONG_CODEC.encode(idLinks.getIds().size(), output);
         for (Id id : idLinks.getIds()) {
-            VAR_BYTES_CODEC.encode(id.getValue(), output);
+            varBytesCodec.encode(id.getValue(), output);
         }
     }
 
@@ -78,7 +80,7 @@ public final class LinkageMapCodec
         int sz = (int) LONG_CODEC.decode(input);
         ImmutableSet.Builder<Id> builder = ImmutableSet.builderWithExpectedSize(sz);
         for (int i = 0; i < sz; ++i) {
-            builder.add(Id.of(VAR_BYTES_CODEC.decode(input)));
+            builder.add(Id.of(varBytesCodec.decode(input)));
         }
         return new Linkage.IdLinks(builder.build());
     }
@@ -88,7 +90,7 @@ public final class LinkageMapCodec
         ValueCodec<Object[]> attributesCodec = checkNotNull(attributesCodecsByNodeId.get(nodeId));
         LONG_CODEC.encode(denormalizedLinks.getAttributesById().size(), output);
         for (Map.Entry<Id, Object[]> entry : denormalizedLinks.getAttributesById().entrySet()) {
-            VAR_BYTES_CODEC.encode(entry.getKey().getValue(), output);
+            varBytesCodec.encode(entry.getKey().getValue(), output);
             attributesCodec.encode(entry.getValue(), output);
         }
     }
@@ -100,7 +102,7 @@ public final class LinkageMapCodec
         ImmutableMap.Builder<Id, Object[]> builder = ImmutableMap.builderWithExpectedSize(sz);
         for (int i = 0; i < sz; ++i) {
             builder.put(
-                    Id.of(VAR_BYTES_CODEC.decode(input)),
+                    Id.of(varBytesCodec.decode(input)),
                     attributesCodec.decode(input));
         }
         return new Linkage.DenormalizedLinks(builder.build());
