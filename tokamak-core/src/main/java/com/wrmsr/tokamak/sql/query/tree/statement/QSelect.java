@@ -62,6 +62,21 @@ public final class QSelect
         this.where = checkNotNull(where);
     }
 
+    public List<Item> getItems()
+    {
+        return items;
+    }
+
+    public QRelation getRelation()
+    {
+        return relation;
+    }
+
+    public Optional<QExpression> getWhere()
+    {
+        return where;
+    }
+
     @Override
     public <R, C> R accept(QStatementVisitor<R, C> visitor, C context)
     {

@@ -13,7 +13,6 @@
  */
 package com.wrmsr.tokamak.java.lang;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -841,7 +840,6 @@ public final class JRenderer
         CodeBlock.Builder code = CodeBlock.builder();
         renderer.accept(new JRenderer(code));
         CodeBlock block = code.build();
-
         renderWithIndent(block, indent, appendable);
     }
 

@@ -22,7 +22,17 @@ public class QStatementVisitor<R, C>
         throw new IllegalStateException(Objects.toString(qstatement));
     }
 
+    public R visitQCreateTable(QCreateTable qstatement, C context)
+    {
+        return visitQStatement(qstatement, context);
+    }
+
     public R visitQDelete(QDelete qstatement, C context)
+    {
+        return visitQStatement(qstatement, context);
+    }
+
+    public R visitQDropTable(QDropTable qstatement, C context)
     {
         return visitQStatement(qstatement, context);
     }
