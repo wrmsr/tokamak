@@ -74,6 +74,7 @@ public class SubprocessTest
             process.getOutputStream().write("{\"barf\":true}\n".getBytes());
             process.getOutputStream().flush();
             String line = br.readLine();
+            @SuppressWarnings({"rawtypes"})
             Map obj = Json.readValue(line, Map.class);
             System.out.println(obj);
         }

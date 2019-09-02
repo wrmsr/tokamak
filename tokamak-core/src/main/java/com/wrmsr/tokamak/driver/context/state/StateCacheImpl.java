@@ -141,6 +141,10 @@ public class StateCacheImpl
             state = codecManager.getStateCodecsByNode().get(node).decode(storageState);
         }
 
+        checkNotNull(state);
+        checkState(!allStates.contains(state));
+        checkState(state.getMode() == State.Mode.NOT_SET);
+
         throw new IllegalStateException();
     }
 

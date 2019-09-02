@@ -202,6 +202,14 @@ public final class State
         return this;
     }
 
+    public void setInitialMode(Mode mode)
+    {
+        checkArgument(mode != Mode.NOT_SET);
+        checkState(this.mode == Mode.NOT_SET);
+        this.mode = mode;
+        // FIXME: callback
+    }
+
     public void setAttributes(@Nullable Object[] attributes)
     {
         checkMode(mode == Mode.INVALID);
