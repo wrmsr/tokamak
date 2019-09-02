@@ -21,6 +21,8 @@ public final class QOps
     {
     }
 
+    public static final QBinaryOp EQUAL = new QBinaryOp("=");
+
     public static final QBinaryOp ADD = new QBinaryOp("+");
     public static final QBinaryOp SUB = new QBinaryOp("-");
     public static final QBinaryOp MUL = new QBinaryOp("*");

@@ -17,15 +17,13 @@ import com.wrmsr.tokamak.codec.row.CompositeRowCodec;
 import com.wrmsr.tokamak.codec.row.RowCodec;
 import com.wrmsr.tokamak.codec.row.RowCodecs;
 import com.wrmsr.tokamak.codec.value.NullableValueCodec;
+import com.wrmsr.tokamak.codec.value.TupleValueCodec;
 import com.wrmsr.tokamak.codec.value.ValueCodec;
 import com.wrmsr.tokamak.codec.value.ValueCodecs;
-import com.wrmsr.tokamak.codec.value.TupleValueCodec;
 import com.wrmsr.tokamak.codec.value.VariableLengthValueCodec;
 import com.wrmsr.tokamak.node.EquijoinNode;
-import com.wrmsr.tokamak.node.FilterNode;
 import com.wrmsr.tokamak.node.ListAggregateNode;
 import com.wrmsr.tokamak.node.Node;
-import com.wrmsr.tokamak.node.ProjectNode;
 import com.wrmsr.tokamak.node.ScanNode;
 import com.wrmsr.tokamak.node.StatefulNode;
 import com.wrmsr.tokamak.node.visitor.NodeVisitor;
@@ -42,6 +40,11 @@ import static java.util.function.Function.identity;
 
 public final class CodecManager
 {
+    /*
+    TODO:
+     - some row->byte[] (scan), some byte[]->byte[] (persist(nop)), some byte[][]->byte[] (ej)
+    */
+
     private final Map<Node, RowCodec> rowIdCodecsByNode = new HashMap<>();
 
     public RowCodec getRowIdCodec(Node node)
@@ -64,22 +67,9 @@ public final class CodecManager
             }
 
             @Override
-            public RowCodec visitFilterNode(FilterNode node, Void context)
-            {
-                return getRowIdCodec(node.getSource());
-            }
-
-            @Override
             public RowCodec visitListAggregateNode(ListAggregateNode node, Void context)
             {
                 return RowCodecs.buildRowCodec(node.getGroupField(), node.getFields().get(node.getGroupField()));
-            }
-
-            @Override
-            public RowCodec visitProjectNode(ProjectNode node, Void context)
-            {
-                // if (node.getProjection().getInputFieldsByOutput())
-                return super.visitProjectNode(node, context);
             }
 
             @Override
