@@ -253,15 +253,16 @@ public class RowCacheImpl
                     }
                 }
 
+                // FIXME:
                 // Add to Id map if necessary
-                for (DriverRow row : rows) {
-                    if (row.getId() == null) {
-                        checkState(row.isNull());
-                        continue;
-                    }
-                    checkState(!rowSetsById.containsKey(row.getId()));
-                    rowSetsById.put(row.getId(), ImmutableSet.of(row);
-                }
+                // for (DriverRow row : rows) {
+                //     if (row.getId() == null) {
+                //         checkState(row.isNull());
+                //         continue;
+                //     }
+                //     checkState(!rowSetsById.containsKey(row.getId()));
+                //     rowSetsById.put(row.getId(), ImmutableSet.of(row);
+                // }
 
                 // Finally add to all rows
                 allRows.addAll(rows);
