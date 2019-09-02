@@ -34,7 +34,7 @@ public final class JConstructor
     private final Set<JAccess> access;
     private final String name;
     private final List<JArg> args;
-    private final com.wrmsr.tokamak.java.lang.tree.statement.JBlock body;
+    private final JBlock body;
 
     public JConstructor(Set<JAccess> access, String name, List<JArg> args, JBlock body)
     {

@@ -63,7 +63,7 @@ public final class ProjectBuilder
         }
 
         ImmutableList.Builder<DriverRow> ret = ImmutableList.builder();
-        for (DriverRow row : context.build(node.getSource(), sourceKey)) {
+        for (DriverRow row : context.build(source, sourceKey)) {
             Map<String, Object> rowMap = row.getMap();
             Object[] attributes = new Object[node.getFields().size()];
             int pos = 0;

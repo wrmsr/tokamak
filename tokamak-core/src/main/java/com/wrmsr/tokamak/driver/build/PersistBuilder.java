@@ -36,7 +36,7 @@ public final class PersistBuilder
     @Override
     protected Collection<DriverRow> innerBuild(DriverContextImpl context, Key key)
     {
-        return context.build(node.getSource(), key).stream()
+        return context.build(source, key).stream()
                 .map(row -> new DriverRow(
                         node,
                         context.getDriver().getLineagePolicy().build(row),

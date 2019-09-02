@@ -24,6 +24,8 @@ import java.util.Objects;
 public final class JBlock
         extends JStatement
 {
+    public static final JBlock EMPTY = new JBlock(ImmutableList.of());
+
     private List<JStatement> body;
 
     public JBlock(List<JStatement> body)

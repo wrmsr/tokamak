@@ -57,7 +57,9 @@ public class CodegenTest
                                                         JMethodInvocation.of(
                                                                 JName.of("System", "out", "println"),
                                                                 ImmutableList.of(
-                                                                        new JLiteral("hi")))))))));
+                                                                        new JLiteral("hi")
+                                                                )))))
+                        )));
 
         String rendered = JRenderer.renderWithIndent(cu, "    ");
         System.out.println(rendered);

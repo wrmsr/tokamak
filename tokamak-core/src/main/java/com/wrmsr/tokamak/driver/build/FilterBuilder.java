@@ -36,7 +36,7 @@ public final class FilterBuilder
     protected Collection<DriverRow> innerBuild(DriverContextImpl context, Key key)
     {
         ImmutableList.Builder<DriverRow> ret = ImmutableList.builder();
-        for (DriverRow row : context.build(node.getSource(), key)) {
+        for (DriverRow row : context.build(source, key)) {
             Object[] attributes;
             if (node.getPredicate().test(row)) {
                 attributes = row.getAttributes();

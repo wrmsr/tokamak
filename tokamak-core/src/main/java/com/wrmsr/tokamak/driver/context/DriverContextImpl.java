@@ -109,8 +109,9 @@ public class DriverContextImpl
     }
 
     @SuppressWarnings({"unchecked"})
-    public Collection<DriverRow> build(Node node, Key key)
+    public Collection<DriverRow> build(Builder builder, Key key)
     {
+        Node node = builder.getNode();
         if (journaling) {
             addJournalEntry(new JournalEntry.BuildInput(node, key));
         }
@@ -124,9 +125,6 @@ public class DriverContextImpl
             return rows;
         }
 
-        // if (node instanceof StatefulNode && key instanceof IdKey || ((key instanceof FieldKey) && node.getIdFieldSets().contains((()))))
-
-        Builder builder = driver.getBuildersByNode().get(node);
         Collection<DriverRow> rows = builder.build(this, key);
         checkNotEmpty(rows);
         if (journaling) {
@@ -136,6 +134,12 @@ public class DriverContextImpl
         rowCache.put(node, key, rows);
 
         return rows;
+    }
+
+    public Collection<DriverRow> build(Node node, Key key)
+    {
+        Builder builder = checkNotNull(driver.getBuildersByNode().get(node));
+        return build(builder, key);
     }
 
     @Override
