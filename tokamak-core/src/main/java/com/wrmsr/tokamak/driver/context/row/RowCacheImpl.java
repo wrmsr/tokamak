@@ -21,6 +21,7 @@ import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.api.IdKey;
 import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.driver.DriverRow;
+import com.wrmsr.tokamak.driver.context.diag.Stat;
 import com.wrmsr.tokamak.node.Node;
 
 import javax.annotation.Nullable;
@@ -261,7 +262,14 @@ public class RowCacheImpl
         }
     }
 
+    private final Stat.Updater statUpdater;
+
     private Map<Node, Nodal> byNode = new HashMap<>();
+
+    public RowCacheImpl(Stat.Updater statUpdater)
+    {
+        this.statUpdater = checkNotNull(statUpdater);
+    }
 
     @Override
     public Optional<Collection<DriverRow>> get(Node node, Key key)

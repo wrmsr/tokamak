@@ -45,7 +45,9 @@ public final class LinkageMapCodec
     private final StatefulNode node;
     private final Map<NodeId, ValueCodec<Object[]>> attributesCodecsByNodeId;
 
-    public LinkageMapCodec(StatefulNode node, Map<NodeId, ValueCodec<Object[]>> attributesCodecsByNodeId)
+    public LinkageMapCodec(
+            StatefulNode node,
+            Map<NodeId, ValueCodec<Object[]>> attributesCodecsByNodeId)
     {
         this.node = checkNotNull(node);
         this.attributesCodecsByNodeId = ImmutableMap.copyOf(attributesCodecsByNodeId);
@@ -56,6 +58,11 @@ public final class LinkageMapCodec
     public LinkageMapCodec(StatefulNode node)
     {
         this(node, ImmutableMap.of());
+    }
+
+    public StatefulNode getNode()
+    {
+        return node;
     }
 
     private void encodeIdLinks(NodeId nodeId, Linkage.IdLinks idLinks, Output output)

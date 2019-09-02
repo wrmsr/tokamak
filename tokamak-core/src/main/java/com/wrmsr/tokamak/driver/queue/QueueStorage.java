@@ -24,7 +24,6 @@ public interface QueueStorage
     {
         @Override
         default void close()
-                throws Exception
         {
         }
     }

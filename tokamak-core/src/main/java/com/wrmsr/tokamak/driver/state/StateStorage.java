@@ -31,7 +31,6 @@ public interface StateStorage
     {
         @Override
         default void close()
-                throws Exception
         {
         }
     }

@@ -52,7 +52,7 @@ public class DriverImpl
         this.catalog = checkNotNull(catalog);
         this.plan = checkNotNull(plan);
 
-        codecManager = new CodecManager();
+        codecManager = new CodecManager(plan);
         stateStorage = new MapStateStorageImpl();
     }
 

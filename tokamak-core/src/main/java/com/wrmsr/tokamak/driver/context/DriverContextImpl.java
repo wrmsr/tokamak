@@ -61,10 +61,13 @@ public class DriverContextImpl
     {
         this.driver = driver;
 
-        this.rowCache = new RowCacheImpl();
+        this.rowCache = new RowCacheImpl(
+                Stat.Updater.nop());
+
         this.stateCache = new StateCacheImpl(
                 driver.getPlan(),
                 driver.getStateStorage(),
+                driver.getCodecManager(),
                 ImmutableList.of(),
                 Stat.Updater.nop());
 

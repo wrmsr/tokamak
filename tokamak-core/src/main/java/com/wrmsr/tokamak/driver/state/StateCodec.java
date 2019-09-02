@@ -37,6 +37,11 @@ public final class StateCodec
         this.linkageMapCodec = checkNotNull(linkageMapCodec);
     }
 
+    public StatefulNode getNode()
+    {
+        return node;
+    }
+
     @Override
     public StorageState encode(State state)
     {
