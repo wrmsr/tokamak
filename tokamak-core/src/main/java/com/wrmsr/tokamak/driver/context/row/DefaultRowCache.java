@@ -43,7 +43,7 @@ import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 
-public class RowCacheImpl
+public class DefaultRowCache
         implements RowCache
 {
     /*
@@ -278,7 +278,7 @@ public class RowCacheImpl
 
     private Map<Node, Nodal> byNode = new HashMap<>();
 
-    public RowCacheImpl(Stat.Updater statUpdater)
+    public DefaultRowCache(Stat.Updater statUpdater)
     {
         this.statUpdater = checkNotNull(statUpdater);
     }

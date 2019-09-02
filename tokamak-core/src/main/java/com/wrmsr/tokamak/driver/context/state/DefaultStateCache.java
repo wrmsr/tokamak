@@ -50,7 +50,7 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkSingle;
 
-public class StateCacheImpl
+public class DefaultStateCache
         implements StateCache
 {
     @FunctionalInterface
@@ -75,7 +75,7 @@ public class StateCacheImpl
     private final SortedMap<Integer, SortedSet<Id>> pendingInvalidIdSetsByNodePriority;
     private final Set<State> attributesSetCallbackFiredStates;
 
-    public StateCacheImpl(
+    public DefaultStateCache(
             Plan plan,
             StateStorage storage,
             CodecManager codecManager,

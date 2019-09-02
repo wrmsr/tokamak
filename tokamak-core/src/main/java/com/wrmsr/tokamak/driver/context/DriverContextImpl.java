@@ -27,9 +27,9 @@ import com.wrmsr.tokamak.driver.build.Builder;
 import com.wrmsr.tokamak.driver.context.diag.JournalEntry;
 import com.wrmsr.tokamak.driver.context.diag.Stat;
 import com.wrmsr.tokamak.driver.context.row.RowCache;
-import com.wrmsr.tokamak.driver.context.row.RowCacheImpl;
+import com.wrmsr.tokamak.driver.context.row.DefaultRowCache;
 import com.wrmsr.tokamak.driver.context.state.StateCache;
-import com.wrmsr.tokamak.driver.context.state.StateCacheImpl;
+import com.wrmsr.tokamak.driver.context.state.DefaultStateCache;
 import com.wrmsr.tokamak.driver.state.State;
 import com.wrmsr.tokamak.node.Node;
 import com.wrmsr.tokamak.node.StatefulNode;
@@ -51,7 +51,7 @@ public class DriverContextImpl
     private final DriverImpl driver;
 
     private final RowCache rowCache;
-    private final StateCacheImpl stateCache;
+    private final DefaultStateCache stateCache;
 
     private final boolean journaling;
     private final List<JournalEntry> journalEntries;
@@ -61,10 +61,10 @@ public class DriverContextImpl
     {
         this.driver = driver;
 
-        this.rowCache = new RowCacheImpl(
+        this.rowCache = new DefaultRowCache(
                 Stat.Updater.nop());
 
-        this.stateCache = new StateCacheImpl(
+        this.stateCache = new DefaultStateCache(
                 driver.getPlan(),
                 driver.getStateStorage(),
                 driver.getCodecManager(),

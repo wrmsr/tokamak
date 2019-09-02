@@ -68,6 +68,7 @@ public final class CodecManager
 
     private final SupplierLazyValue<Map<StatefulNode, ValueCodec<Object[]>>> attributesCodecsByStatefulNode = new SupplierLazyValue<>();
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public Map<StatefulNode, ValueCodec<Object[]>> getAttributesCodecByStatefulNode()
     {
         return attributesCodecsByStatefulNode.get(() -> {

@@ -17,6 +17,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.api.SchemaTable;
+import com.wrmsr.tokamak.conn.heap.MapHeapStateStorage;
 import com.wrmsr.tokamak.node.ScanNode;
 import com.wrmsr.tokamak.node.StatefulNode;
 import com.wrmsr.tokamak.type.Type;
@@ -42,7 +43,7 @@ public class StateStorageTest
                 ImmutableMap.of(),
                 Optional.empty());
 
-        StateStorage ss = new MapStateStorageImpl();
+        StateStorage ss = new MapHeapStateStorage();
         Map<StatefulNode, Map<Id, StorageState>> map = ss.get(
                 ss.createContext(),
                 ImmutableMap.of(scanNode, ImmutableSet.of(Id.of(420))),

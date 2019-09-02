@@ -25,7 +25,7 @@ import java.util.Map;
 import java.util.OptionalInt;
 import java.util.Set;
 
-public final class NopStateStorageImpl
+public final class NopStateStorage
         implements StateStorage
 {
     @Override

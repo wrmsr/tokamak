@@ -23,7 +23,7 @@ import com.wrmsr.tokamak.driver.DriverRow;
 import com.wrmsr.tokamak.driver.LineagePolicy;
 import com.wrmsr.tokamak.driver.context.diag.Stat;
 import com.wrmsr.tokamak.driver.context.row.RowCache;
-import com.wrmsr.tokamak.driver.context.row.RowCacheImpl;
+import com.wrmsr.tokamak.driver.context.row.DefaultRowCache;
 import com.wrmsr.tokamak.node.ScanNode;
 import com.wrmsr.tokamak.type.Type;
 import junit.framework.TestCase;
@@ -81,7 +81,7 @@ public class RowCacheTest
                 ImmutableMap.of(),
                 Optional.empty());
 
-        RowCache rc = new RowCacheImpl(
+        RowCache rc = new DefaultRowCache(
                 Stat.Updater.nop());
 
         Optional<Collection<DriverRow>> rows = rc.get(scanNode, Key.of("id", 420L));

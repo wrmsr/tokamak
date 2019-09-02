@@ -22,7 +22,7 @@ import com.wrmsr.tokamak.catalog.Table;
 import com.wrmsr.tokamak.driver.build.Builder;
 import com.wrmsr.tokamak.driver.build.BuilderFactory;
 import com.wrmsr.tokamak.driver.context.DriverContextImpl;
-import com.wrmsr.tokamak.driver.state.MapStateStorageImpl;
+import com.wrmsr.tokamak.conn.heap.MapHeapStateStorage;
 import com.wrmsr.tokamak.driver.state.StateStorage;
 import com.wrmsr.tokamak.node.Node;
 import com.wrmsr.tokamak.node.ScanNode;
@@ -53,7 +53,7 @@ public class DriverImpl
         this.plan = checkNotNull(plan);
 
         codecManager = new CodecManager(plan);
-        stateStorage = new MapStateStorageImpl();
+        stateStorage = new MapHeapStateStorage();
     }
 
     @Override

@@ -21,7 +21,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 
-public final class NopRowCacheImpl
+public final class NopRowCache
         implements RowCache
 {
     @Override
