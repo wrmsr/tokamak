@@ -11,31 +11,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.sql.query.tree.relation;
 
-import com.wrmsr.tokamak.sql.query.QName;
+package com.wrmsr.tokamak.sql.query.tree.expression;
 
 import javax.annotation.concurrent.Immutable;
 
 @Immutable
-public final class QReferenceRelation
-        extends QRelation
+public class QTextExpression
+        extends QExpression
 {
-    private final QName name;
+    private final String text;
 
-    public QReferenceRelation(QName name)
+    public QTextExpression(String text)
     {
-        this.name = name;
+        this.text = text;
     }
 
-    public QName getName()
+    public String getText()
     {
-        return name;
+        return text;
     }
 
     @Override
-    public <R, C> R accept(QRelationVisitor<R, C> visitor, C context)
+    public <R, C> R accept(QExpressionVisitor<R, C> visitor, C context)
     {
-        return visitor.visitQReferenceRelation(this, context);
+        return visitor.visitQTextExpression(this, context);
     }
 }

@@ -52,10 +52,10 @@ public final class QSelect
     }
 
     private final List<Item> items;
-    private final QRelation relation;
+    private final Optional<QRelation> relation;
     private final Optional<QExpression> where;
 
-    public QSelect(List<Item> items, QRelation relation, Optional<QExpression> where)
+    public QSelect(List<Item> items, Optional<QRelation> relation, Optional<QExpression> where)
     {
         this.items = ImmutableList.copyOf(items);
         this.relation = checkNotNull(relation);
@@ -67,7 +67,7 @@ public final class QSelect
         return items;
     }
 
-    public QRelation getRelation()
+    public Optional<QRelation> getRelation()
     {
         return relation;
     }

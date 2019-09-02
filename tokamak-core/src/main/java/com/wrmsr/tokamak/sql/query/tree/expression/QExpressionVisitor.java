@@ -27,12 +27,22 @@ public class QExpressionVisitor<R, C>
         return visitQExpression(qexpression, context);
     }
 
+    public R visitQParen(QParen qexpression, C context)
+    {
+        return visitQExpression(qexpression, context);
+    }
+
     public R visitQReferenceExpression(QReferenceExpression qexpression, C context)
     {
         return visitQExpression(qexpression, context);
     }
 
     public R visitQSubqueryExpression(QSubqueryExpression qexpression, C context)
+    {
+        return visitQExpression(qexpression, context);
+    }
+
+    public R visitQTextExpression(QTextExpression qexpression, C context)
     {
         return visitQExpression(qexpression, context);
     }

@@ -11,31 +11,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.sql.query.tree.relation;
 
-import com.wrmsr.tokamak.sql.query.QName;
+package com.wrmsr.tokamak.sql.query.tree.op;
 
-import javax.annotation.concurrent.Immutable;
+import java.util.Optional;
 
-@Immutable
-public final class QReferenceRelation
-        extends QRelation
+public class QUnaryOp
+        extends QOp
 {
-    private final QName name;
-
-    public QReferenceRelation(QName name)
+    public QUnaryOp(Optional<String> ansi)
     {
-        this.name = name;
+        super(1, ansi);
     }
 
-    public QName getName()
+    public QUnaryOp(String ansi)
     {
-        return name;
-    }
-
-    @Override
-    public <R, C> R accept(QRelationVisitor<R, C> visitor, C context)
-    {
-        return visitor.visitQReferenceRelation(this, context);
+        this(Optional.of(ansi));
     }
 }

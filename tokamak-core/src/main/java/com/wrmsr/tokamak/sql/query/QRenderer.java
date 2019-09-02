@@ -14,7 +14,15 @@
 package com.wrmsr.tokamak.sql.query;
 
 import com.google.common.base.Joiner;
+import com.wrmsr.tokamak.sql.query.tree.expression.QExpression;
+import com.wrmsr.tokamak.sql.query.tree.expression.QExpressionVisitor;
+import com.wrmsr.tokamak.sql.query.tree.expression.QParen;
+import com.wrmsr.tokamak.sql.query.tree.expression.QTextExpression;
+import com.wrmsr.tokamak.sql.query.tree.relation.QReferenceRelation;
+import com.wrmsr.tokamak.sql.query.tree.relation.QRelation;
+import com.wrmsr.tokamak.sql.query.tree.relation.QRelationVisitor;
 import com.wrmsr.tokamak.sql.query.tree.statement.QCreateTable;
+import com.wrmsr.tokamak.sql.query.tree.statement.QSelect;
 import com.wrmsr.tokamak.sql.query.tree.statement.QStatement;
 import com.wrmsr.tokamak.sql.query.tree.statement.QStatementVisitor;
 
@@ -48,7 +56,7 @@ public class QRenderer
             {
                 sb.append("CREATE TABLE ");
                 renderName(qstatement.getName());
-                sb.append("(");
+                sb.append(" (");
                 int i = 0;
                 for (QCreateTable.Column col : qstatement.getColumns()) {
                     if (i++ > 0) {
@@ -59,6 +67,65 @@ public class QRenderer
                     sb.append(col.getType());
                 }
                 sb.append(")");
+                return null;
+            }
+
+            @Override
+            public Void visitQSelect(QSelect qstatement, Void context)
+            {
+                sb.append("SELECT");
+                int i = 0;
+                for (QSelect.Item item : qstatement.getItems()) {
+                    if (i++ > 0) {
+                        sb.append(",");
+                    }
+                    sb.append(" ");
+                    renderExpression(item.getExpression());
+                    item.getLabel().ifPresent(l -> sb.append(String.format("AS %s", l)));
+                }
+                qstatement.getRelation().ifPresent(r -> {
+                    sb.append(" FROM ");
+                    renderRelation(r);
+                });
+                qstatement.getWhere().ifPresent(w -> {
+                    sb.append(" WHERE ");
+                    renderExpression(w);
+                });
+                return null;
+            }
+        }, null);
+    }
+
+    public void renderRelation(QRelation relation)
+    {
+        relation.accept(new QRelationVisitor<Void, Void>()
+        {
+            @Override
+            public Void visitQReferenceRelation(QReferenceRelation qrelation, Void context)
+            {
+                renderName(qrelation.getName());
+                return null;
+            }
+        }, null);
+    }
+
+    public void renderExpression(QExpression expression)
+    {
+        expression.accept(new QExpressionVisitor<Void, Void>()
+        {
+            @Override
+            public Void visitQParen(QParen qexpression, Void context)
+            {
+                sb.append("(");
+                renderExpression(qexpression.getChild());
+                sb.append(")");
+                return null;
+            }
+
+            @Override
+            public Void visitQTextExpression(QTextExpression qexpression, Void context)
+            {
+                sb.append(qexpression.getText());
                 return null;
             }
         }, null);
