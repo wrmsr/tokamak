@@ -40,7 +40,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
-import static com.wrmsr.tokamak.util.MorePreconditions.checkSingle;
 
 public class RowCacheImpl
         implements RowCache
@@ -63,8 +62,7 @@ public class RowCacheImpl
     {
         final String field;
 
-        @Nullable
-        final Object value;
+        @Nullable final Object value;
 
         boolean usedForKey;
         final Set<DriverRow> rows = new HashSet<>();

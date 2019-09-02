@@ -22,13 +22,21 @@ import com.wrmsr.tokamak.node.StatefulNode;
 import com.wrmsr.tokamak.util.Pair;
 
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
 public interface StateCache
 {
-    Optional<State> get(StatefulNode node, Id id);
+    enum GetFlag
+    {
+        CREATE,
+        INVALIDATE,
+        NOLOAD,
+    }
+
+    Optional<State> get(StatefulNode node, Id id, EnumSet<GetFlag> flags);
 
     boolean contains(State state);
 

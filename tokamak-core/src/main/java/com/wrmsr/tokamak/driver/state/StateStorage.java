@@ -47,7 +47,7 @@ public interface StateStorage
         LINKAGE,
         ATTRIBUTES,
         SHARE,
-        NOLOCK;
+        NOLOCK,
     }
 
     Map<StatefulNode, Map<Id, StorageState>> get(Context ctx, Map<StatefulNode, Set<Id>> idSetsByNode, EnumSet<GetFlag> flags)

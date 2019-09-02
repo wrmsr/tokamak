@@ -28,18 +28,21 @@ import com.wrmsr.tokamak.driver.context.diag.JournalEntry;
 import com.wrmsr.tokamak.driver.context.diag.Stat;
 import com.wrmsr.tokamak.driver.context.row.RowCache;
 import com.wrmsr.tokamak.driver.context.row.RowCacheImpl;
+import com.wrmsr.tokamak.driver.context.state.StateCache;
 import com.wrmsr.tokamak.driver.context.state.StateCacheImpl;
 import com.wrmsr.tokamak.driver.state.State;
 import com.wrmsr.tokamak.node.Node;
 import com.wrmsr.tokamak.node.StatefulNode;
 
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 
 public class DriverContextImpl
@@ -123,6 +126,24 @@ public class DriverContextImpl
                 addJournalEntry(new JournalEntry.RowCachedBuildOutput(node, key, rows));
             }
             return rows;
+        }
+
+        if (builder.getNode() instanceof StatefulNode && key instanceof IdKey) {
+            StatefulNode statefulNode = (StatefulNode) builder.getNode();
+            IdKey idKey = (IdKey) key;
+            Optional<State> stateOpt = stateCache.get(statefulNode, idKey.getId(), EnumSet.of(StateCache.GetFlag.CREATE));
+            if (stateOpt.isPresent()) {
+                State state = stateOpt.get();
+                checkState(state.getId().equals(idKey.getId()));
+                DriverRow row = new DriverRow(
+                        statefulNode,
+                        driver.getLineagePolicy().build(),
+                        state.getId(),
+                        state.getAttributes());
+                if (journaling) {
+                    addJournalEntry(new JournalEntry.StateCachedBuildOutput(node, key, ImmutableList.of(row), state));
+                }
+            }
         }
 
         Collection<DriverRow> rows = builder.build(this, key);

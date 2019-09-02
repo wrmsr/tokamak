@@ -25,13 +25,13 @@ import com.wrmsr.tokamak.plan.Plan;
 import com.wrmsr.tokamak.util.Pair;
 
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Predicate;
 import java.util.stream.IntStream;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
@@ -54,7 +54,7 @@ public class StateCacheImpl
     private final List<Node> prioritizedNodes;
     private final Map<Node, Integer> prioritiesByNode;
 
-    private final Set<State> states;
+    private final Set<State> allStates;
     private final Map<Node, Map<Id, State>> statesByIdByNode;
     private final Map<State, State.Mode> statesByMode;
     private final Map<State.Mode, Map<Integer, Set<Id>>> idSetsByNodePriorityByMode;
@@ -77,7 +77,7 @@ public class StateCacheImpl
                 .mapToObj(i -> new Pair.Immutable<>(prioritizedNodes.get(i), i))
                 .collect(toImmutableMap(Pair.Immutable::getKey, Pair.Immutable::getValue));
 
-        states = new HashSet<>();
+        allStates = new HashSet<>();
         statesByIdByNode = new HashMap<>();
         statesByMode = new HashMap<>();
         idSetsByNodePriorityByMode = new HashMap<>();
@@ -86,15 +86,22 @@ public class StateCacheImpl
     }
 
     @Override
-    public Optional<State> get(StatefulNode node, Id id)
+    public Optional<State> get(StatefulNode node, Id id, EnumSet<GetFlag> flags)
     {
-        return Optional.empty();
+        Map<Id, State> statesById = statesByIdByNode.computeIfAbsent(node, n -> new HashMap<>());
+        State state = statesById.get(id);
+        if (state != null) {
+            statUpdater.update(node, Stat.STATE_CACHE_HIT);
+            return Optional.of(state);
+        }
+
+        throw new IllegalStateException();
     }
 
     @Override
     public boolean contains(State state)
     {
-        return states.contains(state);
+        return allStates.contains(state);
     }
 
     @Override
@@ -105,19 +112,6 @@ public class StateCacheImpl
 
     @Override
     public boolean isInvalidated(StatefulNode node, Id id)
-    {
-        throw new IllegalStateException();
-    }
-
-    public Optional<State> getAll(
-            StateStorage.Context storageCtx,
-            StatefulNode node,
-            Id id,
-            boolean create,
-            boolean invalidate,
-            Optional<Predicate<State>> invalidateIf,
-            boolean share,
-            boolean noLoad)
     {
         throw new IllegalStateException();
     }
@@ -152,7 +146,7 @@ public class StateCacheImpl
     @Override
     public Collection<State> getAll()
     {
-        return states;
+        return allStates;
     }
 
     @Override
