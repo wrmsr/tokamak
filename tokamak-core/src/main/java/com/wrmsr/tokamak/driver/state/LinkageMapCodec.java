@@ -52,7 +52,7 @@ public final class LinkageMapCodec
         this.node = checkNotNull(node);
         this.attributesCodecsByNodeId = ImmutableMap.copyOf(attributesCodecsByNodeId);
         Set<NodeId> sourceNodeIds = node.getSources().stream().map(Node::getId).collect(toImmutableSet());
-        checkArgument(sourceNodeIds.equals(attributesCodecsByNodeId.keySet()));
+        sourceNodeIds.forEach(sni -> checkArgument(attributesCodecsByNodeId.containsKey(sni)));
     }
 
     public LinkageMapCodec(StatefulNode node)

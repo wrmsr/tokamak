@@ -157,6 +157,22 @@ public class DriverContextImpl
 
         rowCache.put(node, key, rows);
 
+        if (node instanceof StatefulNode) {
+            StatefulNode statefulNode = (StatefulNode) node;
+            for (DriverRow row : rows) {
+                if (row.getId() == null) {
+                    checkState(row.isNull());
+                    continue;
+                }
+
+                Optional<State> stateOpt = stateCache.get(statefulNode, row.getId(), EnumSet.of(StateCache.GetFlag.CREATE));
+                State state = stateOpt.get();
+                if (state.getMode() == State.Mode.INVALID) {
+                    state.setAttributes(row.getAttributes());
+                }
+            }
+        }
+
         return rows;
     }
 

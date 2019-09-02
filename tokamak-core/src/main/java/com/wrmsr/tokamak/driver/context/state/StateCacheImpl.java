@@ -116,7 +116,7 @@ public class StateCacheImpl
 
         statUpdater.update(node, Stat.STATE_CACHE_MISS);
 
-        if (!flags.contains(GetFlag.NOLOAD)) {
+        if (flags.contains(GetFlag.NOLOAD)) {
             return Optional.empty();
         }
 
@@ -171,18 +171,6 @@ public class StateCacheImpl
         return allStates.contains(state);
     }
 
-    @Override
-    public void invalidate(StatefulNode node, Set<Id> ids)
-    {
-        throw new IllegalStateException();
-    }
-
-    @Override
-    public boolean isInvalidated(StatefulNode node, Id id)
-    {
-        throw new IllegalStateException();
-    }
-
     private void trackNewState(State state)
     {
         checkState(!allStates.contains(state));
@@ -221,9 +209,46 @@ public class StateCacheImpl
         Map<Integer, SortedSet<Id>> map = idSetsByNodePriorityByMode.computeIfAbsent(oldState, s -> new TreeMap<>());
         Set<Id> set = map.computeIfAbsent(nodePriority, np -> new TreeSet<>());
         set.add(state.getId());
+
+        SortedSet<Id> pendingInvalidIds = pendingInvalidIdSetsByNodePriority.get(nodePriority);
+        if (pendingInvalidIds != null) {
+            if (pendingInvalidIds.contains(state.getId())) {
+                if (oldState != null) {
+                    checkState(oldState == State.Mode.INVALID);
+                }
+                pendingInvalidIds.remove(state.getId());
+            }
+            if (pendingInvalidIds.isEmpty()) {
+                pendingInvalidIdSetsByNodePriority.remove(nodePriority);
+            }
+        }
+
+        if (newState != State.Mode.INVALID && !attributesSetCallbackFiredStates.contains(state)) {
+            state.getAttributes();
+            attributesSetCallbackFiredStates.add(state);
+            for (AttributesSetCallback cb : attributesSetCallbacks) {
+                cb.onAttributesSet(state);
+            }
+        }
     }
 
     private void onStateModeChange(State state, State.Mode newMode, State.Mode oldMode)
+    {
+        // for (AttributesSetCallback cb : attributesSetCallbacks) {
+        //     cb.onAttributesSet(state, newMode, oldMode);
+        // }
+
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public void invalidate(StatefulNode node, Set<Id> ids)
+    {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public boolean isInvalidated(StatefulNode node, Id id)
     {
         throw new IllegalStateException();
     }

@@ -25,10 +25,12 @@ import static com.google.common.base.Preconditions.checkNotNull;
 @Immutable
 public final class StorageState
 {
-    /*
-    TODO:
-     - Mode { CREATED, SHARED, EXCLUSIVE } or smth
-    */
+    public enum Mode
+    {
+        CREATED,
+        SHARED,
+        EXCLUSIVE,
+    }
 
     private final StatefulNode node;
     private final Id id;

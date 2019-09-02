@@ -23,6 +23,7 @@ import javax.annotation.Nullable;
 import java.util.BitSet;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -35,12 +36,41 @@ public final class State
 {
     public enum Mode
     {
-        NOT_SET,
-        INVALID,
-        PHANTOM,
-        SHARED,
-        EXCLUSIVE,
-        MODIFIED
+        STORAGE_CREATED(true),
+        STORAGE_SHARED(true),
+        STORAGE_EXCLUSIVE(true),
+
+        INVALID(false),
+        PHANTOM(false),
+        SHARED(false),
+        EXCLUSIVE(false),
+        MODIFIED(false);
+
+        private final boolean isStorageMode;
+
+        Mode(boolean isStorageMode)
+        {
+            this.isStorageMode = isStorageMode;
+        }
+
+        public boolean isStorageMode()
+        {
+            return isStorageMode;
+        }
+
+        public static Mode fromStorageMode(StorageState.Mode storageMode)
+        {
+            switch (storageMode) {
+                case CREATED:
+                    return STORAGE_CREATED;
+                case SHARED:
+                    return STORAGE_SHARED;
+                case EXCLUSIVE:
+                    return STORAGE_EXCLUSIVE;
+                default:
+                    throw new IllegalArgumentException(Objects.toString(storageMode));
+            }
+        }
     }
 
     public static class ModeException
@@ -89,7 +119,7 @@ public final class State
 
     public State(StatefulNode node, Id id, Mode mode)
     {
-        checkArgument(mode != Mode.NOT_SET);
+        checkArgument(!mode.isStorageMode);
         this.node = checkNotNull(node);
         this.id = checkNotNull(id);
         this.mode = checkNotNull(mode);
@@ -98,20 +128,23 @@ public final class State
     private State(
             StatefulNode node,
             Id id,
+            Mode mode,
             long version,
             @Nullable Object[] attributes,
             @Nullable Linkage linkage)
     {
         this.node = checkNotNull(node);
         this.id = checkNotNull(id);
+        this.mode = checkNotNull(mode);
         this.version = version;
         this.attributes = attributes;
         this.linkage = linkage;
-        mode = Mode.NOT_SET;
+        checkArgument(mode.isStorageMode);
     }
 
     public static State newFromStorage(
             StatefulNode node,
+            StorageState.Mode storageMode,
             Id id,
             long version,
             @Nullable Object[] attributes,
@@ -120,6 +153,7 @@ public final class State
         return new State(
                 node,
                 id,
+                Mode.fromStorageMode(storageMode),
                 version,
                 attributes,
                 linkage);
@@ -204,8 +238,8 @@ public final class State
 
     public void setInitialMode(Mode mode)
     {
-        checkArgument(mode != Mode.NOT_SET);
-        checkState(this.mode == Mode.NOT_SET);
+        checkArgument(!mode.isStorageMode);
+        checkState(this.mode.isStorageMode);
         this.mode = mode;
         // FIXME: callback
     }
@@ -226,14 +260,14 @@ public final class State
 
     private void checkMode()
     {
-        if (mode == Mode.NOT_SET) {
+        if (mode.isStorageMode) {
             throw new ModeException(this);
         }
     }
 
     private void checkMode(boolean condition)
     {
-        if (mode == Mode.NOT_SET || !condition) {
+        if (mode.isStorageMode || !condition) {
             throw new ModeException(this);
         }
     }
