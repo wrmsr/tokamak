@@ -37,8 +37,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.SortedMap;
+import java.util.SortedSet;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.stream.IntStream;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
@@ -65,9 +70,9 @@ public class StateCacheImpl
 
     private final Set<State> allStates;
     private final Map<Node, Map<Id, State>> statesByIdByNode;
-    private final Map<State, State.Mode> statesByMode;
-    private final Map<State.Mode, Map<Integer, Set<Id>>> idSetsByNodePriorityByMode;
-    private final Map<Integer, Set<Id>> pendingInvalidIdSetsByNodePriority;
+    private final Map<State, State.Mode> modesByState;
+    private final Map<State.Mode, SortedMap<Integer, SortedSet<Id>>> idSetsByNodePriorityByMode;
+    private final SortedMap<Integer, SortedSet<Id>> pendingInvalidIdSetsByNodePriority;
     private final Set<State> attributesSetCallbackFiredStates;
 
     public StateCacheImpl(
@@ -90,9 +95,9 @@ public class StateCacheImpl
 
         allStates = new HashSet<>();
         statesByIdByNode = new HashMap<>();
-        statesByMode = new HashMap<>();
+        modesByState = new HashMap<>();
         idSetsByNodePriorityByMode = new HashMap<>();
-        pendingInvalidIdSetsByNodePriority = new HashMap<>();
+        pendingInvalidIdSetsByNodePriority = new TreeMap<>();
         attributesSetCallbackFiredStates = new HashSet<>();
     }
 
@@ -142,10 +147,22 @@ public class StateCacheImpl
         }
 
         checkNotNull(state);
-        checkState(!allStates.contains(state));
         checkState(state.getMode() == State.Mode.NOT_SET);
 
-        throw new IllegalStateException();
+        State.Mode initialMode;
+        int nodePriority = prioritiesByNode.get(node);
+        Set<Id> pendingInvalidationIds = pendingInvalidIdSetsByNodePriority.get(nodePriority);
+        boolean isPendingInvalidation = pendingInvalidationIds != null && pendingInvalidationIds.contains(id);
+        if (isPendingInvalidation || flags.contains(GetFlag.INVALIDATE)) {
+            initialMode = State.Mode.INVALID;
+        }
+        else {
+            initialMode = State.Mode.EXCLUSIVE;
+        }
+        state.setInitialMode(initialMode);
+
+        trackNewState(state);
+        return Optional.of(state);
     }
 
     @Override
@@ -168,12 +185,42 @@ public class StateCacheImpl
 
     private void trackNewState(State state)
     {
-        throw new IllegalStateException();
+        checkState(!allStates.contains(state));
+        Map<Id, State> statesById = statesByIdByNode.computeIfAbsent(state.getNode(), n -> new HashMap<>());
+        checkState(!statesById.containsKey(state.getId()));
+        allStates.add(state);
+        statesById.put(state.getId(), state);
+
+        trackStateStatus(state);
+
+        state.setModeCallback(this::onStateModeChange);
     }
 
     private void trackStateStatus(State state)
     {
-        throw new IllegalStateException();
+        checkArgument(state.getMode() != State.Mode.NOT_SET);
+        int nodePriority = prioritiesByNode.get(state.getNode());
+
+        State.Mode oldState = modesByState.get(state);
+        if (oldState != null) {
+            Map<Integer, SortedSet<Id>> map = checkNotNull(idSetsByNodePriorityByMode.get(oldState));
+            Set<Id> set = checkNotNull(map.get(nodePriority));
+            checkState(set.contains(state.getId()));
+            set.remove(state.getId());
+            if (set.isEmpty()) {
+                map.remove(nodePriority);
+            }
+            if (map.isEmpty()) {
+                idSetsByNodePriorityByMode.remove(oldState);
+            }
+        }
+
+        State.Mode newState = state.getMode();
+        modesByState.put(state, newState);
+
+        Map<Integer, SortedSet<Id>> map = idSetsByNodePriorityByMode.computeIfAbsent(oldState, s -> new TreeMap<>());
+        Set<Id> set = map.computeIfAbsent(nodePriority, np -> new TreeSet<>());
+        set.add(state.getId());
     }
 
     private void onStateModeChange(State state, State.Mode newMode, State.Mode oldMode)
