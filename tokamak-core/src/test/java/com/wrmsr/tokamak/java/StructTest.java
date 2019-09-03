@@ -45,6 +45,14 @@ import static com.google.common.collect.Sets.immutableEnumSet;
 public class StructTest
         extends TestCase
 {
+    /*
+    TODO:
+     - varhandle array faster than switch?
+      - lol gen VarHandles when present, don't use directly
+     - 'manifest' obj - factory, field info, etc
+      - class StructSpec: fields, final, etc?
+    */
+
     public interface Struct
     {
         boolean getBoolean(int position);

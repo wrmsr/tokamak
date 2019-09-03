@@ -36,6 +36,18 @@ import static com.wrmsr.tokamak.java.lang.tree.JTrees.jblockify;
 public class CodegenTest
         extends TestCase
 {
+    /*
+    TODO:
+     - struct / box
+     - final subclassing
+      - ctor forwarding
+       - factory exposing
+     - intrusive collections (ghetto valhalla)
+      - easier w bytecode? or on src at boot?
+       - https://wiki.openjdk.java.net/display/valhalla/Minimal+Value+Types
+     - parsing?
+    */
+
     public void testCodegen()
             throws Throwable
     {
