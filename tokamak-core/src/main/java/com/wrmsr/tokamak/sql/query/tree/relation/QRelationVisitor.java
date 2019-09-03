@@ -22,6 +22,11 @@ public class QRelationVisitor<R, C>
         throw new IllegalStateException(Objects.toString(qrelation));
     }
 
+    public R visitQAlias(QAlias qrelation, C context)
+    {
+        return visitQRelation(qrelation, context);
+    }
+
     public R visitQJoin(QJoin qrelation, C context)
     {
         return visitQRelation(qrelation, context);

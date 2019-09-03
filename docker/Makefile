@@ -3,6 +3,7 @@ DOCKER_USER=wrmsr
 DOCKER_DB_IMAGES:= \
 	tokamak-elasticsearch \
 	tokamak-kafka \
+	tokamak-memcached \
 	tokamak-mysql \
 	tokamak-postgres \
 	tokamak-redis \
@@ -15,6 +16,7 @@ DOCKER_IMAGES:= \
 DOCKER_COMPOSE_DB_SERVICES:= \
 	tokamak-elasticsearch \
 	tokamak-kafka \
+	tokamak-memcached \
 	tokamak-mysql-master \
 	tokamak-mysql-slave \
 	tokamak-postgres-master \

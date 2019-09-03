@@ -11,29 +11,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.sql.query.tree.expression;
 
-import javax.annotation.concurrent.Immutable;
+package com.wrmsr.tokamak.conn.heap;
 
-@Immutable
-public final class QTextExpression
-        extends QExpression
+import com.wrmsr.tokamak.api.Writer;
+
+public interface HeapWriter
+    extends Writer<HeapWriterTarget>
 {
-    private final String text;
-
-    public QTextExpression(String text)
-    {
-        this.text = text;
-    }
-
-    public String getText()
-    {
-        return text;
-    }
-
-    @Override
-    public <R, C> R accept(QExpressionVisitor<R, C> visitor, C context)
-    {
-        return visitor.visitQTextExpression(this, context);
-    }
 }

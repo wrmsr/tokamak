@@ -11,35 +11,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.api;
 
-import com.google.common.collect.ImmutableMap;
+package com.wrmsr.tokamak.conn.jdbc;
+
+import com.wrmsr.tokamak.api.WriterTarget;
 
 import javax.annotation.concurrent.Immutable;
 
 import java.util.Map;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 @Immutable
-public abstract class OutputTarget
+public final class JdbcWriterTarget
+        extends WriterTarget
 {
-    private final String name;
-    private final Map<String, Object> options;
-
-    public OutputTarget(String name, Map<String, Object> options)
+    public JdbcWriterTarget(String name, Map<String, Object> options)
     {
-        this.name = checkNotNull(name);
-        this.options = ImmutableMap.copyOf(options);
-    }
-
-    public String getName()
-    {
-        return name;
-    }
-
-    public Map<String, Object> getOptions()
-    {
-        return options;
+        super(name, options);
     }
 }

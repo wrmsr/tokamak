@@ -11,33 +11,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.sql.query.tree.relation;
+package com.wrmsr.tokamak.api;
 
-import com.wrmsr.tokamak.sql.query.tree.statement.QSelect;
+import com.google.common.collect.ImmutableMap;
 
 import javax.annotation.concurrent.Immutable;
+
+import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
-public final class QSubqueryRelation
-        extends QRelation
+public abstract class WriterTarget
 {
-    private final QSelect query;
+    private final String name;
+    private final Map<String, Object> options;
 
-    public QSubqueryRelation(QSelect query)
+    public WriterTarget(String name, Map<String, Object> options)
     {
-        this.query = checkNotNull(query);
+        this.name = checkNotNull(name);
+        this.options = ImmutableMap.copyOf(options);
     }
 
-    public QSelect getQuery()
+    public String getName()
     {
-        return query;
+        return name;
     }
 
-    @Override
-    public <R, C> R accept(QRelationVisitor<R, C> visitor, C context)
+    public Map<String, Object> getOptions()
     {
-        return visitor.visitQSubqueryRelation(this, context);
+        return options;
     }
 }

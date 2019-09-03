@@ -15,7 +15,7 @@ package com.wrmsr.tokamak.api;
 
 import java.io.IOException;
 
-public interface WriterFactory<T extends OutputTarget>
+public interface WriterFactory<T extends WriterTarget>
 {
     Class<? extends T> getTargetType();
 

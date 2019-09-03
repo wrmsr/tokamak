@@ -16,7 +16,7 @@ package com.wrmsr.tokamak.node;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
-import com.wrmsr.tokamak.api.OutputTarget;
+import com.wrmsr.tokamak.api.WriterTarget;
 import com.wrmsr.tokamak.node.visitor.NodeVisitor;
 import com.wrmsr.tokamak.type.Type;
 
@@ -34,14 +34,14 @@ public final class PersistNode
         implements SingleSourceNode
 {
     private final Node source;
-    private final List<OutputTarget> outputTargets;
+    private final List<WriterTarget> writerTargets;
     private final boolean denormalized;
 
     @JsonCreator
     public PersistNode(
             @JsonProperty("name") String name,
             @JsonProperty("source") Node source,
-            @JsonProperty("outputTargets") List<OutputTarget> outputTargets,
+            @JsonProperty("outputTargets") List<WriterTarget> writerTargets,
             @JsonProperty("denormalized") boolean denormalized,
             @JsonProperty("invalidations") Map<String, Invalidation> invalidations,
             @JsonProperty("linkageMasks") Map<String, LinkageMask> linkageMasks,
@@ -50,7 +50,7 @@ public final class PersistNode
         super(name, invalidations, linkageMasks, lockOverride);
 
         this.source = checkNotNull(source);
-        this.outputTargets = ImmutableList.copyOf(outputTargets);
+        this.writerTargets = ImmutableList.copyOf(writerTargets);
         this.denormalized = denormalized;
 
         checkInvariants();
@@ -64,9 +64,9 @@ public final class PersistNode
     }
 
     @JsonProperty("outputTargets")
-    public List<OutputTarget> getOutputTargets()
+    public List<WriterTarget> getWriterTargets()
     {
-        return outputTargets;
+        return writerTargets;
     }
 
     @JsonProperty("denormalized")

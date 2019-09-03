@@ -1,2 +1,2 @@
-FROM redis:5.0.5
+FROM memcached:1.5.17
 COPY .dockertimestamp /

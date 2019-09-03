@@ -102,7 +102,7 @@ public abstract class NodeRewriter<C>
         return new PersistNode(
                 visitNodeName(node.getName(), context),
                 get(node.getSource(), context),
-                node.getOutputTargets(),
+                node.getWriterTargets(),
                 node.isDenormalized(),
                 node.getInvalidations().entrySet().stream()
                         .collect(ImmutableMap.toImmutableMap(e -> visitNodeName(e.getKey(), context), Map.Entry::getValue)),

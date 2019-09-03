@@ -11,33 +11,43 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.sql.query.tree.relation;
 
-import com.wrmsr.tokamak.sql.query.tree.statement.QSelect;
+package com.wrmsr.tokamak.conn.heap;
 
-import javax.annotation.concurrent.Immutable;
+import com.wrmsr.tokamak.api.Id;
+import com.wrmsr.tokamak.api.Row;
+import com.wrmsr.tokamak.util.Span;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import java.io.IOException;
+import java.util.List;
 
-@Immutable
-public final class QSubqueryRelation
-        extends QRelation
+public class MapHeapWriter
+    implements HeapWriter
 {
-    private final QSelect query;
-
-    public QSubqueryRelation(QSelect query)
+    @Override
+    public HeapWriterTarget getTarget()
     {
-        this.query = checkNotNull(query);
-    }
-
-    public QSelect getQuery()
-    {
-        return query;
+        return null;
     }
 
     @Override
-    public <R, C> R accept(QRelationVisitor<R, C> visitor, C context)
+    public void write(List<Row> rows)
+            throws IOException
     {
-        return visitor.visitQSubqueryRelation(this, context);
+
+    }
+
+    @Override
+    public void writeRange(Span<Id> idSpan, List<Row> rows)
+            throws IOException
+    {
+
+    }
+
+    @Override
+    public void close()
+            throws Exception
+    {
+
     }
 }

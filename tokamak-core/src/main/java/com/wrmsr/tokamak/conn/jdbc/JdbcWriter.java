@@ -11,21 +11,44 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.api;
 
+package com.wrmsr.tokamak.conn.jdbc;
+
+import com.wrmsr.tokamak.api.Id;
+import com.wrmsr.tokamak.api.Row;
+import com.wrmsr.tokamak.api.Writer;
 import com.wrmsr.tokamak.util.Span;
 
 import java.io.IOException;
 import java.util.List;
 
-public interface Writer<T extends WriterTarget>
-        extends AutoCloseable
+public class JdbcWriter
+        implements Writer<JdbcWriterTarget>
 {
-    T getTarget();
+    @Override
+    public JdbcWriterTarget getTarget()
+    {
+        return null;
+    }
 
-    void write(List<Row> rows)
-            throws IOException;
+    @Override
+    public void write(List<Row> rows)
+            throws IOException
+    {
 
-    void writeRange(Span<Id> idSpan, List<Row> rows)
-            throws IOException;
+    }
+
+    @Override
+    public void writeRange(Span<Id> idSpan, List<Row> rows)
+            throws IOException
+    {
+
+    }
+
+    @Override
+    public void close()
+            throws Exception
+    {
+
+    }
 }

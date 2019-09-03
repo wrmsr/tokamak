@@ -11,33 +11,42 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.sql.query.tree.relation;
 
-import com.wrmsr.tokamak.sql.query.tree.statement.QSelect;
+package com.wrmsr.tokamak.sql.query.tree.relation;
 
 import javax.annotation.concurrent.Immutable;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 
 @Immutable
-public final class QSubqueryRelation
+public final class QAlias
         extends QRelation
 {
-    private final QSelect query;
+    private final QRelation child;
+    private final String name;
 
-    public QSubqueryRelation(QSelect query)
+    public QAlias(QRelation child, String name)
     {
-        this.query = checkNotNull(query);
+        this.child = checkNotNull(child);
+        this.name = checkNotEmpty(name);
+        checkArgument(!(child instanceof QAlias));
     }
 
-    public QSelect getQuery()
+    public QRelation getChild()
     {
-        return query;
+        return child;
+    }
+
+    public String getName()
+    {
+        return name;
     }
 
     @Override
     public <R, C> R accept(QRelationVisitor<R, C> visitor, C context)
     {
-        return visitor.visitQSubqueryRelation(this, context);
+        return visitor.visitQAlias(this, context);
     }
 }

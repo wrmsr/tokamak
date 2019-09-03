@@ -11,33 +11,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.sql.query.tree.relation;
 
-import com.wrmsr.tokamak.sql.query.tree.statement.QSelect;
+package com.wrmsr.tokamak.conn.heap;
+
+import com.wrmsr.tokamak.api.WriterTarget;
 
 import javax.annotation.concurrent.Immutable;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import java.util.Map;
 
 @Immutable
-public final class QSubqueryRelation
-        extends QRelation
+public final class HeapWriterTarget
+    extends WriterTarget
 {
-    private final QSelect query;
-
-    public QSubqueryRelation(QSelect query)
+    public HeapWriterTarget(String name, Map<String, Object> options)
     {
-        this.query = checkNotNull(query);
-    }
-
-    public QSelect getQuery()
-    {
-        return query;
-    }
-
-    @Override
-    public <R, C> R accept(QRelationVisitor<R, C> visitor, C context)
-    {
-        return visitor.visitQSubqueryRelation(this, context);
+        super(name, options);
     }
 }

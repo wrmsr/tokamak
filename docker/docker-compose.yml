@@ -2,6 +2,46 @@ version: '2'
 
 services:
 
+  tokamak-elasticsearch:
+    build: '.'
+    image: 'wrmsr/tokamak-elasticsearch:latest'
+    restart: 'always'
+    environment:
+      ES_JAVA_OPTS: '-Xms750m -Xmx750m'
+      discovery.type: 'single-node'
+      xpack.security.enabled: 'false'
+    expose:
+      - '9200'
+    ports:
+      - '21216:9200'
+
+  tokamak-kafka:
+    image: 'wrmsr/tokamak-kafka:latest'
+    hostname: 'tokamak-kafka'
+    ports:
+      - '9092:9092'
+    environment:
+      KAFKA_ADVERTISED_LISTENERS: 'LISTENER_DOCKER_INTERNAL://tokamak-kafka:19092,LISTENER_DOCKER_EXTERNAL://127.0.0.1:9092'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'LISTENER_DOCKER_INTERNAL:PLAINTEXT,LISTENER_DOCKER_EXTERNAL:PLAINTEXT'
+      KAFKA_INTER_BROKER_LISTENER_NAME: 'LISTENER_DOCKER_INTERNAL'
+      KAFKA_ZOOKEEPER_CONNECT: 'tokamak-zookeeper:2181'
+      KAFKA_BROKER_ID: 1
+      KAFKA_LOG4J_LOGGERS: 'kafka.controller=INFO,kafka.producer.async.DefaultEventHandler=INFO,state.change.logger=INFO'
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    volumes:
+      - '../temp/kafka/data:/var/lib/kafka/data'
+    depends_on:
+      - 'tokamak-zookeeper'
+
+  tokamak-memcached:
+    build: '.'
+    image: 'wrmsr/tokamak-memcached:latest'
+    restart: 'always'
+    expose:
+      - '11211'
+    ports:
+      - '21217:11211'
+
   tokamak-mysql-master:
     build: '.'
     image: 'wrmsr/tokamak-mysql:latest'
@@ -73,19 +113,6 @@ services:
     ports:
       - '21215:6379'
 
-  tokamak-elasticsearch:
-    build: '.'
-    image: 'wrmsr/tokamak-elasticsearch:latest'
-    restart: 'always'
-    environment:
-      ES_JAVA_OPTS: '-Xms750m -Xmx750m'
-      discovery.type: 'single-node'
-      xpack.security.enabled: 'false'
-    expose:
-    - '9200'
-    ports:
-    - '21216:9200'
-
   tokamak-zookeeper:
     image: 'wrmsr/tokamak-zookeeper:latest'
     hostname: 'tokamak-zookeeper'
@@ -98,24 +125,6 @@ services:
     volumes:
       - '../temp/zookeeper/data:/data'
       - '../temp/zookeeper/datalog:/datalog'
-
-  tokamak-kafka:
-    image: 'wrmsr/tokamak-kafka:latest'
-    hostname: 'tokamak-kafka'
-    ports:
-      - '9092:9092'
-    environment:
-      KAFKA_ADVERTISED_LISTENERS: 'LISTENER_DOCKER_INTERNAL://tokamak-kafka:19092,LISTENER_DOCKER_EXTERNAL://127.0.0.1:9092'
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'LISTENER_DOCKER_INTERNAL:PLAINTEXT,LISTENER_DOCKER_EXTERNAL:PLAINTEXT'
-      KAFKA_INTER_BROKER_LISTENER_NAME: 'LISTENER_DOCKER_INTERNAL'
-      KAFKA_ZOOKEEPER_CONNECT: 'tokamak-zookeeper:2181'
-      KAFKA_BROKER_ID: 1
-      KAFKA_LOG4J_LOGGERS: 'kafka.controller=INFO,kafka.producer.async.DefaultEventHandler=INFO,state.change.logger=INFO'
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-    volumes:
-      - '../temp/kafka/data:/var/lib/kafka/data'
-    depends_on:
-      - 'tokamak-zookeeper'
 
   tokamak-dev:
     build: '.'
@@ -134,6 +143,7 @@ services:
     depends_on:
       - 'tokamak-elasticsearch'
       - 'tokamak-kafka'
+      - 'tokamak-memcached'
       - 'tokamak-mysql-master'
       - 'tokamak-mysql-slave'
       - 'tokamak-postgres-master'
@@ -143,6 +153,7 @@ services:
     links:
       - 'tokamak-elasticsearch'
       - 'tokamak-kafka'
+      - 'tokamak-memcached'
       - 'tokamak-mysql-master'
       - 'tokamak-mysql-slave'
       - 'tokamak-postgres-master'

@@ -5,6 +5,7 @@
 .venv
 attic
 target
+temp
 
 !.git/HEAD
 !.git/refs
