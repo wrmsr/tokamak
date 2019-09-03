@@ -15,16 +15,22 @@
 package com.wrmsr.tokamak;
 
 import com.google.common.base.Charsets;
+import com.google.common.collect.ImmutableList;
 import com.google.common.primitives.Bytes;
 import com.wrmsr.tokamak.util.OpenByteArrayOutputStream;
 import com.wrmsr.tokamak.util.box.Box;
 import junit.framework.TestCase;
 
+import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
 
 import static com.google.common.base.Preconditions.checkState;
 
@@ -51,17 +57,13 @@ public class RedisTest
 
     public static final byte[] NULL_BULK_STRING = new byte[] {'$', '-', '1', '\r', '\n'};
 
-    public static void encodeResp(OutputStream output, String value)
+    public static void encodeRespNull(OutputStream output)
             throws IOException
     {
-        byte[] bytes = value.getBytes(CHARSET);
-        checkState(Bytes.indexOf(bytes, CR) < 0 && Bytes.indexOf(bytes, LF) < 0);
-        output.write(PREFIX_SIMPLE_STRING);
-        output.write(bytes);
-        output.write(SUFFIX);
+        output.write(NULL_BULK_STRING);
     }
 
-    public static void encodeResp(OutputStream output, byte value)
+    public static void encodeRespByte(OutputStream output, byte value)
             throws IOException
     {
         output.write(PREFIX_INTEGER);
@@ -69,7 +71,7 @@ public class RedisTest
         output.write(SUFFIX);
     }
 
-    public static void encodeResp(OutputStream output, short value)
+    public static void encodeRespShort(OutputStream output, short value)
             throws IOException
     {
         output.write(PREFIX_INTEGER);
@@ -77,7 +79,7 @@ public class RedisTest
         output.write(SUFFIX);
     }
 
-    public static void encodeResp(OutputStream output, int value)
+    public static void encodeRespInt(OutputStream output, int value)
             throws IOException
     {
         output.write(PREFIX_INTEGER);
@@ -85,7 +87,7 @@ public class RedisTest
         output.write(SUFFIX);
     }
 
-    public static void encodeResp(OutputStream output, long value)
+    public static void encodeRespLong(OutputStream output, long value)
             throws IOException
     {
         output.write(PREFIX_INTEGER);
@@ -93,21 +95,67 @@ public class RedisTest
         output.write(SUFFIX);
     }
 
-    public static void encodeResp(OutputStream output, byte[] value)
+    public static void encodeRespBytes(OutputStream output, byte[] value)
             throws IOException
     {
         output.write(PREFIX_BULK_STRING);
-        output.write(Integer.toString(value.length).getBytes(Charsets.US_ASCII));
-        output.write(CRLF);
-        output.write(value);
-        output.write(CRLF);
+        if (Bytes.indexOf(value, CR) < 0 && Bytes.indexOf(value, LF) < 0) {
+            output.write(PREFIX_SIMPLE_STRING);
+            output.write(value);
+        }
+        else {
+            output.write(Integer.toString(value.length).getBytes(Charsets.US_ASCII));
+            output.write(CRLF);
+            output.write(value);
+        }
+        output.write(SUFFIX);
+    }
+
+    public static void encodeRespString(OutputStream output, String value)
+            throws IOException
+    {
+        encodeRespBytes(output, value.getBytes(CHARSET));
+    }
+
+    public static void encodeRespList(OutputStream output, List value)
+            throws IOException
+    {
+        output.write(PREFIX_ARRAY);
+        output.write(Integer.toString(value.size()).getBytes(Charsets.US_ASCII));
+        for (Object item : value) {
+            encodeResp(output, item);
+        }
     }
 
     public static void encodeResp(OutputStream output, Object value)
             throws IOException
     {
-        if (value instanceof Long || value instanceof Integer) {
-            output.write(PREFIX_INTEGER);
+        if (value == null) {
+            output.write(NULL_BULK_STRING);
+        }
+        else if (value instanceof Byte) {
+            encodeRespByte(output, (byte) value);
+        }
+        else if (value instanceof Short) {
+            encodeRespShort(output, (short) value);
+        }
+        else if (value instanceof Integer) {
+            encodeRespInt(output, (int) value);
+        }
+        else if (value instanceof Long) {
+            encodeRespLong(output, (long) value);
+        }
+        else if (value instanceof byte[]) {
+            encodeRespBytes(output, (byte[]) value);
+        }
+        else if (value instanceof String) {
+            encodeRespString(output, (String) value);
+        }
+        else if (value instanceof List) {
+            encodeRespList(output, (List) value);
+        }
+        else {
+            throw new IllegalArgumentException(Objects.toString(value));
         }
     }
 
@@ -195,6 +243,13 @@ public class RedisTest
                 return new String(bos.getBuf(), 0, bos.size(), CHARSET);
             }
 
+            private String readLineAsciiString()
+                    throws IOException
+            {
+                OpenByteArrayOutputStream bos = readLineByteArrayOutputStream();
+                return new String(bos.getBuf(), 0, bos.size(), Charsets.US_ASCII);
+            }
+
             @Override
             public Object next()
             {
@@ -209,18 +264,29 @@ public class RedisTest
                             return new Error(readLineString());
                         }
                         case PREFIX_INTEGER: {
-                            return Long.parseLong(readLineString());
+                            return Long.parseLong(readLineAsciiString());
                         }
                         case PREFIX_BULK_STRING: {
-                            int length = Integer.parseInt(readLineString());
+                            int length = Integer.parseInt(readLineAsciiString());
+                            if (length == -1) {
+                                return null;
+                            }
                             byte[] buf = new byte[length];
                             int read = input.read(buf);
                             checkState(read == length);
                             return buf;
                         }
                         case PREFIX_ARRAY: {
-                            break;
+                            int length = Integer.parseInt(readLineAsciiString());
+                            ArrayList<Object> lst = new ArrayList<>();
+                            lst.ensureCapacity(length);
+                            for (int i = 0; i < length; ++i) {
+                                lst.add(next());
+                            }
+                            return lst;
                         }
+                        default:
+                            throw new IllegalStateException(Objects.toString(prefix));
                     }
                 }
                 catch (IOException e) {
@@ -233,7 +299,14 @@ public class RedisTest
     public void testRedis()
             throws Throwable
     {
-        // byte[] buf;
-        // Bytes.indexOf(buf, SUFFIX)
+        for (String str : new String[] {
+                "+OK\r\n",
+                "$6\r\nfoobar\r\n",
+                "*2\r\n$3\r\nfoo\r\n$3\r\nbar\r\n",
+                "*3\r\n:1\r\n:2\r\n:3\r\n",
+        }) {
+            List<Object> lst = ImmutableList.copyOf(decodeResp(new BufferedInputStream(new ByteArrayInputStream(str.getBytes()))));
+            System.out.println(lst);
+        }
     }
 }
