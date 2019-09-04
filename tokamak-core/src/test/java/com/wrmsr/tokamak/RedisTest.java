@@ -224,6 +224,7 @@ public class RedisTest
                 while (true) {
                     byte b = nextByte();
                     if (b == CR && peek() == LF) {
+                        nextByte();
                         return bos;
                     }
                     bos.write(b);
@@ -250,11 +251,19 @@ public class RedisTest
                 return new String(bos.getBuf(), 0, bos.size(), Charsets.US_ASCII);
             }
 
+            private void readSuffix()
+                    throws IOException
+            {
+                for (byte b : SUFFIX) {
+                    checkState(nextByte() == b);
+                }
+            }
+
             @Override
             public Object next()
             {
                 try {
-                    byte prefix = (byte) input.read();
+                    byte prefix = nextByte();
 
                     switch (prefix) {
                         case PREFIX_SIMPLE_STRING: {
@@ -272,8 +281,16 @@ public class RedisTest
                                 return null;
                             }
                             byte[] buf = new byte[length];
-                            int read = input.read(buf);
-                            checkState(read == length);
+                            if (hasPeekByte) {
+                                buf[0] = nextByte();
+                                int read = input.read(buf, 1, length - 1);
+                                checkState(read == length - 1);
+                            }
+                            else {
+                                int read = input.read(buf);
+                                checkState(read == length);
+                            }
+                            readSuffix();
                             return buf;
                         }
                         case PREFIX_ARRAY: {
