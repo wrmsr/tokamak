@@ -185,7 +185,7 @@ public class DriverContextImpl
     @Override
     public void commit()
     {
-        throw new IllegalStateException();
+        stateCache.flush();
     }
 
     @Override

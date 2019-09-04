@@ -25,12 +25,10 @@ import com.wrmsr.tokamak.catalog.Schema;
 import com.wrmsr.tokamak.catalog.Table;
 import com.wrmsr.tokamak.conn.heap.HeapConnector;
 import com.wrmsr.tokamak.conn.heap.table.MapHeapTable;
+import com.wrmsr.tokamak.conn.jdbc.JdbcConnector;
 import com.wrmsr.tokamak.driver.Driver;
 import com.wrmsr.tokamak.driver.DriverImpl;
 import com.wrmsr.tokamak.func.RowMapFunction;
-import com.wrmsr.tokamak.conn.jdbc.JdbcConnector;
-import com.wrmsr.tokamak.sql.SqlEngine;
-import com.wrmsr.tokamak.sql.SqlUtils;
 import com.wrmsr.tokamak.layout.RowLayout;
 import com.wrmsr.tokamak.layout.TableLayout;
 import com.wrmsr.tokamak.node.EquijoinNode;
@@ -41,6 +39,8 @@ import com.wrmsr.tokamak.node.Projection;
 import com.wrmsr.tokamak.node.ScanNode;
 import com.wrmsr.tokamak.plan.Plan;
 import com.wrmsr.tokamak.plan.dot.Dot;
+import com.wrmsr.tokamak.sql.SqlEngine;
+import com.wrmsr.tokamak.sql.SqlUtils;
 import com.wrmsr.tokamak.type.Type;
 import io.airlift.tpch.TpchTable;
 import junit.framework.Test;
@@ -232,6 +232,8 @@ public class AppTest
                 Key.of("N_NATIONKEY", 10));
 
         System.out.println(buildRows);
+
+        driverContext.commit();
     }
 
     public void testDot()

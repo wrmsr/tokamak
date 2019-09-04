@@ -56,5 +56,5 @@ public interface StateCache
 
     Map<Id, State> getIdMap(StatefulNode node);
 
-    void flush(StateStorage.Context storageCtx);
+    void flush();
 }

@@ -21,6 +21,7 @@ import com.wrmsr.tokamak.api.Row;
 import com.wrmsr.tokamak.driver.CodecManager;
 import com.wrmsr.tokamak.driver.context.diag.Stat;
 import com.wrmsr.tokamak.driver.state.State;
+import com.wrmsr.tokamak.driver.state.StateCodec;
 import com.wrmsr.tokamak.driver.state.StateStorage;
 import com.wrmsr.tokamak.driver.state.StorageState;
 import com.wrmsr.tokamak.node.Node;
@@ -53,6 +54,11 @@ import static com.wrmsr.tokamak.util.MorePreconditions.checkSingle;
 public class DefaultStateCache
         implements StateCache
 {
+    /*
+    TODO:
+     - StatefulNode everywhere?
+    */
+
     @FunctionalInterface
     public interface AttributesSetCallback
     {
@@ -290,8 +296,19 @@ public class DefaultStateCache
     }
 
     @Override
-    public void flush(StateStorage.Context storageCtx)
+    public void flush()
     {
-        throw new IllegalStateException();
+        try (StateStorage.Context storageContext = storage.createContext()) {
+            for (Map.Entry<Node, Map<Id, State>> e0 : statesByIdByNode.entrySet()) {
+                Node node = e0.getKey();
+                Map<Id, State> statesById = e0.getValue();
+                StateCodec stateCodec = codecManager.getStateCodecsByNode().get(node);
+                for (Map.Entry<Id, State> e1 : statesById.entrySet()) {
+                    Id id = e1.getKey();
+                    State state = e1.getValue();
+                    StorageState storageState = stateCodec.encode(state);
+                }
+            }
+        }
     }
 }
