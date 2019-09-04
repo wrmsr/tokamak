@@ -11,18 +11,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package com.wrmsr.tokamak;
+package com.wrmsr.tokamak.redis;
 
 import com.google.common.base.Charsets;
-import com.google.common.collect.ImmutableList;
 import com.google.common.primitives.Bytes;
 import com.wrmsr.tokamak.util.OpenByteArrayOutputStream;
 import com.wrmsr.tokamak.util.box.Box;
-import junit.framework.TestCase;
 
-import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -34,8 +29,7 @@ import java.util.Objects;
 
 import static com.google.common.base.Preconditions.checkState;
 
-public class RedisTest
-        extends TestCase
+public final class Resp
 {
     /*
     https://redis.io/topics/protocol
@@ -57,13 +51,17 @@ public class RedisTest
 
     public static final byte[] NULL_BULK_STRING = new byte[] {'$', '-', '1', '\r', '\n'};
 
-    public static void encodeRespNull(OutputStream output)
+    private Resp()
+    {
+    }
+
+    public static void encodeNull(OutputStream output)
             throws IOException
     {
         output.write(NULL_BULK_STRING);
     }
 
-    public static void encodeRespByte(OutputStream output, byte value)
+    public static void encodeByte(OutputStream output, byte value)
             throws IOException
     {
         output.write(PREFIX_INTEGER);
@@ -71,7 +69,7 @@ public class RedisTest
         output.write(SUFFIX);
     }
 
-    public static void encodeRespShort(OutputStream output, short value)
+    public static void encodeShort(OutputStream output, short value)
             throws IOException
     {
         output.write(PREFIX_INTEGER);
@@ -79,7 +77,7 @@ public class RedisTest
         output.write(SUFFIX);
     }
 
-    public static void encodeRespInt(OutputStream output, int value)
+    public static void encodeInt(OutputStream output, int value)
             throws IOException
     {
         output.write(PREFIX_INTEGER);
@@ -87,7 +85,7 @@ public class RedisTest
         output.write(SUFFIX);
     }
 
-    public static void encodeRespLong(OutputStream output, long value)
+    public static void encodeLong(OutputStream output, long value)
             throws IOException
     {
         output.write(PREFIX_INTEGER);
@@ -95,7 +93,7 @@ public class RedisTest
         output.write(SUFFIX);
     }
 
-    public static void encodeRespBytes(OutputStream output, byte[] value)
+    public static void encodeBytes(OutputStream output, byte[] value)
             throws IOException
     {
         output.write(PREFIX_BULK_STRING);
@@ -111,48 +109,48 @@ public class RedisTest
         output.write(SUFFIX);
     }
 
-    public static void encodeRespString(OutputStream output, String value)
+    public static void encodeString(OutputStream output, String value)
             throws IOException
     {
-        encodeRespBytes(output, value.getBytes(CHARSET));
+        encodeBytes(output, value.getBytes(CHARSET));
     }
 
-    public static void encodeRespList(OutputStream output, List value)
+    public static void encodeList(OutputStream output, List value)
             throws IOException
     {
         output.write(PREFIX_ARRAY);
         output.write(Integer.toString(value.size()).getBytes(Charsets.US_ASCII));
         for (Object item : value) {
-            encodeResp(output, item);
+            encode(output, item);
         }
     }
 
-    public static void encodeResp(OutputStream output, Object value)
+    public static void encode(OutputStream output, Object value)
             throws IOException
     {
         if (value == null) {
             output.write(NULL_BULK_STRING);
         }
         else if (value instanceof Byte) {
-            encodeRespByte(output, (byte) value);
+            encodeByte(output, (byte) value);
         }
         else if (value instanceof Short) {
-            encodeRespShort(output, (short) value);
+            encodeShort(output, (short) value);
         }
         else if (value instanceof Integer) {
-            encodeRespInt(output, (int) value);
+            encodeInt(output, (int) value);
         }
         else if (value instanceof Long) {
-            encodeRespLong(output, (long) value);
+            encodeLong(output, (long) value);
         }
         else if (value instanceof byte[]) {
-            encodeRespBytes(output, (byte[]) value);
+            encodeBytes(output, (byte[]) value);
         }
         else if (value instanceof String) {
-            encodeRespString(output, (String) value);
+            encodeString(output, (String) value);
         }
         else if (value instanceof List) {
-            encodeRespList(output, (List) value);
+            encodeList(output, (List) value);
         }
         else {
             throw new IllegalArgumentException(Objects.toString(value));
@@ -170,7 +168,7 @@ public class RedisTest
 
     private static int PEEK_FAIL = -1;
 
-    public static Iterator<Object> decodeResp(InputStream input)
+    public static Iterator<Object> decode(InputStream input)
     {
         return new Iterator<Object>()
         {
@@ -311,19 +309,5 @@ public class RedisTest
                 }
             }
         };
-    }
-
-    public void testRedis()
-            throws Throwable
-    {
-        for (String str : new String[] {
-                "+OK\r\n",
-                "$6\r\nfoobar\r\n",
-                "*2\r\n$3\r\nfoo\r\n$3\r\nbar\r\n",
-                "*3\r\n:1\r\n:2\r\n:3\r\n",
-        }) {
-            List<Object> lst = ImmutableList.copyOf(decodeResp(new BufferedInputStream(new ByteArrayInputStream(str.getBytes()))));
-            System.out.println(lst);
-        }
     }
 }
