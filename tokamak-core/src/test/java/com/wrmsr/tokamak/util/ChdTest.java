@@ -32,6 +32,10 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class ChdTest
         extends TestCase
 {
+    /*
+    https://github.com/alecthomas/mph
+    */
+
     public static long hash(byte[] data)
     {
         long hash = 0xcbf29ce484222325L;
@@ -190,6 +194,9 @@ public class ChdTest
             Hasher hasher = new Hasher(n, m);
 
             Bucket[] buckets = new Bucket[(int) m];
+            for (int i = 0; i < buckets.length; ++i) {
+                buckets[i] = new Bucket();
+            }
             int[] indices = new int[(int) m];
             Arrays.fill(indices, -1);
 
@@ -258,26 +265,6 @@ public class ChdTest
     public static byte[] utf8(String s)
     {
         return s.getBytes(Charsets.UTF_8);
-    }
-
-    public byte[][] toByteArrays(List<String> l)
-    {
-        byte[][] b = new byte[l.size()][];
-        for (int i = 0; i < l.size(); ++i) {
-            b[i] = utf8(l.get(i));
-        }
-        return b;
-    }
-
-    public Pair<byte[][], byte[][]> toByteArrays(Map<String, String> map)
-    {
-        List<String> ks = new ArrayList<>();
-        List<String> vs = new ArrayList<>();
-        map.forEach((k, v) -> {
-            ks.add(k);
-            vs.add(v);
-        });
-        return Pair.immutable(toByteArrays(ks), toByteArrays(vs));
     }
 
     public void testHash()
