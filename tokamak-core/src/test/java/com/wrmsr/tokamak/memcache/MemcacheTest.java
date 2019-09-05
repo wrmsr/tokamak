@@ -11,24 +11,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.codec;
 
-public interface Input
+package com.wrmsr.tokamak.memcache;
+
+import junit.framework.TestCase;
+
+public class MemcacheTest
+    extends TestCase
 {
-    byte get();
-
-    long getLong();
-
-    byte[] getBytes();
-
-    default byte[] getBytes(int sz)
-    {
-        byte[] buf = new byte[sz];
-        for (int i = 0; i < sz; ++i) {
-            buf[i] = get();
-        }
-        return buf;
-    }
-
-    Input nest(int sz);
 }

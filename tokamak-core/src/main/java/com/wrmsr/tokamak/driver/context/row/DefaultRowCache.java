@@ -214,7 +214,6 @@ public class DefaultRowCache
                 for (Map.Entry<String, Object> keyEntry : fieldKey.getValuesByField().entrySet()) {
                     String field = keyEntry.getKey();
                     Object value = keyEntry.getValue();
-                    int pos = node.getRowLayout().getPositionsByField().get(field);
                     Map<Object, KeyFieldValueEntry> map = keyFieldValueEntriesByValueByKeyField.get(field);
                     KeyFieldValueEntry entry = map.computeIfAbsent(value, v -> new KeyFieldValueEntry(field, value));
                     if (entry.usedForKey) {

@@ -34,11 +34,14 @@ import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 
 public final class LinkageMapCodec
         implements Codec<Map<NodeId, Linkage.Links>, byte[]>
 {
+    private static final byte PREFIX = 0x42;
+
     private static final ValueCodec<Number> LONG_CODEC = ValueCodecs.LONG_VALUE_CODEC;
 
     private final StatefulNode node;
@@ -112,6 +115,7 @@ public final class LinkageMapCodec
     public byte[] encode(Map<NodeId, Linkage.Links> linksMap)
     {
         ByteArrayOutput output = new ByteArrayOutput();
+        output.put(PREFIX);
         LONG_CODEC.encode(linksMap.size(), output);
         for (Map.Entry<NodeId, Linkage.Links> entry : linksMap.entrySet()) {
             NodeId nodeId = entry.getKey();
@@ -136,6 +140,8 @@ public final class LinkageMapCodec
     public Map<NodeId, Linkage.Links> decode(byte[] data)
     {
         ByteArrayInput input = new ByteArrayInput(data);
+        byte prefix = input.get();
+        checkState(prefix == PREFIX);
         int sz = (int) LONG_CODEC.decode(input);
         ImmutableMap.Builder<NodeId, Linkage.Links> builder = ImmutableMap.builderWithExpectedSize(sz);
         for (int i = 0; i < sz; ++i) {

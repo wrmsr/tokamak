@@ -38,11 +38,6 @@ import static java.util.function.Function.identity;
 
 public final class CodecManager
 {
-    /*
-    TODO:
-     - prefix w version byte
-    */
-
     private static final int MAX_LINKAGE_SIZE = 128 * 1024 * 1024;
     private static final int MAX_ATTRIBUTES_SIZE = 128 * 1024 * 1024;
 

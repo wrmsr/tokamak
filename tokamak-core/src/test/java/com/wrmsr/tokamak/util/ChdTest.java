@@ -24,6 +24,7 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -82,16 +83,18 @@ public class ChdTest
 
     public static final class Hasher
     {
-        private long size;
-        private long buckets;
+        private int size;
+        private int buckets;
+        private final Random random;
 
         private List<Long> r = new ArrayList<>();
 
-        public Hasher(long size, long buckets)
+        public Hasher(int size, int buckets, Random random)
         {
             this.size = size;
             this.buckets = buckets;
-            r.add(ThreadLocalRandom.current().nextLong());
+            this.random = random;
+            r.add(random.nextLong());
         }
 
         public boolean tryHash(Set<Long> seen, byte[][] keys, byte[][] values, int[] indices, Bucket bucket, int ri, long r)
@@ -126,14 +129,14 @@ public class ChdTest
             return true;
         }
 
-        public long hashIndexFromKey(byte[] b)
+        public int hashIndexFromKey(byte[] b)
         {
-            return (hash(b) ^ r.get(0)) % buckets;
+            return ((int) (hash(b) ^ r.get(0)) & Integer.MAX_VALUE) % buckets;
         }
 
-        public long table(long r, byte[] b)
+        public int table(long r, byte[] b)
         {
-            return (hash(b) ^ this.r.get(0) ^ r) ^ size;
+            return ((int) (hash(b) ^ this.r.get(0) ^ r) & Integer.MAX_VALUE) % size;
         }
     }
 
@@ -171,8 +174,20 @@ public class ChdTest
 
     private static final class Builder
     {
+        private final Random random;
+
         private List<byte[]> keys = new ArrayList<>();
         private List<byte[]> values = new ArrayList<>();
+
+        public Builder(Random random)
+        {
+            this.random = random;
+        }
+
+        public Builder()
+        {
+            this(ThreadLocalRandom.current());
+        }
 
         public void put(byte[] key, byte[] value)
         {
@@ -182,8 +197,8 @@ public class ChdTest
 
         public Hash build()
         {
-            long n = this.keys.size();
-            long m = n / 2;
+            int n = this.keys.size();
+            int m = n / 2;
             if (m == 0) {
                 m = 1;
             }
@@ -191,7 +206,7 @@ public class ChdTest
             byte[][] keys = new byte[(int) n][];
             byte[][] values = new byte[(int) n][];
 
-            Hasher hasher = new Hasher(n, m);
+            Hasher hasher = new Hasher(n, m, random);
 
             Bucket[] buckets = new Bucket[(int) m];
             for (int i = 0; i < buckets.length; ++i) {
@@ -211,10 +226,10 @@ public class ChdTest
                     throw new IllegalStateException("Duplicate key: " + Arrays.toString(key));
                 }
                 duplicates.add(k);
-                long oh = hasher.hashIndexFromKey(key);
+                int oh = hasher.hashIndexFromKey(key);
 
-                Bucket bucket = buckets[(int) oh];
-                bucket.index = (int) oh;
+                Bucket bucket = buckets[oh];
+                bucket.index = oh;
                 bucket.keys.add(key);
                 bucket.values.add(value);
             }
@@ -240,7 +255,7 @@ public class ChdTest
                         ++collisions;
                     }
                     int ri = hasher.r.size();
-                    long r = ThreadLocalRandom.current().nextLong();
+                    long r = random.nextLong();
                     if (hasher.tryHash(seen, keys, values, indices, bucket, ri, r)) {
                         hasher.r.add(r);
                         continue nextBucket;
@@ -269,17 +284,20 @@ public class ChdTest
 
     public void testHash()
     {
-        Map<String, String> map = ImmutableMap.of(
-                "a", "b",
-                "c", "d",
-                "e", "f",
-                "g", "g"
-        );
+        Map<String, String> map = ImmutableMap.<String, String>builder()
+                .put("one", "1")
+                .put("two", "2")
+                .put("three", "3")
+                .put("four", "4")
+                .put("five", "5")
+                .put("six", "6")
+                .put("seven", "7")
+                .build();
 
-        Builder b = new Builder();
+        Builder b = new Builder(new Random(0));
         map.forEach((k, v) -> b.put(utf8(k), utf8(v)));
 
         Hash h = b.build();
-        System.out.println(Arrays.toString(h.get(utf8("c"))));
+        System.out.println(Arrays.toString(h.get(utf8("three"))));
     }
 }

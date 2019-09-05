@@ -13,6 +13,7 @@
  */
 package com.wrmsr.tokamak.driver.state;
 
+import com.wrmsr.tokamak.codec.value.PrefixedValueCodec;
 import com.wrmsr.tokamak.codec.value.ValueCodec;
 import com.wrmsr.tokamak.node.StatefulNode;
 import com.wrmsr.tokamak.util.codec.Codec;
@@ -23,9 +24,13 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public final class StateCodec
         implements Codec<State, StorageState>
 {
+    private static final byte ATTRIBUTES_PREFIX = 0x41;
+
     private final StatefulNode node;
     private final ValueCodec<Object[]> attributesCodec;
     private final LinkageMapCodec linkageMapCodec;
+
+    private final ValueCodec<Object[]> prefixedAttributesCodec;
 
     public StateCodec(
             StatefulNode node,
@@ -35,6 +40,8 @@ public final class StateCodec
         this.node = checkNotNull(node);
         this.attributesCodec = checkNotNull(attributesCodec);
         this.linkageMapCodec = checkNotNull(linkageMapCodec);
+
+        prefixedAttributesCodec = new PrefixedValueCodec<>(new byte[] {ATTRIBUTES_PREFIX}, this.attributesCodec);
     }
 
     public StatefulNode getNode()
@@ -50,7 +57,7 @@ public final class StateCodec
 
         byte[] attributes = null;
         if (state.getAttributes() != null) {
-            attributes = attributesCodec.encodeBytes(state.getAttributes());
+            attributes = prefixedAttributesCodec.encodeBytes(state.getAttributes());
         }
 
         byte[] input = null;
@@ -80,7 +87,7 @@ public final class StateCodec
 
         Object[] attributes = null;
         if (storageState.getAttributes() != null) {
-            attributes = attributesCodec.decodeBytes(storageState.getAttributes());
+            attributes = prefixedAttributesCodec.decodeBytes(storageState.getAttributes());
         }
 
         Linkage linkage = null;
