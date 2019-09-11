@@ -11,20 +11,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.conn.heap;
+package com.wrmsr.tokamak.parser;
 
-import com.wrmsr.tokamak.api.WriterTarget;
+import org.antlr.v4.runtime.CharStream;
+import org.antlr.v4.runtime.CharStreams;
+import org.antlr.v4.runtime.CommonTokenStream;
 
-import javax.annotation.concurrent.Immutable;
-
-import java.util.Map;
-
-@Immutable
-public final class HeapWriterTarget
-    extends WriterTarget
+public final class Parsing
 {
-    public HeapWriterTarget(String name, Map<String, Object> options)
+    private Parsing()
     {
-        super(name, options);
+    }
+
+    public static SqlParser parse(String str)
+    {
+        CharStream input = new CaseInsensitiveCharStream(CharStreams.fromString(str));
+        SqlLexer lexer = new SqlLexer(input);
+        CommonTokenStream tokens = new CommonTokenStream(lexer);
+        return new SqlParser(tokens);
     }
 }

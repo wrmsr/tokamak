@@ -11,42 +11,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.conn.heap;
+package com.wrmsr.tokamak.parser.tree;
 
-import com.wrmsr.tokamak.api.Id;
-import com.wrmsr.tokamak.api.Row;
-import com.wrmsr.tokamak.util.Span;
+import com.wrmsr.tokamak.parser.tree.visitor.AstVisitor;
 
-import java.io.IOException;
-import java.util.List;
+import static com.google.common.base.Preconditions.checkNotNull;
 
-public class MapHeapWriter
-    implements HeapWriter
+public final class Identifier
+    extends Expression
 {
+    private final String string;
+
+    public Identifier(String string)
+    {
+        this.string = checkNotNull(string);
+    }
+
+    public String getString()
+    {
+        return string;
+    }
+
     @Override
-    public HeapWriterTarget getTarget()
+    public <R, C> R accept(AstVisitor<R, C> visitor, C context)
     {
         return null;
-    }
-
-    @Override
-    public void write(List<Row> rows)
-            throws IOException
-    {
-
-    }
-
-    @Override
-    public void writeRange(Span<Id> idSpan, List<Row> rows)
-            throws IOException
-    {
-
-    }
-
-    @Override
-    public void close()
-            throws Exception
-    {
-
     }
 }

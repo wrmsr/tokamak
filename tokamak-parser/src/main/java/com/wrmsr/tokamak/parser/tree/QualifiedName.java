@@ -11,32 +11,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.wrmsr.tokamak.parser.tree;
 
-package com.wrmsr.tokamak.parser.translate;
-
-import com.wrmsr.tokamak.node.Node;
-import com.wrmsr.tokamak.node.ScanNode;
-import com.wrmsr.tokamak.parser.tree.Select;
-import com.wrmsr.tokamak.parser.tree.TreeNode;
 import com.wrmsr.tokamak.parser.tree.visitor.AstVisitor;
 
-public class AstTranslator
+public final class QualifiedName
+        extends TreeNode
 {
-    public AstTranslator()
+    @Override
+    public <R, C> R accept(AstVisitor<R, C> visitor, C context)
     {
-    }
-
-    public Node translate(TreeNode treeNode)
-    {
-        return treeNode.accept(new AstVisitor<Node, Void>()
-        {
-            // @Override
-            // public Node visitSelect(Select treeNode, Void context)
-            // {
-            //     return new ScanNode(
-            //
-            //     );
-            // }
-        }, null);
+        return visitor.visitQualifiedName(this, context);
     }
 }

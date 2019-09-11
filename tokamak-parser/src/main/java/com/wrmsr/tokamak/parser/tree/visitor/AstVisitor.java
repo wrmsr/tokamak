@@ -25,15 +25,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.wrmsr.tokamak.parser.tree.visitor;
 
 import com.wrmsr.tokamak.parser.tree.AllSelectItem;
 import com.wrmsr.tokamak.parser.tree.Expression;
 import com.wrmsr.tokamak.parser.tree.ExpressionSelectItem;
+import com.wrmsr.tokamak.parser.tree.Identifier;
 import com.wrmsr.tokamak.parser.tree.IntegerLiteral;
 import com.wrmsr.tokamak.parser.tree.Literal;
 import com.wrmsr.tokamak.parser.tree.NullLiteral;
+import com.wrmsr.tokamak.parser.tree.QualifiedName;
 import com.wrmsr.tokamak.parser.tree.Relation;
 import com.wrmsr.tokamak.parser.tree.Select;
 import com.wrmsr.tokamak.parser.tree.SelectItem;
@@ -66,6 +67,11 @@ public abstract class AstVisitor<R, C>
         return visitSelectItem(treeNode, context);
     }
 
+    public R visitIdentifier(Identifier treeNode, C context)
+    {
+        return visitExpression(treeNode, context);
+    }
+
     public R visitIntegerLiteral(IntegerLiteral treeNode, C context)
     {
         return visitLiteral(treeNode, context);
@@ -79,6 +85,11 @@ public abstract class AstVisitor<R, C>
     public R visitNullLiteral(NullLiteral treeNode, C context)
     {
         return visitLiteral(treeNode, context);
+    }
+
+    public R visitQualifiedName(QualifiedName treeNode, C context)
+    {
+        return visitTreeNode(treeNode, context);
     }
 
     public R visitRelation(Relation treeNode, C context)

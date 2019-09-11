@@ -22,6 +22,7 @@ import com.wrmsr.tokamak.parser.tree.Expression;
 import com.wrmsr.tokamak.parser.tree.ExpressionSelectItem;
 import com.wrmsr.tokamak.parser.tree.IntegerLiteral;
 import com.wrmsr.tokamak.parser.tree.NullLiteral;
+import com.wrmsr.tokamak.parser.tree.QualifiedName;
 import com.wrmsr.tokamak.parser.tree.Select;
 import com.wrmsr.tokamak.parser.tree.SelectItem;
 import com.wrmsr.tokamak.parser.tree.StringLiteral;
@@ -53,84 +54,6 @@ public class ParseTest
                 "select a",
                 "select a from a",
         }) {
-            CharStream input = new CaseInsensitiveCharStream(CharStreams.fromString(str));
-
-            SqlLexer lexer = new SqlLexer(input);
-
-            CommonTokenStream tokens = new CommonTokenStream(lexer);
-
-            SqlParser parser = new SqlParser(tokens);
-
-            ParseTree tree = parser.statement();
-            System.out.println(tree.toStringTree(parser));
-
-            TreeNode node = tree.accept(new SqlBaseVisitor<TreeNode>()
-            {
-                @Override
-                protected TreeNode defaultResult()
-                {
-                    return super.defaultResult();
-                }
-
-                @Override
-                protected TreeNode aggregateResult(TreeNode aggregate, TreeNode nextResult)
-                {
-                    checkState(aggregate == null);
-                    return checkNotNull(nextResult);
-                }
-
-                private <T> List<T> visit(List<? extends ParserRuleContext> contexts, Class<T> cls)
-                {
-                    return contexts.stream()
-                            .map(this::visit)
-                            .map(cls::cast)
-                            .collect(toImmutableList());
-                }
-
-                @Override
-                public TreeNode visitSingleStatement(SqlParser.SingleStatementContext ctx)
-                {
-                    return visit(ctx.statement());
-                }
-
-                @Override
-                public TreeNode visitSelect(SqlParser.SelectContext ctx)
-                {
-                    List<SelectItem> selectItems = visit(ctx.selectItem(), SelectItem.class);
-                    return new Select(
-                            selectItems);
-                }
-
-                @Override
-                public TreeNode visitSelectExpression(SqlParser.SelectExpressionContext ctx)
-                {
-                    return new ExpressionSelectItem((Expression) visit(ctx.expression()));
-                }
-
-                @Override
-                public TreeNode visitSelectAll(SqlParser.SelectAllContext ctx)
-                {
-                    return new AllSelectItem();
-                }
-
-                @Override
-                public TreeNode visitIntegerLiteral(SqlParser.IntegerLiteralContext ctx)
-                {
-                    return new IntegerLiteral(Long.parseLong(ctx.getText()));
-                }
-
-                @Override
-                public TreeNode visitNullLiteral(SqlParser.NullLiteralContext ctx)
-                {
-                    return new NullLiteral();
-                }
-
-                @Override
-                public TreeNode visitStringLiteral(SqlParser.StringLiteralContext ctx)
-                {
-                    return new StringLiteral(ctx.STRING_VALUE().getText());
-                }
-            });
 
             System.out.println(node);
         }
