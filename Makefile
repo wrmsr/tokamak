@@ -27,6 +27,10 @@ mvn-version: java_home
 clean: java_home
 	JAVA_HOME=$(JAVA_HOME) ./mvnw clean
 
+.PHONY: antlr
+antlr: java_home
+	JAVA_HOME=$(JAVA_HOME) ./mvnw org.antlr:antlr4-maven-plugin:4.7.2:antlr4
+
 .PHONY: package
 package: java_home
 	JAVA_HOME=$(JAVA_HOME) ./mvnw package -DskipTests

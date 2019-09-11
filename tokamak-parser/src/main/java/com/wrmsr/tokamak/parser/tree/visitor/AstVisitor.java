@@ -34,10 +34,12 @@ import com.wrmsr.tokamak.parser.tree.ExpressionSelectItem;
 import com.wrmsr.tokamak.parser.tree.IntegerLiteral;
 import com.wrmsr.tokamak.parser.tree.Literal;
 import com.wrmsr.tokamak.parser.tree.NullLiteral;
+import com.wrmsr.tokamak.parser.tree.Relation;
 import com.wrmsr.tokamak.parser.tree.Select;
 import com.wrmsr.tokamak.parser.tree.SelectItem;
 import com.wrmsr.tokamak.parser.tree.Statement;
 import com.wrmsr.tokamak.parser.tree.StringLiteral;
+import com.wrmsr.tokamak.parser.tree.TableName;
 import com.wrmsr.tokamak.parser.tree.TreeNode;
 
 import java.util.Objects;
@@ -79,6 +81,11 @@ public abstract class AstVisitor<R, C>
         return visitLiteral(treeNode, context);
     }
 
+    public R visitRelation(Relation treeNode, C context)
+    {
+        return visitTreeNode(treeNode, context);
+    }
+
     public R visitSelect(Select treeNode, C context)
     {
         return visitStatement(treeNode, context);
@@ -97,5 +104,10 @@ public abstract class AstVisitor<R, C>
     public R visitStringLiteral(StringLiteral treeNode, C context)
     {
         return visitLiteral(treeNode, context);
+    }
+
+    public R visitTableName(TableName treeNode, C context)
+    {
+        return visitRelation(treeNode, context);
     }
 }

@@ -41,6 +41,8 @@ public interface Type
      - pluggability
     */
 
+    PrimitiveType<Void> UNKNOWN = new PrimitiveType<>(Void.class, OptionalInt.empty());
+
     PrimitiveType<Boolean> BOOLEAN = new PrimitiveType<>(Boolean.class, OptionalInt.of(1));
     PrimitiveType<Long> LONG = new PrimitiveType<>(Long.class, OptionalInt.of(8));
     PrimitiveType<Double> DOUBLE = new PrimitiveType<>(Double.class, OptionalInt.of(8));

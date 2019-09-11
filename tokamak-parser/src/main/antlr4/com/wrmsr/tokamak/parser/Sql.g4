@@ -24,7 +24,7 @@ selectItem
     ;
 
 relation
-    : qualifiedName
+    : qualifiedName  #tableName
     ;
 
 qualifiedName
