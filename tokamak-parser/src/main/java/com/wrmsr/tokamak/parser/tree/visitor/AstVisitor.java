@@ -89,7 +89,7 @@ public abstract class AstVisitor<R, C>
 
     public R visitQualifiedName(QualifiedName treeNode, C context)
     {
-        return visitTreeNode(treeNode, context);
+        return visitExpression(treeNode, context);
     }
 
     public R visitRelation(Relation treeNode, C context)

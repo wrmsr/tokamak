@@ -16,27 +16,32 @@ package com.wrmsr.tokamak.parser;
 import com.wrmsr.tokamak.parser.tree.AllSelectItem;
 import com.wrmsr.tokamak.parser.tree.Expression;
 import com.wrmsr.tokamak.parser.tree.ExpressionSelectItem;
+import com.wrmsr.tokamak.parser.tree.Identifier;
 import com.wrmsr.tokamak.parser.tree.IntegerLiteral;
 import com.wrmsr.tokamak.parser.tree.NullLiteral;
 import com.wrmsr.tokamak.parser.tree.QualifiedName;
+import com.wrmsr.tokamak.parser.tree.Relation;
 import com.wrmsr.tokamak.parser.tree.Select;
 import com.wrmsr.tokamak.parser.tree.SelectItem;
 import com.wrmsr.tokamak.parser.tree.StringLiteral;
+import com.wrmsr.tokamak.parser.tree.TableName;
 import com.wrmsr.tokamak.parser.tree.TreeNode;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
+import static com.wrmsr.tokamak.util.MoreOptionals.optionalSingle;
 
 public class AstBuilder
 {
     public AstBuilder()
     {
-
     }
 
     public TreeNode build(ParseTree parseTree)
@@ -68,8 +73,10 @@ public class AstBuilder
             public TreeNode visitSelect(SqlParser.SelectContext ctx)
             {
                 List<SelectItem> selectItems = visit(ctx.selectItem(), SelectItem.class);
+                Optional<Relation> relation = optionalSingle(visit(ctx.relation(), Relation.class));
                 return new Select(
-                        selectItems);
+                        selectItems,
+                        relation);
             }
 
             @Override
@@ -111,15 +118,30 @@ public class AstBuilder
             @Override
             public TreeNode visitQualifiedName(SqlParser.QualifiedNameContext ctx)
             {
-                visit(ctx.identifier()
-                return new QualifiedName();
+                List<String> parts = visit(ctx.identifier(), Identifier.class).stream()
+                        .map(Identifier::getValue)
+                        .collect(Collectors.toList());
+                return new QualifiedName(parts);
             }
 
-            // @Override
-            // public TreeNode visitTableName(SqlParser.TableNameContext ctx)
-            // {
-            //     return new TableName((QualifiedName) visit(ctx.qualifiedName()));
-            // }
+            @Override
+            public TreeNode visitUnquotedIdentifier(SqlParser.UnquotedIdentifierContext ctx)
+            {
+                return new Identifier(ctx.getText());
+            }
+
+            @Override
+            public TreeNode visitQuotedIdentifier(SqlParser.QuotedIdentifierContext ctx)
+            {
+                String text = ctx.getText();
+                return new Identifier(text.substring(1, text.length() - 1));
+            }
+
+            @Override
+            public TreeNode visitTableName(SqlParser.TableNameContext ctx)
+            {
+                return new TableName((QualifiedName) visit(ctx.qualifiedName()));
+            }
         });
     }
 }

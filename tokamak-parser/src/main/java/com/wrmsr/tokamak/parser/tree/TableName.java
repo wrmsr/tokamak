@@ -15,12 +15,26 @@ package com.wrmsr.tokamak.parser.tree;
 
 import com.wrmsr.tokamak.parser.tree.visitor.AstVisitor;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 public final class TableName
-    extends Relation
+        extends Relation
 {
+    private final QualifiedName qualifiedName;
+
+    public TableName(QualifiedName qualifiedName)
+    {
+        this.qualifiedName = checkNotNull(qualifiedName);
+    }
+
+    public QualifiedName getQualifiedName()
+    {
+        return qualifiedName;
+    }
+
     @Override
     public <R, C> R accept(AstVisitor<R, C> visitor, C context)
     {
-        return null;
+        return visitor.visitTableName(this, context);
     }
 }

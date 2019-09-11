@@ -17,20 +17,30 @@ import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.parser.tree.visitor.AstVisitor;
 
 import java.util.List;
+import java.util.Optional;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public final class Select
         extends Statement
 {
     private final List<SelectItem> items;
+    private final Optional<Relation> relation;
 
-    public Select(List<SelectItem> items)
+    public Select(List<SelectItem> items, Optional<Relation> relation)
     {
         this.items = ImmutableList.copyOf(items);
+        this.relation = checkNotNull(relation);
     }
 
     public List<SelectItem> getItems()
     {
         return items;
+    }
+
+    public Optional<Relation> getRelation()
+    {
+        return relation;
     }
 
     @Override

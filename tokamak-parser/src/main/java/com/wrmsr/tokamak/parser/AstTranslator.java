@@ -27,11 +27,16 @@
  */
 package com.wrmsr.tokamak.parser;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.node.Node;
 import com.wrmsr.tokamak.node.ScanNode;
 import com.wrmsr.tokamak.parser.tree.Select;
 import com.wrmsr.tokamak.parser.tree.TreeNode;
 import com.wrmsr.tokamak.parser.tree.visitor.AstVisitor;
+
+import java.util.Optional;
 
 public class AstTranslator
 {
@@ -43,13 +48,19 @@ public class AstTranslator
     {
         return treeNode.accept(new AstVisitor<Node, Void>()
         {
-            // @Override
-            // public Node visitSelect(Select treeNode, Void context)
-            // {
-            //     return new ScanNode(
-            //
-            //     );
-            // }
+            @Override
+            public Node visitSelect(Select treeNode, Void context)
+            {
+                return new ScanNode(
+                        "scan0",
+                        SchemaTable.of("?", "t"),
+                        ImmutableMap.of(),
+                        ImmutableSet.of(),
+                        ImmutableSet.of(),
+                        ImmutableMap.of(),
+                        ImmutableMap.of(),
+                        Optional.empty());
+            }
         }, null);
     }
 }

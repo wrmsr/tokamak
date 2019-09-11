@@ -20,16 +20,16 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public final class Identifier
     extends Expression
 {
-    private final String string;
+    private final String value;
 
-    public Identifier(String string)
+    public Identifier(String value)
     {
-        this.string = checkNotNull(string);
+        this.value = checkNotNull(value);
     }
 
-    public String getString()
+    public String getValue()
     {
-        return string;
+        return value;
     }
 
     @Override

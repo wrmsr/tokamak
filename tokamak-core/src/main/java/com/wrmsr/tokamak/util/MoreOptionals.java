@@ -29,10 +29,27 @@ import java.util.function.Supplier;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import static com.wrmsr.tokamak.util.MorePreconditions.checkSingle;
+
 public final class MoreOptionals
 {
     private MoreOptionals()
     {
+    }
+
+    public static <T> Optional<T> optionalSingle(Iterator<T> iterator)
+    {
+        if (iterator.hasNext()) {
+            return Optional.of(checkSingle(iterator));
+        }
+        else {
+            return Optional.empty();
+        }
+    }
+
+    public static <T> Optional<T> optionalSingle(Iterable<T> iterable)
+    {
+        return optionalSingle(iterable.iterator());
     }
 
     public static OptionalInt mapOptional(OptionalInt value, IntFunction<Integer> fn)

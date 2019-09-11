@@ -13,11 +13,26 @@
  */
 package com.wrmsr.tokamak.parser.tree;
 
+import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.parser.tree.visitor.AstVisitor;
 
+import java.util.List;
+
 public final class QualifiedName
-        extends TreeNode
+        extends Expression
 {
+    private final List<String> parts;
+
+    public QualifiedName(List<String> parts)
+    {
+        this.parts = ImmutableList.copyOf(parts);
+    }
+
+    public List<String> getParts()
+    {
+        return parts;
+    }
+
     @Override
     public <R, C> R accept(AstVisitor<R, C> visitor, C context)
     {
