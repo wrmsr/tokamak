@@ -13,10 +13,18 @@
  */
 package com.wrmsr.tokamak.parser.tree;
 
+import com.wrmsr.tokamak.parser.tree.visitor.AstVisitor;
+
 public final class NullLiteral
         extends Literal
 {
     public NullLiteral()
     {
+    }
+
+    @Override
+    public <R, C> R accept(AstVisitor<R, C> visitor, C context)
+    {
+        return visitor.visitNullLiteral(this, context);
     }
 }

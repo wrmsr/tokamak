@@ -15,6 +15,7 @@ package com.wrmsr.tokamak.util;
 
 import junit.framework.TestCase;
 
+import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 public final class HistogramTest
@@ -31,18 +32,19 @@ public final class HistogramTest
         Histogram.Stats s = h.get();
         System.out.println(s);
 
-        float t = 50.0f + ThreadLocalRandom.current().nextFloat() * 100.0f;
-        for (float f = ThreadLocalRandom.current().nextFloat() * 3.0f; f < t;) {
-            h.add(ThreadLocalRandom.current().nextFloat() * 100.0f);
-            f += ThreadLocalRandom.current().nextFloat() * 3.0f;
-            Thread.sleep(ThreadLocalRandom.current().nextInt(6));
+        Random r = ThreadLocalRandom.current();
+        float t = 50.0f + r.nextFloat() * 100.0f;
+        for (float f = r.nextFloat() * 3.0f; f < t;) {
+            h.add(r.nextFloat() * 100.0f);
+            f += r.nextFloat() * 3.0f;
+            Thread.sleep(r.nextInt(6));
         }
 
         s = h.get();
         System.out.println(s);
 
         for (int i = 0; i < 1200; ++i) {
-            h.add(ThreadLocalRandom.current().nextFloat() * 100.0f);
+            h.add(r.nextFloat() * 100.0f);
         }
 
         s = h.get();
@@ -50,7 +52,7 @@ public final class HistogramTest
 
         for (int j = 0; j < 10; ++j) {
             for (int i = 0; i < 500; ++i) {
-                h.add(ThreadLocalRandom.current().nextFloat() * 10.0f);
+                h.add(r.nextFloat() * 10.0f);
             }
 
             s = h.get();

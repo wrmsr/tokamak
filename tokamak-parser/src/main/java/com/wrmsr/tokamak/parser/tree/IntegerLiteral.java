@@ -13,6 +13,8 @@
  */
 package com.wrmsr.tokamak.parser.tree;
 
+import com.wrmsr.tokamak.parser.tree.visitor.AstVisitor;
+
 public final class IntegerLiteral
         extends Literal
 {
@@ -21,5 +23,11 @@ public final class IntegerLiteral
     public IntegerLiteral(long value)
     {
         this.value = value;
+    }
+
+    @Override
+    public <R, C> R accept(AstVisitor<R, C> visitor, C context)
+    {
+        return visitor.visitIntegerLiteral(this, context);
     }
 }

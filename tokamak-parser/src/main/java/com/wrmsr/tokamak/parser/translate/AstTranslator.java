@@ -11,25 +11,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.parser.tree;
 
-import com.wrmsr.tokamak.parser.tree.visitor.AstVisitor;
+package com.wrmsr.tokamak.parser.translate;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
-public final class ExpressionSelectItem
-        extends SelectItem
+public class AstTranslator
 {
-    private final Expression expression;
-
-    public ExpressionSelectItem(Expression expression)
-    {
-        this.expression = checkNotNull(expression);
-    }
-
-    @Override
-    public <R, C> R accept(AstVisitor<R, C> visitor, C context)
-    {
-        return visitor.visitExpressionSelectItem(this, context);
-    }
 }

@@ -15,27 +15,22 @@ package com.wrmsr.tokamak.redis;
 
 import com.google.common.base.Charsets;
 import com.google.common.primitives.Bytes;
-import com.wrmsr.tokamak.util.OpenByteArrayOutputStream;
+import com.wrmsr.tokamak.util.CrLfByteIterator;
 import com.wrmsr.tokamak.util.box.Box;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
-
-import static com.google.common.base.Preconditions.checkState;
 
 public final class Resp
 {
     /*
     https://redis.io/topics/protocol
     */
-
-    public static final Charset CHARSET = Charsets.UTF_8;
 
     public static final byte CR = '\r';
     public static final byte LF = '\n';
@@ -46,8 +41,6 @@ public final class Resp
     public static final byte PREFIX_INTEGER = ':';
     public static final byte PREFIX_BULK_STRING = '$';
     public static final byte PREFIX_ARRAY = '*';
-
-    public static final byte[] SUFFIX = CRLF;
 
     public static final byte[] NULL_BULK_STRING = new byte[] {'$', '-', '1', '\r', '\n'};
 
@@ -66,7 +59,7 @@ public final class Resp
     {
         output.write(PREFIX_INTEGER);
         output.write(Byte.toString(value).getBytes(Charsets.US_ASCII));
-        output.write(SUFFIX);
+        output.write(CRLF);
     }
 
     public static void encodeShort(OutputStream output, short value)
@@ -74,7 +67,7 @@ public final class Resp
     {
         output.write(PREFIX_INTEGER);
         output.write(Short.toString(value).getBytes(Charsets.US_ASCII));
-        output.write(SUFFIX);
+        output.write(CRLF);
     }
 
     public static void encodeInt(OutputStream output, int value)
@@ -82,7 +75,7 @@ public final class Resp
     {
         output.write(PREFIX_INTEGER);
         output.write(Integer.toString(value).getBytes(Charsets.US_ASCII));
-        output.write(SUFFIX);
+        output.write(CRLF);
     }
 
     public static void encodeLong(OutputStream output, long value)
@@ -90,7 +83,7 @@ public final class Resp
     {
         output.write(PREFIX_INTEGER);
         output.write(Long.toString(value).getBytes(Charsets.US_ASCII));
-        output.write(SUFFIX);
+        output.write(CRLF);
     }
 
     public static void encodeBytes(OutputStream output, byte[] value)
@@ -106,13 +99,13 @@ public final class Resp
             output.write(CRLF);
             output.write(value);
         }
-        output.write(SUFFIX);
+        output.write(CRLF);
     }
 
     public static void encodeString(OutputStream output, String value)
             throws IOException
     {
-        encodeBytes(output, value.getBytes(CHARSET));
+        encodeBytes(output, value.getBytes(Charsets.UTF_8));
     }
 
     public static void encodeList(OutputStream output, List value)
@@ -166,133 +159,44 @@ public final class Resp
         }
     }
 
-    private static int PEEK_FAIL = -1;
-
     public static Iterator<Object> decode(InputStream input)
     {
+        CrLfByteIterator crLfByteIterator = new CrLfByteIterator(input);
         return new Iterator<Object>()
         {
-            private boolean hasPeekByte;
-            private byte peekByte;
-
-            private byte nextByte()
-                    throws IOException
-            {
-                if (hasPeekByte) {
-                    hasPeekByte = false;
-                    return peekByte;
-                }
-                else {
-                    return (byte) input.read();
-                }
-            }
-
-            private int peek()
-                    throws IOException
-            {
-                if (hasPeekByte) {
-                    return peekByte;
-                }
-                else if (input.available() < 1) {
-                    hasPeekByte = false;
-                    return PEEK_FAIL;
-                }
-                else {
-                    peekByte = (byte) input.read();
-                    hasPeekByte = true;
-                    return peekByte;
-                }
-            }
-
             @Override
             public boolean hasNext()
             {
-                try {
-                    return input.available() > 0;
-                }
-                catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-
-            private OpenByteArrayOutputStream readLineByteArrayOutputStream()
-                    throws IOException
-            {
-                OpenByteArrayOutputStream bos = new OpenByteArrayOutputStream();
-                while (true) {
-                    byte b = nextByte();
-                    if (b == CR && peek() == LF) {
-                        nextByte();
-                        return bos;
-                    }
-                    bos.write(b);
-                }
-            }
-
-            private byte[] readLineBytes()
-                    throws IOException
-            {
-                return readLineByteArrayOutputStream().toByteArray();
-            }
-
-            private String readLineString()
-                    throws IOException
-            {
-                OpenByteArrayOutputStream bos = readLineByteArrayOutputStream();
-                return new String(bos.getBuf(), 0, bos.size(), CHARSET);
-            }
-
-            private String readLineAsciiString()
-                    throws IOException
-            {
-                OpenByteArrayOutputStream bos = readLineByteArrayOutputStream();
-                return new String(bos.getBuf(), 0, bos.size(), Charsets.US_ASCII);
-            }
-
-            private void readSuffix()
-                    throws IOException
-            {
-                for (byte b : SUFFIX) {
-                    checkState(nextByte() == b);
-                }
+                return crLfByteIterator.available() > 0;
             }
 
             @Override
             public Object next()
             {
                 try {
-                    byte prefix = nextByte();
+                    byte prefix = crLfByteIterator.next();
 
                     switch (prefix) {
                         case PREFIX_SIMPLE_STRING: {
-                            return readLineBytes();
+                            return crLfByteIterator.nextLine();
                         }
                         case PREFIX_ERROR: {
-                            return new Error(readLineString());
+                            return new Error(crLfByteIterator.nextLineUtf8());
                         }
                         case PREFIX_INTEGER: {
-                            return Long.parseLong(readLineAsciiString());
+                            return Long.parseLong(crLfByteIterator.nextLineAscii());
                         }
                         case PREFIX_BULK_STRING: {
-                            int length = Integer.parseInt(readLineAsciiString());
+                            int length = Integer.parseInt(crLfByteIterator.nextLineAscii());
                             if (length == -1) {
                                 return null;
                             }
-                            byte[] buf = new byte[length];
-                            if (hasPeekByte) {
-                                buf[0] = nextByte();
-                                int read = input.read(buf, 1, length - 1);
-                                checkState(read == length - 1);
-                            }
-                            else {
-                                int read = input.read(buf);
-                                checkState(read == length);
-                            }
-                            readSuffix();
+                            byte[] buf = crLfByteIterator.next(new byte[length]);
+                            crLfByteIterator.nextBlankLine();
                             return buf;
                         }
                         case PREFIX_ARRAY: {
-                            int length = Integer.parseInt(readLineAsciiString());
+                            int length = Integer.parseInt(crLfByteIterator.nextLineAscii());
                             ArrayList<Object> lst = new ArrayList<>();
                             lst.ensureCapacity(length);
                             for (int i = 0; i < length; ++i) {

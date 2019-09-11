@@ -13,7 +13,14 @@
  */
 package com.wrmsr.tokamak.parser.tree;
 
+import com.wrmsr.tokamak.parser.tree.visitor.AstVisitor;
+
 public final class AllSelectItem
         extends SelectItem
 {
+    @Override
+    public <R, C> R accept(AstVisitor<R, C> visitor, C context)
+    {
+        return visitor.visitAllSelectItem(this, context);
+    }
 }

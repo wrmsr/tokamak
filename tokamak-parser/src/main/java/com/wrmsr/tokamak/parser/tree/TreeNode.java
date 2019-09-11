@@ -13,6 +13,9 @@
  */
 package com.wrmsr.tokamak.parser.tree;
 
+import com.wrmsr.tokamak.parser.tree.visitor.AstVisitor;
+
 public abstract class TreeNode
 {
+    public abstract <R, C> R accept(AstVisitor<R, C> visitor, C context);
 }

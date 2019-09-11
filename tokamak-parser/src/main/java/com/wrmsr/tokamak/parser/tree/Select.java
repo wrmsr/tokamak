@@ -14,6 +14,7 @@
 package com.wrmsr.tokamak.parser.tree;
 
 import com.google.common.collect.ImmutableList;
+import com.wrmsr.tokamak.parser.tree.visitor.AstVisitor;
 
 import java.util.List;
 
@@ -30,5 +31,11 @@ public final class Select
     public List<SelectItem> getItems()
     {
         return items;
+    }
+
+    @Override
+    public <R, C> R accept(AstVisitor<R, C> visitor, C context)
+    {
+        return visitor.visitSelect(this, context);
     }
 }
