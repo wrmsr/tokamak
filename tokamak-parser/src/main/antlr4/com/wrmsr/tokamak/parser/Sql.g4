@@ -24,7 +24,8 @@ selectItem
     ;
 
 relation
-    : qualifiedName  #tableName
+    : qualifiedName   #tableName
+    | '(' select ')'  #subqueryRelation
     ;
 
 qualifiedName

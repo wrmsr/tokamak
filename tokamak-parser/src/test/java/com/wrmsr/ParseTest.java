@@ -15,7 +15,7 @@ package com.wrmsr;
 
 import com.wrmsr.tokamak.node.Node;
 import com.wrmsr.tokamak.parser.AstBuilder;
-import com.wrmsr.tokamak.parser.AstTranslator;
+import com.wrmsr.tokamak.parser.AstPlanner;
 import com.wrmsr.tokamak.parser.Parsing;
 import com.wrmsr.tokamak.parser.SqlParser;
 import com.wrmsr.tokamak.parser.tree.TreeNode;
@@ -40,7 +40,7 @@ public class ParseTest
             System.out.println(parser);
             TreeNode treeNode = new AstBuilder().build(parser.statement());
             System.out.println(treeNode);
-            Node node = new AstTranslator().translate(treeNode);
+            Node node = new AstPlanner().plan(treeNode);
             System.out.println(treeNode);
         }
     }

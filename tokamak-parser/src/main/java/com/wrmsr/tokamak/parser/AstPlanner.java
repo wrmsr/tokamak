@@ -30,27 +30,67 @@ package com.wrmsr.tokamak.parser;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.api.SchemaTable;
+import com.wrmsr.tokamak.catalog.Catalog;
 import com.wrmsr.tokamak.node.Node;
 import com.wrmsr.tokamak.node.ScanNode;
+import com.wrmsr.tokamak.parser.tree.Relation;
 import com.wrmsr.tokamak.parser.tree.Select;
+import com.wrmsr.tokamak.parser.tree.SubqueryRelation;
+import com.wrmsr.tokamak.parser.tree.TableName;
 import com.wrmsr.tokamak.parser.tree.TreeNode;
 import com.wrmsr.tokamak.parser.tree.visitor.AstVisitor;
 
 import java.util.Optional;
 
-public class AstTranslator
+import static com.google.common.base.Preconditions.checkNotNull;
+
+public class AstPlanner
 {
-    public AstTranslator()
+    private Optional<Catalog> catalog;
+    private Optional<String> defaultSchema;
+
+    public AstPlanner(Optional<Catalog> catalog, Optional<String> defaultSchema)
     {
+        this.catalog = checkNotNull(catalog);
+        this.defaultSchema = checkNotNull(defaultSchema);
     }
 
-    public Node translate(TreeNode treeNode)
+    public AstPlanner()
+    {
+        this(Optional.empty(), Optional.empty());
+    }
+
+    private Node planRelation(Relation relation)
+    {
+        return relation.accept(new AstVisitor<Node, Void>()
+        {
+            @Override
+            public Node visitSubqueryRelation(SubqueryRelation treeNode, Void context)
+            {
+                return super.visitSubqueryRelation(treeNode, context);
+            }
+
+            @Override
+            public Node visitTableName(TableName treeNode, Void context)
+            {
+                return super.visitTableName(treeNode, context);
+            }
+        }, null);
+    }
+
+    public Node plan(TreeNode treeNode)
     {
         return treeNode.accept(new AstVisitor<Node, Void>()
         {
             @Override
             public Node visitSelect(Select treeNode, Void context)
             {
+                if (treeNode.getRelation().isPresent()) {
+                    treeNode.getRelation().get().accept(new AstVisitor<Object, Object>()
+                    {
+
+                    }, null);
+                }
                 return new ScanNode(
                         "scan0",
                         SchemaTable.of("?", "t"),

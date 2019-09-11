@@ -29,13 +29,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.ImmutableList.toImmutableList;
+
 @Immutable
 public final class ValuesNode
         extends AbstractNode
         implements GeneratorNode
 {
     private final Map<String, Type> declaredFields;
-    private final List<Object> values;
+    private final List<List<Object>> values;
     private final Optional<String> indexField;
     private final boolean weak;
 
@@ -45,14 +49,14 @@ public final class ValuesNode
     public ValuesNode(
             @JsonProperty("name") String name,
             @JsonProperty("fields") Map<String, Type> fields,
-            @JsonProperty("values") List<Object> values,
+            @JsonProperty("values") List<List<Object>> values,
             @JsonProperty("indexField") Optional<String> indexField,
             @JsonProperty("weak") boolean weak)
     {
         super(name);
 
         this.declaredFields = ImmutableMap.copyOf(fields);
-        this.values = ImmutableList.copyOf(values);
+        this.values = checkNotNull(values).stream().map(ImmutableList::copyOf).collect(toImmutableList());
         this.indexField = indexField;
         this.weak = weak;
 
@@ -60,6 +64,7 @@ public final class ValuesNode
         fieldsBuilder.putAll(this.declaredFields);
         indexField.ifPresent(f -> fieldsBuilder.put(f, Type.LONG));
         this.fields = fieldsBuilder.build();
+        this.values.forEach(l -> checkArgument(l.size() == fields.size()));
 
         checkInvariants();
     }
@@ -79,7 +84,7 @@ public final class ValuesNode
     }
 
     @JsonProperty("values")
-    public List<Object> getValues()
+    public List<List<Object>> getValues()
     {
         return values;
     }

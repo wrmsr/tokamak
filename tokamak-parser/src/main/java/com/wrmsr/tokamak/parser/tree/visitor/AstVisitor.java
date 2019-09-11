@@ -40,6 +40,7 @@ import com.wrmsr.tokamak.parser.tree.Select;
 import com.wrmsr.tokamak.parser.tree.SelectItem;
 import com.wrmsr.tokamak.parser.tree.Statement;
 import com.wrmsr.tokamak.parser.tree.StringLiteral;
+import com.wrmsr.tokamak.parser.tree.SubqueryRelation;
 import com.wrmsr.tokamak.parser.tree.TableName;
 import com.wrmsr.tokamak.parser.tree.TreeNode;
 
@@ -115,6 +116,11 @@ public abstract class AstVisitor<R, C>
     public R visitStringLiteral(StringLiteral treeNode, C context)
     {
         return visitLiteral(treeNode, context);
+    }
+
+    public R visitSubqueryRelation(SubqueryRelation treeNode, C context)
+    {
+        return visitRelation(treeNode, context);
     }
 
     public R visitTableName(TableName treeNode, C context)
