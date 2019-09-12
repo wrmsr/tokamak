@@ -100,7 +100,6 @@
     <build>
         <plugins>
 
-            <!--
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
@@ -114,23 +113,17 @@
                             <shadedArtifactAttached>true</shadedArtifactAttached>
                             <shadedClassifierName>shaded</shadedClassifierName>
                             <relocations>
-
                                 <relocation>
-                                    <pattern>com.google</pattern>
-                                    <shadedPattern>com.wrmsr.tokamak.shaded.com.google</shadedPattern>
+                                    <shadedPattern>com.wrmsr.tokamak.shaded.</shadedPattern>
+                                    <excludes>
+                                        <exclude>com.wrmsr.tokamak.**</exclude>
+                                    </excludes>
                                 </relocation>
-
-                                <relocation>
-                                    <pattern>com.fasterxml</pattern>
-                                    <shadedPattern>com.wrmsr.tokamak.shaded.com.fasterxml</shadedPattern>
-                                </relocation>
-
                             </relocations>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
-            -->
 
         </plugins>
     </build>
