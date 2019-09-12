@@ -54,6 +54,14 @@ public class HeapConnector
         this(name, ImmutableList.of());
     }
 
+    @Override
+    public String toString()
+    {
+        return "HeapConnector{" +
+                "name='" + name + '\'' +
+                '}';
+    }
+
     public HeapConnector addTable(HeapTable heapTable)
     {
         checkArgument(!tablesBySchemaTable.containsKey(heapTable.getSchemaTable()));
