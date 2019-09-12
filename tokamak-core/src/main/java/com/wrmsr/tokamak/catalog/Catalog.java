@@ -13,71 +13,84 @@
  */
 package com.wrmsr.tokamak.catalog;
 
+import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.func.Function;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 public final class Catalog
 {
+    private final Object lock = new Object();
     private final Map<String, Connector> connectorsByName = new HashMap<>();
     private final Map<String, Schema> schemasByName = new HashMap<>();
     private final Map<String, Function> functionsByName = new HashMap<>();
 
     public Map<String, Connector> getConnectorsByName()
     {
-        return Collections.unmodifiableMap(connectorsByName);
+        synchronized (lock) {
+            return ImmutableMap.copyOf(connectorsByName);
+        }
     }
 
     public Map<String, Schema> getSchemasByName()
     {
-        return Collections.unmodifiableMap(schemasByName);
+        synchronized (lock) {
+            return ImmutableMap.copyOf(schemasByName);
+        }
     }
 
     public Map<String, Function> getFunctionsByName()
     {
-        return Collections.unmodifiableMap(functionsByName);
+        synchronized (lock) {
+            return ImmutableMap.copyOf(functionsByName);
+        }
     }
 
     public Schema getOrBuildSchema(String name, Connector connector)
     {
-        Connector existingConnector = connectorsByName.get(connector.getName());
-        if (existingConnector == null) {
-            connectorsByName.put(connector.getName(), connector);
-        }
-        else if (existingConnector != connector) {
-            throw new IllegalArgumentException("Connector name taken: " + connector.getName());
-        }
+        synchronized (lock) {
+            Connector existingConnector = connectorsByName.get(connector.getName());
+            if (existingConnector == null) {
+                connectorsByName.put(connector.getName(), connector);
+            }
+            else if (existingConnector != connector) {
+                throw new IllegalArgumentException("Connector name taken: " + connector.getName());
+            }
 
-        return schemasByName.computeIfAbsent(name, n ->
-                new Schema(
-                        this,
-                        name,
-                        connector)
-        );
+            return schemasByName.computeIfAbsent(name, n ->
+                    new Schema(
+                            this,
+                            name,
+                            connector)
+            );
+        }
     }
 
     public Table lookupSchemaTable(SchemaTable schemaTable)
     {
-        Schema schema = schemasByName.get(schemaTable.getSchema());
-        if (schema == null) {
-            throw new IllegalArgumentException("Schema not found: " + schemaTable);
+        synchronized (lock) {
+            Schema schema = schemasByName.get(schemaTable.getSchema());
+            if (schema == null) {
+                throw new IllegalArgumentException("Schema not found: " + schemaTable);
+            }
+            Table table = schema.getTablesByName().get(schemaTable.getTable());
+            if (table == null) {
+                throw new IllegalArgumentException("Table not found: " + schemaTable);
+            }
+            return table;
         }
-        Table table = schema.getTablesByName().get(schemaTable.getTable());
-        if (table == null) {
-            throw new IllegalArgumentException("Table not found: " + schemaTable);
-        }
-        return table;
     }
 
     public Function addFunction(Function function)
     {
-        if (functionsByName.get(function.getName()) != null) {
-            throw new IllegalArgumentException("Function name taken: " + function.getName());
+        synchronized (lock) {
+            if (functionsByName.get(function.getName()) != null) {
+                throw new IllegalArgumentException("Function name taken: " + function.getName());
+            }
+            functionsByName.put(function.getName(), function);
+            return function;
         }
-        functionsByName.put(function.getName(), function);
-        return function;
     }
 }

@@ -38,6 +38,7 @@ import com.wrmsr.tokamak.plan.Plan;
 import com.wrmsr.tokamak.plan.dot.Dot;
 import com.wrmsr.tokamak.sql.SqlUtils;
 import com.wrmsr.tokamak.type.Type;
+import com.wrmsr.tokamak.util.Json;
 import junit.framework.TestCase;
 
 import java.io.IOException;
@@ -209,6 +210,8 @@ public class CoreTest
                         "str", "two"
                 )
         ));
+
+        System.out.println(Json.writeValue(mapHeapTable));
 
         HeapConnector connector = new HeapConnector("stuff_connector");
         connector.addTable(mapHeapTable);

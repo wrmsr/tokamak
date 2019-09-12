@@ -13,6 +13,8 @@
  */
 package com.wrmsr.tokamak.layout;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.type.StructType;
@@ -40,7 +42,9 @@ public final class RowLayout
     private final StructType structType;
     private final ObjectArrayBackedMap.Shape<String> shape;
 
-    public RowLayout(Map<String, Type> fields)
+    @JsonCreator
+    public RowLayout(
+            @JsonProperty("fields") Map<String, Type> fields)
     {
         this.fields = ImmutableMap.copyOf(checkOrdered(fields));
 
@@ -59,6 +63,7 @@ public final class RowLayout
                 '}';
     }
 
+    @JsonProperty("fields")
     public Map<String, Type> getFields()
     {
         return fields;

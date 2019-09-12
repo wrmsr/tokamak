@@ -13,14 +13,23 @@
  */
 package com.wrmsr.tokamak.conn.heap.table;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.layout.TableLayout;
+import com.wrmsr.tokamak.node.CrossJoinNode;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+@JsonTypeInfo(
+        use = JsonTypeInfo.Id.NAME,
+        include = JsonTypeInfo.As.WRAPPER_OBJECT)
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = MapHeapTable.class, name = "map"),
+})
 public interface HeapTable
 {
     SchemaTable getSchemaTable();

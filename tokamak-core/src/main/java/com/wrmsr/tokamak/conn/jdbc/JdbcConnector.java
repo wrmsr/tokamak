@@ -13,6 +13,8 @@
  */
 package com.wrmsr.tokamak.conn.jdbc;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.catalog.Connection;
 import com.wrmsr.tokamak.catalog.Connector;
@@ -38,7 +40,10 @@ public final class JdbcConnector
     private final String name;
     private final SqlEngine sqlEngine;
 
-    public JdbcConnector(String name, SqlEngine sqlEngine)
+    @JsonCreator
+    public JdbcConnector(
+            @JsonProperty("name") String name,
+            @JsonProperty("sqlEngine") SqlEngine sqlEngine)
     {
         this.name = checkNotEmpty(name);
         this.sqlEngine = checkNotNull(sqlEngine);
@@ -52,10 +57,17 @@ public final class JdbcConnector
                 '}';
     }
 
+    @JsonProperty("name")
     @Override
     public String getName()
     {
         return name;
+    }
+
+    @JsonProperty("sqlEngine")
+    public SqlEngine getSqlEngine()
+    {
+        return sqlEngine;
     }
 
     @Override

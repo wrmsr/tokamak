@@ -13,6 +13,8 @@
  */
 package com.wrmsr.tokamak.conn.heap.table;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.api.AllKey;
 import com.wrmsr.tokamak.api.FieldKey;
@@ -36,30 +38,44 @@ public class MapHeapTable
     TODO:
      - guava table
      - key sharing
+     - json Object coercion from tableLayout
     */
 
     private final SchemaTable schemaTable;
     private final TableLayout tableLayout;
     private final List<Map<String, Object>> rows = new ArrayList<>();
 
-    public MapHeapTable(SchemaTable schemaTable, TableLayout tableLayout)
+    @JsonCreator
+    public MapHeapTable(
+            @JsonProperty("schemaTable") SchemaTable schemaTable,
+            @JsonProperty("tableLayout") TableLayout tableLayout,
+            @JsonProperty("rows") List<Map<String, Object>> rows)
     {
         this.schemaTable = checkNotNull(schemaTable);
         this.tableLayout = checkNotNull(tableLayout);
+        this.rows.addAll(rows);
     }
 
+    public MapHeapTable(SchemaTable schemaTable, TableLayout tableLayout)
+    {
+        this(schemaTable, tableLayout, ImmutableList.of());
+    }
+
+    @JsonProperty("schemaTable")
     @Override
     public SchemaTable getSchemaTable()
     {
         return schemaTable;
     }
 
+    @JsonProperty("tableLayout")
     @Override
     public TableLayout getTableLayout()
     {
         return tableLayout;
     }
 
+    @JsonProperty("rows")
     public List<Map<String, Object>> getRows()
     {
         return rows;

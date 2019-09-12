@@ -13,6 +13,9 @@
  */
 package com.wrmsr.tokamak.layout;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.util.collect.StreamableIterable;
 
@@ -46,9 +49,16 @@ public final class TableLayout
                     '}';
         }
 
+        @JsonValue
         public List<String> getFields()
         {
             return fields;
+        }
+
+        @JsonCreator
+        public static Key of(Iterable<String> fields)
+        {
+            return new Key(ImmutableList.copyOf(fields));
         }
 
         @Override
@@ -62,23 +72,30 @@ public final class TableLayout
     private final Key primaryKey;
     private final List<Key> secondaryKeys;
 
-    public TableLayout(RowLayout rowLayout, Key primaryKey, List<Key> secondaryKeys)
+    @JsonCreator
+    public TableLayout(
+            @JsonProperty("rowLayout") RowLayout rowLayout,
+            @JsonProperty("primaryKey") Key primaryKey,
+            @JsonProperty("secondaryKeys") List<Key> secondaryKeys)
     {
         this.rowLayout = rowLayout;
         this.primaryKey = primaryKey;
         this.secondaryKeys = ImmutableList.copyOf(secondaryKeys);
     }
 
+    @JsonProperty("rowLayout")
     public RowLayout getRowLayout()
     {
         return rowLayout;
     }
 
+    @JsonProperty("primaryKey")
     public Key getPrimaryKey()
     {
         return primaryKey;
     }
 
+    @JsonProperty("secondaryKeys")
     public List<Key> getSecondaryKeys()
     {
         return secondaryKeys;

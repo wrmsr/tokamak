@@ -13,6 +13,9 @@
  */
 package com.wrmsr.tokamak.conn.heap;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.catalog.Connection;
 import com.wrmsr.tokamak.catalog.Connector;
@@ -22,6 +25,7 @@ import com.wrmsr.tokamak.conn.heap.table.HeapTable;
 import com.wrmsr.tokamak.layout.TableLayout;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -32,24 +36,42 @@ public class HeapConnector
         implements Connector
 {
     private final String name;
-    private final Map<SchemaTable, HeapTable> heapTablesBySchemaTable = new HashMap<>();
+
+    private final Object lock = new Object();
+    private final Map<SchemaTable, HeapTable> tablesBySchemaTable = new HashMap<>();
+
+    @JsonCreator
+    public HeapConnector(
+            @JsonProperty("name") String name,
+            @JsonProperty("tables") Iterable<HeapTable> tables)
+    {
+        this.name = checkNotNull(name);
+        tables.forEach(this::addTable);
+    }
 
     public HeapConnector(String name)
     {
-        this.name = checkNotNull(name);
+        this(name, ImmutableList.of());
     }
 
     public HeapConnector addTable(HeapTable heapTable)
     {
-        checkArgument(!heapTablesBySchemaTable.containsKey(heapTable.getSchemaTable()));
-        heapTablesBySchemaTable.put(heapTable.getSchemaTable(), heapTable);
+        checkArgument(!tablesBySchemaTable.containsKey(heapTable.getSchemaTable()));
+        tablesBySchemaTable.put(heapTable.getSchemaTable(), heapTable);
         return this;
     }
 
+    @JsonProperty("name")
     @Override
     public String getName()
     {
         return name;
+    }
+
+    @JsonProperty("tables")
+    public List<HeapTable> getTables()
+    {
+        return ImmutableList.copyOf(tablesBySchemaTable.values());
     }
 
     @Override
@@ -61,14 +83,14 @@ public class HeapConnector
     @Override
     public TableLayout getTableLayout(SchemaTable schemaTable)
     {
-        HeapTable heapTable = checkNotNull(heapTablesBySchemaTable.get(schemaTable));
+        HeapTable heapTable = checkNotNull(tablesBySchemaTable.get(schemaTable));
         return heapTable.getTableLayout();
     }
 
     @Override
     public Scanner createScanner(Table table, Set<String> fields)
     {
-        HeapTable heapTable = checkNotNull(heapTablesBySchemaTable.get(table.getSchemaTable()));
+        HeapTable heapTable = checkNotNull(tablesBySchemaTable.get(table.getSchemaTable()));
         return new HeapScanner(this, heapTable, fields);
     }
 }

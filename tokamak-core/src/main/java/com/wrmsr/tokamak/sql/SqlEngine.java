@@ -13,6 +13,8 @@
  */
 package com.wrmsr.tokamak.sql;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wrmsr.tokamak.util.NoExceptAutoCloseable;
 
 import java.sql.DriverManager;
@@ -30,11 +32,14 @@ public class SqlEngine
 
     private final String url;
 
-    public SqlEngine(String url)
+    @JsonCreator
+    public SqlEngine(
+            @JsonProperty("url") String url)
     {
         this.url = checkNotNull(url);
     }
 
+    @JsonProperty("url")
     public String getUrl()
     {
         return url;
