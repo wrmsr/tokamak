@@ -14,7 +14,12 @@
 package com.wrmsr.tokamak.util;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -66,6 +71,9 @@ public class JsonTest
         System.out.println(node);
     }
 
+    @JsonIdentityInfo(
+            generator = ObjectIdGenerators.PropertyGenerator.class,
+            property = "name")
     public static class Link
     {
         public final @JsonProperty("name") String name;
@@ -98,10 +106,89 @@ public class JsonTest
 
         System.out.println(d);
 
-        String src =Json.writeValue(d);
+        String src = Json.writeValue(d);
         System.out.println(src);
 
         Link jl = Json.readValue(src, Link.class);
+        System.out.println(jl);
+    }
+
+    @JsonTypeInfo(
+            use = JsonTypeInfo.Id.NAME,
+            include = JsonTypeInfo.As.WRAPPER_OBJECT)
+    @JsonSubTypes({
+            @JsonSubTypes.Type(value = LinkableImpl.class, name = "impl"),
+    })
+    public static abstract class Linkable
+    {
+        @JsonProperty("name")
+        public final String name;
+
+        public Linkable(String name)
+        {
+            this.name = name;
+        }
+    }
+
+    public static class LinkableImpl
+            extends Linkable
+    {
+        public static final class E
+        {
+            @JsonIdentityInfo(
+                    generator = ObjectIdGenerators.PropertyGenerator.class,
+                    property = "name")
+            @JsonProperty("link")
+            public final Linkable link;
+
+            @JsonCreator
+            public E(@JsonProperty("link") Linkable link)
+            {
+                this.link = link;
+            }
+
+            public static E of(Linkable link)
+            {
+                return new E(link);
+            }
+        }
+
+        @JsonProperty("links")
+        public final List<E> links;
+
+        @JsonCreator
+        public LinkableImpl(
+                @JsonProperty("name") String name,
+                @JsonProperty("links") List<E> links)
+        {
+            super(name);
+            this.links = links;
+        }
+
+        @Override
+        public String toString()
+        {
+            return "LinkableImpl@" + System.identityHashCode(this) + "{" +
+                    "name='" + name + '\'' +
+                    ", links=" + links +
+                    '}';
+        }
+    }
+
+    public void testIfaceReferenceJson()
+            throws Throwable
+    {
+        Linkable a = new LinkableImpl("a", ImmutableList.of());
+        Linkable b = new LinkableImpl("b", ImmutableList.of(LinkableImpl.E.of(a)));
+        Linkable c = new LinkableImpl("c", ImmutableList.of(LinkableImpl.E.of(a)));
+        Linkable d = new LinkableImpl("d", ImmutableList.of(LinkableImpl.E.of(b), LinkableImpl.E.of(c)));
+
+        System.out.println(d);
+
+        String src = Json.writeValue(d);
+        System.out.println(src);
+
+        Linkable jl = Json.readValue(src, Linkable.class);
         System.out.println(jl);
     }
 }

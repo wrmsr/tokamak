@@ -39,8 +39,9 @@ import java.util.Map;
         @JsonSubTypes.Type(value = UnnestNode.class, name = "unnest"),
         @JsonSubTypes.Type(value = ValuesNode.class, name = "values"),
 })
-// @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS, property = "@type")
-// @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "name")
+// @JsonIdentityInfo(
+//         generator = ObjectIdGenerators.PropertyGenerator.class,
+//         property = "name")
 public interface Node
 {
     String getName();
