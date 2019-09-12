@@ -115,6 +115,7 @@ public final class Catalog
             if (functionsByName.get(connector.getName()) != null) {
                 throw new IllegalArgumentException("Connector name taken: " + connector.getName());
             }
+            connectors.add(connector);
             connectorsByName.put(connector.getName(), connector);
             return connector;
         }
@@ -125,7 +126,7 @@ public final class Catalog
         synchronized (lock) {
             Connector existingConnector = connectorsByName.get(connector.getName());
             if (existingConnector == null) {
-                connectorsByName.put(connector.getName(), connector);
+                checkState(addConnector(connector) == connector);
             }
             else if (existingConnector != connector) {
                 throw new IllegalArgumentException("Connector name taken: " + connector.getName());
@@ -174,6 +175,7 @@ public final class Catalog
             if (functionsByName.get(function.getName()) != null) {
                 throw new IllegalArgumentException("Function name taken: " + function.getName());
             }
+            functions.add(function);
             functionsByName.put(function.getName(), function);
             return function;
         }

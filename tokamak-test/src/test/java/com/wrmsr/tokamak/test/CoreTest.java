@@ -41,19 +41,12 @@ import com.wrmsr.tokamak.type.Type;
 import com.wrmsr.tokamak.util.Json;
 import junit.framework.TestCase;
 
-import java.io.IOException;
-import java.nio.file.DirectoryStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.Collection;
 import java.util.Optional;
-
-import static com.google.common.base.Preconditions.checkState;
 
 public class CoreTest
         extends TestCase
