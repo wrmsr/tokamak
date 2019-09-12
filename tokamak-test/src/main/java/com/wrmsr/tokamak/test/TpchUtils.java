@@ -14,16 +14,30 @@
 package com.wrmsr.tokamak.test;
 
 import com.google.common.base.Joiner;
+import com.google.common.io.CharStreams;
+import com.wrmsr.tokamak.catalog.Catalog;
+import com.wrmsr.tokamak.catalog.Schema;
+import com.wrmsr.tokamak.conn.jdbc.JdbcConnector;
+import com.wrmsr.tokamak.sql.SqlEngine;
+import com.wrmsr.tokamak.sql.SqlUtils;
 import io.airlift.tpch.GenerateUtils;
 import io.airlift.tpch.TpchColumn;
 import io.airlift.tpch.TpchEntity;
 import io.airlift.tpch.TpchTable;
 
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.stream.IntStream;
 
+import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.wrmsr.tokamak.sql.SqlUtils.executeUpdate;
 
@@ -69,5 +83,43 @@ public final class TpchUtils
         catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static void clearDatabase()
+            throws IOException
+    {
+        // String url = "jdbc:h2:mem:test";
+        try (DirectoryStream<Path> ds = Files.newDirectoryStream(Paths.get("temp"), "test.db*")) {
+            ds.forEach(p -> checkState(p.toFile().delete()));
+        }
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public static void buildDatabase(String url)
+            throws IOException
+    {
+        String ddl = CharStreams.toString(new InputStreamReader(TpchUtils.class.getResourceAsStream("tpch_ddl.sql")));
+
+        try (Connection conn = DriverManager.getConnection(url)) {
+            for (String stmt : SqlUtils.splitSql(ddl)) {
+                executeUpdate(conn, stmt);
+            }
+            for (TpchTable table : TpchTable.getTables()) {
+                TpchUtils.insertEntities(conn, table, table.createGenerator(0.01, 1, 1));
+            }
+        }
+        catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static Catalog buildCatalog(String url)
+    {
+        Catalog catalog = new Catalog();
+        JdbcConnector jdbcConnector = new JdbcConnector("jdbc", new SqlEngine(url));
+        Schema schema = catalog.getOrBuildSchema("PUBLIC", jdbcConnector);
+        schema.getOrBuildTable("NATION");
+        schema.getOrBuildTable("REGION");
+        return catalog;
     }
 }

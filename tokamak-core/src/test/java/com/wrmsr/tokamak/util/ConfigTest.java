@@ -104,7 +104,7 @@ public class ConfigTest
 
         System.out.println(oc2);
 
-        assertEquals(1, oc2.getThing().getBeanInt());
+        assertEquals(420, oc2.getThing().getBeanInt());
     }
 
     public void testFlattening()

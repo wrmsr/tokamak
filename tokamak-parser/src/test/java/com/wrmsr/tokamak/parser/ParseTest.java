@@ -41,7 +41,7 @@ public class ParseTest
             TreeNode treeNode = new AstBuilder().build(parser.statement());
             System.out.println(treeNode);
             Node node = new AstPlanner().plan(treeNode);
-            System.out.println(treeNode);
+            System.out.println(node);
         }
     }
 }

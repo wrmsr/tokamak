@@ -11,22 +11,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.wrmsr.tokamak.test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.io.CharStreams;
 import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.api.Row;
 import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.catalog.Catalog;
-import com.wrmsr.tokamak.catalog.Schema;
 import com.wrmsr.tokamak.catalog.Table;
 import com.wrmsr.tokamak.conn.heap.HeapConnector;
 import com.wrmsr.tokamak.conn.heap.table.MapHeapTable;
-import com.wrmsr.tokamak.conn.jdbc.JdbcConnector;
 import com.wrmsr.tokamak.driver.Driver;
 import com.wrmsr.tokamak.driver.DriverImpl;
 import com.wrmsr.tokamak.func.RowMapFunction;
@@ -40,14 +36,11 @@ import com.wrmsr.tokamak.node.Projection;
 import com.wrmsr.tokamak.node.ScanNode;
 import com.wrmsr.tokamak.plan.Plan;
 import com.wrmsr.tokamak.plan.dot.Dot;
-import com.wrmsr.tokamak.sql.SqlEngine;
 import com.wrmsr.tokamak.sql.SqlUtils;
 import com.wrmsr.tokamak.type.Type;
-import io.airlift.tpch.TpchTable;
 import junit.framework.TestCase;
 
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -55,13 +48,11 @@ import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Collection;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkState;
-import static com.wrmsr.tokamak.sql.SqlUtils.executeUpdate;
 
 public class CoreTest
         extends TestCase
@@ -103,35 +94,6 @@ public class CoreTest
         try (Connection conn = DriverManager.getConnection("jdbc:h2:mem:test", "root", "tokamak")) {
             assertEquals(SqlUtils.executeScalar(conn, "select 420"), 420);
         }
-    }
-
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    private void buildDatabase(String url)
-            throws IOException
-    {
-        String ddl = CharStreams.toString(new InputStreamReader(getClass().getResourceAsStream("tpch_ddl.sql")));
-
-        try (Connection conn = DriverManager.getConnection(url)) {
-            for (String stmt : SqlUtils.splitSql(ddl)) {
-                executeUpdate(conn, stmt);
-            }
-            for (TpchTable table : TpchTable.getTables()) {
-                TpchUtils.insertEntities(conn, table, table.createGenerator(0.01, 1, 1));
-            }
-        }
-        catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private Catalog buildCatalog(String url)
-    {
-        Catalog catalog = new Catalog();
-        JdbcConnector jdbcConnector = new JdbcConnector("jdbc", new SqlEngine(url));
-        Schema schema = catalog.getOrBuildSchema("PUBLIC", jdbcConnector);
-        schema.getOrBuildTable("NATION");
-        schema.getOrBuildTable("REGION");
-        return catalog;
     }
 
     private Plan buildPlan(Catalog catalog)
@@ -191,25 +153,13 @@ public class CoreTest
 
     // https://docs.oracle.com/javase/tutorial/jdbc/basics/prepared.html
 
-    private void clearDatabase()
-            throws IOException
-    {
-        // String url = "jdbc:h2:mem:test";
-        try (DirectoryStream<Path> ds = Files.newDirectoryStream(Paths.get("temp"), "test.db*")) {
-            ds.forEach(p -> checkState(p.toFile().delete()));
-        }
-    }
-
     public void testTpch()
             throws Throwable
     {
-        clearDatabase();
-
+        TpchUtils.clearDatabase();
         String url = "jdbc:h2:file:./temp/test.db;USER=username;PASSWORD=password";
-
-        buildDatabase(url);
-
-        Catalog catalog = buildCatalog(url);
+        TpchUtils.buildDatabase(url);
+        Catalog catalog = TpchUtils.buildCatalog(url);
 
         Plan plan = buildPlan(catalog);
 
