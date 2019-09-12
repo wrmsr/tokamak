@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr;
+package com.wrmsr.tokamak.server;
 
 import com.wrmsr.util.HttpClient;
 import io.netty.channel.Channel;

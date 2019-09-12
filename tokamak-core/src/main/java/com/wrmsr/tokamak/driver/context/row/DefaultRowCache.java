@@ -23,7 +23,6 @@ import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.driver.DriverRow;
 import com.wrmsr.tokamak.driver.context.diag.Stat;
 import com.wrmsr.tokamak.node.Node;
-import com.wrmsr.tokamak.node.StatefulNode;
 
 import javax.annotation.Nullable;
 

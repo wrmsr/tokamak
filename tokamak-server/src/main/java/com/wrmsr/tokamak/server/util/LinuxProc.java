@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.util;
+package com.wrmsr.tokamak.server.util;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Charsets;
@@ -119,7 +119,7 @@ public final class LinuxProc
         }
 
         public static final Map<Integer, Stat> BY_NUM = Arrays.stream(Stat.class.getEnumConstants())
-                .collect(toImmutableMap(s -> ((Stat) s).getNum(), s -> ((Stat) s)));
+                .collect(MoreCollectors.toImmutableMap(s -> ((Stat) s).getNum(), s -> ((Stat) s)));
     }
 
     public static final class Stats

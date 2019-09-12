@@ -15,7 +15,6 @@ package com.wrmsr.tokamak.sql;
 
 import com.wrmsr.tokamak.util.NoExceptAutoCloseable;
 
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 

@@ -30,6 +30,7 @@
         <module>tokamak-parser</module>
         <module>tokamak-server</module>
         <module>tokamak-spark</module>
+        <module>tokamak-test</module>
     </modules>
 
     <dependencyManagement>

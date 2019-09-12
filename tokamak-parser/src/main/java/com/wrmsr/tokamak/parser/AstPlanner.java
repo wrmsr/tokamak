@@ -33,9 +33,7 @@ import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.catalog.Catalog;
 import com.wrmsr.tokamak.node.Node;
 import com.wrmsr.tokamak.node.ScanNode;
-import com.wrmsr.tokamak.parser.tree.Relation;
 import com.wrmsr.tokamak.parser.tree.Select;
-import com.wrmsr.tokamak.parser.tree.SubqueryRelation;
 import com.wrmsr.tokamak.parser.tree.TableName;
 import com.wrmsr.tokamak.parser.tree.TreeNode;
 import com.wrmsr.tokamak.parser.tree.visitor.AstVisitor;
@@ -60,24 +58,6 @@ public class AstPlanner
         this(Optional.empty(), Optional.empty());
     }
 
-    private Node planRelation(Relation relation)
-    {
-        return relation.accept(new AstVisitor<Node, Void>()
-        {
-            @Override
-            public Node visitSubqueryRelation(SubqueryRelation treeNode, Void context)
-            {
-                return super.visitSubqueryRelation(treeNode, context);
-            }
-
-            @Override
-            public Node visitTableName(TableName treeNode, Void context)
-            {
-                return super.visitTableName(treeNode, context);
-            }
-        }, null);
-    }
-
     public Node plan(TreeNode treeNode)
     {
         return treeNode.accept(new AstVisitor<Node, Void>()
@@ -88,9 +68,14 @@ public class AstPlanner
                 if (treeNode.getRelation().isPresent()) {
                     treeNode.getRelation().get().accept(new AstVisitor<Object, Object>()
                     {
-
+                        @Override
+                        public Object visitTableName(TableName treeNode, Object context)
+                        {
+                            return super.visitTableName(treeNode, context);
+                        }
                     }, null);
                 }
+
                 return new ScanNode(
                         "scan0",
                         SchemaTable.of("?", "t"),

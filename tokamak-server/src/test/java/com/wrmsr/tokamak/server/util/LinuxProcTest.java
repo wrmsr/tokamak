@@ -11,9 +11,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.util;
+package com.wrmsr.tokamak.server.util;
 
-import com.wrmsr.tokamak.util.LinuxProc;
 import junit.framework.TestCase;
 
 public class LinuxProcTest

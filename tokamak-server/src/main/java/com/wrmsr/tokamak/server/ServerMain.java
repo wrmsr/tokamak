@@ -11,27 +11,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr;
 
-import com.google.common.collect.ImmutableMap;
-import me.bazhenov.groovysh.GroovyShellService;
-import org.junit.Test;
+package com.wrmsr.tokamak.server;
 
-public class GshTest
+import java.io.IOException;
+
+public class ServerMain
 {
-    @Test
-    public void testGsh()
-            throws Throwable
+    public static void main(String[] args)
+            throws IOException
     {
-        GroovyShellService service = new GroovyShellService();
-        service.setPort(6789);
-        service.setBindings(ImmutableMap.of(
-                "foo", 420,
-                "bar", "bong"
-        ));
 
-        service.start();
-        // Thread.currentThread().sleep(60000);
-        service.destroy();
     }
 }

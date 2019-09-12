@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr;
+package com.wrmsr.tokamak.server;
 
 import com.eclipsesource.v8.V8;
 import com.eclipsesource.v8.V8Object;
