@@ -27,6 +27,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static com.wrmsr.tokamak.util.MoreCollections.checkOrdered;
 import static java.util.function.Function.identity;
@@ -87,5 +89,37 @@ public final class RowLayout
     public ObjectArrayBackedMap.Shape<String> getShape()
     {
         return shape;
+    }
+
+    public Map<String, Object> arrayToMap(Object[] array)
+    {
+        checkNotNull(array);
+        checkArgument(array.length == fields.size());
+        ImmutableMap.Builder<String, Object> builder = ImmutableMap.builderWithExpectedSize(fields.size());
+        for (int i = 0; i < array.length; ++i) {
+            builder.put(fieldNames.get(i), array[i]);
+        }
+        return builder.build();
+    }
+
+    public Object[] mapToArray(Map<String, Object> map, boolean strict)
+    {
+        checkNotNull(map);
+        Object[] arr = new Object[fields.size()];
+        map.forEach((k, v) -> {
+            Integer pos = positionsByField.get(k);
+            if (pos != null) {
+                arr[pos] = v;
+            }
+            else if (strict) {
+                throw new IllegalArgumentException("Unexpected key: " + k);
+            }
+        });
+        return arr;
+    }
+
+    public Object[] mapToArray(Map<String, Object> map)
+    {
+        return mapToArray(map, true);
     }
 }

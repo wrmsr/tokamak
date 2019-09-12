@@ -16,6 +16,7 @@ package com.wrmsr.tokamak.conn.heap.table;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import com.wrmsr.tokamak.api.AllKey;
 import com.wrmsr.tokamak.api.FieldKey;
 import com.wrmsr.tokamak.api.Key;
@@ -43,13 +44,13 @@ public class MapHeapTable
 
     private final SchemaTable schemaTable;
     private final TableLayout tableLayout;
-    private final List<Map<String, Object>> rows = new ArrayList<>();
+    private final List<Object[]> rows = new ArrayList<>();
 
     @JsonCreator
     public MapHeapTable(
             @JsonProperty("schemaTable") SchemaTable schemaTable,
             @JsonProperty("tableLayout") TableLayout tableLayout,
-            @JsonProperty("rows") List<Map<String, Object>> rows)
+            @JsonProperty("rows") List<Object[]> rows)
     {
         this.schemaTable = checkNotNull(schemaTable);
         this.tableLayout = checkNotNull(tableLayout);
@@ -76,19 +77,35 @@ public class MapHeapTable
     }
 
     @JsonProperty("rows")
-    public List<Map<String, Object>> getRows()
+    public List<Object[]> getRows()
     {
         return rows;
     }
 
-    public MapHeapTable addRows(Iterable<Map<String, Object>> rows)
+    public MapHeapTable addRowArrays(Iterable<Object[]> rows)
     {
         rows.forEach(row -> {
             checkNotNull(row);
-            checkArgument(row.keySet().containsAll(tableLayout.getRowLayout().getFieldNames()));
+            checkArgument(row.length == tableLayout.getRowLayout().getFields().size());
             this.rows.add(row);
         });
         return this;
+    }
+
+    public MapHeapTable addRowLists(Iterable<List<Object>> rows)
+    {
+        return addRowArrays(Iterables.transform(rows, List::toArray));
+    }
+
+    public MapHeapTable addRowMaps(Iterable<Map<String, Object>> rows, boolean strict)
+    {
+        int length = tableLayout.getRowLayout().getFields().size();
+        return addRowArrays(Iterables.transform(rows, r -> getTableLayout().getRowLayout().mapToArray(r, strict)));
+    }
+
+    public MapHeapTable addRowMaps(Iterable<Map<String, Object>> rows)
+    {
+        return addRowMaps(rows, true);
     }
 
     @Override
@@ -110,16 +127,16 @@ public class MapHeapTable
         ImmutableList.Builder<Map<String, Object>> builder = ImmutableList.builder();
 
         rowLoop:
-        for (Map<String, Object> row : rows) {
+        for (Object[] row : rows) {
             if (key instanceof FieldKey) {
                 FieldKey fieldKey = (FieldKey) key;
                 for (Map.Entry<String, Object> keyEntry : fieldKey.getValuesByField().entrySet()) {
-                    if (!Objects.equals(row.get(keyEntry.getKey()), ((FieldKey) key).get(keyEntry.getKey()))) {
+                    if (!Objects.equals(row[tableLayout.getRowLayout().getPositionsByField().get(keyEntry.getKey())], ((FieldKey) key).get(keyEntry.getKey()))) {
                         continue rowLoop;
                     }
                 }
             }
-            builder.add(row);
+            builder.add(tableLayout.getRowLayout().arrayToMap(row));
         }
 
         return builder.build();
