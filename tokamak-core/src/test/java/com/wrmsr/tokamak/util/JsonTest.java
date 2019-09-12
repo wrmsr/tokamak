@@ -13,19 +13,22 @@
  */
 package com.wrmsr.tokamak.util;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.api.SimpleRow;
-import com.wrmsr.tokamak.util.Json;
 import junit.framework.TestCase;
+
+import java.util.List;
 
 public class JsonTest
         extends TestCase
 {
-    public void testAPiJson()
+    public void testApiJson()
             throws Throwable
     {
         System.out.println(
@@ -61,5 +64,44 @@ public class JsonTest
         JsonNode node = Json.OBJECT_MAPPER_SUPPLIER.get().readTree(blob);
 
         System.out.println(node);
+    }
+
+    public static class Link
+    {
+        public final @JsonProperty("name") String name;
+        public final @JsonProperty("links") List<Link> links;
+
+        @JsonCreator
+        public Link(@JsonProperty("name") String name, @JsonProperty("links") List<Link> links)
+        {
+            this.name = name;
+            this.links = links;
+        }
+
+        @Override
+        public String toString()
+        {
+            return "Link@" + System.identityHashCode(this) + "{" +
+                    "name='" + name + '\'' +
+                    ", links=" + links +
+                    '}';
+        }
+    }
+
+    public void testReferenceJson()
+            throws Throwable
+    {
+        Link a = new Link("a", ImmutableList.of());
+        Link b = new Link("b", ImmutableList.of(a));
+        Link c = new Link("c", ImmutableList.of(a));
+        Link d = new Link("d", ImmutableList.of(b, c));
+
+        System.out.println(d);
+
+        String src =Json.writeValue(d);
+        System.out.println(src);
+
+        Link jl = Json.readValue(src, Link.class);
+        System.out.println(jl);
     }
 }

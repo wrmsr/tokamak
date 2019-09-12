@@ -119,7 +119,7 @@ public final class Catalog
         }
     }
 
-    public Schema getOrBuildSchema(Connector connector, String name)
+    public Schema getOrBuildSchema(String name, Connector connector)
     {
         synchronized (lock) {
             Connector existingConnector = connectorsByName.get(connector.getName());
@@ -141,8 +141,9 @@ public final class Catalog
 
             schema = new Schema(
                     this,
-                    connector,
-                    name);
+                    name,
+                    connector);
+
             schemasByName.put(name, schema);
             return schema;
         }

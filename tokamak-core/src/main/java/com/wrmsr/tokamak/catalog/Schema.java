@@ -25,15 +25,15 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public final class Schema
 {
     private final Catalog catalog;
-    private final Connector connector;
     private final String name;
+    private final Connector connector;
 
     private final Map<String, Table> tablesByName = new HashMap<>();
 
-    public Schema(Catalog catalog, Connector connector, String name)
+    public Schema(Catalog catalog, String name, Connector connector)
     {
-        this.name = checkNotNull(name);
         this.catalog = checkNotNull(catalog);
+        this.name = checkNotNull(name);
         this.connector = checkNotNull(connector);
     }
 
@@ -51,14 +51,14 @@ public final class Schema
         return catalog;
     }
 
-    public Connector getConnector()
-    {
-        return connector;
-    }
-
     public String getName()
     {
         return name;
+    }
+
+    public Connector getConnector()
+    {
+        return connector;
     }
 
     public Map<String, Table> getTablesByName()
