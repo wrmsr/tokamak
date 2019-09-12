@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak;
+package com.wrmsr.tokamak.test;
 
 import com.google.common.base.Joiner;
 import io.airlift.tpch.GenerateUtils;
@@ -29,10 +29,6 @@ import static com.wrmsr.tokamak.sql.SqlUtils.executeUpdate;
 
 public final class TpchUtils
 {
-    private TpchUtils()
-    {
-    }
-
     public static <E extends TpchEntity> Object getColumnValue(TpchColumn column, E entity)
     {
         switch (column.getType().getBase()) {

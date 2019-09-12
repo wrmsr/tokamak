@@ -11,16 +11,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak;
 
-import com.google.inject.Binder;
-import com.google.inject.Module;
+package com.wrmsr.tokamak.test.server;
 
-public class AppModule
-        implements Module
+import junit.framework.TestCase;
+
+public class ServerTest
+        extends TestCase
 {
-    @Override
-    public void configure(Binder binder)
-    {
-    }
 }

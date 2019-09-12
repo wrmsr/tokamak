@@ -11,7 +11,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak;
+
+package com.wrmsr.tokamak.test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -43,9 +44,7 @@ import com.wrmsr.tokamak.sql.SqlEngine;
 import com.wrmsr.tokamak.sql.SqlUtils;
 import com.wrmsr.tokamak.type.Type;
 import io.airlift.tpch.TpchTable;
-import junit.framework.Test;
 import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -64,18 +63,9 @@ import java.util.Optional;
 import static com.google.common.base.Preconditions.checkState;
 import static com.wrmsr.tokamak.sql.SqlUtils.executeUpdate;
 
-public class AppTest
+public class CoreTest
         extends TestCase
 {
-    public AppTest(String testName)
-    {
-        super(testName);
-    }
-
-    public static Test suite()
-    {
-        return new TestSuite(AppTest.class);
-    }
 
     public void testJdbcMySql()
             throws Throwable
@@ -115,22 +105,11 @@ public class AppTest
         }
     }
 
-    // https://docs.oracle.com/javase/tutorial/jdbc/basics/prepared.html
-
-    private void clearDatabase()
-            throws IOException
-    {
-        // String url = "jdbc:h2:mem:test";
-        try (DirectoryStream<Path> ds = Files.newDirectoryStream(Paths.get("temp"), "test.db*")) {
-            ds.forEach(p -> checkState(p.toFile().delete()));
-        }
-    }
-
     @SuppressWarnings({"unchecked", "rawtypes"})
     private void buildDatabase(String url)
             throws IOException
     {
-        String ddl = CharStreams.toString(new InputStreamReader(AppTest.class.getResourceAsStream("tpch_ddl.sql")));
+        String ddl = CharStreams.toString(new InputStreamReader(getClass().getResourceAsStream("tpch_ddl.sql")));
 
         try (Connection conn = DriverManager.getConnection(url)) {
             for (String stmt : SqlUtils.splitSql(ddl)) {
@@ -208,6 +187,17 @@ public class AppTest
                 EquijoinNode.Mode.INNER);
 
         return new Plan(equijoinNode0);
+    }
+
+    // https://docs.oracle.com/javase/tutorial/jdbc/basics/prepared.html
+
+    private void clearDatabase()
+            throws IOException
+    {
+        // String url = "jdbc:h2:mem:test";
+        try (DirectoryStream<Path> ds = Files.newDirectoryStream(Paths.get("temp"), "test.db*")) {
+            ds.forEach(p -> checkState(p.toFile().delete()));
+        }
     }
 
     public void testTpch()

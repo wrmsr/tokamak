@@ -14,7 +14,6 @@
 package com.wrmsr.tokamak.util;
 
 import com.google.common.io.CharStreams;
-import com.wrmsr.tokamak.AppTest;
 import com.wrmsr.tokamak.util.subprocess.FinalizedProcess;
 import com.wrmsr.tokamak.util.subprocess.FinalizedProcessBuilder;
 import org.junit.Test;
@@ -55,7 +54,7 @@ public class SubprocessTest
     public void testPythonSubprocess()
             throws Throwable
     {
-        String src = CharStreams.toString(new InputStreamReader(AppTest.class.getResourceAsStream("lines.py")));
+        String src = CharStreams.toString(new InputStreamReader(getClass().getResourceAsStream("lines.py")));
 
         Path tempDir = Files.createTempDirectory("tokamak-temp");
         tempDir.toFile().deleteOnExit();

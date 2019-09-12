@@ -11,12 +11,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak;
 
-public class App
+package com.wrmsr.tokamak.test.parser;
+
+import junit.framework.TestCase;
+
+public class ParserTest
+        extends TestCase
 {
-    public static void main(String[] args)
-            throws Throwable
-    {
-    }
 }

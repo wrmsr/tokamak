@@ -119,7 +119,7 @@ public final class LinuxProc
         }
 
         public static final Map<Integer, Stat> BY_NUM = Arrays.stream(Stat.class.getEnumConstants())
-                .collect(MoreCollectors.toImmutableMap(s -> ((Stat) s).getNum(), s -> ((Stat) s)));
+                .collect(toImmutableMap(s -> ((Stat) s).getNum(), s -> ((Stat) s)));
     }
 
     public static final class Stats

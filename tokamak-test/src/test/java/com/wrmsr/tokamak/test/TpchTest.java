@@ -13,6 +13,9 @@
  */
 package com.wrmsr.tokamak.test;
 
+import junit.framework.TestCase;
+
 public class TpchTest
+        extends TestCase
 {
 }

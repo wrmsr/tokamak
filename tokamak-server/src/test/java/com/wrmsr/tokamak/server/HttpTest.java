@@ -13,7 +13,7 @@
  */
 package com.wrmsr.tokamak.server;
 
-import com.wrmsr.util.HttpClient;
+import com.wrmsr.tokamak.server.util.HttpClient;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import org.glassfish.hk2.api.Factory;

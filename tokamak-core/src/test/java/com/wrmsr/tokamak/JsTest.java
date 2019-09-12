@@ -92,7 +92,7 @@ public class JsTest
         tmp.toFile().deleteOnExit();
         V8 v8 = V8.createV8Runtime(null, tmp.toString());
 
-        String src = CharStreams.toString(new InputStreamReader(AppTest.class.getResourceAsStream("blob.js.txt")));
+        String src = CharStreams.toString(new InputStreamReader(getClass().getResourceAsStream("blob.js.txt")));
         V8Function ret = (V8Function) v8.executeObjectScript(src);
         System.out.println(ret);
 
