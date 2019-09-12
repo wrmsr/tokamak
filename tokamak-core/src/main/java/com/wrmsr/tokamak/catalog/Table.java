@@ -13,18 +13,27 @@
  */
 package com.wrmsr.tokamak.catalog;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.layout.TableLayout;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+@JsonIdentityInfo(generator = ObjectIdGenerators.UUIDGenerator.class)
 public final class Table
 {
     private final Schema schema;
     private final String name;
     private final TableLayout layout;
 
-    public Table(Schema schema, String name, TableLayout layout)
+    @JsonCreator
+    public Table(
+            @JsonProperty("schema") Schema schema,
+            @JsonProperty("name") String name,
+            @JsonProperty("layout") TableLayout layout)
     {
         this.schema = checkNotNull(schema);
         this.name = checkNotNull(name);
@@ -40,16 +49,19 @@ public final class Table
                 '}';
     }
 
+    @JsonProperty("schema")
     public Schema getSchema()
     {
         return schema;
     }
 
+    @JsonProperty("name")
     public String getName()
     {
         return name;
     }
 
+    @JsonProperty("layout")
     public TableLayout getLayout()
     {
         return layout;

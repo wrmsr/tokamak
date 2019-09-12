@@ -19,31 +19,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.core.type.WritableTypeId;
-import com.fasterxml.jackson.databind.BeanDescription;
-import com.fasterxml.jackson.databind.BeanProperty;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationConfig;
-import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.cfg.SerializerFactoryConfig;
-import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
-import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
-import com.fasterxml.jackson.databind.ser.BeanSerializerBuilder;
-import com.fasterxml.jackson.databind.ser.BeanSerializerFactory;
-import com.fasterxml.jackson.databind.ser.ContextualSerializer;
-import com.fasterxml.jackson.databind.type.SimpleType;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.api.Id;
@@ -51,8 +29,6 @@ import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.api.SimpleRow;
 import junit.framework.TestCase;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 public class JsonTest
@@ -219,127 +195,192 @@ public class JsonTest
     }
     */
 
-    public static final class LinkableSerializer
-            extends JsonSerializer<Linkable>
-            implements ContextualSerializer
-    {
-        public LinkableSerializer()
-        {
-        }
-
-        @Override
-        public JsonSerializer<?> createContextual(SerializerProvider prov, BeanProperty property)
-                throws JsonMappingException
-        {
-            return this;
-        }
-
-        @Override
-        public void serialize(Linkable value, JsonGenerator generator, SerializerProvider provider)
-                throws IOException
-        {
-            throw new IllegalStateException();
-        }
-
-        private class Factory
-                extends BeanSerializerFactory
-        {
-            private final SerializationConfig serializationConfig;
-
-            public Factory(SerializerFactoryConfig config, SerializationConfig serializationConfig)
-            {
-                super(config);
-                this.serializationConfig = serializationConfig;
-            }
-
-            class Builder extends BeanSerializerBuilder
-            {
-                public Builder(BeanDescription beanDesc)
-                {
-                    super(beanDesc);
-                }
-
-                @Override
-                public void setConfig(SerializationConfig config)
-                {
-                    super.setConfig(config);
-                }
-            }
-
-            @Override
-            public JsonSerializer<Object> constructBeanSerializer(SerializerProvider prov, BeanDescription beanDesc)
-                    throws JsonMappingException
-            {
-                final SerializationConfig config = prov.getConfig();
-                Builder builder = new Builder(beanDesc);
-                builder.setConfig(config);
-
-                // First: any detectable (auto-detect, annotations) properties to serialize?
-                List<BeanPropertyWriter> props = findBeanProperties(prov, beanDesc, builder);
-                if (props == null) {
-                    props = new ArrayList<>();
-                }
-                else {
-                    props = removeOverlappingTypeIds(prov, beanDesc, builder, props);
-                }
-
-                // [databind#638]: Allow injection of "virtual" properties:
-                prov.getAnnotationIntrospector().findAndAddVirtualProperties(config, beanDesc.getClassInfo(), props);
-
-                builder.setProperties(props);
-
-                return (JsonSerializer<Object>) builder.build();
-            }
-        }
-
-        @Override
-        public void serializeWithType(Linkable value, JsonGenerator gen, SerializerProvider serializers, TypeSerializer typeSer)
-                throws IOException
-        {
-            // if (_objectIdWriter != null) {
-            //     gen.setCurrentValue(value); // [databind#631]
-            //     _serializeWithObjectId(bean, gen, provider, typeSer);
-            //     return;
-            // }
-
-            gen.setCurrentValue(value);  // FIXME: everywhere
-            WritableTypeId typeIdDef = typeSer.typeId(value, JsonToken.START_OBJECT);
-            typeSer.writeTypePrefix(gen, typeIdDef);
-
-            BeanDescription beanDesc = serializers.getConfig().introspect(SimpleType.construct(value.getClass()));
-            JsonSerializer ser = new Factory(
-                    new SerializerFactoryConfig(),
-                    ((ObjectMapper) gen.getCodec()).getSerializationConfig()
-            ).constructBeanSerializer(serializers, beanDesc);
-
-            ser.serialize(value, gen, serializers);
-
-            typeSer.writeTypeSuffix(gen, typeIdDef);
-        }
-    }
-
-    public static final class LinkableDeserializer
-            extends JsonDeserializer<Linkable>
-            implements ContextualDeserializer
-    {
-        public LinkableDeserializer()
-        {
-        }
-
-        @Override
-        public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property)
-                throws JsonMappingException
-        {
-            return this;
-        }
-
-        @Override
-        public Linkable deserialize(JsonParser p, DeserializationContext ctxt)
-                throws IOException, JsonProcessingException
-        {
-            throw new IllegalStateException();
-        }
-    }
+    // public static final class LinkableSerializer
+    //         extends JsonSerializer<Linkable>
+    //         implements ContextualSerializer
+    // {
+    //     public LinkableSerializer()
+    //     {
+    //     }
+    //
+    //     @Override
+    //     public JsonSerializer<?> createContextual(SerializerProvider prov, BeanProperty property)
+    //             throws JsonMappingException
+    //     {
+    //         return this;
+    //     }
+    //
+    //     @Override
+    //     public void serialize(Linkable value, JsonGenerator generator, SerializerProvider provider)
+    //             throws IOException
+    //     {
+    //         throw new IllegalStateException();
+    //     }
+    //
+    //     private class Factory
+    //             extends BeanSerializerFactory
+    //     {
+    //         private final SerializationConfig serializationConfig;
+    //
+    //         public Factory(SerializerFactoryConfig config, SerializationConfig serializationConfig)
+    //         {
+    //             super(config);
+    //             this.serializationConfig = serializationConfig;
+    //         }
+    //
+    //         class Builder extends BeanSerializerBuilder
+    //         {
+    //             public Builder(BeanDescription beanDesc)
+    //             {
+    //                 super(beanDesc);
+    //             }
+    //
+    //             @Override
+    //             public void setConfig(SerializationConfig config)
+    //             {
+    //                 super.setConfig(config);
+    //             }
+    //         }
+    //
+    //         @Override
+    //         public BeanSerializer constructBeanSerializer(SerializerProvider prov, BeanDescription beanDesc)
+    //                 throws JsonMappingException
+    //         {
+    //             final SerializationConfig config = prov.getConfig();
+    //             Builder builder = new Builder(beanDesc);
+    //             builder.setConfig(config);
+    //
+    //             // First: any detectable (auto-detect, annotations) properties to serialize?
+    //             List<BeanPropertyWriter> props = findBeanProperties(prov, beanDesc, builder);
+    //             if (props == null) {
+    //                 props = new ArrayList<>();
+    //             }
+    //             else {
+    //                 props = removeOverlappingTypeIds(prov, beanDesc, builder, props);
+    //             }
+    //
+    //             // [databind#638]: Allow injection of "virtual" properties:
+    //             prov.getAnnotationIntrospector().findAndAddVirtualProperties(config, beanDesc.getClassInfo(), props);
+    //
+    //             builder.setProperties(props);
+    //
+    //             return (BeanSerializer) builder.build();
+    //         }
+    //     }
+    //
+    //     @Override
+    //     public void serializeWithType(Linkable value, JsonGenerator gen, SerializerProvider serializers, TypeSerializer typeSer)
+    //             throws IOException
+    //     {
+    //         // if (_objectIdWriter != null) {
+    //         //     gen.setCurrentValue(value); // [databind#631]
+    //         //     _serializeWithObjectId(bean, gen, provider, typeSer);
+    //         //     return;
+    //         // }
+    //
+    //         gen.setCurrentValue(value);  // FIXME: everywhere
+    //         WritableTypeId typeIdDef = typeSer.typeId(value, JsonToken.START_OBJECT);
+    //         typeSer.writeTypePrefix(gen, typeIdDef);
+    //
+    //         BeanDescription beanDesc = serializers.getConfig().introspect(SimpleType.construct(value.getClass()));
+    //         BeanSerializer ser = new Factory(
+    //                 new SerializerFactoryConfig(),
+    //                 ((ObjectMapper) gen.getCodec()).getSerializationConfig()
+    //         ).constructBeanSerializer(serializers, beanDesc);
+    //
+    //         gen.writeFieldName("what");
+    //         ser.serialize(value, gen, serializers);
+    //
+    //         typeSer.writeTypeSuffix(gen, typeIdDef);
+    //     }
+    // }
+    //
+    // public static final class LinkableDeserializer
+    //         extends JsonDeserializer<Linkable>
+    //         implements ContextualDeserializer
+    // {
+    //     public LinkableDeserializer()
+    //     {
+    //     }
+    //
+    //     @Override
+    //     public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property)
+    //             throws JsonMappingException
+    //     {
+    //         return this;
+    //     }
+    //
+    //     @Override
+    //     public Linkable deserialize(JsonParser p, DeserializationContext ctxt)
+    //             throws IOException, JsonProcessingException
+    //     {
+    //         throw new IllegalStateException();
+    //     }
+    // }
+    //
+    // @JsonTypeInfo(
+    //         use = JsonTypeInfo.Id.NAME,
+    //         include = JsonTypeInfo.As.WRAPPER_OBJECT)
+    // @JsonSubTypes({
+    //         @JsonSubTypes.Type(value = LinkableImpl.class, name = "impl"),
+    // })
+    // @JsonSerialize(using = LinkableSerializer.class)
+    // @JsonDeserialize(using = LinkableDeserializer.class)
+    // public interface Linkable
+    // {
+    //     String getName();
+    // }
+    //
+    // public static class LinkableImpl
+    //         implements Linkable
+    // {
+    //     protected final String name;
+    //
+    //     @JsonProperty("links")
+    //     public final List<Linkable> links;
+    //
+    //     @JsonProperty("name")
+    //     @Override
+    //     public String getName()
+    //     {
+    //         return name;
+    //     }
+    //
+    //     @JsonCreator
+    //     public LinkableImpl(
+    //             @JsonProperty("name") String name,
+    //             @JsonProperty("links") List<Linkable> links)
+    //     {
+    //         this.name = name;
+    //         this.links = links;
+    //     }
+    //
+    //     @Override
+    //     public String toString()
+    //     {
+    //         return "LinkableImpl@" + Integer.toString(System.identityHashCode(this), 16) + "{" +
+    //                 "name='" + getName() + '\'' +
+    //                 ", links=" + links +
+    //                 '}';
+    //     }
+    // }
+    //
+    // public void testIfaceReferenceJson()
+    //         throws Throwable
+    // {
+    //     Linkable a = new LinkableImpl("a", ImmutableList.of());
+    //     Linkable b = new LinkableImpl("b", ImmutableList.of(a));
+    //     Linkable c = new LinkableImpl("c", ImmutableList.of(a));
+    //     Linkable d = new LinkableImpl("d", ImmutableList.of(b, c));
+    //
+    //     System.out.println(d);
+    //
+    //     String src = Json.writeValue(d);
+    //     System.out.println(src);
+    //
+    //     Linkable jl = Json.readValue(src, Linkable.class);
+    //     System.out.println(jl);
+    // }
 
     @JsonTypeInfo(
             use = JsonTypeInfo.Id.NAME,
@@ -347,8 +388,7 @@ public class JsonTest
     @JsonSubTypes({
             @JsonSubTypes.Type(value = LinkableImpl.class, name = "impl"),
     })
-    @JsonSerialize(using = LinkableSerializer.class)
-    @JsonDeserialize(using = LinkableDeserializer.class)
+    @JsonIdentityInfo(generator = ObjectIdGenerators.UUIDGenerator.class)
     public interface Linkable
     {
         String getName();

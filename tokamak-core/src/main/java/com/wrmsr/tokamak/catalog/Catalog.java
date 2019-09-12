@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 
 public final class Catalog
 {
@@ -48,11 +49,11 @@ public final class Catalog
             @JsonProperty("functions") List<Function> functions)
     {
         checkNotNull(connectors).forEach(this::addConnector);
-        // FIXME:
-        // connectorSchemaTables.forEach((cn, sts) -> {
-        //     Connector c = checkNotNull(connectorsByName.get(cn));
-        //     sns.forEach(sn -> getOrBuildSchema(sn, c));
-        // });
+        schemas.forEach(s -> {
+            checkState(connectors.contains(s.getConnector()));
+            checkState(schemasByName.containsKey(s.getName()));
+            schemasByName.put(s.getName(), s);
+        });
         checkNotNull(functions).forEach(this::addFunction);
     }
 

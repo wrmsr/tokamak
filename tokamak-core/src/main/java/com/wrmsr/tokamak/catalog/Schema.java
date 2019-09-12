@@ -13,6 +13,10 @@
  */
 package com.wrmsr.tokamak.catalog;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.layout.TableLayout;
 
@@ -22,6 +26,7 @@ import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+@JsonIdentityInfo(generator = ObjectIdGenerators.UUIDGenerator.class)
 public final class Schema
 {
     private final Catalog catalog;
@@ -30,7 +35,11 @@ public final class Schema
 
     private final Map<String, Table> tablesByName = new HashMap<>();
 
-    public Schema(Catalog catalog, String name, Connector connector)
+    @JsonCreator
+    public Schema(
+            @JsonProperty("catalog") Catalog catalog,
+            @JsonProperty("name") String name,
+            @JsonProperty("connector") Connector connector)
     {
         this.catalog = checkNotNull(catalog);
         this.name = checkNotNull(name);
@@ -46,16 +55,19 @@ public final class Schema
                 '}';
     }
 
+    @JsonProperty("catalog")
     public Catalog getCatalog()
     {
         return catalog;
     }
 
+    @JsonProperty("name")
     public String getName()
     {
         return name;
     }
 
+    @JsonProperty("connector")
     public Connector getConnector()
     {
         return connector;
