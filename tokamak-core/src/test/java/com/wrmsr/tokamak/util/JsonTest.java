@@ -18,9 +18,20 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.type.WritableTypeId;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.api.Id;
@@ -28,6 +39,7 @@ import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.api.SimpleRow;
 import junit.framework.TestCase;
 
+import java.io.IOException;
 import java.util.List;
 
 public class JsonTest
@@ -89,7 +101,7 @@ public class JsonTest
         @Override
         public String toString()
         {
-            return "Link@" + System.identityHashCode(this) + "{" +
+            return "Link@" + Integer.toString(System.identityHashCode(this), 16) + "{" +
                     "name='" + name + '\'' +
                     ", links=" + links +
                     '}';
@@ -113,6 +125,7 @@ public class JsonTest
         System.out.println(jl);
     }
 
+    /*
     @JsonTypeInfo(
             use = JsonTypeInfo.Id.NAME,
             include = JsonTypeInfo.As.WRAPPER_OBJECT)
@@ -182,6 +195,122 @@ public class JsonTest
         Linkable b = new LinkableImpl("b", ImmutableList.of(LinkableImpl.E.of(a)));
         Linkable c = new LinkableImpl("c", ImmutableList.of(LinkableImpl.E.of(a)));
         Linkable d = new LinkableImpl("d", ImmutableList.of(LinkableImpl.E.of(b), LinkableImpl.E.of(c)));
+
+        System.out.println(d);
+
+        String src = Json.writeValue(d);
+        System.out.println(src);
+
+        Linkable jl = Json.readValue(src, Linkable.class);
+        System.out.println(jl);
+    }
+    */
+
+    public static final class LinkableSerializer
+            extends JsonSerializer<Linkable>
+    {
+        public LinkableSerializer()
+        {
+        }
+
+        @Override
+        public void serialize(Linkable linkable, JsonGenerator generator, SerializerProvider provider)
+                throws IOException
+        {
+            throw new IllegalStateException();
+        }
+
+        @Override
+        public void serializeWithType(Linkable value, JsonGenerator gen, SerializerProvider serializers, TypeSerializer typeSer)
+                throws IOException
+        {
+            if (_objectIdWriter != null) {
+                gen.setCurrentValue(bean); // [databind#631]
+                _serializeWithObjectId(bean, gen, provider, typeSer);
+                return;
+            }
+
+            gen.setCurrentValue(bean); // [databind#631]
+            WritableTypeId typeIdDef = _typeIdDef(typeSer, bean, JsonToken.START_OBJECT);
+            typeSer.writeTypePrefix(gen, typeIdDef);
+            if (_propertyFilterId != null) {
+                serializeFieldsFiltered(bean, gen, provider);
+            } else {
+                serializeFields(bean, gen, provider);
+            }
+            typeSer.writeTypeSuffix(gen, typeIdDef);
+        }
+    }
+
+    public static final class LinkableDeserializer
+            extends JsonDeserializer<Linkable>
+    {
+        public LinkableDeserializer()
+        {
+        }
+
+        @Override
+        public Linkable deserialize(JsonParser p, DeserializationContext ctxt)
+                throws IOException, JsonProcessingException
+        {
+            throw new IllegalStateException();
+        }
+    }
+
+    @JsonTypeInfo(
+            use = JsonTypeInfo.Id.NAME,
+            include = JsonTypeInfo.As.WRAPPER_OBJECT)
+    @JsonSubTypes({
+            @JsonSubTypes.Type(value = LinkableImpl.class, name = "impl"),
+    })
+    @JsonSerialize(using = LinkableSerializer.class)
+    @JsonDeserialize(using = LinkableDeserializer.class)
+    public interface Linkable
+    {
+        String getName();
+    }
+
+    public static class LinkableImpl
+            implements Linkable
+    {
+        protected final String name;
+
+        @JsonProperty("links")
+        public final List<Linkable> links;
+
+        @JsonProperty("name")
+        @Override
+        public String getName()
+        {
+            return name;
+        }
+
+        @JsonCreator
+        public LinkableImpl(
+                @JsonProperty("name") String name,
+                @JsonProperty("links") List<Linkable> links)
+        {
+            this.name = name;
+            this.links = links;
+        }
+
+        @Override
+        public String toString()
+        {
+            return "LinkableImpl@" + Integer.toString(System.identityHashCode(this), 16) + "{" +
+                    "name='" + getName() + '\'' +
+                    ", links=" + links +
+                    '}';
+        }
+    }
+
+    public void testIfaceReferenceJson()
+            throws Throwable
+    {
+        Linkable a = new LinkableImpl("a", ImmutableList.of());
+        Linkable b = new LinkableImpl("b", ImmutableList.of(a));
+        Linkable c = new LinkableImpl("c", ImmutableList.of(a));
+        Linkable d = new LinkableImpl("d", ImmutableList.of(b, c));
 
         System.out.println(d);
 
