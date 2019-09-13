@@ -15,6 +15,8 @@
 package com.wrmsr.tokamak.exec;
 
 import com.wrmsr.tokamak.catalog.CatalogRegistry;
+import com.wrmsr.tokamak.catalog.ExecutorType;
+import com.wrmsr.tokamak.exec.builtin.BuiltinExecutor;
 
 public final class BuiltinExecutors
 {
@@ -24,6 +26,7 @@ public final class BuiltinExecutors
 
     public static CatalogRegistry register(CatalogRegistry registry)
     {
+        registry.register(new ExecutorType<>("builtin", BuiltinExecutor.class));
         return registry;
     }
 }

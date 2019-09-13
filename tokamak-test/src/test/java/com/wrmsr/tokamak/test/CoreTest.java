@@ -28,10 +28,14 @@ import com.wrmsr.tokamak.conn.heap.HeapConnector;
 import com.wrmsr.tokamak.conn.heap.table.MapHeapTable;
 import com.wrmsr.tokamak.driver.Driver;
 import com.wrmsr.tokamak.driver.DriverImpl;
+import com.wrmsr.tokamak.exec.BuiltinExecutors;
+import com.wrmsr.tokamak.exec.Reflection;
+import com.wrmsr.tokamak.exec.builtin.BuiltinExecutor;
 import com.wrmsr.tokamak.layout.RowLayout;
 import com.wrmsr.tokamak.layout.TableLayout;
 import com.wrmsr.tokamak.node.EquijoinNode;
 import com.wrmsr.tokamak.node.FilterNode;
+import com.wrmsr.tokamak.node.Function;
 import com.wrmsr.tokamak.node.Node;
 import com.wrmsr.tokamak.node.ProjectNode;
 import com.wrmsr.tokamak.node.Projection;
@@ -92,14 +96,21 @@ public class CoreTest
         }
     }
 
-    private static boolean isStringNotNull(String s)
+    public static boolean isStringNotNull(String s)
     {
         return s != null;
+    }
+
+    public static String addExclamationMark(String s)
+    {
+        return s + "!";
     }
 
     private Plan buildPlan(Catalog catalog)
             throws Throwable
     {
+        BuiltinExecutor be = catalog.addExecutor(new BuiltinExecutor("builtin"));
+
         Node scanNode0 = new ScanNode(
                 "scan0",
                 SchemaTable.of("PUBLIC", "NATION"),
@@ -117,7 +128,7 @@ public class CoreTest
         Node filterNode0 = new FilterNode(
                 "filter0",
                 scanNode0,
-                getClass().getDeclaredMethod("isStringNotNull", String.class),
+                Function.of(be.register(Reflection.reflect(getClass().getDeclaredMethod("isStringNotNull", String.class)))),
                 ImmutableList.of("N_NATIONKEY"),
                 false);
 
@@ -126,7 +137,7 @@ public class CoreTest
                 filterNode0,
                 Projection.of(
                         "N_NATIONKEY", "N_NATIONKEY",
-                        "N_NAME", catalog.addFunction(RowMapExecutable.anon(Type.STRING, rv -> rv.get("N_NAME") + "!")),
+                        "N_NAME", Function.of(be.register(Reflection.reflect(getClass().getDeclaredMethod("addExclamationMark", String.class)))), "N_NAME",
                         "N_REGIONKEY", "N_REGIONKEY"
                 ));
 
@@ -164,7 +175,9 @@ public class CoreTest
         TpchUtils.buildDatabase(url);
         Catalog catalog = TpchUtils.buildCatalog(url);
 
-        CatalogRegistry cn = BuiltinConnectors.register(new CatalogRegistry());
+        CatalogRegistry cn = new CatalogRegistry();
+        BuiltinConnectors.register(cn);
+        BuiltinExecutors.register(cn);
         ObjectMapper om = cn.registerSubtypes(Json.newObjectMapper());
         String src = om.writerWithDefaultPrettyPrinter().writeValueAsString(catalog);
         System.out.println(src);

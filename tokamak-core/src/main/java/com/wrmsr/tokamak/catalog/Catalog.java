@@ -134,7 +134,7 @@ public final class Catalog
         }
     }
 
-    public Connector addConnector(Connector connector)
+    public <T extends Connector> T addConnector(T connector)
     {
         synchronized (lock) {
             if (connectors.contains(connector)) {
@@ -149,7 +149,7 @@ public final class Catalog
         }
     }
 
-    public Executor addExecutor(Executor executor)
+    public <T extends Executor> T addExecutor(T executor)
     {
         synchronized (lock) {
             if (executors.contains(executor)) {
