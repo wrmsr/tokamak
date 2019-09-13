@@ -17,12 +17,14 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.util.collect.StreamableIterable;
 
 import javax.annotation.concurrent.Immutable;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -98,6 +100,11 @@ public final class TableLayout
     public Key getPrimaryKey()
     {
         return primaryKey;
+    }
+
+    public Set<String> getPrimaryKeyFields()
+    {
+        return ImmutableSet.copyOf(primaryKey);
     }
 
     @JsonProperty("secondaryKeys")
