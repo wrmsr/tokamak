@@ -21,6 +21,6 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
         use = JsonTypeInfo.Id.NAME,
         include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonIdentityInfo(generator = ObjectIdGenerators.UUIDGenerator.class)
-public interface FunctionExecutor
+public interface Executor
 {
 }

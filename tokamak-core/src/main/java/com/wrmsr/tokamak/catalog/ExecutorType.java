@@ -17,12 +17,12 @@ package com.wrmsr.tokamak.catalog;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 
-public final class FunctionExecutorType<T extends FunctionExecutor>
+public final class ExecutorType<T extends Executor>
 {
     private final String name;
     private final Class<T> cls;
 
-    public FunctionExecutorType(String name, Class<T> cls)
+    public ExecutorType(String name, Class<T> cls)
     {
         this.name = checkNotEmpty(name);
         this.cls = checkNotNull(cls);
@@ -41,7 +41,7 @@ public final class FunctionExecutorType<T extends FunctionExecutor>
     @Override
     public String toString()
     {
-        return "FunctionExecutorType{" +
+        return "ExecutorType{" +
                 "name='" + name + '\'' +
                 ", cls=" + cls +
                 '}';

@@ -22,7 +22,7 @@ public final class BuiltinConnectors
 {
     /*
     TODO:
-     - RemappingConnector
+     - RemappingConnector? alt: all in on views?
     */
 
     private BuiltinConnectors()

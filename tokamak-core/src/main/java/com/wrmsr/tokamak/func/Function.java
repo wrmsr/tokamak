@@ -27,6 +27,6 @@ public interface Function
 
     static String genAnonName()
     {
-        return "anon$" + anonCount.getAndIncrement();
+        return "$anon$" + anonCount.getAndIncrement();
     }
 }

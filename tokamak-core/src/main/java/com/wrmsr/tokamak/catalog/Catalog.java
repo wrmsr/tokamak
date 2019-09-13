@@ -42,6 +42,9 @@ public final class Catalog
 
     private final Map<String, Schema> schemasByName = new HashMap<>();
 
+    private final Set<Executor> executors = Collections.newSetFromMap(new IdentityHashMap<>());
+    private final Map<String, Executor> functionsExecutorsByName = new HashMap<>();
+
     private final Set<Function> functions = Collections.newSetFromMap(new IdentityHashMap<>());
     private final Map<String, Function> functionsByName = new HashMap<>();
 
@@ -53,6 +56,7 @@ public final class Catalog
     private Catalog(
             @JsonProperty("connectors") List<Connector> connectors,
             @JsonProperty("schemas") List<Schema> schemas,
+            @JsonProperty("executors") List<Executor> executors,
             @JsonProperty("functions") List<Function> functions)
     {
         checkNotNull(connectors).forEach(this::addConnector);

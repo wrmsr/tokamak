@@ -19,8 +19,7 @@ import java.util.Set;
 import java.util.function.Supplier;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static java.util.Collections.unmodifiableSet;
-import static java.util.Objects.requireNonNull;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public final class NameGenerator
         implements Supplier<String>
@@ -40,8 +39,8 @@ public final class NameGenerator
     public NameGenerator(Set<String> unavailableStrings, String prefix, int initialCount)
     {
         checkArgument(initialCount >= 0);
-        this.names = unmodifiableSet(requireNonNull(unavailableStrings));
-        this.prefix = requireNonNull(prefix);
+        this.names = ImmutableSet.copyOf(unavailableStrings);
+        this.prefix = checkNotNull(prefix);
         counter = initialCount;
     }
 

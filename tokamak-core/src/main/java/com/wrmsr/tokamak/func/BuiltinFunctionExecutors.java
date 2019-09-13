@@ -14,9 +14,16 @@
 
 package com.wrmsr.tokamak.func;
 
+import com.wrmsr.tokamak.catalog.CatalogRegistry;
+
 public final class BuiltinFunctionExecutors
 {
     private BuiltinFunctionExecutors()
     {
+    }
+
+    public static CatalogRegistry register(CatalogRegistry registry)
+    {
+        return registry;
     }
 }

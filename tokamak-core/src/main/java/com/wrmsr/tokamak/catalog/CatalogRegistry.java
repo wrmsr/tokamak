@@ -34,8 +34,8 @@ public final class CatalogRegistry
     private final Map<String, ConnectorType> connectorTypesByName = new HashMap<>();
     private final Map<Class<? extends Connector>, ConnectorType> connectorTypesByCls = new HashMap<>();
 
-    private final Map<String, FunctionExecutorType> functionExecutorTypesByName = new HashMap<>();
-    private final Map<Class<? extends FunctionExecutor>, FunctionExecutorType> functionExecutorTypesByCls = new HashMap<>();
+    private final Map<String, ExecutorType> executorTypesByName = new HashMap<>();
+    private final Map<Class<? extends Executor>, ExecutorType> executorTypesByCls = new HashMap<>();
 
     public Map<String, ConnectorType> getConnectorTypesByName()
     {
@@ -56,23 +56,23 @@ public final class CatalogRegistry
         return connectorTypesByName.get(name);
     }
 
-    public Map<String, FunctionExecutorType> getFunctionExecutorTypesByName()
+    public Map<String, ExecutorType> getExecutorTypesByName()
     {
         synchronized (lock) {
-            return ImmutableMap.copyOf(functionExecutorTypesByName);
+            return ImmutableMap.copyOf(executorTypesByName);
         }
     }
 
-    public Map<Class<? extends FunctionExecutor>, FunctionExecutorType> getFunctionExecutorTypesByCls()
+    public Map<Class<? extends Executor>, ExecutorType> getExecutorTypesByCls()
     {
         synchronized (lock) {
-            return ImmutableMap.copyOf(functionExecutorTypesByCls);
+            return ImmutableMap.copyOf(executorTypesByCls);
         }
     }
 
-    public FunctionExecutorType getFunctionExecutorType(String name)
+    public ExecutorType getExecutorType(String name)
     {
-        return functionExecutorTypesByName.get(name);
+        return executorTypesByName.get(name);
     }
 
     public void register(ConnectorType<?> connectorType)
@@ -86,14 +86,14 @@ public final class CatalogRegistry
         }
     }
 
-    public void register(FunctionExecutorType<?> functionExecutorType)
+    public void register(ExecutorType<?> executorType)
     {
-        checkNotNull(functionExecutorType);
+        checkNotNull(executorType);
         synchronized (lock) {
-            checkArgument(!functionExecutorTypesByName.containsKey(functionExecutorType.getName()));
-            checkArgument(!functionExecutorTypesByCls.containsKey(functionExecutorType.getCls()));
-            functionExecutorTypesByName.put(functionExecutorType.getName(), functionExecutorType);
-            functionExecutorTypesByCls.put(functionExecutorType.getCls(), functionExecutorType);
+            checkArgument(!executorTypesByName.containsKey(executorType.getName()));
+            checkArgument(!executorTypesByCls.containsKey(executorType.getCls()));
+            executorTypesByName.put(executorType.getName(), executorType);
+            executorTypesByCls.put(executorType.getCls(), executorType);
         }
     }
 
@@ -102,8 +102,8 @@ public final class CatalogRegistry
         for (ConnectorType connectorType : connectorTypesByName.values()) {
             objectMapper.registerSubtypes(new NamedType(connectorType.getCls(), connectorType.getName()));
         }
-        for (FunctionExecutorType functionExecutorType : functionExecutorTypesByName.values()) {
-            objectMapper.registerSubtypes(new NamedType(functionExecutorType.getCls(), functionExecutorType.getName()));
+        for (ExecutorType executorType : executorTypesByName.values()) {
+            objectMapper.registerSubtypes(new NamedType(executorType.getCls(), executorType.getName()));
         }
         return objectMapper;
     }
@@ -128,6 +128,6 @@ public final class CatalogRegistry
     public void checkConnectorSubtypeRegistered(ObjectMapper objectMapper)
     {
         checkConnectorSubtypeRegistered(objectMapper, Connector.class, connectorTypesByCls.keySet());
-        checkConnectorSubtypeRegistered(objectMapper, FunctionExecutor.class, functionExecutorTypesByCls.keySet());
+        checkConnectorSubtypeRegistered(objectMapper, Executor.class, executorTypesByCls.keySet());
     }
 }
