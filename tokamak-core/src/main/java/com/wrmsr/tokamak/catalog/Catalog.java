@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.api.SchemaTable;
+import com.wrmsr.tokamak.func.Signature;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -225,9 +226,22 @@ public final class Catalog
                 return function;
             }
 
-            function = new Function(this, name, executor);
+            Signature signature = checkNotNull(executor.getSignature(name));
+
+            function = new Function(this, name, signature, executor);
 
             functionsByName.put(name, function);
+            return function;
+        }
+    }
+
+    public Function lookupFunction(String name)
+    {
+        synchronized (lock) {
+            Function function = functionsByName.get(name);
+            if (function == null) {
+                throw new IllegalArgumentException("Function not found: " + name);
+            }
             return function;
         }
     }
