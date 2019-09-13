@@ -193,7 +193,7 @@ public class CoreTest
                         new TableLayout.Key(ImmutableList.of("id")),
                         ImmutableList.of()));
 
-        mapHeapTable.addRows(ImmutableList.of(
+        mapHeapTable.addRowMaps(ImmutableList.of(
                 ImmutableMap.of(
                         "id", 1,
                         "str", "one"
@@ -204,13 +204,13 @@ public class CoreTest
                 )
         ));
 
-        System.out.println(Json.writeValue(mapHeapTable));
-
         HeapConnector connector = new HeapConnector("stuff_connector");
         connector.addTable(mapHeapTable);
 
         Catalog catalog = new Catalog();
         Table table = catalog.getOrBuildSchema("stuff_schema", connector).getOrBuildTable("stuff_table");
+
+        System.out.println(Json.writeValue(catalog));
 
         ScanNode scan0 = new ScanNode(
                 "scan0",

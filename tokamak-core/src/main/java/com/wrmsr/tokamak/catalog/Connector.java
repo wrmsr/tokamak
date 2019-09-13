@@ -14,12 +14,16 @@
 package com.wrmsr.tokamak.catalog;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.layout.TableLayout;
 
 import java.util.Set;
 
+@JsonTypeInfo(
+        use = JsonTypeInfo.Id.NAME,
+        include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonIdentityInfo(generator = ObjectIdGenerators.UUIDGenerator.class)
 public interface Connector
 {

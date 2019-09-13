@@ -13,8 +13,10 @@
  */
 package com.wrmsr.tokamak.conn.heap.table;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.layout.TableLayout;
@@ -30,6 +32,7 @@ import java.util.Set;
 @JsonSubTypes({
         @JsonSubTypes.Type(value = MapHeapTable.class, name = "map"),
 })
+@JsonIdentityInfo(generator = ObjectIdGenerators.UUIDGenerator.class)
 public interface HeapTable
 {
     SchemaTable getSchemaTable();
