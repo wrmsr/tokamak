@@ -50,7 +50,7 @@ public final class Catalog
     }
 
     @JsonCreator
-    public Catalog(
+    private Catalog(
             @JsonProperty("connectors") List<Connector> connectors,
             @JsonProperty("schemas") List<Schema> schemas,
             @JsonProperty("functions") List<Function> functions)

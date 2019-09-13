@@ -39,7 +39,7 @@ public final class Table
     }
 
     @JsonCreator
-    public Table(
+    private Table(
             @JsonProperty("name") String name,
             @JsonProperty("layout") TableLayout layout)
     {

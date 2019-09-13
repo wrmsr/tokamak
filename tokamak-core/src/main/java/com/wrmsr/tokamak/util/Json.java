@@ -54,9 +54,10 @@ public final class Json
         objectMapper.disable(MapperFeature.AUTO_DETECT_GETTERS);
         objectMapper.disable(MapperFeature.AUTO_DETECT_IS_GETTERS);
         objectMapper.disable(MapperFeature.USE_GETTERS_AS_SETTERS);
-        objectMapper.disable(MapperFeature.CAN_OVERRIDE_ACCESS_MODIFIERS);
         objectMapper.disable(MapperFeature.INFER_PROPERTY_MUTATORS);
+        objectMapper.disable(MapperFeature.INFER_CREATOR_FROM_CONSTRUCTOR_PROPERTIES);
         objectMapper.disable(MapperFeature.ALLOW_FINAL_FIELDS_AS_MUTATORS);
+        objectMapper.disable(MapperFeature.USE_BASE_TYPE_AS_DEFAULT_IMPL);
 
         objectMapper.registerModules(
                 new Jdk8Module(),

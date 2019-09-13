@@ -50,7 +50,7 @@ public final class Schema
     }
 
     @JsonCreator
-    public Schema(
+    private Schema(
             @JsonProperty("name") String name,
             @JsonProperty("connector") Connector connector,
             @JsonProperty("tables") List<Table> tables)

@@ -102,6 +102,11 @@ public final class Plan
         return nodesByName;
     }
 
+    public Set<String> getNodeNames()
+    {
+        return nodesByName.keySet();
+    }
+
     public Map<NodeId, Node> getNodesById()
     {
         return nodesByNodeId;

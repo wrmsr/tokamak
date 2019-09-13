@@ -25,6 +25,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.wrmsr.tokamak.util.MorePreconditions.checkUnique;
 
 @Immutable
 public final class TableLayout
@@ -39,6 +41,7 @@ public final class TableLayout
         {
             this.fields = ImmutableList.copyOf(fields);
             checkArgument(!this.fields.isEmpty());
+            checkUnique(this.fields);
         }
 
         @Override
@@ -78,9 +81,11 @@ public final class TableLayout
             @JsonProperty("primaryKey") Key primaryKey,
             @JsonProperty("secondaryKeys") List<Key> secondaryKeys)
     {
-        this.rowLayout = rowLayout;
-        this.primaryKey = primaryKey;
+        this.rowLayout = checkNotNull(rowLayout);
+        this.primaryKey = checkNotNull(primaryKey);
         this.secondaryKeys = ImmutableList.copyOf(secondaryKeys);
+        primaryKey.forEach(f -> checkArgument(rowLayout.getFields().containsKey(f)));
+        this.secondaryKeys.forEach(k -> k.forEach(f -> checkArgument(rowLayout.getFields().containsKey(f))));
     }
 
     @JsonProperty("rowLayout")
