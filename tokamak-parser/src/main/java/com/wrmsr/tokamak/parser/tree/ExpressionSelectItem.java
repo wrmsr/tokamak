@@ -15,21 +15,30 @@ package com.wrmsr.tokamak.parser.tree;
 
 import com.wrmsr.tokamak.parser.tree.visitor.AstVisitor;
 
+import java.util.Optional;
+
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public final class ExpressionSelectItem
         extends SelectItem
 {
     private final Expression expression;
+    private final Optional<String> label;
 
-    public ExpressionSelectItem(Expression expression)
+    public ExpressionSelectItem(Expression expression, Optional<String> label)
     {
         this.expression = checkNotNull(expression);
+        this.label = checkNotNull(label);
     }
 
     public Expression getExpression()
     {
         return expression;
+    }
+
+    public Optional<String> getLabel()
+    {
+        return label;
     }
 
     @Override

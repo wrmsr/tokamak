@@ -19,6 +19,8 @@ import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.catalog.Catalog;
 import com.wrmsr.tokamak.catalog.Table;
 import com.wrmsr.tokamak.node.Node;
+import com.wrmsr.tokamak.node.ProjectNode;
+import com.wrmsr.tokamak.node.Projection;
 import com.wrmsr.tokamak.node.ScanNode;
 import com.wrmsr.tokamak.parser.tree.AllSelectItem;
 import com.wrmsr.tokamak.parser.tree.Expression;
@@ -30,9 +32,11 @@ import com.wrmsr.tokamak.parser.tree.SelectItem;
 import com.wrmsr.tokamak.parser.tree.TableName;
 import com.wrmsr.tokamak.parser.tree.TreeNode;
 import com.wrmsr.tokamak.parser.tree.visitor.AstVisitor;
+import com.wrmsr.tokamak.util.NameGenerator;
 
-import java.util.LinkedHashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -45,6 +49,8 @@ public class AstPlanner
 {
     private Optional<Catalog> catalog;
     private Optional<String> defaultSchema;
+
+    private final NameGenerator nameGenerator = new NameGenerator();
 
     public AstPlanner(Optional<Catalog> catalog, Optional<String> defaultSchema)
     {
@@ -78,28 +84,26 @@ public class AstPlanner
                 }
 
                 Table table = catalog.get().lookupSchemaTable(schemaTable);
+                Map<String, String> columnsByLabel = new LinkedHashMap<>();
 
-                Set<String> columns = new LinkedHashSet<>();
                 for (SelectItem item : treeNode.getItems()) {
                     if (item instanceof AllSelectItem) {
                         for (String column : table.getLayout().getRowLayout().getFieldNames()) {
-                            checkState(!columns.contains(column));
-                            columns.add(column);
+                            checkState(!columnsByLabel.containsKey(column));
+                            columnsByLabel.put(column, column);
                         }
                     }
                     else if (item instanceof ExpressionSelectItem) {
-                        Expression expr = ((ExpressionSelectItem) item).getExpression();
+                        ExpressionSelectItem exprItem = (ExpressionSelectItem) item;
+                        Expression expr = exprItem.getExpression();
+                        String column;
                         if (expr instanceof Identifier) {
                             Identifier ident = (Identifier) expr;
-                            String column = ident.getValue();
-                            checkState(table.getLayout().getRowLayout().getFields().containsKey(column));
-                            checkState(!columns.contains(column));
-                            columns.add(column);
+                            column = ident.getValue();
                         }
                         else if (expr instanceof QualifiedName) {
                             QualifiedName qname = (QualifiedName) expr;
                             List<String> qnameParts = qname.getParts();
-                            String column;
                             if (qnameParts.size() == 1) {
                                 column = qnameParts.get(0);
                             }
@@ -110,20 +114,29 @@ public class AstPlanner
                             else {
                                 throw new IllegalArgumentException(qnameParts.toString());
                             }
-                            checkState(table.getLayout().getRowLayout().getFields().containsKey(column));
-                            checkState(!columns.contains(column));
-                            columns.add(column);
                         }
                         else {
                             throw new IllegalArgumentException(expr.toString());
                         }
+
+                        checkState(table.getLayout().getRowLayout().getFields().containsKey(column));
+                        String label;
+                        if (exprItem.getLabel().isPresent()) {
+                            label = exprItem.getLabel().get();
+                        }
+                        else {
+                            label = column;
+                        }
+                        checkState(!columnsByLabel.containsKey(label));
+                        columnsByLabel.put(label, column);
                     }
                     else {
                         throw new IllegalArgumentException(item.toString());
                     }
                 }
 
-                return new ScanNode(
+                Set<String> columns = ImmutableSet.copyOf(columnsByLabel.values());
+                ScanNode scanNode = new ScanNode(
                         "scan0",
                         schemaTable,
                         columns.stream().collect(toImmutableMap(identity(), table.getLayout().getRowLayout().getFields()::get)),
@@ -132,6 +145,16 @@ public class AstPlanner
                         ImmutableMap.of(),
                         ImmutableMap.of(),
                         Optional.empty());
+                Node node = scanNode;
+
+                if (!columnsByLabel.keySet().equals(columns)) {
+                    node = new ProjectNode(
+                            nameGenerator.get(),
+                            scanNode,
+                            Projection.of(columnsByLabel));
+                }
+
+                return node;
             }
         }, null);
     }

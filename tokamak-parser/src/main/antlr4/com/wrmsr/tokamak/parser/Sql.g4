@@ -19,8 +19,8 @@ select
     ;
 
 selectItem
-    : expression  #selectExpression
-    | ASTERISK    #selectAll
+    : expression (AS? identifier)?  #selectExpression
+    | ASTERISK                      #selectAll
     ;
 
 relation
@@ -53,6 +53,7 @@ identifier
     | QUOTED_IDENTIFIER  #quotedIdentifier
     ;
 
+AS: 'AS';
 FROM: 'FROM';
 NOT: 'NOT';
 NULL: 'NULL';

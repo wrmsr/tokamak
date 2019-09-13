@@ -41,6 +41,7 @@ public class ParserTest
         for (String str : new String[] {
                 "select * from NATION",
                 "select N_NAME, N_COMMENT from NATION",
+                "select N_NAME as name, N_COMMENT as comment from NATION",
         }) {
             System.out.println(str);
             SqlParser parser = Parsing.parse(str);

@@ -26,8 +26,6 @@ import com.wrmsr.tokamak.type.Type;
 import com.wrmsr.tokamak.util.NameGenerator;
 
 import static com.google.common.base.Preconditions.checkState;
-import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
-import static java.util.function.Function.identity;
 
 public final class Transforms
 {
@@ -37,7 +35,7 @@ public final class Transforms
 
     public static Plan addScanNodeIdFields(Plan plan, Catalog catalog)
     {
-        NameGenerator ng = new NameGenerator(plan.getNodeNames());
+        NameGenerator nameGenerator = new NameGenerator(plan.getNodeNames());
         return new Plan(plan.getRoot().accept(new NodeRewriter<Void>()
         {
             @Override
@@ -79,9 +77,9 @@ public final class Transforms
                             node.getLockOverride());
 
                     return new ProjectNode(
-                            ng.get(),
+                            nameGenerator.get(),
                             newScan,
-                            new Projection(node.getFields().keySet().stream().collect(toImmutableMap(identity(), Projection.Input::of))));
+                            Projection.only(node.getFields().keySet()));
                 }
             }
         }, null));

@@ -88,7 +88,9 @@ public class AstBuilder
             @Override
             public TreeNode visitSelectExpression(SqlParser.SelectExpressionContext ctx)
             {
-                return new ExpressionSelectItem((Expression) visit(ctx.expression()));
+                return new ExpressionSelectItem(
+                        (Expression) visit(ctx.expression()),
+                        ctx.identifier() != null ? Optional.of(ctx.identifier().getText()) : Optional.empty());
             }
 
             @Override

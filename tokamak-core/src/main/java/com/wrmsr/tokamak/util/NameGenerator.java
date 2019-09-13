@@ -30,7 +30,7 @@ public final class NameGenerator
      - optional prefix provided in get (idAddedScanProject$N)
     */
 
-    public static final String DEFAULT_PREFIX = "__anon$";
+    public static final String DEFAULT_PREFIX = "$anon$";
 
     private final Set<String> names;
     private final String prefix;

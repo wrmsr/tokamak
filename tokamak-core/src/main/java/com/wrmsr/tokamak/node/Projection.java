@@ -264,4 +264,10 @@ public final class Projection
         }
         return new Projection(builder.build());
     }
+
+    public static Projection of(Map<String, String> map)
+    {
+        return new Projection(map.entrySet().stream()
+                .collect(toImmutableMap(Map.Entry::getKey, e -> Projection.Input.of(e.getValue()))));
+    }
 }
