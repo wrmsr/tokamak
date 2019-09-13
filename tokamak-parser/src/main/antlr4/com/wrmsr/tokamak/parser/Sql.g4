@@ -15,7 +15,7 @@ statement
 select
     : SELECT selectItem (',' selectItem)*
       (FROM relation (',' relation)*)?
-      (WHERE where=booleanExpression)?
+      (WHERE where=expression)?
     ;
 
 selectItem
@@ -29,16 +29,13 @@ relation
     ;
 
 expression
-    : booleanExpression
-    | qualifiedName
+    : NOT expression                                   #notExpression
+    | qualifiedName                                    #qualifiedNameExpression
+    | literal                                          #literalExpression
+    | IDENTIFIER '(' expression (',' expression)* ')'  #functionCallExpression
     ;
 
-booleanExpression
-    : NOT booleanExpression
-    | literalExpression
-    ;
-
-literalExpression
+literal
     : NULL           #nullLiteral
     | STRING_VALUE   #stringLiteral
     | INTEGER_VALUE  #integerLiteral
