@@ -158,7 +158,18 @@ public class CoreTest
         TpchUtils.buildDatabase(url);
         Catalog catalog = TpchUtils.buildCatalog(url);
 
+        ConnectorRegistry cn = BuiltinConnectors.register(new ConnectorRegistry());
+        ObjectMapper om = cn.registerSubtypes(Json.newObjectMapper());
+        String src = om.writerWithDefaultPrettyPrinter().writeValueAsString(catalog);
+        System.out.println(src);
+        catalog = om.readValue(src, Catalog.class);
+
         Plan plan = buildPlan(catalog);
+
+        // FIXME: projectnode lambdas + filternode predicate
+        // src = om.writerWithDefaultPrettyPrinter().writeValueAsString(plan);
+        // System.out.println(src);
+        // plan = om.readValue(src, Plan.class);
 
         Driver driver = new DriverImpl(catalog, plan);
 

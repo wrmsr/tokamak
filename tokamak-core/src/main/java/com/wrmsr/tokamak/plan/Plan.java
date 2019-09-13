@@ -13,6 +13,10 @@
  */
 package com.wrmsr.tokamak.plan;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -42,6 +46,7 @@ import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 import static java.util.function.Function.identity;
 
+@JsonIdentityInfo(generator = ObjectIdGenerators.UUIDGenerator.class)
 @Immutable
 public final class Plan
 {
@@ -51,7 +56,9 @@ public final class Plan
     private final Map<String, Node> nodesByName;
     private final Map<NodeId, Node> nodesByNodeId;
 
-    public Plan(Node root)
+    @JsonCreator
+    public Plan(
+            @JsonProperty("root") Node root)
     {
         this.root = root;
 
@@ -79,6 +86,7 @@ public final class Plan
         this.nodesByNodeId = ImmutableMap.copyOf(nodesById);
     }
 
+    @JsonProperty("root")
     public Node getRoot()
     {
         return root;
