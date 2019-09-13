@@ -129,7 +129,7 @@ public class CoreTest
                 "filter0",
                 scanNode0,
                 catalog.getOrBuildFunction(be.register(Reflection.reflect(getClass().getDeclaredMethod("isStringNotNull", String.class))).getName(), be).getNodeFunction(),
-                ImmutableList.of("N_NATIONKEY"),
+                ImmutableList.of("N_NAME"),
                 false);
 
         Node projectNode0 = new ProjectNode(
