@@ -19,7 +19,14 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.collect.ImmutableList;
@@ -29,6 +36,7 @@ import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.api.SimpleRow;
 import junit.framework.TestCase;
 
+import java.io.IOException;
 import java.util.List;
 
 public class JsonTest
@@ -443,5 +451,49 @@ public class JsonTest
 
         Linkable jl = Json.readValue(src, Linkable.class);
         System.out.println(jl);
+    }
+
+    @JsonIdentityInfo(generator = ObjectIdGenerators.UUIDGenerator.class)
+    @JsonSerialize(using = IdThing.Serializer.class)
+    @JsonDeserialize(using = IdThing.Deserializer.class)
+    public static final class IdThing
+    {
+        public static class Serializer
+                extends JsonSerializer<IdThing>
+        {
+            @Override
+            public void serialize(IdThing value, JsonGenerator gen, SerializerProvider serializers)
+                    throws IOException
+            {
+                gen.writeStartObject();
+                gen.writeFieldName("value");
+                gen.writeNumber(value.value);
+                gen.writeEndObject();
+            }
+        }
+
+        public static class Deserializer
+                extends JsonDeserializer<IdThing>
+        {
+            @Override
+            public IdThing deserialize(JsonParser p, DeserializationContext ctxt)
+                    throws IOException, JsonProcessingException
+            {
+                throw new IllegalStateException();
+            }
+        }
+
+        public final int value;
+
+        public IdThing(int value)
+        {
+            this.value = value;
+        }
+    }
+
+    public void testIdThing() throws Throwable
+    {
+        String src = Json.writeValue(new IdThing(420));
+        System.out.println(src);
     }
 }
