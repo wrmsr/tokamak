@@ -18,11 +18,10 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.layout.TableLayout;
 
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -38,13 +37,16 @@ public final class Schema
 
     private Catalog catalog;
 
-    private final Map<String, Table> tablesByName = new HashMap<>();
+    private final Object lock = new Object();
+
+    private volatile Map<String, Table> tablesByName;
 
     public Schema(Catalog catalog, String name, Connector connector)
     {
         this.catalog = checkNotNull(catalog);
         this.name = checkNotEmpty(name);
         this.connector = checkNotNull(connector);
+        tablesByName = ImmutableMap.of();
     }
 
     @JsonCreator
@@ -55,11 +57,12 @@ public final class Schema
     {
         this.name = checkNotNull(name);
         this.connector = checkNotNull(connector);
+        ImmutableMap.Builder<String, Table> tablesByName = ImmutableMap.builderWithExpectedSize(tables.size());
         tables.forEach(t -> {
-            checkState(!tablesByName.containsKey(t.getName()));
             t.setSchema(this);
             tablesByName.put(t.getName(), t);
         });
+        this.tablesByName = tablesByName.build();
     }
 
     void setCatalog(Catalog catalog)
@@ -97,14 +100,22 @@ public final class Schema
 
     public Map<String, Table> getTablesByName()
     {
-        return Collections.unmodifiableMap(tablesByName);
+        return tablesByName;
     }
 
     public Table getOrBuildTable(String name)
     {
-        return tablesByName.computeIfAbsent(name, n -> {
-            TableLayout layout = connector.getTableLayout(SchemaTable.of(this.name, name));
-            return new Table(this, name, layout);
-        });
+        synchronized (lock) {
+            Table table = tablesByName.get(name);
+            if (table == null) {
+                TableLayout layout = connector.getTableLayout(SchemaTable.of(this.name, name));
+                table = new Table(this, name, layout);
+                tablesByName = ImmutableMap.<String, Table>builder()
+                        .putAll(tablesByName)
+                        .put(name, table)
+                        .build();
+            }
+            return table;
+        }
     }
 }

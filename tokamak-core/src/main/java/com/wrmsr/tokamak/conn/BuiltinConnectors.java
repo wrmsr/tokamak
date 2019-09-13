@@ -21,6 +21,11 @@ import com.wrmsr.tokamak.conn.jdbc.JdbcConnector;
 
 public final class BuiltinConnectors
 {
+    /*
+    TODO:
+     - RemappingConnector
+    */
+
     private BuiltinConnectors()
     {
     }

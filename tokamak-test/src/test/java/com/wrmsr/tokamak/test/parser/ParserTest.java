@@ -44,7 +44,7 @@ public class ParserTest
             System.out.println(parser);
             TreeNode treeNode = new AstBuilder().build(parser.statement());
             System.out.println(treeNode);
-            Node node = new AstPlanner(Optional.of(catalog), Optional.of("jdbc")).plan(treeNode);
+            Node node = new AstPlanner(Optional.of(catalog), Optional.of("PUBLIC")).plan(treeNode);
             System.out.println(node);
         }
     }

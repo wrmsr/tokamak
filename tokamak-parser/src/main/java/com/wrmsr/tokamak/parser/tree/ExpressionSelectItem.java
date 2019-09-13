@@ -27,6 +27,11 @@ public final class ExpressionSelectItem
         this.expression = checkNotNull(expression);
     }
 
+    public Expression getExpression()
+    {
+        return expression;
+    }
+
     @Override
     public <R, C> R accept(AstVisitor<R, C> visitor, C context)
     {
