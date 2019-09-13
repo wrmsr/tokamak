@@ -24,8 +24,6 @@ import com.wrmsr.tokamak.type.Type;
 import com.wrmsr.tokamak.util.NameGenerator;
 
 import static com.google.common.base.Preconditions.checkState;
-import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
-import static com.wrmsr.tokamak.util.codec.Codec.identity;
 
 public final class Transforms
 {
@@ -58,15 +56,18 @@ public final class Transforms
                             node.getLockOverride());
                 }
                 else {
+                    ImmutableMap.Builder<String, Type> newFields = ImmutableMap.builder();
+                    newFields.putAll(node.getFields());
+                    table.getLayout().getPrimaryKeyFields().forEach(f -> {
+                        if (!node.getFields().containsKey(f)) {
+                            newFields.put(f, table.getLayout().getRowLayout().getFields().get(f));
+                        }
+                    })
+
                     Node newScan = new ScanNode(
                             node.getName(),
                             node.getSchemaTable(),
-                            ImmutableMap.<String, Type>builder()
-                                    .putAll(node.getFields())
-                                    .putAll(table.getLayout().getPrimaryKeyFields().stream()
-                                            .filter(f -> !node.getFields().containsKey(f))
-                                            .collect(toImmutableMap(identity(), table.getLayout().getRowLayout().getFields()::get)))
-                                    .build(),
+                            newFields.build(),
                             table.getLayout().getPrimaryKeyFields(),
                             node.getIdNodes(),
                             node.getInvalidations(),
@@ -75,7 +76,6 @@ public final class Transforms
                     throw new UnsupportedOperationException();
                 }
             }
-        }
-    },null));
-}
+        }, null));
+    }
 }
