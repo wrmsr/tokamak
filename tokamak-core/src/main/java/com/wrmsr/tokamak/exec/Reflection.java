@@ -35,10 +35,10 @@ public final class Reflection
 
     private static final AtomicInteger reflectedCount = new AtomicInteger();
 
-    public static Executable reflect(Method method)
+    public static Executable reflect(Method method, String name)
     {
         return new SimpleExecutable(
-                "$reflected$" + reflectedCount.getAndIncrement() + "$" + method.getName(),
+                name,
                 new Signature(
                         TypeUtils.fromJavaType(method.getReturnType()),
                         IntStream.range(0, method.getParameterTypes().length).boxed()
@@ -51,6 +51,11 @@ public final class Reflection
                         throw new RuntimeException(e);
                     }
                 });
+    }
+
+    public static Executable reflect(Method method)
+    {
+        return reflect(method, "$reflected$" + reflectedCount.getAndIncrement() + "$" + method.getName());
     }
 
     public static Executable reflect(Supplier supplier)
