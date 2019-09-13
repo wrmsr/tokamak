@@ -144,6 +144,12 @@ public class AstBuilder
             {
                 return new TableName((QualifiedName) visit(ctx.qualifiedName()));
             }
+
+            @Override
+            public TreeNode visitFunctionCallExpression(SqlParser.FunctionCallExpressionContext ctx)
+            {
+                throw new IllegalStateException();
+            }
         });
     }
 }

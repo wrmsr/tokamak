@@ -11,47 +11,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.test.parser;
+package com.wrmsr.tokamak.parser;
 
-import com.wrmsr.tokamak.catalog.Catalog;
 import com.wrmsr.tokamak.node.Node;
 import com.wrmsr.tokamak.parser.AstBuilder;
 import com.wrmsr.tokamak.parser.AstPlanner;
 import com.wrmsr.tokamak.parser.Parsing;
 import com.wrmsr.tokamak.parser.SqlParser;
 import com.wrmsr.tokamak.parser.tree.TreeNode;
-import com.wrmsr.tokamak.plan.Plan;
-import com.wrmsr.tokamak.plan.transform.Transforms;
-import com.wrmsr.tokamak.test.TpchUtils;
 import junit.framework.TestCase;
-
-import java.util.Optional;
 
 public class ParserTest
         extends TestCase
 {
-    public void testTpchParse()
+    public void testParse()
             throws Throwable
     {
-        TpchUtils.clearDatabase();
-        String url = "jdbc:h2:file:./temp/test.db;USER=username;PASSWORD=password";
-        TpchUtils.buildDatabase(url);
-        Catalog catalog = TpchUtils.buildCatalog(url);
-
         for (String str : new String[] {
-                "select * from NATION",
-                "select N_NAME, N_COMMENT from NATION",
-                "select N_NAME as name, N_COMMENT as comment from NATION",
+                "select *",
+                "select 420",
+                "select /*+ hint */ 1",
+                "select 'hu'",
+                "select a",
+                "select a from a",
+                "select a(b) as c, d from e",
         }) {
             System.out.println(str);
             SqlParser parser = Parsing.parse(str);
             System.out.println(parser);
             TreeNode treeNode = new AstBuilder().build(parser.statement());
             System.out.println(treeNode);
-            Node node = new AstPlanner(Optional.of(catalog), Optional.of("PUBLIC")).plan(treeNode);
-            System.out.println(node);
-            Plan transformedPlan = Transforms.addScanNodeIdFields(new Plan(node), catalog);
-            System.out.println(transformedPlan);
         }
     }
 }
