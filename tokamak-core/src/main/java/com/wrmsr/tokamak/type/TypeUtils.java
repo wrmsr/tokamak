@@ -41,4 +41,9 @@ public final class TypeUtils
     {
         return PRIMITIVE_STRING_MAP.get(type);
     }
+
+    public static Type fromJavaType(Class<?> cls)
+    {
+        return checkNotNull(Type.FROM_JAVA_TYPE.get(cls));
+    }
 }

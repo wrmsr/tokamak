@@ -238,23 +238,11 @@ public final class Projection
             }
             else if (inputObj instanceof Executable) {
                 Executable exe = (Executable) inputObj;
-                List<String> funcArgs;
-                if (exe instanceof RowExecutable || exe instanceof RowMapExecutable || exe instanceof NullaryExecutable) {
-                    funcArgs = ImmutableList.of();
+                ImmutableList.Builder<String> funcArgs = ImmutableList.builder();
+                for (String param : exe.getSignature().getParams().keySet()) {
+                    funcArgs.add((String) args[i++]);
                 }
-                else if (exe instanceof UnaryExecutable) {
-                    funcArgs = ImmutableList.of((String) args[i++]);
-                }
-                else if (exe instanceof BinaryExecutable) {
-                    funcArgs = ImmutableList.of((String) args[i++], (String) args[i++]);
-                }
-                else if (exe instanceof VariadicExecutable) {
-                    funcArgs = ImmutableList.copyOf((String[]) args[i++]);
-                }
-                else {
-                    throw new IllegalArgumentException(Objects.toString(exe));
-                }
-                input = new FunctionInput(Function.of(exe), funcArgs);
+                input = new FunctionInput(Function.of(exe), funcArgs.build());
             }
             else {
                 throw new IllegalArgumentException(Objects.toString(inputObj));

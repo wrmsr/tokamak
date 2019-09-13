@@ -13,35 +13,42 @@
  */
 package com.wrmsr.tokamak.exec;
 
-import com.wrmsr.tokamak.type.Type;
+import com.wrmsr.tokamak.type.TypeUtils;
 
 import java.lang.reflect.Method;
-import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.IntStream;
+
+import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 
 public final class Reflection
 {
+    /*
+    TODO:
+     - argnames
+    */
+
     private Reflection()
     {
     }
 
-    public static ValueExecutable reflect(Method method)
+    private static final AtomicInteger reflectedCount = new AtomicInteger();
+
+    public static Executable reflect(Method method)
     {
-        Class<?>[] params = method.getParameterTypes();
-        if (params.length == 0) {
-            return NullaryExecutable.of(
-                    method.getName(),
-                    Type.FROM_JAVA_TYPE.get(method.getReturnType()),
-                    () -> {
-                        try {
-                            return method.invoke(null);
-                        }
-                        catch (ReflectiveOperationException e) {
-                            throw new RuntimeException(e);
-                        }
-                    });
-        }
-        else {
-            throw new IllegalArgumentException(Objects.toString(method));
-        }
+        return new SimpleExecutable(
+                "$reflected$" + reflectedCount.getAndIncrement() + "$" + method.getName(),
+                new Signature(
+                        TypeUtils.fromJavaType(method.getReturnType()),
+                        IntStream.range(0, method.getParameterTypes().length).boxed()
+                                .collect(toImmutableMap(i -> "arg" + i, i -> TypeUtils.fromJavaType(method.getParameterTypes()[i])))),
+                args -> {
+                    try {
+                        return method.invoke(null);
+                    }
+                    catch (ReflectiveOperationException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
     }
 }
