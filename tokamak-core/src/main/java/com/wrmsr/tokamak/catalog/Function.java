@@ -18,6 +18,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.wrmsr.tokamak.func.Signature;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
@@ -27,25 +28,29 @@ import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 public final class Function
 {
     private final String name;
+    private final Signature signature;
     private final Executor executor;
 
     private Catalog catalog;
 
     private final Object lock = new Object();
 
-    public Function(Catalog catalog, String name, Executor executor)
+    public Function(Catalog catalog, String name, Signature signature, Executor executor)
     {
         this.catalog = checkNotNull(catalog);
         this.name = checkNotEmpty(name);
+        this.signature = checkNotNull(signature);
         this.executor = checkNotNull(executor);
     }
 
     @JsonCreator
     private Function(
             @JsonProperty("name") String name,
+            @JsonProperty("signature") Signature signature,
             @JsonProperty("executor") Executor executor)
     {
         this.name = checkNotNull(name);
+        this.signature = checkNotNull(signature);
         this.executor = checkNotNull(executor);
     }
 
@@ -61,9 +66,20 @@ public final class Function
         return name;
     }
 
+    @JsonProperty("signature")
+    public Signature getSignature()
+    {
+        return signature;
+    }
+
     @JsonProperty("executor")
     public Executor getExecutor()
     {
         return executor;
+    }
+
+    public Catalog getCatalog()
+    {
+        return catalog;
     }
 }

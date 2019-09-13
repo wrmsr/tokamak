@@ -17,6 +17,7 @@ import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.type.Type;
 
 import java.util.List;
+import java.util.function.BiFunction;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -47,7 +48,7 @@ public interface BinaryFunction<T, U, R>
             Type arg0Type,
             Type arg1Type,
             Type type,
-            java.util.function.BiFunction<T, U, R> fn)
+            BiFunction<T, U, R> fn)
     {
         return new BinaryFunction<T, U, R>()
         {
@@ -93,7 +94,7 @@ public interface BinaryFunction<T, U, R>
             Type arg0Type,
             Type arg1Type,
             Type type,
-            java.util.function.BiFunction<T, U, R> fn)
+            BiFunction<T, U, R> fn)
     {
         return of(Function.genAnonName(), arg0Type, arg1Type, type, fn);
     }

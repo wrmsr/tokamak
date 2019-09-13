@@ -16,9 +16,9 @@ package com.wrmsr.tokamak.func;
 
 import com.wrmsr.tokamak.catalog.CatalogRegistry;
 
-public final class BuiltinFunctionExecutors
+public final class BuiltinExecutors
 {
-    private BuiltinFunctionExecutors()
+    private BuiltinExecutors()
     {
     }
 

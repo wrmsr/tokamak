@@ -17,6 +17,7 @@ import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.type.Type;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 public interface NullaryFunction<T>
         extends ValueFunction<T>
@@ -38,7 +39,7 @@ public interface NullaryFunction<T>
     static <T> NullaryFunction<T> of(
             String name,
             Type type,
-            java.util.function.Supplier<T> fn)
+            Supplier<T> fn)
     {
         return new NullaryFunction<T>()
         {
@@ -70,7 +71,7 @@ public interface NullaryFunction<T>
 
     static <T> NullaryFunction<T> anon(
             Type type,
-            java.util.function.Supplier<T> fn)
+            Supplier<T> fn)
     {
         return of(Function.genAnonName(), type, fn);
     }

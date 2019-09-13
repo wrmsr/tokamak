@@ -43,9 +43,8 @@ public final class Catalog
     private final Map<String, Schema> schemasByName = new HashMap<>();
 
     private final Set<Executor> executors = Collections.newSetFromMap(new IdentityHashMap<>());
-    private final Map<String, Executor> functionsExecutorsByName = new HashMap<>();
+    private final Map<String, Executor> executorsByName = new HashMap<>();
 
-    private final Set<Function> functions = Collections.newSetFromMap(new IdentityHashMap<>());
     private final Map<String, Function> functionsByName = new HashMap<>();
 
     public Catalog()
@@ -66,6 +65,7 @@ public final class Catalog
             s.setCatalog(this);
             schemasByName.put(s.getName(), s);
         });
+        checkNotNull(executors).forEach(this::addExecutor);
         checkNotNull(functions).forEach(this::addFunction);
     }
 
@@ -99,11 +99,26 @@ public final class Catalog
         }
     }
 
+    @JsonProperty("executors")
+    public List<Executor> getExecutors()
+    {
+        synchronized (lock) {
+            return ImmutableList.copyOf(executors);
+        }
+    }
+
+    public Map<String, Executor> getExecutorsByName()
+    {
+        synchronized (lock) {
+            return ImmutableMap.copyOf(executorsByName);
+        }
+    }
+
     @JsonProperty("functions")
     public List<Function> getFunctions()
     {
         synchronized (lock) {
-            return ImmutableList.copyOf(functions);
+            return ImmutableList.copyOf(functionsByName.values());
         }
     }
 
@@ -126,6 +141,21 @@ public final class Catalog
             connectors.add(connector);
             connectorsByName.put(connector.getName(), connector);
             return connector;
+        }
+    }
+
+    public Executor addExecutor(Executor executor)
+    {
+        synchronized (lock) {
+            if (executors.contains(executor)) {
+                return executor;
+            }
+            if (functionsByName.get(executor.getName()) != null) {
+                throw new IllegalArgumentException("Executor name taken: " + executor.getName());
+            }
+            executors.add(executor);
+            executorsByName.put(executor.getName(), executor);
+            return executor;
         }
     }
 
