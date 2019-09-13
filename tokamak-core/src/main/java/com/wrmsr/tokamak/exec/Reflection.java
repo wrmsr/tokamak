@@ -17,6 +17,7 @@ import com.wrmsr.tokamak.type.TypeUtils;
 
 import java.lang.reflect.Method;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
 import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
@@ -50,5 +51,15 @@ public final class Reflection
                         throw new RuntimeException(e);
                     }
                 });
+    }
+
+    public static Executable reflect(Supplier supplier)
+    {
+        try {
+            return reflect(supplier.getClass().getDeclaredMethod("get"));
+        }
+        catch (ReflectiveOperationException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

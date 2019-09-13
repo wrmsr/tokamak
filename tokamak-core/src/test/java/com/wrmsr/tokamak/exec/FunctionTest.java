@@ -13,7 +13,6 @@
  */
 package com.wrmsr.tokamak.exec;
 
-import com.wrmsr.tokamak.type.Type;
 import junit.framework.TestCase;
 
 import java.lang.reflect.Method;
@@ -24,12 +23,12 @@ public class FunctionTest
     public void testReflection()
             throws Throwable
     {
-        Executable f = RowExecutable.anon(Type.LONG, r -> 0L);
+        Executable f = Reflection.reflect(() -> 0L);
         System.out.println(f);
 
         Method method = System.class.getDeclaredMethod("currentTimeMillis");
-        ValueExecutable function = Reflection.reflect(method);
-        System.out.println(function);
-        System.out.println(function.invoke());
+        f = Reflection.reflect(method);
+        System.out.println(f);
+        System.out.println(f.invoke());
     }
 }

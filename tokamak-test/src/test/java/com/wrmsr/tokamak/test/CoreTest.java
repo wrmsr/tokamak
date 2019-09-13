@@ -28,7 +28,6 @@ import com.wrmsr.tokamak.conn.heap.HeapConnector;
 import com.wrmsr.tokamak.conn.heap.table.MapHeapTable;
 import com.wrmsr.tokamak.driver.Driver;
 import com.wrmsr.tokamak.driver.DriverImpl;
-import com.wrmsr.tokamak.exec.RowMapExecutable;
 import com.wrmsr.tokamak.layout.RowLayout;
 import com.wrmsr.tokamak.layout.TableLayout;
 import com.wrmsr.tokamak.node.EquijoinNode;
@@ -93,7 +92,13 @@ public class CoreTest
         }
     }
 
+    private static boolean isStringNotNull(String s)
+    {
+        return s != null;
+    }
+
     private Plan buildPlan(Catalog catalog)
+            throws Throwable
     {
         Node scanNode0 = new ScanNode(
                 "scan0",
@@ -112,7 +117,8 @@ public class CoreTest
         Node filterNode0 = new FilterNode(
                 "filter0",
                 scanNode0,
-                row -> row.getAttributes()[0] != null,
+                getClass().getDeclaredMethod("isStringNotNull", String.class),
+                ImmutableList.of("N_NATIONKEY"),
                 false);
 
         Node projectNode0 = new ProjectNode(

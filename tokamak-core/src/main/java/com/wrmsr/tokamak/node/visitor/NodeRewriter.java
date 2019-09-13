@@ -68,7 +68,8 @@ public abstract class NodeRewriter<C>
         return new FilterNode(
                 visitNodeName(node.getName(), context),
                 get(node.getSource(), context),
-                node.getPredicate(),
+                node.getFunction(),
+                node.getArgs(),
                 node.isUnlinked());
     }
 

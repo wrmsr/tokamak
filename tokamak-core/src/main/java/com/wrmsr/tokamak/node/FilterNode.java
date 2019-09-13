@@ -15,11 +15,13 @@ package com.wrmsr.tokamak.node;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.node.visitor.NodeVisitor;
 import com.wrmsr.tokamak.type.Type;
 
 import javax.annotation.concurrent.Immutable;
 
+import java.util.List;
 import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -31,28 +33,34 @@ public final class FilterNode
         implements SingleSourceNode
 {
     private final Node source;
-    private final Function predicate;
+    private final Function function;
+    private final List<String> args;
     private final boolean unlinked;
 
     @JsonCreator
     public FilterNode(
             @JsonProperty("name") String name,
             @JsonProperty("source") Node source,
-            @JsonProperty("predicate") Function predicate,
+            @JsonProperty("function") Function function,
+            @JsonProperty("args") List<String> args,
             @JsonProperty("unlinked") boolean unlinked)
     {
         super(name);
 
         this.source = checkNotNull(source);
-        this.predicate = checkNotNull(predicate);
+        this.function = checkNotNull(function);
+        this.args = ImmutableList.copyOf(args);
         this.unlinked = unlinked;
 
-        checkArgument(predicate.getSignature().getType() == Type.BOOLEAN);
-        predicate.getSignature().getParams().forEach((f, t) -> {
-            Type st = source.getFields().get(f);
-            checkNotNull(st);
-            checkArgument(st.equals(t));
-        });
+        checkArgument(function.getSignature().getType() == Type.BOOLEAN);
+        checkArgument(function.getSignature().getParams().size() == this.args.size());
+
+        // FIXME: check
+        // function.getSignature().getParams().forEach((f, t) -> {
+        //     Type st = source.getFields().get(f);
+        //     checkNotNull(st);
+        //     checkArgument(st.equals(t));
+        // });
 
         checkInvariants();
     }
@@ -64,10 +72,16 @@ public final class FilterNode
         return source;
     }
 
-    @JsonProperty("predicate")
-    public Function getPredicate()
+    @JsonProperty("function")
+    public Function getFunction()
     {
-        return predicate;
+        return function;
+    }
+
+    @JsonProperty("args")
+    public List<String> getArgs()
+    {
+        return args;
     }
 
     @JsonProperty("unlinked")

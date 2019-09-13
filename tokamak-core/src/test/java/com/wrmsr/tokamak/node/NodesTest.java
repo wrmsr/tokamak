@@ -18,7 +18,7 @@ import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.api.NodeId;
 import com.wrmsr.tokamak.api.SchemaTable;
-import com.wrmsr.tokamak.exec.RowExecutable;
+import com.wrmsr.tokamak.exec.Reflection;
 import com.wrmsr.tokamak.type.Type;
 import com.wrmsr.tokamak.util.Json;
 import org.junit.Test;
@@ -63,7 +63,7 @@ public class NodesTest
                 scanNode,
                 Projection.of(
                         "id", "id",
-                        "fn", RowExecutable.anon(Type.LONG, r -> 0)
+                        "fn", Reflection.reflect(() -> 0L)
                 ));
 
         String json = Json.writeValuePretty(projectNode);

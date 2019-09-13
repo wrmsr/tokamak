@@ -39,11 +39,16 @@ public final class FilterBuilder
     {
         ImmutableList.Builder<DriverRow> ret = ImmutableList.builder();
         Function function = context.getDriver().getCatalog().getFunctionsByName()
-                .get(node.getPredicate().getName());
+                .get(node.getFunction().getName());
         Executable executable = function.getExecutable();
         for (DriverRow row : context.build(source, key)) {
+            Object[] args = new Object[node.getArgs().size()];
+            for (int i = 0; i < args.length; ++i) {
+                args[i] = row.getMap().get(node.getArgs().get(i));
+            }
+            Object res = executable.invoke(args);
             Object[] attributes;
-            if (node.getPredicate().test(row)) {
+            if ((boolean) res) {
                 attributes = row.getAttributes();
             }
             else {

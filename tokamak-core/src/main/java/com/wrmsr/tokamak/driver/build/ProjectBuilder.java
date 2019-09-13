@@ -23,8 +23,6 @@ import com.wrmsr.tokamak.driver.DriverImpl;
 import com.wrmsr.tokamak.driver.DriverRow;
 import com.wrmsr.tokamak.driver.context.DriverContextImpl;
 import com.wrmsr.tokamak.exec.Executable;
-import com.wrmsr.tokamak.exec.RowExecutable;
-import com.wrmsr.tokamak.exec.RowMapExecutable;
 import com.wrmsr.tokamak.node.Node;
 import com.wrmsr.tokamak.node.ProjectNode;
 import com.wrmsr.tokamak.node.Projection;
@@ -33,7 +31,6 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
 
-import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
 
 public final class ProjectBuilder
@@ -82,15 +79,11 @@ public final class ProjectBuilder
                             .get(functionInput.getFunction().getName());
                     Executable executable = function.getExecutable();
                     // checkState(executable.getType().equals(functionInput.getType()));
-                    if (executable instanceof RowExecutable) {
-                        value = ((RowExecutable) executable).invoke(row);
+                    Object[] args = new Object[functionInput.getArgs().size()];
+                    for (int i = 0; i < args.length; ++i) {
+                        args[i] = rowMap.get(functionInput.getArgs().get(i));
                     }
-                    else if (executable instanceof RowMapExecutable) {
-                        value = ((RowMapExecutable) executable).invoke(rowMap);
-                    }
-                    else {
-                        throw new IllegalStateException(Objects.toString(executable));
-                    }
+                    value = executable.invoke(args);
                 }
                 else {
                     throw new IllegalStateException(Objects.toString(entry));
