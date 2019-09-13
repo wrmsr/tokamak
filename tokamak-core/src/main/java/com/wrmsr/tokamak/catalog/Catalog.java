@@ -20,7 +20,6 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.api.SchemaTable;
-import com.wrmsr.tokamak.func.Function;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -66,7 +65,12 @@ public final class Catalog
             schemasByName.put(s.getName(), s);
         });
         checkNotNull(executors).forEach(this::addExecutor);
-        checkNotNull(functions).forEach(this::addFunction);
+        functions.forEach(f -> {
+            checkState(executors.contains(f.getExecutor()));
+            checkState(!schemasByName.containsKey(f.getName()));
+            f.setCatalog(this);
+            functionsByName.put(f.getName(), f);
+        });
     }
 
     @JsonProperty("connectors")
@@ -164,7 +168,7 @@ public final class Catalog
         synchronized (lock) {
             Connector existingConnector = connectorsByName.get(connector.getName());
             if (existingConnector == null) {
-                checkState(addConnector(connector) == connector);
+                addConnector(connector);
             }
             else if (existingConnector != connector) {
                 throw new IllegalArgumentException("Connector name taken: " + connector.getName());
@@ -201,17 +205,29 @@ public final class Catalog
         }
     }
 
-    public Function addFunction(Function function)
+    public Function getOrBuildFunction(String name, Executor executor)
     {
         synchronized (lock) {
-            if (functions.contains(function)) {
+            Executor existingExecutor = executorsByName.get(executor.getName());
+            if (existingExecutor == null) {
+                addExecutor(executor);
+            }
+            else if (existingExecutor != executor) {
+                throw new IllegalArgumentException("Executor name taken: " + executor.getName());
+            }
+
+            Function function = functionsByName.get(name);
+            if (function != null) {
+                if (function.getExecutor() != executor) {
+                    throw new IllegalArgumentException(
+                            String.format("Function %s present under executor %s not %s", name, function.getExecutor(), executor));
+                }
                 return function;
             }
-            if (functionsByName.get(function.getName()) != null) {
-                throw new IllegalArgumentException("Function name taken: " + function.getName());
-            }
-            functions.add(function);
-            functionsByName.put(function.getName(), function);
+
+            function = new Function(this, name, executor);
+
+            functionsByName.put(name, function);
             return function;
         }
     }
