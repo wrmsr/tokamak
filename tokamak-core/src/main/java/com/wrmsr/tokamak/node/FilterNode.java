@@ -15,15 +15,14 @@ package com.wrmsr.tokamak.node;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.wrmsr.tokamak.api.Row;
 import com.wrmsr.tokamak.node.visitor.NodeVisitor;
 import com.wrmsr.tokamak.type.Type;
 
 import javax.annotation.concurrent.Immutable;
 
 import java.util.Map;
-import java.util.function.Predicate;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
@@ -32,14 +31,14 @@ public final class FilterNode
         implements SingleSourceNode
 {
     private final Node source;
-    private final Predicate<Row> predicate;
+    private final Function predicate;
     private final boolean unlinked;
 
     @JsonCreator
     public FilterNode(
             @JsonProperty("name") String name,
             @JsonProperty("source") Node source,
-            @JsonProperty("predicate") Predicate<Row> predicate,
+            @JsonProperty("predicate") Function predicate,
             @JsonProperty("unlinked") boolean unlinked)
     {
         super(name);
@@ -47,6 +46,13 @@ public final class FilterNode
         this.source = checkNotNull(source);
         this.predicate = checkNotNull(predicate);
         this.unlinked = unlinked;
+
+        checkArgument(predicate.getSignature().getType() == Type.BOOLEAN);
+        predicate.getSignature().getArgs().forEach((f, t) -> {
+            Type st = source.getFields().get(f);
+            checkNotNull(st);
+            checkArgument(st.equals(t));
+        });
 
         checkInvariants();
     }
@@ -59,7 +65,7 @@ public final class FilterNode
     }
 
     @JsonProperty("predicate")
-    public Predicate<Row> getPredicate()
+    public Function getPredicate()
     {
         return predicate;
     }

@@ -18,21 +18,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.wrmsr.tokamak.func.BinaryFunction;
-import com.wrmsr.tokamak.func.Function;
-import com.wrmsr.tokamak.func.NullaryFunction;
-import com.wrmsr.tokamak.func.RowFunction;
-import com.wrmsr.tokamak.func.RowMapFunction;
-import com.wrmsr.tokamak.func.UnaryFunction;
-import com.wrmsr.tokamak.func.VariadicFunction;
-import com.wrmsr.tokamak.type.Type;
 import com.wrmsr.tokamak.util.collect.OrderPreservingImmutableMap;
 import com.wrmsr.tokamak.util.collect.StreamableIterable;
 
@@ -72,12 +63,8 @@ public final class Projection
                     return new FieldInput(parser.getValueAsString());
                 }
                 else if (parser.currentToken() == JsonToken.START_OBJECT) {
-                    Map<String, Object> map = parser.readValueAs(new TypeReference<Map<String, Object>>() {});
-                    checkState(map.keySet().equals(ImmutableSet.of("function", "type", "args")));
-                    return new FunctionInput(
-                            (String) map.get("function"),
-                            Type.parseRepr((String) map.get("type")),
-                            (List<String>) map.get("args"));
+                    Function function = parser.readValueAs(Function.class);
+                    return new FunctionInput(function);
                 }
                 else {
                     throw new IllegalStateException();
@@ -90,9 +77,9 @@ public final class Projection
             return new FieldInput(field);
         }
 
-        static FunctionInput of(String function, Type type, List<String> args)
+        static FunctionInput of(Function function)
         {
-            return new FunctionInput(function, type, args);
+            return new FunctionInput(function);
         }
     }
 
@@ -126,43 +113,25 @@ public final class Projection
     public static final class FunctionInput
             implements Input
     {
-        private final String function;
-        private final Type type;
-        private final List<String> args;
+        private final Function function;
 
-        public FunctionInput(String function, Type type, List<String> args)
+        public FunctionInput(Function function)
         {
             this.function = checkNotNull(function);
-            this.type = checkNotNull(type);
-            this.args = ImmutableList.copyOf(args);
         }
 
         @Override
         public String toString()
         {
             return "FunctionInput{" +
-                    "function='" + function + '\'' +
-                    ", type=" + type +
-                    ", args=" + args +
+                    "function=" + function +
                     '}';
         }
 
         @JsonProperty("function")
-        public String getFunction()
+        public Function getFunction()
         {
             return function;
-        }
-
-        @JsonProperty("type")
-        public Type getType()
-        {
-            return type;
-        }
-
-        @JsonProperty("args")
-        public List<String> getArgs()
-        {
-            return args;
         }
     }
 
