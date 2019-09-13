@@ -14,13 +14,19 @@
 
 package com.wrmsr.tokamak.catalog;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.jsontype.NamedType;
+import com.fasterxml.jackson.databind.type.SimpleType;
 import com.google.common.collect.ImmutableMap;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.ImmutableSet.toImmutableSet;
 
 public final class ConnectorRegistry
 {
@@ -43,6 +49,11 @@ public final class ConnectorRegistry
         }
     }
 
+    public ConnectorType get(String name)
+    {
+        return connectorTypesByName.get(name);
+    }
+
     public void register(ConnectorType<?> connectorType)
     {
         checkNotNull(connectorType);
@@ -52,5 +63,32 @@ public final class ConnectorRegistry
             connectorTypesByName.put(connectorType.getName(), connectorType);
             connectorTypesByCls.put(connectorType.getCls(), connectorType);
         }
+    }
+
+    public ObjectMapper registerSubtypes(ObjectMapper objectMapper)
+    {
+        for (ConnectorType connectorType : connectorTypesByName.values()) {
+            objectMapper.registerSubtypes(new NamedType(connectorType.getCls(), connectorType.getName()));
+        }
+        return objectMapper;
+    }
+
+    public static void checkConnectorSubtypeRegistered(ObjectMapper objectMapper, Iterable<Class<? extends Connector>> clsList)
+    {
+        Collection<NamedType> subtypes = objectMapper.getSubtypeResolver().collectAndResolveSubtypesByTypeId(
+                objectMapper.getSerializationConfig(),
+                objectMapper.getSerializationConfig().introspect(SimpleType.construct(Connector.class)).getClassInfo());
+        subtypes.forEach(st -> checkNotNull(st.getName()));
+        Set<Class> subtypeSet = subtypes.stream().map(NamedType::getType).collect(toImmutableSet());
+        for (Class<? extends Connector> cls : clsList) {
+            if (!subtypeSet.contains(cls)) {
+                throw new IllegalStateException("Connector type not registered: " + cls);
+            }
+        }
+    }
+
+    public void checkConnectorSubtypeRegistered(ObjectMapper objectMapper)
+    {
+        checkConnectorSubtypeRegistered(objectMapper, connectorTypesByCls.keySet());
     }
 }

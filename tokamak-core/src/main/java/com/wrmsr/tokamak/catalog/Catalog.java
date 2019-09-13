@@ -14,7 +14,9 @@
 package com.wrmsr.tokamak.catalog;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.api.SchemaTable;
@@ -30,6 +32,7 @@ import java.util.Set;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
+@JsonIdentityInfo(generator = ObjectIdGenerators.UUIDGenerator.class)
 public final class Catalog
 {
     private final Object lock = new Object();
@@ -42,6 +45,10 @@ public final class Catalog
     private final Set<Function> functions = Collections.newSetFromMap(new IdentityHashMap<>());
     private final Map<String, Function> functionsByName = new HashMap<>();
 
+    public Catalog()
+    {
+    }
+
     @JsonCreator
     public Catalog(
             @JsonProperty("connectors") List<Connector> connectors,
@@ -51,14 +58,11 @@ public final class Catalog
         checkNotNull(connectors).forEach(this::addConnector);
         schemas.forEach(s -> {
             checkState(connectors.contains(s.getConnector()));
-            checkState(schemasByName.containsKey(s.getName()));
+            checkState(!schemasByName.containsKey(s.getName()));
+            s.setCatalog(this);
             schemasByName.put(s.getName(), s);
         });
         checkNotNull(functions).forEach(this::addFunction);
-    }
-
-    public Catalog()
-    {
     }
 
     @JsonProperty("connectors")
@@ -141,10 +145,7 @@ public final class Catalog
                 return schema;
             }
 
-            schema = new Schema(
-                    this,
-                    name,
-                    connector);
+            schema = new Schema(this, name, connector);
 
             schemasByName.put(name, schema);
             return schema;

@@ -19,16 +19,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
+import com.fasterxml.jackson.databind.jsontype.NamedType;
+import com.fasterxml.jackson.databind.type.SimpleType;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.api.Id;
@@ -36,7 +31,7 @@ import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.api.SimpleRow;
 import junit.framework.TestCase;
 
-import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
 
 public class JsonTest
@@ -453,47 +448,46 @@ public class JsonTest
         System.out.println(jl);
     }
 
+    @JsonTypeInfo(
+            use = JsonTypeInfo.Id.NAME,
+            include = JsonTypeInfo.As.WRAPPER_OBJECT)
     @JsonIdentityInfo(generator = ObjectIdGenerators.UUIDGenerator.class)
-    @JsonSerialize(using = IdThing.Serializer.class)
-    @JsonDeserialize(using = IdThing.Deserializer.class)
-    public static final class IdThing
+    public interface IdThing
     {
-        public static class Serializer
-                extends JsonSerializer<IdThing>
-        {
-            @Override
-            public void serialize(IdThing value, JsonGenerator gen, SerializerProvider serializers)
-                    throws IOException
-            {
-                gen.writeStartObject();
-                gen.writeFieldName("value");
-                gen.writeNumber(value.value);
-                gen.writeEndObject();
-            }
-        }
+        int getValue();
+    }
 
-        public static class Deserializer
-                extends JsonDeserializer<IdThing>
-        {
-            @Override
-            public IdThing deserialize(JsonParser p, DeserializationContext ctxt)
-                    throws IOException, JsonProcessingException
-            {
-                throw new IllegalStateException();
-            }
-        }
+    public static final class IdThingImpl
+            implements IdThing
+    {
+        private final int value;
 
-        public final int value;
-
-        public IdThing(int value)
+        @JsonCreator
+        public IdThingImpl(@JsonProperty("value") int value)
         {
             this.value = value;
         }
+
+        @JsonProperty("value")
+        @Override
+        public int getValue()
+        {
+            return value;
+        }
     }
 
-    public void testIdThing() throws Throwable
+    public void testIdThing()
+            throws Throwable
     {
-        String src = Json.writeValue(new IdThing(420));
+        ObjectMapper om = Json.newObjectMapper();
+        Collection<NamedType> col = om.getSubtypeResolver().collectAndResolveSubtypesByTypeId(
+                om.getSerializationConfig(),
+                om.getSerializationConfig().introspect(SimpleType.construct(IdThingImpl.class)).getClassInfo());
+        om.registerSubtypes(new NamedType(IdThingImpl.class, "impl"));
+        col = om.getSubtypeResolver().collectAndResolveSubtypesByTypeId(
+                om.getSerializationConfig(),
+                om.getSerializationConfig().introspect(SimpleType.construct(IdThingImpl.class)).getClassInfo());
+        String src = om.writeValueAsString(new IdThingImpl(420));
         System.out.println(src);
     }
 }

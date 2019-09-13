@@ -21,23 +21,36 @@ import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.layout.TableLayout;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 
 @JsonIdentityInfo(generator = ObjectIdGenerators.UUIDGenerator.class)
 public final class Table
 {
-    private final Schema schema;
     private final String name;
     private final TableLayout layout;
 
-    @JsonCreator
-    public Table(
-            @JsonProperty("schema") Schema schema,
-            @JsonProperty("name") String name,
-            @JsonProperty("layout") TableLayout layout)
+    private Schema schema;
+
+    public Table(Schema schema, String name, TableLayout layout)
     {
         this.schema = checkNotNull(schema);
         this.name = checkNotNull(name);
         this.layout = checkNotNull(layout);
+    }
+
+    @JsonCreator
+    public Table(
+            @JsonProperty("name") String name,
+            @JsonProperty("layout") TableLayout layout)
+    {
+        this.name = checkNotNull(name);
+        this.layout = checkNotNull(layout);
+    }
+
+    void setSchema(Schema schema)
+    {
+        checkState(this.schema == null);
+        this.schema = checkNotNull(schema);
     }
 
     @Override

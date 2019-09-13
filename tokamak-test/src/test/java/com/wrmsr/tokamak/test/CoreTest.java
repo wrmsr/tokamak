@@ -13,6 +13,7 @@
  */
 package com.wrmsr.tokamak.test;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -20,7 +21,9 @@ import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.api.Row;
 import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.catalog.Catalog;
+import com.wrmsr.tokamak.catalog.ConnectorRegistry;
 import com.wrmsr.tokamak.catalog.Table;
+import com.wrmsr.tokamak.conn.BuiltinConnectors;
 import com.wrmsr.tokamak.conn.heap.HeapConnector;
 import com.wrmsr.tokamak.conn.heap.table.MapHeapTable;
 import com.wrmsr.tokamak.driver.Driver;
@@ -210,7 +213,13 @@ public class CoreTest
         Catalog catalog = new Catalog();
         Table table = catalog.getOrBuildSchema("stuff_schema", connector).getOrBuildTable("stuff_table");
 
-        System.out.println(Json.writeValue(catalog));
+        ConnectorRegistry cn = BuiltinConnectors.register(new ConnectorRegistry());
+        ObjectMapper om = cn.registerSubtypes(Json.newObjectMapper());
+        cn.checkConnectorSubtypeRegistered(om);
+
+        String src = om.writerWithDefaultPrettyPrinter().writeValueAsString(catalog);
+        System.out.println(src);
+        catalog = om.readValue(src, Catalog.class);
 
         ScanNode scan0 = new ScanNode(
                 "scan0",
