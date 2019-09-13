@@ -45,7 +45,7 @@ public final class Reflection
                                 .collect(toImmutableMap(i -> "arg" + i, i -> TypeUtils.fromJavaType(method.getParameterTypes()[i])))),
                 args -> {
                     try {
-                        return method.invoke(null);
+                        return method.invoke(null, args);
                     }
                     catch (ReflectiveOperationException e) {
                         throw new RuntimeException(e);

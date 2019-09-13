@@ -51,8 +51,11 @@ public interface Type
 
     Map<Class<?>, Type> FROM_JAVA_TYPE = ImmutableMap.<Class<?>, Type>builder()
             .put(Boolean.class, BOOLEAN)
+            .put(boolean.class, BOOLEAN)
             .put(Long.class, LONG)
+            .put(long.class, LONG)
             .put(Double.class, DOUBLE)
+            .put(double.class, DOUBLE)
             .put(String.class, STRING)
             .put(byte[].class, BYTES)
             .build();

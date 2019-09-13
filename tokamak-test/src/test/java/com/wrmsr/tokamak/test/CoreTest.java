@@ -128,7 +128,7 @@ public class CoreTest
         Node filterNode0 = new FilterNode(
                 "filter0",
                 scanNode0,
-                Function.of(be.register(Reflection.reflect(getClass().getDeclaredMethod("isStringNotNull", String.class)))),
+                catalog.getOrBuildFunction(be.register(Reflection.reflect(getClass().getDeclaredMethod("isStringNotNull", String.class))).getName(), be).getNodeFunction(),
                 ImmutableList.of("N_NATIONKEY"),
                 false);
 
@@ -137,7 +137,7 @@ public class CoreTest
                 filterNode0,
                 Projection.of(
                         "N_NATIONKEY", "N_NATIONKEY",
-                        "N_NAME", Function.of(be.register(Reflection.reflect(getClass().getDeclaredMethod("addExclamationMark", String.class)))), "N_NAME",
+                        "N_NAME", catalog.getOrBuildFunction(be.register(Reflection.reflect(getClass().getDeclaredMethod("addExclamationMark", String.class))).getName(), be), "N_NAME",
                         "N_REGIONKEY", "N_REGIONKEY"
                 ));
 
@@ -181,7 +181,7 @@ public class CoreTest
         ObjectMapper om = cn.registerSubtypes(Json.newObjectMapper());
         String src = om.writerWithDefaultPrettyPrinter().writeValueAsString(catalog);
         System.out.println(src);
-        catalog = om.readValue(src, Catalog.class);
+        // catalog = om.readValue(src, Catalog.class);
 
         Plan plan = buildPlan(catalog);
 
@@ -249,7 +249,7 @@ public class CoreTest
 
         String src = om.writerWithDefaultPrettyPrinter().writeValueAsString(catalog);
         System.out.println(src);
-        catalog = om.readValue(src, Catalog.class);
+        // catalog = om.readValue(src, Catalog.class);
 
         ScanNode scan0 = new ScanNode(
                 "scan0",

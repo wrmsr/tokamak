@@ -91,4 +91,11 @@ public final class Function
     {
         return executable.get(() -> executor.getExecutable(name));
     }
+
+    private final SupplierLazyValue<com.wrmsr.tokamak.node.Function> nodeFunction = new SupplierLazyValue<>();
+
+    public com.wrmsr.tokamak.node.Function getNodeFunction()
+    {
+        return new com.wrmsr.tokamak.node.Function(name, signature);
+    }
 }

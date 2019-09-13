@@ -50,7 +50,7 @@ public final class BuiltinExecutor
     public Executable register(Executable executable)
     {
         checkNotNull(executable);
-        checkState(executablesByName.containsKey(executable.getName()));
+        checkState(!executablesByName.containsKey(executable.getName()));
         executablesByName.put(executable.getName(), executable);
         return executable;
     }

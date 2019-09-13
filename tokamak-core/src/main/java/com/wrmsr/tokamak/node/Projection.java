@@ -227,7 +227,6 @@ public final class Projection
 
     public static Projection of(Object... args)
     {
-        checkArgument(args.length % 2 == 0);
         ImmutableMap.Builder<String, Input> builder = ImmutableMap.builder();
         for (int i = 0; i < args.length; ) {
             String output = (String) args[i++];
@@ -236,13 +235,16 @@ public final class Projection
             if (inputObj instanceof String) {
                 input = new FieldInput((String) inputObj);
             }
-            else if (inputObj instanceof Executable) {
-                Executable exe = (Executable) inputObj;
+            else if (inputObj instanceof Executable || inputObj instanceof Function || inputObj instanceof com.wrmsr.tokamak.catalog.Function) {
+                Function function = inputObj instanceof Executable ?
+                        Function.of((Executable) inputObj) :
+                        inputObj instanceof com.wrmsr.tokamak.catalog.Function ? ((com.wrmsr.tokamak.catalog.Function) inputObj).getNodeFunction() :
+                                (Function) inputObj;
                 ImmutableList.Builder<String> funcArgs = ImmutableList.builder();
-                for (String param : exe.getSignature().getParams().keySet()) {
+                for (String param : function.getSignature().getParams().keySet()) {
                     funcArgs.add((String) args[i++]);
                 }
-                input = new FunctionInput(Function.of(exe), funcArgs.build());
+                input = new FunctionInput(function, funcArgs.build());
             }
             else {
                 throw new IllegalArgumentException(Objects.toString(inputObj));
