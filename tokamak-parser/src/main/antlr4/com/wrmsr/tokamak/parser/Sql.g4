@@ -28,15 +28,6 @@ relation
     | '(' select ')'  #subqueryRelation
     ;
 
-qualifiedName
-    : identifier ('.' identifier)*
-    ;
-
-identifier
-    : IDENTIFIER         #unquotedIdentifier
-    | QUOTED_IDENTIFIER  #quotedIdentifier
-    ;
-
 expression
     : booleanExpression
     | qualifiedName
@@ -51,6 +42,15 @@ literalExpression
     : NULL           #nullLiteral
     | STRING_VALUE   #stringLiteral
     | INTEGER_VALUE  #integerLiteral
+    ;
+
+qualifiedName
+    : identifier ('.' identifier)*
+    ;
+
+identifier
+    : IDENTIFIER         #unquotedIdentifier
+    | QUOTED_IDENTIFIER  #quotedIdentifier
     ;
 
 FROM: 'FROM';

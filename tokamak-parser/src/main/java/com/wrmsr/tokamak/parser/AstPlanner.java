@@ -24,6 +24,7 @@ import com.wrmsr.tokamak.parser.tree.AllSelectItem;
 import com.wrmsr.tokamak.parser.tree.Expression;
 import com.wrmsr.tokamak.parser.tree.ExpressionSelectItem;
 import com.wrmsr.tokamak.parser.tree.Identifier;
+import com.wrmsr.tokamak.parser.tree.QualifiedName;
 import com.wrmsr.tokamak.parser.tree.Select;
 import com.wrmsr.tokamak.parser.tree.SelectItem;
 import com.wrmsr.tokamak.parser.tree.TableName;
@@ -91,6 +92,24 @@ public class AstPlanner
                         if (expr instanceof Identifier) {
                             Identifier ident = (Identifier) expr;
                             String column = ident.getValue();
+                            checkState(table.getLayout().getRowLayout().getFields().containsKey(column));
+                            checkState(!columns.contains(column));
+                            columns.add(column);
+                        }
+                        else if (expr instanceof QualifiedName) {
+                            QualifiedName qname = (QualifiedName) expr;
+                            List<String> qnameParts = qname.getParts();
+                            String column;
+                            if (qnameParts.size() == 1) {
+                                column = qnameParts.get(0);
+                            }
+                            else if (qnameParts.size() == 2) {
+                                checkState(qnameParts.get(0).equals(table.getName()));
+                                column = qnameParts.get(1);
+                            }
+                            else {
+                                throw new IllegalArgumentException(qnameParts.toString());
+                            }
                             checkState(table.getLayout().getRowLayout().getFields().containsKey(column));
                             checkState(!columns.contains(column));
                             columns.add(column);
