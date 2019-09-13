@@ -28,7 +28,7 @@ import com.wrmsr.tokamak.conn.heap.HeapConnector;
 import com.wrmsr.tokamak.conn.heap.table.MapHeapTable;
 import com.wrmsr.tokamak.driver.Driver;
 import com.wrmsr.tokamak.driver.DriverImpl;
-import com.wrmsr.tokamak.func.RowMapFunction;
+import com.wrmsr.tokamak.func.RowMapExecutable;
 import com.wrmsr.tokamak.layout.RowLayout;
 import com.wrmsr.tokamak.layout.TableLayout;
 import com.wrmsr.tokamak.node.EquijoinNode;
@@ -120,7 +120,7 @@ public class CoreTest
                 filterNode0,
                 Projection.of(
                         "N_NATIONKEY", "N_NATIONKEY",
-                        "N_NAME", catalog.addFunction(RowMapFunction.anon(Type.STRING, rv -> rv.get("N_NAME") + "!")),
+                        "N_NAME", catalog.addFunction(RowMapExecutable.anon(Type.STRING, rv -> rv.get("N_NAME") + "!")),
                         "N_REGIONKEY", "N_REGIONKEY"
                 ));
 

@@ -21,9 +21,9 @@ import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.driver.DriverImpl;
 import com.wrmsr.tokamak.driver.DriverRow;
 import com.wrmsr.tokamak.driver.context.DriverContextImpl;
-import com.wrmsr.tokamak.func.Function;
-import com.wrmsr.tokamak.func.RowFunction;
-import com.wrmsr.tokamak.func.RowMapFunction;
+import com.wrmsr.tokamak.func.Executable;
+import com.wrmsr.tokamak.func.RowExecutable;
+import com.wrmsr.tokamak.func.RowMapExecutable;
 import com.wrmsr.tokamak.node.Node;
 import com.wrmsr.tokamak.node.ProjectNode;
 import com.wrmsr.tokamak.node.Projection;
@@ -76,16 +76,16 @@ public final class ProjectBuilder
                 }
                 else if (entry.getValue() instanceof Projection.FunctionInput) {
                     Projection.FunctionInput functionInput = (Projection.FunctionInput) entry.getValue();
-                    Function function = context.getDriver().getCatalog().getFunctionsByName().get(functionInput.getFunction());
-                    checkState(function.getType().equals(functionInput.getType()));
-                    if (function instanceof RowFunction) {
-                        value = ((RowFunction) function).invoke(row);
+                    Executable executable = context.getDriver().getCatalog().getFunctionsByName().get(functionInput.getFunction());
+                    checkState(executable.getType().equals(functionInput.getType()));
+                    if (executable instanceof RowExecutable) {
+                        value = ((RowExecutable) executable).invoke(row);
                     }
-                    else if (function instanceof RowMapFunction) {
-                        value = ((RowMapFunction) function).invoke(rowMap);
+                    else if (executable instanceof RowMapExecutable) {
+                        value = ((RowMapExecutable) executable).invoke(rowMap);
                     }
                     else {
-                        throw new IllegalStateException(Objects.toString(function));
+                        throw new IllegalStateException(Objects.toString(executable));
                     }
                 }
                 else {

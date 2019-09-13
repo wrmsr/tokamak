@@ -18,12 +18,21 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.ObjectCodec;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.wrmsr.tokamak.func.BinaryExecutable;
+import com.wrmsr.tokamak.func.Executable;
+import com.wrmsr.tokamak.func.NullaryExecutable;
+import com.wrmsr.tokamak.func.RowExecutable;
+import com.wrmsr.tokamak.func.RowMapExecutable;
+import com.wrmsr.tokamak.func.UnaryExecutable;
+import com.wrmsr.tokamak.func.VariadicExecutable;
 import com.wrmsr.tokamak.util.collect.OrderPreservingImmutableMap;
 import com.wrmsr.tokamak.util.collect.StreamableIterable;
 
@@ -63,8 +72,26 @@ public final class Projection
                     return new FieldInput(parser.getValueAsString());
                 }
                 else if (parser.currentToken() == JsonToken.START_OBJECT) {
-                    Function function = parser.readValueAs(Function.class);
-                    return new FunctionInput(function);
+                    Function function = null;
+                    List<String> args = null;
+                    ObjectCodec codec = parser.getCodec();
+                    while (parser.nextToken() != JsonToken.END_OBJECT) {
+                        checkState(parser.currentToken() == JsonToken.FIELD_NAME);
+                        String name = parser.getValueAsString();
+                        switch (name) {
+                            case "function":
+                                checkState(function == null);
+                                function = codec.readValue(codec.treeAsTokens(parser.readValueAsTree()), Function.class);
+                                break;
+                            case "args":
+                                checkState(args == null);
+                                function = codec.readValue(codec.treeAsTokens(parser.readValueAsTree()), new TypeReference<List<String>>() {});
+                                break;
+                            default:
+                                throw new IllegalStateException(name);
+                        }
+                    }
+                    return new FunctionInput(function, args);
                 }
                 else {
                     throw new IllegalStateException();
@@ -77,9 +104,9 @@ public final class Projection
             return new FieldInput(field);
         }
 
-        static FunctionInput of(Function function)
+        static FunctionInput of(Function function, List<String> args)
         {
-            return new FunctionInput(function);
+            return new FunctionInput(function, args);
         }
     }
 
@@ -114,10 +141,13 @@ public final class Projection
             implements Input
     {
         private final Function function;
+        private final List<String> args;
 
-        public FunctionInput(Function function)
+        public FunctionInput(Function function, List<String> args)
         {
             this.function = checkNotNull(function);
+            this.args = ImmutableList.copyOf(args);
+            checkArgument(function.getSignature().getParams().size() == this.args.size());
         }
 
         @Override
@@ -125,6 +155,7 @@ public final class Projection
         {
             return "FunctionInput{" +
                     "function=" + function +
+                    ", args=" + args +
                     '}';
         }
 
@@ -132,6 +163,11 @@ public final class Projection
         public Function getFunction()
         {
             return function;
+        }
+
+        public List<String> getArgs()
+        {
+            return args;
         }
     }
 
@@ -206,25 +242,25 @@ public final class Projection
             if (inputObj instanceof String) {
                 input = new FieldInput((String) inputObj);
             }
-            else if (inputObj instanceof Function) {
-                Function func = (Function) inputObj;
+            else if (inputObj instanceof Executable) {
+                Executable exe = (Executable) inputObj;
                 List<String> funcArgs;
-                if (func instanceof RowFunction || func instanceof RowMapFunction || func instanceof NullaryFunction) {
+                if (exe instanceof RowExecutable || exe instanceof RowMapExecutable || exe instanceof NullaryExecutable) {
                     funcArgs = ImmutableList.of();
                 }
-                else if (func instanceof UnaryFunction) {
+                else if (exe instanceof UnaryExecutable) {
                     funcArgs = ImmutableList.of((String) args[i++]);
                 }
-                else if (func instanceof BinaryFunction) {
+                else if (exe instanceof BinaryExecutable) {
                     funcArgs = ImmutableList.of((String) args[i++], (String) args[i++]);
                 }
-                else if (func instanceof VariadicFunction) {
+                else if (exe instanceof VariadicExecutable) {
                     funcArgs = ImmutableList.copyOf((String[]) args[i++]);
                 }
                 else {
-                    throw new IllegalArgumentException(Objects.toString(func));
+                    throw new IllegalArgumentException(Objects.toString(exe));
                 }
-                input = new FunctionInput(func.getName(), func.getType(), funcArgs);
+                input = new FunctionInput(Function.of(exe), funcArgs);
             }
             else {
                 throw new IllegalArgumentException(Objects.toString(inputObj));

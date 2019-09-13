@@ -29,15 +29,15 @@ import static com.wrmsr.tokamak.util.MoreCollections.checkOrdered;
 public final class Signature
 {
     private final Type type;
-    private final Map<String, Type> args;
+    private final Map<String, Type> params;
 
     @JsonCreator
     public Signature(
             @JsonProperty("type") Type type,
-            @JsonProperty("args") Map<String, Type> args)
+            @JsonProperty("params") Map<String, Type> params)
     {
         this.type = type;
-        this.args = ImmutableMap.copyOf(checkOrdered(args));
+        this.params = ImmutableMap.copyOf(checkOrdered(params));
     }
 
     @Override
@@ -45,7 +45,7 @@ public final class Signature
     {
         return "Signature{" +
                 "type=" + type +
-                ", args=" + args +
+                ", params=" + params +
                 '}';
     }
 
@@ -55,9 +55,9 @@ public final class Signature
         return type;
     }
 
-    @JsonProperty("args")
-    public Map<String, Type> getArgs()
+    @JsonProperty("params")
+    public Map<String, Type> getParams()
     {
-        return args;
+        return params;
     }
 }

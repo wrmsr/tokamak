@@ -17,36 +17,23 @@ import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.type.Type;
 
 import java.util.List;
-import java.util.function.Supplier;
 
-public interface NullaryFunction<T>
-        extends ValueFunction<T>
+public interface VariadicExecutable<T>
+        extends ValueExecutable<T>
 {
-    T invoke();
-
-    @Override
-    default T invoke(Object... args)
-    {
-        return invoke();
-    }
-
-    @Override
-    default List<Type> getArgTypes()
-    {
-        return ImmutableList.of();
-    }
-
-    static <T> NullaryFunction<T> of(
+    static <T> VariadicExecutable<T> of(
             String name,
+            List<Type> argTypes,
             Type type,
-            Supplier<T> fn)
+            java.util.function.Function<Object[], T> fn)
     {
-        return new NullaryFunction<T>()
+        List<Type> argTypes_ = ImmutableList.copyOf(argTypes);
+        return new VariadicExecutable<T>()
         {
             @Override
             public String toString()
             {
-                return "NullaryFunction{name='" + getName() + "'}";
+                return "VariadicFunction{name='" + getName() + "'}";
             }
 
             @Override
@@ -62,17 +49,24 @@ public interface NullaryFunction<T>
             }
 
             @Override
-            public T invoke()
+            public List<Type> getArgTypes()
             {
-                return fn.get();
+                return argTypes_;
+            }
+
+            @Override
+            public T invoke(Object... args)
+            {
+                return fn.apply(args);
             }
         };
     }
 
-    static <T> NullaryFunction<T> anon(
+    static <T> VariadicExecutable<T> anon(
+            List<Type> argTypes,
             Type type,
-            Supplier<T> fn)
+            java.util.function.Function<Object[], T> fn)
     {
-        return of(Function.genAnonName(), type, fn);
+        return of(Executable.genAnonName(), argTypes, type, fn);
     }
 }

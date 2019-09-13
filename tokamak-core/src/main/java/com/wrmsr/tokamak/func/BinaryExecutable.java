@@ -17,41 +17,45 @@ import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.type.Type;
 
 import java.util.List;
+import java.util.function.BiFunction;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-public interface UnaryFunction<T, R>
-        extends ValueFunction<R>
+public interface BinaryExecutable<T, U, R>
+        extends ValueExecutable<R>
 {
-    R invoke(T arg);
+    R invoke(T arg0, U arg1);
 
-    Type getArgType();
+    Type getArg0Type();
+
+    Type getArg1Type();
 
     @Override
     default R invoke(Object... args)
     {
-        checkArgument(args.length == 1);
-        return invoke((T) args[0]);
+        checkArgument(args.length == 2);
+        return invoke((T) args[0], (U) args[1]);
     }
 
     @Override
     default List<Type> getArgTypes()
     {
-        return ImmutableList.of(getArgType());
+        return ImmutableList.of(getArg0Type(), getArg1Type());
     }
 
-    static <T, R> UnaryFunction<T, R> of(
+    static <T, U, R> BinaryExecutable<T, U, R> of(
             String name,
-            Type argType,
+            Type arg0Type,
+            Type arg1Type,
             Type type,
-            java.util.function.Function<T, R> fn)
+            BiFunction<T, U, R> fn)
     {
-        return new UnaryFunction<T, R>()
+        return new BinaryExecutable<T, U, R>()
         {
             @Override
             public String toString()
             {
-                return "UnaryFunction{name='" + getName() + "'}";
+                return "BinaryFunction{name='" + getName() + "'}";
             }
 
             @Override
@@ -67,24 +71,31 @@ public interface UnaryFunction<T, R>
             }
 
             @Override
-            public Type getArgType()
+            public Type getArg0Type()
             {
-                return argType;
+                return arg0Type;
             }
 
             @Override
-            public R invoke(T arg)
+            public Type getArg1Type()
             {
-                return fn.apply(arg);
+                return arg1Type;
+            }
+
+            @Override
+            public R invoke(T arg0, U arg1)
+            {
+                return fn.apply(arg0, arg1);
             }
         };
     }
 
-    static <T, R> UnaryFunction<T, R> anon(
-            Type argType,
+    static <T, U, R> BinaryExecutable<T, U, R> anon(
+            Type arg0Type,
+            Type arg1Type,
             Type type,
-            java.util.function.Function<T, R> fn)
+            BiFunction<T, U, R> fn)
     {
-        return of(Function.genAnonName(), argType, type, fn);
+        return of(Executable.genAnonName(), arg0Type, arg1Type, type, fn);
     }
 }

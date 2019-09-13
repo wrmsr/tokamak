@@ -24,11 +24,11 @@ public class FunctionTest
     public void testReflection()
             throws Throwable
     {
-        Function f = RowFunction.anon(Type.LONG, r -> 0L);
+        Executable f = RowExecutable.anon(Type.LONG, r -> 0L);
         System.out.println(f);
 
         Method method = System.class.getDeclaredMethod("currentTimeMillis");
-        ValueFunction function = Reflection.reflect(method);
+        ValueExecutable function = Reflection.reflect(method);
         System.out.println(function);
         System.out.println(function.invoke());
     }

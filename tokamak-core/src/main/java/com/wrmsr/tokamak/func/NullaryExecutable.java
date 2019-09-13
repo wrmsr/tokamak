@@ -13,22 +13,40 @@
  */
 package com.wrmsr.tokamak.func;
 
-import com.wrmsr.tokamak.api.Row;
+import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.type.Type;
 
-public interface RowFunction<T>
-        extends Function
-{
-    T invoke(Row row);
+import java.util.List;
+import java.util.function.Supplier;
 
-    static <T> RowFunction<T> of(String name, Type type, java.util.function.Function<Row, T> fn)
+public interface NullaryExecutable<T>
+        extends ValueExecutable<T>
+{
+    T invoke();
+
+    @Override
+    default T invoke(Object... args)
     {
-        return new RowFunction<T>()
+        return invoke();
+    }
+
+    @Override
+    default List<Type> getArgTypes()
+    {
+        return ImmutableList.of();
+    }
+
+    static <T> NullaryExecutable<T> of(
+            String name,
+            Type type,
+            Supplier<T> fn)
+    {
+        return new NullaryExecutable<T>()
         {
             @Override
             public String toString()
             {
-                return "RowFunction{name='" + getName() + "'}";
+                return "NullaryFunction{name='" + getName() + "'}";
             }
 
             @Override
@@ -44,15 +62,17 @@ public interface RowFunction<T>
             }
 
             @Override
-            public T invoke(Row row)
+            public T invoke()
             {
-                return fn.apply(row);
+                return fn.get();
             }
         };
     }
 
-    static <T> RowFunction<T> anon(Type type, java.util.function.Function<Row, T> fn)
+    static <T> NullaryExecutable<T> anon(
+            Type type,
+            Supplier<T> fn)
     {
-        return of(Function.genAnonName(), type, fn);
+        return of(Executable.genAnonName(), type, fn);
     }
 }

@@ -24,11 +24,11 @@ public final class Reflection
     {
     }
 
-    public static ValueFunction reflect(Method method)
+    public static ValueExecutable reflect(Method method)
     {
         Class<?>[] params = method.getParameterTypes();
         if (params.length == 0) {
-            return NullaryFunction.of(
+            return NullaryExecutable.of(
                     method.getName(),
                     Type.FROM_JAVA_TYPE.get(method.getReturnType()),
                     () -> {

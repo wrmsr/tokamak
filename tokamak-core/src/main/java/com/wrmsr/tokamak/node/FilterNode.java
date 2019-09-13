@@ -48,7 +48,7 @@ public final class FilterNode
         this.unlinked = unlinked;
 
         checkArgument(predicate.getSignature().getType() == Type.BOOLEAN);
-        predicate.getSignature().getArgs().forEach((f, t) -> {
+        predicate.getSignature().getParams().forEach((f, t) -> {
             Type st = source.getFields().get(f);
             checkNotNull(st);
             checkArgument(st.equals(t));

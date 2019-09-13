@@ -16,6 +16,7 @@ package com.wrmsr.tokamak.node;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.wrmsr.tokamak.func.Executable;
 import com.wrmsr.tokamak.func.Signature;
 
 import javax.annotation.concurrent.Immutable;
@@ -48,5 +49,10 @@ public final class Function
     public Signature getSignature()
     {
         return signature;
+    }
+
+    public static Function of(Executable exe)
+    {
+        return new Function(exe.getName(), exe.getSignature());
     }
 }

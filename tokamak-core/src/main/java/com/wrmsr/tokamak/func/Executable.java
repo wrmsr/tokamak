@@ -13,14 +13,18 @@
  */
 package com.wrmsr.tokamak.func;
 
-import com.wrmsr.tokamak.type.Type;
+import java.util.concurrent.atomic.AtomicInteger;
 
-import java.util.List;
-
-public interface ValueFunction<T>
-        extends Function
+public interface Executable
 {
-    List<Type> getArgTypes();
+    String getName();
 
-    T invoke(Object... args);
+    Signature getSignature();
+
+    AtomicInteger anonCount = new AtomicInteger();
+
+    static String genAnonName()
+    {
+        return "$anon$" + anonCount.getAndIncrement();
+    }
 }

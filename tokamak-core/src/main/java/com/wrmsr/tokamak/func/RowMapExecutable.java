@@ -13,27 +13,23 @@
  */
 package com.wrmsr.tokamak.func;
 
-import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.type.Type;
 
-import java.util.List;
+import java.util.Map;
 
-public interface VariadicFunction<T>
-        extends ValueFunction<T>
+public interface RowMapExecutable<T>
+        extends Executable
 {
-    static <T> VariadicFunction<T> of(
-            String name,
-            List<Type> argTypes,
-            Type type,
-            java.util.function.Function<Object[], T> fn)
+    T invoke(Map<String, Object> rowMap);
+
+    static <T> RowMapExecutable<T> of(String name, Type type, java.util.function.Function<Map<String, Object>, T> fn)
     {
-        List<Type> argTypes_ = ImmutableList.copyOf(argTypes);
-        return new VariadicFunction<T>()
+        return new RowMapExecutable<T>()
         {
             @Override
             public String toString()
             {
-                return "VariadicFunction{name='" + getName() + "'}";
+                return "RowMapFunction{name='" + getName() + "'}";
             }
 
             @Override
@@ -49,24 +45,15 @@ public interface VariadicFunction<T>
             }
 
             @Override
-            public List<Type> getArgTypes()
+            public T invoke(Map<String, Object> rowMap)
             {
-                return argTypes_;
-            }
-
-            @Override
-            public T invoke(Object... args)
-            {
-                return fn.apply(args);
+                return fn.apply(rowMap);
             }
         };
     }
 
-    static <T> VariadicFunction<T> anon(
-            List<Type> argTypes,
-            Type type,
-            java.util.function.Function<Object[], T> fn)
+    static <T> RowMapExecutable<T> anon(Type type, java.util.function.Function<Map<String, Object>, T> fn)
     {
-        return of(Function.genAnonName(), argTypes, type, fn);
+        return of(Executable.genAnonName(), type, fn);
     }
 }
