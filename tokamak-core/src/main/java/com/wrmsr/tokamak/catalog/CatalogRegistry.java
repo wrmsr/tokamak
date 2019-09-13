@@ -108,7 +108,7 @@ public final class CatalogRegistry
         return objectMapper;
     }
 
-    public static <T> void checkConnectorSubtypeRegistered(
+    public static <T> void checkSubtypeRegistered(
             ObjectMapper objectMapper,
             Class<T> cls,
             Iterable<Class<? extends T>> subclsList)
@@ -125,9 +125,9 @@ public final class CatalogRegistry
         }
     }
 
-    public void checkConnectorSubtypeRegistered(ObjectMapper objectMapper)
+    public void checkSubtypeRegistered(ObjectMapper objectMapper)
     {
-        checkConnectorSubtypeRegistered(objectMapper, Connector.class, connectorTypesByCls.keySet());
-        checkConnectorSubtypeRegistered(objectMapper, Executor.class, executorTypesByCls.keySet());
+        checkSubtypeRegistered(objectMapper, Connector.class, connectorTypesByCls.keySet());
+        checkSubtypeRegistered(objectMapper, Executor.class, executorTypesByCls.keySet());
     }
 }

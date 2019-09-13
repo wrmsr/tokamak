@@ -35,7 +35,6 @@ import com.wrmsr.tokamak.layout.RowLayout;
 import com.wrmsr.tokamak.layout.TableLayout;
 import com.wrmsr.tokamak.node.EquijoinNode;
 import com.wrmsr.tokamak.node.FilterNode;
-import com.wrmsr.tokamak.node.Function;
 import com.wrmsr.tokamak.node.Node;
 import com.wrmsr.tokamak.node.ProjectNode;
 import com.wrmsr.tokamak.node.Projection;
@@ -185,9 +184,8 @@ public class CoreTest
 
         Plan plan = buildPlan(catalog);
 
-        // FIXME: projectnode lambdas + filternode predicate
-        // src = om.writerWithDefaultPrettyPrinter().writeValueAsString(plan);
-        // System.out.println(src);
+        src = om.writerWithDefaultPrettyPrinter().writeValueAsString(plan);
+        System.out.println(src);
         // plan = om.readValue(src, Plan.class);
 
         Driver driver = new DriverImpl(catalog, plan);
@@ -245,7 +243,7 @@ public class CoreTest
 
         CatalogRegistry cn = BuiltinConnectors.register(new CatalogRegistry());
         ObjectMapper om = cn.registerSubtypes(Json.newObjectMapper());
-        cn.checkConnectorSubtypeRegistered(om);
+        cn.checkSubtypeRegistered(om);
 
         String src = om.writerWithDefaultPrettyPrinter().writeValueAsString(catalog);
         System.out.println(src);
