@@ -35,6 +35,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 import static java.util.function.Function.identity;
 
+@SuppressWarnings({"rawtypes"})
 public class BuilderFactory
 {
     private final DriverImpl driver;

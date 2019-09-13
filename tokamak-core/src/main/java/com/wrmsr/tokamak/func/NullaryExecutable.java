@@ -14,6 +14,7 @@
 package com.wrmsr.tokamak.func;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.type.Type;
 
 import java.util.List;
@@ -41,6 +42,7 @@ public interface NullaryExecutable<T>
             Type type,
             Supplier<T> fn)
     {
+        Signature signature = new Signature(type, ImmutableMap.of());
         return new NullaryExecutable<T>()
         {
             @Override
@@ -56,9 +58,9 @@ public interface NullaryExecutable<T>
             }
 
             @Override
-            public Type getType()
+            public Signature getSignature()
             {
-                return type;
+                return signature;
             }
 
             @Override

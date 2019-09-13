@@ -14,6 +14,7 @@
 package com.wrmsr.tokamak.func;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.type.Type;
 
 import java.util.List;
@@ -45,11 +46,14 @@ public interface BinaryExecutable<T, U, R>
 
     static <T, U, R> BinaryExecutable<T, U, R> of(
             String name,
+            String arg0Name,
             Type arg0Type,
+            String arg1Name,
             Type arg1Type,
             Type type,
             BiFunction<T, U, R> fn)
     {
+        Signature signature = new Signature(type, ImmutableMap.of(arg0Name, arg0Type, arg1Name, arg1Type));
         return new BinaryExecutable<T, U, R>()
         {
             @Override
@@ -62,12 +66,6 @@ public interface BinaryExecutable<T, U, R>
             public String getName()
             {
                 return name;
-            }
-
-            @Override
-            public Type getType()
-            {
-                return type;
             }
 
             @Override

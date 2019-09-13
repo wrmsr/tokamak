@@ -13,18 +13,11 @@
  */
 package com.wrmsr.tokamak.func;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
 public interface Executable
 {
     String getName();
 
     Signature getSignature();
 
-    AtomicInteger anonCount = new AtomicInteger();
-
-    static String genAnonName()
-    {
-        return "$anon$" + anonCount.getAndIncrement();
-    }
+    Object invoke(Object... args);
 }

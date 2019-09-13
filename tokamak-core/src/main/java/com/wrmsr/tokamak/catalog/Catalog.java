@@ -226,7 +226,7 @@ public final class Catalog
                 return function;
             }
 
-            Signature signature = checkNotNull(executor.getSignature(name));
+            Signature signature = checkNotNull(executor.getExecutable(name)).getSignature();
 
             function = new Function(this, name, signature, executor);
 

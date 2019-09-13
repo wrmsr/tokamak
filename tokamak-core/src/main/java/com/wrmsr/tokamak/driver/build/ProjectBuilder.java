@@ -18,6 +18,7 @@ import com.wrmsr.tokamak.api.AllKey;
 import com.wrmsr.tokamak.api.FieldKey;
 import com.wrmsr.tokamak.api.IdKey;
 import com.wrmsr.tokamak.api.Key;
+import com.wrmsr.tokamak.catalog.Function;
 import com.wrmsr.tokamak.driver.DriverImpl;
 import com.wrmsr.tokamak.driver.DriverRow;
 import com.wrmsr.tokamak.driver.context.DriverContextImpl;
@@ -76,8 +77,11 @@ public final class ProjectBuilder
                 }
                 else if (entry.getValue() instanceof Projection.FunctionInput) {
                     Projection.FunctionInput functionInput = (Projection.FunctionInput) entry.getValue();
-                    Executable executable = context.getDriver().getCatalog().getFunctionsByName().get(functionInput.getFunction());
-                    checkState(executable.getType().equals(functionInput.getType()));
+                    // FIXME: check lol
+                    Function function = context.getDriver().getCatalog().getFunctionsByName()
+                            .get(functionInput.getFunction().getName());
+                    Executable executable = function.getExecutable();
+                    // checkState(executable.getType().equals(functionInput.getType()));
                     if (executable instanceof RowExecutable) {
                         value = ((RowExecutable) executable).invoke(row);
                     }

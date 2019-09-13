@@ -15,9 +15,11 @@ package com.wrmsr.tokamak.driver.build;
 
 import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.api.Key;
+import com.wrmsr.tokamak.catalog.Function;
 import com.wrmsr.tokamak.driver.DriverImpl;
 import com.wrmsr.tokamak.driver.DriverRow;
 import com.wrmsr.tokamak.driver.context.DriverContextImpl;
+import com.wrmsr.tokamak.func.Executable;
 import com.wrmsr.tokamak.node.FilterNode;
 import com.wrmsr.tokamak.node.Node;
 
@@ -36,6 +38,9 @@ public final class FilterBuilder
     protected Collection<DriverRow> innerBuild(DriverContextImpl context, Key key)
     {
         ImmutableList.Builder<DriverRow> ret = ImmutableList.builder();
+        Function function = context.getDriver().getCatalog().getFunctionsByName()
+                .get(node.getPredicate().getName());
+        Executable executable = function.getExecutable();
         for (DriverRow row : context.build(source, key)) {
             Object[] attributes;
             if (node.getPredicate().test(row)) {

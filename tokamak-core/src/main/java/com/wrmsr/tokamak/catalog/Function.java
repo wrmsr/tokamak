@@ -18,7 +18,9 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.wrmsr.tokamak.func.Executable;
 import com.wrmsr.tokamak.func.Signature;
+import com.wrmsr.tokamak.util.lazy.SupplierLazyValue;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
@@ -81,5 +83,12 @@ public final class Function
     public Catalog getCatalog()
     {
         return catalog;
+    }
+
+    private final SupplierLazyValue<Executable> executable = new SupplierLazyValue<>();
+
+    public Executable getExecutable()
+    {
+        return executable.get(() -> executor.getExecutable(name));
     }
 }
