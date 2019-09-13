@@ -17,6 +17,8 @@ import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.catalog.Catalog;
 import com.wrmsr.tokamak.catalog.Table;
 import com.wrmsr.tokamak.node.Node;
+import com.wrmsr.tokamak.node.ProjectNode;
+import com.wrmsr.tokamak.node.Projection;
 import com.wrmsr.tokamak.node.ScanNode;
 import com.wrmsr.tokamak.node.visitor.NodeRewriter;
 import com.wrmsr.tokamak.plan.Plan;
@@ -24,6 +26,8 @@ import com.wrmsr.tokamak.type.Type;
 import com.wrmsr.tokamak.util.NameGenerator;
 
 import static com.google.common.base.Preconditions.checkState;
+import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
+import static java.util.function.Function.identity;
 
 public final class Transforms
 {
@@ -62,7 +66,7 @@ public final class Transforms
                         if (!node.getFields().containsKey(f)) {
                             newFields.put(f, table.getLayout().getRowLayout().getFields().get(f));
                         }
-                    })
+                    });
 
                     Node newScan = new ScanNode(
                             node.getName(),
@@ -73,7 +77,11 @@ public final class Transforms
                             node.getInvalidations(),
                             node.getLinkageMasks(),
                             node.getLockOverride());
-                    throw new UnsupportedOperationException();
+
+                    return new ProjectNode(
+                            ng.get(),
+                            newScan,
+                            new Projection(node.getFields().keySet().stream().collect(toImmutableMap(identity(), Projection.Input::of))));
                 }
             }
         }, null));

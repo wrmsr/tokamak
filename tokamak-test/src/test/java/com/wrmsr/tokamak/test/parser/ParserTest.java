@@ -20,6 +20,8 @@ import com.wrmsr.tokamak.parser.AstPlanner;
 import com.wrmsr.tokamak.parser.Parsing;
 import com.wrmsr.tokamak.parser.SqlParser;
 import com.wrmsr.tokamak.parser.tree.TreeNode;
+import com.wrmsr.tokamak.plan.Plan;
+import com.wrmsr.tokamak.plan.transform.Transforms;
 import com.wrmsr.tokamak.test.TpchUtils;
 import junit.framework.TestCase;
 
@@ -47,6 +49,8 @@ public class ParserTest
             System.out.println(treeNode);
             Node node = new AstPlanner(Optional.of(catalog), Optional.of("PUBLIC")).plan(treeNode);
             System.out.println(node);
+            Plan transformedPlan = Transforms.addScanNodeIdFields(new Plan(node), catalog);
+            System.out.println(transformedPlan);
         }
     }
 }

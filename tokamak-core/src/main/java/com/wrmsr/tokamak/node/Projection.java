@@ -84,6 +84,16 @@ public final class Projection
                 }
             }
         }
+
+        static FieldInput of(String field)
+        {
+            return new FieldInput(field);
+        }
+
+        static FunctionInput of(String function, Type type, List<String> args)
+        {
+            return new FunctionInput(function, type, args);
+        }
     }
 
     @Immutable

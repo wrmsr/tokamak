@@ -25,6 +25,11 @@ import static java.util.Objects.requireNonNull;
 public final class NameGenerator
         implements Supplier<String>
 {
+    /*
+    TODO:
+     - optional prefix provided in get (idAddedScanProject$N)
+    */
+
     public static final String DEFAULT_PREFIX = "__anon$";
 
     private final Set<String> names;
