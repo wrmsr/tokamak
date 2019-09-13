@@ -13,7 +13,7 @@
  */
 package com.wrmsr.tokamak.conn;
 
-import com.wrmsr.tokamak.catalog.ConnectorRegistry;
+import com.wrmsr.tokamak.catalog.CatalogRegistry;
 import com.wrmsr.tokamak.catalog.ConnectorType;
 import com.wrmsr.tokamak.conn.heap.HeapConnector;
 import com.wrmsr.tokamak.conn.jdbc.JdbcConnector;
@@ -29,7 +29,7 @@ public final class BuiltinConnectors
     {
     }
 
-    public static ConnectorRegistry register(ConnectorRegistry registry)
+    public static CatalogRegistry register(CatalogRegistry registry)
     {
         registry.register(new ConnectorType<>("heap", HeapConnector.class));
         registry.register(new ConnectorType<>("jdbc", JdbcConnector.class));

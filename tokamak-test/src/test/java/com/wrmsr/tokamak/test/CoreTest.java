@@ -21,7 +21,7 @@ import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.api.Row;
 import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.catalog.Catalog;
-import com.wrmsr.tokamak.catalog.ConnectorRegistry;
+import com.wrmsr.tokamak.catalog.CatalogRegistry;
 import com.wrmsr.tokamak.catalog.Table;
 import com.wrmsr.tokamak.conn.BuiltinConnectors;
 import com.wrmsr.tokamak.conn.heap.HeapConnector;
@@ -158,7 +158,7 @@ public class CoreTest
         TpchUtils.buildDatabase(url);
         Catalog catalog = TpchUtils.buildCatalog(url);
 
-        ConnectorRegistry cn = BuiltinConnectors.register(new ConnectorRegistry());
+        CatalogRegistry cn = BuiltinConnectors.register(new CatalogRegistry());
         ObjectMapper om = cn.registerSubtypes(Json.newObjectMapper());
         String src = om.writerWithDefaultPrettyPrinter().writeValueAsString(catalog);
         System.out.println(src);
@@ -224,7 +224,7 @@ public class CoreTest
         Catalog catalog = new Catalog();
         Table table = catalog.getOrBuildSchema("stuff_schema", connector).getOrBuildTable("stuff_table");
 
-        ConnectorRegistry cn = BuiltinConnectors.register(new ConnectorRegistry());
+        CatalogRegistry cn = BuiltinConnectors.register(new CatalogRegistry());
         ObjectMapper om = cn.registerSubtypes(Json.newObjectMapper());
         cn.checkConnectorSubtypeRegistered(om);
 
