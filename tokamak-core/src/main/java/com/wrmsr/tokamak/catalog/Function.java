@@ -18,8 +18,8 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-import com.wrmsr.tokamak.func.Executable;
-import com.wrmsr.tokamak.func.Signature;
+import com.wrmsr.tokamak.exec.Executable;
+import com.wrmsr.tokamak.exec.Signature;
 import com.wrmsr.tokamak.util.lazy.SupplierLazyValue;
 
 import static com.google.common.base.Preconditions.checkNotNull;

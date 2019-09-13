@@ -26,13 +26,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.wrmsr.tokamak.func.BinaryExecutable;
-import com.wrmsr.tokamak.func.Executable;
-import com.wrmsr.tokamak.func.NullaryExecutable;
-import com.wrmsr.tokamak.func.RowExecutable;
-import com.wrmsr.tokamak.func.RowMapExecutable;
-import com.wrmsr.tokamak.func.UnaryExecutable;
-import com.wrmsr.tokamak.func.VariadicExecutable;
+import com.wrmsr.tokamak.exec.Executable;
 import com.wrmsr.tokamak.util.collect.OrderPreservingImmutableMap;
 import com.wrmsr.tokamak.util.collect.StreamableIterable;
 

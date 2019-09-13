@@ -20,7 +20,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.api.SchemaTable;
-import com.wrmsr.tokamak.func.Signature;
+import com.wrmsr.tokamak.exec.Signature;
 
 import java.util.Collections;
 import java.util.HashMap;

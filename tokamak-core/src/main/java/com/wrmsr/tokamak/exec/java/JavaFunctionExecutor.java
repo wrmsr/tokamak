@@ -11,8 +11,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.func.jsr223;
+package com.wrmsr.tokamak.exec.java;
 
-public class Jsr223FunctionExecutor
+public class JavaFunctionExecutor
 {
 }

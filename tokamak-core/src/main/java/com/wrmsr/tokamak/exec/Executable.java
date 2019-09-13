@@ -11,8 +11,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.func.v8;
+package com.wrmsr.tokamak.exec;
 
-public class V8FunctionExecutor
+public interface Executable
 {
+    String getName();
+
+    Signature getSignature();
+
+    Object invoke(Object... args);
 }

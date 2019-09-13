@@ -12,11 +12,14 @@
  * limitations under the License.
  */
 
-package com.wrmsr.tokamak.func;
+package com.wrmsr.tokamak.exec;
 
 import javax.annotation.concurrent.Immutable;
 
 import java.util.function.Function;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 
 @Immutable
 public final class SimpleExecutable
@@ -28,9 +31,9 @@ public final class SimpleExecutable
 
     public SimpleExecutable(String name, Signature signature, Function<Object[], Object> function)
     {
-        this.name = name;
-        this.signature = signature;
-        this.function = function;
+        this.name = checkNotEmpty(name);
+        this.signature = checkNotNull(signature);
+        this.function = checkNotNull(function);
     }
 
     @Override
@@ -55,9 +58,14 @@ public final class SimpleExecutable
         return signature;
     }
 
+    public Function<Object[], Object> getFunction()
+    {
+        return function;
+    }
+
     @Override
     public Object invoke(Object... args)
     {
-        return null;
+        return function.apply(args);
     }
 }

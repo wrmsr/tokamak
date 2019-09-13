@@ -16,7 +16,7 @@ package com.wrmsr.tokamak.catalog;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-import com.wrmsr.tokamak.func.Executable;
+import com.wrmsr.tokamak.exec.Executable;
 
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,

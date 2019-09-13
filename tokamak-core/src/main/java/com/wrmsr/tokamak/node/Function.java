@@ -16,8 +16,8 @@ package com.wrmsr.tokamak.node;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.wrmsr.tokamak.func.Executable;
-import com.wrmsr.tokamak.func.Signature;
+import com.wrmsr.tokamak.exec.Executable;
+import com.wrmsr.tokamak.exec.Signature;
 
 import javax.annotation.concurrent.Immutable;
 

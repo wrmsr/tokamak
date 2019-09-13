@@ -11,13 +11,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.func;
 
-public interface Executable
+package com.wrmsr.tokamak.exec;
+
+import com.wrmsr.tokamak.catalog.CatalogRegistry;
+
+public final class BuiltinExecutors
 {
-    String getName();
+    private BuiltinExecutors()
+    {
+    }
 
-    Signature getSignature();
-
-    Object invoke(Object... args);
+    public static CatalogRegistry register(CatalogRegistry registry)
+    {
+        return registry;
+    }
 }

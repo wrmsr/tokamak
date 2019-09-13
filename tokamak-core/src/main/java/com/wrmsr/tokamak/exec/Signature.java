@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-package com.wrmsr.tokamak.func;
+package com.wrmsr.tokamak.exec;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;

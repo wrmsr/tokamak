@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.func;
+package com.wrmsr.tokamak.exec;
 
 import com.wrmsr.tokamak.type.Type;
 

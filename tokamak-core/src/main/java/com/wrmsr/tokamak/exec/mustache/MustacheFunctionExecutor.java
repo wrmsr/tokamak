@@ -11,16 +11,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.func;
+package com.wrmsr.tokamak.exec.mustache;
 
-import com.wrmsr.tokamak.type.Type;
-
-import java.util.List;
-
-public interface ValueExecutable<T>
-        extends Executable
+public class MustacheFunctionExecutor
 {
-    List<Type> getArgTypes();
-
-    T invoke(Object... args);
 }
