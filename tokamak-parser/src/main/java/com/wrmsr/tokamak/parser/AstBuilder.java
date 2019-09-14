@@ -16,6 +16,7 @@ package com.wrmsr.tokamak.parser;
 import com.wrmsr.tokamak.parser.tree.AllSelectItem;
 import com.wrmsr.tokamak.parser.tree.Expression;
 import com.wrmsr.tokamak.parser.tree.ExpressionSelectItem;
+import com.wrmsr.tokamak.parser.tree.FunctionCallExpression;
 import com.wrmsr.tokamak.parser.tree.Identifier;
 import com.wrmsr.tokamak.parser.tree.IntegerLiteral;
 import com.wrmsr.tokamak.parser.tree.NullLiteral;
@@ -148,8 +149,9 @@ public class AstBuilder
             @Override
             public TreeNode visitFunctionCallExpression(SqlParser.FunctionCallExpressionContext ctx)
             {
-                QualifiedName qualifiedName = (QualifiedName) visit(ctx.qualifiedName());
-                throw new IllegalStateException();
+                return new FunctionCallExpression(
+                        (QualifiedName) visit(ctx.qualifiedName()),
+                        visit(ctx.expression(), Expression.class));
             }
         });
     }
