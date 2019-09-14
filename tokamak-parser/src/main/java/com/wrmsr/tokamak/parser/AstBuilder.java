@@ -148,6 +148,7 @@ public class AstBuilder
             @Override
             public TreeNode visitFunctionCallExpression(SqlParser.FunctionCallExpressionContext ctx)
             {
+                QualifiedName qualifiedName = (QualifiedName) visit(ctx.qualifiedName());
                 throw new IllegalStateException();
             }
         });

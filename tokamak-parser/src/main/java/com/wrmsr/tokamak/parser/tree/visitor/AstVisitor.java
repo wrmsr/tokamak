@@ -16,6 +16,7 @@ package com.wrmsr.tokamak.parser.tree.visitor;
 import com.wrmsr.tokamak.parser.tree.AllSelectItem;
 import com.wrmsr.tokamak.parser.tree.Expression;
 import com.wrmsr.tokamak.parser.tree.ExpressionSelectItem;
+import com.wrmsr.tokamak.parser.tree.FunctionCallExpression;
 import com.wrmsr.tokamak.parser.tree.Identifier;
 import com.wrmsr.tokamak.parser.tree.IntegerLiteral;
 import com.wrmsr.tokamak.parser.tree.Literal;
@@ -52,6 +53,11 @@ public abstract class AstVisitor<R, C>
     public R visitExpressionSelectItem(ExpressionSelectItem treeNode, C context)
     {
         return visitSelectItem(treeNode, context);
+    }
+
+    public R visitFunctionCallExpression(FunctionCallExpression treeNode, C context)
+    {
+        return visitExpression(treeNode, context);
     }
 
     public R visitIdentifier(Identifier treeNode, C context)

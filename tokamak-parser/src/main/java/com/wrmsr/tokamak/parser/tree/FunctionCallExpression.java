@@ -11,6 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.wrmsr.tokamak.parser.tree;
 
 import com.google.common.collect.ImmutableList;
@@ -18,32 +19,33 @@ import com.wrmsr.tokamak.parser.tree.visitor.AstVisitor;
 
 import java.util.List;
 
-public final class QualifiedName
+import static com.google.common.base.Preconditions.checkNotNull;
+
+public final class FunctionCallExpression
         extends Expression
 {
-    private final List<String> parts;
+    private final QualifiedName name;
+    private final List<Expression> args;
 
-    public QualifiedName(List<String> parts)
+    public FunctionCallExpression(QualifiedName name, List<Expression> args)
     {
-        this.parts = ImmutableList.copyOf(parts);
+        this.name = checkNotNull(name);
+        this.args = ImmutableList.copyOf(args);
     }
 
-    @Override
-    public String toString()
+    public QualifiedName getName()
     {
-        return "QualifiedName{" +
-                "parts=" + parts +
-                '}';
+        return name;
     }
 
-    public List<String> getParts()
+    public List<Expression> getArgs()
     {
-        return parts;
+        return args;
     }
 
     @Override
     public <R, C> R accept(AstVisitor<R, C> visitor, C context)
     {
-        return visitor.visitQualifiedName(this, context);
+        return visitor.visitFunctionCallExpression(this, context);
     }
 }

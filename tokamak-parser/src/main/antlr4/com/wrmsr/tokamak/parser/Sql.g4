@@ -29,10 +29,10 @@ relation
     ;
 
 expression
-    : NOT expression                                      #notExpression
-    | qualifiedName                                       #qualifiedNameExpression
-    | literal                                             #literalExpression
-    | qualifiedName '(' expression (',' expression)* ')'  #functionCallExpression
+    : NOT expression                           #notExpression
+    | qualifiedName                            #qualifiedNameExpression
+    | literal                                  #literalExpression
+    | qualifiedName '(' (',' expression)* ')'  #functionCallExpression
     ;
 
 literal
