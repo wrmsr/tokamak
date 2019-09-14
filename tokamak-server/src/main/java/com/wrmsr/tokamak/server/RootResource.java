@@ -11,16 +11,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.wrmsr.tokamak.server;
 
-import com.google.inject.Binder;
-import com.google.inject.Module;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 
-public class AppModule
-        implements Module
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
+
+@Path("/v1")
+public class RootResource
 {
-    @Override
-    public void configure(Binder binder)
+    @POST
+    @Path("/query")
+    @Consumes(TEXT_PLAIN)
+    @Produces(APPLICATION_JSON)
+    public void query(String query)
     {
+
     }
 }

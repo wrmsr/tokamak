@@ -11,15 +11,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.server;
 
-import java.io.IOException;
+package com.wrmsr.tokamak.conn.system;
 
-public class ServerMain
+import com.wrmsr.tokamak.catalog.Connection;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+
+public final class SystemConnection
+        implements Connection
 {
-    public static void main(String[] args)
-            throws IOException
-    {
+    private final SystemConnector systemConnector;
 
+    public SystemConnection(SystemConnector systemConnector)
+    {
+        this.systemConnector = checkNotNull(systemConnector);
+    }
+
+    public SystemConnector getSystemConnector()
+    {
+        return systemConnector;
+    }
+
+    @Override
+    public void close()
+    {
     }
 }

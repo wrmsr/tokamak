@@ -19,6 +19,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.layout.TableLayout;
 
+import java.util.Map;
 import java.util.Set;
 
 @JsonTypeInfo(
@@ -30,6 +31,8 @@ public interface Connector
     String getName();
 
     Connection connect();
+
+    Map<String, Set<String>> getSchemaTables();
 
     TableLayout getTableLayout(SchemaTable schemaTable);
 

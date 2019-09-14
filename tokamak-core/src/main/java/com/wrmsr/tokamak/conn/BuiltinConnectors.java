@@ -17,6 +17,7 @@ import com.wrmsr.tokamak.catalog.CatalogRegistry;
 import com.wrmsr.tokamak.catalog.ConnectorType;
 import com.wrmsr.tokamak.conn.heap.HeapConnector;
 import com.wrmsr.tokamak.conn.jdbc.JdbcConnector;
+import com.wrmsr.tokamak.conn.system.SystemConnector;
 
 public final class BuiltinConnectors
 {
@@ -33,6 +34,7 @@ public final class BuiltinConnectors
     {
         registry.register(new ConnectorType<>("heap", HeapConnector.class));
         registry.register(new ConnectorType<>("jdbc", JdbcConnector.class));
+        registry.register(new ConnectorType<>("system", SystemConnector.class));
         return registry;
     }
 }

@@ -16,6 +16,8 @@ package com.wrmsr.tokamak.conn.heap;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.catalog.Connection;
 import com.wrmsr.tokamak.catalog.Connector;
@@ -24,13 +26,15 @@ import com.wrmsr.tokamak.catalog.Table;
 import com.wrmsr.tokamak.conn.heap.table.HeapTable;
 import com.wrmsr.tokamak.layout.TableLayout;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 
 public class HeapConnector
         implements Connector
@@ -38,7 +42,7 @@ public class HeapConnector
     private final String name;
 
     private final Object lock = new Object();
-    private final Map<SchemaTable, HeapTable> tablesBySchemaTable = new HashMap<>();
+    private volatile Map<SchemaTable, HeapTable> tablesBySchemaTable = ImmutableMap.of();
 
     @JsonCreator
     public HeapConnector(
@@ -64,9 +68,14 @@ public class HeapConnector
 
     public HeapConnector addTable(HeapTable heapTable)
     {
-        checkArgument(!tablesBySchemaTable.containsKey(heapTable.getSchemaTable()));
-        tablesBySchemaTable.put(heapTable.getSchemaTable(), heapTable);
-        return this;
+        synchronized (lock) {
+            checkArgument(!tablesBySchemaTable.containsKey(heapTable.getSchemaTable()));
+            tablesBySchemaTable = ImmutableMap.<SchemaTable, HeapTable>builder()
+                    .putAll(tablesBySchemaTable)
+                    .put(heapTable.getSchemaTable(), heapTable)
+                    .build();
+            return this;
+        }
     }
 
     @JsonProperty("name")
@@ -80,6 +89,14 @@ public class HeapConnector
     public List<HeapTable> getTables()
     {
         return ImmutableList.copyOf(tablesBySchemaTable.values());
+    }
+
+    @Override
+    public Map<String, Set<String>> getSchemaTables()
+    {
+        Map<String, Set<String>> map = new LinkedHashMap<>();
+        tablesBySchemaTable.keySet().forEach(st -> map.computeIfAbsent(st.getSchema(), s -> new LinkedHashSet<>()).add(st.getTable()));
+        return map.entrySet().stream().collect(toImmutableMap(Map.Entry::getKey, e -> ImmutableSet.copyOf(e.getValue())));
     }
 
     @Override

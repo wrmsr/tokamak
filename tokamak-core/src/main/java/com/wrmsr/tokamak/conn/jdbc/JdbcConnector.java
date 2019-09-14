@@ -15,6 +15,7 @@ package com.wrmsr.tokamak.conn.jdbc;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.catalog.Connection;
 import com.wrmsr.tokamak.catalog.Connector;
@@ -26,12 +27,18 @@ import com.wrmsr.tokamak.sql.SqlEngine;
 import com.wrmsr.tokamak.sql.metadata.MetaDataReflection;
 import com.wrmsr.tokamak.sql.metadata.TableDescription;
 
+import javax.annotation.Nullable;
+
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 
 public final class JdbcConnector
@@ -39,14 +46,22 @@ public final class JdbcConnector
 {
     private final String name;
     private final SqlEngine sqlEngine;
+    private final @Nullable String catalog;
 
     @JsonCreator
     public JdbcConnector(
             @JsonProperty("name") String name,
-            @JsonProperty("sqlEngine") SqlEngine sqlEngine)
+            @JsonProperty("sqlEngine") SqlEngine sqlEngine,
+            @JsonProperty("catalog") String catalog)
     {
         this.name = checkNotEmpty(name);
         this.sqlEngine = checkNotNull(sqlEngine);
+        this.catalog = catalog;
+    }
+
+    public JdbcConnector(String name, SqlEngine sqlEngine)
+    {
+        this(name, sqlEngine, null);
     }
 
     @Override
@@ -54,6 +69,7 @@ public final class JdbcConnector
     {
         return "JdbcConnector{" +
                 "name='" + name + '\'' +
+                ", catalog='" + catalog + '\'' +
                 '}';
     }
 
@@ -70,10 +86,32 @@ public final class JdbcConnector
         return sqlEngine;
     }
 
+    @JsonProperty("catalog")
+    @Nullable
+    public String getCatalog()
+    {
+        return catalog;
+    }
+
     @Override
     public Connection connect()
     {
         return new JdbcConnection(this, sqlEngine.connect());
+    }
+
+    @Override
+    public Map<String, Set<String>> getSchemaTables()
+    {
+        try (SqlConnection sqlConnection = sqlEngine.connect()) {
+            DatabaseMetaData metaData = sqlConnection.getConnection().getMetaData();
+
+            Map<String, Set<String>> map = new LinkedHashMap<>();
+            MetaDataReflection.getTableMetadatas(metaData).forEach(td -> map.computeIfAbsent(td.getTableSchema(), s -> new LinkedHashSet<>()).add(td.getTableName()));
+            return map.entrySet().stream().collect(toImmutableMap(Map.Entry::getKey, e -> ImmutableSet.copyOf(e.getValue())));
+        }
+        catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -83,7 +121,7 @@ public final class JdbcConnector
             DatabaseMetaData metaData = sqlConnection.getConnection().getMetaData();
 
             TableDescription tableDescription = MetaDataReflection.getTableDescription(
-                    metaData, JdbcTableIdentifier.of("TEST.DB", "PUBLIC", schemaTable.getTable()));
+                    metaData, JdbcTableIdentifier.of(catalog, schemaTable.getSchema(), schemaTable.getTable()));
 
             return JdbcLayoutUtils.buildTableLayout(tableDescription);
         }
