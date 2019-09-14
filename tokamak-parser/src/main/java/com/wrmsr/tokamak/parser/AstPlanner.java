@@ -88,7 +88,7 @@ public class AstPlanner
 
                 for (SelectItem item : treeNode.getItems()) {
                     if (item instanceof AllSelectItem) {
-                        for (String column : table.getLayout().getRowLayout().getFieldNames()) {
+                        for (String column : table.getRowLayout().getFieldNames()) {
                             checkState(!columnsByLabel.containsKey(column));
                             columnsByLabel.put(column, column);
                         }
@@ -119,7 +119,7 @@ public class AstPlanner
                             throw new IllegalArgumentException(expr.toString());
                         }
 
-                        checkState(table.getLayout().getRowLayout().getFields().containsKey(column));
+                        checkState(table.getRowLayout().getFields().containsKey(column));
                         String label;
                         if (exprItem.getLabel().isPresent()) {
                             label = exprItem.getLabel().get();
@@ -139,7 +139,7 @@ public class AstPlanner
                 ScanNode scanNode = new ScanNode(
                         "scan0",
                         schemaTable,
-                        columns.stream().collect(toImmutableMap(identity(), table.getLayout().getRowLayout().getFields()::get)),
+                        columns.stream().collect(toImmutableMap(identity(), table.getRowLayout().getFields()::get)),
                         ImmutableSet.of(),
                         ImmutableSet.of(),
                         ImmutableMap.of(),

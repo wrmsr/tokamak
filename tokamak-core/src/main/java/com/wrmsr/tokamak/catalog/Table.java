@@ -18,6 +18,7 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.wrmsr.tokamak.api.SchemaTable;
+import com.wrmsr.tokamak.layout.RowLayout;
 import com.wrmsr.tokamak.layout.TableLayout;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -83,5 +84,10 @@ public final class Table
     public SchemaTable getSchemaTable()
     {
         return SchemaTable.of(schema.getName(), name);
+    }
+
+    public RowLayout getRowLayout()
+    {
+        return layout.getRowLayout();
     }
 }
