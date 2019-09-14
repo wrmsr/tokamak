@@ -238,7 +238,7 @@ public final class Projection
             else if (inputObj instanceof Executable || inputObj instanceof Function || inputObj instanceof com.wrmsr.tokamak.catalog.Function) {
                 Function function = inputObj instanceof Executable ?
                         Function.of((Executable) inputObj) :
-                        inputObj instanceof com.wrmsr.tokamak.catalog.Function ? ((com.wrmsr.tokamak.catalog.Function) inputObj).getNodeFunction() :
+                        inputObj instanceof com.wrmsr.tokamak.catalog.Function ? ((com.wrmsr.tokamak.catalog.Function) inputObj).asNodeFunction() :
                                 (Function) inputObj;
                 ImmutableList.Builder<String> funcArgs = ImmutableList.builder();
                 for (String param : function.getSignature().getParams().keySet()) {

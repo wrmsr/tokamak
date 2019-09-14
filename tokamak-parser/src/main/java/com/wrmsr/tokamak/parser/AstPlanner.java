@@ -13,6 +13,7 @@
  */
 package com.wrmsr.tokamak.parser;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.api.SchemaTable;
@@ -35,7 +36,9 @@ import com.wrmsr.tokamak.parser.tree.TreeNode;
 import com.wrmsr.tokamak.parser.tree.visitor.AstVisitor;
 import com.wrmsr.tokamak.util.NameGenerator;
 
+import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -68,7 +71,26 @@ public class AstPlanner
     {
         private final List<QualifiedName> qualifiedNames;
 
-        private final Set<List<String>> qualifiedNamePartLists;
+        private final Map<String, Set<String>> columnSetsByTable;
+        private final Set<String> rawColumns;
+
+        public ProjectionExpression(List<QualifiedName> qualifiedNames)
+        {
+            this.qualifiedNames = ImmutableList.copyOf(qualifiedNames);
+
+            Map<String, Set<String>> tableNamesBySchema = new LinkedHashMap<>();
+            Set<String> rawTableNames = new LinkedHashSet<>();
+            this.qualifiedNames.forEach(qn -> {
+                if (qn.getParts().size() == 1) {
+                    rawTableNames.add(qn.getParts().get(0));
+                }
+                else if (qn.getParts().size() == 2) {
+                    tableNamesBySchema.computeIfAbsent(qn.getParts().get(0), s -> new HashSet<>()).add(qn.getParts().get(1));
+                }
+            });
+            this.columnSetsByTable = tableNamesBySchema.entrySet().stream().collect(toImmutableMap(Map.Entry::getKey, e -> ImmutableSet.copyOf(e.getValue())));
+            this.rawColumns = ImmutableSet.copyOf(rawTableNames);
+        }
     }
 
     public Node plan(TreeNode treeNode)

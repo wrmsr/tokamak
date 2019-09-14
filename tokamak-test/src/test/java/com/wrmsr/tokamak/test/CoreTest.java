@@ -127,7 +127,7 @@ public class CoreTest
         Node filterNode0 = new FilterNode(
                 "filter0",
                 scanNode0,
-                catalog.getOrBuildFunction(be.register(Reflection.reflect(getClass().getDeclaredMethod("isStringNotNull", String.class))).getName(), be).getNodeFunction(),
+                catalog.getOrBuildFunction(be.register(Reflection.reflect(getClass().getDeclaredMethod("isStringNotNull", String.class))).getName(), be).asNodeFunction(),
                 ImmutableList.of("N_NAME"),
                 false);
 

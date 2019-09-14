@@ -94,8 +94,8 @@ public final class Function
 
     private final SupplierLazyValue<com.wrmsr.tokamak.node.Function> nodeFunction = new SupplierLazyValue<>();
 
-    public com.wrmsr.tokamak.node.Function getNodeFunction()
+    public com.wrmsr.tokamak.node.Function asNodeFunction()
     {
-        return new com.wrmsr.tokamak.node.Function(name, signature);
+        return nodeFunction.get(() -> new com.wrmsr.tokamak.node.Function(name, signature));
     }
 }
