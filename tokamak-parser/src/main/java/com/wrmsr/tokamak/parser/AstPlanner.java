@@ -25,6 +25,7 @@ import com.wrmsr.tokamak.node.ScanNode;
 import com.wrmsr.tokamak.parser.tree.AllSelectItem;
 import com.wrmsr.tokamak.parser.tree.Expression;
 import com.wrmsr.tokamak.parser.tree.ExpressionSelectItem;
+import com.wrmsr.tokamak.parser.tree.FunctionCallExpression;
 import com.wrmsr.tokamak.parser.tree.Identifier;
 import com.wrmsr.tokamak.parser.tree.QualifiedName;
 import com.wrmsr.tokamak.parser.tree.Select;
@@ -61,6 +62,13 @@ public class AstPlanner
     public AstPlanner()
     {
         this(Optional.empty(), Optional.empty());
+    }
+
+    private final static class ProjectionExpression
+    {
+        private final List<QualifiedName> qualifiedNames;
+
+        private final Set<List<String>> qualifiedNamePartLists;
     }
 
     public Node plan(TreeNode treeNode)
@@ -114,6 +122,10 @@ public class AstPlanner
                             else {
                                 throw new IllegalArgumentException(qnameParts.toString());
                             }
+                        }
+                        else if (expr instanceof FunctionCallExpression) {
+                            FunctionCallExpression fexpr = (FunctionCallExpression) expr;
+                            throw new IllegalArgumentException(expr.toString());
                         }
                         else {
                             throw new IllegalArgumentException(expr.toString());
