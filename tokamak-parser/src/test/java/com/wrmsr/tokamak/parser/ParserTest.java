@@ -34,7 +34,9 @@ public class ParserTest
                 "select 'hu'",
                 "select a",
                 "select a from a",
+                "select a() as c, d from e",
                 "select a(b) as c, d from e",
+                "select a(b, x) as c, d from e",
         }) {
             System.out.println(str);
             SqlParser parser = Parsing.parse(str);
