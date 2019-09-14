@@ -42,6 +42,8 @@ public class TpchParserTest
                 "select * from NATION",
                 "select N_NAME, N_COMMENT from NATION",
                 "select N_NAME as name, N_COMMENT as comment from NATION",
+                "select exclaim(N_NAME) from NATION",
+                "select exclaim(exclaim(N_NAME)) from NATION",
         }) {
             System.out.println(str);
             SqlParser parser = Parsing.parse(str);
