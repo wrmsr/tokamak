@@ -14,15 +14,23 @@
 
 package com.wrmsr.tokamak.test.test;
 
+import com.google.common.base.Splitter;
 import com.wrmsr.tokamak.test.Docker;
 import junit.framework.TestCase;
 
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 public class DockerTest
-    extends TestCase
+        extends TestCase
 {
     public void testDocker()
             throws Throwable
     {
-        Docker.queryDocker();
+        List<Docker.Container> containers = Docker.queryDockerContainers();
+        Map<String, List<Docker.Container>> containersByImage = containers.stream()
+                .collect(Collectors.groupingBy(c -> Splitter.on(':').splitToList(c.getImage()).get(0)));
+        System.out.println(containersByImage);
     }
 }
