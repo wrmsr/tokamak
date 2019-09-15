@@ -28,6 +28,8 @@ public final class Configs
      - toString
      - field getter + explicit setter
      - abstracts / non-interface-configs
+     - maven compilation step (runner not plugin)
+     - class ConfigRegistry
     */
 
     private Configs()

@@ -218,4 +218,18 @@ public final class Compilation
                 Compilation.class.getClassLoader());
         return impl;
     }
+
+    @FunctionalInterface
+    public interface ImplFactory<T extends Config>
+    {
+        T build(ConfigMetadata metadata);
+    }
+
+    public static <T extends Config> ImplFactory<T> getImplFactory(Class<T> impl)
+    {
+        try {
+            return
+        }
+
+    }
 }
