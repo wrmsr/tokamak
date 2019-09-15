@@ -19,6 +19,7 @@ import javax.annotation.concurrent.Immutable;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -26,35 +27,34 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public final class JTypeSpecifier
 {
     private final JName name;
+    private final Optional<List<JTypeSpecifier>> generics;
     private final List<JArray> arrays;
 
-    public JTypeSpecifier(JName name, List<JArray> arrays)
+    public JTypeSpecifier(JName name, Optional<List<JTypeSpecifier>> generics, List<JArray> arrays)
     {
         this.name = checkNotNull(name);
+        this.generics = checkNotNull(generics).map(ImmutableList::copyOf);
         this.arrays = ImmutableList.copyOf(arrays);
     }
 
     public static JTypeSpecifier of(JName name)
     {
-        return new JTypeSpecifier(name, ImmutableList.of());
+        return new JTypeSpecifier(name, Optional.empty(), ImmutableList.of());
     }
 
     public static JTypeSpecifier of(String... parts)
     {
-        return new JTypeSpecifier(JName.of((Object[]) parts), ImmutableList.of());
+        return new JTypeSpecifier(JName.of((Object[]) parts), Optional.empty(), ImmutableList.of());
     }
 
     @Override
     public boolean equals(Object o)
     {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
+        if (this == o) { return true; }
+        if (o == null || getClass() != o.getClass()) { return false; }
         JTypeSpecifier that = (JTypeSpecifier) o;
         return Objects.equals(name, that.name) &&
+                Objects.equals(generics, that.generics) &&
                 Objects.equals(arrays, that.arrays);
     }
 
@@ -67,6 +67,11 @@ public final class JTypeSpecifier
     public JName getName()
     {
         return name;
+    }
+
+    public Optional<List<JTypeSpecifier>> getGenerics()
+    {
+        return generics;
     }
 
     public List<JArray> getArrays()

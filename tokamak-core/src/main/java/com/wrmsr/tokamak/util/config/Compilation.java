@@ -18,9 +18,10 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.java.lang.JAccess;
-import com.wrmsr.tokamak.java.lang.JParam;
 import com.wrmsr.tokamak.java.lang.JName;
+import com.wrmsr.tokamak.java.lang.JParam;
 import com.wrmsr.tokamak.java.lang.JRenderer;
+import com.wrmsr.tokamak.java.lang.JTypeSpecifier;
 import com.wrmsr.tokamak.java.lang.tree.JInheritance;
 import com.wrmsr.tokamak.java.lang.tree.declaration.JConstructor;
 import com.wrmsr.tokamak.java.lang.tree.declaration.JType;
@@ -67,19 +68,19 @@ public final class Compilation
                                 new JConstructor(
                                         immutableEnumSet(JAccess.PUBLIC),
                                         bareName,
-                                ImmutableList.of(
-                                        new JParam(
-
-                                        )
-                                ),
-                                jblockify(
-                                        new JExpressionStatement(
-                                                JMethodInvocation.of(
-                                                        JName.of("System", "out", "println"),
-                                                        ImmutableList.of(
-                                                                new JLiteral("hi")
-                                                        )))))
-                )));
+                                        ImmutableList.of(
+                                                new JParam(
+                                                        JTypeSpecifier.of("java", "util", "Map"),
+                                                        "map")
+                                        ),
+                                        jblockify(
+                                                new JExpressionStatement(
+                                                        JMethodInvocation.of(
+                                                                JName.of("System", "out", "println"),
+                                                                ImmutableList.of(
+                                                                        new JLiteral("hi")
+                                                                )))))
+                        )));
 
         String rendered = JRenderer.renderWithIndent(cu, "    ");
         System.out.println(rendered);

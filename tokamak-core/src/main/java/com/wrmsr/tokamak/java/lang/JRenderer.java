@@ -776,11 +776,16 @@ public final class JRenderer
     public void renderTypeSpecifier(JTypeSpecifier type)
     {
         renderName(type.getName());
-        for (JArray a : type.getArrays()) {
+        type.getGenerics().ifPresent(g -> {
+            code.add("<");
+            g.forEach(this::renderTypeSpecifier);
+            code.add(">");
+        });
+        type.getArrays().forEach(a -> {
             code.add("[");
             a.getSize().ifPresent(this::renderExpression);
             code.add("]");
-        }
+        });
     }
 
     public void renderName(JName name)
