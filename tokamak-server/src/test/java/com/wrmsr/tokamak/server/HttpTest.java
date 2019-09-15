@@ -13,7 +13,8 @@
  */
 package com.wrmsr.tokamak.server;
 
-import com.wrmsr.tokamak.server.util.HttpClient;
+import com.wrmsr.tokamak.util.io.HttpClient;
+import com.wrmsr.tokamak.util.io.JdkHttpClient;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import org.glassfish.hk2.api.Factory;
@@ -116,7 +117,9 @@ public class HttpTest
 
         Thread.sleep(500);
 
-        new HttpClient("localhost", 9998).request("GET", "helloworld");
+        HttpClient.Response resp = new JdkHttpClient()
+                .request("localhost", 9998, HttpClient.Request.of("GET", "helloworld"));
+        System.out.println(resp);
 
         Thread.sleep(300000);
 
