@@ -14,18 +14,11 @@
 package com.wrmsr.tokamak.util.config;
 
 import com.wrmsr.tokamak.util.config.props.ConfigProperty;
-import com.wrmsr.tokamak.util.config.props.ConfigPropertyImpl;
-import com.wrmsr.tokamak.util.config.props.IntConfigProperty;
-import com.wrmsr.tokamak.util.config.props.IntConfigPropertyImpl;
 
 import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.function.Consumer;
-import java.util.function.IntConsumer;
-import java.util.function.IntSupplier;
-import java.util.function.Supplier;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -71,29 +64,8 @@ public final class ConfigMetadata
         return properties;
     }
 
-    public String getPropertyImplBuilderMethodName(ConfigPropertyMetadata pmd)
+    public ConfigPropertyMetadata getProperty(String name)
     {
-        if (pmd.getType() == int.class) {
-            return "buildIntPropertyImpl";
-        }
-        else {
-            return "buildPropertyImpl";
-        }
-    }
-
-    public <T> ConfigPropertyImpl<T> buildPropertyImpl(String name, Supplier<T> getter, Consumer<T> setter)
-    {
-        return new ConfigPropertyImpl<>(
-                properties.get(name),
-                getter,
-                setter);
-    }
-
-    public IntConfigProperty buildIntPropertyImpl(String name, IntSupplier getter, IntConsumer setter)
-    {
-        return new IntConfigPropertyImpl(
-                properties.get(name),
-                getter,
-                setter);
+        return checkNotNull(properties.get(name));
     }
 }

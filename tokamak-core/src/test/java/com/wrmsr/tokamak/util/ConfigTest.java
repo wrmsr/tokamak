@@ -42,8 +42,8 @@ public class ConfigTest
             throws Throwable
     {
         ConfigMetadata cmd = Configs.getMetadata(ThingConfig.class);
-        Class<?> cls = Compilation.compileAndLoad(cmd);
-        Compilation.ImplFactory<ThingConfig> thingConfigImplFactory = (Compilation.ImplFactory<ThingConfig>) cls.getDeclaredField("FACTORY").get(null);
+        Class<? extends ThingConfig> cls = Compilation.compileAndLoad(cmd);
+        Compilation.ImplFactory<ThingConfig> thingConfigImplFactory = Compilation.getImplFactory(cls);
         ThingConfig cfg = thingConfigImplFactory.build(cmd);
         System.out.println(cfg);
         System.out.println(cfg.someStr().get());

@@ -41,10 +41,17 @@ import com.wrmsr.tokamak.java.lang.tree.statement.JReturn;
 import com.wrmsr.tokamak.java.lang.tree.statement.JStatement;
 import com.wrmsr.tokamak.java.lang.unit.JCompilationUnit;
 import com.wrmsr.tokamak.java.lang.unit.JPackageSpec;
+import com.wrmsr.tokamak.util.config.props.ConfigPropertyImpl;
+import com.wrmsr.tokamak.util.config.props.IntConfigProperty;
+import com.wrmsr.tokamak.util.config.props.IntConfigPropertyImpl;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.IntConsumer;
+import java.util.function.IntSupplier;
+import java.util.function.Supplier;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Sets.immutableEnumSet;
@@ -92,6 +99,48 @@ public final class Compilation
         }
     }
 
+    public static final class Construction
+    {
+        private final ConfigMetadata metadata;
+
+        public Construction(ConfigMetadata metadata)
+        {
+            this.metadata = checkNotNull(metadata);
+        }
+
+        public static String getPropertyImplBuilderMethodName(ConfigPropertyMetadata pmd)
+        {
+            if (pmd.getType() == int.class) {
+                return "buildIntPropertyImpl";
+            }
+            else {
+                return "buildPropertyImpl";
+            }
+        }
+
+        public <T> ConfigPropertyImpl<T> buildPropertyImpl(String name, Supplier<T> getter, Consumer<T> setter)
+        {
+            return new ConfigPropertyImpl<>(
+                    metadata.getProperty(name),
+                    getter,
+                    setter);
+        }
+
+        public IntConfigProperty buildIntPropertyImpl(String name, IntSupplier getter, IntConsumer setter)
+        {
+            return new IntConfigPropertyImpl(
+                    metadata.getProperty(name),
+                    getter,
+                    setter);
+        }
+    }
+
+    @FunctionalInterface
+    public interface ImplConstructionFactory<T extends Config>
+    {
+        T build(Construction construction);
+    }
+
     public static CompiledConfig compile(ConfigMetadata md)
     {
         JName ifaceName = new JName(Splitter.on(".").splitToList(md.getCls().getCanonicalName()));
@@ -135,8 +184,8 @@ public final class Compilation
                                             pts,
                                             new JMethodInvocation(
                                                     new JMemberAccess(
-                                                            JIdent.of("metadata"),
-                                                            md.getPropertyImplBuilderMethodName(prop)),
+                                                            JIdent.of("construction"),
+                                                            Construction.getPropertyImplBuilderMethodName(prop)),
                                                     ImmutableList.of(
                                                             new JLiteral(prop.getName()),
                                                             new JLambda(
@@ -176,7 +225,7 @@ public final class Compilation
                 new JField(
                         immutableEnumSet(JAccess.PUBLIC, JAccess.STATIC, JAccess.FINAL),
                         new JTypeSpecifier(
-                                JName.of(ImplFactory.class),
+                                JName.of(ImplConstructionFactory.class),
                                 Optional.of(
                                         ImmutableList.of(
                                                 JTypeSpecifier.of(bareName)
@@ -208,8 +257,8 @@ public final class Compilation
                                                 bareName,
                                                 ImmutableList.of(
                                                         new JParam(
-                                                                JTypeSpecifier.of(JName.of(ConfigMetadata.class)),
-                                                                "metadata")
+                                                                JTypeSpecifier.of(JName.of(Construction.class)),
+                                                                "construction")
                                                 ),
                                                 jblockify(ctor)))
                                 .addAll(getters)
@@ -223,7 +272,8 @@ public final class Compilation
                 cu);
     }
 
-    public static Class<?> compileAndLoad(ConfigMetadata md)
+    @SuppressWarnings({"unchecked"})
+    public static <T> Class<? extends T> compileAndLoad(ConfigMetadata md)
     {
         CompiledConfig compiled = compile(md);
         String src = JRenderer.renderWithIndent(compiled.getCompilationUnit(), "    ");
@@ -236,12 +286,25 @@ public final class Compilation
                         "-classpath", cp
                 ),
                 Compilation.class.getClassLoader());
-        return impl;
+        return (Class<? extends T>) impl;
     }
 
     @FunctionalInterface
     public interface ImplFactory<T extends Config>
     {
         T build(ConfigMetadata metadata);
+    }
+
+    @SuppressWarnings({"unchecked"})
+    public static <T extends Config> ImplFactory<T> getImplFactory(Class<? extends T> impl)
+    {
+        ImplConstructionFactory<T> implConstructionFactory;
+        try {
+            implConstructionFactory = (ImplConstructionFactory<T>) impl.getDeclaredField("FACTORY").get(null);
+        }
+        catch (ReflectiveOperationException e) {
+            throw new RuntimeException(e);
+        }
+        return metadata -> implConstructionFactory.build(new Construction(metadata));
     }
 }
