@@ -15,7 +15,7 @@ package com.wrmsr.tokamak.redis;
 
 import com.google.common.base.Charsets;
 import com.google.common.primitives.Bytes;
-import com.wrmsr.tokamak.util.CrLfByteIterator;
+import com.wrmsr.tokamak.util.io.CrLfByteReader;
 import com.wrmsr.tokamak.util.box.Box;
 
 import java.io.IOException;
@@ -161,42 +161,42 @@ public final class Resp
 
     public static Iterator<Object> decode(InputStream input)
     {
-        CrLfByteIterator crLfByteIterator = new CrLfByteIterator(input);
+        CrLfByteReader crLfByteReader = new CrLfByteReader(input);
         return new Iterator<Object>()
         {
             @Override
             public boolean hasNext()
             {
-                return crLfByteIterator.available() > 0;
+                return crLfByteReader.available() > 0;
             }
 
             @Override
             public Object next()
             {
                 try {
-                    byte prefix = crLfByteIterator.next();
+                    byte prefix = crLfByteReader.next();
 
                     switch (prefix) {
                         case PREFIX_SIMPLE_STRING: {
-                            return crLfByteIterator.nextLine();
+                            return crLfByteReader.nextLine();
                         }
                         case PREFIX_ERROR: {
-                            return new Error(crLfByteIterator.nextLineUtf8());
+                            return new Error(crLfByteReader.nextLineUtf8());
                         }
                         case PREFIX_INTEGER: {
-                            return Long.parseLong(crLfByteIterator.nextLineAscii());
+                            return Long.parseLong(crLfByteReader.nextLineAscii());
                         }
                         case PREFIX_BULK_STRING: {
-                            int length = Integer.parseInt(crLfByteIterator.nextLineAscii());
+                            int length = Integer.parseInt(crLfByteReader.nextLineAscii());
                             if (length == -1) {
                                 return null;
                             }
-                            byte[] buf = crLfByteIterator.next(new byte[length]);
-                            crLfByteIterator.nextBlankLine();
+                            byte[] buf = crLfByteReader.next(new byte[length]);
+                            crLfByteReader.nextBlankLine();
                             return buf;
                         }
                         case PREFIX_ARRAY: {
-                            int length = Integer.parseInt(crLfByteIterator.nextLineAscii());
+                            int length = Integer.parseInt(crLfByteReader.nextLineAscii());
                             ArrayList<Object> lst = new ArrayList<>();
                             lst.ensureCapacity(length);
                             for (int i = 0; i < length; ++i) {

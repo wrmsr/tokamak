@@ -32,6 +32,7 @@ import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
+import static java.util.function.Function.identity;
 
 public final class LinuxProc
 {
@@ -119,7 +120,7 @@ public final class LinuxProc
         }
 
         public static final Map<Integer, Stat> BY_NUM = Arrays.stream(Stat.class.getEnumConstants())
-                .collect(toImmutableMap(s -> ((Stat) s).getNum(), s -> ((Stat) s)));
+                .collect(toImmutableMap(Stat::getNum, identity()));
     }
 
     public static final class Stats

@@ -32,12 +32,10 @@ import java.net.URI;
 
 public class Main
 {
-    public static void main(String[] args)
-            throws InterruptedException
+    public static LoggerContext configureLogging()
     {
         ConfigurationBuilder<BuiltConfiguration> builder = ConfigurationBuilderFactory.newConfigurationBuilder();
         builder.setStatusLevel(Level.ERROR);
-        builder.setConfigurationName("BuilderTest");
         builder.add(builder.newFilter("ThresholdFilter", Filter.Result.ACCEPT, Filter.Result.NEUTRAL)
                 .addAttribute("level", Level.DEBUG));
         AppenderComponentBuilder appenderBuilder = builder.newAppender("Stdout", "CONSOLE").addAttribute("target",
@@ -50,7 +48,13 @@ public class Main
         builder.add(builder.newLogger("org.apache.logging.log4j", Level.DEBUG)
                 .add(builder.newAppenderRef("Stdout")).addAttribute("additivity", false));
         builder.add(builder.newRootLogger(Level.ERROR).add(builder.newAppenderRef("Stdout")));
-        LoggerContext ctx = Configurator.initialize(builder.build());
+        return Configurator.initialize(builder.build());
+    }
+
+    public static void main(String[] args)
+            throws InterruptedException
+    {
+        configureLogging();
 
         URI baseUri = UriBuilder.fromUri("http://localhost/").port(9998).build();
         ResourceConfig resourceConfig = new ResourceConfig(RootResource.class);

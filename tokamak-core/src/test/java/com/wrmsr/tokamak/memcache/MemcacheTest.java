@@ -16,7 +16,7 @@ package com.wrmsr.tokamak.memcache;
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
-import com.wrmsr.tokamak.util.CrLfByteIterator;
+import com.wrmsr.tokamak.util.io.CrLfByteReader;
 import com.wrmsr.tokamak.util.collect.StreamableIterable;
 import junit.framework.TestCase;
 
@@ -111,10 +111,10 @@ public class MemcacheTest
                 throws IOException
         {
             ImmutableList.Builder<Value> builder = ImmutableList.builder();
-            CrLfByteIterator crLfByteIterator = new CrLfByteIterator(input);
+            CrLfByteReader crLfByteReader = new CrLfByteReader(input);
             loop:
             while (true) {
-                String line = crLfByteIterator.nextLineUtf8();
+                String line = crLfByteReader.nextLineUtf8();
                 Iterator<String> lineIt = Splitter.on(CharMatcher.whitespace()).split(line).iterator();
                 checkState(lineIt.hasNext());
                 String cmd = lineIt.next();
@@ -126,7 +126,7 @@ public class MemcacheTest
                         OptionalLong casUnique = lineIt.hasNext() ?
                                 OptionalLong.of(Long.parseUnsignedLong(lineIt.next())) : OptionalLong.empty();
                         checkState(!lineIt.hasNext());
-                        byte[] data = crLfByteIterator.next(new byte[length]);
+                        byte[] data = crLfByteReader.next(new byte[length]);
                         builder.add(
                                 new Value(
                                         key,
