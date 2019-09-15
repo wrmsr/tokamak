@@ -114,7 +114,7 @@ public final class Compilation
 
             fields.add(
                     new JField(
-                            immutableEnumSet(JAccess.PRIVATE, JAccess.FINAL),
+                            immutableEnumSet(JAccess.PRIVATE, JAccess.VOLATILE),
                             ts,
                             "_" + prop.getName(),
                             Optional.empty()));
@@ -188,7 +188,7 @@ public final class Compilation
                                                 bareName,
                                                 ImmutableList.of(
                                                         new JParam(
-                                                                JTypeSpecifier.of(JName.of(ConfigPropertyMetadata.class)),
+                                                                JTypeSpecifier.of(JName.of(ConfigMetadata.class)),
                                                                 "metadata")
                                                 ),
                                                 jblockify(ctor)))
