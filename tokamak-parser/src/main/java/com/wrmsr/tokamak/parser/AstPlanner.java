@@ -113,7 +113,7 @@ public class AstPlanner
                     throw new IllegalArgumentException(tableNameParts.toString());
                 }
 
-                Table table = catalog.get().lookupSchemaTable(schemaTable);
+                Table table = catalog.get().getSchemaTable(schemaTable);
                 Map<String, String> columnsByLabel = new LinkedHashMap<>();
 
                 for (SelectItem item : treeNode.getItems()) {

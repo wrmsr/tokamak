@@ -117,9 +117,9 @@ public final class TpchUtils
     {
         Catalog catalog = new Catalog();
         JdbcConnector jdbcConnector = new JdbcConnector("jdbc", new SqlEngine(url));
-        Schema schema = catalog.getOrBuildSchema("PUBLIC", jdbcConnector);
-        schema.getOrBuildTable("NATION");
-        schema.getOrBuildTable("REGION");
+        Schema schema = catalog.addSchema("PUBLIC", jdbcConnector);
+        schema.addTable("NATION");
+        schema.addTable("REGION");
         return catalog;
     }
 }

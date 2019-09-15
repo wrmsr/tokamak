@@ -41,7 +41,7 @@ public final class Transforms
             @Override
             public Node visitScanNode(ScanNode node, Void context)
             {
-                Table table = catalog.lookupSchemaTable(node.getSchemaTable());
+                Table table = catalog.getSchemaTable(node.getSchemaTable());
                 if (!node.getIdFields().isEmpty()) {
                     checkState(table.getLayout().getPrimaryKeyFields().equals(node.getIdFields()));
                     return super.visitScanNode(node, context);

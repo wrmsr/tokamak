@@ -127,7 +127,7 @@ public class CoreTest
         Node filterNode0 = new FilterNode(
                 "filter0",
                 scanNode0,
-                catalog.getOrBuildFunction(be.register(Reflection.reflect(getClass().getDeclaredMethod("isStringNotNull", String.class))).getName(), be).asNodeFunction(),
+                catalog.addFunction(be.register(Reflection.reflect(getClass().getDeclaredMethod("isStringNotNull", String.class))).getName(), be).asNodeFunction(),
                 ImmutableList.of("N_NAME"),
                 false);
 
@@ -136,7 +136,7 @@ public class CoreTest
                 filterNode0,
                 Projection.of(
                         "N_NATIONKEY", "N_NATIONKEY",
-                        "N_NAME", catalog.getOrBuildFunction(be.register(Reflection.reflect(getClass().getDeclaredMethod("addExclamationMark", String.class))).getName(), be), "N_NAME",
+                        "N_NAME", catalog.addFunction(be.register(Reflection.reflect(getClass().getDeclaredMethod("addExclamationMark", String.class))).getName(), be), "N_NAME",
                         "N_REGIONKEY", "N_REGIONKEY"
                 ));
 
@@ -239,7 +239,7 @@ public class CoreTest
         connector.addTable(mapHeapTable);
 
         Catalog catalog = new Catalog();
-        Table table = catalog.getOrBuildSchema("stuff_schema", connector).getOrBuildTable("stuff_table");
+        Table table = catalog.addSchema("stuff_schema", connector).addTable("stuff_table");
 
         CatalogRegistry cn = BuiltinConnectors.register(new CatalogRegistry());
         ObjectMapper om = cn.registerSubtypes(Json.newObjectMapper());

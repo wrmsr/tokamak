@@ -17,11 +17,11 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.layout.TableLayout;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -93,9 +93,9 @@ public final class Schema
     }
 
     @JsonProperty("tables")
-    public List<Table> getTables()
+    public Collection<Table> getTables()
     {
-        return ImmutableList.copyOf(tablesByName.values());
+        return tablesByName.values();
     }
 
     public Map<String, Table> getTablesByName()
@@ -103,19 +103,26 @@ public final class Schema
         return tablesByName;
     }
 
-    public Table getOrBuildTable(String name)
+    public Table addTable(String name)
     {
         synchronized (lock) {
             Table table = tablesByName.get(name);
-            if (table == null) {
-                TableLayout layout = connector.getTableLayout(SchemaTable.of(this.name, name));
-                table = new Table(this, name, layout);
-                tablesByName = ImmutableMap.<String, Table>builder()
-                        .putAll(tablesByName)
-                        .put(name, table)
-                        .build();
+            if (table != null) {
+                throw new IllegalArgumentException("Table name taken: " + name);
             }
+            TableLayout layout = connector.getTableLayout(SchemaTable.of(this.name, name));
+            table = new Table(this, name, layout);
+            tablesByName = ImmutableMap.<String, Table>builder().putAll(tablesByName).put(name, table).build();
             return table;
         }
+    }
+
+    public Table getTable(String name)
+    {
+        Table table = tablesByName.get(name);
+        if (table == null) {
+            throw new IllegalArgumentException("Table not found: " + name);
+        }
+        return table;
     }
 }
