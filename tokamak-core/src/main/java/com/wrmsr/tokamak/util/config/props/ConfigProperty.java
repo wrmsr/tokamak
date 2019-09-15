@@ -11,18 +11,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.util.config;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+package com.wrmsr.tokamak.util.config.props;
 
-@Documented
-@Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.METHOD, ElementType.FIELD})
-public @interface ConfigProperty
+public interface ConfigProperty<T>
+        extends BaseConfigProperty<T>
 {
-    String name() default "";
+    T get();
 }

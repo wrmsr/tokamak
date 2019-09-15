@@ -16,48 +16,26 @@ package com.wrmsr.tokamak.util;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.util.config.Config;
-import com.wrmsr.tokamak.util.config.ConfigProperty;
 import com.wrmsr.tokamak.util.config.Flattening;
+import com.wrmsr.tokamak.util.config.props.ConfigProperty;
 import junit.framework.TestCase;
 
 import java.util.Map;
-import java.util.Optional;
-import java.util.function.Consumer;
 
 public class ConfigTest
         extends TestCase
 {
-    public static class ThingConfig
-            implements Config
+    public interface ThingConfig
+            extends Config
     {
-        public ThingConfig()
-        {
-        }
-
-        private int beanInt;
-
-        @ConfigProperty
-        public int getBeanInt()
-        {
-            return beanInt;
-        }
-
-        @ConfigProperty
-        public ThingConfig setBeanInt(int beanInt)
-        {
-            this.beanInt = beanInt;
-            return this;
-        }
-
-        @ConfigProperty
-        public int fieldInt;
+        ConfigProperty<String> someStr();
     }
 
     public void testThingConfig()
             throws Throwable
     {
         Map map = ImmutableMap.of(
-                "beanInt", 1
+                "someStr", "hi"
         );
 
         ThingConfig cfg = Json.readValue(Json.writeValue(map), ThingConfig.class);
@@ -67,47 +45,30 @@ public class ConfigTest
         cfg = Json.readValue(Json.writeValue(map), ThingConfig.class);
         System.out.println(cfg);
 
-        assertEquals(1, cfg.getBeanInt());
+        assertEquals("hi", cfg.someStr().get());
     }
 
-    public static class OuterConfig
-            implements Config
+    public interface OuterConfig
+            extends Config
     {
-        public OuterConfig()
-        {
-        }
-
-        private ThingConfig thing;
-
-        @ConfigProperty
-        public ThingConfig getThing()
-        {
-            return thing;
-        }
-
-        @ConfigProperty
-        public OuterConfig setThing(ThingConfig thing)
-        {
-            this.thing = thing;
-            return this;
-        }
+        ConfigProperty<ThingConfig> thing();
     }
 
-    public void testOuterConfig()
-            throws Throwable
-    {
-        OuterConfig oc = new OuterConfig()
-                .setThing(new ThingConfig()
-                        .setBeanInt(420));
-
-        Map map = (Map) Json.roundTrip(oc);
-
-        OuterConfig oc2 = Json.readValue(Json.writeValue(map), OuterConfig.class);
-
-        System.out.println(oc2);
-
-        assertEquals(420, oc2.getThing().getBeanInt());
-    }
+    // public void testOuterConfig()
+    //         throws Throwable
+    // {
+    //     OuterConfig oc = new OuterConfig()
+    //             .setThing(new ThingConfig()
+    //                     .setBeanInt(420));
+    //
+    //     Map map = (Map) Json.roundTrip(oc);
+    //
+    //     OuterConfig oc2 = Json.readValue(Json.writeValue(map), OuterConfig.class);
+    //
+    //     System.out.println(oc2);
+    //
+    //     assertEquals(420, oc2.getThing().getBeanInt());
+    // }
 
     public void testFlattening()
     {
@@ -145,53 +106,5 @@ public class ConfigTest
         System.out.println(uf);
 
         assertEquals(m, uf);
-    }
-
-    public static final class Prop<T>
-    {
-        T get()
-        {
-            return null;
-        }
-
-        void set(T value)
-        {
-        }
-
-        void validate(T value)
-        {
-        }
-
-        void addValidator(Consumer<T> validator)
-        {
-        }
-
-        void addListener(Consumer<T> listener)
-        {
-        }
-
-        Optional<String> name()
-        {
-            return Optional.empty();
-        }
-
-        Optional<String> doc()
-        {
-            return Optional.empty();
-        }
-    }
-
-    public interface AltConfig
-    {
-        Prop<Integer> x();
-
-        static int defaultX()
-        {
-            return 420;
-        }
-
-        static void validateX(int x)
-        {
-        }
     }
 }

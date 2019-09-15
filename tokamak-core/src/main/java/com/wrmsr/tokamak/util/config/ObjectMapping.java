@@ -25,10 +25,8 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
-import com.wrmsr.tokamak.util.config.prop.Property;
 
 import java.io.IOException;
-import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
@@ -49,65 +47,65 @@ final class ObjectMapping
         {
             gen.writeStartObject();
             ConfigMetadata md = Configs.getMetadata(value.getClass());
-            for (Map.Entry<String, Property> e : md.getProperties().entrySet()) {
-                Object pv = e.getValue().get(value);
-                if (pv != null) {
-                    gen.writeObjectField(e.getKey(), pv);
-                }
-            }
+            // for (Map.Entry<String, Property> e : md.getProperties().entrySet()) {
+            //     Object pv = e.getValue().get(value);
+            //     if (pv != null) {
+            //         gen.writeObjectField(e.getKey(), pv);
+            //     }
+            // }
             gen.writeEndObject();
         }
+    }
+
+    public static class Deserializer
+            extends JsonDeserializer<Config>
+            implements ContextualDeserializer
+    {
+        private JavaType type;
+        private Class<? extends Config> cls;
+        private ConfigMetadata metadata;
+
+        public Deserializer()
+        {
         }
 
-        public static class Deserializer
-                extends JsonDeserializer<Config>
-                implements ContextualDeserializer
+        public Deserializer(JavaType type)
         {
-            private JavaType type;
-            private Class<? extends Config> cls;
-            private ConfigMetadata metadata;
+            this.type = checkNotNull(type);
+            cls = checkSubclass(type.getRawClass(), Config.class);
+            metadata = Configs.getMetadata(cls);
+        }
 
-            public Deserializer()
-            {
-            }
+        @Override
+        public JsonDeserializer<?> createContextual(DeserializationContext ctx, com.fasterxml.jackson.databind.BeanProperty property)
+                throws JsonMappingException
+        {
+            return new Deserializer(property != null ? property.getType() : ctx.getContextualType());
+        }
 
-            public Deserializer(JavaType type)
-            {
-                this.type = checkNotNull(type);
-                cls = checkSubclass(type.getRawClass(), Config.class);
-                metadata = Configs.getMetadata(cls);
+        @Override
+        public Config deserialize(JsonParser parser, DeserializationContext ctx)
+                throws IOException, JsonProcessingException
+        {
+            checkNotNull(metadata);
+            Config cfg;
+            try {
+                cfg = cls.getDeclaredConstructor().newInstance();
             }
-
-            @Override
-            public JsonDeserializer<?> createContextual(DeserializationContext ctx, com.fasterxml.jackson.databind.BeanProperty property)
-                    throws JsonMappingException
-            {
-                return new Deserializer(property != null ? property.getType() : ctx.getContextualType());
+            catch (ReflectiveOperationException e) {
+                throw new RuntimeException(e);
             }
-
-            @Override
-            public Config deserialize(JsonParser parser, DeserializationContext ctx)
-                    throws IOException, JsonProcessingException
-            {
-                checkNotNull(metadata);
-                Config cfg;
-                try {
-                    cfg = cls.getDeclaredConstructor().newInstance();
-                }
-                catch (ReflectiveOperationException e) {
-                    throw new RuntimeException(e);
-                }
-                checkState(parser.currentToken() == JsonToken.START_OBJECT);
-                ObjectCodec codec = parser.getCodec();
-                while (parser.nextToken() != JsonToken.END_OBJECT) {
-                    checkState(parser.currentToken() == JsonToken.FIELD_NAME);
-                    String name = parser.getValueAsString();
-                    Property prop = checkNotNull(metadata.getProperties().get(name));
-                    parser.nextToken();
-                    Object value = codec.readValue(codec.treeAsTokens(parser.readValueAsTree()), prop.getType());
-                    prop.set(cfg, value);
-                }
-                return cfg;
-            }
+            checkState(parser.currentToken() == JsonToken.START_OBJECT);
+            ObjectCodec codec = parser.getCodec();
+            // while (parser.nextToken() != JsonToken.END_OBJECT) {
+            //     checkState(parser.currentToken() == JsonToken.FIELD_NAME);
+            //     String name = parser.getValueAsString();
+            //     Property prop = checkNotNull(metadata.getProperties().get(name));
+            //     parser.nextToken();
+            //     Object value = codec.readValue(codec.treeAsTokens(parser.readValueAsTree()), prop.getType());
+            //     prop.set(cfg, value);
+            // }
+            return cfg;
         }
     }
+}

@@ -41,21 +41,28 @@ public class GuiceFeature
         this.application = checkNotNull(application);
     }
 
+    private static final Object lock = new Object();
     private static final Map<Application, Injector> injectorsByApplication = new WeakHashMap<>();
 
     public static void setApplicationInjector(Application application, Injector injector)
     {
-        injectorsByApplication.put(application, injector);
+        synchronized (lock) {
+            injectorsByApplication.put(application, injector);
+        }
     }
 
     public static Injector getApplicationInjector(Application application)
     {
-        return injectorsByApplication.get(application);
+        synchronized (lock) {
+            return injectorsByApplication.get(application);
+        }
     }
 
     public static void unsetApplicationInjector(Application application)
     {
-        injectorsByApplication.remove(application);
+        synchronized (lock) {
+            injectorsByApplication.remove(application);
+        }
     }
 
     @Override

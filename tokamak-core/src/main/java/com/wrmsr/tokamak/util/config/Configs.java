@@ -24,6 +24,9 @@ public final class Configs
       - jit subclasses blocking setters
       - callbacks
       - dynamic sources (ala archaius) - zk + jdbccoord
+     - name overrides
+     - toString
+     - field getter + explicit setter
     */
 
     private Configs()
