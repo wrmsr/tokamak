@@ -59,6 +59,9 @@ public final class JName
             else if (o instanceof String) {
                 return Stream.of((String) o);
             }
+            else if (o instanceof Class) {
+                return Splitter.on(".").splitToList(((Class) o).getCanonicalName()).stream();
+            }
             else {
                 throw new IllegalArgumentException();
             }

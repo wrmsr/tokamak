@@ -19,6 +19,7 @@ import com.wrmsr.tokamak.util.config.ConfigPropertyMetadata;
 import java.util.function.IntConsumer;
 import java.util.function.IntSupplier;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public final class IntConfigPropertyImpl
@@ -31,6 +32,7 @@ public final class IntConfigPropertyImpl
     public IntConfigPropertyImpl(ConfigPropertyMetadata metadata, IntSupplier getter, IntConsumer setter)
     {
         super(metadata);
+        checkArgument(metadata.getType() == int.class);
         this.getter = checkNotNull(getter);
         this.setter = checkNotNull(setter);
     }

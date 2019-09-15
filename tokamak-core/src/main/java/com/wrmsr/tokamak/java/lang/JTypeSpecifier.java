@@ -17,11 +17,15 @@ import com.google.common.collect.ImmutableList;
 
 import javax.annotation.concurrent.Immutable;
 
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.ImmutableList.toImmutableList;
 
 @Immutable
 public final class JTypeSpecifier
@@ -45,6 +49,23 @@ public final class JTypeSpecifier
     public static JTypeSpecifier of(String... parts)
     {
         return new JTypeSpecifier(JName.of((Object[]) parts), Optional.empty(), ImmutableList.of());
+    }
+
+    public static JTypeSpecifier of(Type type)
+    {
+        if (type instanceof Class) {
+            return new JTypeSpecifier(JName.of(type), Optional.empty(), ImmutableList.of());
+        }
+        else if (type instanceof ParameterizedType) {
+            ParameterizedType ptype = (ParameterizedType) type;
+            return new JTypeSpecifier(
+                    JName.of(ptype.getRawType()),
+                    Optional.of(Arrays.stream(ptype.getActualTypeArguments()).map(JTypeSpecifier::of).collect(toImmutableList())),
+                    ImmutableList.of());
+        }
+        else {
+            throw new IllegalArgumentException(type.toString());
+        }
     }
 
     @Override

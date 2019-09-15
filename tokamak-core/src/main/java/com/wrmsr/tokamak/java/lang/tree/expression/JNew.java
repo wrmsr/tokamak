@@ -28,12 +28,12 @@ public final class JNew
         extends JExpression
 {
     private final JTypeSpecifier type;
-    private final List<JExpression> operands;
+    private final List<JExpression> args;
 
-    public JNew(JTypeSpecifier type, List<JExpression> operands)
+    public JNew(JTypeSpecifier type, List<JExpression> args)
     {
         this.type = checkNotNull(type);
-        this.operands = ImmutableList.copyOf(operands);
+        this.args = ImmutableList.copyOf(args);
     }
 
     @Override
@@ -47,13 +47,13 @@ public final class JNew
         }
         JNew that = (JNew) o;
         return Objects.equals(type, that.type) &&
-                Objects.equals(operands, that.operands);
+                Objects.equals(args, that.args);
     }
 
     @Override
     public int hashCode()
     {
-        return Objects.hash(type, operands);
+        return Objects.hash(type, args);
     }
 
     public JTypeSpecifier getType()
@@ -61,9 +61,9 @@ public final class JNew
         return type;
     }
 
-    public List<JExpression> getOperands()
+    public List<JExpression> getArgs()
     {
-        return operands;
+        return args;
     }
 
     @Override

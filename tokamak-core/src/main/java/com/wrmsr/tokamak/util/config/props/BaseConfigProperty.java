@@ -20,9 +20,7 @@ import java.util.function.Consumer;
 
 public interface BaseConfigProperty<T>
 {
-    Class<T> type();
-
-    Type genericType();
+    Type type();
 
     String name();
 

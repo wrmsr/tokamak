@@ -28,17 +28,17 @@ public final class JMethodInvocation
         extends JExpression
 {
     private final JExpression method;
-    private final List<JExpression> operands;
+    private final List<JExpression> args;
 
-    public JMethodInvocation(JExpression method, List<JExpression> operands)
+    public JMethodInvocation(JExpression method, List<JExpression> args)
     {
         this.method = checkNotNull(method);
-        this.operands = ImmutableList.copyOf(operands);
+        this.args = ImmutableList.copyOf(args);
     }
 
-    public static JMethodInvocation of(JName name, List<JExpression> operands)
+    public static JMethodInvocation of(JName name, List<JExpression> args)
     {
-        return new JMethodInvocation(new JIdent(name), operands);
+        return new JMethodInvocation(new JIdent(name), args);
     }
 
     @Override
@@ -52,13 +52,13 @@ public final class JMethodInvocation
         }
         JMethodInvocation that = (JMethodInvocation) o;
         return Objects.equals(method, that.method) &&
-                Objects.equals(operands, that.operands);
+                Objects.equals(args, that.args);
     }
 
     @Override
     public int hashCode()
     {
-        return Objects.hash(method, operands);
+        return Objects.hash(method, args);
     }
 
     public JExpression getMethod()
@@ -66,9 +66,9 @@ public final class JMethodInvocation
         return method;
     }
 
-    public List<JExpression> getOperands()
+    public List<JExpression> getArgs()
     {
-        return operands;
+        return args;
     }
 
     @Override

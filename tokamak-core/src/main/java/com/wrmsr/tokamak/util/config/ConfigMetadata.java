@@ -13,7 +13,9 @@
  */
 package com.wrmsr.tokamak.util.config;
 
+import com.wrmsr.tokamak.util.config.props.BaseConfigPropertyImpl;
 import com.wrmsr.tokamak.util.config.props.ConfigProperty;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.lang.reflect.Method;
 import java.util.Collections;
@@ -62,5 +64,10 @@ public final class ConfigMetadata
     public Map<String, ConfigPropertyMetadata> getProperties()
     {
         return properties;
+    }
+
+    public BaseConfigPropertyImpl buildPropertyImpl(String name, Object getter, Object setter)
+    {
+        throw new NotImplementedException();
     }
 }

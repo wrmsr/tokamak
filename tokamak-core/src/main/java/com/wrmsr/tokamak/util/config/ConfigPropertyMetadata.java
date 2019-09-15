@@ -14,8 +14,13 @@
 
 package com.wrmsr.tokamak.util.config;
 
+import com.wrmsr.tokamak.util.config.props.BaseConfigPropertyImpl;
+import com.wrmsr.tokamak.util.config.props.ConfigProperty;
+import com.wrmsr.tokamak.util.config.props.ConfigPropertyImpl;
+
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Optional;
@@ -31,6 +36,7 @@ public final class ConfigPropertyMetadata
     private final ConfigMetadata parent;
     private final Method method;
 
+    private final Type type;
     private final Optional<ConfigDetail> detail;
     private final String name;
     private final List<String> nameParts;
@@ -43,6 +49,11 @@ public final class ConfigPropertyMetadata
 
         checkArgument(method.getParameterCount() == 0);
         checkArgument(Modifier.isAbstract(method.getModifiers()));
+
+        ParameterizedType rt = (ParameterizedType) method.getGenericReturnType();
+        checkArgument(ConfigProperty.class.isAssignableFrom((Class) rt.getRawType()));
+        checkArgument(rt.getActualTypeArguments().length == 1);
+        type = rt.getActualTypeArguments()[0];
 
         String name = method.getName();
         if (method.isAnnotationPresent(ConfigDetail.class)) {
@@ -87,13 +98,13 @@ public final class ConfigPropertyMetadata
         return doc;
     }
 
-    public Class<?> getType()
+    public Type getType()
     {
-        return method.getReturnType();
+        return type;
     }
 
-    public Type getGenericType()
+    public Class<? extends BaseConfigPropertyImpl> getImplCls()
     {
-        return method.getGenericReturnType();
+        return ConfigPropertyImpl.class;
     }
 }

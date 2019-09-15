@@ -29,13 +29,13 @@ public final class JAnnotatedStatement
         extends JStatement
 {
     private final JName annotation;
-    private final Optional<List<JExpression>> operands;
+    private final Optional<List<JExpression>> args;
     private final JStatement statement;
 
-    public JAnnotatedStatement(JName annotation, Optional<List<JExpression>> operands, JStatement statement)
+    public JAnnotatedStatement(JName annotation, Optional<List<JExpression>> args, JStatement statement)
     {
         this.annotation = checkNotNull(annotation);
-        this.operands = checkNotNull(operands);
+        this.args = checkNotNull(args);
         this.statement = checkNotNull(statement);
     }
 
@@ -50,14 +50,14 @@ public final class JAnnotatedStatement
         }
         JAnnotatedStatement that = (JAnnotatedStatement) o;
         return Objects.equals(annotation, that.annotation) &&
-                Objects.equals(operands, that.operands) &&
+                Objects.equals(args, that.args) &&
                 Objects.equals(statement, that.statement);
     }
 
     @Override
     public int hashCode()
     {
-        return Objects.hash(annotation, operands, statement);
+        return Objects.hash(annotation, args, statement);
     }
 
     public JName getAnnotation()
@@ -65,9 +65,9 @@ public final class JAnnotatedStatement
         return annotation;
     }
 
-    public Optional<List<JExpression>> getOperands()
+    public Optional<List<JExpression>> getArgs()
     {
-        return operands;
+        return args;
     }
 
     public JStatement getStatement()

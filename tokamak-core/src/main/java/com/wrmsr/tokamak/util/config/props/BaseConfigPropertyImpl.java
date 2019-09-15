@@ -37,17 +37,10 @@ public abstract class BaseConfigPropertyImpl<T>
     private final List<Consumer<T>> validators = new CopyOnWriteArrayList<>();
     private final List<Consumer<T>> listeners = new CopyOnWriteArrayList<>();
 
-    @SuppressWarnings({"unchecked"})
     @Override
-    public Class<T> type()
+    public Type type()
     {
-        return (Class<T>) metadata.getType();
-    }
-
-    @Override
-    public Type genericType()
-    {
-        return metadata.getGenericType();
+        return metadata.getType();
     }
 
     @Override

@@ -240,7 +240,7 @@ public final class JRenderer
             {
                 code.add("@");
                 renderName(jdeclaration.getAnnotation());
-                jdeclaration.getOperands().ifPresent(operands -> {
+                jdeclaration.getArgs().ifPresent(operands -> {
                     code.add("(");
                     renderOperands(operands);
                     code.add(")");
@@ -368,7 +368,7 @@ public final class JRenderer
             {
                 code.add("@");
                 renderName(jstatement.getAnnotation());
-                jstatement.getOperands().ifPresent(operands -> {
+                jstatement.getArgs().ifPresent(operands -> {
                     code.add("(");
                     renderOperands(operands);
                     code.add(")");
@@ -696,7 +696,7 @@ public final class JRenderer
             {
                 renderExpression(jexpression.getMethod());
                 code.add("(");
-                renderOperands(jexpression.getOperands());
+                renderOperands(jexpression.getArgs());
                 code.add(")");
                 return null;
             }
@@ -715,7 +715,7 @@ public final class JRenderer
                 code.add("new ");
                 renderTypeSpecifier(jexpression.getType());
                 code.add("(");
-                renderOperands(jexpression.getOperands());
+                renderOperands(jexpression.getArgs());
                 code.add(")");
                 return null;
             }
@@ -778,7 +778,16 @@ public final class JRenderer
         renderName(type.getName());
         type.getGenerics().ifPresent(g -> {
             code.add("<");
-            g.forEach(this::renderTypeSpecifier);
+            boolean comma = false;
+            for (JTypeSpecifier ts : g) {
+                if (comma) {
+                    code.add(", ");
+                }
+                else {
+                    comma = true;
+                }
+                renderTypeSpecifier(ts);
+            }
             code.add(">");
         });
         type.getArrays().forEach(a -> {
