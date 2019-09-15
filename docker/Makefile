@@ -4,6 +4,7 @@ DOCKER_DB_IMAGES:= \
 	tokamak-elasticsearch \
 	tokamak-kafka \
 	tokamak-memcached \
+	tokamak-minio \
 	tokamak-mysql \
 	tokamak-postgres \
 	tokamak-redis \
@@ -17,6 +18,7 @@ DOCKER_COMPOSE_DB_SERVICES:= \
 	tokamak-elasticsearch \
 	tokamak-kafka \
 	tokamak-memcached \
+	tokamak-minio \
 	tokamak-mysql-master \
 	tokamak-mysql-slave \
 	tokamak-postgres-master \
