@@ -15,7 +15,9 @@ package com.wrmsr.tokamak.server;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.inject.Injector;
 
+import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -27,6 +29,14 @@ import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
 @Path("/v1")
 public class RootResource
 {
+    private final Injector injector;
+
+    @Inject
+    public RootResource(Injector injector)
+    {
+        this.injector = injector;
+    }
+
     @POST
     @Path("/query")
     @Consumes(TEXT_PLAIN)

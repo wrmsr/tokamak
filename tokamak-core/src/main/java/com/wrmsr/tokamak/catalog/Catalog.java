@@ -21,6 +21,8 @@ import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.exec.Signature;
 
+import javax.annotation.Nullable;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +33,9 @@ import static com.google.common.base.Preconditions.checkState;
 @JsonIdentityInfo(generator = ObjectIdGenerators.UUIDGenerator.class)
 public final class Catalog
 {
+    @Nullable
+    private final Catalog parent;
+
     private final Object lock = new Object();
 
     private volatile Map<String, Connector> connectorsByName = ImmutableMap.of();
@@ -38,17 +43,25 @@ public final class Catalog
     private volatile Map<String, Executor> executorsByName = ImmutableMap.of();
     private volatile Map<String, Function> functionsByName = ImmutableMap.of();
 
+    public Catalog(@Nullable Catalog parent)
+    {
+        this.parent = parent;
+    }
+
     public Catalog()
     {
+        this(null);
     }
 
     @JsonCreator
     private Catalog(
+            @JsonProperty("parent") @Nullable Catalog parent,
             @JsonProperty("connectors") List<Connector> connectors,
             @JsonProperty("schemas") List<Schema> schemas,
             @JsonProperty("executors") List<Executor> executors,
             @JsonProperty("functions") List<Function> functions)
     {
+        this.parent = parent;
         checkNotNull(connectors).forEach(this::addConnector);
         schemas.forEach(s -> {
             checkState(connectors.contains(s.getConnector()));
@@ -63,6 +76,13 @@ public final class Catalog
             f.setCatalog(this);
             functionsByName.put(f.getName(), f);
         });
+    }
+
+    @JsonProperty("parent")
+    @Nullable
+    public Catalog getParent()
+    {
+        return parent;
     }
 
     @JsonProperty("connectors")
@@ -155,7 +175,12 @@ public final class Catalog
     {
         Schema schema = schemasByName.get(name);
         if (schema == null) {
-            throw new IllegalArgumentException("Schema not found: " + name);
+            if (parent != null) {
+                return parent.getSchema(name);
+            }
+            else {
+                throw new IllegalArgumentException("Schema not found: " + name);
+            }
         }
         return schema;
     }
@@ -190,7 +215,12 @@ public final class Catalog
     {
         Function function = functionsByName.get(name);
         if (function == null) {
-            throw new IllegalArgumentException("Function not found: " + name);
+            if (parent != null) {
+                return parent.getFunction(name);
+            }
+            else {
+                throw new IllegalArgumentException("Function not found: " + name);
+            }
         }
         return function;
     }

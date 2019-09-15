@@ -21,6 +21,7 @@
         <dep.antlr4.version>4.7.2</dep.antlr4.version>
         <dep.guice.version>4.2.2</dep.guice.version>
         <dep.jackson.version>2.9.9</dep.jackson.version>
+        <dep.jersey.version>2.29</dep.jersey.version>
         <dep.protobuf.version>3.9.1</dep.protobuf.version>
 
     </properties>
@@ -191,6 +192,12 @@
                 <version>${dep.guice.version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>com.google.inject.extensions</groupId>
+                <artifactId>guice-servlet</artifactId>
+                <version>${dep.guice.version}</version>
+            </dependency>
+
             <!-- JDBC Drivers -->
 
             <dependency>
@@ -216,13 +223,31 @@
             <dependency>
                 <groupId>org.glassfish.jersey.containers</groupId>
                 <artifactId>jersey-container-netty-http</artifactId>
-                <version>2.29</version>
+                <version>${dep.jersey.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.glassfish.jersey.inject</groupId>
                 <artifactId>jersey-hk2</artifactId>
-                <version>2.29</version>
+                <version>${dep.jersey.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.glassfish.jersey.core</groupId>
+                <artifactId>jersey-server</artifactId>
+                <version>${dep.jersey.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.glassfish.jersey.media</groupId>
+                <artifactId>jersey-media-json-jackson</artifactId>
+                <version>${dep.jersey.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.glassfish.hk2</groupId>
+                <artifactId>guice-bridge</artifactId>
+                <version>2.6.1</version>
             </dependency>
 
             <dependency>
