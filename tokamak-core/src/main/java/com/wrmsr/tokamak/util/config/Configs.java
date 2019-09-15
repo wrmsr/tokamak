@@ -27,6 +27,7 @@ public final class Configs
      - name overrides
      - toString
      - field getter + explicit setter
+     - abstracts / non-interface-configs
     */
 
     private Configs()

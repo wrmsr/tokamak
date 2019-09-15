@@ -12,27 +12,16 @@
  * limitations under the License.
  */
 
-package com.wrmsr.tokamak.util.config.props;
+package com.wrmsr.tokamak.util.config;
 
-import java.lang.reflect.Type;
-import java.util.Optional;
-import java.util.function.Consumer;
-
-public interface BaseConfigProperty<T>
+public final class Compilation
 {
-    Class<T> type();
+    private Compilation()
+    {
+    }
 
-    Type genericType();
+    public void compile(ConfigMetadata md)
+    {
 
-    String name();
-
-    Optional<String> doc();
-
-    void set(T value);
-
-    void validate(T value);
-
-    void addValidator(Consumer<T> validator);
-
-    void addListener(Consumer<T> listener);
+    }
 }

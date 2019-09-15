@@ -16,6 +16,8 @@ package com.wrmsr.tokamak.util;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.util.config.Config;
+import com.wrmsr.tokamak.util.config.ConfigMetadata;
+import com.wrmsr.tokamak.util.config.Configs;
 import com.wrmsr.tokamak.util.config.Flattening;
 import com.wrmsr.tokamak.util.config.props.ConfigProperty;
 import junit.framework.TestCase;
@@ -34,6 +36,8 @@ public class ConfigTest
     public void testThingConfig()
             throws Throwable
     {
+        ConfigMetadata cmd = Configs.getMetadata(ThingConfig.class);
+
         Map map = ImmutableMap.of(
                 "someStr", "hi"
         );
