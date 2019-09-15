@@ -25,6 +25,8 @@ public interface BaseConfigProperty<T>
 
     Optional<String> doc();
 
+    T getObj();
+
     void set(T value);
 
     void validate(T value);

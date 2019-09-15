@@ -33,6 +33,11 @@ public abstract class BaseConfigPropertyImpl<T>
         this.metadata = checkNotNull(metadata);
     }
 
+    protected void init()
+    {
+        metadata.getDefaultValue().ifPresent(v -> set((T) v));
+    }
+
     private final List<Consumer<T>> validators = new CopyOnWriteArrayList<>();
     private final List<Consumer<T>> listeners = new CopyOnWriteArrayList<>();
 

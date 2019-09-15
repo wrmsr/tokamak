@@ -37,10 +37,12 @@ public final class ConfigPropertyMetadata
     private final Method method;
 
     private final Type type;
-    private final Optional<ConfigDetail> detail;
+    private final Optional<ConfigDetail> detailAnnotation;
+    private final Optional<ConfigDefault> defaultAnnotation;
     private final String name;
     private final List<String> nameParts;
     private final Optional<String> doc;
+    private final Optional<Object> defaultValue;
 
     ConfigPropertyMetadata(ConfigMetadata parent, Method method)
     {
@@ -57,21 +59,31 @@ public final class ConfigPropertyMetadata
 
         String name = method.getName();
         if (method.isAnnotationPresent(ConfigDetail.class)) {
-            ConfigDetail detail = method.getAnnotation(ConfigDetail.class);
-            this.detail = Optional.of(detail);
-            if (!detail.name().isEmpty()) {
-                name = detail.name();
+            ConfigDetail detailAnnotation = method.getAnnotation(ConfigDetail.class);
+            this.detailAnnotation = Optional.of(detailAnnotation);
+            if (!detailAnnotation.name().isEmpty()) {
+                name = detailAnnotation.name();
             }
-            if (!detail.doc().isEmpty()) {
-                doc = Optional.of(detail.doc());
+            if (!detailAnnotation.doc().isEmpty()) {
+                doc = Optional.of(detailAnnotation.doc());
             }
             else {
                 doc = Optional.empty();
             }
         }
         else {
-            detail = Optional.empty();
+            detailAnnotation = Optional.empty();
             doc = Optional.empty();
+        }
+
+        if (method.isAnnotationPresent(ConfigDefault.class)) {
+            ConfigDefault defaultAnnotation = method.getAnnotation(ConfigDefault.class);
+            this.defaultAnnotation = Optional.of(defaultAnnotation);
+            defaultValue = Optional.of(defaultAnnotation.value());
+        }
+        else {
+            this.defaultAnnotation = Optional.empty();
+            defaultValue = Optional.empty();
         }
 
         this.name = checkNotEmpty(name);
@@ -102,6 +114,11 @@ public final class ConfigPropertyMetadata
     public Type getType()
     {
         return type;
+    }
+
+    public Optional<Object> getDefaultValue()
+    {
+        return defaultValue;
     }
 
     public Class<? extends BaseConfigPropertyImpl> getImplCls()

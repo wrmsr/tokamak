@@ -323,9 +323,9 @@ public final class Compilation
     }
 
     @SuppressWarnings({"unchecked"})
-    public static <T> Class<? extends T> compileAndLoad(
+    public static <T> Class<? extends T> compileAndLoadWithOptions(
             ConfigMetadata metadata,
-            String classPath,
+            List<String> options,
             ClassLoader classLoader)
     {
         CompiledConfig compiled = compile(metadata, false);
@@ -334,9 +334,7 @@ public final class Compilation
                 src,
                 compiled.getFullClassName(),
                 compiled.getBareName(),
-                ImmutableList.of(
-                        "-classpath", classPath
-                ),
+                options,
                 classLoader);
         try {
             impl.getDeclaredField("METADATA").set(null, metadata);
@@ -345,6 +343,21 @@ public final class Compilation
             throw new RuntimeException(e);
         }
         return impl;
+    }
+
+    public static <T> Class<? extends T> compileAndLoad(
+            ConfigMetadata metadata,
+            String classPath,
+            ClassLoader classLoader)
+    {
+        return compileAndLoadWithOptions(
+                metadata,
+                ImmutableList.of(
+                        "-source", "1.8",
+                        "-target", "1.8",
+                        "-classpath", classPath
+                ),
+                classLoader);
     }
 
     public static <T> Class<? extends T> compileAndLoad(ConfigMetadata metadata)

@@ -32,6 +32,13 @@ public final class ConfigPropertyImpl<T>
         super(metadata);
         this.getter = checkNotNull(getter);
         this.setter = checkNotNull(setter);
+        init();
+    }
+
+    @Override
+    public T getObj()
+    {
+        return get();
     }
 
     @Override

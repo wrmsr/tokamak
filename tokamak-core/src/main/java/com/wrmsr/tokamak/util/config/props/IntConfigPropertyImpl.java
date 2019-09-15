@@ -34,6 +34,13 @@ public final class IntConfigPropertyImpl
         checkArgument(metadata.getType() == int.class);
         this.getter = checkNotNull(getter);
         this.setter = checkNotNull(setter);
+        init();
+    }
+
+    @Override
+    public Integer getObj()
+    {
+        return get();
     }
 
     @Override
