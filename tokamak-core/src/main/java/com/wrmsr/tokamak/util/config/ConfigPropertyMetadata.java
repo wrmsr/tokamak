@@ -16,6 +16,7 @@ package com.wrmsr.tokamak.util.config;
 import com.wrmsr.tokamak.util.config.props.BaseConfigPropertyImpl;
 import com.wrmsr.tokamak.util.config.props.ConfigProperty;
 import com.wrmsr.tokamak.util.config.props.ConfigPropertyImpl;
+import com.wrmsr.tokamak.util.config.props.IntConfigPropertyImpl;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -105,6 +106,11 @@ public final class ConfigPropertyMetadata
 
     public Class<? extends BaseConfigPropertyImpl> getImplCls()
     {
-        return ConfigPropertyImpl.class;
+        if (type == int.class) {
+            return IntConfigPropertyImpl.class;
+        }
+        else {
+            return ConfigPropertyImpl.class;
+        }
     }
 }

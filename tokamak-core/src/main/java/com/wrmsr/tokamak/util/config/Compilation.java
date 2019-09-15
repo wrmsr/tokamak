@@ -36,11 +36,13 @@ import com.wrmsr.tokamak.java.lang.tree.expression.JLiteral;
 import com.wrmsr.tokamak.java.lang.tree.expression.JMemberAccess;
 import com.wrmsr.tokamak.java.lang.tree.expression.JMethodInvocation;
 import com.wrmsr.tokamak.java.lang.tree.expression.JMethodReference;
+import com.wrmsr.tokamak.java.lang.tree.expression.JNew;
 import com.wrmsr.tokamak.java.lang.tree.statement.JExpressionStatement;
 import com.wrmsr.tokamak.java.lang.tree.statement.JReturn;
 import com.wrmsr.tokamak.java.lang.tree.statement.JStatement;
 import com.wrmsr.tokamak.java.lang.unit.JCompilationUnit;
 import com.wrmsr.tokamak.java.lang.unit.JPackageSpec;
+import com.wrmsr.tokamak.util.config.props.BaseConfigPropertyImpl;
 import com.wrmsr.tokamak.util.config.props.ConfigPropertyImpl;
 import com.wrmsr.tokamak.util.config.props.IntConfigProperty;
 import com.wrmsr.tokamak.util.config.props.IntConfigPropertyImpl;
@@ -69,13 +71,20 @@ public final class Compilation
         private final String fullClassName;
         private final String bareName;
         private final JCompilationUnit compilationUnit;
+        private final boolean instantiatedMetadata;
 
-        public CompiledConfig(ConfigMetadata metadata, String fullClassName, String bareName, JCompilationUnit compilationUnit)
+        public CompiledConfig(
+                ConfigMetadata metadata,
+                String fullClassName,
+                String bareName,
+                JCompilationUnit compilationUnit,
+                boolean instantiatedMetadata)
         {
             this.metadata = checkNotNull(metadata);
             this.fullClassName = checkNotNull(fullClassName);
             this.bareName = checkNotNull(bareName);
             this.compilationUnit = checkNotNull(compilationUnit);
+            this.instantiatedMetadata = instantiatedMetadata;
         }
 
         public ConfigMetadata getMetadata()
@@ -96,6 +105,11 @@ public final class Compilation
         public JCompilationUnit getCompilationUnit()
         {
             return compilationUnit;
+        }
+
+        public boolean isInstantiatedMetadata()
+        {
+            return instantiatedMetadata;
         }
     }
 
@@ -118,11 +132,15 @@ public final class Compilation
 
         public static String getPropertyImplBuilderMethodName(ConfigPropertyMetadata pmd)
         {
-            if (pmd.getType() == int.class) {
+            Class<? extends BaseConfigPropertyImpl> propImplCls = pmd.getImplCls();
+            if (propImplCls == ConfigPropertyImpl.class) {
+                return "buildPropertyImpl";
+            }
+            else if (propImplCls == IntConfigPropertyImpl.class) {
                 return "buildIntPropertyImpl";
             }
             else {
-                return "buildPropertyImpl";
+                throw new IllegalArgumentException(propImplCls.toString());
             }
         }
 
@@ -151,7 +169,7 @@ public final class Compilation
         T build(Construction construction);
     }
 
-    public static CompiledConfig compile(ConfigMetadata md)
+    public static CompiledConfig compile(ConfigMetadata md, boolean instantiateMetadata)
     {
         JName ifaceName = new JName(Splitter.on(".").splitToList(md.getCls().getCanonicalName()));
         String bareName = ifaceName.getParts().get(ifaceName.size() - 1);
@@ -247,12 +265,25 @@ public final class Compilation
                                         new JIdent(JName.of(bareName)),
                                         "new"))));
 
-        fields.add(
-                new JField(
-                        immutableEnumSet(JAccess.PUBLIC, JAccess.STATIC, JAccess.VOLATILE),
-                        JTypeSpecifier.of(ConfigMetadata.class),
-                        "METADATA",
-                        Optional.empty()));
+        if (instantiateMetadata) {
+            fields.add(
+                    new JField(
+                            immutableEnumSet(JAccess.PUBLIC, JAccess.STATIC, JAccess.FINAL),
+                            JTypeSpecifier.of(ConfigMetadata.class),
+                            "METADATA",
+                            Optional.of(
+                                    new JNew(
+                                            JTypeSpecifier.of(ConfigMetadata.class),
+                                            ImmutableList.of()))));
+        }
+        else {
+            fields.add(
+                    new JField(
+                            immutableEnumSet(JAccess.PUBLIC, JAccess.STATIC, JAccess.VOLATILE),
+                            JTypeSpecifier.of(ConfigMetadata.class),
+                            "METADATA",
+                            Optional.empty()));
+        }
 
         JCompilationUnit cu = new JCompilationUnit(
                 Optional.of(new JPackageSpec(new JName(implName.getParts().subList(0, implName.size() - 1)))),
@@ -282,34 +313,46 @@ public final class Compilation
                                 .build()
                 ));
 
-        return new CompiledConfig(
+        return new
+                CompiledConfig(
                 md,
                 implName.join(),
                 bareName,
-                cu);
+                cu,
+                instantiateMetadata);
     }
 
     @SuppressWarnings({"unchecked"})
-    public static <T> Class<? extends T> compileAndLoad(ConfigMetadata md)
+    public static <T> Class<? extends T> compileAndLoad(
+            ConfigMetadata metadata,
+            String classPath,
+            ClassLoader classLoader)
     {
-        CompiledConfig compiled = compile(md);
+        CompiledConfig compiled = compile(metadata, false);
         String src = JRenderer.renderWithIndent(compiled.getCompilationUnit(), "    ");
-        String cp = System.getProperty("java.class.path");
         Class<? extends T> impl = (Class<? extends T>) InProcJavaCompiler.compileAndLoad(
                 src,
                 compiled.getFullClassName(),
                 compiled.getBareName(),
                 ImmutableList.of(
-                        "-classpath", cp
+                        "-classpath", classPath
                 ),
-                Compilation.class.getClassLoader());
+                classLoader);
         try {
-            impl.getDeclaredField("METADATA").set(null, md);
+            impl.getDeclaredField("METADATA").set(null, metadata);
         }
         catch (ReflectiveOperationException e) {
             throw new RuntimeException(e);
         }
         return impl;
+    }
+
+    public static <T> Class<? extends T> compileAndLoad(ConfigMetadata metadata)
+    {
+        return compileAndLoad(
+                metadata,
+                System.getProperty("java.class.path"),
+                Compilation.class.getClassLoader());
     }
 
     @FunctionalInterface
