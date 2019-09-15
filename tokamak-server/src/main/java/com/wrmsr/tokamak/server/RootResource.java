@@ -14,6 +14,9 @@
 
 package com.wrmsr.tokamak.server;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -29,8 +32,14 @@ public class RootResource
     @Path("/query")
     @Consumes(TEXT_PLAIN)
     @Produces(APPLICATION_JSON)
-    public void query(String query)
+    public QueryResult query(String query)
     {
+        return new QueryResult(ImmutableMap.of(), 0, ImmutableList.of());
+    }
 
+    @POST
+    @Path("/shutdown")
+    public void shutdown(String query)
+    {
     }
 }
