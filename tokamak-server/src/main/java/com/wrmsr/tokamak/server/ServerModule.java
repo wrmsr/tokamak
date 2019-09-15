@@ -11,9 +11,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.wrmsr.tokamak.server;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.inject.Binder;
+import com.google.inject.Module;
+import com.wrmsr.tokamak.server.util.jaxrs.ApplicationModule;
+import com.wrmsr.tokamak.server.util.jaxrs.NettyServer;
+import com.wrmsr.tokamak.server.util.jaxrs.Resource;
+
+import static com.google.inject.multibindings.Multibinder.newSetBinder;
+
 public class ServerModule
+        implements Module
 {
+    @Override
+    public void configure(Binder binder)
+    {
+        binder.bind(ObjectMapper.class).toInstance(new ObjectMapper());
+        binder.install(new ApplicationModule());
+        binder.bind(NettyServer.class).asEagerSingleton();
+        newSetBinder(binder, Class.class, Resource.class).addBinding().toInstance(RootResource.class);
+    }
 }

@@ -15,7 +15,7 @@ package com.wrmsr.tokamak.server;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import io.netty.channel.Channel;
+import com.wrmsr.tokamak.server.util.jaxrs.NettyServer;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.Filter;
 import org.apache.logging.log4j.core.LoggerContext;
@@ -25,16 +25,6 @@ import org.apache.logging.log4j.core.config.builder.api.AppenderComponentBuilder
 import org.apache.logging.log4j.core.config.builder.api.ConfigurationBuilder;
 import org.apache.logging.log4j.core.config.builder.api.ConfigurationBuilderFactory;
 import org.apache.logging.log4j.core.config.builder.impl.BuiltConfiguration;
-import org.glassfish.hk2.api.ServiceLocator;
-import org.glassfish.jersey.internal.inject.InjectionManager;
-import org.glassfish.jersey.netty.httpserver.TokamakNettyHttpContainerProvider;
-import org.glassfish.jersey.server.ResourceConfig;
-import org.jvnet.hk2.guice.bridge.api.GuiceBridge;
-import org.jvnet.hk2.guice.bridge.api.GuiceIntoHK2Bridge;
-
-import javax.ws.rs.core.UriBuilder;
-
-import java.net.URI;
 
 public class ServerMain
 {
@@ -62,26 +52,8 @@ public class ServerMain
     {
         configureLogging();
 
-        Injector injector = Guice.createInjector();
+        Injector injector = Guice.createInjector(new ServerModule());
 
-        URI baseUri = UriBuilder.fromUri("http://localhost/").port(9998).build();
-        ResourceConfig resourceConfig = new ResourceConfig(RootResource.class);
-        Channel server = TokamakNettyHttpContainerProvider.createServer(baseUri, resourceConfig, null, ah -> {
-            ServiceLocator serviceLocator;
-            try {
-                InjectionManager injectionManager = ah.getInjectionManager();
-                serviceLocator = (ServiceLocator) injectionManager.getClass().getDeclaredMethod("getServiceLocator")
-                        .invoke(injectionManager);
-            }
-            catch (ReflectiveOperationException e) {
-                throw new RuntimeException(e);
-            }
-            GuiceBridge.getGuiceBridge().initializeGuiceBridge(serviceLocator);
-            GuiceIntoHK2Bridge guiceBridge = serviceLocator.getService(GuiceIntoHK2Bridge.class);
-            guiceBridge.bridgeGuiceInjector(injector);
-        });
-        server.closeFuture().sync();
-
-        // server.run();
+        injector.getInstance(NettyServer.class).run();
     }
 }

@@ -24,9 +24,9 @@ import io.netty.handler.ssl.SslContext;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
 import org.glassfish.jersey.server.ApplicationHandler;
-import org.glassfish.jersey.server.ResourceConfig;
 
 import javax.ws.rs.ProcessingException;
+import javax.ws.rs.core.Application;
 
 import java.net.URI;
 import java.util.function.Consumer;
@@ -39,16 +39,17 @@ public final class TokamakNettyHttpContainerProvider
 
     public static Channel createServer(
             URI baseUri,
-            ResourceConfig configuration,
+            Application application,
             SslContext sslContext,
-            Consumer<ApplicationHandler> configureApplicationHandler)
+            Consumer<ApplicationHandler> applicationHandlerConsumer,
+            Consumer<ServerBootstrap> serverBootstrapConsumer)
             throws ProcessingException
     {
         EventLoopGroup bossGroup = new NioEventLoopGroup(1);
         EventLoopGroup workerGroup = new NioEventLoopGroup();
 
-        NettyHttpContainer container = new NettyHttpContainer(configuration);
-        configureApplicationHandler.accept(container.getApplicationHandler());
+        NettyHttpContainer container = new NettyHttpContainer(application);
+        applicationHandlerConsumer.accept(container.getApplicationHandler());
 
         try {
             ServerBootstrap b = new ServerBootstrap();
@@ -56,6 +57,7 @@ public final class TokamakNettyHttpContainerProvider
             b.group(bossGroup, workerGroup)
                     .channel(NioServerSocketChannel.class)
                     .childHandler(new JerseyServerInitializer(baseUri, sslContext, container));
+            serverBootstrapConsumer.accept(b);
 
             int port = getPort(baseUri);
 

@@ -21,6 +21,7 @@ import com.wrmsr.tokamak.util.config.Flattening;
 import junit.framework.TestCase;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 public class ConfigTest
@@ -157,12 +158,26 @@ public class ConfigTest
         {
         }
 
+        void validate(T value)
+        {
+        }
+
         void addValidator(Consumer<T> validator)
         {
         }
 
         void addListener(Consumer<T> listener)
         {
+        }
+
+        Optional<String> name()
+        {
+            return Optional.empty();
+        }
+
+        Optional<String> doc()
+        {
+            return Optional.empty();
         }
     }
 

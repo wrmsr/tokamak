@@ -11,20 +11,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.util.io;
+package com.wrmsr.tokamak.server;
 
-import com.wrmsr.tokamak.util.NoExceptAutoCloseable;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-public interface TcpClient
-        extends NoExceptAutoCloseable
+public final class Status
 {
-    interface Connection
-            extends NoExceptAutoCloseable
-    {
-        void send(byte[] data);
+    private float uptime;
 
-        int recv(byte[] buf);
+    @JsonCreator
+    public Status(
+            @JsonProperty("uptime") float uptime)
+    {
+        this.uptime = uptime;
     }
 
-    Connection connect(String host, int port);
+    @JsonProperty("uptime")
+    public float getUptime()
+    {
+        return uptime;
+    }
 }

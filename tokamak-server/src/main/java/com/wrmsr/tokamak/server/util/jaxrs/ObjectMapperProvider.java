@@ -11,20 +11,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.util.io;
+package com.wrmsr.tokamak.server.util.jaxrs;
 
-import com.wrmsr.tokamak.util.NoExceptAutoCloseable;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-public interface TcpClient
-        extends NoExceptAutoCloseable
+import javax.inject.Inject;
+import javax.ws.rs.ext.ContextResolver;
+import javax.ws.rs.ext.Provider;
+
+@Provider
+public final class ObjectMapperProvider
+        implements ContextResolver<ObjectMapper>
 {
-    interface Connection
-            extends NoExceptAutoCloseable
-    {
-        void send(byte[] data);
+    private final ObjectMapper objectMapper;
 
-        int recv(byte[] buf);
+    @Inject
+    public ObjectMapperProvider(ObjectMapper objectMapper)
+    {
+        this.objectMapper = objectMapper;
     }
 
-    Connection connect(String host, int port);
+    @Override
+    public ObjectMapper getContext(Class<?> type)
+    {
+        return objectMapper;
+    }
 }
