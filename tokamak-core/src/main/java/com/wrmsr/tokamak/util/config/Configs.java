@@ -20,15 +20,14 @@ public final class Configs
 {
     /*
     TODO:
+     - json
+     - guice
      - toString / hashCode / equals
      - defaults, validates, multi-field validators, compute defaults/injection
      - _im_mutability
      - mutability
       - jit subclasses blocking setters
-      - callbacks
       - dynamic sources (ala archaius) - zk + jdbccoord
-     - name overrides
-     - toString
      - field getter + explicit setter
      - abstracts / non-interface-configs
      - maven compilation step (runner not plugin)
