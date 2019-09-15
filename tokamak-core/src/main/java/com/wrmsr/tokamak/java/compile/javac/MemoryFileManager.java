@@ -57,20 +57,25 @@ public class MemoryFileManager
     public ClassLoader getClassLoader(JavaFileManager.Location location)
     {
         ClassLoader classLoader = super.getClassLoader(location);
-
         if (location == CLASS_OUTPUT) {
-            Map<String, byte[]> mapNameToBytes = new HashMap<>();
+            return createMemoryClassLoader(classLoader);
+        }
+        else {
+            return classLoader;
+        }
+    }
 
-            for (ClassMemoryJavaFileObject outputMemoryJavaFileObject : memoryClasses()) {
-                mapNameToBytes.put(
-                        outputMemoryJavaFileObject.getName(),
-                        outputMemoryJavaFileObject.getBytes());
-            }
+    public ClassLoader createMemoryClassLoader(ClassLoader parentClassLoader)
+    {
+        Map<String, byte[]> mapNameToBytes = new HashMap<>();
 
-            return new MemoryClassLoader(mapNameToBytes, classLoader);
+        for (ClassMemoryJavaFileObject outputMemoryJavaFileObject : memoryClasses()) {
+            mapNameToBytes.put(
+                    outputMemoryJavaFileObject.getName(),
+                    outputMemoryJavaFileObject.getBytes());
         }
 
-        return classLoader;
+        return new MemoryClassLoader(mapNameToBytes, parentClassLoader);
     }
 
     @Override

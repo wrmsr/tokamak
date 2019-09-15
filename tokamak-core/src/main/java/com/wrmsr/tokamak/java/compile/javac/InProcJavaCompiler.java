@@ -15,6 +15,7 @@ package com.wrmsr.tokamak.java.compile.javac;
 
 import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.java.compile.javac.option.JavacOption;
+import com.wrmsr.tokamak.util.DelegatingClassLoader;
 
 import javax.tools.DiagnosticCollector;
 import javax.tools.JavaCompiler;
@@ -46,7 +47,12 @@ public final class InProcJavaCompiler
         javac.run(null, null, null, args.toArray(new String[args.size()]));
     }
 
-    public static Class<?> compileAndLoad(String script, String fullClassName, String simpleClassName, List<String> options)
+    public static Class<?> compileAndLoad(
+            String script,
+            String fullClassName,
+            String simpleClassName,
+            List<String> options,
+            ClassLoader parentClassLoader)
     {
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
         DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
@@ -70,7 +76,7 @@ public final class InProcJavaCompiler
             throw new RuntimeException(message);
         }
 
-        ClassLoader classLoader = memoryFileManager.getClassLoader(StandardLocation.CLASS_OUTPUT);
+        ClassLoader classLoader = memoryFileManager.createMemoryClassLoader(parentClassLoader);
         try {
             return classLoader.loadClass(fullClassName);
         }

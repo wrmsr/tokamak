@@ -21,6 +21,7 @@ import com.wrmsr.tokamak.util.config.Flattening;
 import junit.framework.TestCase;
 
 import java.util.Map;
+import java.util.function.Consumer;
 
 public class ConfigTest
         extends TestCase
@@ -143,5 +144,35 @@ public class ConfigTest
         System.out.println(uf);
 
         assertEquals(m, uf);
+    }
+
+    public static final class Prop<T>
+    {
+        T get()
+        {
+            return null;
+        }
+
+        void addValidator(Consumer<T> validator)
+        {
+        }
+
+        void addListener(Consumer<T> listener)
+        {
+        }
+    }
+
+    public interface AltConfig
+    {
+        Prop<Integer> x();
+
+        static int defaultX()
+        {
+            return 420;
+        }
+
+        static void validateX(int x)
+        {
+        }
     }
 }

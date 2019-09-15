@@ -80,9 +80,11 @@ public class CodegenTest
                 rendered,
                 "com.wrmsr.tokamak.Thing",
                 "Thing",
-                ImmutableList.of());
+                ImmutableList.of(),
+                null);
         Object obj = cls.getDeclaredConstructor().newInstance();
         // ((Runnable) obj).run();
+        System.out.println(obj);
     }
 
     public static class BaseThing
@@ -112,7 +114,8 @@ public class CodegenTest
                 "SubThing",
                 ImmutableList.of(
                         "-classpath", cp
-                ));
+                ),
+                getClass().getClassLoader());
 
         BaseThing obj = (BaseThing) cls.getDeclaredConstructor().newInstance();
         System.out.println(obj.x());
