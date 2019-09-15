@@ -18,7 +18,7 @@ import com.wrmsr.tokamak.parser.tree.visitor.AstVisitor;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public final class Identifier
-    extends Expression
+        extends TreeNode
 {
     private final String value;
 
@@ -35,6 +35,6 @@ public final class Identifier
     @Override
     public <R, C> R accept(AstVisitor<R, C> visitor, C context)
     {
-        return null;
+        return visitor.visitIdentifier(this, context);
     }
 }

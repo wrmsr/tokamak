@@ -27,7 +27,6 @@ import com.wrmsr.tokamak.parser.tree.AllSelectItem;
 import com.wrmsr.tokamak.parser.tree.Expression;
 import com.wrmsr.tokamak.parser.tree.ExpressionSelectItem;
 import com.wrmsr.tokamak.parser.tree.FunctionCallExpression;
-import com.wrmsr.tokamak.parser.tree.Identifier;
 import com.wrmsr.tokamak.parser.tree.QualifiedName;
 import com.wrmsr.tokamak.parser.tree.Select;
 import com.wrmsr.tokamak.parser.tree.SelectItem;
@@ -93,6 +92,39 @@ public class AstPlanner
         }
     }
 
+    protected void addRecursiveExpressionReferences(Set<List<String>> set, Expression expr)
+    {
+        expr.accept(new AstVisitor<Void, Void>()
+        {
+            @Override
+            public Void visitExpression(Expression treeNode, Void context)
+            {
+                return null;
+            }
+
+            @Override
+            public Void visitFunctionCallExpression(FunctionCallExpression treeNode, Void context)
+            {
+                treeNode.getArgs().forEach(a -> addRecursiveExpressionReferences(set, a));
+                return null;
+            }
+
+            @Override
+            public Void visitQualifiedName(QualifiedName treeNode, Void context)
+            {
+                set.add(treeNode.getParts());
+                return null;
+            }
+        }, null);
+    }
+
+    protected Set<List<String>> getRecursiveExpressionReferences(Expression expr)
+    {
+        Set<List<String>> qualifiedNames = new LinkedHashSet<>();
+        addRecursiveExpressionReferences(qualifiedNames, expr);
+        return qualifiedNames;
+    }
+
     public Node plan(TreeNode treeNode)
     {
         return treeNode.accept(new AstVisitor<Node, Void>()
@@ -126,12 +158,9 @@ public class AstPlanner
                     else if (item instanceof ExpressionSelectItem) {
                         ExpressionSelectItem exprItem = (ExpressionSelectItem) item;
                         Expression expr = exprItem.getExpression();
+                        Set<List<String>> qns = getRecursiveExpressionReferences(expr);
                         String column;
-                        if (expr instanceof Identifier) {
-                            Identifier ident = (Identifier) expr;
-                            column = ident.getValue();
-                        }
-                        else if (expr instanceof QualifiedName) {
+                        if (expr instanceof QualifiedName) {
                             QualifiedName qname = (QualifiedName) expr;
                             List<String> qnameParts = qname.getParts();
                             if (qnameParts.size() == 1) {

@@ -25,6 +25,8 @@ import com.wrmsr.tokamak.plan.transform.Transforms;
 import com.wrmsr.tokamak.test.TpchUtils;
 import junit.framework.TestCase;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Optional;
 
 public class TpchParserTest
@@ -33,7 +35,9 @@ public class TpchParserTest
     public void testTpchParse()
             throws Throwable
     {
-        String url = "jdbc:h2:file:./temp/test.db;USER=username;PASSWORD=password";
+        Path tempDir = Files.createTempDirectory("tokamak-temp");
+        tempDir.toFile().deleteOnExit();
+        String url = "jdbc:h2:file:" + tempDir.toString() + "/test.db;USER=username;PASSWORD=password";
         TpchUtils.buildDatabase(url);
         Catalog catalog = TpchUtils.buildCatalog(url);
 
@@ -41,8 +45,8 @@ public class TpchParserTest
                 "select * from NATION",
                 "select N_NAME, N_COMMENT from NATION",
                 "select N_NAME as name, N_COMMENT as comment from NATION",
-                "select exclaim(N_NAME) from NATION",
-                "select exclaim(exclaim(N_NAME)) from NATION",
+                "select N_COMMENT, exclaim(N_NAME) from NATION",
+                "select N_COMMENT, exclaim(exclaim(N_NAME)) from NATION",
         }) {
             System.out.println(str);
             SqlParser parser = Parsing.parse(str);

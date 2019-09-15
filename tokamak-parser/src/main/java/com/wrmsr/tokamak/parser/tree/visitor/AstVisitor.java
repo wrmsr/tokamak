@@ -62,7 +62,7 @@ public abstract class AstVisitor<R, C>
 
     public R visitIdentifier(Identifier treeNode, C context)
     {
-        return visitExpression(treeNode, context);
+        return visitTreeNode(treeNode, context);
     }
 
     public R visitIntegerLiteral(IntegerLiteral treeNode, C context)
