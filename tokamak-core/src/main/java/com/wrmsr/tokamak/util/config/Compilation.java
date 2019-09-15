@@ -99,11 +99,19 @@ public final class Compilation
         }
     }
 
-    public static final class Construction
+    public interface Construction
+    {
+        <T> ConfigPropertyImpl<T> buildPropertyImpl(String name, Supplier<T> getter, Consumer<T> setter);
+
+        IntConfigProperty buildIntPropertyImpl(String name, IntSupplier getter, IntConsumer setter);
+    }
+
+    public static final class ConstructionImpl
+            implements Construction
     {
         private final ConfigMetadata metadata;
 
-        public Construction(ConfigMetadata metadata)
+        public ConstructionImpl(ConfigMetadata metadata)
         {
             this.metadata = checkNotNull(metadata);
         }
@@ -118,6 +126,7 @@ public final class Compilation
             }
         }
 
+        @Override
         public <T> ConfigPropertyImpl<T> buildPropertyImpl(String name, Supplier<T> getter, Consumer<T> setter)
         {
             return new ConfigPropertyImpl<>(
@@ -126,6 +135,7 @@ public final class Compilation
                     setter);
         }
 
+        @Override
         public IntConfigProperty buildIntPropertyImpl(String name, IntSupplier getter, IntConsumer setter)
         {
             return new IntConfigPropertyImpl(
@@ -185,7 +195,7 @@ public final class Compilation
                                             new JMethodInvocation(
                                                     new JMemberAccess(
                                                             JIdent.of("construction"),
-                                                            Construction.getPropertyImplBuilderMethodName(prop)),
+                                                            ConstructionImpl.getPropertyImplBuilderMethodName(prop)),
                                                     ImmutableList.of(
                                                             new JLiteral(prop.getName()),
                                                             new JLambda(
@@ -237,6 +247,13 @@ public final class Compilation
                                         new JIdent(JName.of(bareName)),
                                         "new"))));
 
+        fields.add(
+                new JField(
+                        immutableEnumSet(JAccess.PUBLIC, JAccess.STATIC, JAccess.VOLATILE),
+                        JTypeSpecifier.of(ConfigMetadata.class),
+                        "METADATA",
+                        Optional.empty()));
+
         JCompilationUnit cu = new JCompilationUnit(
                 Optional.of(new JPackageSpec(new JName(implName.getParts().subList(0, implName.size() - 1)))),
                 ImmutableSet.of(),
@@ -278,7 +295,7 @@ public final class Compilation
         CompiledConfig compiled = compile(md);
         String src = JRenderer.renderWithIndent(compiled.getCompilationUnit(), "    ");
         String cp = System.getProperty("java.class.path");
-        Class<?> impl = InProcJavaCompiler.compileAndLoad(
+        Class<? extends T> impl = (Class<? extends T>) InProcJavaCompiler.compileAndLoad(
                 src,
                 compiled.getFullClassName(),
                 compiled.getBareName(),
@@ -286,7 +303,13 @@ public final class Compilation
                         "-classpath", cp
                 ),
                 Compilation.class.getClassLoader());
-        return (Class<? extends T>) impl;
+        try {
+            impl.getDeclaredField("METADATA").set(null, md);
+        }
+        catch (ReflectiveOperationException e) {
+            throw new RuntimeException(e);
+        }
+        return impl;
     }
 
     @FunctionalInterface
@@ -305,6 +328,6 @@ public final class Compilation
         catch (ReflectiveOperationException e) {
             throw new RuntimeException(e);
         }
-        return metadata -> implConstructionFactory.build(new Construction(metadata));
+        return metadata -> implConstructionFactory.build(new ConstructionImpl(metadata));
     }
 }
