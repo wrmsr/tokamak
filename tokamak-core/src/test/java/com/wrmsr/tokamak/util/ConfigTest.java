@@ -15,6 +15,7 @@ package com.wrmsr.tokamak.util;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.wrmsr.tokamak.util.config.Compilation;
 import com.wrmsr.tokamak.util.config.Config;
 import com.wrmsr.tokamak.util.config.ConfigMetadata;
 import com.wrmsr.tokamak.util.config.Configs;
@@ -37,19 +38,20 @@ public class ConfigTest
             throws Throwable
     {
         ConfigMetadata cmd = Configs.getMetadata(ThingConfig.class);
+        Compilation.compile(cmd);
 
-        Map map = ImmutableMap.of(
-                "someStr", "hi"
-        );
-
-        ThingConfig cfg = Json.readValue(Json.writeValue(map), ThingConfig.class);
-        System.out.println(cfg);
-
-        map = (Map) Json.roundTrip(cfg);
-        cfg = Json.readValue(Json.writeValue(map), ThingConfig.class);
-        System.out.println(cfg);
-
-        assertEquals("hi", cfg.someStr().get());
+        // Map map = ImmutableMap.of(
+        //         "someStr", "hi"
+        // );
+        //
+        // ThingConfig cfg = Json.readValue(Json.writeValue(map), ThingConfig.class);
+        // System.out.println(cfg);
+        //
+        // map = (Map) Json.roundTrip(cfg);
+        // cfg = Json.readValue(Json.writeValue(map), ThingConfig.class);
+        // System.out.println(cfg);
+        //
+        // assertEquals("hi", cfg.someStr().get());
     }
 
     public interface OuterConfig

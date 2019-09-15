@@ -16,7 +16,7 @@ package com.wrmsr.tokamak.java.lang.tree.declaration;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.java.lang.JAccess;
-import com.wrmsr.tokamak.java.lang.JArg;
+import com.wrmsr.tokamak.java.lang.JParam;
 import com.wrmsr.tokamak.java.lang.tree.statement.JBlock;
 
 import javax.annotation.concurrent.Immutable;
@@ -33,14 +33,14 @@ public final class JConstructor
 {
     private final Set<JAccess> access;
     private final String name;
-    private final List<JArg> args;
+    private final List<JParam> params;
     private final JBlock body;
 
-    public JConstructor(Set<JAccess> access, String name, List<JArg> args, JBlock body)
+    public JConstructor(Set<JAccess> access, String name, List<JParam> params, JBlock body)
     {
         this.access = ImmutableSet.copyOf(access);
         this.name = checkNotNull(name);
-        this.args = ImmutableList.copyOf(args);
+        this.params = ImmutableList.copyOf(params);
         this.body = checkNotNull(body);
     }
 
@@ -56,14 +56,14 @@ public final class JConstructor
         JConstructor that = (JConstructor) o;
         return Objects.equals(access, that.access) &&
                 Objects.equals(name, that.name) &&
-                Objects.equals(args, that.args) &&
+                Objects.equals(params, that.params) &&
                 Objects.equals(body, that.body);
     }
 
     @Override
     public int hashCode()
     {
-        return Objects.hash(access, name, args, body);
+        return Objects.hash(access, name, params, body);
     }
 
     public Set<JAccess> getAccess()
@@ -76,9 +76,9 @@ public final class JConstructor
         return name;
     }
 
-    public List<JArg> getArgs()
+    public List<JParam> getParams()
     {
-        return args;
+        return params;
     }
 
     public JBlock getBody()

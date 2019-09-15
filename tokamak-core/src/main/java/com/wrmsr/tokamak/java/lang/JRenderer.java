@@ -91,26 +91,26 @@ public final class JRenderer
             .build();
 
     public static final int DEFAULT_LONG_STRING_LITERAL_LENGTH = 120;
-    public static final int DEFAULT_MULTILINE_ARG_CUTOFF = 6;
+    public static final int DEFAULT_MULTILINE_PARAM_CUTOFF = 6;
 
     private final CodeBlock.Builder code;
     private final List<Set<JName>> importBlocks;
     private final int longStringLiteralLength;
-    private final int multilineArgCutoff;
+    private final int multilineParamCutoff;
 
-    public JRenderer(CodeBlock.Builder code, List<Set<JName>> importBlocks, int longStringLiteralLength, int multilineArgCutoff)
+    public JRenderer(CodeBlock.Builder code, List<Set<JName>> importBlocks, int longStringLiteralLength, int multilineParamCutoff)
     {
         checkArgument(longStringLiteralLength > 0);
-        checkArgument(multilineArgCutoff > 0);
+        checkArgument(multilineParamCutoff > 0);
         this.code = checkNotNull(code);
         this.importBlocks = ImmutableList.copyOf(importBlocks);
         this.longStringLiteralLength = longStringLiteralLength;
-        this.multilineArgCutoff = multilineArgCutoff;
+        this.multilineParamCutoff = multilineParamCutoff;
     }
 
     public JRenderer(CodeBlock.Builder code)
     {
-        this(code, DEFAULT_IMPORT_BLOCKS, DEFAULT_LONG_STRING_LITERAL_LENGTH, DEFAULT_MULTILINE_ARG_CUTOFF);
+        this(code, DEFAULT_IMPORT_BLOCKS, DEFAULT_LONG_STRING_LITERAL_LENGTH, DEFAULT_MULTILINE_PARAM_CUTOFF);
     }
 
     private void renderAccess(Set<JAccess> access)
@@ -189,21 +189,21 @@ public final class JRenderer
         code.add(";\n");
     }
 
-    private void renderArgs(List<JArg> args)
+    private void renderParams(List<JParam> params)
     {
-        if (args.size() >= multilineArgCutoff) {
+        if (params.size() >= multilineParamCutoff) {
             code.add("(\n");
             code.indent().indent();
             boolean comma = false;
-            for (JArg arg : args) {
+            for (JParam param : params) {
                 if (comma) {
                     code.add(",\n");
                 }
                 else {
                     comma = true;
                 }
-                renderTypeSpecifier(arg.getType());
-                code.add(" $L", arg.getName());
+                renderTypeSpecifier(param.getType());
+                code.add(" $L", param.getName());
             }
             code.add(")");
             code.unindent().unindent();
@@ -211,15 +211,15 @@ public final class JRenderer
         else {
             code.add("(");
             boolean comma = false;
-            for (JArg arg : args) {
+            for (JParam param : params) {
                 if (comma) {
                     code.add(", ");
                 }
                 else {
                     comma = true;
                 }
-                renderTypeSpecifier(arg.getType());
-                code.add(" $L", arg.getName());
+                renderTypeSpecifier(param.getType());
+                code.add(" $L", param.getName());
             }
             code.add(")");
         }
@@ -255,7 +255,7 @@ public final class JRenderer
             {
                 renderAccess(jdeclaration.getAccess());
                 code.add("$L", jdeclaration.getName());
-                renderArgs(jdeclaration.getArgs());
+                renderParams(jdeclaration.getParams());
                 code.add("\n");
                 renderStatement(jdeclaration.getBody());
                 return null;
@@ -295,7 +295,7 @@ public final class JRenderer
                 renderAccess(jdeclaration.getAccess());
                 renderTypeSpecifier(jdeclaration.getType());
                 code.add(" $L", jdeclaration.getName());
-                renderArgs(jdeclaration.getArgs());
+                renderParams(jdeclaration.getParams());
                 if (jdeclaration.getBody().isPresent()) {
                     code.add("\n");
                     renderStatement(jdeclaration.getBody().get());

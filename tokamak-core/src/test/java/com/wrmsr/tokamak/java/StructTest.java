@@ -17,7 +17,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.java.lang.JAccess;
-import com.wrmsr.tokamak.java.lang.JArg;
+import com.wrmsr.tokamak.java.lang.JParam;
 import com.wrmsr.tokamak.java.lang.JName;
 import com.wrmsr.tokamak.java.lang.JRenderer;
 import com.wrmsr.tokamak.java.lang.JTypeSpecifier;
@@ -306,7 +306,7 @@ public class StructTest
                             JTypeSpecifier.of("void"),
                             "set" + entry.getKey(),
                             ImmutableList.of(
-                                    new JArg(
+                                    new JParam(
                                             JTypeSpecifier.of(entry.getValue().toString()),
                                             entry.getKey())
                             ),

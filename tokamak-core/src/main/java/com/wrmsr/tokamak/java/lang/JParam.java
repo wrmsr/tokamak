@@ -20,12 +20,12 @@ import javax.annotation.concurrent.Immutable;
 import java.util.Objects;
 
 @Immutable
-public final class JArg
+public final class JParam
 {
     private final JTypeSpecifier type;
     private final String name;
 
-    public JArg(JTypeSpecifier type, String name)
+    public JParam(JTypeSpecifier type, String name)
     {
         this.type = type;
         this.name = name;
@@ -40,9 +40,9 @@ public final class JArg
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        JArg arg = (JArg) o;
-        return Objects.equals(type, arg.type) &&
-                Objects.equals(name, arg.name);
+        JParam param = (JParam) o;
+        return Objects.equals(type, param.type) &&
+                Objects.equals(name, param.name);
     }
 
     @Override

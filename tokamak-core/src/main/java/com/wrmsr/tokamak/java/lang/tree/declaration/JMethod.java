@@ -16,7 +16,7 @@ package com.wrmsr.tokamak.java.lang.tree.declaration;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.java.lang.JAccess;
-import com.wrmsr.tokamak.java.lang.JArg;
+import com.wrmsr.tokamak.java.lang.JParam;
 import com.wrmsr.tokamak.java.lang.JTypeSpecifier;
 import com.wrmsr.tokamak.java.lang.tree.statement.JBlock;
 
@@ -36,15 +36,15 @@ public final class JMethod
     private final Set<JAccess> access;
     private final JTypeSpecifier type;
     private final String name;
-    private final List<JArg> args;
+    private final List<JParam> params;
     private final Optional<JBlock> body;
 
-    public JMethod(Set<JAccess> access, JTypeSpecifier type, String name, List<JArg> args, Optional<JBlock> body)
+    public JMethod(Set<JAccess> access, JTypeSpecifier type, String name, List<JParam> params, Optional<JBlock> body)
     {
         this.access = ImmutableSet.copyOf(access);
         this.type = checkNotNull(type);
         this.name = checkNotNull(name);
-        this.args = ImmutableList.copyOf(args);
+        this.params = ImmutableList.copyOf(params);
         this.body = checkNotNull(body);
     }
 
@@ -61,14 +61,14 @@ public final class JMethod
         return Objects.equals(access, jMethod.access) &&
                 Objects.equals(type, jMethod.type) &&
                 Objects.equals(name, jMethod.name) &&
-                Objects.equals(args, jMethod.args) &&
+                Objects.equals(params, jMethod.params) &&
                 Objects.equals(body, jMethod.body);
     }
 
     @Override
     public int hashCode()
     {
-        return Objects.hash(access, type, name, args, body);
+        return Objects.hash(access, type, name, params, body);
     }
 
     public Set<JAccess> getAccess()
@@ -86,9 +86,9 @@ public final class JMethod
         return name;
     }
 
-    public List<JArg> getArgs()
+    public List<JParam> getParams()
     {
-        return args;
+        return params;
     }
 
     public Optional<JBlock> getBody()

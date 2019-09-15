@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public final class ConfigMetadata
@@ -32,6 +33,7 @@ public final class ConfigMetadata
     {
         this.cls = checkNotNull(cls);
 
+        checkArgument(Config.class.isAssignableFrom(cls));
         Map<String, ConfigPropertyMetadata> properties = new LinkedHashMap<>();
         for (Class<?> cur = cls; (cur != null) && !cur.equals(Object.class); cur = cur.getSuperclass()) {
             for (Method method : cur.getDeclaredMethods()) {
