@@ -20,6 +20,9 @@ public final class Configs
 {
     /*
     TODO:
+     - toString / hashCode / equals
+     - defaults, validates, multi-field validators, compute defaults/injection
+     - _im_mutability
      - mutability
       - jit subclasses blocking setters
       - callbacks
@@ -30,6 +33,9 @@ public final class Configs
      - abstracts / non-interface-configs
      - maven compilation step (runner not plugin)
      - class ConfigRegistry
+     - varhandle codeless impl? possible?
+      - even shittier HashMap impl possible?
+     - inheritance
     */
 
     private Configs()

@@ -15,6 +15,7 @@ package com.wrmsr.tokamak.util;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.wrmsr.tokamak.util.ConfigTest.ThingConfig;
 import com.wrmsr.tokamak.util.config.Compilation;
 import com.wrmsr.tokamak.util.config.Config;
 import com.wrmsr.tokamak.util.config.ConfigMetadata;
@@ -39,7 +40,12 @@ public class ConfigTest
     {
         ConfigMetadata cmd = Configs.getMetadata(ThingConfig.class);
         Class<?> cls = Compilation.compileAndLoad(cmd);
-        System.out.println(cls);
+        Compilation.ImplFactory<ThingConfig> thingConfigImplFactory = (Compilation.ImplFactory<ThingConfig>) cls.getDeclaredField("FACTORY").get(null);
+        ThingConfig cfg = thingConfigImplFactory.build(cmd);
+        System.out.println(cfg);
+        System.out.println(cfg.someStr().get());
+        cfg.someStr().set("hi");
+        System.out.println(cfg.someStr().get());
 
         // Map map = ImmutableMap.of(
         //         "someStr", "hi"

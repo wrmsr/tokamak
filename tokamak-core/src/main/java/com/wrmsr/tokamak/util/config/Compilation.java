@@ -36,6 +36,7 @@ import com.wrmsr.tokamak.java.lang.tree.expression.JLambda;
 import com.wrmsr.tokamak.java.lang.tree.expression.JLiteral;
 import com.wrmsr.tokamak.java.lang.tree.expression.JMemberAccess;
 import com.wrmsr.tokamak.java.lang.tree.expression.JMethodInvocation;
+import com.wrmsr.tokamak.java.lang.tree.expression.JMethodReference;
 import com.wrmsr.tokamak.java.lang.tree.statement.JExpressionStatement;
 import com.wrmsr.tokamak.java.lang.tree.statement.JReturn;
 import com.wrmsr.tokamak.java.lang.tree.statement.JStatement;
@@ -105,6 +106,7 @@ public final class Compilation
         List<JDeclaration> fields = new ArrayList<>();
         List<JStatement> ctor = new ArrayList<>();
         List<JDeclaration> getters = new ArrayList<>();
+
         md.getProperties().values().forEach(prop -> {
             JTypeSpecifier ts = JTypeSpecifier.of(prop.getType());
             JTypeSpecifier pts = new JTypeSpecifier(
@@ -118,12 +120,14 @@ public final class Compilation
                             ts,
                             "_" + prop.getName(),
                             Optional.empty()));
+
             fields.add(
                     new JField(
                             immutableEnumSet(JAccess.PRIVATE, JAccess.FINAL),
                             pts,
                             prop.getName(),
                             Optional.empty()));
+
             ctor.add(
                     new JExpressionStatement(
                             new JAssignment(
@@ -154,6 +158,7 @@ public final class Compilation
                                                                                                     "_" + prop.getName()),
                                                                                             JIdent.of("_" + prop.getName())))))
                                                     ))))));
+
             getters.add(
                     new JMethod(
                             immutableEnumSet(JAccess.PUBLIC),
@@ -167,6 +172,22 @@ public final class Compilation
                                                             new JIdent(JName.of(prop.getName()))))
                                     ))));
         });
+
+        fields.add(
+                new JField(
+                        immutableEnumSet(JAccess.PUBLIC, JAccess.STATIC, JAccess.FINAL),
+                        new JTypeSpecifier(
+                                JName.of(ImplFactory.class),
+                                Optional.of(
+                                        ImmutableList.of(
+                                                JTypeSpecifier.of(bareName)
+                                        )),
+                                ImmutableList.of()),
+                        "FACTORY",
+                        Optional.of(
+                                new JMethodReference(
+                                        new JIdent(JName.of(bareName)),
+                                        "new"))));
 
         JCompilationUnit cu = new JCompilationUnit(
                 Optional.of(new JPackageSpec(new JName(implName.getParts().subList(0, implName.size() - 1)))),
@@ -223,13 +244,5 @@ public final class Compilation
     public interface ImplFactory<T extends Config>
     {
         T build(ConfigMetadata metadata);
-    }
-
-    public static <T extends Config> ImplFactory<T> getImplFactory(Class<T> impl)
-    {
-        try {
-            return
-        }
-
     }
 }

@@ -705,7 +705,7 @@ public final class JRenderer
             @Override
             public Void visitJMethodReference(JMethodReference jexpression, Void context)
             {
-                renderName(jexpression.getClassName());
+                renderExpression(jexpression.getInstance());
                 code.add("::$L", jexpression.getMethodName());
                 return null;
             }

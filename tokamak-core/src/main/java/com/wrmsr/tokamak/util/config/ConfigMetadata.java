@@ -15,8 +15,8 @@ package com.wrmsr.tokamak.util.config;
 
 import com.wrmsr.tokamak.util.config.props.ConfigProperty;
 import com.wrmsr.tokamak.util.config.props.ConfigPropertyImpl;
+import com.wrmsr.tokamak.util.config.props.IntConfigProperty;
 import com.wrmsr.tokamak.util.config.props.IntConfigPropertyImpl;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.lang.reflect.Method;
 import java.util.Collections;
@@ -73,16 +73,27 @@ public final class ConfigMetadata
 
     public String getPropertyImplBuilderMethodName(ConfigPropertyMetadata pmd)
     {
-        return "buildPropertyImpl";
+        if (pmd.getType() == int.class) {
+            return "buildIntPropertyImpl";
+        }
+        else {
+            return "buildPropertyImpl";
+        }
     }
 
     public <T> ConfigPropertyImpl<T> buildPropertyImpl(String name, Supplier<T> getter, Consumer<T> setter)
     {
-        throw new NotImplementedException();
+        return new ConfigPropertyImpl<>(
+                properties.get(name),
+                getter,
+                setter);
     }
 
-    public IntConfigPropertyImpl buildIntPropertyImpl(String name, IntSupplier getter, IntConsumer setter)
+    public IntConfigProperty buildIntPropertyImpl(String name, IntSupplier getter, IntConsumer setter)
     {
-        throw new NotImplementedException();
+        return new IntConfigPropertyImpl(
+                properties.get(name),
+                getter,
+                setter);
     }
 }

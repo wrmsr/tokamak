@@ -13,8 +13,6 @@
  */
 package com.wrmsr.tokamak.java.lang.tree.expression;
 
-import com.wrmsr.tokamak.java.lang.JName;
-
 import javax.annotation.concurrent.Immutable;
 
 import java.util.Objects;
@@ -25,12 +23,12 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public final class JMethodReference
         extends JExpression
 {
-    private final JName className;
+    private final JExpression instance;
     private final String methodName;
 
-    public JMethodReference(JName className, String methodName)
+    public JMethodReference(JExpression instance, String methodName)
     {
-        this.className = checkNotNull(className);
+        this.instance = checkNotNull(instance);
         this.methodName = checkNotNull(methodName);
     }
 
@@ -44,19 +42,19 @@ public final class JMethodReference
             return false;
         }
         JMethodReference that = (JMethodReference) o;
-        return Objects.equals(className, that.className) &&
+        return Objects.equals(instance, that.instance) &&
                 Objects.equals(methodName, that.methodName);
     }
 
     @Override
     public int hashCode()
     {
-        return Objects.hash(className, methodName);
+        return Objects.hash(instance, methodName);
     }
 
-    public JName getClassName()
+    public JExpression getInstance()
     {
-        return className;
+        return instance;
     }
 
     public String getMethodName()

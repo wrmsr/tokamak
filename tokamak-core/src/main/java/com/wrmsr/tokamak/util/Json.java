@@ -30,11 +30,6 @@ import java.lang.reflect.Type;
 
 public final class Json
 {
-    /*
-    TODO:
-     - remove threadlocal
-    */
-
     private Json()
     {
     }
