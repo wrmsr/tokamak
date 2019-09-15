@@ -20,10 +20,12 @@ public final class Configs
 {
     /*
     TODO:
+     - Optional/null handling (default non-optional child configs?)
      - json
+      - ConfigContext?
      - guice
      - toString / hashCode / equals
-     - defaults, validates, multi-field validators, compute defaults/injection
+     - defaults, validates, multi-field validators, compute defaults/injection/toposort
      - _im_mutability
      - mutability
       - jit subclasses blocking setters
