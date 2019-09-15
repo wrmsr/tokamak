@@ -153,6 +153,10 @@ public class ConfigTest
             return null;
         }
 
+        void set(T value)
+        {
+        }
+
         void addValidator(Consumer<T> validator)
         {
         }
