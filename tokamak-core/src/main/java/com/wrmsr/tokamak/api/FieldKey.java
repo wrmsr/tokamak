@@ -28,7 +28,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 

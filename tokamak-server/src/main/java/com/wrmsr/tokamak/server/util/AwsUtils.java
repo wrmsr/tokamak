@@ -11,21 +11,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.exec;
+package com.wrmsr.tokamak.server.util;
 
-import com.wrmsr.tokamak.catalog.CatalogRegistry;
-import com.wrmsr.tokamak.catalog.ExecutorType;
-import com.wrmsr.tokamak.exec.builtin.BuiltinExecutor;
-
-public final class BuiltinExecutors
+public final class AwsUtils
 {
-    private BuiltinExecutors()
+    private AwsUtils()
     {
     }
 
-    public static CatalogRegistry register(CatalogRegistry registry)
-    {
-        registry.register(new ExecutorType<>("builtin", BuiltinExecutor.class));
-        return registry;
-    }
+    public static final String METADATA_URL = "http://169.254.169.254/2018-08-17/meta-data";
 }
