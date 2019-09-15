@@ -13,7 +13,7 @@ services:
     expose:
       - '9200'
     ports:
-      - '21210:9200'
+      - '21211:9200'
 
   tokamak-kafka:
     image: 'wrmsr/tokamak-kafka:latest'
@@ -23,7 +23,7 @@ services:
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'LISTENER_DOCKER_INTERNAL:PLAINTEXT,LISTENER_DOCKER_EXTERNAL:PLAINTEXT'
       KAFKA_INTER_BROKER_LISTENER_NAME: 'LISTENER_DOCKER_INTERNAL'
       KAFKA_ZOOKEEPER_CONNECT: 'tokamak-zookeeper:2181'
-      KAFKA_BROKER_ID: 1
+      KAFKA_BROKER_ID: '1'
       KAFKA_LOG4J_LOGGERS: 'kafka.controller=INFO,kafka.producer.async.DefaultEventHandler=INFO,state.change.logger=INFO'
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
     volumes:
@@ -33,7 +33,7 @@ services:
     expose:
       - '9092'
     ports:
-      - '21210:9092'
+      - '21212:9092'
 
   tokamak-memcached:
     build: '.'
@@ -42,11 +42,11 @@ services:
     expose:
       - '11211'
     ports:
-      - '21211:11211'
+      - '21213:11211'
 
   tokamak-minio:
     build: '.'
-    image: 'remind101/tokamak-minio:latest'
+    image: 'wrmsr/tokamak-minio:latest'
     restart: 'always'
     environment:
       MINIO_ACCESS_KEY: 'AKIAIOSFODNN7EXAMPLE'
@@ -54,7 +54,7 @@ services:
     expose:
       - '9000'
     ports:
-      - '21212:9000'
+      - '21214:9000'
 
   tokamak-mysql-master:
     build: '.'
@@ -67,7 +67,7 @@ services:
     expose:
       - '3306'
     ports:
-      - '21213:3306'
+      - '21215:3306'
 
   tokamak-mysql-slave:
     build: '.'
@@ -85,7 +85,7 @@ services:
     expose:
       - '3306'
     ports:
-      - '21214:3306'
+      - '21216:3306'
 
   tokamak-postgres-master:
     build: '.'
@@ -98,7 +98,7 @@ services:
     expose:
       - '5432'
     ports:
-      - '21215:5432'
+      - '21217:5432'
 
   tokamak-postgres-slave:
     build: '.'
@@ -116,7 +116,7 @@ services:
     expose:
       - '5432'
     ports:
-      - '21216:5432'
+      - '21218:5432'
 
   tokamak-redis:
     build: '.'
@@ -125,7 +125,7 @@ services:
     expose:
       - '6379'
     ports:
-      - '21217:6379'
+      - '21219:6379'
 
   tokamak-zookeeper:
     image: 'wrmsr/tokamak-zookeeper:latest'
@@ -140,7 +140,7 @@ services:
     expose:
       - '2181'
     ports:
-      - '21218:2181'
+      - '21220:2181'
 
   tokamak-dev:
     build: '.'

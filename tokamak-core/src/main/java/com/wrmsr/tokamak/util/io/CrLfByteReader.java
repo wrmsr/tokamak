@@ -159,4 +159,46 @@ public final class CrLfByteReader
         checkState(next() == CR);
         checkState(next() == LF);
     }
+
+    public OpenByteArrayOutputStream restStream()
+            throws IOException
+    {
+        OpenByteArrayOutputStream bas = new OpenByteArrayOutputStream();
+        if (hasPeekByte) {
+            bas.write(next());
+        }
+        while (true) {
+            int b = input.read();
+            if (b < 0) {
+                break;
+            }
+            bas.write(b);
+        }
+        return bas;
+    }
+
+    public byte[] rest()
+            throws IOException
+    {
+        return restStream().toByteArray();
+    }
+
+    public String rest(Charset charset)
+            throws IOException
+    {
+        OpenByteArrayOutputStream bos = restStream();
+        return new String(bos.getBuf(), 0, bos.size(), charset);
+    }
+
+    public String restAscii()
+            throws IOException
+    {
+        return rest(Charsets.US_ASCII);
+    }
+
+    public String restUtf8()
+            throws IOException
+    {
+        return rest(Charsets.UTF_8);
+    }
 }

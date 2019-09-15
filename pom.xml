@@ -328,6 +328,18 @@
 
             <!-- Other -->
 
+            <dependency>
+                <groupId>com.kohlschutter.junixsocket</groupId>
+                <artifactId>junixsocket-common</artifactId>
+                <version>2.2.0</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.kohlschutter.junixsocket</groupId>
+                <artifactId>junixsocket-native-common</artifactId>
+                <version>2.2.0</version>
+            </dependency>
+
             <!--
             <dependency>
                 <groupId>org.rocksdb</groupId>
