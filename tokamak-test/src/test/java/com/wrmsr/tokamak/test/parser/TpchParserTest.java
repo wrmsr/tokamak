@@ -33,7 +33,6 @@ public class TpchParserTest
     public void testTpchParse()
             throws Throwable
     {
-        TpchUtils.clearDatabase();
         String url = "jdbc:h2:file:./temp/test.db;USER=username;PASSWORD=password";
         TpchUtils.buildDatabase(url);
         Catalog catalog = TpchUtils.buildCatalog(url);

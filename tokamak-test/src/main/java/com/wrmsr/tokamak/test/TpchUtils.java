@@ -85,15 +85,6 @@ public final class TpchUtils
         }
     }
 
-    public static void clearDatabase()
-            throws IOException
-    {
-        // String url = "jdbc:h2:mem:test";
-        try (DirectoryStream<Path> ds = Files.newDirectoryStream(Paths.get("temp"), "test.db*")) {
-            ds.forEach(p -> checkState(p.toFile().delete()));
-        }
-    }
-
     @SuppressWarnings({"unchecked", "rawtypes"})
     public static void buildDatabase(String url)
             throws IOException

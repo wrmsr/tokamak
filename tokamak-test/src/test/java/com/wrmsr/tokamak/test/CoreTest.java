@@ -46,6 +46,8 @@ import com.wrmsr.tokamak.type.Type;
 import com.wrmsr.tokamak.util.Json;
 import junit.framework.TestCase;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -169,8 +171,9 @@ public class CoreTest
     public void testTpch()
             throws Throwable
     {
-        TpchUtils.clearDatabase();
-        String url = "jdbc:h2:file:./temp/test.db;USER=username;PASSWORD=password";
+        Path tempDir = Files.createTempDirectory("tokamak-temp");
+        tempDir.toFile().deleteOnExit();
+        String url = "jdbc:h2:file:" + tempDir.toString() + "/test.db;USER=username;PASSWORD=password";
         TpchUtils.buildDatabase(url);
         Catalog catalog = TpchUtils.buildCatalog(url);
 
