@@ -17,6 +17,7 @@ package com.wrmsr.tokamak.util.config;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.wrmsr.tokamak.java.compile.javac.InProcJavaCompiler;
 import com.wrmsr.tokamak.java.lang.JAccess;
 import com.wrmsr.tokamak.java.lang.JName;
 import com.wrmsr.tokamak.java.lang.JParam;
@@ -31,6 +32,7 @@ import com.wrmsr.tokamak.java.lang.tree.declaration.JType;
 import com.wrmsr.tokamak.java.lang.tree.expression.JAssignment;
 import com.wrmsr.tokamak.java.lang.tree.expression.JCast;
 import com.wrmsr.tokamak.java.lang.tree.expression.JIdent;
+import com.wrmsr.tokamak.java.lang.tree.expression.JLambda;
 import com.wrmsr.tokamak.java.lang.tree.expression.JLiteral;
 import com.wrmsr.tokamak.java.lang.tree.expression.JMemberAccess;
 import com.wrmsr.tokamak.java.lang.tree.expression.JMethodInvocation;
@@ -44,6 +46,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Sets.immutableEnumSet;
 import static com.wrmsr.tokamak.java.lang.tree.JTrees.jblockify;
 
@@ -53,7 +56,43 @@ public final class Compilation
     {
     }
 
-    public static void compile(ConfigMetadata md)
+    public static final class CompiledConfig
+    {
+        private final ConfigMetadata metadata;
+        private final String fullClassName;
+        private final String bareName;
+        private final JCompilationUnit compilationUnit;
+
+        public CompiledConfig(ConfigMetadata metadata, String fullClassName, String bareName, JCompilationUnit compilationUnit)
+        {
+            this.metadata = checkNotNull(metadata);
+            this.fullClassName = checkNotNull(fullClassName);
+            this.bareName = checkNotNull(bareName);
+            this.compilationUnit = checkNotNull(compilationUnit);
+        }
+
+        public ConfigMetadata getMetadata()
+        {
+            return metadata;
+        }
+
+        public String getFullClassName()
+        {
+            return fullClassName;
+        }
+
+        public String getBareName()
+        {
+            return bareName;
+        }
+
+        public JCompilationUnit getCompilationUnit()
+        {
+            return compilationUnit;
+        }
+    }
+
+    public static CompiledConfig compile(ConfigMetadata md)
     {
         JName ifaceName = new JName(Splitter.on(".").splitToList(md.getCls().getCanonicalName()));
         String bareName = ifaceName.getParts().get(ifaceName.size() - 1);
@@ -67,17 +106,22 @@ public final class Compilation
         List<JStatement> ctor = new ArrayList<>();
         List<JDeclaration> getters = new ArrayList<>();
         md.getProperties().values().forEach(prop -> {
-            JTypeSpecifier ts = new JTypeSpecifier(
+            JTypeSpecifier ts = JTypeSpecifier.of(prop.getType());
+            JTypeSpecifier pts = new JTypeSpecifier(
                     JName.of(prop.getImplCls()),
-                    Optional.of(
-                            ImmutableList.of(
-                                    JTypeSpecifier.of(prop.getType()))),
+                    Optional.of(ImmutableList.of(ts)),
                     ImmutableList.of());
 
             fields.add(
                     new JField(
                             immutableEnumSet(JAccess.PRIVATE, JAccess.FINAL),
                             ts,
+                            "_" + prop.getName(),
+                            Optional.empty()));
+            fields.add(
+                    new JField(
+                            immutableEnumSet(JAccess.PRIVATE, JAccess.FINAL),
+                            pts,
                             prop.getName(),
                             Optional.empty()));
             ctor.add(
@@ -85,17 +129,35 @@ public final class Compilation
                             new JAssignment(
                                     JIdent.of(prop.getName()),
                                     new JCast(
-                                            ts,
+                                            pts,
                                             new JMethodInvocation(
                                                     new JMemberAccess(
                                                             JIdent.of("metadata"),
-                                                            "buildPropertyImpl"),
+                                                            md.getPropertyImplBuilderMethodName(prop)),
                                                     ImmutableList.of(
-                                                            new JLiteral(prop.getName())))))));
+                                                            new JLiteral(prop.getName()),
+                                                            new JLambda(
+                                                                    ImmutableList.of(),
+                                                                    jblockify(
+                                                                            new JReturn(
+                                                                                    Optional.of(
+                                                                                            JIdent.of("_" + prop.getName()))))),
+                                                            new JLambda(
+                                                                    ImmutableList.of(
+                                                                            "_" + prop.getName()
+                                                                    ),
+                                                                    jblockify(
+                                                                            new JExpressionStatement(
+                                                                                    new JAssignment(
+                                                                                            new JMemberAccess(
+                                                                                                    JIdent.of("this"),
+                                                                                                    "_" + prop.getName()),
+                                                                                            JIdent.of("_" + prop.getName())))))
+                                                    ))))));
             getters.add(
                     new JMethod(
                             immutableEnumSet(JAccess.PUBLIC),
-                            ts,
+                            pts,
                             prop.getName(),
                             ImmutableList.of(),
                             Optional.of(
@@ -134,7 +196,26 @@ public final class Compilation
                                 .build()
                 ));
 
-        String rendered = JRenderer.renderWithIndent(cu, "    ");
-        System.out.println(rendered);
+        return new CompiledConfig(
+                md,
+                implName.join(),
+                bareName,
+                cu);
+    }
+
+    public static Class<?> compileAndLoad(ConfigMetadata md)
+    {
+        CompiledConfig compiled = compile(md);
+        String src = JRenderer.renderWithIndent(compiled.getCompilationUnit(), "    ");
+        String cp = System.getProperty("java.class.path");
+        Class<?> impl = InProcJavaCompiler.compileAndLoad(
+                src,
+                compiled.getFullClassName(),
+                compiled.getBareName(),
+                ImmutableList.of(
+                        "-classpath", cp
+                ),
+                Compilation.class.getClassLoader());
+        return impl;
     }
 }

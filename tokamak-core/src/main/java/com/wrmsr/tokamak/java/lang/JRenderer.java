@@ -35,6 +35,7 @@ import com.wrmsr.tokamak.java.lang.tree.expression.JConditional;
 import com.wrmsr.tokamak.java.lang.tree.expression.JExpression;
 import com.wrmsr.tokamak.java.lang.tree.expression.JExpressionVisitor;
 import com.wrmsr.tokamak.java.lang.tree.expression.JIdent;
+import com.wrmsr.tokamak.java.lang.tree.expression.JLambda;
 import com.wrmsr.tokamak.java.lang.tree.expression.JLiteral;
 import com.wrmsr.tokamak.java.lang.tree.expression.JLongArrayLiteral;
 import com.wrmsr.tokamak.java.lang.tree.expression.JLongStringLiteral;
@@ -111,6 +112,20 @@ public final class JRenderer
     public JRenderer(CodeBlock.Builder code)
     {
         this(code, DEFAULT_IMPORT_BLOCKS, DEFAULT_LONG_STRING_LITERAL_LENGTH, DEFAULT_MULTILINE_PARAM_CUTOFF);
+    }
+
+    private <T> void delimitedForEach(Iterable<T> items, String delimiter, Consumer<T> consumer)
+    {
+        boolean delimit = false;
+        for (T item : items) {
+            if (delimit) {
+                code.add(delimiter);
+            }
+            else {
+                delimit = true;
+            }
+            consumer.accept(item);
+        }
     }
 
     private void renderAccess(Set<JAccess> access)
@@ -194,33 +209,19 @@ public final class JRenderer
         if (params.size() >= multilineParamCutoff) {
             code.add("(\n");
             code.indent().indent();
-            boolean comma = false;
-            for (JParam param : params) {
-                if (comma) {
-                    code.add(",\n");
-                }
-                else {
-                    comma = true;
-                }
+            delimitedForEach(params, ",\n", param -> {
                 renderTypeSpecifier(param.getType());
                 code.add(" $L", param.getName());
-            }
+            });
             code.add(")");
             code.unindent().unindent();
         }
         else {
             code.add("(");
-            boolean comma = false;
-            for (JParam param : params) {
-                if (comma) {
-                    code.add(", ");
-                }
-                else {
-                    comma = true;
-                }
+            delimitedForEach(params, ", ", param -> {
                 renderTypeSpecifier(param.getType());
                 code.add(" $L", param.getName());
-            }
+            });
             code.add(")");
         }
     }
@@ -635,6 +636,16 @@ public final class JRenderer
             }
 
             @Override
+            public Void visitJLambda(JLambda jexpression, Void context)
+            {
+                code.add("(");
+                delimitedForEach(jexpression.getParams(), ", ", code::add);
+                code.add(") -> ");
+                renderStatement(jexpression.getBody());
+                return null;
+            }
+
+            @Override
             public Void visitJLiteral(JLiteral jexpression, Void context)
             {
                 renderLiteralValue(jexpression.getValue());
@@ -650,17 +661,7 @@ public final class JRenderer
                 else {
                     code.add("{\n");
                     code.indent().indent();
-                    boolean comma = false;
-                    for (JExpression item : jexpression.getItems()) {
-                        if (comma) {
-                            code.add(",\n");
-                        }
-                        else {
-                            comma = true;
-                        }
-                        renderExpression(item);
-                    }
-                    // code.add("\n");
+                    delimitedForEach(jexpression.getItems(), ",\n", JRenderer.this::renderExpression);
                     code.unindent().unindent();
                     code.add("\n}");
                 }
@@ -778,16 +779,7 @@ public final class JRenderer
         renderName(type.getName());
         type.getGenerics().ifPresent(g -> {
             code.add("<");
-            boolean comma = false;
-            for (JTypeSpecifier ts : g) {
-                if (comma) {
-                    code.add(", ");
-                }
-                else {
-                    comma = true;
-                }
-                renderTypeSpecifier(ts);
-            }
+            delimitedForEach(g, ", ", this::renderTypeSpecifier);
             code.add(">");
         });
         type.getArrays().forEach(a -> {
@@ -820,16 +812,7 @@ public final class JRenderer
 
     public void renderOperands(List<JExpression> operands)
     {
-        boolean comma = false;
-        for (JExpression operand : operands) {
-            if (comma) {
-                code.add(", ");
-            }
-            else {
-                comma = true;
-            }
-            renderParamExpression(operand);
-        }
+        delimitedForEach(operands, ", ", this::renderParamExpression);
     }
 
     public static void renderWithIndent(CodeBlock block, String indent, Appendable appendable)

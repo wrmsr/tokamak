@@ -13,14 +13,19 @@
  */
 package com.wrmsr.tokamak.util.config;
 
-import com.wrmsr.tokamak.util.config.props.BaseConfigPropertyImpl;
 import com.wrmsr.tokamak.util.config.props.ConfigProperty;
+import com.wrmsr.tokamak.util.config.props.ConfigPropertyImpl;
+import com.wrmsr.tokamak.util.config.props.IntConfigPropertyImpl;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.function.Consumer;
+import java.util.function.IntConsumer;
+import java.util.function.IntSupplier;
+import java.util.function.Supplier;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -66,7 +71,17 @@ public final class ConfigMetadata
         return properties;
     }
 
-    public BaseConfigPropertyImpl buildPropertyImpl(String name, Object getter, Object setter)
+    public String getPropertyImplBuilderMethodName(ConfigPropertyMetadata pmd)
+    {
+        return "buildPropertyImpl";
+    }
+
+    public <T> ConfigPropertyImpl<T> buildPropertyImpl(String name, Supplier<T> getter, Consumer<T> setter)
+    {
+        throw new NotImplementedException();
+    }
+
+    public IntConfigPropertyImpl buildIntPropertyImpl(String name, IntSupplier getter, IntConsumer setter)
     {
         throw new NotImplementedException();
     }

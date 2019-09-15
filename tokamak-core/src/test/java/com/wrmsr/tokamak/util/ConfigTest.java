@@ -38,7 +38,8 @@ public class ConfigTest
             throws Throwable
     {
         ConfigMetadata cmd = Configs.getMetadata(ThingConfig.class);
-        Compilation.compile(cmd);
+        Class<?> cls = Compilation.compileAndLoad(cmd);
+        System.out.println(cls);
 
         // Map map = ImmutableMap.of(
         //         "someStr", "hi"

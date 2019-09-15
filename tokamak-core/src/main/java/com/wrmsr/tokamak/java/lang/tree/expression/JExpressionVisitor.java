@@ -52,6 +52,11 @@ public class JExpressionVisitor<R, C>
         return visitJExpression(jexpression, context);
     }
 
+    public R visitJLambda(JLambda jexpression, C context)
+    {
+        return visitJExpression(jexpression, context);
+    }
+
     public R visitJLiteral(JLiteral jexpression, C context)
     {
         return visitJExpression(jexpression, context);
