@@ -76,15 +76,36 @@ public final class ConfigPropertyMetadata
             doc = Optional.empty();
         }
 
+        Optional<Object> defaultValue = null;
+        String defaultMethodName = "default" + name.substring(0, 1).toUpperCase() + name.substring(1);
+        Method defaultMethod;
+        try {
+            defaultMethod = parent.getCls().getDeclaredMethod(defaultMethodName);
+        }
+        catch (ReflectiveOperationException e) {
+            defaultMethod = null;
+        }
+        if (defaultMethod != null) {
+            checkArgument(Modifier.isStatic(defaultMethod.getModifiers()));
+            try {
+                defaultValue = Optional.of(defaultMethod.invoke(null));
+            }
+            catch (ReflectiveOperationException e) {
+                throw new RuntimeException(e);
+            }
+        }
         if (method.isAnnotationPresent(ConfigDefault.class)) {
+            if (defaultValue != null) {
+                throw new IllegalArgumentException("May not specify both default method and annotation: " + name);
+            }
             ConfigDefault defaultAnnotation = method.getAnnotation(ConfigDefault.class);
             this.defaultAnnotation = Optional.of(defaultAnnotation);
             defaultValue = Optional.of(defaultAnnotation.value());
         }
         else {
             this.defaultAnnotation = Optional.empty();
-            defaultValue = Optional.empty();
         }
+        this.defaultValue = defaultValue == null ? Optional.empty() : defaultValue;
 
         this.name = checkNotEmpty(name);
         checkArgument(!name.startsWith("_"));

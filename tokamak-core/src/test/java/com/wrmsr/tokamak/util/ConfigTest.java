@@ -40,6 +40,13 @@ public class ConfigTest
 
         @ConfigDefault("abcd")
         ConfigProperty<String> someDefaultStr();
+
+        ConfigProperty<String> someDefaultMethodStr();
+
+        static String defaultSomeDefaultMethodStr()
+        {
+            return "arf";
+        }
     }
 
     public void testThingConfig()
@@ -55,6 +62,7 @@ public class ConfigTest
         System.out.println(cfg.someStr().get());
         System.out.println(cfg.someOtherStr().doc());
         System.out.println(cfg.someDefaultStr().get());
+        System.out.println(cfg.someDefaultMethodStr().get());
 
         // Map map = ImmutableMap.of(
         //         "someStr", "hi"
