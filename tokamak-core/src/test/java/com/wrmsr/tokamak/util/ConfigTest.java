@@ -15,9 +15,9 @@ package com.wrmsr.tokamak.util;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.wrmsr.tokamak.util.ConfigTest.ThingConfig;
 import com.wrmsr.tokamak.util.config.Compilation;
 import com.wrmsr.tokamak.util.config.Config;
+import com.wrmsr.tokamak.util.config.ConfigDetail;
 import com.wrmsr.tokamak.util.config.ConfigMetadata;
 import com.wrmsr.tokamak.util.config.Configs;
 import com.wrmsr.tokamak.util.config.Flattening;
@@ -33,6 +33,9 @@ public class ConfigTest
             extends Config
     {
         ConfigProperty<String> someStr();
+
+        @ConfigDetail(doc = "uh")
+        ConfigProperty<String> someOtherStr();
     }
 
     public void testThingConfig()
@@ -46,6 +49,7 @@ public class ConfigTest
         System.out.println(cfg.someStr().get());
         cfg.someStr().set("hi");
         System.out.println(cfg.someStr().get());
+        System.out.println(cfg.someOtherStr().doc());
 
         // Map map = ImmutableMap.of(
         //         "someStr", "hi"

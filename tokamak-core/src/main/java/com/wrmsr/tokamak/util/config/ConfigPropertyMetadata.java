@@ -74,6 +74,7 @@ public final class ConfigPropertyMetadata
         }
 
         this.name = checkNotEmpty(name);
+        checkArgument(!name.startsWith("_"));
         nameParts = splitCamelCase(name).stream().map(String::toLowerCase).collect(toImmutableList());
     }
 
