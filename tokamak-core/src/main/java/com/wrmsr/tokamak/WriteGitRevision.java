@@ -96,7 +96,8 @@ public class WriteGitRevision
         Path cwd = Paths.get(System.getProperty("user.dir"));
         checkState(cwd.getFileName().toString().equals("tokamak-core"));
 
-        checkState(cwd.getParent().getFileName().toString().equalsIgnoreCase("tokamak"));
+        String parentName = cwd.getParent().getFileName().toString();
+        checkState(parentName.equalsIgnoreCase("tokamak") || parentName.equalsIgnoreCase("build"));
         Path git = Paths.get(cwd.getParent().toString(), ".git");
         if (!git.toFile().exists()) {
             return;
