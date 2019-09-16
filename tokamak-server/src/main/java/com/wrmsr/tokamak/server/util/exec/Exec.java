@@ -11,23 +11,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.parse;
+package com.wrmsr.tokamak.server.util.exec;
 
-import org.antlr.v4.runtime.CharStream;
-import org.antlr.v4.runtime.CharStreams;
-import org.antlr.v4.runtime.CommonTokenStream;
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
-public final class Parsing
+public interface Exec
 {
-    private Parsing()
-    {
-    }
+    void exec(String path, List<String> args, Map<String, String> env)
+            throws IOException;
 
-    public static SqlParser parse(String str)
+    default void exec(String path, List<String> args)
+            throws IOException
     {
-        CharStream input = new CaseInsensitiveCharStream(CharStreams.fromString(str));
-        SqlLexer lexer = new SqlLexer(input);
-        CommonTokenStream tokens = new CommonTokenStream(lexer);
-        return new SqlParser(tokens);
+        exec(path, args, null);
     }
 }

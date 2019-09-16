@@ -11,27 +11,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.wrmsr.tokamak.server;
 
-import com.sun.jna.Library;
-import com.sun.jna.Native;
-import com.sun.jna.Platform;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.wrmsr.tokamak.server.util.exec.Exec;
+import com.wrmsr.tokamak.server.util.exec.JnaExec;
+import com.wrmsr.tokamak.server.util.exec.ProcessBuilderExec;
 
 public class ReexecMain
 {
-    public interface JNAApiInterface
-            extends Library
-    {
-        JNAApiInterface INSTANCE = (JNAApiInterface) Native.load((Platform.isWindows() ? "msvcrt" : "c"), JNAApiInterface.class);
-
-        void printf(String format, Object... args);
-    }
-
     public static void main(String[] args)
             throws Exception
     {
-        JNAApiInterface jnaLib = JNAApiInterface.INSTANCE;
-        jnaLib.printf("Hello World");
+        Exec exec;
+
+        // exec = new JnaExec();
+        exec = new ProcessBuilderExec();
+
+        exec.exec("/bin/echo", ImmutableList.of("hi"), ImmutableMap.of());
     }
 }
