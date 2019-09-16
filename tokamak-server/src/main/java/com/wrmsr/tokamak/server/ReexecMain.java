@@ -14,13 +14,29 @@
 package com.wrmsr.tokamak.server;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.server.util.exec.Exec;
-import com.wrmsr.tokamak.server.util.exec.JnaExec;
 import com.wrmsr.tokamak.server.util.exec.ProcessBuilderExec;
+
+import java.io.File;
+import java.nio.file.Paths;
+
+import static com.google.common.base.Preconditions.checkState;
 
 public class ReexecMain
 {
+    public static File getJvm()
+    {
+        File jvm = Paths.get(
+                System.getProperty("java.home"),
+                "bin",
+                "java" + (System.getProperty("os.name").startsWith("Win") ? ".exe" : "")
+        ).toFile();
+        checkState(jvm.exists(), "cannot find jvm: " + jvm.getAbsolutePath());
+        checkState(jvm.isFile(), "jvm is not a file: " + jvm.getAbsolutePath());
+        checkState(jvm.canExecute(), "jvm is not executable: " + jvm.getAbsolutePath());
+        return jvm;
+    }
+
     public static void main(String[] args)
             throws Exception
     {
@@ -29,6 +45,12 @@ public class ReexecMain
         // exec = new JnaExec();
         exec = new ProcessBuilderExec();
 
-        exec.exec("/bin/echo", ImmutableList.of("hi"), ImmutableMap.of());
+        // exec.exec("/bin/echo", ImmutableList.of("hi"), ImmutableMap.of());
+
+        String jvm = getJvm().getAbsolutePath();
+        String cp = System.getProperty("java.class.path");
+        String main = "com.wrmsr.tokamak.server.ServerMain";
+
+        exec.exec(jvm, ImmutableList.of("-cp", cp, main));
     }
 }

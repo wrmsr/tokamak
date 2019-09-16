@@ -31,7 +31,9 @@ public class ProcessBuilderExec
         List<String> command = Lists.newArrayList(path);
         command.addAll(args);
         pb.command(command);
-        pb.environment().putAll(env);
+        Map<String, String> pbEnv = pb.environment();
+        pbEnv.clear();
+        pbEnv.putAll(env);
         pb.redirectInput(ProcessBuilder.Redirect.INHERIT);
         pb.redirectOutput(ProcessBuilder.Redirect.INHERIT);
         pb.redirectError(ProcessBuilder.Redirect.INHERIT);

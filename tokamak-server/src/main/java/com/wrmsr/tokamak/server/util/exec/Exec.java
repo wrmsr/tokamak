@@ -13,7 +13,10 @@
  */
 package com.wrmsr.tokamak.server.util.exec;
 
+import com.google.common.collect.ImmutableMap;
+
 import java.io.IOException;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -25,6 +28,25 @@ public interface Exec
     default void exec(String path, List<String> args)
             throws IOException
     {
-        exec(path, args, null);
+        exec(path, args, currentEnv());
+    }
+
+    static Map<String, String> currentEnv(Map<String, String> updates)
+    {
+        Map<String, String> env = new LinkedHashMap<>(System.getenv());
+        updates.forEach((k, v) -> {
+            if (v != null) {
+                env.put(k, v);
+            }
+            else {
+                env.remove(k);
+            }
+        });
+        return env;
+    }
+
+    static Map<String, String> currentEnv()
+    {
+        return currentEnv(ImmutableMap.of());
     }
 }
