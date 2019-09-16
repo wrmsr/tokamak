@@ -16,7 +16,13 @@
     <fileSets>
 
         <fileSet>
-            <directory>${project.build.directory}/dependency/tokamak-core</directory>
+            <directory>bin</directory>
+            <outputDirectory>bin</outputDirectory>
+            <fileMode>0755</fileMode>
+        </fileSet>
+
+        <fileSet>
+            <directory>${project.build.directory}/dependency/tokamak-core-${project.version}</directory>
             <includes>
                 <include>tokamak-core-${project.version}-shaded.jar</include>
             </includes>

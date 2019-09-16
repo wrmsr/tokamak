@@ -66,7 +66,7 @@ public final class Toposort
         }
 
         if (!data.isEmpty()) {
-            throw new CycleException((Map) data);
+            throw new CycleException(data);
         }
 
         return ret.build();
@@ -75,9 +75,9 @@ public final class Toposort
     public static final class CycleException
             extends RuntimeException
     {
-        private final Map<?, Set<?>> data;
+        private final Map data;
 
-        public CycleException(Map<?, Set<?>> data)
+        public CycleException(Map data)
         {
             this.data = data;
         }
@@ -90,7 +90,7 @@ public final class Toposort
                     '}';
         }
 
-        public Map<?, Set<?>> getData()
+        public Map getData()
         {
             return data;
         }

@@ -482,11 +482,11 @@ public class JsonTest
         ObjectMapper om = Json.newObjectMapper();
         Collection<NamedType> col = om.getSubtypeResolver().collectAndResolveSubtypesByTypeId(
                 om.getSerializationConfig(),
-                om.getSerializationConfig().introspect(SimpleType.construct(IdThingImpl.class)).getClassInfo());
+                om.getSerializationConfig().introspect(om.getTypeFactory().constructType(IdThingImpl.class)).getClassInfo());
         om.registerSubtypes(new NamedType(IdThingImpl.class, "impl"));
         col = om.getSubtypeResolver().collectAndResolveSubtypesByTypeId(
                 om.getSerializationConfig(),
-                om.getSerializationConfig().introspect(SimpleType.construct(IdThingImpl.class)).getClassInfo());
+                om.getSerializationConfig().introspect(om.getTypeFactory().constructType(IdThingImpl.class)).getClassInfo());
         String src = om.writeValueAsString(new IdThingImpl(420));
         System.out.println(src);
     }
