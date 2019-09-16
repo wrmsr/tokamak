@@ -15,6 +15,7 @@ package com.wrmsr.tokamak.util.kv;
 
 import com.wrmsr.tokamak.util.NoExceptAutoCloseable;
 import com.wrmsr.tokamak.util.codec.Codec;
+import com.wrmsr.tokamak.util.collect.StreamableIterable;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -25,7 +26,7 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 
 public interface Kv<K, V>
-        extends Iterable<K>
+        extends StreamableIterable<K>
 {
     V get(K key);
 

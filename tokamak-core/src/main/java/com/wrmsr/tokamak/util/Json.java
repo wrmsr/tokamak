@@ -19,6 +19,8 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.dataformat.cbor.CBORFactory;
+import com.fasterxml.jackson.dataformat.smile.SmileFactory;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -34,10 +36,8 @@ public final class Json
     {
     }
 
-    public static ObjectMapper newObjectMapper()
+    public static ObjectMapper configureObjectMapper(ObjectMapper objectMapper)
     {
-        ObjectMapper objectMapper = new ObjectMapper();
-
         // ignore unknown fields (for backwards compatibility)
         objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 
@@ -65,6 +65,21 @@ public final class Json
                 new JavaTimeModule());
 
         return objectMapper;
+    }
+
+    public static ObjectMapper newObjectMapper()
+    {
+        return configureObjectMapper(new ObjectMapper());
+    }
+
+    public static ObjectMapper newCborObjectMapper()
+    {
+        return configureObjectMapper(new ObjectMapper(new CBORFactory()));
+    }
+
+    public static ObjectMapper newSmileObjectMapper()
+    {
+        return configureObjectMapper(new ObjectMapper(new SmileFactory()));
     }
 
     public static final Supplier<ObjectMapper> OBJECT_MAPPER_SUPPLIER = Suppliers.memoize(Json::newObjectMapper);
