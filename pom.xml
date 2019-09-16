@@ -651,6 +651,18 @@
             </plugin>
 
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.4</version>
+                <configuration>
+                    <!-- must be true for jar-with-dependencies builds -->
+                    <appendAssemblyId>true</appendAssemblyId>
+                    <!-- Always use GNU tar mode. -->
+                    <tarLongFileMode>gnu</tarLongFileMode>
+                </configuration>
+            </plugin>
+
+            <plugin>
                 <groupId>org.antlr</groupId>
                 <artifactId>antlr4-maven-plugin</artifactId>
                 <version>${dep.antlr4.version}</version>
