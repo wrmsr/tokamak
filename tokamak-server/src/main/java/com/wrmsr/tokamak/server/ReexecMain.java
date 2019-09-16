@@ -15,6 +15,7 @@ package com.wrmsr.tokamak.server;
 
 import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.server.util.exec.Exec;
+import com.wrmsr.tokamak.server.util.exec.JnaExec;
 import com.wrmsr.tokamak.server.util.exec.ProcessBuilderExec;
 
 import java.io.File;
@@ -42,8 +43,8 @@ public class ReexecMain
     {
         Exec exec;
 
-        // exec = new JnaExec();
-        exec = new ProcessBuilderExec();
+        exec = new JnaExec();
+        // exec = new ProcessBuilderExec();
 
         // exec.exec("/bin/echo", ImmutableList.of("hi"), ImmutableMap.of());
 
