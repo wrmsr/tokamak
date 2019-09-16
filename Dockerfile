@@ -7,9 +7,21 @@ COPY .mvn/ /build/.mvn
 COPY mvnw /build/
 
 COPY pom.xml /build/
-RUN cd /build && cat pom.xml | sed 's/@IGNORE-FOR-DEPS@-->//g' | sed 's/<!--@END-IGNORE-FOR-DEPS@//g' > pom-deps.xml
-RUN cd /build && ./mvnw -f pom-deps.xml dependency:resolve -Dmdep.addParentPoms=true -Dmdep.copyPom=true
+COPY tokamak-core/pom.xml /build/tokamak-core/pom.xml
+COPY tokamak-server/pom.xml /build/tokamak-server/pom.xml
+COPY tokamak-spark/pom.xml /build/tokamak-spark/pom.xml
+COPY tokamak-test/pom.xml /build/tokamak-test/pom.xml
 
+RUN ( \
+    cd /build && \
+    for f in $(find . -name 'pom.xml') ; do \
+        cat "$f" | sed 's/@BEGIN-IGNORE-FOR-DEPS@-->//g' | sed 's/<!--@END-IGNORE-FOR-DEPS@//g' > "$f.deps" && \
+        mv "$f.deps" "$f" ; \
+    done && \
+    ./mvnw dependency:go-offline -Dmdep.addParentPoms=true -Dmdep.copyPom=true \
+)
+
+COPY pom.xml /build/
 COPY tokamak-core/ /build/tokamak-core
 COPY tokamak-server/ /build/tokamak-server
 COPY tokamak-spark/ /build/tokamak-spark
@@ -17,7 +29,7 @@ COPY tokamak-test/ /build/tokamak-test
 
 COPY .git /build/.git
 
-RUN cd /build && ./mvnw clean package -DskipTests
+RUN cd /build && ./mvnw package -DskipTests
 
 
 FROM openjdk:8u222-stretch

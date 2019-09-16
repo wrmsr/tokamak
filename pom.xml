@@ -26,23 +26,19 @@
 
     </properties>
 
-    <!--@IGNORE-FOR-DEPS@-->
     <modules>
         <module>tokamak-core</module>
         <module>tokamak-server</module>
         <module>tokamak-spark</module>
         <module>tokamak-test</module>
     </modules>
-    <!--@END-IGNORE-FOR-DEPS@-->
 
-    <!--@IGNORE-FOR-DEPS@-->
     <dependencyManagement>
-        <!--@END-IGNORE-FOR-DEPS@-->
 
         <dependencies>
 
             <!-- Self -->
-            <!--@IGNORE-FOR-DEPS@-->
+            <!--@BEGIN-IGNORE-FOR-DEPS@-->
 
             <dependency>
                 <groupId>com.wrmsr.tokamak</groupId>
@@ -647,9 +643,7 @@
 
         </dependencies>
 
-        <!--@IGNORE-FOR-DEPS@-->
     </dependencyManagement>
-    <!--@END-IGNORE-FOR-DEPS@-->
 
     <build>
         <extensions>
