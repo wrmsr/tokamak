@@ -35,6 +35,14 @@ package: java_home
 test: java_home
 	JAVA_HOME=$(JAVA_HOME) ./mvnw test
 
+.PHONY: install
+install: java_home
+	JAVA_HOME=$(JAVA_HOME) ./mvnw install -DskipTests
+
+.PHONY: uninstall
+uninstall: java_home
+	JAVA_HOME=$(JAVA_HOME) ./mvnw dependency:purge-local-repository -DmanualInclude="com.wrmsr.tokamak"
+
 .PHONY: dependency-tree
 dependency-tree: java_home
 	JAVA_HOME=$(JAVA_HOME) ./mvnw dependency:tree
