@@ -8,7 +8,7 @@ COPY mvnw /build/
 
 COPY pom.xml /build/
 RUN cd /build && cat pom.xml | sed 's/@IGNORE-FOR-DEPS@-->//g' | sed 's/<!--@END-IGNORE-FOR-DEPS@//g' > pom-deps.xml
-RUN cd /build && ./mvnw -f pom-deps.xml dependency:resolve
+RUN cd /build && ./mvnw -f pom-deps.xml dependency:resolve -Dmdep.addParentPoms=true -Dmdep.copyPom=true
 
 COPY tokamak-core/ /build/tokamak-core
 COPY tokamak-server/ /build/tokamak-server
