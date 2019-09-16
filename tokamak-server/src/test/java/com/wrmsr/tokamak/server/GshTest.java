@@ -19,6 +19,8 @@ import org.junit.Test;
 
 public class GshTest
 {
+    // ssh -o "StrictHostKeyChecking no" -o "UserKnownHostsFile /dev/null" 127.1 -p 6789
+
     @Test
     public void testGsh()
             throws Throwable
@@ -31,7 +33,7 @@ public class GshTest
         ));
 
         service.start();
-        // Thread.currentThread().sleep(60000);
+        Thread.currentThread().sleep(60000);
         service.destroy();
     }
 }
