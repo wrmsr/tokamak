@@ -17,6 +17,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.base.Charsets;
+import com.google.common.base.Joiner;
 import com.google.common.io.ByteStreams;
 import com.wrmsr.tokamak.util.Json;
 import com.wrmsr.tokamak.util.io.CrLfByteReader;
@@ -26,6 +27,7 @@ import org.newsclub.net.unix.AFUNIXSocketAddress;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
@@ -191,10 +193,18 @@ public final class Docker
     public static List<Container> queryDockerContainers(String address)
             throws IOException
     {
-        Socket sock = connectSocket(socketAddress(address));
-        sock.getOutputStream().write("GET /containers/json HTTP/1.1\r\nHost: v1.40\r\nAccept: */*\r\n\r\n".getBytes(Charsets.UTF_8));
-        sock.getOutputStream().close();
-        byte[] buf = ByteStreams.toByteArray(sock.getInputStream());
+        byte[] buf;
+        try (Socket sock = connectSocket(socketAddress(address))) {
+            OutputStream os = sock.getOutputStream();
+            os.write(Joiner.on("\r\n").join(
+                    "GET /containers/json HTTP/1.1",
+                    "Host: v1.40",
+                    "Accept: */*",
+                    ""
+            ).getBytes(Charsets.UTF_8));
+            os.close();
+            buf = ByteStreams.toByteArray(sock.getInputStream());
+        }
 
         CrLfByteReader reader = new CrLfByteReader(new ByteArrayInputStream(buf));
         String code = reader.nextLineAscii();

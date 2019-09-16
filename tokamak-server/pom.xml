@@ -28,11 +28,6 @@
         </dependency>
 
         <dependency>
-            <groupId>com.wrmsr.tokamak</groupId>
-            <artifactId>tokamak-parser</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
         </dependency>

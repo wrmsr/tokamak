@@ -29,11 +29,6 @@
 
         <dependency>
             <groupId>com.wrmsr.tokamak</groupId>
-            <artifactId>tokamak-parser</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.wrmsr.tokamak</groupId>
             <artifactId>tokamak-server</artifactId>
         </dependency>
 
