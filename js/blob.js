@@ -1,5 +1,9 @@
-// node_modules/.bin/browserify blob.js -o ../tokamak-core/src/test/resources/com/wrmsr/tokamak/blob.js.txt
-// node_modules/.bin/browserify blob.js -o bundle.js
+/*
+npm install browserify lodash
+node_modules/.bin/browserify blob.js -o ../tokamak-core/src/test/resources/com/wrmsr/tokamak/blob.js.txt
+
+node_modules/.bin/browserify blob.js -o bundle.js
+*/
 
 _ = require('lodash');
 barf = 1;
