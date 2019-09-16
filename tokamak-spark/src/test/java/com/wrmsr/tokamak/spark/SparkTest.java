@@ -20,6 +20,7 @@ import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.api.java.Optional;
 import org.apache.spark.api.java.function.PairFunction;
+import org.junit.Test;
 import scala.Tuple2;
 
 import java.util.ArrayList;
@@ -93,5 +94,11 @@ public class SparkTest
             output_rdd.saveAsHadoopFile(args[2], String.class, String.class, TextOutputFormat.class);
             sc.close();
         }
+    }
+
+    @Test
+    public void testClassloader()
+            throws Throwable
+    {
     }
 }

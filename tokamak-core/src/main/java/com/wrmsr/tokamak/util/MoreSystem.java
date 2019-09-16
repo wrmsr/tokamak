@@ -33,4 +33,9 @@ public final class MoreSystem
             return OptionalLong.empty();
         }
     }
+
+    public static String shellEscape(String s)
+    {
+        return "'" + s.replace("'", "'\"'\"'") + "'";
+    }
 }
