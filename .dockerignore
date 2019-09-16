@@ -1,10 +1,10 @@
+**/node_modules
 **/target
 .env
 .git
 .idea
 .pyenv
 .venv
-attic
 temp
 
 !.git/HEAD
