@@ -18,7 +18,6 @@
         <fileSet>
             <directory>bin</directory>
             <outputDirectory>bin</outputDirectory>
-            <!-- <fileMode>0755</fileMode> -->
         </fileSet>
 
         <fileSet>
