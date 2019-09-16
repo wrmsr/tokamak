@@ -11,6 +11,7 @@ RUN ( \
     apt-get install -y \
 \
         build-essential \
+        curl \
         dnsutils \
         gcc \
         gdb \

@@ -1,10 +1,10 @@
+**/target
 .env
 .git
 .idea
 .pyenv
 .venv
 attic
-target
 temp
 
 !.git/HEAD
