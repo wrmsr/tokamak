@@ -101,10 +101,5 @@ docker_invalidate:
 # Utilities
 
 .PHONY: fix-copyright
-fix-copyright:
-	find tokamak-* -name '*.java' | xargs -P8 -n1 perl -i -p0e \
-		's/(\/\*.*LICENSE-2.0.*\*\/)(\s*\/\*.*LICENSE-2.0.*\*\/)*(\s*package com\.)/$$1\npackage com\./sg'
-
-.PHONY: fix-copyright-py
-fix-copyright-py: venv
+fix-copyright: venv
 	.venv/bin/python python/fix_copyright.py
