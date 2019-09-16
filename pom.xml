@@ -26,17 +26,20 @@
 
     </properties>
 
+    <!--@IGNORE-FOR-DEPS@-->
     <modules>
         <module>tokamak-core</module>
         <module>tokamak-server</module>
         <module>tokamak-spark</module>
         <module>tokamak-test</module>
     </modules>
+    <!--@END-IGNORE-FOR-DEPS@-->
 
     <dependencyManagement>
         <dependencies>
 
             <!-- Self -->
+            <!--@IGNORE-FOR-DEPS@-->
 
             <dependency>
                 <groupId>com.wrmsr.tokamak</groupId>
@@ -55,6 +58,8 @@
                 <artifactId>tokamak-spark</artifactId>
                 <version>${project.version}</version>
             </dependency>
+
+            <!--@END-IGNORE-FOR-DEPS@-->
 
             <!-- Protobuf -->
 

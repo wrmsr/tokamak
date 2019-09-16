@@ -1,3 +1,4 @@
 #!/usr/bin/env bash
 LIB="$(dirname $(realpath -s $0))/../lib"
-java "$JAVA_OPTS" "-cp "$LIB/*" com.wrmsr.tokamak.server.ServerMain "$@"
+echo "$LIB"
+java "$JAVA_OPTS" -cp "$LIB/*" com.wrmsr.tokamak.server.ServerMain "$@"

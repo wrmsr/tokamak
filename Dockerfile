@@ -17,10 +17,10 @@ FROM openjdk:8u222-stretch
 COPY .dockertimestamp /
 
 RUN mkdir /app
-COPY --from=build build/tokamak-server/target/tokamak-server-0.1-SNAPSHOT.tar.gz /app/tokamak-server-0.1-SNAPSHOT.tar.gz
-RUN cd /app && tar xvf tokamak-server-0.1-SNAPSHOT.tar.gz
-RUN rm /app/tokamak-server-0.1-SNAPSHOT.tar.gz
+COPY --from=build build/tokamak-server/target/tokamak-server-*.tar.gz /app/tokamak-server-*.tar.gz
+RUN cd /app && tar xvf tokamak-server-*.tar.gz
+RUN rm /app/tokamak-server-*.tar.gz
+RUN cd /app && ln -s $(find . -name 'tokamak-server-*' -type d | head -n 1) tokamak-server
 
-WORKDIR /app/tokamak-server-0.1-SNAPSHOT
-EXPOSE 8080
-ENTRYPOINT ["bin/tokamak"]
+WORKDIR /app/tokamak-server
+CMD ["bin/tokamak"]
