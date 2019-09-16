@@ -48,6 +48,7 @@ import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 public final class EquijoinBuilder
         extends Builder<EquijoinNode>
 {
+    // FIXME: not necessarily variable
     private static final ValueCodec<byte[]> NULLABLE_BYTES_VALUE_CODEC =
             new NullableValueCodec<>(
                     new VariableLengthValueCodec<>(

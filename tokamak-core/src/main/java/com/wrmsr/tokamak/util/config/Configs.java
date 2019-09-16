@@ -37,6 +37,8 @@ public final class Configs
      - varhandle codeless impl? possible?
       - even shittier HashMap impl possible?
      - inheritance
+     - System.getenv bridge
+     - json var/dotenv replacement
     */
 
     private Configs()
