@@ -52,6 +52,6 @@ public class ReexecMain
         String cp = System.getProperty("java.class.path");
         String main = "com.wrmsr.tokamak.server.ServerMain";
 
-        exec.exec(jvm, ImmutableList.of("-cp", cp, main));
+        exec.exec(jvm, ImmutableList.of("-cp", cp, main, "-noreexec"));
     }
 }
