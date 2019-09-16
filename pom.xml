@@ -35,7 +35,10 @@
     </modules>
     <!--@END-IGNORE-FOR-DEPS@-->
 
+    <!--@IGNORE-FOR-DEPS@-->
     <dependencyManagement>
+        <!--@END-IGNORE-FOR-DEPS@-->
+
         <dependencies>
 
             <!-- Self -->
@@ -613,7 +616,10 @@
             </dependency>
 
         </dependencies>
+
+        <!--@IGNORE-FOR-DEPS@-->
     </dependencyManagement>
+    <!--@END-IGNORE-FOR-DEPS@-->
 
     <build>
         <extensions>
