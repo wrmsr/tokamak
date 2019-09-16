@@ -42,4 +42,3 @@ public enum TargetOption
         return ImmutableList.of("-target", String.format("1.%d", version));
     }
 }
-

@@ -43,4 +43,3 @@ public final class JBlank
         return visitor.visitJBlank(this, context);
     }
 }
-
