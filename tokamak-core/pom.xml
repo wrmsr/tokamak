@@ -151,6 +151,7 @@
                                 <argument>-classpath</argument>
                                 <classpath />
                                 <argument>com.wrmsr.tokamak.WriteGitRevision</argument>
+                                <argument>write</argument>
                             </arguments>
                         </configuration>
                     </execution>

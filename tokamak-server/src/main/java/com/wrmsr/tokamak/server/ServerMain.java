@@ -29,7 +29,7 @@ import org.apache.logging.log4j.core.config.builder.impl.BuiltConfiguration;
 public class ServerMain
 {
     // cd tokamak-server/target && tar xvf tokamak-server-0.1-SNAPSHOT.tar.gz && cd tokamak-server-0.1-SNAPSHOT
-    // -Dio.netty.tryReflectionSetAccessible=fals
+    // -Dio.netty.tryReflectionSetAccessible=false
 
     public static LoggerContext configureLogging()
     {

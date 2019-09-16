@@ -31,49 +31,19 @@ import static com.google.common.base.Preconditions.checkState;
 
 public class WriteGitRevision
 {
-    /*
-    git --version >/dev/null 2>/dev/null
-    RET=$?
-    if [ $RET -ne 0 ]; then
-        exit 0
-    fi
-    set -e
-    if [ "$""{PWD##*\/}" != "tokamak" ] ; then
-        cd ..
-    fi
-    if [ -f ".revision" ] ; then
-        rm .revision
-    fi
-    if [ -d ".git" ] ; then
-        REV=$(cat .git/HEAD)
-        REV_REF=$(echo "$REV" | egrep '^ref: ' | cut -c 6-)
-        if [ -f ".git/$REV_REF" ] ; then
-            cat ".git/$REV_REF" > .revision
-        else
-            echo "$REV" > .revision
-        fi
-    fi
-
-    REV=$(cat .git/HEAD) && \
-    REV_REF=$(echo "$REV" | egrep '^ref: ' | cut -c 6-) && \
-    (if [ -f ".git/$REV_REF" ] ; then \
-        cat ".git/$REV_REF" > .revision ; \
-    else \
-        echo "$REV" > .revision ; \
-    fi) \
-    */
-
     public static String readGitRev(Path git)
             throws IOException, InterruptedException
     {
         String head = new String(Files.readAllBytes(Paths.get(git.toString(), "HEAD")), Charsets.UTF_8).trim();
+        String rev;
         if (head.startsWith("ref: ")) {
             String ref = head.substring(5);
-            return new String(Files.readAllBytes(Paths.get(git.toString(), ref)), Charsets.UTF_8).trim();
+            rev = new String(Files.readAllBytes(Paths.get(git.toString(), ref)), Charsets.UTF_8).trim();
         }
         else {
-            return head;
+            rev = head;
         }
+        return rev + "-injected";
     }
 
     public static String runGitRev()
@@ -113,23 +83,41 @@ public class WriteGitRevision
     public static void main(String[] args)
             throws Throwable
     {
-        checkArgument(args.length == 0);
-        Path path = Paths.get(System.getProperty("user.dir"));
-        checkState(path.getFileName().toString().equals("tokamak-core"));
+        boolean write;
+        if (args.length == 1) {
+            checkArgument(args[0].equals("write"));
+            write = true;
+        }
+        else {
+            checkArgument(args.length == 0);
+            write = false;
+        }
 
-        checkState(path.getParent().getFileName().toString().equalsIgnoreCase("tokamak"));
-        Path git = Paths.get(path.getParent().toString(), ".git");
+        Path cwd = Paths.get(System.getProperty("user.dir"));
+        checkState(cwd.getFileName().toString().equals("tokamak-core"));
+
+        checkState(cwd.getParent().getFileName().toString().equalsIgnoreCase("tokamak"));
+        Path git = Paths.get(cwd.getParent().toString(), ".git");
         if (!git.toFile().exists()) {
             return;
         }
 
         String rev;
-        if (false) { //Paths.get(git.toString(), "index").toFile().exists()) {
+        if (Paths.get(git.toString(), "index").toFile().exists()) {
             rev = runGitRev();
         }
         else {
             rev = readGitRev(git);
         }
-        System.out.println(rev);
+
+        if (write) {
+            checkState(Paths.get(cwd.toString(), "target").toFile().exists());
+            Files.write(
+                    Paths.get(cwd.toString(), "target", "classes", "com", "wrmsr", "tokamak", ".revision"),
+                    rev.getBytes(Charsets.UTF_8));
+        }
+        else {
+            System.out.println(rev);
+        }
     }
 }
