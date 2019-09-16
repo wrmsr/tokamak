@@ -15,8 +15,6 @@ package com.wrmsr.tokamak.util.io;
 
 import com.google.common.io.ByteStreams;
 
-import javax.net.ssl.HttpsURLConnection;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;

@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak;
+package com.wrmsr.tokamak.dist;
 
 import com.google.common.base.Charsets;
 import com.wrmsr.tokamak.util.subprocess.FinalizedProcess;
@@ -114,7 +114,7 @@ public class WriteGitRevision
         if (write) {
             checkState(Paths.get(cwd.toString(), "target").toFile().exists());
             Files.write(
-                    Paths.get(cwd.toString(), "target", "classes", "com", "wrmsr", "tokamak", ".revision"),
+                    Paths.get(cwd.toString(), "target", "classes", "com", "wrmsr", "tokamak", "dist", ".revision"),
                     rev.getBytes(Charsets.UTF_8));
         }
         else {
