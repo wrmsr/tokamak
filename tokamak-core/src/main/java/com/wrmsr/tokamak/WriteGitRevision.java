@@ -13,9 +13,12 @@
  */
 package com.wrmsr.tokamak;
 
+import com.google.common.base.Charsets;
 import com.wrmsr.tokamak.util.subprocess.FinalizedProcess;
 import com.wrmsr.tokamak.util.subprocess.FinalizedProcessBuilder;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -60,12 +63,22 @@ public class WriteGitRevision
     fi) \
     */
 
-    public static void main(String[] args)
-            throws Throwable
+    public static String readGitRev(Path git)
+            throws IOException, InterruptedException
     {
-        checkArgument(args.length == 0);
-        Path path = Paths.get(System.getProperty("user.dir"));
-        checkState(path.getFileName().toString().equals("tokamak-core"));
+        String head = new String(Files.readAllBytes(Paths.get(git.toString(), "HEAD")), Charsets.UTF_8).trim();
+        if (head.startsWith("ref: ")) {
+            String ref = head.substring(5);
+            return new String(Files.readAllBytes(Paths.get(git.toString(), ref)), Charsets.UTF_8).trim();
+        }
+        else {
+            return head;
+        }
+    }
+
+    public static String runGitRev()
+            throws IOException, InterruptedException
+    {
         FinalizedProcessBuilder pb = new FinalizedProcessBuilder().command(
                 "git",
                 "describe",
@@ -93,6 +106,29 @@ public class WriteGitRevision
         String rev = lines.get(0);
         if (!rev.matches("[0-9a-fA-f]{40}(-dirty)?")) {
             throw new IllegalStateException(rev);
+        }
+        return rev;
+    }
+
+    public static void main(String[] args)
+            throws Throwable
+    {
+        checkArgument(args.length == 0);
+        Path path = Paths.get(System.getProperty("user.dir"));
+        checkState(path.getFileName().toString().equals("tokamak-core"));
+
+        checkState(path.getParent().getFileName().toString().equalsIgnoreCase("tokamak"));
+        Path git = Paths.get(path.getParent().toString(), ".git");
+        if (!git.toFile().exists()) {
+            return;
+        }
+
+        String rev;
+        if (false) { //Paths.get(git.toString(), "index").toFile().exists()) {
+            rev = runGitRev();
+        }
+        else {
+            rev = readGitRev(git);
         }
         System.out.println(rev);
     }

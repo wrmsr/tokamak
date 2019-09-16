@@ -16,16 +16,6 @@ COPY tokamak-spark/ /build/tokamak-spark
 COPY tokamak-test/ /build/tokamak-test
 
 COPY .git /build/.git
-RUN ( \
-    cd /build && \
-    REV=$(cat .git/HEAD) && \
-    REV_REF=$(echo "$REV" | egrep '^ref: ' | cut -c 6-) && \
-    (if [ -f ".git/$REV_REF" ] ; then \
-        cat ".git/$REV_REF" > .revision ; \
-    else \
-        echo "$REV" > .revision ; \
-    fi) \
-)
 
 RUN cd /build && ./mvnw clean package -DskipTests
 
