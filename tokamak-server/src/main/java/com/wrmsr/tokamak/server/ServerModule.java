@@ -19,6 +19,7 @@ import com.google.inject.Module;
 import com.wrmsr.tokamak.server.util.jaxrs.ApplicationModule;
 import com.wrmsr.tokamak.server.util.jaxrs.NettyServer;
 import com.wrmsr.tokamak.server.util.jaxrs.Resource;
+import com.wrmsr.tokamak.util.Json;
 
 import static com.google.inject.multibindings.Multibinder.newSetBinder;
 
@@ -28,7 +29,7 @@ public class ServerModule
     @Override
     public void configure(Binder binder)
     {
-        binder.bind(ObjectMapper.class).toInstance(new ObjectMapper());
+        binder.bind(ObjectMapper.class).toInstance(Json.newObjectMapper());
         binder.install(new ApplicationModule());
         binder.bind(NettyServer.class).asEagerSingleton();
         newSetBinder(binder, Class.class, Resource.class).addBinding().toInstance(RootResource.class);

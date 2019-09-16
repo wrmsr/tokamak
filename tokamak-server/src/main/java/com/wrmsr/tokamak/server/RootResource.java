@@ -16,6 +16,7 @@ package com.wrmsr.tokamak.server;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Injector;
+import com.wrmsr.tokamak.dist.GitRevision;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -43,7 +44,9 @@ public class RootResource
     @Produces(APPLICATION_JSON)
     public Status status()
     {
-        return new Status(420);
+        return new Status(
+                420,
+                GitRevision.get());
     }
 
     @POST

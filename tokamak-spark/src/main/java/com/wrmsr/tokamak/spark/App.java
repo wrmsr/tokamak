@@ -13,10 +13,14 @@
  */
 package com.wrmsr.tokamak.spark;
 
+import com.wrmsr.tokamak.driver.Driver;
+import com.wrmsr.tokamak.driver.DriverImpl;
+
 public class App
 {
     public static void main(String[] args)
             throws Throwable
     {
+        Driver driver = new DriverImpl(null, null);
     }
 }

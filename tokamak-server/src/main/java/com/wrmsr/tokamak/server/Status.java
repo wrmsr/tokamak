@@ -16,20 +16,33 @@ package com.wrmsr.tokamak.server;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.Optional;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+
 public final class Status
 {
     private float uptime;
+    private final Optional<String> revision;
 
     @JsonCreator
     public Status(
-            @JsonProperty("uptime") float uptime)
+            @JsonProperty("uptime") float uptime,
+            @JsonProperty("revision") Optional<String> revision)
     {
         this.uptime = uptime;
+        this.revision = checkNotNull(revision);
     }
 
     @JsonProperty("uptime")
     public float getUptime()
     {
         return uptime;
+    }
+
+    @JsonProperty("revision")
+    public Optional<String> getRevision()
+    {
+        return revision;
     }
 }
