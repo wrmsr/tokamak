@@ -313,6 +313,12 @@
                 </exclusions>
             </dependency>
 
+            <dependency>
+                <groupId>com.fasterxml.jackson.module</groupId>
+                <artifactId>jackson-module-scala_2.11</artifactId>
+                <version>${dep.jackson.version}</version>
+            </dependency>
+
             <!-- Experimental -->
             <!-- Experimental -->
             <!-- Experimental -->
