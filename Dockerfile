@@ -8,7 +8,7 @@ COPY mvnw /build/
 
 COPY pom.xml /build/
 COPY tokamak-core/pom.xml /build/tokamak-core/pom.xml
-COPY tokamak-server/pom.xml /build/tokamak-server/pom.xml
+COPY tokamak-main/pom.xml /build/tokamak-main/pom.xml
 COPY tokamak-spark/pom.xml /build/tokamak-spark/pom.xml
 COPY tokamak-test/pom.xml /build/tokamak-test/pom.xml
 
@@ -23,7 +23,7 @@ RUN ( \
 
 COPY pom.xml /build/
 COPY tokamak-core/ /build/tokamak-core
-COPY tokamak-server/ /build/tokamak-server
+COPY tokamak-main/ /build/tokamak-main
 COPY tokamak-spark/ /build/tokamak-spark
 COPY tokamak-test/ /build/tokamak-test
 
@@ -35,10 +35,10 @@ RUN cd /build && ./mvnw package -DskipTests
 FROM openjdk:8u222-stretch
 COPY .dockertimestamp /
 
-COPY --from=build build/tokamak-server/target/tokamak-server-*.tar.gz /tokamak-server-*.tar.gz
-RUN tar xvf tokamak-server-*.tar.gz
-RUN rm tokamak-server-*.tar.gz
-RUN mv $(find . -name 'tokamak-server-*' -type d | head -n 1) tokamak
+COPY --from=build build/tokamak-main/target/tokamak-main-*.tar.gz /tokamak-main-*.tar.gz
+RUN tar xvf tokamak-main-*.tar.gz
+RUN rm tokamak-main-*.tar.gz
+RUN mv $(find . -name 'tokamak-main-*' -type d | head -n 1) tokamak
 RUN cd /tokamak/bin && for f in $(find . -type f) ; do ln -s "/tokamak/bin/$f" "/usr/bin/$f" ; done
 
 WORKDIR /root

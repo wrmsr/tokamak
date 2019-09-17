@@ -31,7 +31,7 @@
 
         <dependency>
             <groupId>com.wrmsr.tokamak</groupId>
-            <artifactId>tokamak-server</artifactId>
+            <artifactId>tokamak-main</artifactId>
         </dependency>
 
         <dependency>

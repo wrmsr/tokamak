@@ -28,7 +28,7 @@
 
     <modules>
         <module>tokamak-core</module>
-        <module>tokamak-server</module>
+        <module>tokamak-main</module>
         <module>tokamak-spark</module>
         <module>tokamak-test</module>
     </modules>
@@ -48,7 +48,7 @@
 
             <dependency>
                 <groupId>com.wrmsr.tokamak</groupId>
-                <artifactId>tokamak-server</artifactId>
+                <artifactId>tokamak-main</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
@@ -231,7 +231,7 @@
                 <version>42.2.8</version>
             </dependency>
 
-            <!-- Server -->
+            <!-- Main -->
 
             <dependency>
                 <groupId>io.netty</groupId>
