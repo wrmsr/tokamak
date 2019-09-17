@@ -32,7 +32,7 @@ public final class LifecycleRegistry
     {
         private final LifecycleController controller;
         private final Set<Entry> dependencies = new HashSet<>();
-        private final Set<Entry> dependents = new HashSet<>();
+        private final Set<Entry> dependants = new HashSet<>();
 
         public Entry(LifecycleController controller)
         {
@@ -84,7 +84,7 @@ public final class LifecycleRegistry
         for (LifecycleComponent dep : dependencies) {
             Entry depEntry = addInternal(dep, ImmutableSet.of());
             entry.dependencies.add(depEntry);
-            depEntry.dependents.add(entry);
+            depEntry.dependants.add(entry);
         }
 
         LifecycleController controller = entry.controller;
