@@ -13,9 +13,15 @@
  */
 package com.wrmsr.tokamak.server;
 
+import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.io.CharStreams;
 import me.bazhenov.groovysh.GroovyShellService;
 import org.junit.Test;
+
+import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 public class GshTest
 {
@@ -31,6 +37,15 @@ public class GshTest
                 "foo", 420,
                 "bar", "bong"
         ));
+
+        String banner = CharStreams.toString(new InputStreamReader(getClass().getResourceAsStream("banner.txt")));
+        String bannerLit = ("\n" + banner + "\n\n").replace("\n", "\\n");
+
+        Path tempDir = Files.createTempDirectory("tokamak-server");
+        tempDir.toFile().deleteOnExit();
+        Path out = tempDir.resolve("out.groovy");
+        Files.write(out, ("print(\"" + bannerLit + "\")").getBytes(Charsets.UTF_8));
+        service.addDefaultScript(out.toFile().getAbsolutePath());
 
         service.start();
         Thread.currentThread().sleep(600000);
