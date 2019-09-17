@@ -38,7 +38,7 @@ COPY .dockertimestamp /
 COPY --from=build build/tokamak-server/target/tokamak-server-*.tar.gz /tokamak-server-*.tar.gz
 RUN tar xvf tokamak-server-*.tar.gz
 RUN rm tokamak-server-*.tar.gz
-RUN mv $(find . -name 'tokamak-server-*' -type d | head -n 1) tokamak-server
+RUN mv $(find . -name 'tokamak-server-*' -type d | head -n 1) tokamak
 RUN cd /tokamak/bin && for f in $(find . -type f) ; do ln -s "/tokamak/bin/$f" "/usr/bin/$f" ; done
 
 WORKDIR /root
