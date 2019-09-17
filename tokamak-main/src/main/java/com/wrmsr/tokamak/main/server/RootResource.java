@@ -16,6 +16,7 @@ package com.wrmsr.tokamak.main.server;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.dist.GitRevision;
+import org.glassfish.hk2.api.Immediate;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -27,6 +28,7 @@ import javax.ws.rs.Produces;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
 
+@Immediate
 @Path("/v1")
 public class RootResource
 {

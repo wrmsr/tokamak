@@ -15,6 +15,7 @@ package com.wrmsr.tokamak.main.server.util.jaxrs;
 
 import com.google.inject.Injector;
 import org.glassfish.hk2.api.ServiceLocator;
+import org.glassfish.hk2.utilities.ServiceLocatorUtilities;
 import org.glassfish.jersey.InjectionManagerProvider;
 import org.glassfish.jersey.internal.inject.InjectionManager;
 import org.jvnet.hk2.guice.bridge.api.GuiceBridge;
@@ -87,5 +88,6 @@ public class GuiceFeature
         GuiceBridge.getGuiceBridge().initializeGuiceBridge(serviceLocator);
         GuiceIntoHK2Bridge guiceBridge = serviceLocator.getService(GuiceIntoHK2Bridge.class);
         guiceBridge.bridgeGuiceInjector(injector);
+        ServiceLocatorUtilities.enableImmediateScope(serviceLocator);
     }
 }
