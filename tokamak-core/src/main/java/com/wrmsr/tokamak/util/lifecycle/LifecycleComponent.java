@@ -14,9 +14,8 @@
 package com.wrmsr.tokamak.util.lifecycle;
 
 public interface LifecycleComponent
-        extends AutoCloseable
 {
-    default void postConstruct()
+    default void construct()
             throws Exception
     {
     }
@@ -31,7 +30,7 @@ public interface LifecycleComponent
     {
     }
 
-    default void close()
+    default void destroy()
             throws Exception
     {
     }

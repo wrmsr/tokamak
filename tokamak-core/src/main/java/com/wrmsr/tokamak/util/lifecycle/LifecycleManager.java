@@ -25,7 +25,7 @@ import java.util.Set;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
-public final class LifecycleRegistry
+public final class LifecycleManager
         extends AbstractLifecycleComponent
 {
     /*
@@ -110,9 +110,9 @@ public final class LifecycleRegistry
             checkState(!controller.getState().isFailed());
             switch (controller.getState()) {
                 case NEW:
-                    controller.postConstruct();
+                    controller.construct();
                     break;
-                case INITIALIZED:
+                case CONSTRUCTED:
                     controller.start();
                     break;
                 default:
@@ -139,11 +139,11 @@ public final class LifecycleRegistry
     }
 
     @Override
-    protected void doPostConstruct()
+    protected void doConstruct()
             throws Exception
     {
         for (Entry e : entriesByComponent.values()) {
-            e.controller.postConstruct();
+            e.controller.construct();
         }
     }
 
@@ -166,11 +166,11 @@ public final class LifecycleRegistry
     }
 
     @Override
-    protected void doClose()
+    protected void doDestroy()
             throws Exception
     {
         for (Entry e : entriesByComponent.values()) {
-            e.controller.close();
+            e.controller.destroy();
         }
     }
 }

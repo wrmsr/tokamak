@@ -16,10 +16,9 @@ package com.wrmsr.tokamak.util;
 import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.util.lifecycle.AbstractLifecycleComponent;
 import com.wrmsr.tokamak.util.lifecycle.LifecycleComponent;
-import com.wrmsr.tokamak.util.lifecycle.LifecycleRegistry;
+import com.wrmsr.tokamak.util.lifecycle.LifecycleManager;
 import com.wrmsr.tokamak.util.lifecycle.LifecycleState;
 import junit.framework.TestCase;
-import org.junit.Test;
 
 import java.util.function.Supplier;
 
@@ -41,7 +40,7 @@ public class LifecycleTest
     public static <T> T runLifecycle(LifecycleComponent component, Supplier<T> body)
             throws Exception
     {
-        component.postConstruct();
+        component.construct();
         try {
             component.start();
             T result = body.get();
@@ -49,7 +48,7 @@ public class LifecycleTest
             return result;
         }
         finally {
-            component.close();
+            component.destroy();
         }
     }
 
@@ -65,7 +64,7 @@ public class LifecycleTest
     public void testLifecycle()
             throws Throwable
     {
-        LifecycleRegistry lr = new LifecycleRegistry();
+        LifecycleManager lr = new LifecycleManager();
         A a = new A();
         B b = new B();
 

@@ -59,20 +59,20 @@ public final class LifecycleController
     }
 
     @Override
-    public final void postConstruct()
+    public final void construct()
             throws Exception
     {
         synchronized (lock) {
             checkState(state == LifecycleState.NEW);
-            state = LifecycleState.INITIALIZING;
+            state = LifecycleState.CONSTRUCTING;
             try {
-                component.postConstruct();
+                component.construct();
             }
             catch (Exception e) {
-                state = LifecycleState.FAILED_INITIALIZING;
+                state = LifecycleState.FAILED_CONSTRUCTING;
                 throw new RuntimeException(e);
             }
-            state = LifecycleState.INITIALIZED;
+            state = LifecycleState.CONSTRUCTED;
         }
     }
 
@@ -81,7 +81,7 @@ public final class LifecycleController
             throws Exception
     {
         synchronized (lock) {
-            checkState(state == LifecycleState.INITIALIZED);
+            checkState(state == LifecycleState.CONSTRUCTED);
             state = LifecycleState.STARTING;
             listeners.forEach(LifecycleListener::onStarting);
             try {
@@ -117,22 +117,22 @@ public final class LifecycleController
     }
 
     @Override
-    public final void close()
+    public final void destroy()
             throws Exception
     {
         synchronized (lock) {
-            checkState(state != LifecycleState.CLOSING &&
-                    state != LifecycleState.FAILED_CLOSING &&
-                    state != LifecycleState.CLOSED);
-            state = LifecycleState.CLOSING;
+            checkState(state != LifecycleState.DESTROYING &&
+                    state != LifecycleState.FAILED_DESTROYING &&
+                    state != LifecycleState.DESTROYED);
+            state = LifecycleState.DESTROYING;
             try {
-                component.close();
+                component.destroy();
             }
             catch (Exception e) {
-                state = LifecycleState.FAILED_CLOSING;
+                state = LifecycleState.FAILED_DESTROYING;
                 throw new RuntimeException(e);
             }
-            state = LifecycleState.CLOSED;
+            state = LifecycleState.DESTROYED;
         }
     }
 }

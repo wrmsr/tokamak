@@ -23,10 +23,10 @@ public abstract class AbstractLifecycleComponent
         lifecycleController = new LifecycleController(new LifecycleComponent()
         {
             @Override
-            public void postConstruct()
+            public void construct()
                     throws Exception
             {
-                doPostConstruct();
+                doConstruct();
             }
 
             @Override
@@ -44,10 +44,10 @@ public abstract class AbstractLifecycleComponent
             }
 
             @Override
-            public void close()
+            public void destroy()
                     throws Exception
             {
-                doClose();
+                doDestroy();
             }
         });
     }
@@ -73,13 +73,13 @@ public abstract class AbstractLifecycleComponent
     }
 
     @Override
-    public final void postConstruct()
+    public final void construct()
             throws Exception
     {
-        lifecycleController.postConstruct();
+        lifecycleController.construct();
     }
 
-    protected void doPostConstruct()
+    protected void doConstruct()
             throws Exception
     {
     }
@@ -109,13 +109,13 @@ public abstract class AbstractLifecycleComponent
     }
 
     @Override
-    public final void close()
+    public final void destroy()
             throws Exception
     {
-        lifecycleController.close();
+        lifecycleController.destroy();
     }
 
-    protected void doClose()
+    protected void doDestroy()
             throws Exception
     {
     }

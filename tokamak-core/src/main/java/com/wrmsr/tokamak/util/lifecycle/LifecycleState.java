@@ -19,9 +19,9 @@ public enum LifecycleState
 {
     NEW(0, false),
 
-    INITIALIZING(1, false),
-    FAILED_INITIALIZING(2, true),
-    INITIALIZED(3, false),
+    CONSTRUCTING(1, false),
+    FAILED_CONSTRUCTING(2, true),
+    CONSTRUCTED(3, false),
 
     STARTING(5, false),
     FAILED_STARTING(6, true),
@@ -31,9 +31,9 @@ public enum LifecycleState
     FAILED_STOPPING(9, true),
     STOPPED(10, false),
 
-    CLOSING(11, false),
-    FAILED_CLOSING(12, true),
-    CLOSED(13, false),
+    DESTROYING(11, false),
+    FAILED_DESTROYING(12, true),
+    DESTROYED(13, false),
 
     ;
 
@@ -56,10 +56,10 @@ public enum LifecycleState
         return isFailed;
     }
 
-    public boolean isInitialized()
+    public boolean isConstructed()
     {
         checkState(!isFailed);
-        return phase >= INITIALIZED.phase;
+        return phase >= CONSTRUCTED.phase;
     }
 
     public boolean isStarted()
@@ -74,9 +74,9 @@ public enum LifecycleState
         return this == STOPPED;
     }
 
-    public boolean isClosed()
+    public boolean isDestroyed()
     {
         checkState(!isFailed);
-        return this == CLOSED;
+        return this == DESTROYED;
     }
 }
