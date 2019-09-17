@@ -33,7 +33,8 @@ public class GshTest
         ));
 
         service.start();
-        Thread.currentThread().sleep(60000);
+        Thread.currentThread().sleep(600000);
+        System.out.println("intentionally dying");
         service.destroy();
     }
 }
