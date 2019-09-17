@@ -28,6 +28,14 @@ import static com.google.common.base.Preconditions.checkState;
 public final class LifecycleRegistry
         extends AbstractLifecycleComponent
 {
+    /*
+    TODO:
+     - self-deps (including component depping registry itself)
+     - injector integration
+     - @PostConstruct / javax.inject interop?
+     - LifecycleController parent/hierarchy, ensure 0 or 1 parent
+    */
+
     private class Entry
     {
         private final LifecycleController controller;
@@ -67,6 +75,15 @@ public final class LifecycleRegistry
         else {
             return new LifecycleController(component);
         }
+    }
+
+    public LifecycleState getState(LifecycleComponent component)
+    {
+        if (component == this) {
+            return getState();
+        }
+        Entry entry = checkNotNull(entriesByComponent.get(component));
+        return entry.controller.getState();
     }
 
     @GuardedBy("lock")

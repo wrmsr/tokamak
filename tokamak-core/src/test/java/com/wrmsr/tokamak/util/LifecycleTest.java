@@ -17,9 +17,14 @@ import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.util.lifecycle.AbstractLifecycleComponent;
 import com.wrmsr.tokamak.util.lifecycle.LifecycleComponent;
 import com.wrmsr.tokamak.util.lifecycle.LifecycleRegistry;
+import com.wrmsr.tokamak.util.lifecycle.LifecycleState;
+import junit.framework.TestCase;
 import org.junit.Test;
 
+import java.util.function.Supplier;
+
 public class LifecycleTest
+    extends TestCase
 {
     public static class A
             implements LifecycleComponent
@@ -33,7 +38,30 @@ public class LifecycleTest
 
     }
 
-    @Test
+    public static <T> T runLifecycle(LifecycleComponent component, Supplier<T> body)
+            throws Exception
+    {
+        component.postConstruct();
+        try {
+            component.start();
+            T result = body.get();
+            component.stop();
+            return result;
+        }
+        finally {
+            component.close();
+        }
+    }
+
+    public static void runLifecycle(LifecycleComponent component, Runnable runnable)
+            throws Exception
+    {
+        runLifecycle(component, () -> {
+            runnable.run();
+            return null;
+        });
+    }
+
     public void testLifecycle()
             throws Throwable
     {
@@ -41,15 +69,12 @@ public class LifecycleTest
         A a = new A();
         B b = new B();
 
-        lr.postConstruct();
-
-        // lr.add(a);
         lr.add(b, ImmutableList.of(a));
 
-        lr.start();
-
-        lr.stop();
-
-        lr.close();
+        runLifecycle(lr, () -> {
+            assertEquals(LifecycleState.STARTED, lr.getState());
+            assertEquals(LifecycleState.STARTED, b.getLifecycleState());
+            assertEquals(LifecycleState.STARTED, lr.getState(a));
+        });
     }
 }
