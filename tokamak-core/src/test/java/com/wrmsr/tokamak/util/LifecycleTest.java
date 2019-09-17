@@ -14,11 +14,21 @@
 package com.wrmsr.tokamak.util;
 
 import com.google.common.collect.ImmutableList;
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.TypeLiteral;
+import com.google.inject.matcher.Matchers;
+import com.google.inject.spi.InjectionListener;
+import com.google.inject.spi.TypeEncounter;
+import com.google.inject.spi.TypeListener;
 import com.wrmsr.tokamak.util.lifecycle.AbstractLifecycleComponent;
 import com.wrmsr.tokamak.util.lifecycle.LifecycleComponent;
 import com.wrmsr.tokamak.util.lifecycle.LifecycleManager;
 import com.wrmsr.tokamak.util.lifecycle.LifecycleState;
 import junit.framework.TestCase;
+
+import javax.inject.Inject;
 
 import static com.wrmsr.tokamak.util.lifecycle.Lifecycles.runLifecycle;
 
@@ -52,5 +62,45 @@ public class LifecycleTest
             assertEquals(LifecycleState.STARTED, b.getLifecycleState());
             assertEquals(LifecycleState.STARTED, lm.getState(a));
         });
+    }
+
+    public static class I
+    {
+        @Inject
+        public I()
+        {
+        }
+    }
+
+    public void testGuice()
+            throws Throwable
+    {
+        Injector inj = Guice.createInjector(new AbstractModule()
+        {
+            @Override
+            protected void configure()
+            {
+                // bind(I.class);)
+                bindListener(
+                        Matchers.any(),
+                        new TypeListener()
+                        {
+                            @Override
+                            public <I> void hear(TypeLiteral<I> type, TypeEncounter<I> encounter)
+                            {
+                                encounter.register(new InjectionListener<I>()
+                                {
+                                    @Override
+                                    public void afterInjection(I injectee)
+                                    {
+                                        // TODO: get what was injected
+                                        System.out.println(injectee);
+                                    }
+                                });
+                            }
+                        });
+            }
+        });
+        I i = inj.getInstance(I.class);
     }
 }

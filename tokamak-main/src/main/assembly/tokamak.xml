@@ -4,6 +4,14 @@
     <includeBaseDirectory>true</includeBaseDirectory>
 
     <files>
+        <!--
+        <file>
+            <source>README.txt</source>
+        </file>
+        <file>
+            <source>NOTICE</source>
+        </file>
+        -->
     </files>
 
     <dependencySets>
