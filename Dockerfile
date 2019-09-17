@@ -45,4 +45,4 @@ RUN ( \
 )
 
 WORKDIR /root
-CMD ["tokamak"]
+ENTRYPOINT ["tokamak"]
