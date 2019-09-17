@@ -15,7 +15,6 @@ package com.wrmsr.tokamak.main.server;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.wrmsr.tokamak.main.server.util.jaxrs.NettyServer;
 import com.wrmsr.tokamak.main.util.OS;
 import com.wrmsr.tokamak.util.Logger;
 import com.wrmsr.tokamak.util.lifecycle.LifecycleManager;
@@ -67,7 +66,7 @@ public class ServerMain
 
         Injector injector = Guice.createInjector(new ServerModule());
         runLifecycle(injector.getInstance(LifecycleManager.class), () -> {
-            Thread.sleep(10000);
+            Thread.sleep(60000);
         });
     }
 }

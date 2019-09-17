@@ -33,8 +33,15 @@ public class ServerModule
         binder.install(new LifecycleModule());
 
         binder.bind(ObjectMapper.class).toInstance(Json.newObjectMapper());
+
+        binder.bind(GshService.class).asEagerSingleton();
+
         binder.install(new ApplicationModule());
+
+        binder.bind(Uptime.Service.class).asEagerSingleton();
+
         binder.bind(NettyServer.class).asEagerSingleton();
+
         newSetBinder(binder, Class.class, Resource.class).addBinding().toInstance(RootResource.class);
     }
 }

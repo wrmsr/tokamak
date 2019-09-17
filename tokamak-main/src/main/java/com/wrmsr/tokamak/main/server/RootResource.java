@@ -15,10 +15,8 @@ package com.wrmsr.tokamak.main.server;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.inject.Injector;
 import com.wrmsr.tokamak.dist.GitRevision;
 
-import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -31,12 +29,11 @@ import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
 @Path("/v1")
 public class RootResource
 {
-    private final Injector injector;
+    private final Uptime.Service uptimeService;
 
-    @Inject
-    public RootResource(Injector injector)
+    public RootResource(Uptime.Service uptimeService)
     {
-        this.injector = injector;
+        this.uptimeService = uptimeService;
     }
 
     @GET
@@ -45,7 +42,7 @@ public class RootResource
     public Status status()
     {
         return new Status(
-                420,
+                uptimeService.getUptimeMillis() / 1000.0f,
                 GitRevision.get());
     }
 
