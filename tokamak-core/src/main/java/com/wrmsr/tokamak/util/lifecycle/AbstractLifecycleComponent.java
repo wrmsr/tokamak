@@ -62,6 +62,16 @@ public abstract class AbstractLifecycleComponent
         return lifecycleController.getState();
     }
 
+    public boolean isStarted()
+    {
+        return getLifecycleState().isStarted();
+    }
+
+    public boolean isStopped()
+    {
+        return getLifecycleState().isStopped();
+    }
+
     @Override
     public final void postConstruct()
             throws Exception

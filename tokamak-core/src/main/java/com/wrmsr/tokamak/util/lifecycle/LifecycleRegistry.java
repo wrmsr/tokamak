@@ -69,10 +69,10 @@ public final class LifecycleRegistry
     }
 
     @GuardedBy("lock")
-    private Entry addInternal(LifecycleComponent component, Set<LifecycleComponent> dependencies)
+    private Entry addInternal(LifecycleComponent component, Iterable<LifecycleComponent> dependencies)
             throws Exception
     {
-        checkState(getState().getPhase() < LifecycleState.STOPPING.getPhase() && !getState().isFailure());
+        checkState(getState().getPhase() < LifecycleState.STOPPING.getPhase() && !getState().isFailed());
 
         Entry entry = entriesByComponent.get(component);
         if (entry == null) {
@@ -85,9 +85,9 @@ public final class LifecycleRegistry
         }
 
         LifecycleController controller = entry.controller;
-        checkState(controller.getState().getPhase() < LifecycleState.STOPPING.getPhase() && !controller.getState().isFailure());
+        checkState(controller.getState().getPhase() < LifecycleState.STOPPING.getPhase() && !controller.getState().isFailed());
         while (controller.getState().getPhase() < getState().getPhase()) {
-            checkState(!controller.getState().isFailure());
+            checkState(!controller.getState().isFailed());
             switch (controller.getState()) {
                 case NEW:
                     controller.postConstruct();
@@ -103,7 +103,7 @@ public final class LifecycleRegistry
         return entry;
     }
 
-    public <T extends LifecycleComponent> T add(T component, Set<LifecycleComponent> dependencies)
+    public <T extends LifecycleComponent> T add(T component, Iterable<LifecycleComponent> dependencies)
             throws Exception
     {
         synchronized (lock) {

@@ -13,6 +13,7 @@
  */
 package com.wrmsr.tokamak.util;
 
+import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.util.lifecycle.AbstractLifecycleComponent;
 import com.wrmsr.tokamak.util.lifecycle.LifecycleComponent;
 import com.wrmsr.tokamak.util.lifecycle.LifecycleRegistry;
@@ -42,8 +43,8 @@ public class LifecycleTest
 
         lr.postConstruct();
 
-        lr.add(a);
-        lr.add(b);
+        // lr.add(a);
+        lr.add(b, ImmutableList.of(a));
 
         lr.start();
 

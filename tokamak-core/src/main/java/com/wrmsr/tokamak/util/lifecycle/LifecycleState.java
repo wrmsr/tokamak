@@ -13,6 +13,8 @@
  */
 package com.wrmsr.tokamak.util.lifecycle;
 
+import static com.google.common.base.Preconditions.checkState;
+
 public enum LifecycleState
 {
     NEW(0, false),
@@ -36,12 +38,12 @@ public enum LifecycleState
     ;
 
     private final int phase;
-    private final boolean isFailure;
+    private final boolean isFailed;
 
-    LifecycleState(int phase, boolean isFailure)
+    LifecycleState(int phase, boolean isFailed)
     {
         this.phase = phase;
-        this.isFailure = isFailure;
+        this.isFailed = isFailed;
     }
 
     public int getPhase()
@@ -49,8 +51,32 @@ public enum LifecycleState
         return phase;
     }
 
-    public boolean isFailure()
+    public boolean isFailed()
     {
-        return isFailure;
+        return isFailed;
+    }
+
+    public boolean isInitialized()
+    {
+        checkState(!isFailed);
+        return phase >= INITIALIZED.phase;
+    }
+
+    public boolean isStarted()
+    {
+        checkState(!isFailed);
+        return this == STARTED;
+    }
+
+    public boolean isStopped()
+    {
+        checkState(!isFailed);
+        return this == STOPPED;
+    }
+
+    public boolean isClosed()
+    {
+        checkState(!isFailed);
+        return this == CLOSED;
     }
 }
