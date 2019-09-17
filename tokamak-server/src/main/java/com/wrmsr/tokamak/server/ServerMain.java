@@ -29,14 +29,15 @@ import org.apache.logging.log4j.core.config.builder.impl.BuiltConfiguration;
 public class ServerMain
 {
     // cd tokamak-server/target && tar xvf tokamak-server-0.1-SNAPSHOT.tar.gz && cd tokamak-server-0.1-SNAPSHOT
-    // -Dio.netty.tryReflectionSetAccessible=false
+
+    // --add-opens java.base/java.lang=ALL-UNNAMED
 
     public static LoggerContext configureLogging()
     {
         ConfigurationBuilder<BuiltConfiguration> builder = ConfigurationBuilderFactory.newConfigurationBuilder();
         builder.setStatusLevel(Level.ERROR);
         builder.add(builder.newFilter("ThresholdFilter", Filter.Result.ACCEPT, Filter.Result.NEUTRAL)
-                .addAttribute("level", Level.DEBUG));
+                .addAttribute("level", Level.INFO));
         AppenderComponentBuilder appenderBuilder = builder.newAppender("Stdout", "CONSOLE").addAttribute("target",
                 ConsoleAppender.Target.SYSTEM_OUT);
         appenderBuilder.add(builder.newLayout("PatternLayout")
@@ -44,7 +45,7 @@ public class ServerMain
         appenderBuilder.add(builder.newFilter("MarkerFilter", Filter.Result.DENY, Filter.Result.NEUTRAL)
                 .addAttribute("marker", "FLOW"));
         builder.add(appenderBuilder);
-        builder.add(builder.newLogger("org.apache.logging.log4j", Level.DEBUG)
+        builder.add(builder.newLogger("org.apache.logging.log4j", Level.INFO)
                 .add(builder.newAppenderRef("Stdout")).addAttribute("additivity", false));
         builder.add(builder.newRootLogger(Level.ERROR).add(builder.newAppenderRef("Stdout")));
         return Configurator.initialize(builder.build());

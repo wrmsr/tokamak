@@ -13,6 +13,7 @@
  */
 package com.wrmsr.tokamak.server.util.jaxrs;
 
+import com.wrmsr.tokamak.util.Logger;
 import io.netty.channel.Channel;
 import org.glassfish.jersey.netty.httpserver.TokamakNettyHttpContainerProvider;
 
@@ -26,6 +27,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 public class NettyServer
 {
+    private final Logger log = Logger.get(NettyServer.class);
+
     private final Application application;
 
     @Inject
@@ -37,8 +40,10 @@ public class NettyServer
     public void run()
             throws InterruptedException
     {
-        URI baseUri = UriBuilder.fromUri("http://localhost/").port(9998).build();
+        int port = 9998;
+        URI baseUri = UriBuilder.fromUri("http://localhost/").port(port).build();
         Channel server = TokamakNettyHttpContainerProvider.createServer(baseUri, application, null, ah -> {}, sb -> {});
+        log.info("Listening on port %d", port);
         server.closeFuture().sync();
     }
 }
