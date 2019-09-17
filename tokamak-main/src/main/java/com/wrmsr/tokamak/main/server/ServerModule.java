@@ -11,14 +11,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.main;
+package com.wrmsr.tokamak.main.server;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Binder;
 import com.google.inject.Module;
-import com.wrmsr.tokamak.main.util.jaxrs.ApplicationModule;
-import com.wrmsr.tokamak.main.util.jaxrs.NettyServer;
-import com.wrmsr.tokamak.main.util.jaxrs.Resource;
+import com.wrmsr.tokamak.main.server.util.jaxrs.ApplicationModule;
+import com.wrmsr.tokamak.main.server.util.jaxrs.NettyServer;
+import com.wrmsr.tokamak.main.server.util.jaxrs.Resource;
 import com.wrmsr.tokamak.util.Json;
 
 import static com.google.inject.multibindings.Multibinder.newSetBinder;

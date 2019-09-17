@@ -49,7 +49,7 @@ public class ReexecMain
 
         String jvm = getJvm().getAbsolutePath();
         String cp = System.getProperty("java.class.path");
-        String main = "com.wrmsr.tokamak.server.ServerMain";
+        String main = "com.wrmsr.tokamak.main.Main";
 
         execs.exec(jvm, ImmutableList.of("-cp", cp, main, "-noreexec"));
     }

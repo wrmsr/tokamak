@@ -11,11 +11,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.main;
+package com.wrmsr.tokamak.main.server;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.wrmsr.tokamak.main.util.jaxrs.NettyServer;
+import com.wrmsr.tokamak.main.server.util.jaxrs.NettyServer;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.Filter;
 import org.apache.logging.log4j.core.LoggerContext;

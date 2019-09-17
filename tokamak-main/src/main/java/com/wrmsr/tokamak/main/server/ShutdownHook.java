@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.main;
+package com.wrmsr.tokamak.main.server;
 
 import com.wrmsr.tokamak.main.util.pid.Jdk9Pids;
 import com.wrmsr.tokamak.main.util.pid.Pids;
