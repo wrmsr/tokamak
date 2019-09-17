@@ -13,6 +13,7 @@
  */
 package com.wrmsr.tokamak;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import io.burt.jmespath.Adapter;
 import io.burt.jmespath.JmesPath;
@@ -440,11 +441,23 @@ public class JmespathTest
         // JsonNode result = runtime.compile("concat(lower_case(first_name), ' ', upper_case(last_name))").search(input);
 
         JmesPath<Object> runtime = new JcfRuntime(configuration);
-        Object input = ImmutableMap.of(
-                "first_name", "aBc",
-                "last_name", "dEf"
+        Object input = ImmutableList.of(
+                ImmutableMap.of(
+                        "first_name", "aBc",
+                        "last_name", "dEf"
+                ),
+                ImmutableMap.of(
+                        "first_name", "gHi",
+                        "last_name", "JkL"
+                )
         );
-        Object result = runtime.compile("concat(lower_case(first_name), ' ', upper_case(last_name))").search(input);
-        System.out.println(result);
+        for (String q : ImmutableList.of(
+                "[]",
+                "[].first_name",
+                "[].concat(lower_case(first_name), ' ', upper_case(last_name))"
+        )) {
+            Object result = runtime.compile(q).search(input);
+            System.out.println(result);
+        }
     }
 }
