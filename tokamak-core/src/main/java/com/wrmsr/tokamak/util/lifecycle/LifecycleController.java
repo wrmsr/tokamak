@@ -11,7 +11,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.wrmsr.tokamak.util.lifecycle;
 
 import java.util.List;
@@ -32,6 +31,15 @@ public final class LifecycleController
     public LifecycleController(LifecycleComponent component)
     {
         this.component = checkNotNull(component);
+    }
+
+    @Override
+    public String toString()
+    {
+        return "LifecycleController{" +
+                "component=" + component +
+                ", state=" + state +
+                '}';
     }
 
     public LifecycleComponent getComponent()
@@ -58,7 +66,7 @@ public final class LifecycleController
             checkState(state == LifecycleState.NEW);
             state = LifecycleState.INITIALIZING;
             try {
-                doPostConstruct();
+                component.postConstruct();
             }
             catch (Exception e) {
                 state = LifecycleState.FAILED_INITIALIZING;
@@ -66,11 +74,6 @@ public final class LifecycleController
             }
             state = LifecycleState.INITIALIZED;
         }
-    }
-
-    protected void doPostConstruct()
-            throws Exception
-    {
     }
 
     @Override
@@ -82,7 +85,7 @@ public final class LifecycleController
             state = LifecycleState.STARTING;
             listeners.forEach(LifecycleListener::onStarting);
             try {
-                doStart();
+                component.start();
             }
             catch (Exception e) {
                 state = LifecycleState.FAILED_STARTING;
@@ -91,11 +94,6 @@ public final class LifecycleController
             state = LifecycleState.STARTED;
             listeners.forEach(LifecycleListener::onStarted);
         }
-    }
-
-    protected void doStart()
-            throws Exception
-    {
     }
 
     @Override
@@ -107,7 +105,7 @@ public final class LifecycleController
             state = LifecycleState.STOPPING;
             listeners.forEach(LifecycleListener::onStopping);
             try {
-                doStop();
+                component.stop();
             }
             catch (Exception e) {
                 state = LifecycleState.FAILED_STOPPING;
@@ -116,11 +114,6 @@ public final class LifecycleController
             state = LifecycleState.STOPPED;
             listeners.forEach(LifecycleListener::onStopped);
         }
-    }
-
-    protected void doStop()
-            throws Exception
-    {
     }
 
     @Override
@@ -133,7 +126,7 @@ public final class LifecycleController
                     state != LifecycleState.CLOSED);
             state = LifecycleState.CLOSING;
             try {
-                doClose();
+                component.close();
             }
             catch (Exception e) {
                 state = LifecycleState.FAILED_CLOSING;
@@ -141,10 +134,5 @@ public final class LifecycleController
             }
             state = LifecycleState.CLOSED;
         }
-    }
-
-    protected void doClose()
-            throws Exception
-    {
     }
 }

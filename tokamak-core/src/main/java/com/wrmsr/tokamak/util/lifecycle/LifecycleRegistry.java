@@ -11,7 +11,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.wrmsr.tokamak.util.lifecycle;
 
 import com.google.common.collect.ImmutableSet;
@@ -37,6 +36,14 @@ public final class LifecycleRegistry
         public Entry(LifecycleController controller)
         {
             this.controller = checkNotNull(controller);
+        }
+
+        @Override
+        public String toString()
+        {
+            return "Entry{" +
+                    "controller=" + controller +
+                    '}';
         }
     }
 
@@ -70,6 +77,7 @@ public final class LifecycleRegistry
         Entry entry = entriesByComponent.get(component);
         if (entry == null) {
             entry = new Entry(getController(component));
+            entriesByComponent.put(component, entry);
         }
 
         for (LifecycleComponent dep : dependencies) {
