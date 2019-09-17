@@ -11,7 +11,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.wrmsr.tokamak.main.server;
 
 import com.google.common.base.Charsets;
@@ -19,7 +18,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.io.CharStreams;
 import com.google.inject.Injector;
 import com.wrmsr.tokamak.util.Logger;
-import com.wrmsr.tokamak.util.lifecycle.AbstractLifecycleComponent;
+import com.wrmsr.tokamak.util.lifecycle.AbstractLifecycle;
 import me.bazhenov.groovysh.GroovyShellService;
 
 import javax.inject.Inject;
@@ -29,7 +28,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class GshService
-        extends AbstractLifecycleComponent
+        extends AbstractLifecycle
 {
     private static final Logger log = Logger.get(GshService.class);
 

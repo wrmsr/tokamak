@@ -21,7 +21,7 @@ public final class Lifecycles
 {
     /*
     TODO:
-     - self-deps (including component depping registry itself)
+     - self-deps (including lifecycle depping registry itself)
      - injector integration
      - @PostConstruct / javax.inject interop?
      - LifecycleController parent/hierarchy, ensure 0 or 1 parent
@@ -31,34 +31,34 @@ public final class Lifecycles
     {
     }
 
-    public static <T extends LifecycleComponent, R> R applyLifecycle(T component, ThrowingFunction<T, R> body)
+    public static <T extends Lifecycle, R> R applyLifecycle(T lifecycle, ThrowingFunction<T, R> body)
             throws Exception
     {
-        component.construct();
+        lifecycle.construct();
         try {
-            component.start();
-            R result = body.apply(component);
-            component.stop();
+            lifecycle.start();
+            R result = body.apply(lifecycle);
+            lifecycle.stop();
             return result;
         }
         finally {
-            component.destroy();
+            lifecycle.destroy();
         }
     }
 
-    public static <T extends LifecycleComponent> void runLifecycle(T component, ThrowingConsumer<T> consumer)
+    public static <T extends Lifecycle> void runLifecycle(T lifecycle, ThrowingConsumer<T> consumer)
             throws Exception
     {
-        applyLifecycle(component, (c) -> {
+        applyLifecycle(lifecycle, (c) -> {
             consumer.accept(c);
             return null;
         });
     }
 
-    public static void runLifecycle(LifecycleComponent component, ThrowingRunnable runnable)
+    public static void runLifecycle(Lifecycle lifecycle, ThrowingRunnable runnable)
             throws Exception
     {
-        applyLifecycle(component, (c) -> {
+        applyLifecycle(lifecycle, (c) -> {
             runnable.run();
             return null;
         });

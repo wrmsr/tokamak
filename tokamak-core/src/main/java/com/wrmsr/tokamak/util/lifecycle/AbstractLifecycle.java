@@ -13,18 +13,18 @@
  */
 package com.wrmsr.tokamak.util.lifecycle;
 
-public abstract class AbstractLifecycleComponent
-        implements LifecycleComponent
+public abstract class AbstractLifecycle
+        implements Lifecycle
 {
     private final LifecycleController lifecycleController;
 
     private final class Delegate
-            implements LifecycleComponent
+            implements Lifecycle
     {
         @Override
         public String toString()
         {
-            return "Delegate{target=" + AbstractLifecycleComponent.this + "}";
+            return "Delegate{target=" + AbstractLifecycle.this + "}";
         }
 
         @Override
@@ -56,7 +56,7 @@ public abstract class AbstractLifecycleComponent
         }
     }
 
-    public AbstractLifecycleComponent()
+    public AbstractLifecycle()
     {
         lifecycleController = new LifecycleController(new Delegate());
     }

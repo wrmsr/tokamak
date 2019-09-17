@@ -26,7 +26,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 public final class LifecycleManager
-        extends AbstractLifecycleComponent
+        extends AbstractLifecycle
 {
     private class Entry
     {
@@ -49,48 +49,48 @@ public final class LifecycleManager
     }
 
     private final Object lock = new Object();
-    private final Map<LifecycleComponent, Entry> entriesByComponent = new IdentityHashMap<>();
+    private final Map<Lifecycle, Entry> entriesByLifecycle = new IdentityHashMap<>();
 
     public LifecycleState getState()
     {
         return getLifecycleState();
     }
 
-    private static LifecycleController getController(LifecycleComponent component)
+    private static LifecycleController getController(Lifecycle lifecycle)
     {
-        if (component instanceof LifecycleController) {
-            return (LifecycleController) component;
+        if (lifecycle instanceof LifecycleController) {
+            return (LifecycleController) lifecycle;
         }
-        else if (component instanceof AbstractLifecycleComponent) {
-            return ((AbstractLifecycleComponent) component).getLifecycleController();
+        else if (lifecycle instanceof AbstractLifecycle) {
+            return ((AbstractLifecycle) lifecycle).getLifecycleController();
         }
         else {
-            return new LifecycleController(component);
+            return new LifecycleController(lifecycle);
         }
     }
 
-    public LifecycleState getState(LifecycleComponent component)
+    public LifecycleState getState(Lifecycle lifecycle)
     {
-        if (component == this) {
+        if (lifecycle == this) {
             return getState();
         }
-        Entry entry = checkNotNull(entriesByComponent.get(component));
+        Entry entry = checkNotNull(entriesByLifecycle.get(lifecycle));
         return entry.controller.getState();
     }
 
     @GuardedBy("lock")
-    private Entry addInternal(LifecycleComponent component, Iterable<LifecycleComponent> dependencies)
+    private Entry addInternal(Lifecycle lifecycle, Iterable<Lifecycle> dependencies)
             throws Exception
     {
         checkState(getState().getPhase() < LifecycleState.STOPPING.getPhase() && !getState().isFailed());
 
-        Entry entry = entriesByComponent.get(component);
+        Entry entry = entriesByLifecycle.get(lifecycle);
         if (entry == null) {
-            entry = new Entry(getController(component));
-            entriesByComponent.put(component, entry);
+            entry = new Entry(getController(lifecycle));
+            entriesByLifecycle.put(lifecycle, entry);
         }
 
-        for (LifecycleComponent dep : dependencies) {
+        for (Lifecycle dep : dependencies) {
             Entry depEntry = addInternal(dep, ImmutableSet.of());
             entry.dependencies.add(depEntry);
             depEntry.dependants.add(entry);
@@ -115,26 +115,26 @@ public final class LifecycleManager
         return entry;
     }
 
-    public <T extends LifecycleComponent> T add(T component, Iterable<LifecycleComponent> dependencies)
+    public <T extends Lifecycle> T add(T lifecycle, Iterable<Lifecycle> dependencies)
             throws Exception
     {
         synchronized (lock) {
-            addInternal(component, dependencies);
+            addInternal(lifecycle, dependencies);
         }
-        return component;
+        return lifecycle;
     }
 
-    public <T extends LifecycleComponent> T add(T component)
+    public <T extends Lifecycle> T add(T lifecycle)
             throws Exception
     {
-        return add(component, ImmutableSet.of());
+        return add(lifecycle, ImmutableSet.of());
     }
 
     @Override
     protected void doConstruct()
             throws Exception
     {
-        for (Entry e : entriesByComponent.values()) {
+        for (Entry e : entriesByLifecycle.values()) {
             e.controller.construct();
         }
     }
@@ -143,7 +143,7 @@ public final class LifecycleManager
     protected void doStart()
             throws Exception
     {
-        for (Entry e : entriesByComponent.values()) {
+        for (Entry e : entriesByLifecycle.values()) {
             e.controller.start();
         }
     }
@@ -152,7 +152,7 @@ public final class LifecycleManager
     protected void doStop()
             throws Exception
     {
-        for (Entry e : entriesByComponent.values()) {
+        for (Entry e : entriesByLifecycle.values()) {
             e.controller.stop();
         }
     }
@@ -161,7 +161,7 @@ public final class LifecycleManager
     protected void doDestroy()
             throws Exception
     {
-        for (Entry e : entriesByComponent.values()) {
+        for (Entry e : entriesByLifecycle.values()) {
             e.controller.destroy();
         }
     }

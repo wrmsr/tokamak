@@ -11,10 +11,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.wrmsr.tokamak.main.server;
 
-import com.wrmsr.tokamak.util.lifecycle.AbstractLifecycleComponent;
+import com.wrmsr.tokamak.util.lifecycle.AbstractLifecycle;
 
 import java.lang.management.ManagementFactory;
 
@@ -30,7 +29,7 @@ public final class Uptime
     }
 
     public static final class Service
-            extends AbstractLifecycleComponent
+            extends AbstractLifecycle
     {
         private long startTimeMillis;
         private long stopTimeMillis;

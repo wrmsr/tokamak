@@ -13,7 +13,7 @@
  */
 package com.wrmsr.tokamak.util.lifecycle;
 
-public interface LifecycleComponent
+public interface Lifecycle
 {
     default void construct()
             throws Exception

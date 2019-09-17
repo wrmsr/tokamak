@@ -31,7 +31,7 @@ public class LifecycleModule
     private final static class State
     {
         private final Binding<?> binding;
-        private final Set<LifecycleComponent> dependencies = new HashSet<>();
+        private final Set<Lifecycle> dependencies = new HashSet<>();
 
         public State(Binding<?> binding)
         {
@@ -58,7 +58,7 @@ public class LifecycleModule
     public <T> void onProvision(ProvisionInvocation<T> invocation)
     {
         Class rawType = invocation.getBinding().getKey().getTypeLiteral().getRawType();
-        if (!LifecycleComponent.class.isAssignableFrom(rawType)) {
+        if (!Lifecycle.class.isAssignableFrom(rawType)) {
             invocation.provision();
             return;
         }
@@ -67,16 +67,16 @@ public class LifecycleModule
         State cur = new State(invocation.getBinding());
         stack.push(cur);
         try {
-            LifecycleComponent component = (LifecycleComponent) invocation.provision();
-            if (component != lifecycleManager) {
+            Lifecycle lifecycle = (Lifecycle) invocation.provision();
+            if (lifecycle != lifecycleManager) {
                 try {
-                    lifecycleManager.add(component, cur.dependencies);
+                    lifecycleManager.add(lifecycle, cur.dependencies);
                 }
                 catch (Exception e) {
                     throw new RuntimeException(e);
                 }
                 if (prev != null) {
-                    prev.dependencies.add(component);
+                    prev.dependencies.add(lifecycle);
                 }
             }
         }

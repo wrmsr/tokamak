@@ -20,31 +20,31 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 public final class LifecycleController
-        implements LifecycleComponent
+        implements Lifecycle
 {
-    private final LifecycleComponent component;
+    private final Lifecycle lifecycle;
 
     private final Object lock = new Object();
     private volatile LifecycleState state = LifecycleState.NEW;
     private final List<LifecycleListener> listeners = new CopyOnWriteArrayList<>();
 
-    public LifecycleController(LifecycleComponent component)
+    public LifecycleController(Lifecycle lifecycle)
     {
-        this.component = checkNotNull(component);
+        this.lifecycle = checkNotNull(lifecycle);
     }
 
     @Override
     public String toString()
     {
         return "LifecycleController{" +
-                "component=" + component +
+                "lifecycle=" + lifecycle +
                 ", state=" + state +
                 '}';
     }
 
-    public LifecycleComponent getComponent()
+    public Lifecycle getLifecycle()
     {
-        return component;
+        return lifecycle;
     }
 
     public final LifecycleState getState()
@@ -66,7 +66,7 @@ public final class LifecycleController
             checkState(state == LifecycleState.NEW);
             state = LifecycleState.CONSTRUCTING;
             try {
-                component.construct();
+                lifecycle.construct();
             }
             catch (Exception e) {
                 state = LifecycleState.FAILED_CONSTRUCTING;
@@ -85,7 +85,7 @@ public final class LifecycleController
             state = LifecycleState.STARTING;
             listeners.forEach(LifecycleListener::onStarting);
             try {
-                component.start();
+                lifecycle.start();
             }
             catch (Exception e) {
                 state = LifecycleState.FAILED_STARTING;
@@ -105,7 +105,7 @@ public final class LifecycleController
             state = LifecycleState.STOPPING;
             listeners.forEach(LifecycleListener::onStopping);
             try {
-                component.stop();
+                lifecycle.stop();
             }
             catch (Exception e) {
                 state = LifecycleState.FAILED_STOPPING;
@@ -126,7 +126,7 @@ public final class LifecycleController
                     state != LifecycleState.DESTROYED);
             state = LifecycleState.DESTROYING;
             try {
-                component.destroy();
+                lifecycle.destroy();
             }
             catch (Exception e) {
                 state = LifecycleState.FAILED_DESTROYING;

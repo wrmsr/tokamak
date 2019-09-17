@@ -14,7 +14,7 @@
 package com.wrmsr.tokamak.main.server.util.jaxrs;
 
 import com.wrmsr.tokamak.util.Logger;
-import com.wrmsr.tokamak.util.lifecycle.AbstractLifecycleComponent;
+import com.wrmsr.tokamak.util.lifecycle.AbstractLifecycle;
 import io.netty.channel.Channel;
 import org.glassfish.jersey.netty.httpserver.TokamakNettyHttpContainerProvider;
 
@@ -28,7 +28,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 public class NettyServer
-        extends AbstractLifecycleComponent
+        extends AbstractLifecycle
 {
     private final Logger log = Logger.get(NettyServer.class);
 

@@ -23,8 +23,8 @@ import com.google.inject.spi.InjectionListener;
 import com.google.inject.spi.TypeEncounter;
 import com.google.inject.spi.TypeListener;
 import com.wrmsr.tokamak.util.inject.advice.AdvisesBinder;
-import com.wrmsr.tokamak.util.lifecycle.AbstractLifecycleComponent;
-import com.wrmsr.tokamak.util.lifecycle.LifecycleComponent;
+import com.wrmsr.tokamak.util.lifecycle.AbstractLifecycle;
+import com.wrmsr.tokamak.util.lifecycle.Lifecycle;
 import com.wrmsr.tokamak.util.lifecycle.LifecycleManager;
 import com.wrmsr.tokamak.util.lifecycle.LifecycleModule;
 import com.wrmsr.tokamak.util.lifecycle.LifecycleState;
@@ -41,13 +41,13 @@ public class LifecycleTest
         extends TestCase
 {
     public static class A
-            implements LifecycleComponent
+            implements Lifecycle
     {
 
     }
 
     public static class B
-            extends AbstractLifecycleComponent
+            extends AbstractLifecycle
     {
 
     }
@@ -70,7 +70,7 @@ public class LifecycleTest
     }
 
     public static class I
-            extends AbstractLifecycleComponent
+            extends AbstractLifecycle
     {
         @Inject
         public I()
@@ -79,7 +79,7 @@ public class LifecycleTest
     }
 
     public static class J
-            extends AbstractLifecycleComponent
+            extends AbstractLifecycle
     {
         @Inject
         public J(I i)
@@ -120,7 +120,7 @@ public class LifecycleTest
         J j = inj.getInstance(J.class);
     }
 
-    static class RegisterLifecycle<T extends LifecycleComponent>
+    static class RegisterLifecycle<T extends Lifecycle>
             implements UnaryOperator<T>
     {
         @Override
