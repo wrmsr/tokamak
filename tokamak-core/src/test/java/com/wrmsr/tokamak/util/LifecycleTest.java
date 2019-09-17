@@ -160,8 +160,10 @@ public class LifecycleTest
             }
         });
 
-        LifecycleManager man = inj.getInstance(LifecycleManager.class);
         J j = inj.getInstance(J.class);
         System.out.println(j);
+        runLifecycle(inj.getInstance(LifecycleManager.class), lm -> {
+            System.out.println(j);
+        });
     }
 }

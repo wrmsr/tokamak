@@ -61,6 +61,14 @@ public abstract class AbstractLifecycleComponent
         lifecycleController = new LifecycleController(new Delegate());
     }
 
+    @Override
+    public String toString()
+    {
+        return getClass().getName() + "{" +
+                "lifecycleState=" + lifecycleController.getState() +
+                '}';
+    }
+
     public LifecycleController getLifecycleController()
     {
         return lifecycleController;

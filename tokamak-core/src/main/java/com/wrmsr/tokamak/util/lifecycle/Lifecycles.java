@@ -13,6 +13,7 @@
  */
 package com.wrmsr.tokamak.util.lifecycle;
 
+import com.wrmsr.tokamak.util.func.ThrowingConsumer;
 import com.wrmsr.tokamak.util.func.ThrowingFunction;
 import com.wrmsr.tokamak.util.func.ThrowingRunnable;
 
@@ -43,6 +44,15 @@ public final class Lifecycles
         finally {
             component.destroy();
         }
+    }
+
+    public static <T extends LifecycleComponent> void runLifecycle(T component, ThrowingConsumer<T> consumer)
+            throws Exception
+    {
+        applyLifecycle(component, (c) -> {
+            consumer.accept(c);
+            return null;
+        });
     }
 
     public static void runLifecycle(LifecycleComponent component, ThrowingRunnable runnable)

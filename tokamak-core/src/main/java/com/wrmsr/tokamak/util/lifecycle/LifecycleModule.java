@@ -75,9 +75,9 @@ public class LifecycleModule
                 catch (Exception e) {
                     throw new RuntimeException(e);
                 }
-            }
-            if (prev != null) {
-                prev.dependencies.add(component);
+                if (prev != null) {
+                    prev.dependencies.add(component);
+                }
             }
         }
         finally {
