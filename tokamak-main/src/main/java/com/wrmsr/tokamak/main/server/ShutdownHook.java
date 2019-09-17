@@ -13,6 +13,7 @@
  */
 package com.wrmsr.tokamak.main.server;
 
+import com.wrmsr.tokamak.main.util.jna.JnaPids;
 import com.wrmsr.tokamak.main.util.pid.Jdk9Pids;
 import com.wrmsr.tokamak.main.util.pid.Pids;
 
@@ -25,10 +26,10 @@ public class ShutdownHook
     {
         Pids pids;
 
-        // pids = new JnaPids();
-        pids = new Jdk9Pids();
+        pids = new JnaPids();
+        // pids = new Jdk9Pids();
 
-        int pid = pids.get();
+        long pid = pids.get();
 
         Runtime.getRuntime().addShutdownHook(new Thread(new Runnable()
         {

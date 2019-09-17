@@ -18,15 +18,16 @@ import com.wrmsr.tokamak.util.lazy.SupplierLazyValue;
 public final class Jdk9Pids
         implements Pids
 {
-    private final SupplierLazyValue<Integer> pid = new SupplierLazyValue<>();
+    private final SupplierLazyValue<Long> pid = new SupplierLazyValue<>();
 
     @Override
-    public int get()
+    public long get()
     {
         return pid.get(() -> {
             try {
-                Object current = Class.forName("java.lang.ProcessHandle").getDeclaredMethod("current").invoke(null);
-                return Integer.parseInt(current.toString());
+                Class<?> cls = Class.forName("java.lang.ProcessHandle");
+                Object current = cls.getDeclaredMethod("current").invoke(null);
+                return (long) cls.getDeclaredMethod("pid").invoke(current);
             }
             catch (ReflectiveOperationException e) {
                 throw new RuntimeException(e);

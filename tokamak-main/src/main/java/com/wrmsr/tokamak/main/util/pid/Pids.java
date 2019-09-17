@@ -15,5 +15,5 @@ package com.wrmsr.tokamak.main.util.pid;
 
 public interface Pids
 {
-    int get();
+    long get();
 }

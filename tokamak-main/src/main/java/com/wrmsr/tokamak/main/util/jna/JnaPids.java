@@ -28,14 +28,14 @@ public final class JnaPids
         int getpid();
     }
 
-    private final SupplierLazyValue<Integer> pid = new SupplierLazyValue<>();
+    private final SupplierLazyValue<Long> pid = new SupplierLazyValue<>();
 
     @Override
-    public int get()
+    public long get()
     {
         return pid.get(() -> {
             Libc libc = Native.load((Platform.isWindows() ? "msvcrt" : "c"), Libc.class);
-            return libc.getpid();
+            return libc.getpid() & 0xFFFFFFFFL;
         });
     }
 }
