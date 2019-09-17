@@ -33,6 +33,7 @@ public class GshTest
     public void testGsh()
             throws Throwable
     {
+        System.setProperty("groovysh.prompt", "tokamak");
         GroovyShellService service = new GroovyShellService();
         service.setPort(6789);
         service.setBindings(ImmutableMap.of(
