@@ -16,31 +16,38 @@ package com.wrmsr.tokamak.util.lifecycle;
 
 public enum LifecycleState
 {
-    NEW(false),
+    NEW(0, false),
 
-    INITIALIZING(false),
-    FAILED_INITIALIZING(true),
-    INITIALIZED(false),
+    INITIALIZING(1, false),
+    FAILED_INITIALIZING(2, true),
+    INITIALIZED(3, false),
 
-    STARTING(false),
-    FAILED_STARTING(true),
-    STARTED(false),
+    STARTING(5, false),
+    FAILED_STARTING(6, true),
+    STARTED(7, false),
 
-    STOPPING(false),
-    FAILED_STOPPING(true),
-    STOPPED(false),
+    STOPPING(8, false),
+    FAILED_STOPPING(9, true),
+    STOPPED(10, false),
 
-    CLOSING(false),
-    FAILED_CLOSING(true),
-    CLOSED(false),
+    CLOSING(11, false),
+    FAILED_CLOSING(12, true),
+    CLOSED(13, false),
 
     ;
 
+    private final int phase;
     private final boolean isFailure;
 
-    LifecycleState(boolean isFailure)
+    LifecycleState(int phase, boolean isFailure)
     {
+        this.phase = phase;
         this.isFailure = isFailure;
+    }
+
+    public int getPhase()
+    {
+        return phase;
     }
 
     public boolean isFailure()

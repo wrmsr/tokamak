@@ -67,7 +67,7 @@ public abstract class AbstractLifecycleComponent
     public final void postConstruct()
             throws Exception
     {
-        lifecycleController.close();
+        lifecycleController.postConstruct();
     }
 
     protected void doPostConstruct()

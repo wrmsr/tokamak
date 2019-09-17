@@ -26,7 +26,7 @@ public final class LifecycleController
     private final LifecycleComponent component;
 
     private final Object lock = new Object();
-    private volatile LifecycleState state;
+    private volatile LifecycleState state = LifecycleState.NEW;
     private final List<LifecycleListener> listeners = new CopyOnWriteArrayList<>();
 
     public LifecycleController(LifecycleComponent component)
@@ -42,6 +42,12 @@ public final class LifecycleController
     public final LifecycleState getState()
     {
         return state;
+    }
+
+    public void addListener(LifecycleListener listener)
+    {
+        checkNotNull(listener);
+        listeners.add(listener);
     }
 
     @Override
@@ -83,7 +89,7 @@ public final class LifecycleController
                 throw new RuntimeException(e);
             }
             state = LifecycleState.STARTED;
-            listeners.forEach(LifecycleListener::onStart);
+            listeners.forEach(LifecycleListener::onStarted);
         }
     }
 
@@ -108,7 +114,7 @@ public final class LifecycleController
                 throw new RuntimeException(e);
             }
             state = LifecycleState.STOPPED;
-            listeners.forEach(LifecycleListener::onStop);
+            listeners.forEach(LifecycleListener::onStopped);
         }
     }
 

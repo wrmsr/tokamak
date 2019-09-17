@@ -20,7 +20,7 @@ public interface LifecycleListener
     {
     }
 
-    default void onStart()
+    default void onStarted()
     {
     }
 
@@ -28,7 +28,7 @@ public interface LifecycleListener
     {
     }
 
-    default void onStop()
+    default void onStopped()
     {
     }
 }

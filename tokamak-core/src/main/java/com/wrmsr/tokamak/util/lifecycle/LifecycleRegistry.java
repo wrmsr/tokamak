@@ -43,6 +43,11 @@ public final class LifecycleRegistry
     private final Object lock = new Object();
     private final Map<LifecycleComponent, Entry> entriesByComponent = new IdentityHashMap<>();
 
+    public LifecycleState getState()
+    {
+        return getLifecycleState();
+    }
+
     private static LifecycleController getController(LifecycleComponent component)
     {
         if (component instanceof LifecycleController) {
@@ -58,22 +63,86 @@ public final class LifecycleRegistry
 
     @GuardedBy("lock")
     private Entry addInternal(LifecycleComponent component, Set<LifecycleComponent> dependencies)
+            throws Exception
     {
-        checkState(getLifecycleState() == LifecycleState.INITIALIZING);
-        Entry entry = entriesByComponent.computeIfAbsent(component, c -> new Entry(getController(c)));
-        dependencies.forEach(d -> addInternal(d, ImmutableSet.of()));
+        checkState(getState().getPhase() < LifecycleState.STOPPING.getPhase() && !getState().isFailure());
+
+        Entry entry = entriesByComponent.get(component);
+        if (entry == null) {
+            entry = new Entry(getController(component));
+        }
+
+        for (LifecycleComponent dep : dependencies) {
+            addInternal(dep, ImmutableSet.of());
+        }
+
+        LifecycleController controller = entry.controller;
+        checkState(controller.getState().getPhase() < LifecycleState.STOPPING.getPhase() && !controller.getState().isFailure());
+        while (controller.getState().getPhase() < getState().getPhase()) {
+            checkState(!controller.getState().isFailure());
+            switch (controller.getState()) {
+                case NEW:
+                    controller.postConstruct();
+                    break;
+                case INITIALIZED:
+                    controller.start();
+                    break;
+                default:
+                    throw new IllegalStateException(controller.getState().toString());
+            }
+        }
+
         return entry;
     }
 
-    public void add(LifecycleComponent component, Set<LifecycleComponent> dependencies)
+    public <T extends LifecycleComponent> T add(T component, Set<LifecycleComponent> dependencies)
+            throws Exception
     {
         synchronized (lock) {
             addInternal(component, dependencies);
         }
+        return component;
     }
 
-    public void add(LifecycleComponent component)
+    public <T extends LifecycleComponent> T add(T component)
+            throws Exception
     {
-        add(component, ImmutableSet.of());
+        return add(component, ImmutableSet.of());
+    }
+
+    @Override
+    protected void doPostConstruct()
+            throws Exception
+    {
+        for (Entry e : entriesByComponent.values()) {
+            e.controller.postConstruct();
+        }
+    }
+
+    @Override
+    protected void doStart()
+            throws Exception
+    {
+        for (Entry e : entriesByComponent.values()) {
+            e.controller.start();
+        }
+    }
+
+    @Override
+    protected void doStop()
+            throws Exception
+    {
+        for (Entry e : entriesByComponent.values()) {
+            e.controller.stop();
+        }
+    }
+
+    @Override
+    protected void doClose()
+            throws Exception
+    {
+        for (Entry e : entriesByComponent.values()) {
+            e.controller.close();
+        }
     }
 }
