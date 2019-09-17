@@ -13,8 +13,9 @@
  */
 package com.wrmsr.tokamak.util.lifecycle;
 
-import com.google.inject.AbstractModule;
+import com.google.inject.Binder;
 import com.google.inject.Binding;
+import com.google.inject.Module;
 import com.google.inject.matcher.Matchers;
 import com.google.inject.spi.ProvisionListener;
 
@@ -25,8 +26,7 @@ import java.util.Set;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public class LifecycleModule
-        extends AbstractModule
-        implements ProvisionListener
+        implements Module, ProvisionListener
 {
     private final static class State
     {
@@ -48,10 +48,10 @@ public class LifecycleModule
     }
 
     @Override
-    protected void configure()
+    public void configure(Binder binder)
     {
-        bindListener(Matchers.any(), this);
-        bind(LifecycleManager.class).toInstance(lifecycleManager);
+        binder.bindListener(Matchers.any(), this);
+        binder.bind(LifecycleManager.class).toInstance(lifecycleManager);
     }
 
     @Override

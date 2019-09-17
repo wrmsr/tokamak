@@ -18,6 +18,7 @@ import com.google.inject.Injector;
 import com.wrmsr.tokamak.main.server.util.jaxrs.NettyServer;
 import com.wrmsr.tokamak.main.util.OS;
 import com.wrmsr.tokamak.util.Logger;
+import com.wrmsr.tokamak.util.lifecycle.LifecycleManager;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.Filter;
 import org.apache.logging.log4j.core.LoggerContext;
@@ -27,6 +28,8 @@ import org.apache.logging.log4j.core.config.builder.api.AppenderComponentBuilder
 import org.apache.logging.log4j.core.config.builder.api.ConfigurationBuilder;
 import org.apache.logging.log4j.core.config.builder.api.ConfigurationBuilderFactory;
 import org.apache.logging.log4j.core.config.builder.impl.BuiltConfiguration;
+
+import static com.wrmsr.tokamak.util.lifecycle.Lifecycles.runLifecycle;
 
 public class ServerMain
 {
@@ -56,14 +59,15 @@ public class ServerMain
     }
 
     public static void main(String[] args)
-            throws InterruptedException
+            throws Exception
     {
         configureLogging();
 
         log.info(OS.get().toString());
 
         Injector injector = Guice.createInjector(new ServerModule());
-
-        injector.getInstance(NettyServer.class).run();
+        runLifecycle(injector.getInstance(LifecycleManager.class), () -> {
+            Thread.sleep(10000);
+        });
     }
 }

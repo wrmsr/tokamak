@@ -14,6 +14,7 @@
 package com.wrmsr.tokamak.main.server.util.jaxrs;
 
 import com.wrmsr.tokamak.util.Logger;
+import com.wrmsr.tokamak.util.lifecycle.AbstractLifecycleComponent;
 import io.netty.channel.Channel;
 import org.glassfish.jersey.netty.httpserver.TokamakNettyHttpContainerProvider;
 
@@ -24,12 +25,15 @@ import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 
 public class NettyServer
+        extends AbstractLifecycleComponent
 {
     private final Logger log = Logger.get(NettyServer.class);
 
     private final Application application;
+    private Channel server;
 
     @Inject
     public NettyServer(Application application)
@@ -37,13 +41,34 @@ public class NettyServer
         this.application = checkNotNull(application);
     }
 
-    public void run()
-            throws InterruptedException
+    public Channel getServer()
+    {
+        return server;
+    }
+
+    @Override
+    protected void doStart()
+            throws Exception
     {
         int port = 9998;
         URI baseUri = UriBuilder.fromUri("http://localhost/").port(port).build();
-        Channel server = TokamakNettyHttpContainerProvider.createServer(baseUri, application, null, ah -> {}, sb -> {});
+        server = TokamakNettyHttpContainerProvider.createServer(baseUri, application, null, ah -> {}, sb -> {});
         log.info("Listening on port %d", port);
-        server.closeFuture().sync();
+    }
+
+    public void requestStop()
+    {
+        checkState(isStarted());
+        log.info("Requested stop");
+        server.close();
+    }
+
+    @Override
+    protected void doStop()
+            throws Exception
+    {
+        log.info("Awaiting stop");
+        server.close().sync();
+        log.info("Stopped");
     }
 }
