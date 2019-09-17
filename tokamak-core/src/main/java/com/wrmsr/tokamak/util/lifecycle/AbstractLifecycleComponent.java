@@ -18,38 +18,47 @@ public abstract class AbstractLifecycleComponent
 {
     private final LifecycleController lifecycleController;
 
+    private final class Delegate
+            implements LifecycleComponent
+    {
+        @Override
+        public String toString()
+        {
+            return "Delegate{target=" + AbstractLifecycleComponent.this + "}";
+        }
+
+        @Override
+        public void construct()
+                throws Exception
+        {
+            doConstruct();
+        }
+
+        @Override
+        public void start()
+                throws Exception
+        {
+            doStart();
+        }
+
+        @Override
+        public void stop()
+                throws Exception
+        {
+            doStop();
+        }
+
+        @Override
+        public void destroy()
+                throws Exception
+        {
+            doDestroy();
+        }
+    }
+
     public AbstractLifecycleComponent()
     {
-        lifecycleController = new LifecycleController(new LifecycleComponent()
-        {
-            @Override
-            public void construct()
-                    throws Exception
-            {
-                doConstruct();
-            }
-
-            @Override
-            public void start()
-                    throws Exception
-            {
-                doStart();
-            }
-
-            @Override
-            public void stop()
-                    throws Exception
-            {
-                doStop();
-            }
-
-            @Override
-            public void destroy()
-                    throws Exception
-            {
-                doDestroy();
-            }
-        });
+        lifecycleController = new LifecycleController(new Delegate());
     }
 
     public LifecycleController getLifecycleController()

@@ -11,29 +11,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.util.lifecycle;
+package com.wrmsr.tokamak.util;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.AbstractModule;
-import com.google.inject.Binding;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.TypeLiteral;
 import com.google.inject.matcher.Matchers;
 import com.google.inject.spi.InjectionListener;
-import com.google.inject.spi.ProvisionListener;
 import com.google.inject.spi.TypeEncounter;
 import com.google.inject.spi.TypeListener;
 import com.wrmsr.tokamak.util.inject.advice.AdvisesBinder;
+import com.wrmsr.tokamak.util.lifecycle.AbstractLifecycleComponent;
+import com.wrmsr.tokamak.util.lifecycle.LifecycleComponent;
+import com.wrmsr.tokamak.util.lifecycle.LifecycleManager;
+import com.wrmsr.tokamak.util.lifecycle.LifecycleModule;
+import com.wrmsr.tokamak.util.lifecycle.LifecycleState;
 import junit.framework.TestCase;
 
 import javax.inject.Inject;
 
-import java.util.ArrayDeque;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 import java.util.function.UnaryOperator;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -148,73 +146,6 @@ public class LifecycleTest
         J j = inj.getInstance(J.class);
     }
 
-    public static final class LifecycleDependencyTracker
-    {
-        private final Object lock = new Object();
-        private final Map<LifecycleComponent, Set<LifecycleComponent>> dependencySetsByDependant = new HashMap<>();
-
-        public void track(LifecycleComponent dependant, LifecycleComponent dependency)
-        {
-            synchronized (lock) {
-                dependencySetsByDependant.computeIfAbsent(dependant, c -> new HashSet<>()).add(dependency);
-            }
-        }
-    }
-
-    public static class LifecycleRecordingModule
-            extends AbstractModule
-            implements ProvisionListener
-    {
-        private final static class State
-        {
-            private final Binding<?> binding;
-            private final Set<LifecycleComponent> dependencies = new HashSet<>();
-
-            public State(Binding<?> binding)
-            {
-                this.binding = checkNotNull(binding);
-            }
-        }
-
-        private final ThreadLocal<ArrayDeque<State>> stack = ThreadLocal.withInitial(ArrayDeque::new);
-        private final LifecycleDependencyTracker dependencyTracker = new LifecycleDependencyTracker();
-
-        public LifecycleDependencyTracker getDependencyTracker()
-        {
-            return dependencyTracker;
-        }
-
-        @Override
-        protected void configure()
-        {
-            bindListener(Matchers.any(), this);
-            bind(LifecycleDependencyTracker.class).toInstance(dependencyTracker);
-        }
-
-        @Override
-        public <T> void onProvision(ProvisionInvocation<T> invocation)
-        {
-            Class rawType = invocation.getBinding().getKey().getTypeLiteral().getRawType();
-            if (!LifecycleComponent.class.isAssignableFrom(rawType)) {
-                invocation.provision();
-                return;
-            }
-            ArrayDeque<State> stack = this.stack.get();
-            State prev = stack.peekFirst();
-            State cur = new State(invocation.getBinding());
-            stack.push(cur);
-            try {
-                LifecycleComponent component = (LifecycleComponent) invocation.provision();
-                if (prev != null) {
-                    prev.dependencies.add(component);
-                }
-            }
-            finally {
-                stack.pop();
-            }
-        }
-    }
-
     public void testGuice3()
             throws Throwable
     {
@@ -223,12 +154,14 @@ public class LifecycleTest
             @Override
             protected void configure()
             {
-                install(new LifecycleRecordingModule());
+                install(new LifecycleModule());
                 bind(I.class);
                 bind(J.class);
             }
         });
 
+        LifecycleManager man = inj.getInstance(LifecycleManager.class);
         J j = inj.getInstance(J.class);
+        System.out.println(j);
     }
 }
