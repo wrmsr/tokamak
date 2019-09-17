@@ -14,8 +14,8 @@
 package com.wrmsr.tokamak.server;
 
 import com.google.common.collect.ImmutableList;
-import com.wrmsr.tokamak.server.util.exec.Exec;
-import com.wrmsr.tokamak.server.util.jna.JnaExec;
+import com.wrmsr.tokamak.server.util.exec.Execs;
+import com.wrmsr.tokamak.server.util.jna.JnaExecs;
 
 import java.io.File;
 import java.nio.file.Paths;
@@ -40,9 +40,9 @@ public class ReexecMain
     public static void main(String[] args)
             throws Exception
     {
-        Exec exec;
+        Execs execs;
 
-        exec = new JnaExec();
+        execs = new JnaExecs();
         // exec = new ProcessBuilderExec();
 
         // exec.exec("/bin/echo", ImmutableList.of("hi"), ImmutableMap.of());
@@ -51,6 +51,6 @@ public class ReexecMain
         String cp = System.getProperty("java.class.path");
         String main = "com.wrmsr.tokamak.server.ServerMain";
 
-        exec.exec(jvm, ImmutableList.of("-cp", cp, main, "-noreexec"));
+        execs.exec(jvm, ImmutableList.of("-cp", cp, main, "-noreexec"));
     }
 }

@@ -17,14 +17,14 @@ import com.google.common.collect.ImmutableList;
 import com.sun.jna.Library;
 import com.sun.jna.Native;
 import com.sun.jna.Platform;
-import com.wrmsr.tokamak.server.util.exec.AbstractExec;
+import com.wrmsr.tokamak.server.util.exec.AbstractExecs;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-public class JnaExec
-        extends AbstractExec
+public class JnaExecs
+        extends AbstractExecs
 {
     public interface Libc
             extends Library

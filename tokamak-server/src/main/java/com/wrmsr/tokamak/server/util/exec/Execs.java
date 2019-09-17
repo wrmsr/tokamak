@@ -20,7 +20,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public interface Exec
+public interface Execs
 {
     void exec(String path, List<String> args, Map<String, String> env)
             throws IOException;

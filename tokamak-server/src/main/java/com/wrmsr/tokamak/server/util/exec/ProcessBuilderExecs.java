@@ -19,8 +19,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-public class ProcessBuilderExec
-        extends AbstractExec
+public class ProcessBuilderExecs
+        extends AbstractExecs
 {
     @Override
     public void exec(String path, List<String> args, Map<String, String> env)
