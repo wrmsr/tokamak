@@ -1,7 +1,7 @@
 SHELL=/bin/bash
 UNAME:=$(shell uname)
 
-PYTHON_VERSION=3.7.3
+PYTHON_VERSION:=$(shell cat python/.python-version)
 
 SYSTEM_PYENV:=$(shell if command -v pyenv > /dev/null ; then echo 1 ; else echo 0 ; fi)
 PIP_ARGS:=$(shell if ! [ -z "$$CIRCLECI" ]; then echo '--quiet --progress-bar=off' ; fi)
