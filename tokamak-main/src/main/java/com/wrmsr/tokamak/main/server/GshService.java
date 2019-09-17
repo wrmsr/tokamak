@@ -55,7 +55,7 @@ public class GshService
                 "injector", injector
         ));
 
-        String banner = CharStreams.toString(new InputStreamReader(getClass().getResourceAsStream("banner.txt")));
+        String banner = CharStreams.toString(new InputStreamReader(getClass().getResourceAsStream("/com/wrmsr/tokamak/main/banner.txt")));
         String bannerLit = ("\n" + banner + "\n\n").replace("\n", "\\n");
 
         Path tempDir = Files.createTempDirectory("tokamak-main");

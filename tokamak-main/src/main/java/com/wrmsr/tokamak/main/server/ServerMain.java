@@ -66,7 +66,7 @@ public class ServerMain
 
         Injector injector = Guice.createInjector(new ServerModule());
         runLifecycle(injector.getInstance(LifecycleManager.class), () -> {
-            Thread.sleep(60000);
+            Thread.sleep(600000);
         });
     }
 }

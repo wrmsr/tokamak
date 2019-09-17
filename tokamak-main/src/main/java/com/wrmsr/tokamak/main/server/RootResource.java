@@ -17,6 +17,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.dist.GitRevision;
 
+import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -31,6 +32,7 @@ public class RootResource
 {
     private final Uptime.Service uptimeService;
 
+    @Inject
     public RootResource(Uptime.Service uptimeService)
     {
         this.uptimeService = uptimeService;
