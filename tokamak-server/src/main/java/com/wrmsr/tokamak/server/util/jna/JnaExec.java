@@ -11,12 +11,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.server.util.exec;
+package com.wrmsr.tokamak.server.util.jna;
 
 import com.google.common.collect.ImmutableList;
 import com.sun.jna.Library;
 import com.sun.jna.Native;
 import com.sun.jna.Platform;
+import com.wrmsr.tokamak.server.util.exec.AbstractExec;
 
 import java.io.IOException;
 import java.util.List;
@@ -25,7 +26,7 @@ import java.util.Map;
 public class JnaExec
         extends AbstractExec
 {
-    public interface LibC
+    public interface Libc
             extends Library
     {
         void execve(String pathname, String argv[], String envp[]);
@@ -38,8 +39,8 @@ public class JnaExec
         String[] convertedArgs = ImmutableList.<String>builder().add(path).addAll(args).build().toArray(new String[] {});
         String[] convertedEnv = convertEnv(env);
 
-        LibC libC = Native.load((Platform.isWindows() ? "msvcrt" : "c"), LibC.class);
+        Libc libc = Native.load((Platform.isWindows() ? "msvcrt" : "c"), Libc.class);
 
-        libC.execve(path, convertedArgs, convertedEnv);
+        libc.execve(path, convertedArgs, convertedEnv);
     }
 }
