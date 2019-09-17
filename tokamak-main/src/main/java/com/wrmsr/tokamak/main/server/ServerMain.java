@@ -16,6 +16,8 @@ package com.wrmsr.tokamak.main.server;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.wrmsr.tokamak.main.server.util.jaxrs.NettyServer;
+import com.wrmsr.tokamak.main.util.OS;
+import com.wrmsr.tokamak.util.Logger;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.Filter;
 import org.apache.logging.log4j.core.LoggerContext;
@@ -28,6 +30,8 @@ import org.apache.logging.log4j.core.config.builder.impl.BuiltConfiguration;
 
 public class ServerMain
 {
+    private static final Logger log = Logger.get(ServerMain.class);
+
     // cd tokamak-main/target && tar xvf tokamak-main-0.1-SNAPSHOT.tar.gz && cd tokamak-main-0.1-SNAPSHOT
 
     // --add-opens java.base/java.lang=ALL-UNNAMED
@@ -35,7 +39,7 @@ public class ServerMain
     public static LoggerContext configureLogging()
     {
         ConfigurationBuilder<BuiltConfiguration> builder = ConfigurationBuilderFactory.newConfigurationBuilder();
-        builder.setStatusLevel(Level.ERROR);
+        builder.setStatusLevel(Level.DEBUG);
         builder.add(builder.newFilter("ThresholdFilter", Filter.Result.ACCEPT, Filter.Result.NEUTRAL)
                 .addAttribute("level", Level.INFO));
         AppenderComponentBuilder appenderBuilder = builder.newAppender("Stdout", "CONSOLE").addAttribute("target",
@@ -47,7 +51,7 @@ public class ServerMain
         builder.add(appenderBuilder);
         builder.add(builder.newLogger("org.apache.logging.log4j", Level.INFO)
                 .add(builder.newAppenderRef("Stdout")).addAttribute("additivity", false));
-        builder.add(builder.newRootLogger(Level.ERROR).add(builder.newAppenderRef("Stdout")));
+        builder.add(builder.newRootLogger(Level.DEBUG).add(builder.newAppenderRef("Stdout")));
         return Configurator.initialize(builder.build());
     }
 
@@ -55,6 +59,8 @@ public class ServerMain
             throws InterruptedException
     {
         configureLogging();
+
+        log.info(OS.get().toString());
 
         Injector injector = Guice.createInjector(new ServerModule());
 

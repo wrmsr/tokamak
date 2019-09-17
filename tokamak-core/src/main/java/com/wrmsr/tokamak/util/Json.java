@@ -14,9 +14,13 @@
 package com.wrmsr.tokamak.util;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.TreeNode;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.cbor.CBORFactory;
@@ -26,12 +30,19 @@ import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
+import com.google.common.collect.ImmutableSet;
+import com.wrmsr.tokamak.util.lazy.SupplierLazyValue;
 
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Type;
+import java.util.Optional;
+import java.util.Set;
 
 public final class Json
 {
+    private static final Logger log = Logger.get(Json.class);
+
     private Json()
     {
     }
@@ -64,12 +75,88 @@ public final class Json
                 new GuavaModule(),
                 new JavaTimeModule());
 
+        getAfterburnerModuleFactory().ifPresent(f -> objectMapper.registerModule(f.get()));
+
         return objectMapper;
+    }
+
+    private static final SupplierLazyValue<Optional<Class<? extends Module>>> afterburnerModule = new SupplierLazyValue<>();
+
+    public static Optional<Class<? extends Module>> getAfterburnerModule()
+    {
+        return afterburnerModule.get(() -> {
+            try {
+                @SuppressWarnings({"unchecked"})
+                Class<? extends Module> module = (Class<? extends Module>)
+                        Class.forName("com.fasterxml.jackson.module.afterburner.AfterburnerModule");
+                if (module != null) {
+                    log.debug("Loaded afterburner");
+                    return Optional.of(module);
+                }
+            }
+            catch (Exception e) {
+                log.debug("Failed to load afterburner: %s", e);
+            }
+            return Optional.empty();
+        });
+    }
+
+    private static final SupplierLazyValue<Optional<Supplier<? extends Module>>> afterburnerModuleFactory = new SupplierLazyValue<>();
+
+    public static Optional<Supplier<? extends Module>> getAfterburnerModuleFactory()
+    {
+        return afterburnerModuleFactory.get(() -> {
+            Optional<Class<? extends Module>> cls = getAfterburnerModule();
+            if (cls.isPresent()) {
+                try {
+                    Constructor<? extends Module> ctor = cls.get().getDeclaredConstructor();
+                    if (ctor != null) {
+                        Supplier<? extends Module> supplier = () -> {
+                            try {
+                                return ctor.newInstance();
+                            }
+                            catch (ReflectiveOperationException e) {
+                                throw new RuntimeException(e);
+                            }
+                        };
+                        Module module = supplier.get();
+                        if (module != null) {
+                            return Optional.of(supplier);
+                        }
+                    }
+                }
+                catch (Exception e) {
+                    log.debug("Failed to create afterburner factory: %s", e);
+                }
+            }
+            return Optional.empty();
+        });
+    }
+
+    public static final Set<JsonParser.Feature> RELAXED_JSON_PARSER_FEATURES = ImmutableSet.of(
+            JsonParser.Feature.ALLOW_COMMENTS,
+            JsonParser.Feature.ALLOW_YAML_COMMENTS,
+            JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES,
+            JsonParser.Feature.ALLOW_SINGLE_QUOTES,
+            JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS,
+            JsonParser.Feature.ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER,
+            JsonParser.Feature.ALLOW_MISSING_VALUES
+    );
+
+    public static JsonFactory configureRelaxedJsonFactory(JsonFactory jsonFactory)
+    {
+        RELAXED_JSON_PARSER_FEATURES.forEach(jsonFactory::enable);
+        return jsonFactory;
     }
 
     public static ObjectMapper newObjectMapper()
     {
         return configureObjectMapper(new ObjectMapper());
+    }
+
+    public static ObjectMapper newRelaxedObjectMapper()
+    {
+        return configureObjectMapper(new ObjectMapper(configureRelaxedJsonFactory(new JsonFactory())));
     }
 
     public static ObjectMapper newCborObjectMapper()
@@ -124,7 +211,34 @@ public final class Json
         }
     }
 
-    public static <T> T roundTrip(ObjectMapper mapper, Object value, TypeReference<T> valueType)
+    public static <T> T roundTripTree(ObjectMapper mapper, Object value, TypeReference<T> valueType)
+    {
+        try {
+            TreeNode treeNode = mapper.valueToTree(value);
+            JsonParser jsonParser = mapper.treeAsTokens(treeNode);
+            return mapper.readValue(jsonParser, valueType);
+        }
+        catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static Object roundTripTree(ObjectMapper mapper, Object value)
+    {
+        return roundTripTree(mapper, value, new TypeReference<Object>() {});
+    }
+
+    public static <T> T roundTripTree(Object value, TypeReference<T> valueType)
+    {
+        return roundTripTree(OBJECT_MAPPER_SUPPLIER.get(), value, valueType);
+    }
+
+    public static Object roundTripTree(Object value)
+    {
+        return roundTripTree(value, new TypeReference<Object>() {});
+    }
+
+    public static <T> T roundTripBytes(ObjectMapper mapper, Object value, TypeReference<T> valueType)
     {
         try {
             return mapper.readValue(mapper.writeValueAsBytes(value), valueType);
@@ -134,19 +248,19 @@ public final class Json
         }
     }
 
-    public static Object roundTrip(ObjectMapper mapper, Object value)
+    public static Object roundTripBytes(ObjectMapper mapper, Object value)
     {
-        return roundTrip(mapper, value, new TypeReference<Object>() {});
+        return roundTripBytes(mapper, value, new TypeReference<Object>() {});
     }
 
-    public static <T> T roundTrip(Object value, TypeReference<T> valueType)
+    public static <T> T roundTripBytes(Object value, TypeReference<T> valueType)
     {
-        return roundTrip(OBJECT_MAPPER_SUPPLIER.get(), value, valueType);
+        return roundTripBytes(OBJECT_MAPPER_SUPPLIER.get(), value, valueType);
     }
 
-    public static Object roundTrip(Object value)
+    public static Object roundTripBytes(Object value)
     {
-        return roundTrip(value, new TypeReference<Object>() {});
+        return roundTripBytes(value, new TypeReference<Object>() {});
     }
 
     public static <V> TypeReference<V> typeReference(Class<V> cls)

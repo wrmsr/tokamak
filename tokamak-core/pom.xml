@@ -138,7 +138,6 @@
             <plugin>
                 <artifactId>exec-maven-plugin</artifactId>
                 <groupId>org.codehaus.mojo</groupId>
-                <version>1.6.0</version>
                 <executions>
                     <execution>
                         <phase>prepare-package</phase>
