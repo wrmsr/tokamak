@@ -25,6 +25,8 @@ import java.nio.file.Path;
 
 public class GshTest
 {
+    // https://www.ascii-art-generator.org/
+
     // ssh -o "StrictHostKeyChecking no" -o "UserKnownHostsFile /dev/null" 127.1 -p 6789
 
     @Test

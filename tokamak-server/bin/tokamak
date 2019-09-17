@@ -1,3 +1,17 @@
 #!/usr/bin/env bash
-LIB="${BASH_SOURCE%/*}/../lib"
+set -e
+realpath() (
+    TARGET=$1
+    cd $(dirname "$TARGET")
+    TARGET=$(basename "$TARGET")
+    while [ -L "$TARGET" ] ; do
+        TARGET=$(readlink "$TARGET")
+        cd $(dirname "$TARGET")
+        TARGET=$(basename "$TARGET")
+    done
+    DIR=`pwd -P`
+    echo "$DIR/$TARGET"
+)
+BIN=$(dirname $(realpath "${BASH_SOURCE%/*}/${0##*/}"))
+LIB="$BIN/../lib"
 java $JAVA_OPTS -cp "$LIB/*" com.wrmsr.tokamak.server.ServerMain "$*"

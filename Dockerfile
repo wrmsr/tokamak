@@ -35,11 +35,11 @@ RUN cd /build && ./mvnw package -DskipTests
 FROM openjdk:8u222-stretch
 COPY .dockertimestamp /
 
-RUN mkdir /app
-COPY --from=build build/tokamak-server/target/tokamak-server-*.tar.gz /app/tokamak-server-*.tar.gz
-RUN cd /app && tar xvf tokamak-server-*.tar.gz
-RUN rm /app/tokamak-server-*.tar.gz
-RUN cd /app && ln -s $(find . -name 'tokamak-server-*' -type d | head -n 1) tokamak-server
+COPY --from=build build/tokamak-server/target/tokamak-server-*.tar.gz /tokamak-server-*.tar.gz
+RUN tar xvf tokamak-server-*.tar.gz
+RUN rm tokamak-server-*.tar.gz
+RUN mv $(find . -name 'tokamak-server-*' -type d | head -n 1) tokamak-server
+RUN cd /tokamak/bin && for f in $(find . -type f) ; do ln -s "/tokamak/bin/$f" "/usr/bin/$f" ; done
 
-WORKDIR /app/tokamak-server
-CMD ["bin/tokamak"]
+WORKDIR /root
+CMD ["tokamak"]
