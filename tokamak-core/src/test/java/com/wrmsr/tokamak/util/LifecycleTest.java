@@ -20,10 +20,10 @@ import com.wrmsr.tokamak.util.lifecycle.LifecycleManager;
 import com.wrmsr.tokamak.util.lifecycle.LifecycleState;
 import junit.framework.TestCase;
 
-import java.util.function.Supplier;
+import static com.wrmsr.tokamak.util.lifecycle.Lifecycles.runLifecycle;
 
 public class LifecycleTest
-    extends TestCase
+        extends TestCase
 {
     public static class A
             implements LifecycleComponent
@@ -37,43 +37,20 @@ public class LifecycleTest
 
     }
 
-    public static <T> T runLifecycle(LifecycleComponent component, Supplier<T> body)
-            throws Exception
-    {
-        component.construct();
-        try {
-            component.start();
-            T result = body.get();
-            component.stop();
-            return result;
-        }
-        finally {
-            component.destroy();
-        }
-    }
-
-    public static void runLifecycle(LifecycleComponent component, Runnable runnable)
-            throws Exception
-    {
-        runLifecycle(component, () -> {
-            runnable.run();
-            return null;
-        });
-    }
-
     public void testLifecycle()
             throws Throwable
     {
-        LifecycleManager lr = new LifecycleManager();
+        LifecycleManager lm = new LifecycleManager();
         A a = new A();
         B b = new B();
 
-        lr.add(b, ImmutableList.of(a));
+        lm.add(b, ImmutableList.of(a));
 
-        runLifecycle(lr, () -> {
-            assertEquals(LifecycleState.STARTED, lr.getState());
+        runLifecycle(lm, () -> {
+            assertEquals(LifecycleState.STARTED, lm.getState());
+            assertTrue(lm.isStarted());
             assertEquals(LifecycleState.STARTED, b.getLifecycleState());
-            assertEquals(LifecycleState.STARTED, lr.getState(a));
+            assertEquals(LifecycleState.STARTED, lm.getState(a));
         });
     }
 }

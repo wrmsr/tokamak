@@ -28,14 +28,6 @@ import static com.google.common.base.Preconditions.checkState;
 public final class LifecycleManager
         extends AbstractLifecycleComponent
 {
-    /*
-    TODO:
-     - self-deps (including component depping registry itself)
-     - injector integration
-     - @PostConstruct / javax.inject interop?
-     - LifecycleController parent/hierarchy, ensure 0 or 1 parent
-    */
-
     private class Entry
     {
         private final LifecycleController controller;
