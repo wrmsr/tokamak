@@ -36,10 +36,13 @@ FROM openjdk:8u222-stretch
 COPY .dockertimestamp /
 
 COPY --from=build build/tokamak-main/target/tokamak-main-*.tar.gz /tokamak-main-*.tar.gz
-RUN tar xvf tokamak-main-*.tar.gz
-RUN rm tokamak-main-*.tar.gz
-RUN mv $(find . -name 'tokamak-main-*' -type d | head -n 1) tokamak
-RUN cd /tokamak/bin && for f in $(find . -type f) ; do ln -s "/tokamak/bin/$f" "/usr/bin/$f" ; done
+
+RUN ( \
+    tar xvf tokamak-main-*.tar.gz && \
+    rm tokamak-main-*.tar.gz && \
+    mv $(find . -name 'tokamak-main-*' -type d | head -n 1) tokamak && \
+    (cd /tokamak/bin && for f in $(find . -type f) ; do ln -s "/tokamak/bin/$f" "/usr/bin/$f" ; done) \
+)
 
 WORKDIR /root
 CMD ["tokamak"]
