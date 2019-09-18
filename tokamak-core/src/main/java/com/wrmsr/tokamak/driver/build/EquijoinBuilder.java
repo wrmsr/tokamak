@@ -20,11 +20,11 @@ import com.wrmsr.tokamak.api.FieldKey;
 import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.api.IdKey;
 import com.wrmsr.tokamak.api.Key;
-import com.wrmsr.tokamak.codec.value.NullableValueCodec;
-import com.wrmsr.tokamak.codec.value.TupleValueCodec;
-import com.wrmsr.tokamak.codec.value.ValueCodec;
-import com.wrmsr.tokamak.codec.value.ValueCodecs;
-import com.wrmsr.tokamak.codec.value.VariableLengthValueCodec;
+import com.wrmsr.tokamak.serde.value.NullableValueSerde;
+import com.wrmsr.tokamak.serde.value.TupleValueSerde;
+import com.wrmsr.tokamak.serde.value.ValueSerde;
+import com.wrmsr.tokamak.serde.value.ValueSerdes;
+import com.wrmsr.tokamak.serde.value.VariableLengthValueSerde;
 import com.wrmsr.tokamak.driver.DriverImpl;
 import com.wrmsr.tokamak.driver.DriverRow;
 import com.wrmsr.tokamak.driver.context.DriverContextImpl;
@@ -49,10 +49,10 @@ public final class EquijoinBuilder
         extends Builder<EquijoinNode>
 {
     // FIXME: not necessarily variable
-    private static final ValueCodec<byte[]> NULLABLE_BYTES_VALUE_CODEC =
-            new NullableValueCodec<>(
-                    new VariableLengthValueCodec<>(
-                            ValueCodecs.BYTES_VALUE_CODEC));
+    private static final ValueSerde<byte[]> NULLABLE_BYTES_VALUE_SERDE =
+            new NullableValueSerde<>(
+                    new VariableLengthValueSerde<>(
+                            ValueSerdes.BYTES_VALUE_SERDE));
 
     public EquijoinBuilder(DriverImpl driver, EquijoinNode node, Map<Node, Builder> sources)
     {
@@ -231,11 +231,11 @@ public final class EquijoinBuilder
                 attributes[node.getRowLayout().getPositionsByField().get(e.getKey())] = e.getValue();
             }
 
-            ValueCodec<Object[]> idCodec = new TupleValueCodec(
-                    node.getBranches().stream().map(b -> NULLABLE_BYTES_VALUE_CODEC).collect(toImmutableList()));
+            ValueSerde<Object[]> idSerde = new TupleValueSerde(
+                    node.getBranches().stream().map(b -> NULLABLE_BYTES_VALUE_SERDE).collect(toImmutableList()));
             Object[] idBytesObjects = new Object[node.getBranches().size()];
             System.arraycopy(idProto, 0, idBytesObjects, 0, idProto.length);
-            Id id = new Id(idCodec.encodeBytes(idBytesObjects));
+            Id id = new Id(idSerde.writeBytes(idBytesObjects));
 
             builder.add(
                     new DriverRow(

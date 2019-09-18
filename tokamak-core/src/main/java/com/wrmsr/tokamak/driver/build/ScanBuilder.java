@@ -20,9 +20,9 @@ import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.catalog.Connection;
 import com.wrmsr.tokamak.catalog.Scanner;
 import com.wrmsr.tokamak.catalog.Schema;
-import com.wrmsr.tokamak.codec.ByteArrayInput;
-import com.wrmsr.tokamak.codec.row.RowCodec;
-import com.wrmsr.tokamak.codec.row.RowCodecs;
+import com.wrmsr.tokamak.serde.ByteArrayInput;
+import com.wrmsr.tokamak.serde.row.RowSerde;
+import com.wrmsr.tokamak.serde.row.RowSerdes;
 import com.wrmsr.tokamak.driver.DriverImpl;
 import com.wrmsr.tokamak.driver.DriverRow;
 import com.wrmsr.tokamak.driver.context.DriverContextImpl;
@@ -42,7 +42,7 @@ import static java.util.function.Function.identity;
 public final class ScanBuilder
         extends Builder<ScanNode>
 {
-    private final RowCodec idCodec;
+    private final RowSerde idSerde;
 
     public ScanBuilder(DriverImpl driver, ScanNode node, Map<Node, Builder> sources)
     {
@@ -52,7 +52,7 @@ public final class ScanBuilder
         List<String> orderedFields = node.getFields().keySet().stream()
                 .filter(node.getIdFields()::contains)
                 .collect(toImmutableList());
-        idCodec = RowCodecs.buildRowCodec(
+        idSerde = RowSerdes.buildRowSerde(
                 orderedFields.stream()
                         .collect(toImmutableMap(identity(), node.getFields()::get)));
     }
@@ -67,7 +67,7 @@ public final class ScanBuilder
         Key scanKey;
         if (key instanceof IdKey) {
             byte[] buf = ((IdKey) key).getId().getValue();
-            Map<String, Object> keyFields = idCodec.decodeMap(new ByteArrayInput(buf));
+            Map<String, Object> keyFields = idSerde.decodeMap(new ByteArrayInput(buf));
             scanKey = Key.of(keyFields);
         }
         else {
@@ -80,7 +80,7 @@ public final class ScanBuilder
 
         ImmutableList.Builder<DriverRow> rows = ImmutableList.builder();
         for (Map<String, Object> scanRow : scanRows) {
-            Id id = Id.of(idCodec.encodeBytes(scanRow));
+            Id id = Id.of(idSerde.encodeBytes(scanRow));
             Object[] attributes = scanRow.values().toArray();
             rows.add(
                     new DriverRow(

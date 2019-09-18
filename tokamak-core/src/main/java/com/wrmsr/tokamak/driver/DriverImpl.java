@@ -44,7 +44,7 @@ public class DriverImpl
     private final Catalog catalog;
     private final Plan plan;
 
-    private final CodecManager codecManager;
+    private final SerdeManager serdeManager;
     private final StateStorage stateStorage;
 
     public DriverImpl(Catalog catalog, Plan plan)
@@ -52,7 +52,7 @@ public class DriverImpl
         this.catalog = checkNotNull(catalog);
         this.plan = checkNotNull(plan);
 
-        codecManager = new CodecManager(plan);
+        serdeManager = new SerdeManager(plan);
         stateStorage = new MapHeapStateStorage();
     }
 
@@ -73,9 +73,9 @@ public class DriverImpl
         return LineagePolicy.MINIMAL;
     }
 
-    public CodecManager getCodecManager()
+    public SerdeManager getSerdeManager()
     {
-        return codecManager;
+        return serdeManager;
     }
 
     public StateStorage getStateStorage()

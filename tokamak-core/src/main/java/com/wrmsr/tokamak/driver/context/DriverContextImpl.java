@@ -67,7 +67,7 @@ public class DriverContextImpl
         this.stateCache = new DefaultStateCache(
                 driver.getPlan(),
                 driver.getStateStorage(),
-                driver.getCodecManager(),
+                driver.getSerdeManager(),
                 ImmutableList.of(),
                 Stat.Updater.nop());
 

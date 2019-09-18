@@ -18,10 +18,10 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.api.Row;
-import com.wrmsr.tokamak.driver.CodecManager;
+import com.wrmsr.tokamak.driver.SerdeManager;
 import com.wrmsr.tokamak.driver.context.diag.Stat;
 import com.wrmsr.tokamak.driver.state.State;
-import com.wrmsr.tokamak.driver.state.StateCodec;
+import com.wrmsr.tokamak.driver.state.StateStorageCodec;
 import com.wrmsr.tokamak.driver.state.StateStorage;
 import com.wrmsr.tokamak.driver.state.StorageState;
 import com.wrmsr.tokamak.node.Node;
@@ -67,7 +67,7 @@ public class DefaultStateCache
 
     private final Plan plan;
     private final StateStorage storage;
-    private final CodecManager codecManager;
+    private final SerdeManager serdeManager;
     private final List<AttributesSetCallback> attributesSetCallbacks;
     private final Stat.Updater statUpdater;
 
@@ -84,13 +84,13 @@ public class DefaultStateCache
     public DefaultStateCache(
             Plan plan,
             StateStorage storage,
-            CodecManager codecManager,
+            SerdeManager serdeManager,
             List<AttributesSetCallback> attributesSetCallbacks,
             Stat.Updater statUpdater)
     {
         this.plan = checkNotNull(plan);
         this.storage = checkNotNull(storage);
-        this.codecManager = checkNotNull(codecManager);
+        this.serdeManager = checkNotNull(serdeManager);
         this.attributesSetCallbacks = ImmutableList.copyOf(attributesSetCallbacks);
         this.statUpdater = checkNotNull(statUpdater);
 
@@ -149,7 +149,7 @@ public class DefaultStateCache
                 return Optional.empty();
             }
             StorageState storageState = checkSingle(checkSingle(storageResult.values()).values());
-            state = codecManager.getStateCodecsByNode().get(node).decode(storageState);
+            state = serdeManager.getStateStorageCodecsByNode().get(node).decode(storageState);
         }
 
         checkNotNull(state);
@@ -302,11 +302,11 @@ public class DefaultStateCache
             for (Map.Entry<Node, Map<Id, State>> e0 : statesByIdByNode.entrySet()) {
                 Node node = e0.getKey();
                 Map<Id, State> statesById = e0.getValue();
-                StateCodec stateCodec = codecManager.getStateCodecsByNode().get(node);
+                StateStorageCodec stateStorageCodec = serdeManager.getStateStorageCodecsByNode().get(node);
                 for (Map.Entry<Id, State> e1 : statesById.entrySet()) {
                     Id id = e1.getKey();
                     State state = e1.getValue();
-                    StorageState storageState = stateCodec.encode(state);
+                    StorageState storageState = stateStorageCodec.encode(state);
                 }
             }
         }
