@@ -28,6 +28,8 @@ import org.apache.logging.log4j.core.config.builder.api.ConfigurationBuilder;
 import org.apache.logging.log4j.core.config.builder.api.ConfigurationBuilderFactory;
 import org.apache.logging.log4j.core.config.builder.impl.BuiltConfiguration;
 
+import java.io.InputStreamReader;
+
 import static com.wrmsr.tokamak.util.lifecycle.Lifecycles.runLifecycle;
 
 public class ServerMain
@@ -60,6 +62,11 @@ public class ServerMain
     public static void main(String[] args)
             throws Exception
     {
+        System.out.println("press enter");
+        try (InputStreamReader isr = new InputStreamReader(System.in)) {
+            while (isr.read() != '\n') {}
+        }
+
         System.setProperty("apple.awt.UIElement", "true");
         System.setProperty("java.awt.headless", "true");
 
