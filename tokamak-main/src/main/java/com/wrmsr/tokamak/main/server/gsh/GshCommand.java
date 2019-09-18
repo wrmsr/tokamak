@@ -21,12 +21,12 @@ import org.apache.sshd.server.Environment;
 import org.apache.sshd.server.ExitCallback;
 import org.apache.sshd.server.SessionAware;
 import org.apache.sshd.server.SshServer;
+import org.apache.sshd.server.channel.ChannelSession;
 import org.apache.sshd.server.command.Command;
 import org.apache.sshd.server.session.ServerSession;
 import org.codehaus.groovy.tools.shell.Groovysh;
 import org.codehaus.groovy.tools.shell.IO;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
 import java.io.OutputStream;
@@ -89,8 +89,7 @@ public class GshCommand
     }
 
     @Override
-    public void start(final Environment env)
-            throws IOException
+    public void start(ChannelSession channel, Environment env)
     {
         TtyFilterOutputStream out = new TtyFilterOutputStream(this.out);
         TtyFilterOutputStream err = new TtyFilterOutputStream(this.err);
@@ -145,7 +144,6 @@ public class GshCommand
     }
 
     private Binding createBinding(Map<String, Object> objects, OutputStream out, OutputStream err)
-            throws UnsupportedEncodingException
     {
         Binding binding = new Binding();
 
@@ -153,6 +151,7 @@ public class GshCommand
 
         binding.setVariable("out", createPrintStream(out));
         binding.setVariable("err", createPrintStream(err));
+
         binding.setVariable("activeSessions", new Closure<List<AbstractSession>>(this)
         {
             @Override
@@ -166,9 +165,13 @@ public class GshCommand
     }
 
     private static PrintStream createPrintStream(OutputStream out)
-            throws UnsupportedEncodingException
     {
-        return new PrintStream(out, true, "utf8");
+        try {
+            return new PrintStream(out, true, "utf8");
+        }
+        catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @SuppressWarnings({"unchecked", "serial"})
@@ -201,7 +204,8 @@ public class GshCommand
     }
 
     @Override
-    public void destroy()
+    public void destroy(ChannelSession channel)
+            throws Exception
     {
         wrapper.interrupt();
     }

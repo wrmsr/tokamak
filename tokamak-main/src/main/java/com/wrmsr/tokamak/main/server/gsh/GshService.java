@@ -19,7 +19,6 @@ import com.google.common.io.CharStreams;
 import com.google.inject.Injector;
 import com.wrmsr.tokamak.util.Logger;
 import com.wrmsr.tokamak.util.lifecycle.AbstractLifecycle;
-import org.apache.sshd.common.Factory;
 import org.apache.sshd.common.NamedFactory;
 import org.apache.sshd.common.PropertyResolverUtils;
 import org.apache.sshd.common.session.Session;
@@ -29,13 +28,16 @@ import org.apache.sshd.server.auth.UserAuth;
 import org.apache.sshd.server.auth.UserAuthNoneFactory;
 import org.apache.sshd.server.auth.password.PasswordAuthenticator;
 import org.apache.sshd.server.auth.password.UserAuthPasswordFactory;
+import org.apache.sshd.server.channel.ChannelSession;
 import org.apache.sshd.server.command.Command;
 import org.apache.sshd.server.keyprovider.SimpleGeneratorHostKeyProvider;
+import org.apache.sshd.server.shell.ShellFactory;
 import org.codehaus.groovy.tools.shell.Groovysh;
 
 import javax.inject.Inject;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -161,10 +163,11 @@ public class GshService
     }
 
     private class GroovyShellFactory
-            implements Factory<Command>
+            implements ShellFactory
     {
         @Override
-        public Command create()
+        public Command createShell(ChannelSession channel)
+                throws IOException
         {
             return new GshCommand(sshd, bindings, defaultScripts);
         }
