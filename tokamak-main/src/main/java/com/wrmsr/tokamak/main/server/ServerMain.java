@@ -15,7 +15,7 @@ package com.wrmsr.tokamak.main.server;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.wrmsr.tokamak.main.bootstrap.Bootstrap;
+import com.wrmsr.tokamak.main.boot.Bootstrap;
 import com.wrmsr.tokamak.util.Logger;
 import com.wrmsr.tokamak.util.Os;
 import com.wrmsr.tokamak.util.lifecycle.LifecycleManager;

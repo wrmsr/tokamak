@@ -17,7 +17,7 @@ import com.sun.jna.LastErrorException;
 import com.sun.jna.Library;
 import com.sun.jna.Native;
 
-import com.wrmsr.tokamak.main.bootstrap.dns.LocalHostnameGetter;
+import com.wrmsr.tokamak.main.boot.dns.LocalHostnameGetter;
 
 public final class JnaLocalHostnameGetter
     implements LocalHostnameGetter

@@ -17,9 +17,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Binder;
 import com.google.inject.Module;
 import com.wrmsr.tokamak.main.server.gsh.GshService;
-import com.wrmsr.tokamak.main.server.util.jaxrs.ApplicationModule;
-import com.wrmsr.tokamak.main.server.util.jaxrs.NettyServer;
-import com.wrmsr.tokamak.main.server.util.jaxrs.Resource;
+import com.wrmsr.tokamak.main.server.jaxrs.ApplicationModule;
+import com.wrmsr.tokamak.main.server.jaxrs.NettyServer;
+import com.wrmsr.tokamak.main.server.jaxrs.Resource;
 import com.wrmsr.tokamak.util.Json;
 import com.wrmsr.tokamak.util.lifecycle.LifecycleModule;
 

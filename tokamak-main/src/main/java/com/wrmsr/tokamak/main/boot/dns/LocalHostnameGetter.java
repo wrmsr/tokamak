@@ -11,21 +11,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.main.server.util.jaxrs;
+package com.wrmsr.tokamak.main.boot.dns;
 
-import com.google.inject.BindingAnnotation;
+import com.google.common.collect.ImmutableList;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
+import java.net.InetAddress;
+import java.util.List;
 
-import static java.lang.annotation.ElementType.FIELD;
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.ElementType.PARAMETER;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
+import static com.wrmsr.tokamak.util.MoreSystem.runSubprocessLines;
 
-@BindingAnnotation
-@Target({FIELD, PARAMETER, METHOD})
-@Retention(RUNTIME)
-public @interface Resource
+@FunctionalInterface
+public interface LocalHostnameGetter
 {
+    String get()
+            throws Exception;
+
+    LocalHostnameGetter JDK = () -> InetAddress.getLocalHost().getHostName();
+
+    LocalHostnameGetter SUBPROCESS = () -> {
+        List<String> lines = runSubprocessLines(ImmutableList.of("hostname"), 5000, true);
+        return lines.get(0);
+    };
 }

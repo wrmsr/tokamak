@@ -11,18 +11,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.main;
+package com.wrmsr.tokamak.main.server.jaxrs;
 
-import com.wrmsr.tokamak.main.boot.Bootstrap;
-import com.wrmsr.tokamak.main.server.ServerMain;
+import com.google.inject.BindingAnnotation;
 
-public class Main
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
+
+import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.ElementType.PARAMETER;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
+
+@BindingAnnotation
+@Target({FIELD, PARAMETER, METHOD})
+@Retention(RUNTIME)
+public @interface Resource
 {
-    public static void main(String[] args)
-            throws Throwable
-    {
-        Bootstrap.bootstrap();
-        // ReplMain.main(args);
-        ServerMain.main(args);
-    }
 }

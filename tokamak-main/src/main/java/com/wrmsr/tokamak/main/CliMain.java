@@ -13,17 +13,15 @@
  */
 package com.wrmsr.tokamak.main;
 
-import com.wrmsr.tokamak.main.bootstrap.Bootstrap;
+import com.wrmsr.tokamak.main.boot.Bootstrap;
+import com.wrmsr.tokamak.main.server.ServerMain;
 import picocli.CommandLine;
 
-import java.io.File;
-import java.math.BigInteger;
-import java.nio.file.Files;
-import java.security.MessageDigest;
 import java.util.concurrent.Callable;
 
 public class CliMain
 {
+    /*
     @CommandLine.Command(name = "checksum", mixinStandardHelpOptions = true, version = "checksum 4.0",
             description = "Prints the checksum (MD5 by default) of a file to STDOUT.")
     public static class CheckSum
@@ -53,11 +51,24 @@ public class CliMain
             return 0;
         }
     }
+    */
+
+    @CommandLine.Command(name = "serve", mixinStandardHelpOptions = true)
+    public static class ServeCommand
+            implements Callable<Void>
+    {
+        @Override
+        public Void call()
+                throws Exception
+        {
+            ServerMain.main(new String[] {});
+        }
+    }
 
     public static void main(String[] args)
             throws Throwable
     {
         Bootstrap.bootstrap();
-        new CommandLine(new CheckSum()).execute(args);
+        new CommandLine(new ServerMain()).execute(args);
     }
 }

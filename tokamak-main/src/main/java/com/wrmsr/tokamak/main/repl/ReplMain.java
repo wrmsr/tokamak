@@ -14,7 +14,7 @@
 package com.wrmsr.tokamak.main.repl;
 
 import com.google.common.base.Strings;
-import com.wrmsr.tokamak.main.bootstrap.Bootstrap;
+import com.wrmsr.tokamak.main.boot.Bootstrap;
 import jline.console.history.FileHistory;
 import jline.console.history.History;
 import jline.console.history.MemoryHistory;
