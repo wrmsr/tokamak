@@ -11,9 +11,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.main.util.dns;
+package com.wrmsr.tokamak.main.bootstrap.dns;
+
+import com.google.common.collect.ImmutableList;
 
 import java.net.InetAddress;
+import java.util.List;
+
+import static com.wrmsr.tokamak.util.MoreSystem.runSubprocessLines;
 
 @FunctionalInterface
 public interface LocalHostnameGetter
@@ -22,4 +27,9 @@ public interface LocalHostnameGetter
             throws Exception;
 
     LocalHostnameGetter JDK = () -> InetAddress.getLocalHost().getHostName();
+
+    LocalHostnameGetter SUBPROCESS = () -> {
+        List<String> lines = runSubprocessLines(ImmutableList.of("hostname"), 5000, true);
+        return lines.get(0);
+    };
 }

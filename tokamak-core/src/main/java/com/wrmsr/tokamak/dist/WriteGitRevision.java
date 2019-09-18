@@ -14,8 +14,8 @@
 package com.wrmsr.tokamak.dist;
 
 import com.google.common.base.Charsets;
+import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.util.subprocess.FinalizedProcess;
-import com.wrmsr.tokamak.util.subprocess.FinalizedProcessBuilder;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -28,6 +28,7 @@ import java.util.concurrent.TimeUnit;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
+import static com.wrmsr.tokamak.util.MoreSystem.runSubprocessLines;
 
 public class WriteGitRevision
 {
@@ -49,31 +50,21 @@ public class WriteGitRevision
     public static String runGitRev()
             throws IOException, InterruptedException
     {
-        FinalizedProcessBuilder pb = new FinalizedProcessBuilder().command(
-                "git",
-                "describe",
-                "--match=NeVeRmAtCh",
-                "--always",
-                "--abbrev=40",
-                "--dirty"
-        );
-        pb.redirectError(ProcessBuilder.Redirect.INHERIT);
-        List<String> lines = new ArrayList<>();
-        try (FinalizedProcess process = pb.start()) {
-            process.getOutputStream().close();
-            Scanner scanner = new Scanner(process.getInputStream());
-            while (scanner.hasNextLine()) {
-                String line = scanner.nextLine().trim();
-                if (!line.isEmpty()) {
-                    lines.add(line);
-                }
-            }
-            process.waitFor(3, TimeUnit.SECONDS);
-        }
+        List<String> lines = runSubprocessLines(
+                ImmutableList.of(
+                        "git",
+                        "describe",
+                        "--match=NeVeRmAtCh",
+                        "--always",
+                        "--abbrev=40",
+                        "--dirty"
+                ),
+                3000,
+                true);
         if (lines.size() < 1) {
             throw new IllegalStateException();
         }
-        String rev = lines.get(0);
+        String rev = lines.get(0).trim();
         if (!rev.matches("[0-9a-fA-f]{40}(-dirty)?")) {
             throw new IllegalStateException(rev);
         }

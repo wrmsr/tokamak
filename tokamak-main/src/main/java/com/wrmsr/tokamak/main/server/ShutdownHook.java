@@ -13,7 +13,7 @@
  */
 package com.wrmsr.tokamak.main.server;
 
-import com.wrmsr.tokamak.main.util.jna.JnaPids;
+import com.wrmsr.tokamak.main.jna.JnaPids;
 import com.wrmsr.tokamak.main.util.pid.Pids;
 
 public class ShutdownHook

@@ -15,7 +15,7 @@ package com.wrmsr.tokamak.main;
 
 import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.main.util.exec.Execs;
-import com.wrmsr.tokamak.main.util.jna.JnaExecs;
+import com.wrmsr.tokamak.main.jna.JnaExecs;
 
 import java.io.File;
 import java.nio.file.Paths;

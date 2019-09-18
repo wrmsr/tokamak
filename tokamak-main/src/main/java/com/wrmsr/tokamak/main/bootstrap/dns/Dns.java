@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.main.util.dns;
+package com.wrmsr.tokamak.main.bootstrap.dns;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Charsets;
@@ -19,7 +19,6 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.wrmsr.tokamak.main.util.jna.JnaLocalHostnameGetter;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -45,7 +44,7 @@ public final class Dns
     {
     }
 
-    public static Path patchHostsFile(Path path, Map<String, String> rpls)
+    public static Path rewriteHostsFile(Path path, Map<String, String> replacements)
             throws IOException
     {
         List<String> lines = Files.readAllLines(path);
@@ -54,10 +53,10 @@ public final class Dns
                 ImmutableList.<String>builder().addAll(
                         lines.stream().map(l -> {
                             List<String> parts = Splitter.on(CharMatcher.whitespace()).splitToList(l);
-                            if (rpls.isEmpty()) {
+                            if (replacements.isEmpty()) {
                                 return "";
                             }
-                            String rpl = rpls.get(parts.get(0));
+                            String rpl = replacements.get(parts.get(0));
                             if (rpl != null) {
                                 return "";
                             }
@@ -65,7 +64,7 @@ public final class Dns
                                 return l;
                             }
                         }).collect(toImmutableList()))
-                        .addAll(rpls.values())
+                        .addAll(replacements.values())
                         .build());
 
         return writeTempFile("hosts", out.getBytes(Charsets.UTF_8));
@@ -78,11 +77,9 @@ public final class Dns
             "::1"
     );
 
-    public static Map<String, String> getDefaultHostsReplacement()
-            throws Exception
+    public static Map<String, String> getDefaultHostsReplacement(String localHostname)
     {
-        String hostname = new JnaLocalHostnameGetter().get();
-        return DEFAULT_HOSTS_REPLACEMENT_LOCALHOST_KEYS.stream().collect(toImmutableMap(identity(), k -> k + " localhost " + hostname));
+        return DEFAULT_HOSTS_REPLACEMENT_LOCALHOST_KEYS.stream().collect(toImmutableMap(identity(), k -> k + " localhost " + localHostname));
     }
 
     public static final String HOSTS_FILE_PROPERTY_KEY = "jdk.net.hosts.file";
@@ -90,7 +87,8 @@ public final class Dns
     public static void fixPosixLocalhostHostsFile()
             throws Exception
     {
-        Path out = patchHostsFile(DEFAULT_HOSTS_FILE, getDefaultHostsReplacement());
+        String localHostname = LocalHostnameGetter.SUBPROCESS.get();
+        Path out = rewriteHostsFile(DEFAULT_HOSTS_FILE, getDefaultHostsReplacement(localHostname));
         System.setProperty(HOSTS_FILE_PROPERTY_KEY, out.toAbsolutePath().toString());
     }
 }

@@ -13,7 +13,15 @@
  */
 package com.wrmsr.tokamak.util;
 
+import com.wrmsr.tokamak.util.subprocess.FinalizedProcess;
+import com.wrmsr.tokamak.util.subprocess.FinalizedProcessBuilder;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.OptionalLong;
+import java.util.Scanner;
+import java.util.concurrent.TimeUnit;
 
 public final class MoreSystem
 {
@@ -37,5 +45,24 @@ public final class MoreSystem
     public static String shellEscape(String s)
     {
         return "'" + s.replace("'", "'\"'\"'") + "'";
+    }
+
+    public static List<String> runSubprocessLines(List<String> command, long timeoutMillis, boolean inheritStderr)
+            throws IOException, InterruptedException
+    {
+        FinalizedProcessBuilder pb = new FinalizedProcessBuilder().command(command);
+        if (inheritStderr) {
+            pb.redirectError(ProcessBuilder.Redirect.INHERIT);
+        }
+        List<String> lines = new ArrayList<>();
+        try (FinalizedProcess process = pb.start()) {
+            process.getOutputStream().close();
+            Scanner scanner = new Scanner(process.getInputStream());
+            while (scanner.hasNextLine()) {
+                lines.add(scanner.nextLine().trim());
+            }
+            process.waitFor(timeoutMillis, TimeUnit.MILLISECONDS);
+        }
+        return lines;
     }
 }

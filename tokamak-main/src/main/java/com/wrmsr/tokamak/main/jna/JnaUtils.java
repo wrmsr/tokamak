@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.main.util.jna;
+package com.wrmsr.tokamak.main.jna;
 
 import com.sun.jna.Platform;
 
