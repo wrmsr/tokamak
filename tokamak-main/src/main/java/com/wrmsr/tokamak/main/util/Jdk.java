@@ -11,38 +11,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.wrmsr.tokamak.main.util;
 
 import com.wrmsr.tokamak.util.lazy.SupplierLazyValue;
 
-public enum OS
+public final class Jdk
 {
-    LINUX,
-    MAC,
-    WINDOWS,
-    UNKNOWN,
-    ;
-
-    public static OS fromName(String name)
+    private Jdk()
     {
-        if (name.startsWith("Linux") || name.startsWith("LINUX")) {
-            return OS.LINUX;
+    }
+
+    public static int parseSpecificationMajor(String spec)
+    {
+        String[] parts = spec.split("\\.");
+        if (parts.length == 1) {
+            return Integer.parseInt(spec);
         }
-        else if (name.startsWith("Mac")) {
-            return OS.MAC;
-        }
-        else if (name.startsWith("Windows")) {
-            return OS.WINDOWS;
+        else if (parts.length == 2 && parts[0].equals("1")) {
+            return Integer.parseInt(parts[1]);
         }
         else {
-            return UNKNOWN;
+            throw new IllegalArgumentException(spec);
         }
     }
 
-    private static final SupplierLazyValue<OS> current = new SupplierLazyValue<>();
+    private static SupplierLazyValue<Integer> major = new SupplierLazyValue<>();
 
-    public static OS get()
+    public static int getMajor()
     {
-        return current.get(() -> fromName(System.getProperty("os.name", "")));
+        return major.get(() -> {
+            String spec = System.getProperty("java.specification.version");
+            return parseSpecificationMajor(spec);
+        });
     }
 }

@@ -41,6 +41,9 @@ import java.util.Set;
 
 public final class Json
 {
+    /*
+    mapper.configOverride(Object.class).setFormat(JsonFormat.Value.forShape(JsonFormat.Shape.ARRAY));
+    */
     private static final Logger log = Logger.get(Json.class);
 
     private Json()

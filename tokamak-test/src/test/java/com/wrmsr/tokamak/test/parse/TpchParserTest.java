@@ -29,14 +29,15 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
 
+import static com.wrmsr.tokamak.util.MoreFiles.createTempDirectory;
+
 public class TpchParserTest
         extends TestCase
 {
     public void testTpchParse()
             throws Throwable
     {
-        Path tempDir = Files.createTempDirectory("tokamak-temp");
-        tempDir.toFile().deleteOnExit();
+        Path tempDir = createTempDirectory();
         String url = "jdbc:h2:file:" + tempDir.toString() + "/test.db;USER=username;PASSWORD=password";
         TpchUtils.buildDatabase(url);
         Catalog catalog = TpchUtils.buildCatalog(url);

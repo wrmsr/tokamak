@@ -55,6 +55,8 @@ import java.sql.Statement;
 import java.util.Collection;
 import java.util.Optional;
 
+import static com.wrmsr.tokamak.util.MoreFiles.createTempDirectory;
+
 public class CoreTest
         extends TestCase
 {
@@ -171,8 +173,7 @@ public class CoreTest
     public void testTpch()
             throws Throwable
     {
-        Path tempDir = Files.createTempDirectory("tokamak-temp");
-        tempDir.toFile().deleteOnExit();
+        Path tempDir = createTempDirectory();
         String url = "jdbc:h2:file:" + tempDir.toString() + "/test.db;USER=username;PASSWORD=password";
         TpchUtils.buildDatabase(url);
         Catalog catalog = TpchUtils.buildCatalog(url);

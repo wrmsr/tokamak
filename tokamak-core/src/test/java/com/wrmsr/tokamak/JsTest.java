@@ -30,6 +30,8 @@ import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import static com.wrmsr.tokamak.util.MoreFiles.createTempDirectory;
+
 public class JsTest
         extends TestCase
 {
@@ -88,8 +90,7 @@ public class JsTest
         //https://cran.r-project.org/web/packages/V8/vignettes/npm.html
         //https://github.com/jeroen/V8/blob/a9308d21b087a0ac38e6babe7ff01bc7d98c43c1/src/legacy/V8.cpp#L114
 
-        Path tmp = Files.createTempDirectory("tokamak-v8");
-        tmp.toFile().deleteOnExit();
+        Path tmp = createTempDirectory("tokamak-v8");
         V8 v8 = V8.createV8Runtime(null, tmp.toString());
 
         String src = CharStreams.toString(new InputStreamReader(getClass().getResourceAsStream("blob.js.txt")));

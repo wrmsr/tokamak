@@ -25,6 +25,9 @@ import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.nio.file.Files.readAllBytes;
@@ -82,5 +85,49 @@ public final class MoreFiles
         if (!(f.exists() && f.isDirectory())) {
             throw new IllegalStateException("Failed to make dir: " + f.getAbsolutePath());
         }
+    }
+
+    public static final String DEFAULT_TEMP_DIR_PREFIX = "tokamak";
+
+    public static Path createTempDirectory(Optional<String> prefix)
+            throws IOException
+    {
+        Path dir = Files.createTempDirectory(prefix.orElse(DEFAULT_TEMP_DIR_PREFIX));
+        dir.toFile().deleteOnExit();
+        return dir;
+    }
+
+    public static Path createTempDirectory(String prefix)
+            throws IOException
+    {
+        return createTempDirectory(Optional.of(prefix));
+    }
+
+    public static Path createTempDirectory()
+            throws IOException
+    {
+        return createTempDirectory(Optional.empty());
+    }
+
+    public static Path writeTempFile(String name, byte[] bytes, Optional<String> dirPrefix)
+            throws IOException
+    {
+        Path dir = createTempDirectory(dirPrefix);
+        dir.toFile().deleteOnExit();
+        Path out = dir.resolve(name);
+        Files.write(out, bytes);
+        return out;
+    }
+
+    public static Path writeTempFile(String name, byte[] bytes, String dirPrefix)
+            throws IOException
+    {
+        return writeTempFile(name, bytes, Optional.of(dirPrefix));
+    }
+
+    public static Path writeTempFile(String name, byte[] bytes)
+            throws IOException
+    {
+        return writeTempFile(name, bytes, Optional.empty());
     }
 }

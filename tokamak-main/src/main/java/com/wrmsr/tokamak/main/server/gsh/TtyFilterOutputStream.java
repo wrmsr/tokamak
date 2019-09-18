@@ -11,30 +11,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.main.server.util.dns;
 
-import sun.net.spi.nameservice.NameService;
-import sun.net.spi.nameservice.NameServiceDescriptor;
+package com.wrmsr.tokamak.main.server.gsh;
 
-public class LocalManagedDnsDescriptor
-        implements NameServiceDescriptor
+import java.io.FilterOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+
+public class TtyFilterOutputStream
+        extends FilterOutputStream
 {
-    @Override
-    public NameService createNameService()
-            throws Exception
+    public TtyFilterOutputStream(OutputStream out)
     {
-        return new LocalManagedDns();
+        super(out);
     }
 
     @Override
-    public String getProviderName()
+    public void write(int c)
+            throws IOException
     {
-        return "local";
+        if (c == '\n') {
+            super.write(c);
+            c = '\r';
+        }
+        super.write(c);
     }
 
     @Override
-    public String getType()
+    public void write(byte[] b, int off, int len)
+            throws IOException
     {
-        return "dns";
+        for (int i = off; i < len; i++) {
+            write(b[i]);
+        }
     }
 }

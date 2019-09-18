@@ -22,6 +22,7 @@ import java.nio.file.Path;
 import java.util.concurrent.TimeUnit;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.wrmsr.tokamak.util.MoreFiles.createTempDirectory;
 
 public final class Dot
 {
@@ -71,8 +72,7 @@ public final class Dot
     public static void openDot(String gv)
             throws Exception
     {
-        Path tempDir = Files.createTempDirectory("tokamak-dot");
-        tempDir.toFile().deleteOnExit();
+        Path tempDir = createTempDirectory("tokamak-dot");
         Path outGv = tempDir.resolve("out.gv");
         Files.write(outGv, gv.getBytes());
         Path outPng = tempDir.resolve("out.pdf");

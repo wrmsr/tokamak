@@ -13,6 +13,7 @@
  */
 package com.wrmsr.tokamak.util;
 
+import com.google.common.base.Charsets;
 import com.google.common.io.CharStreams;
 import com.wrmsr.tokamak.util.subprocess.FinalizedProcess;
 import com.wrmsr.tokamak.util.subprocess.FinalizedProcessBuilder;
@@ -25,6 +26,8 @@ import java.nio.file.Path;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
+
+import static com.wrmsr.tokamak.util.MoreFiles.writeTempFile;
 
 public class SubprocessTest
 {
@@ -56,10 +59,7 @@ public class SubprocessTest
     {
         String src = CharStreams.toString(new InputStreamReader(getClass().getResourceAsStream("lines.py")));
 
-        Path tempDir = Files.createTempDirectory("tokamak-temp");
-        tempDir.toFile().deleteOnExit();
-        Path pyPath = tempDir.resolve("test.py");
-        Files.write(pyPath, src.getBytes());
+        Path pyPath = writeTempFile("test.py", src.getBytes(Charsets.UTF_8));
 
         String[] argv = new String[] {
                 "/usr/bin/python",
