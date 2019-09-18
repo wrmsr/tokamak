@@ -13,34 +13,29 @@
  */
 package com.wrmsr.tokamak.main.jna;
 
-import com.google.common.collect.ImmutableList;
 import com.sun.jna.Library;
 import com.sun.jna.Native;
 import com.sun.jna.Platform;
-import com.wrmsr.tokamak.main.util.exec.AbstractExecs;
+import com.wrmsr.tokamak.main.util.pid.PidGetter;
+import com.wrmsr.tokamak.util.lazy.SupplierLazyValue;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-
-public class JnaExecs
-        extends AbstractExecs
+public final class JnaPidGetter
+        implements PidGetter
 {
-    public interface Libc
+    private interface Libc
             extends Library
     {
-        void execve(String pathname, String argv[], String envp[]);
+        int getpid();
     }
 
+    private final SupplierLazyValue<Long> pid = new SupplierLazyValue<>();
+
     @Override
-    public void exec(String path, List<String> args, Map<String, String> env)
-            throws IOException
+    public long get()
     {
-        String[] convertedArgs = ImmutableList.<String>builder().add(path).addAll(args).build().toArray(new String[] {});
-        String[] convertedEnv = convertEnv(env);
-
-        Libc libc = Native.load((Platform.isWindows() ? "msvcrt" : "c"), Libc.class);
-
-        libc.execve(path, convertedArgs, convertedEnv);
+        return pid.get(() -> {
+            Libc libc = Native.load((Platform.isWindows() ? "msvcrt" : "c"), Libc.class);
+            return libc.getpid() & 0xFFFFFFFFL;
+        });
     }
 }

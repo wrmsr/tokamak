@@ -15,8 +15,8 @@ package com.wrmsr.tokamak.main.util.pid;
 
 import com.wrmsr.tokamak.util.lazy.SupplierLazyValue;
 
-public final class Jdk9Pids
-        implements Pids
+public final class Jdk9PidGetter
+        implements PidGetter
 {
     private final SupplierLazyValue<Long> pid = new SupplierLazyValue<>();
 

@@ -19,8 +19,8 @@ import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.Map;
 
-public abstract class AbstractExecs
-        implements Execs
+public abstract class AbstractExec
+        implements Exec
 {
     public static String[] convertEnv(Map<String, String> env)
     {

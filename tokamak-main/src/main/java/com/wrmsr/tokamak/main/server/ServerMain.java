@@ -17,7 +17,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.wrmsr.tokamak.main.bootstrap.Bootstrap;
 import com.wrmsr.tokamak.main.bootstrap.dns.Dns;
-import com.wrmsr.tokamak.main.util.Os;
+import com.wrmsr.tokamak.util.Os;
 import com.wrmsr.tokamak.main.bootstrap.dns.ProxyNameService;
 import com.wrmsr.tokamak.util.Logger;
 import com.wrmsr.tokamak.util.lifecycle.LifecycleManager;

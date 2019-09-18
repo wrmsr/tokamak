@@ -13,7 +13,7 @@
  */
 package com.wrmsr.tokamak.main.util.pid;
 
-public interface Pids
+public interface PidGetter
 {
     long get();
 }
