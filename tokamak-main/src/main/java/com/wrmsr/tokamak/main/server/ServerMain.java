@@ -15,6 +15,7 @@ package com.wrmsr.tokamak.main.server;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.wrmsr.tokamak.main.util.Bootstrap;
 import com.wrmsr.tokamak.main.util.Dns;
 import com.wrmsr.tokamak.main.util.Os;
 import com.wrmsr.tokamak.util.Logger;
@@ -64,14 +65,8 @@ public class ServerMain
     public static void main(String[] args)
             throws Exception
     {
-        // System.out.println("press enter");
-        // try (InputStreamReader isr = new InputStreamReader(System.in)) {
-        //     while (isr.read() != '\n') {}
-        // }
-
-        /*
-        Dns.ProxyNameService.install(
-                new Dns.ProxyNameService()
+        Dns.installProxyNameService(
+                new Dns.AbstractProxyNameService()
                 {
                     @Override
                     public InetAddress[] lookupAllHostAddr(String host)
@@ -87,12 +82,10 @@ public class ServerMain
                         return null;
                     }
                 });
-        */
 
-        // Dns.fixPosixLocalhostHostsFile();
+        Dns.fixPosixLocalhostHostsFile();
 
-        System.setProperty("apple.awt.UIElement", "true");
-        System.setProperty("java.awt.headless", "true");
+        Bootstrap.bootstrap();
 
         configureLogging();
 

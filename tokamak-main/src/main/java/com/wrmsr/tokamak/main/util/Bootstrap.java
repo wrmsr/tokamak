@@ -11,8 +11,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.wrmsr.tokamak.main.util;
+
+import java.io.InputStreamReader;
 
 public final class Bootstrap
 {
@@ -21,7 +22,51 @@ public final class Bootstrap
     }
 
     public interface Op
-            extends Runnable
     {
+        void run()
+                throws Exception;
+    }
+
+    public static final String PAUSE_PROPERTY_KEY = "com.wrmsr.tokamak.main.pause";
+
+    public static final class PauseOp
+            implements Op
+    {
+        @Override
+        public void run()
+                throws Exception
+        {
+            if (!System.getProperty(PAUSE_PROPERTY_KEY, "").isEmpty()) {
+                try (InputStreamReader isr = new InputStreamReader(System.in)) {
+                    while (isr.read() != '\n') {}
+                }
+            }
+        }
+    }
+
+    public static final class SetHeadlessOp
+            implements Op
+    {
+        @Override
+        public void run()
+        {
+            System.setProperty("apple.awt.UIElement", "true");
+            System.setProperty("java.awt.headless", "true");
+        }
+    }
+
+    public static void bootstrap()
+    {
+        try {
+            for (Op op : new Op[] {
+                    new PauseOp(),
+                    new SetHeadlessOp(),
+            }) {
+                op.run();
+            }
+        }
+        catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

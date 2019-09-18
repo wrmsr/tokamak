@@ -11,7 +11,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.wrmsr.tokamak.main.util;
 
 import com.google.common.base.CharMatcher;
@@ -105,26 +104,6 @@ public final class Dns
     public interface ProxyNameService
             extends InvocationHandler
     {
-        static void install(ProxyNameService dns)
-                throws Exception
-        {
-            Class<?> inetAddressClass = InetAddress.class;
-            Object neu;
-            Field nameServiceField;
-            try {
-                Class<?> iface = Class.forName("java.net.InetAddress$NameService");
-                nameServiceField = inetAddressClass.getDeclaredField("nameService");
-                neu = Proxy.newProxyInstance(iface.getClassLoader(), new Class<?>[] {iface}, dns);
-            }
-            catch (ClassNotFoundException | NoSuchFieldException e) {
-                nameServiceField = inetAddressClass.getDeclaredField("nameServices");
-                Class<?> iface = Class.forName("sun.net.spi.nameservice.NameService");
-                neu = Collections.singletonList(Proxy.newProxyInstance(iface.getClassLoader(), new Class<?>[] {iface}, dns));
-            }
-            nameServiceField.setAccessible(true);
-            nameServiceField.set(inetAddressClass, neu);
-        }
-
         InetAddress[] lookupAllHostAddr(String host)
                 throws UnknownHostException;
 
@@ -154,5 +133,44 @@ public final class Dns
                     throw new UnsupportedOperationException(o.toString());
             }
         }
+    }
+
+    public static abstract class AbstractProxyNameService
+            implements ProxyNameService
+    {
+        private volatile List<Object> original;
+
+        public void setOriginal(List<Object> original)
+        {
+            this.original = original;
+        }
+    }
+
+    @SuppressWarnings({"unchecked"})
+    public static void installProxyNameService(ProxyNameService dns)
+            throws Exception
+    {
+        Class<?> inetAddressClass = InetAddress.class;
+        List<Object> original;
+        Object neu;
+        Field nameServiceField;
+        try {
+            Class<?> iface = Class.forName("java.net.InetAddress$NameService");
+            nameServiceField = inetAddressClass.getDeclaredField("nameService");
+            nameServiceField.setAccessible(true);
+            original = ImmutableList.of(nameServiceField.get(inetAddressClass));
+            neu = Proxy.newProxyInstance(iface.getClassLoader(), new Class<?>[] {iface}, dns);
+        }
+        catch (ClassNotFoundException | NoSuchFieldException e) {
+            Class<?> iface = Class.forName("sun.net.spi.nameservice.NameService");
+            nameServiceField = inetAddressClass.getDeclaredField("nameServices");
+            nameServiceField.setAccessible(true);
+            original = (List<Object>) nameServiceField.get(inetAddressClass);
+            neu = Collections.singletonList(Proxy.newProxyInstance(iface.getClassLoader(), new Class<?>[] {iface}, dns));
+        }
+        if (dns instanceof AbstractProxyNameService) {
+            ((AbstractProxyNameService) dns).setOriginal(original);
+        }
+        nameServiceField.set(inetAddressClass, neu);
     }
 }
