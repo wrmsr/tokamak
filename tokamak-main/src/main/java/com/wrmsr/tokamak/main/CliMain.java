@@ -62,6 +62,25 @@ public class CliMain
                 throws Exception
         {
             ServerMain.main(new String[] {});
+            return null;
+        }
+    }
+
+    @CommandLine.Command(
+            name = "main",
+            mixinStandardHelpOptions = true,
+            subcommands = {
+                    ServeCommand.class,
+            })
+    public static class MainCommand
+            implements Callable<Void>
+    {
+        @Override
+        public Void call()
+                throws Exception
+        {
+            System.out.println("use --help for help");
+            return null;
         }
     }
 
@@ -69,6 +88,6 @@ public class CliMain
             throws Throwable
     {
         Bootstrap.bootstrap();
-        new CommandLine(new ServerMain()).execute(args);
+        new CommandLine(new MainCommand()).execute(args);
     }
 }
