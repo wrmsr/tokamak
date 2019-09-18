@@ -31,15 +31,15 @@ public interface Codec<F, T>
         return new Codec<T, T>()
         {
             @Override
-            public T decode(T data)
+            public T decode(T value)
             {
-                return data;
+                return value;
             }
 
             @Override
-            public T encode(T data)
+            public T encode(T value)
             {
-                return data;
+                return value;
             }
         };
     }
@@ -49,15 +49,15 @@ public interface Codec<F, T>
         return new Codec<F, T>()
         {
             @Override
-            public F decode(T data)
+            public F decode(T value)
             {
-                return decoder.decode(data);
+                return decoder.decode(value);
             }
 
             @Override
-            public T encode(F data)
+            public T encode(F value)
             {
-                return encoder.encode(data);
+                return encoder.encode(value);
             }
         };
     }
@@ -67,15 +67,15 @@ public interface Codec<F, T>
         return new Codec<F, T>()
         {
             @Override
-            public F decode(T data)
+            public F decode(T value)
             {
-                return codec.encode(data);
+                return codec.encode(value);
             }
 
             @Override
-            public T encode(F data)
+            public T encode(F value)
             {
-                return codec.decode(data);
+                return codec.decode(value);
             }
         };
     }
@@ -85,15 +85,15 @@ public interface Codec<F, T>
         return new Codec<F, T>()
         {
             @Override
-            public F decode(T data)
+            public F decode(T value)
             {
-                return c0.decode(c1.decode(data));
+                return c0.decode(c1.decode(value));
             }
 
             @Override
-            public T encode(F data)
+            public T encode(F value)
             {
-                return c1.encode(c0.encode(data));
+                return c1.encode(c0.encode(value));
             }
         };
     }
@@ -103,15 +103,15 @@ public interface Codec<F, T>
         return new Codec<F, T>()
         {
             @Override
-            public F decode(T data)
+            public F decode(T value)
             {
-                return c0.decode(c1.decode(c2.decode(data)));
+                return c0.decode(c1.decode(c2.decode(value)));
             }
 
             @Override
-            public T encode(F data)
+            public T encode(F value)
             {
-                return c2.encode(c1.encode(c0.encode(data)));
+                return c2.encode(c1.encode(c0.encode(value)));
             }
         };
     }
@@ -121,15 +121,15 @@ public interface Codec<F, T>
         return new Codec<F, T>()
         {
             @Override
-            public F decode(T data)
+            public F decode(T value)
             {
-                return c0.decode(c1.decode(c2.decode(c3.decode(data))));
+                return c0.decode(c1.decode(c2.decode(c3.decode(value))));
             }
 
             @Override
-            public T encode(F data)
+            public T encode(F value)
             {
-                return c3.encode(c2.encode(c1.encode(c0.encode(data))));
+                return c3.encode(c2.encode(c1.encode(c0.encode(value))));
             }
         };
     }
@@ -139,15 +139,15 @@ public interface Codec<F, T>
         return new Codec<F, T>()
         {
             @Override
-            public F decode(T data)
+            public F decode(T value)
             {
-                return c0.decode(c1.decode(c2.decode(c3.decode(c4.decode(data)))));
+                return c0.decode(c1.decode(c2.decode(c3.decode(c4.decode(value)))));
             }
 
             @Override
-            public T encode(F data)
+            public T encode(F value)
             {
-                return c4.encode(c3.encode(c2.encode(c1.encode(c0.encode(data)))));
+                return c4.encode(c3.encode(c2.encode(c1.encode(c0.encode(value)))));
             }
         };
     }

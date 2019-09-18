@@ -11,10 +11,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.util.codec;
+package com.wrmsr.tokamak.serde.value;
 
-@FunctionalInterface
-public interface Decoder<F, T>
+import com.wrmsr.tokamak.util.codec.Codec;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+
+public final class ValueSerdeCodec<T>
+        implements Codec<T, byte[]>
 {
-    F decode(T value);
+    private final ValueSerde<T> serde;
+
+    public ValueSerdeCodec(ValueSerde<T> serde)
+    {
+        this.serde = checkNotNull(serde);
+    }
+
+    @Override
+    public T decode(byte[] data)
+    {
+        return serde.readBytes(data);
+    }
+
+    @Override
+    public byte[] encode(T data)
+    {
+        return serde.writeBytes(data);
+    }
 }

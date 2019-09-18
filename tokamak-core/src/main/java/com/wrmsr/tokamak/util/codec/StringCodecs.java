@@ -13,6 +13,8 @@
  */
 package com.wrmsr.tokamak.util.codec;
 
+import com.google.common.base.Charsets;
+
 import java.nio.charset.Charset;
 
 public class StringCodecs
@@ -22,7 +24,7 @@ public class StringCodecs
     }
 
     public static final class StringCodec
-        implements Codec<String, byte[]>
+            implements Codec<String, byte[]>
     {
         private final Charset charset;
 
@@ -32,17 +34,17 @@ public class StringCodecs
         }
 
         @Override
-        public final byte[] encode(String data)
+        public final byte[] encode(String value)
         {
-            return data.getBytes(charset);
+            return value.getBytes(charset);
         }
 
         @Override
-        public final String decode(byte[] data)
+        public final String decode(byte[] value)
         {
-            return new String(data, charset);
+            return new String(value, charset);
         }
     }
 
-    public static final StringCodec UTF8_CODEC = new StringCodec(java.nio.charset.StandardCharsets.UTF_8);
+    public static final StringCodec UTF8_CODEC = new StringCodec(Charsets.UTF_8);
 }

@@ -16,5 +16,5 @@ package com.wrmsr.tokamak.util.codec;
 @FunctionalInterface
 public interface Encoder<F, T>
 {
-    T encode(F data);
+    T encode(F value);
 }
