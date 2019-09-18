@@ -13,6 +13,8 @@
  */
 package com.wrmsr.tokamak.main.bootstrap;
 
+import com.wrmsr.tokamak.main.bootstrap.dns.Dns;
+
 import java.io.InputStreamReader;
 
 public final class Bootstrap
@@ -55,18 +57,46 @@ public final class Bootstrap
         }
     }
 
+    public static final class FixDnsOp
+            implements Op
+    {
+        @Override
+        public void run()
+                throws Exception
+        {
+            Dns.fixPosixLocalhostHostsFile();
+        }
+    }
+
+    private static final Object lock = new Object();
+    private static volatile boolean hasRun = false;
+
     public static void bootstrap()
     {
-        try {
-            for (Op op : new Op[] {
-                    new PauseOp(),
-                    new SetHeadlessOp(),
-            }) {
-                op.run();
+        if (!hasRun) {
+            synchronized (lock) {
+                if (!hasRun) {
+                    try {
+                        doBootstrap();
+                    }
+                    catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                    hasRun = true;
+                }
             }
         }
-        catch (Exception e) {
-            throw new RuntimeException(e);
+    }
+
+    private static void doBootstrap()
+            throws Exception
+    {
+        for (Op op : new Op[] {
+                new PauseOp(),
+                new SetHeadlessOp(),
+                new FixDnsOp(),
+        }) {
+            op.run();
         }
     }
 }

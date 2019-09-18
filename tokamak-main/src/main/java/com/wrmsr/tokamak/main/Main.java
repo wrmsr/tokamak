@@ -13,6 +13,7 @@
  */
 package com.wrmsr.tokamak.main;
 
+import com.wrmsr.tokamak.main.bootstrap.Bootstrap;
 import com.wrmsr.tokamak.main.server.ServerMain;
 
 public class Main
@@ -20,6 +21,8 @@ public class Main
     public static void main(String[] args)
             throws Throwable
     {
+        Bootstrap.bootstrap();
+        // ReplMain.main(args);
         ServerMain.main(args);
     }
 }

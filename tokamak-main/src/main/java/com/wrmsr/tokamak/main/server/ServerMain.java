@@ -16,10 +16,8 @@ package com.wrmsr.tokamak.main.server;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.wrmsr.tokamak.main.bootstrap.Bootstrap;
-import com.wrmsr.tokamak.main.bootstrap.dns.Dns;
-import com.wrmsr.tokamak.util.Os;
-import com.wrmsr.tokamak.main.bootstrap.dns.ProxyNameService;
 import com.wrmsr.tokamak.util.Logger;
+import com.wrmsr.tokamak.util.Os;
 import com.wrmsr.tokamak.util.lifecycle.LifecycleManager;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.Filter;
@@ -30,9 +28,6 @@ import org.apache.logging.log4j.core.config.builder.api.AppenderComponentBuilder
 import org.apache.logging.log4j.core.config.builder.api.ConfigurationBuilder;
 import org.apache.logging.log4j.core.config.builder.api.ConfigurationBuilderFactory;
 import org.apache.logging.log4j.core.config.builder.impl.BuiltConfiguration;
-
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 
 import static com.wrmsr.tokamak.util.lifecycle.Lifecycles.runLifecycle;
 
@@ -66,27 +61,6 @@ public class ServerMain
     public static void main(String[] args)
             throws Exception
     {
-        ProxyNameService proxyNameService = new ProxyNameService()
-        {
-            @Override
-            public InetAddress[] lookupAllHostAddr(String host)
-                    throws UnknownHostException
-            {
-                return new InetAddress[0];
-            }
-
-            @Override
-            public String getHostByAddr(byte[] addr)
-                    throws UnknownHostException
-            {
-                return null;
-            }
-        };
-
-        // proxyNameService.install();
-
-        Dns.fixPosixLocalhostHostsFile();
-
         Bootstrap.bootstrap();
 
         configureLogging();

@@ -13,6 +13,7 @@
  */
 package com.wrmsr.tokamak.main;
 
+import com.wrmsr.tokamak.main.bootstrap.Bootstrap;
 import picocli.CommandLine;
 
 import java.io.File;
@@ -56,6 +57,7 @@ public class CliMain
     public static void main(String[] args)
             throws Throwable
     {
+        Bootstrap.bootstrap();
         new CommandLine(new CheckSum()).execute(args);
     }
 }
