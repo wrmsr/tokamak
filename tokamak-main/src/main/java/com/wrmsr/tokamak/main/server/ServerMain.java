@@ -60,6 +60,9 @@ public class ServerMain
     public static void main(String[] args)
             throws Exception
     {
+        System.setProperty("apple.awt.UIElement", "true");
+        System.setProperty("java.awt.headless", "true");
+
         configureLogging();
 
         log.info(OS.get().toString());
