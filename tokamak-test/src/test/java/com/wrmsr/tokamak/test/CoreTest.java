@@ -60,12 +60,27 @@ import static com.wrmsr.tokamak.util.MoreFiles.createTempDirectory;
 public class CoreTest
         extends TestCase
 {
-
     public void testJdbcMySql()
             throws Throwable
     {
         Class.forName("com.mysql.cj.jdbc.Driver");
         try (Connection conn = DriverManager.getConnection("jdbc:mysql://0.0.0.0:21210", "tokamak", "tokamak")) {
+            try (Statement stmt = conn.createStatement()) {
+                try (ResultSet rs = stmt.executeQuery("select 420")) {
+                    while (rs.next()) {
+                        System.out.println(rs.getLong(1));
+                    }
+                }
+            }
+        }
+    }
+
+    public void testJdbcMariaDb()
+            throws Throwable
+    {
+        // FIXME: https://docs.oracle.com/javase/8/docs/api/java/sql/DriverManager.html
+        Class.forName("org.mariadb.jdbc.Driver");
+        try (Connection conn = DriverManager.getConnection("jdbc:mariadb://0.0.0.0:21215", "tokamak", "tokamak")) {
             try (Statement stmt = conn.createStatement()) {
                 try (ResultSet rs = stmt.executeQuery("select 420")) {
                     while (rs.next()) {
