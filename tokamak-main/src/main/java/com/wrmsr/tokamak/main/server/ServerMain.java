@@ -16,8 +16,9 @@ package com.wrmsr.tokamak.main.server;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.wrmsr.tokamak.main.util.Bootstrap;
-import com.wrmsr.tokamak.main.util.Dns;
+import com.wrmsr.tokamak.main.util.dns.Dns;
 import com.wrmsr.tokamak.main.util.Os;
+import com.wrmsr.tokamak.main.util.dns.ProxyNameService;
 import com.wrmsr.tokamak.util.Logger;
 import com.wrmsr.tokamak.util.lifecycle.LifecycleManager;
 import org.apache.logging.log4j.Level;
@@ -65,23 +66,24 @@ public class ServerMain
     public static void main(String[] args)
             throws Exception
     {
-        Dns.installProxyNameService(
-                new Dns.AbstractProxyNameService()
-                {
-                    @Override
-                    public InetAddress[] lookupAllHostAddr(String host)
-                            throws UnknownHostException
-                    {
-                        return new InetAddress[0];
-                    }
+        ProxyNameService proxyNameService = new ProxyNameService()
+        {
+            @Override
+            public InetAddress[] lookupAllHostAddr(String host)
+                    throws UnknownHostException
+            {
+                return new InetAddress[0];
+            }
 
-                    @Override
-                    public String getHostByAddr(byte[] addr)
-                            throws UnknownHostException
-                    {
-                        return null;
-                    }
-                });
+            @Override
+            public String getHostByAddr(byte[] addr)
+                    throws UnknownHostException
+            {
+                return null;
+            }
+        };
+
+        proxyNameService.install();
 
         Dns.fixPosixLocalhostHostsFile();
 
