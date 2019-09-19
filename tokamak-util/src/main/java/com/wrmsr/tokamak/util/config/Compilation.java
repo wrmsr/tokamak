@@ -189,19 +189,6 @@ public final class Compilation
         T build(Construction construction);
     }
 
-    public static String getCompiledImplName(Class<? extends Config> cls)
-    {
-        JName mangledIfaceName = new JName(
-                Splitter.on(".").splitToList(cls.getName()).stream()
-                        .map(p -> p.replaceAll("\\$", "__"))
-                        .collect(Collectors.toList()));
-        return Joiner.on(".").join(
-                ImmutableList.<String>builder()
-                        .add("com", "wrmsr", "tokamak", "util", "config", "generated")
-                        .addAll(mangledIfaceName.getParts())
-                        .build());
-    }
-
     public static CompiledConfig compile(ConfigMetadata md, boolean instantiateMetadata)
     {
         JName ifaceName = new JName(Splitter.on(".").splitToList(md.getCls().getCanonicalName()));
@@ -426,5 +413,18 @@ public final class Compilation
             throw new RuntimeException(e);
         }
         return metadata -> implConstructionFactory.build(new ConstructionImpl(metadata));
+    }
+
+    public static String getCompiledImplName(Class<? extends Config> cls)
+    {
+        JName mangledIfaceName = new JName(
+                Splitter.on(".").splitToList(cls.getName()).stream()
+                        .map(p -> p.replaceAll("\\$", "__"))
+                        .collect(Collectors.toList()));
+        return Joiner.on(".").join(
+                ImmutableList.<String>builder()
+                        .add("com", "wrmsr", "tokamak", "util", "config", "generated")
+                        .addAll(mangledIfaceName.getParts())
+                        .build());
     }
 }
