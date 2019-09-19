@@ -190,15 +190,17 @@ public final class Compilation
 
     public static CompiledConfig compile(ConfigMetadata md, boolean instantiateMetadata)
     {
-        JName ifaceName = new JName(
+        JName ifaceName = new JName(Splitter.on(".").splitToList(md.getCls().getCanonicalName()));
+        JName mangledIfaceName = new JName(
                 Splitter.on(".").splitToList(md.getCls().getName()).stream()
                         .map(p -> p.replaceAll("\\$", "__"))
                         .collect(Collectors.toList()));
-        String bareName = ifaceName.getParts().get(ifaceName.size() - 1);
+
+        String bareName = mangledIfaceName.getParts().get(mangledIfaceName.size() - 1);
         JName implName = new JName(
                 ImmutableList.<String>builder()
                         .add("com", "wrmsr", "tokamak", "util", "config", "generated")
-                        .addAll(ifaceName.getParts())
+                        .addAll(mangledIfaceName.getParts())
                         .build());
 
         List<JDeclaration> fields = new ArrayList<>();
@@ -296,7 +298,9 @@ public final class Compilation
                             Optional.of(
                                     new JNew(
                                             JTypeSpecifier.of(ConfigMetadata.class),
-                                            ImmutableList.of()))));
+                                            ImmutableList.of(
+                                                    new JMemberAccess(new JIdent(ifaceName), "class")
+                                            )))));
         }
         else {
             fields.add(

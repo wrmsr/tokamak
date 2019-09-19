@@ -15,19 +15,17 @@ package com.wrmsr.tokamak.util.config;
 
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableList;
-import com.wrmsr.tokamak.util.java.compile.javac.InProcJavaCompiler;
 import com.wrmsr.tokamak.util.java.lang.JRenderer;
 
 import javax.tools.Tool;
 import javax.tools.ToolProvider;
 
-import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
+import static com.google.common.base.Preconditions.checkState;
 import static com.wrmsr.tokamak.util.MoreFiles.createTempDirectory;
 
 public class CompileAll
@@ -71,9 +69,9 @@ public class CompileAll
                     Compilation.CompiledConfig compiled = Compilation.compile(new ConfigMetadata(cls), true);
                     String src = JRenderer.renderWithIndent(compiled.getCompilationUnit(), "    ");
 
-                    System.out.println(src);
-
                     Path implJavaPath = Paths.get(tempPath.toString(), compiled.getBareName() + ".java");
+                    Path implClassPath = Paths.get(tempPath.toString(), compiled.getBareName() + ".class");
+                    Path targetImplClassPath = Paths.get(classes.toString(), compiled.getFullClassName().replaceAll("\\.", "/") + ".class");
                     try {
                         Files.write(implJavaPath, src.getBytes(Charsets.UTF_8));
 
@@ -87,9 +85,13 @@ public class CompileAll
                             throw new RuntimeException("Compilation failed");
                         }
 
-                        System.out.println(implJavaPath);
+                        targetImplClassPath.toFile().getParentFile().mkdirs();
+                        Files.copy(implClassPath, targetImplClassPath);
+
+                        Class implCls = Class.forName(compiled.getFullClassName());
+                        checkState(cls.isAssignableFrom(implCls));
                     }
-                    catch (IOException e) {
+                    catch (Exception e) {
                         throw new RuntimeException(e);
                     }
                 });
