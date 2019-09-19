@@ -15,6 +15,7 @@ package com.wrmsr.tokamak.driver.build;
 
 import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.driver.DriverImpl;
+import com.wrmsr.tokamak.plan.node.CacheNode;
 import com.wrmsr.tokamak.plan.node.CrossJoinNode;
 import com.wrmsr.tokamak.plan.node.EquijoinNode;
 import com.wrmsr.tokamak.plan.node.FilterNode;
@@ -55,6 +56,7 @@ public class BuilderFactory
 
     private final Map<Class<? extends Node>, BuilderConstructor> BUILDER_CONSTRUCTORS_BY_NODE_TYPE =
             ImmutableMap.<Class<? extends Node>, BuilderConstructor>builder()
+                    .put(CacheNode.class, (d, n, s) -> new CacheBuilder(d, (CacheNode) n, s))
                     .put(CrossJoinNode.class, (d, n, s) -> new CrossJoinBuilder(d, (CrossJoinNode) n, s))
                     .put(EquijoinNode.class, (d, n, s) -> new EquijoinBuilder(d, (EquijoinNode) n, s))
                     .put(FilterNode.class, (d, n, s) -> new FilterBuilder(d, (FilterNode) n, s))

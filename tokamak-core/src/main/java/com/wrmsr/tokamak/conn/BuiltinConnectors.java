@@ -32,9 +32,9 @@ public final class BuiltinConnectors
 
     public static CatalogRegistry register(CatalogRegistry registry)
     {
-        registry.register(new ConnectorType<>("heap", HeapConnector.class));
-        registry.register(new ConnectorType<>("jdbc", JdbcConnector.class));
-        registry.register(new ConnectorType<>("system", SystemConnector.class));
+        registry.register(new ConnectorType("heap", HeapConnector.class));
+        registry.register(new ConnectorType("jdbc", JdbcConnector.class));
+        registry.register(new ConnectorType("system", SystemConnector.class));
         return registry;
     }
 }

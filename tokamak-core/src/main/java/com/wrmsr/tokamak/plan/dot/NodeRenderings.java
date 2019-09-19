@@ -14,6 +14,7 @@
 package com.wrmsr.tokamak.plan.dot;
 
 import com.google.common.collect.ImmutableList;
+import com.wrmsr.tokamak.plan.node.CacheNode;
 import com.wrmsr.tokamak.plan.node.CrossJoinNode;
 import com.wrmsr.tokamak.plan.node.EquijoinNode;
 import com.wrmsr.tokamak.plan.node.FilterNode;
@@ -43,6 +44,7 @@ public final class NodeRenderings
 
     public static final CtorLazyValue<List<NodeRendering>> RAW_NODE_RENDERINGS = new CtorLazyValue<>(() -> {
         return ImmutableList.<NodeRendering>builder()
+                .add(new NodeRendering<>(CacheNode.class))
                 .add(new NodeRendering<>(CrossJoinNode.class))
                 .add(new NodeRendering<>(EquijoinNode.class))
                 .add(new NodeRendering<>(FilterNode.class))
@@ -57,6 +59,7 @@ public final class NodeRenderings
                 .build();
     });
 
+    @SuppressWarnings({"unchecked"})
     public static final CtorLazyValue<List<NodeRendering>> NODE_RENDERINGS = new CtorLazyValue<>(() -> {
         List<NodeRendering> renderings = new ArrayList<>(RAW_NODE_RENDERINGS.get());
 

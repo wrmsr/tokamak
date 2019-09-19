@@ -25,7 +25,7 @@ public final class BuiltinExecutors
 
     public static CatalogRegistry register(CatalogRegistry registry)
     {
-        registry.register(new ExecutorType<>("builtin", BuiltinExecutor.class));
+        registry.register(new ExecutorType("builtin", BuiltinExecutor.class));
         return registry;
     }
 }
