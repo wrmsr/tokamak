@@ -13,6 +13,8 @@
  */
 package com.wrmsr.tokamak.util.kv;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableList;
 
@@ -20,17 +22,36 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.wrmsr.tokamak.util.MoreFiles.readFileBytes;
 import static com.wrmsr.tokamak.util.MoreFiles.writeFileBytes;
 
-public class FileKv
+public class DirectoryKv
         implements Kv<String, byte[]>
 {
     private final File directory;
 
-    public FileKv(File directory)
+    @JsonCreator
+    public DirectoryKv(
+            @JsonProperty("path") String path)
     {
-        this.directory = directory;
+        this.directory = new File(path);
+    }
+
+    public DirectoryKv(File directory)
+    {
+        this.directory = checkNotNull(directory);
+    }
+
+    public File getDirectory()
+    {
+        return directory;
+    }
+
+    @JsonProperty("path")
+    public String getPath()
+    {
+        return directory.toString();
     }
 
     @Override
