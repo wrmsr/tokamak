@@ -12,14 +12,14 @@
  * limitations under the License.
  */
 package com.wrmsr.tokamak.util.kv;
+
+import com.wrmsr.tokamak.util.sql.SqlConnection;
 import com.wrmsr.tokamak.util.sql.SqlEngine;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.function.Supplier;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 
@@ -97,10 +97,10 @@ public class SqlKv
         String sql = "create table " + dst + " (" + quote(keyColumn) + " binary primary key, " + quote(valueColumn) + " binary)";
 
         try {
-            try (Connection conn = connectionSupplier.get();
-                    Statement stmt = conn.createStatement()) {
+            try (SqlConnection conn = engine.connect();
+                    Statement stmt = conn.getConnection().createStatement()) {
                 stmt.execute(sql);
-                conn.commit();
+                conn.getConnection().commit();
             }
         }
         catch (SQLException e) {
@@ -112,8 +112,8 @@ public class SqlKv
     public byte[] get(byte[] key)
     {
         try {
-            try (Connection conn = connectionSupplier.get();
-                    PreparedStatement stmt = conn.prepareStatement(getStmt)) {
+            try (SqlConnection conn = engine.connect();
+                    PreparedStatement stmt = conn.getConnection().prepareStatement(getStmt)) {
                 stmt.setBytes(1, key);
                 try (ResultSet resultSet = stmt.executeQuery()) {
                     if (resultSet.next()) {
@@ -134,11 +134,12 @@ public class SqlKv
     public void put(byte[] key, byte[] value)
     {
         try {
-            try (Connection conn = connectionSupplier.get();
-                    PreparedStatement stmt = conn.prepareStatement(putStmt)) {
+            try (SqlConnection conn = engine.connect();
+                    PreparedStatement stmt = conn.getConnection().prepareStatement(putStmt)) {
                 stmt.setBytes(1, key);
                 stmt.setBytes(2, value);
                 stmt.execute();
+                conn.getConnection().commit();
             }
         }
         catch (SQLException e) {
@@ -150,10 +151,11 @@ public class SqlKv
     public void remove(byte[] key)
     {
         try {
-            try (Connection conn = connectionSupplier.get();
-                    PreparedStatement stmt = conn.prepareStatement(deleteStmt)) {
+            try (SqlConnection conn = engine.connect();
+                    PreparedStatement stmt = conn.getConnection().prepareStatement(deleteStmt)) {
                 stmt.setBytes(1, key);
                 stmt.execute();
+                conn.getConnection().commit();
             }
         }
         catch (SQLException e) {
