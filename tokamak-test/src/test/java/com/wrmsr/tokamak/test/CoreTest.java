@@ -46,7 +46,6 @@ import com.wrmsr.tokamak.type.Type;
 import com.wrmsr.tokamak.util.Json;
 import junit.framework.TestCase;
 
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -209,15 +208,17 @@ public class CoreTest
 
         Driver driver = new DriverImpl(catalog, plan);
 
-        Driver.Context driverContext = driver.createContext();
+        Driver.Context ctx = driver.createContext();
         Collection<Row> buildRows = driver.build(
-                driverContext,
+                ctx,
                 plan.getRoot(),
                 Key.of("N_NATIONKEY", 10));
 
         System.out.println(buildRows);
 
-        driverContext.commit();
+        // driver.sync(ctx, )
+
+        ctx.commit();
     }
 
     public void testDot()

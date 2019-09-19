@@ -16,6 +16,7 @@ package com.wrmsr.tokamak.main;
 import com.wrmsr.tokamak.main.boot.Bootstrap;
 import com.wrmsr.tokamak.main.server.ServerMain;
 import picocli.CommandLine;
+import picocli.CommandLine.*;
 
 import java.util.concurrent.Callable;
 
@@ -53,7 +54,7 @@ public class CliMain
     }
     */
 
-    @CommandLine.Command(name = "serve", mixinStandardHelpOptions = true)
+    @Command(name = "serve", mixinStandardHelpOptions = true)
     public static class ServeCommand
             implements Callable<Void>
     {
@@ -66,7 +67,7 @@ public class CliMain
         }
     }
 
-    @CommandLine.Command(
+    @Command(
             name = "main",
             mixinStandardHelpOptions = true,
             subcommands = {

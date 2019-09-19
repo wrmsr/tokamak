@@ -45,14 +45,14 @@ push:
 		docker push "$(DOCKER_USER)/$$IMG" ; \
 	done
 
-.PHONY: db_images
-db_images:
+.PHONY: db-images
+db-images:
 	for IMG in $(DOCKER_DB_IMAGES) ; do \
 		(cd .. && docker build --tag "$(DOCKER_USER)/$$IMG" -f "docker/$$IMG/Dockerfile" .) ; \
 	done
 
-.PHONY: dev_images
-dev_images: db_images
+.PHONY: dev-images
+dev-images: db-images
 	(cd .. && docker build --tag "$(DOCKER_USER)/tokamak-dev" -f docker/tokamak-dev/Dockerfile .)
 
 .PHONY: stop
@@ -65,17 +65,17 @@ clean: stop
 		docker-compose rm -fv "$$SVC" ; \
 	done
 
-.PHONY: dev_start
-dev_start: dev_images
+.PHONY: dev-start
+dev-start: dev-images
 	docker-compose start $(DOCKER_COMPOSE_DB_SERVICES) tokamak-dev
 
-.PHONY: dev_up
-dev_up: dev_images
+.PHONY: dev-up
+dev-up: dev-images
 	docker-compose up $(DOCKER_COMPOSE_DB_SERVICES) tokamak-dev
 
-.PHONY: dev_reup
-dev_reup: clean dev_up
+.PHONY: dev-reup
+dev-reup: clean dev-up
 
-.PHONY: enable_ptrace
-enable_ptrace:
+.PHONY: enable-ptrace
+enable-ptrace:
 	docker run --privileged -it alpine:3.7 sh -c 'echo 0 > /proc/sys/kernel/yama/ptrace_scope'

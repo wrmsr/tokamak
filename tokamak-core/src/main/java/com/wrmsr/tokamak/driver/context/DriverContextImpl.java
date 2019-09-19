@@ -26,8 +26,6 @@ import com.wrmsr.tokamak.driver.DriverRow;
 import com.wrmsr.tokamak.driver.build.Builder;
 import com.wrmsr.tokamak.driver.context.diag.JournalEntry;
 import com.wrmsr.tokamak.driver.context.diag.Stat;
-import com.wrmsr.tokamak.driver.context.row.RowCache;
-import com.wrmsr.tokamak.driver.context.row.DefaultRowCache;
 import com.wrmsr.tokamak.driver.context.state.StateCache;
 import com.wrmsr.tokamak.driver.context.state.DefaultStateCache;
 import com.wrmsr.tokamak.driver.state.State;
@@ -50,8 +48,9 @@ public class DriverContextImpl
 {
     private final DriverImpl driver;
 
-    private final RowCache rowCache;
     private final DefaultStateCache stateCache;
+    private final InvalidationManager invalidationManager;
+    private final LinkageManager linkageManager;
 
     private final boolean journaling;
     private final List<JournalEntry> journalEntries;
@@ -61,15 +60,16 @@ public class DriverContextImpl
     {
         this.driver = driver;
 
-        this.rowCache = new DefaultRowCache(
-                Stat.Updater.nop());
-
         this.stateCache = new DefaultStateCache(
                 driver.getPlan(),
                 driver.getStateStorage(),
                 driver.getSerdeManager(),
-                ImmutableList.of(),
+                ImmutableList.of(this::onStateAttributesSet),
                 Stat.Updater.nop());
+
+        this.invalidationManager = new InvalidationManager();
+
+        this.linkageManager = new LinkageManager();
 
         journaling = false;
         journalEntries = null;
@@ -98,6 +98,19 @@ public class DriverContextImpl
         return connectionsByConnection.computeIfAbsent(connector, c -> connector.connect());
     }
 
+    protected void onStateAttributesSet(State state)
+    {
+        DriverRow row = new DriverRow(
+                state.getNode(),
+                driver.getLineagePolicy().build(),
+                state.getId(),
+                state.getAttributes());
+
+        if (state.getMode() == State.Mode.MODIFIED) {
+            invalidationManager.invalidate(state);
+        }
+    }
+
     protected Optional<Collection<State>> getStateCached(StatefulNode node, Key key)
     {
         Id id;
@@ -122,15 +135,6 @@ public class DriverContextImpl
             addJournalEntry(new JournalEntry.BuildInput(node, key));
         }
 
-        Optional<Collection<DriverRow>> cached = rowCache.get(node, key);
-        if (cached.isPresent()) {
-            Collection<DriverRow> rows = checkNotEmpty(cached.get());
-            if (journaling) {
-                addJournalEntry(new JournalEntry.RowCachedBuildOutput(node, key, rows));
-            }
-            return rows;
-        }
-
         if (builder.getNode() instanceof StatefulNode && key instanceof IdKey) {
             StatefulNode statefulNode = (StatefulNode) builder.getNode();
             IdKey idKey = (IdKey) key;
@@ -138,13 +142,16 @@ public class DriverContextImpl
             if (stateOpt.isPresent()) {
                 State state = stateOpt.get();
                 checkState(state.getId().equals(idKey.getId()));
-                DriverRow row = new DriverRow(
-                        statefulNode,
-                        driver.getLineagePolicy().build(),
-                        state.getId(),
-                        state.getAttributes());
-                if (journaling) {
-                    addJournalEntry(new JournalEntry.StateCachedBuildOutput(node, key, ImmutableList.of(row), state));
+                checkState(!state.getMode().isStorageMode());
+                if (state.getMode() != State.Mode.INVALID) {
+                    DriverRow row = new DriverRow(
+                            statefulNode,
+                            driver.getLineagePolicy().build(),
+                            state.getId(),
+                            state.getAttributes());
+                    if (journaling) {
+                        addJournalEntry(new JournalEntry.StateCachedBuildOutput(node, key, ImmutableList.of(row), state));
+                    }
                 }
             }
         }
@@ -154,8 +161,6 @@ public class DriverContextImpl
         if (journaling) {
             addJournalEntry(new JournalEntry.UncachedBuildOutput(node, key, rows));
         }
-
-        rowCache.put(node, key, rows);
 
         if (node instanceof StatefulNode) {
             StatefulNode statefulNode = (StatefulNode) node;

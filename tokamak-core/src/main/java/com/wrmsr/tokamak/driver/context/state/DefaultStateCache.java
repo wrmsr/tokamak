@@ -21,8 +21,8 @@ import com.wrmsr.tokamak.api.Row;
 import com.wrmsr.tokamak.driver.SerdeManager;
 import com.wrmsr.tokamak.driver.context.diag.Stat;
 import com.wrmsr.tokamak.driver.state.State;
-import com.wrmsr.tokamak.driver.state.StateStorageCodec;
 import com.wrmsr.tokamak.driver.state.StateStorage;
+import com.wrmsr.tokamak.driver.state.StateStorageCodec;
 import com.wrmsr.tokamak.driver.state.StorageState;
 import com.wrmsr.tokamak.node.Node;
 import com.wrmsr.tokamak.node.StatefulNode;
@@ -163,7 +163,19 @@ public class DefaultStateCache
             initialMode = State.Mode.INVALID;
         }
         else {
-            initialMode = State.Mode.EXCLUSIVE;
+            switch (state.getMode()) {
+                case STORAGE_CREATED:
+                    initialMode = State.Mode.INVALID;
+                    break;
+                case STORAGE_SHARED:
+                    initialMode = State.Mode.SHARED;
+                    break;
+                case STORAGE_EXCLUSIVE:
+                    initialMode = State.Mode.EXCLUSIVE;
+                    break;
+                default:
+                    throw new IllegalStateException(state.getMode().toString());
+            }
         }
         state.setInitialMode(initialMode);
 
@@ -185,12 +197,12 @@ public class DefaultStateCache
         allStates.add(state);
         statesById.put(state.getId(), state);
 
-        trackStateStatus(state);
+        trackStateMode(state);
 
         state.setModeCallback(this::onStateModeChange);
     }
 
-    private void trackStateStatus(State state)
+    private void trackStateMode(State state)
     {
         checkArgument(!state.getMode().isStorageMode());
         int nodePriority = prioritiesByNode.get(state.getNode());
@@ -298,17 +310,23 @@ public class DefaultStateCache
     @Override
     public void flush()
     {
-        try (StateStorage.Context storageContext = storage.createContext()) {
-            for (Map.Entry<Node, Map<Id, State>> e0 : statesByIdByNode.entrySet()) {
-                Node node = e0.getKey();
-                Map<Id, State> statesById = e0.getValue();
-                StateStorageCodec stateStorageCodec = serdeManager.getStateStorageCodecsByNode().get(node);
-                for (Map.Entry<Id, State> e1 : statesById.entrySet()) {
-                    Id id = e1.getKey();
-                    State state = e1.getValue();
-                    StorageState storageState = stateStorageCodec.encode(state);
-                }
+        ImmutableList.Builder<StorageState> storageStates = ImmutableList.builder();
+        for (Map.Entry<Node, Map<Id, State>> e0 : statesByIdByNode.entrySet()) {
+            Node node = e0.getKey();
+            Map<Id, State> statesById = e0.getValue();
+            StateStorageCodec stateStorageCodec = serdeManager.getStateStorageCodecsByNode().get(node);
+            for (Map.Entry<Id, State> e1 : statesById.entrySet()) {
+                Id id = e1.getKey();
+                State state = e1.getValue();
+                StorageState storageState = stateStorageCodec.encode(state);
+                storageStates.add(storageState);
             }
+        }
+        try (StateStorage.Context storageContext = storage.createContext()) {
+            storage.put(storageContext, storageStates.build(), true);
+        }
+        catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 }
