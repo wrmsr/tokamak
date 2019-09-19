@@ -13,10 +13,10 @@
  */
 package com.wrmsr.tokamak.conn.jdbc;
 
-import com.wrmsr.tokamak.sql.metadata.ColumnMetaData;
-import com.wrmsr.tokamak.sql.metadata.IndexMetaData;
-import com.wrmsr.tokamak.sql.metadata.PrimaryKeyMetaData;
-import com.wrmsr.tokamak.sql.metadata.TableDescription;
+import com.wrmsr.tokamak.util.sql.metadata.ColumnMetaData;
+import com.wrmsr.tokamak.util.sql.metadata.IndexMetaData;
+import com.wrmsr.tokamak.util.sql.metadata.PrimaryKeyMetaData;
+import com.wrmsr.tokamak.util.sql.metadata.TableDescription;
 import com.wrmsr.tokamak.layout.RowLayout;
 import com.wrmsr.tokamak.layout.TableLayout;
 

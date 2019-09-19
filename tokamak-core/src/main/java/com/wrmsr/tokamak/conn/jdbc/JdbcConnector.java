@@ -22,10 +22,10 @@ import com.wrmsr.tokamak.catalog.Connector;
 import com.wrmsr.tokamak.catalog.Scanner;
 import com.wrmsr.tokamak.catalog.Table;
 import com.wrmsr.tokamak.layout.TableLayout;
-import com.wrmsr.tokamak.sql.SqlConnection;
-import com.wrmsr.tokamak.sql.SqlEngine;
-import com.wrmsr.tokamak.sql.metadata.MetaDataReflection;
-import com.wrmsr.tokamak.sql.metadata.TableDescription;
+import com.wrmsr.tokamak.util.sql.SqlConnection;
+import com.wrmsr.tokamak.util.sql.SqlEngine;
+import com.wrmsr.tokamak.util.sql.metadata.MetaDataReflection;
+import com.wrmsr.tokamak.util.sql.metadata.TableDescription;
 
 import javax.annotation.Nullable;
 

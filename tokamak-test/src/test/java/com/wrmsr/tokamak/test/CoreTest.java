@@ -41,7 +41,7 @@ import com.wrmsr.tokamak.plan.node.Projection;
 import com.wrmsr.tokamak.plan.node.ScanNode;
 import com.wrmsr.tokamak.plan.Plan;
 import com.wrmsr.tokamak.plan.dot.Dot;
-import com.wrmsr.tokamak.sql.SqlUtils;
+import com.wrmsr.tokamak.util.sql.SqlUtils;
 import com.wrmsr.tokamak.type.Type;
 import com.wrmsr.tokamak.util.Json;
 import junit.framework.TestCase;

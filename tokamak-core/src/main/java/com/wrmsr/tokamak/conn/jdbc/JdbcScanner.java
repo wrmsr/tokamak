@@ -24,7 +24,7 @@ import com.wrmsr.tokamak.catalog.Connection;
 import com.wrmsr.tokamak.catalog.Scanner;
 import com.wrmsr.tokamak.layout.RowLayout;
 import com.wrmsr.tokamak.layout.TableLayout;
-import com.wrmsr.tokamak.sql.SqlConnection;
+import com.wrmsr.tokamak.util.sql.SqlConnection;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -36,7 +36,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
-import static com.wrmsr.tokamak.sql.SqlUtils.execute;
+import static com.wrmsr.tokamak.util.sql.SqlUtils.execute;
 import static com.wrmsr.tokamak.util.MoreCollections.checkOrdered;
 import static java.util.function.Function.identity;
 

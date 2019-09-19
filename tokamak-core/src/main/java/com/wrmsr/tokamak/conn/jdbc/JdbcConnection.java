@@ -14,7 +14,7 @@
 package com.wrmsr.tokamak.conn.jdbc;
 
 import com.wrmsr.tokamak.catalog.Connection;
-import com.wrmsr.tokamak.sql.SqlConnection;
+import com.wrmsr.tokamak.util.sql.SqlConnection;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 

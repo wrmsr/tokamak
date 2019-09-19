@@ -26,7 +26,7 @@ public final class Kvs
 
     public static final Map<String, Class<?>> BUILTIN_SUBTYPES = ImmutableMap.<String, Class<?>>builder()
             .put("file", DirectoryKv.class)
-            .put("jdbc", JdbcKv.class)
             .put("map", MapKv.class)
+            .put("sql", SqlKv.class)
             .build();
 }

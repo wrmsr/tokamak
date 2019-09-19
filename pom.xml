@@ -38,6 +38,7 @@
         <module>tokamak-core</module>
         <module>tokamak-main</module>
         <module>tokamak-spark</module>
+        <module>tokamak-util</module>
         <module>tokamak-test</module>
     </modules>
 

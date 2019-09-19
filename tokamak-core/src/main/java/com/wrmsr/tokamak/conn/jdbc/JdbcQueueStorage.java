@@ -16,8 +16,8 @@ package com.wrmsr.tokamak.conn.jdbc;
 import com.wrmsr.tokamak.driver.queue.QueueEntry;
 import com.wrmsr.tokamak.driver.queue.QueueInsertion;
 import com.wrmsr.tokamak.driver.queue.QueueStorage;
-import com.wrmsr.tokamak.sql.SqlConnection;
-import com.wrmsr.tokamak.sql.SqlEngine;
+import com.wrmsr.tokamak.util.sql.SqlConnection;
+import com.wrmsr.tokamak.util.sql.SqlEngine;
 
 import java.io.IOException;
 import java.util.List;

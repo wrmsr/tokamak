@@ -18,8 +18,8 @@ import com.google.common.io.CharStreams;
 import com.wrmsr.tokamak.catalog.Catalog;
 import com.wrmsr.tokamak.catalog.Schema;
 import com.wrmsr.tokamak.conn.jdbc.JdbcConnector;
-import com.wrmsr.tokamak.sql.SqlEngine;
-import com.wrmsr.tokamak.sql.SqlUtils;
+import com.wrmsr.tokamak.util.sql.SqlEngine;
+import com.wrmsr.tokamak.util.sql.SqlUtils;
 import io.airlift.tpch.GenerateUtils;
 import io.airlift.tpch.TpchColumn;
 import io.airlift.tpch.TpchEntity;
@@ -27,10 +27,6 @@ import io.airlift.tpch.TpchTable;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.nio.file.DirectoryStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -39,7 +35,7 @@ import java.util.stream.IntStream;
 
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
-import static com.wrmsr.tokamak.sql.SqlUtils.executeUpdate;
+import static com.wrmsr.tokamak.util.sql.SqlUtils.executeUpdate;
 
 public final class TpchUtils
 {
