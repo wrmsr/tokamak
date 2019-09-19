@@ -195,7 +195,7 @@ public class CoreTest
         CatalogRegistry cn = new CatalogRegistry();
         BuiltinConnectors.register(cn);
         BuiltinExecutors.register(cn);
-        ObjectMapper om = cn.registerSubtypes(Json.newObjectMapper());
+        ObjectMapper om = cn.register(Json.newObjectMapper());
         String src = om.writerWithDefaultPrettyPrinter().writeValueAsString(catalog);
         System.out.println(src);
         // catalog = om.readValue(src, Catalog.class);
@@ -262,8 +262,8 @@ public class CoreTest
         Table table = catalog.addSchema("stuff_schema", connector).addTable("stuff_table");
 
         CatalogRegistry cn = BuiltinConnectors.register(new CatalogRegistry());
-        ObjectMapper om = cn.registerSubtypes(Json.newObjectMapper());
-        cn.checkSubtypeRegistered(om);
+        ObjectMapper om = cn.register(Json.newObjectMapper());
+        cn.checkRegistered(om);
 
         String src = om.writerWithDefaultPrettyPrinter().writeValueAsString(catalog);
         System.out.println(src);

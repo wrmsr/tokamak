@@ -14,120 +14,38 @@
 package com.wrmsr.tokamak.catalog;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.jsontype.NamedType;
-import com.google.common.collect.ImmutableMap;
+import com.wrmsr.tokamak.util.SubtypeRegistry;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.collect.ImmutableSet.toImmutableSet;
 
 @SuppressWarnings({"rawtypes"})
 public final class CatalogRegistry
 {
-    private final Object lock = new Object();
+    private final SubtypeRegistry<Connector, ConnectorType> connectorTypeRegistry = new SubtypeRegistry<>(Connector.class, ConnectorType.class);
+    private final SubtypeRegistry<Executor, ExecutorType> executorTypeRegistry = new SubtypeRegistry<>(Executor.class, ExecutorType.class);
 
-    private final Map<String, ConnectorType> connectorTypesByName = new HashMap<>();
-    private final Map<Class<? extends Connector>, ConnectorType> connectorTypesByCls = new HashMap<>();
-
-    private final Map<String, ExecutorType> executorTypesByName = new HashMap<>();
-    private final Map<Class<? extends Executor>, ExecutorType> executorTypesByCls = new HashMap<>();
-
-    public Map<String, ConnectorType> getConnectorTypesByName()
-    {
-        synchronized (lock) {
-            return ImmutableMap.copyOf(connectorTypesByName);
-        }
-    }
-
-    public Map<Class<? extends Connector>, ConnectorType> getConnectorTypesByCls()
-    {
-        synchronized (lock) {
-            return ImmutableMap.copyOf(connectorTypesByCls);
-        }
-    }
-
-    public ConnectorType getConnectorType(String name)
-    {
-        return connectorTypesByName.get(name);
-    }
-
-    public Map<String, ExecutorType> getExecutorTypesByName()
-    {
-        synchronized (lock) {
-            return ImmutableMap.copyOf(executorTypesByName);
-        }
-    }
-
-    public Map<Class<? extends Executor>, ExecutorType> getExecutorTypesByCls()
-    {
-        synchronized (lock) {
-            return ImmutableMap.copyOf(executorTypesByCls);
-        }
-    }
-
-    public ExecutorType getExecutorType(String name)
-    {
-        return executorTypesByName.get(name);
-    }
-
-    public void register(ConnectorType<?> connectorType)
+    public void register(ConnectorType connectorType)
     {
         checkNotNull(connectorType);
-        synchronized (lock) {
-            checkArgument(!connectorTypesByName.containsKey(connectorType.getName()));
-            checkArgument(!connectorTypesByCls.containsKey(connectorType.getCls()));
-            connectorTypesByName.put(connectorType.getName(), connectorType);
-            connectorTypesByCls.put(connectorType.getCls(), connectorType);
-        }
+        connectorTypeRegistry.put(connectorType);
     }
 
-    public void register(ExecutorType<?> executorType)
+    public void register(ExecutorType executorType)
     {
         checkNotNull(executorType);
-        synchronized (lock) {
-            checkArgument(!executorTypesByName.containsKey(executorType.getName()));
-            checkArgument(!executorTypesByCls.containsKey(executorType.getCls()));
-            executorTypesByName.put(executorType.getName(), executorType);
-            executorTypesByCls.put(executorType.getCls(), executorType);
-        }
+        executorTypeRegistry.put(executorType);
     }
 
-    public ObjectMapper registerSubtypes(ObjectMapper objectMapper)
+    public ObjectMapper register(ObjectMapper objectMapper)
     {
-        for (ConnectorType connectorType : connectorTypesByName.values()) {
-            objectMapper.registerSubtypes(new NamedType(connectorType.getCls(), connectorType.getName()));
-        }
-        for (ExecutorType executorType : executorTypesByName.values()) {
-            objectMapper.registerSubtypes(new NamedType(executorType.getCls(), executorType.getName()));
-        }
+        connectorTypeRegistry.register(objectMapper);
+        executorTypeRegistry.register(objectMapper);
         return objectMapper;
     }
 
-    public static <T> void checkSubtypeRegistered(
-            ObjectMapper objectMapper,
-            Class<T> cls,
-            Iterable<Class<? extends T>> subclsList)
+    public void checkRegistered(ObjectMapper objectMapper)
     {
-        Collection<NamedType> subtypes = objectMapper.getSubtypeResolver().collectAndResolveSubtypesByTypeId(
-                objectMapper.getSerializationConfig(),
-                objectMapper.getSerializationConfig().introspect(objectMapper.getTypeFactory().constructType(cls)).getClassInfo());
-        subtypes.forEach(st -> checkNotNull(st.getName()));
-        Set<Class> subtypeSet = subtypes.stream().map(NamedType::getType).collect(toImmutableSet());
-        for (Class<? extends T> subcls : subclsList) {
-            if (!subtypeSet.contains(subcls)) {
-                throw new IllegalStateException("Subtype type not registered: " + subcls);
-            }
-        }
-    }
-
-    public void checkSubtypeRegistered(ObjectMapper objectMapper)
-    {
-        checkSubtypeRegistered(objectMapper, Connector.class, connectorTypesByCls.keySet());
-        checkSubtypeRegistered(objectMapper, Executor.class, executorTypesByCls.keySet());
+        connectorTypeRegistry.checkRegistered(objectMapper);
+        executorTypeRegistry.checkRegistered(objectMapper);
     }
 }

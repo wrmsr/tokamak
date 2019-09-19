@@ -13,36 +13,13 @@
  */
 package com.wrmsr.tokamak.catalog;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
+import com.wrmsr.tokamak.util.SubtypeRegistry;
 
-public final class ExecutorType<T extends Executor>
+public final class ExecutorType
+        extends SubtypeRegistry.Entry<Executor>
 {
-    private final String name;
-    private final Class<T> cls;
-
-    public ExecutorType(String name, Class<T> cls)
+    public ExecutorType(String name, Class<? extends Executor> cls)
     {
-        this.name = checkNotEmpty(name);
-        this.cls = checkNotNull(cls);
-    }
-
-    public String getName()
-    {
-        return name;
-    }
-
-    public Class<T> getCls()
-    {
-        return cls;
-    }
-
-    @Override
-    public String toString()
-    {
-        return "ExecutorType{" +
-                "name='" + name + '\'' +
-                ", cls=" + cls +
-                '}';
+        super(name, cls);
     }
 }

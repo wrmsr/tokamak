@@ -13,36 +13,13 @@
  */
 package com.wrmsr.tokamak.catalog;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
+import com.wrmsr.tokamak.util.SubtypeRegistry;
 
-public final class ConnectorType<T extends Connector>
+public final class ConnectorType
+        extends SubtypeRegistry.Entry<Connector>
 {
-    private final String name;
-    private final Class<T> cls;
-
-    public ConnectorType(String name, Class<T> cls)
+    public ConnectorType(String name, Class<? extends Connector> cls)
     {
-        this.name = checkNotEmpty(name);
-        this.cls = checkNotNull(cls);
-    }
-
-    public String getName()
-    {
-        return name;
-    }
-
-    public Class<T> getCls()
-    {
-        return cls;
-    }
-
-    @Override
-    public String toString()
-    {
-        return "ConnectorType{" +
-                "name='" + name + '\'' +
-                ", cls=" + cls +
-                '}';
+        super(name, cls);
     }
 }
