@@ -11,13 +11,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.conn.heap;
+package com.wrmsr.tokamak.conn.kv;
 
 import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.catalog.Connection;
 import com.wrmsr.tokamak.catalog.Scanner;
-import com.wrmsr.tokamak.conn.heap.table.HeapTable;
 
 import java.util.List;
 import java.util.Map;
@@ -26,14 +25,14 @@ import java.util.Set;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public class HeapScanner
+public final class KvScanner
         implements Scanner
 {
-    private final HeapConnector connector;
-    private final HeapTable table;
+    private final KvConnector connector;
+    private final KvTable table;
     private final Set<String> fields;
 
-    public HeapScanner(HeapConnector connector, HeapTable table, Set<String> fields)
+    public KvScanner(KvConnector connector, KvTable table, Set<String> fields)
     {
         this.connector = checkNotNull(connector);
         this.table = checkNotNull(table);
@@ -44,8 +43,8 @@ public class HeapScanner
     @Override
     public List<Map<String, Object>> scan(Connection connection, Key key)
     {
-        HeapConnection heapConnection = (HeapConnection) checkNotNull(connection);
-        checkArgument(heapConnection.getConnector() == connector);
+        KvConnection heapConnection = (KvConnection) checkNotNull(connection);
+        checkArgument(heapConnection.getKvConnector() == connector);
         return table.scan(fields, key);
     }
 }

@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.conn.heap;
+package com.wrmsr.tokamak.conn.kv;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -23,6 +23,7 @@ import com.wrmsr.tokamak.catalog.Connection;
 import com.wrmsr.tokamak.catalog.Connector;
 import com.wrmsr.tokamak.catalog.Scanner;
 import com.wrmsr.tokamak.catalog.Table;
+import com.wrmsr.tokamak.conn.heap.HeapScanner;
 import com.wrmsr.tokamak.conn.heap.table.HeapTable;
 import com.wrmsr.tokamak.layout.TableLayout;
 
@@ -35,42 +36,30 @@ import java.util.Set;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
+import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 
-public class HeapConnector
+public final class KvConnector
         implements Connector
 {
     private final String name;
 
     private final Object lock = new Object();
-    private volatile Map<SchemaTable, HeapTable> tablesBySchemaTable = ImmutableMap.of();
+    private volatile Map<SchemaTable, KvTable> tablesBySchemaTable = ImmutableMap.of();
 
     @JsonCreator
-    public HeapConnector(
+    public KvConnector(
             @JsonProperty("name") String name,
-            @JsonProperty("tables") Iterable<HeapTable> tables)
+            @JsonProperty("tables") Iterable<KvTable> tables)
     {
-        this.name = checkNotNull(name);
+        this.name = checkNotEmpty(name);
         tables.forEach(this::addTable);
     }
 
-    public HeapConnector(String name)
-    {
-        this(name, ImmutableList.of());
-    }
-
-    @Override
-    public String toString()
-    {
-        return "HeapConnector{" +
-                "name='" + name + '\'' +
-                '}';
-    }
-
-    public HeapConnector addTable(HeapTable heapTable)
+    public KvConnector addTable(KvTable heapTable)
     {
         synchronized (lock) {
             checkArgument(!tablesBySchemaTable.containsKey(heapTable.getSchemaTable()));
-            tablesBySchemaTable = ImmutableMap.<SchemaTable, HeapTable>builder()
+            tablesBySchemaTable = ImmutableMap.<SchemaTable, KvTable>builder()
                     .putAll(tablesBySchemaTable)
                     .put(heapTable.getSchemaTable(), heapTable)
                     .build();
@@ -78,7 +67,6 @@ public class HeapConnector
         }
     }
 
-    @JsonProperty("name")
     @Override
     public String getName()
     {
@@ -86,9 +74,15 @@ public class HeapConnector
     }
 
     @JsonProperty("tables")
-    public List<HeapTable> getTables()
+    public List<KvTable> getTables()
     {
         return ImmutableList.copyOf(tablesBySchemaTable.values());
+    }
+
+    @Override
+    public Connection connect()
+    {
+        return new KvConnection(this);
     }
 
     @Override
@@ -100,12 +94,6 @@ public class HeapConnector
     }
 
     @Override
-    public Connection connect()
-    {
-        return new HeapConnection(this);
-    }
-
-    @Override
     public TableLayout getTableLayout(SchemaTable schemaTable)
     {
         return checkNotNull(tablesBySchemaTable.get(schemaTable)).getTableLayout();
@@ -114,6 +102,6 @@ public class HeapConnector
     @Override
     public Scanner createScanner(Table table, Set<String> fields)
     {
-        return new HeapScanner(this, checkNotNull(tablesBySchemaTable.get(table.getSchemaTable())), fields);
+        return new KvScanner(this, checkNotNull(tablesBySchemaTable.get(table.getSchemaTable())), fields);
     }
 }

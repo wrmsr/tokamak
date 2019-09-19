@@ -11,23 +11,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.conn.heap;
+package com.wrmsr.tokamak.conn.kv;
 
 import com.wrmsr.tokamak.catalog.Connection;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public class HeapConnection
+public class KvConnection
         implements Connection
 {
-    private final HeapConnector connector;
+    private final KvConnector connector;
 
-    public HeapConnection(HeapConnector connector)
+    public KvConnection(KvConnector connector)
     {
         this.connector = checkNotNull(connector);
     }
 
-    public HeapConnector getConnector()
+    public KvConnector getKvConnector()
     {
         return connector;
     }

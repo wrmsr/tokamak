@@ -11,104 +11,60 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.conn.heap.table;
+package com.wrmsr.tokamak.conn.kv;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
 import com.wrmsr.tokamak.api.AllKey;
 import com.wrmsr.tokamak.api.FieldKey;
 import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.layout.TableLayout;
+import com.wrmsr.tokamak.util.kv.Kv;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public class MapHeapTable
-        implements HeapTable
+public class KvTable
 {
-    /*
-    TODO:
-     - guava table
-     - key sharing
-     - json Object coercion from tableLayout
-    */
-
     private final SchemaTable schemaTable;
     private final TableLayout tableLayout;
-    private final List<Object[]> rows = new ArrayList<>();
+    private final Kv<byte[], byte[]> kv;
 
     @JsonCreator
-    public MapHeapTable(
+    public KvTable(
             @JsonProperty("schemaTable") SchemaTable schemaTable,
             @JsonProperty("tableLayout") TableLayout tableLayout,
-            @JsonProperty("rows") List<Object[]> rows)
+            @JsonProperty("kv") Kv<byte[], byte[]> kv)
     {
         this.schemaTable = checkNotNull(schemaTable);
         this.tableLayout = checkNotNull(tableLayout);
-        this.rows.addAll(rows);
-    }
-
-    public MapHeapTable(SchemaTable schemaTable, TableLayout tableLayout)
-    {
-        this(schemaTable, tableLayout, ImmutableList.of());
+        this.kv = checkNotNull(kv);
     }
 
     @JsonProperty("schemaTable")
-    @Override
     public SchemaTable getSchemaTable()
     {
         return schemaTable;
     }
 
     @JsonProperty("tableLayout")
-    @Override
     public TableLayout getTableLayout()
     {
         return tableLayout;
     }
 
-    @JsonProperty("rows")
-    public List<Object[]> getRows()
+    @JsonProperty("kv")
+    public Kv<byte[], byte[]> getKv()
     {
-        return rows;
+        return kv;
     }
 
-    public MapHeapTable addRowArrays(Iterable<Object[]> rows)
-    {
-        rows.forEach(row -> {
-            checkNotNull(row);
-            checkArgument(row.length == tableLayout.getRowLayout().getFields().size());
-            this.rows.add(row);
-        });
-        return this;
-    }
-
-    public MapHeapTable addRowLists(Iterable<List<Object>> rows)
-    {
-        return addRowArrays(Iterables.transform(rows, List::toArray));
-    }
-
-    public MapHeapTable addRowMaps(Iterable<Map<String, Object>> rows, boolean strict)
-    {
-        int length = tableLayout.getRowLayout().getFields().size();
-        return addRowArrays(Iterables.transform(rows, r -> getTableLayout().getRowLayout().mapToArray(r, strict)));
-    }
-
-    public MapHeapTable addRowMaps(Iterable<Map<String, Object>> rows)
-    {
-        return addRowMaps(rows, true);
-    }
-
-    @Override
     public List<Map<String, Object>> scan(Set<String> fields, Key key)
     {
         checkArgument(tableLayout.getRowLayout().getFields().keySet().containsAll(fields));
@@ -126,19 +82,20 @@ public class MapHeapTable
 
         ImmutableList.Builder<Map<String, Object>> builder = ImmutableList.builder();
 
-        rowLoop:
-        for (Object[] row : rows) {
-            if (key instanceof FieldKey) {
-                FieldKey fieldKey = (FieldKey) key;
-                for (Map.Entry<String, Object> keyEntry : fieldKey.getValuesByField().entrySet()) {
-                    if (!Objects.equals(row[tableLayout.getRowLayout().getPositionsByField().get(keyEntry.getKey())], ((FieldKey) key).get(keyEntry.getKey()))) {
-                        continue rowLoop;
-                    }
-                }
-            }
-            builder.add(tableLayout.getRowLayout().arrayToMap(row));
-        }
+        throw new IllegalStateException();
 
-        return builder.build();
+        // rowLoop:
+        // for (Object[] row : rows) {
+        //     if (key instanceof FieldKey) {
+        //         FieldKey fieldKey = (FieldKey) key;
+        //         for (Map.Entry<String, Object> keyEntry : fieldKey.getValuesByField().entrySet()) {
+        //             if (!Objects.equals(row[tableLayout.getRowLayout().getPositionsByField().get(keyEntry.getKey())], ((FieldKey) key).get(keyEntry.getKey()))) {
+        //                 continue rowLoop;
+        //             }
+        //         }
+        //     }
+        //     builder.add(tableLayout.getRowLayout().arrayToMap(row));
+        // }
+        // return builder.build();
     }
 }

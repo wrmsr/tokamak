@@ -20,7 +20,6 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.layout.TableLayout;
-import com.wrmsr.tokamak.plan.node.CrossJoinNode;
 
 import java.util.List;
 import java.util.Map;
@@ -30,7 +29,7 @@ import java.util.Set;
         use = JsonTypeInfo.Id.NAME,
         include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = MapHeapTable.class, name = "map"),
+        @JsonSubTypes.Type(value = ListHeapTable.class, name = "list"),
 })
 @JsonIdentityInfo(generator = ObjectIdGenerators.UUIDGenerator.class)
 public interface HeapTable

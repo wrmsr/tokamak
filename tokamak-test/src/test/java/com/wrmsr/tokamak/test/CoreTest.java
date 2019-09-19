@@ -25,7 +25,7 @@ import com.wrmsr.tokamak.catalog.CatalogRegistry;
 import com.wrmsr.tokamak.catalog.Table;
 import com.wrmsr.tokamak.conn.BuiltinConnectors;
 import com.wrmsr.tokamak.conn.heap.HeapConnector;
-import com.wrmsr.tokamak.conn.heap.table.MapHeapTable;
+import com.wrmsr.tokamak.conn.heap.table.ListHeapTable;
 import com.wrmsr.tokamak.driver.Driver;
 import com.wrmsr.tokamak.driver.DriverImpl;
 import com.wrmsr.tokamak.exec.BuiltinExecutors;
@@ -234,7 +234,7 @@ public class CoreTest
     public void testHeapTable()
             throws Throwable
     {
-        MapHeapTable mapHeapTable = new MapHeapTable(
+        ListHeapTable listHeapTable = new ListHeapTable(
                 SchemaTable.of("stuff_schema", "stuff_table"),
                 new TableLayout(
                         new RowLayout(ImmutableMap.of(
@@ -244,7 +244,7 @@ public class CoreTest
                         new TableLayout.Key(ImmutableList.of("id")),
                         ImmutableList.of()));
 
-        mapHeapTable.addRowMaps(ImmutableList.of(
+        listHeapTable.addRowMaps(ImmutableList.of(
                 ImmutableMap.of(
                         "id", 1,
                         "str", "one"
@@ -256,7 +256,7 @@ public class CoreTest
         ));
 
         HeapConnector connector = new HeapConnector("stuff_connector");
-        connector.addTable(mapHeapTable);
+        connector.addTable(listHeapTable);
 
         Catalog catalog = new Catalog();
         Table table = catalog.addSchema("stuff_schema", connector).addTable("stuff_table");

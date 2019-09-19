@@ -13,6 +13,9 @@
  */
 package com.wrmsr.tokamak.util.kv;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.wrmsr.tokamak.util.NoExceptAutoCloseable;
 import com.wrmsr.tokamak.util.codec.Codec;
 import com.wrmsr.tokamak.util.collect.StreamableIterable;
@@ -25,6 +28,10 @@ import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
+@JsonTypeInfo(
+        use = JsonTypeInfo.Id.NAME,
+        include = JsonTypeInfo.As.WRAPPER_OBJECT)
+@JsonIdentityInfo(generator = ObjectIdGenerators.UUIDGenerator.class)
 public interface Kv<K, V>
         extends StreamableIterable<K>
 {
@@ -70,47 +77,6 @@ public interface Kv<K, V>
     default ManagedIterator<K> managedIterator()
     {
         return ManagedIterator.wrap(iterator());
-    }
-
-    class FromMap<K, V>
-            implements Kv<K, V>
-    {
-        private final Map<K, V> target;
-
-        public FromMap(Map<K, V> target)
-        {
-            this.target = target;
-        }
-
-        @Override
-        public V get(K key)
-        {
-            return target.get(key);
-        }
-
-        @Override
-        public boolean containsKey(K key)
-        {
-            return target.containsKey(key);
-        }
-
-        @Override
-        public void put(K key, V value)
-        {
-            target.put(key, value);
-        }
-
-        @Override
-        public void remove(K key)
-        {
-            target.remove(key);
-        }
-
-        @Override
-        public Iterator<K> iterator()
-        {
-            return target.keySet().iterator();
-        }
     }
 
     abstract class AbstractToMap<K, V>
