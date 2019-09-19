@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.conn.jdbc;
+package com.wrmsr.tokamak.util.sql;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
@@ -21,32 +21,32 @@ import java.util.Objects;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
-public final class JdbcTableIdentifier
+public final class SqlTableIdentifier
 {
     private final @Nullable String catalog;
     private final @Nullable String schema;
     private final String name;
 
-    public JdbcTableIdentifier(@Nullable String catalog, @Nullable String schema, String name)
+    public SqlTableIdentifier(@Nullable String catalog, @Nullable String schema, String name)
     {
         this.catalog = catalog;
         this.schema = schema;
         this.name = checkNotNull(name);
     }
 
-    public static JdbcTableIdentifier of(@Nullable String catalog, @Nullable String schema, String name)
+    public static SqlTableIdentifier of(@Nullable String catalog, @Nullable String schema, String name)
     {
-        return new JdbcTableIdentifier(catalog, schema, name);
+        return new SqlTableIdentifier(catalog, schema, name);
     }
 
-    public static JdbcTableIdentifier of(@Nullable String schema, String name)
+    public static SqlTableIdentifier of(@Nullable String schema, String name)
     {
-        return new JdbcTableIdentifier(null, schema, name);
+        return new SqlTableIdentifier(null, schema, name);
     }
 
-    public static JdbcTableIdentifier of(String name)
+    public static SqlTableIdentifier of(String name)
     {
-        return new JdbcTableIdentifier(null, null, name);
+        return new SqlTableIdentifier(null, null, name);
     }
 
     @Override
@@ -64,7 +64,7 @@ public final class JdbcTableIdentifier
     {
         if (this == o) { return true; }
         if (o == null || getClass() != o.getClass()) { return false; }
-        JdbcTableIdentifier that = (JdbcTableIdentifier) o;
+        SqlTableIdentifier that = (SqlTableIdentifier) o;
         return Objects.equals(catalog, that.catalog) &&
                 Objects.equals(schema, that.schema) &&
                 Objects.equals(name, that.name);

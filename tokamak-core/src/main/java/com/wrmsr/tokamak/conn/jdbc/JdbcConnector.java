@@ -24,6 +24,7 @@ import com.wrmsr.tokamak.catalog.Table;
 import com.wrmsr.tokamak.layout.TableLayout;
 import com.wrmsr.tokamak.util.sql.SqlConnection;
 import com.wrmsr.tokamak.util.sql.SqlEngine;
+import com.wrmsr.tokamak.util.sql.SqlTableIdentifier;
 import com.wrmsr.tokamak.util.sql.metadata.MetaDataReflection;
 import com.wrmsr.tokamak.util.sql.metadata.TableDescription;
 
@@ -121,7 +122,7 @@ public final class JdbcConnector
             DatabaseMetaData metaData = sqlConnection.getConnection().getMetaData();
 
             TableDescription tableDescription = MetaDataReflection.getTableDescription(
-                    metaData, JdbcTableIdentifier.of(catalog, schemaTable.getSchema(), schemaTable.getTable()));
+                    metaData, SqlTableIdentifier.of(catalog, schemaTable.getSchema(), schemaTable.getTable()));
 
             return JdbcLayoutUtils.buildTableLayout(tableDescription);
         }

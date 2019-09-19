@@ -11,6 +11,7 @@ COPY tokamak-core/pom.xml /build/tokamak-core/pom.xml
 COPY tokamak-main/pom.xml /build/tokamak-main/pom.xml
 COPY tokamak-spark/pom.xml /build/tokamak-spark/pom.xml
 COPY tokamak-test/pom.xml /build/tokamak-test/pom.xml
+COPY tokamak-util/pom.xml /build/tokamak-util/pom.xml
 
 RUN ( \
     cd /build && \
@@ -26,6 +27,7 @@ COPY tokamak-core/ /build/tokamak-core
 COPY tokamak-main/ /build/tokamak-main
 COPY tokamak-spark/ /build/tokamak-spark
 COPY tokamak-test/ /build/tokamak-test
+COPY tokamak-util/ /build/tokamak-util
 
 COPY .git /build/.git
 

@@ -13,7 +13,7 @@
  */
 package com.wrmsr.tokamak.util.sql.metadata;
 
-import com.wrmsr.tokamak.conn.jdbc.JdbcTableIdentifier;
+import com.wrmsr.tokamak.util.sql.SqlTableIdentifier;
 
 import java.util.Map;
 
@@ -48,9 +48,9 @@ public final class PrimaryKeyMetaData
                 '}';
     }
 
-    public JdbcTableIdentifier getTableIdentifier()
+    public SqlTableIdentifier getTableIdentifier()
     {
-        return new JdbcTableIdentifier(tableCatalog, tableSchema, tableName);
+        return new SqlTableIdentifier(tableCatalog, tableSchema, tableName);
     }
 
     public String getTableCatalog()

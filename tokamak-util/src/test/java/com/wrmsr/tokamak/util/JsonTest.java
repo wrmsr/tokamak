@@ -19,16 +19,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
-import com.fasterxml.jackson.databind.type.SimpleType;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.wrmsr.tokamak.api.Id;
-import com.wrmsr.tokamak.api.Key;
-import com.wrmsr.tokamak.api.SimpleRow;
 import junit.framework.TestCase;
 
 import java.util.Collection;
@@ -37,44 +30,6 @@ import java.util.List;
 public class JsonTest
         extends TestCase
 {
-    public void testApiJson()
-            throws Throwable
-    {
-        System.out.println(
-                Json.writeValue(
-                        Key.all()));
-
-        System.out.println(
-                Json.writeValue(
-                        new SimpleRow(
-                                Id.of(420),
-                                new Object[] {
-                                        "hi",
-                                        420,
-                                        new byte[] {(byte) 0x01, (byte) 0x34}
-                                })));
-
-        Object obj = ImmutableMap.of(
-                "a", 0,
-                "b", "one",
-                "c", ImmutableList.of("a", "b", "c"),
-                "d", ImmutableMap.of(
-                        "e", 420,
-                        "f", ImmutableList.of(1, "a"),
-                        "g", ImmutableMap.of(
-                                0, "hi",
-                                "h", "no"
-                        )
-                )
-        );
-
-        String blob = Json.writeValue(obj);
-
-        JsonNode node = Json.OBJECT_MAPPER_SUPPLIER.get().readTree(blob);
-
-        System.out.println(node);
-    }
-
     @JsonIdentityInfo(
             generator = ObjectIdGenerators.PropertyGenerator.class,
             property = "name")

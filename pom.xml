@@ -67,6 +67,12 @@
                 <version>${project.version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>com.wrmsr.tokamak</groupId>
+                <artifactId>tokamak-util</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
             <!--@END-IGNORE-FOR-DEPS@-->
 
             <!-- Protobuf -->

@@ -14,8 +14,8 @@
 package com.wrmsr.tokamak.util.sql.metadata;
 
 import com.google.common.collect.ImmutableList;
-import com.wrmsr.tokamak.conn.jdbc.JdbcTableIdentifier;
 import com.wrmsr.tokamak.util.collect.StreamableIterable;
+import com.wrmsr.tokamak.util.sql.SqlTableIdentifier;
 
 import java.util.Iterator;
 import java.util.List;
@@ -38,7 +38,7 @@ public final class CompositeIndexMetaData
         return components.get(0).getIndexName();
     }
 
-    public JdbcTableIdentifier getTableIdentifier()
+    public SqlTableIdentifier getTableIdentifier()
     {
         return components.get(0).getTableIdentifier();
     }
