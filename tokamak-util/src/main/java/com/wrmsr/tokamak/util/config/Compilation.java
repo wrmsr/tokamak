@@ -209,9 +209,10 @@ public final class Compilation
 
         md.getProperties().values().forEach(prop -> {
             JTypeSpecifier ts = JTypeSpecifier.of(prop.getType());
+            Class<? extends BaseConfigPropertyImpl> ic = prop.getImplCls();
             JTypeSpecifier pts = new JTypeSpecifier(
-                    JName.of(prop.getImplCls()),
-                    Optional.of(ImmutableList.of(ts)),
+                    JName.of(ic),
+                    ic.getTypeParameters().length > 0 ? Optional.of(ImmutableList.of(ts)) : Optional.empty(),
                     ImmutableList.of());
 
             fields.add(
