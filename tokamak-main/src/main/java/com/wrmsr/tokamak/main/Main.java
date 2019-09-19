@@ -14,6 +14,9 @@
 package com.wrmsr.tokamak.main;
 
 import com.wrmsr.tokamak.main.boot.Bootstrap;
+import com.wrmsr.tokamak.main.boot.BootstrapConfig;
+import com.wrmsr.tokamak.util.config.Compilation;
+import com.wrmsr.tokamak.util.config.ConfigMetadata;
 
 public class Main
 {
@@ -21,6 +24,12 @@ public class Main
             throws Throwable
     {
         Bootstrap.bootstrap();
+
+        @SuppressWarnings({"unchecked"})
+        Class<? extends BootstrapConfig> bcImpl = (Class<? extends BootstrapConfig>) Class.forName(Compilation.getCompiledImplName(BootstrapConfig.class));
+        Compilation.ImplFactory<BootstrapConfig> bcFac = Compilation.getImplFactory(bcImpl);
+        BootstrapConfig bc = bcFac.build(new ConfigMetadata(BootstrapConfig.class));
+
         CliMain.main(args);
     }
 }

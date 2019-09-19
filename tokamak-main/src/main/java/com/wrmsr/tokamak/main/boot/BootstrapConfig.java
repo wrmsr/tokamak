@@ -14,10 +14,10 @@
 package com.wrmsr.tokamak.main.boot;
 
 import com.wrmsr.tokamak.util.config.Config;
-import com.wrmsr.tokamak.util.config.props.ConfigProperty;
+import com.wrmsr.tokamak.util.config.props.BooleanConfigProperty;
 
 public interface BootstrapConfig
         extends Config
 {
-    // ConfigProperty<>
+    BooleanConfigProperty reexec();
 }

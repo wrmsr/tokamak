@@ -15,6 +15,7 @@ package com.wrmsr.tokamak.util.config;
 
 import com.wrmsr.tokamak.util.config.props.BaseConfigPropertyImpl;
 import com.wrmsr.tokamak.util.config.props.BooleanConfigProperty;
+import com.wrmsr.tokamak.util.config.props.BooleanConfigPropertyImpl;
 import com.wrmsr.tokamak.util.config.props.ConfigProperty;
 import com.wrmsr.tokamak.util.config.props.ConfigPropertyImpl;
 import com.wrmsr.tokamak.util.config.props.IntConfigProperty;
@@ -161,7 +162,7 @@ public final class ConfigPropertyMetadata
     public Class<? extends BaseConfigPropertyImpl> getImplCls()
     {
         if (type == boolean.class) {
-            return IntConfigPropertyImpl.class;
+            return BooleanConfigPropertyImpl.class;
         }
         else if (type == int.class) {
             return IntConfigPropertyImpl.class;
