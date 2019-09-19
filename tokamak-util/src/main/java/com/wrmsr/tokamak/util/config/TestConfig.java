@@ -15,9 +15,16 @@
 package com.wrmsr.tokamak.util.config;
 
 import com.wrmsr.tokamak.util.config.props.ConfigProperty;
+import com.wrmsr.tokamak.util.config.props.IntConfigProperty;
 
 public interface TestConfig
         extends Config
 {
-    ConfigProperty<String> str();
+    ConfigProperty<String> someStr();
+
+    interface Nested
+            extends Config
+    {
+        IntConfigProperty someInt();
+    }
 }

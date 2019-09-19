@@ -58,6 +58,7 @@ import java.util.function.Consumer;
 import java.util.function.IntConsumer;
 import java.util.function.IntSupplier;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Sets.immutableEnumSet;
@@ -189,7 +190,10 @@ public final class Compilation
 
     public static CompiledConfig compile(ConfigMetadata md, boolean instantiateMetadata)
     {
-        JName ifaceName = new JName(Splitter.on(".").splitToList(md.getCls().getCanonicalName()));
+        JName ifaceName = new JName(
+                Splitter.on(".").splitToList(md.getCls().getName()).stream()
+                        .map(p -> p.replaceAll("\\$", "__"))
+                        .collect(Collectors.toList()));
         String bareName = ifaceName.getParts().get(ifaceName.size() - 1);
         JName implName = new JName(
                 ImmutableList.<String>builder()

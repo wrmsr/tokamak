@@ -13,6 +13,8 @@
  */
 package com.wrmsr.tokamak.util.config;
 
+import com.wrmsr.tokamak.util.java.lang.JRenderer;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -22,8 +24,6 @@ public class CompileAll
     public static void main(String[] args)
             throws Throwable
     {
-        System.out.println("hi from compileall");
-
         Path cwd = Paths.get(System.getProperty("user.dir"));
 
         Path classes = Paths.get(cwd.toString(), "target", "classes");
@@ -35,9 +35,9 @@ public class CompileAll
                     }
                     String className = classes.relativize(f).toString().substring(
                             0, classes.relativize(f).toString().length() - 6).replaceAll("/", ".");
-                    Class cls;
+                    Class<? extends Config> cls;
                     try {
-                        cls = Class.forName(className);
+                        cls = (Class<? extends Config>) Class.forName(className);
                     }
                     catch (ClassNotFoundException e) {
                         throw new RuntimeException(e);
@@ -45,7 +45,9 @@ public class CompileAll
                     if (!Config.class.isAssignableFrom(cls) || cls == Config.class) {
                         return;
                     }
-                    System.out.println(cls);
+                    Compilation.CompiledConfig compiled = Compilation.compile(new ConfigMetadata(cls), true);
+                    String src = JRenderer.renderWithIndent(compiled.getCompilationUnit(), "    ");
+                    System.out.println(src);
                 });
     }
 }
