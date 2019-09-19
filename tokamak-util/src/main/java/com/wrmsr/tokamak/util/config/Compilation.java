@@ -299,7 +299,7 @@ public final class Compilation
                                     new JNew(
                                             JTypeSpecifier.of(ConfigMetadata.class),
                                             ImmutableList.of(
-                                                    new JMemberAccess(new JIdent(ifaceName), "class")
+                                                    new JMemberAccess(new JIdent(JName.of(md.getCls().getCanonicalName())), "class")
                                             )))));
         }
         else {

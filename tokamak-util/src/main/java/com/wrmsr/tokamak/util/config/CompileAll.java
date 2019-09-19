@@ -62,7 +62,7 @@ public class CompileAll
                         throw new RuntimeException(e);
                     }
 
-                    if (!Config.class.isAssignableFrom(cls) || cls == Config.class) {
+                    if (!Config.class.isAssignableFrom(cls) || cls == Config.class || !cls.isInterface()) {
                         return;
                     }
 
@@ -86,6 +86,9 @@ public class CompileAll
                         }
 
                         targetImplClassPath.toFile().getParentFile().mkdirs();
+                        if (targetImplClassPath.toFile().exists()) {
+                            targetImplClassPath.toFile().delete();
+                        }
                         Files.copy(implClassPath, targetImplClassPath);
 
                         Class implCls = Class.forName(compiled.getFullClassName());
