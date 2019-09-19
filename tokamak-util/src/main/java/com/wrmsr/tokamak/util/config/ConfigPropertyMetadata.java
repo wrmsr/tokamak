@@ -14,8 +14,10 @@
 package com.wrmsr.tokamak.util.config;
 
 import com.wrmsr.tokamak.util.config.props.BaseConfigPropertyImpl;
+import com.wrmsr.tokamak.util.config.props.BooleanConfigProperty;
 import com.wrmsr.tokamak.util.config.props.ConfigProperty;
 import com.wrmsr.tokamak.util.config.props.ConfigPropertyImpl;
+import com.wrmsr.tokamak.util.config.props.IntConfigProperty;
 import com.wrmsr.tokamak.util.config.props.IntConfigPropertyImpl;
 
 import java.lang.reflect.Method;
@@ -52,10 +54,24 @@ public final class ConfigPropertyMetadata
         checkArgument(method.getParameterCount() == 0);
         checkArgument(Modifier.isAbstract(method.getModifiers()));
 
-        ParameterizedType rt = (ParameterizedType) method.getGenericReturnType();
-        checkArgument(ConfigProperty.class.isAssignableFrom((Class) rt.getRawType()));
-        checkArgument(rt.getActualTypeArguments().length == 1);
-        type = rt.getActualTypeArguments()[0];
+        if (method.getGenericReturnType() instanceof ParameterizedType) {
+            ParameterizedType rt = (ParameterizedType) method.getGenericReturnType();
+            checkArgument(ConfigProperty.class.isAssignableFrom((Class) rt.getRawType()));
+            checkArgument(rt.getActualTypeArguments().length == 1);
+            type = rt.getActualTypeArguments()[0];
+        }
+        else {
+            Class rt = method.getReturnType();
+            if (rt == BooleanConfigProperty.class) {
+                type = boolean.class;
+            }
+            else if (rt == IntConfigProperty.class) {
+                type = int.class;
+            }
+            else {
+                throw new IllegalArgumentException(method.toString());
+            }
+        }
 
         String name = method.getName();
         if (method.isAnnotationPresent(ConfigDetail.class)) {

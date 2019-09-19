@@ -13,6 +13,7 @@
  */
 package com.wrmsr.tokamak.util.config;
 
+import com.wrmsr.tokamak.util.config.props.BaseConfigProperty;
 import com.wrmsr.tokamak.util.config.props.ConfigProperty;
 
 import java.lang.reflect.Method;
@@ -37,7 +38,7 @@ public final class ConfigMetadata
         Map<String, ConfigPropertyMetadata> properties = new LinkedHashMap<>();
         for (Class<?> cur = cls; (cur != null) && !cur.equals(Object.class); cur = cur.getSuperclass()) {
             for (Method method : cur.getDeclaredMethods()) {
-                if (ConfigProperty.class.isAssignableFrom(method.getReturnType())) {
+                if (BaseConfigProperty.class.isAssignableFrom(method.getReturnType())) {
                     ConfigPropertyMetadata prop = new ConfigPropertyMetadata(this, method);
                     properties.put(prop.getName(), prop);
                 }
