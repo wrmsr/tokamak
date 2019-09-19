@@ -14,7 +14,6 @@
 package com.wrmsr.tokamak.util.java.compile.javac;
 
 import com.google.common.collect.ImmutableList;
-import com.wrmsr.tokamak.util.java.compile.javac.option.JavacOption;
 
 import javax.tools.DiagnosticCollector;
 import javax.tools.JavaCompiler;
@@ -35,10 +34,20 @@ public final class InProcJavaCompiler
     https://www.programcreek.com/java-api-examples/?class=javax.tools.ToolProvider&method=getSystemJavaCompiler
     */
 
-    public static void compileJava(List<JavacOption> options, List<File> sourceFiles)
+    // public static void compile(List<JavacOption> options, List<File> sourceFiles)
+    // {
+    //     List<String> args = ImmutableList.<String>builder()
+    //             .addAll(options.stream().map(JavacOption::getArgs).flatMap(List::stream).iterator())
+    //             .addAll(sourceFiles.stream().map(File::getPath).iterator())
+    //             .build();
+    //     Tool javac = ToolProvider.getSystemJavaCompiler();
+    //     javac.run(null, null, null, args.toArray(new String[args.size()]));
+    // }
+
+    public static void compile(List<String> options, List<File> sourceFiles)
     {
         List<String> args = ImmutableList.<String>builder()
-                .addAll(options.stream().map(JavacOption::getArgs).flatMap(List::stream).iterator())
+                .addAll(options)
                 .addAll(sourceFiles.stream().map(File::getPath).iterator())
                 .build();
         Tool javac = ToolProvider.getSystemJavaCompiler();

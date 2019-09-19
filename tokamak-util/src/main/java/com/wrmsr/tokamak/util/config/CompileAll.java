@@ -13,11 +13,22 @@
  */
 package com.wrmsr.tokamak.util.config;
 
+import com.google.common.base.Charsets;
+import com.google.common.collect.ImmutableList;
+import com.wrmsr.tokamak.util.java.compile.javac.InProcJavaCompiler;
 import com.wrmsr.tokamak.util.java.lang.JRenderer;
 
+import javax.tools.Tool;
+import javax.tools.ToolProvider;
+
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
+
+import static com.wrmsr.tokamak.util.MoreFiles.createTempDirectory;
 
 public class CompileAll
 {
@@ -26,6 +37,14 @@ public class CompileAll
     {
         Path cwd = Paths.get(System.getProperty("user.dir"));
 
+        List<String> compileOpts = ImmutableList.of(
+                "-source", "1.8",
+                "-target", "1.8",
+                "-classpath", System.getProperty("java.class.path")
+        );
+
+        Path tempPath = createTempDirectory("tokamak-config-compile-all");
+
         Path classes = Paths.get(cwd.toString(), "target", "classes");
         Files.walk(classes)
                 .filter(Files::isRegularFile)
@@ -33,8 +52,10 @@ public class CompileAll
                     if (!f.getFileName().toString().endsWith(".class")) {
                         return;
                     }
-                    String className = classes.relativize(f).toString().substring(
-                            0, classes.relativize(f).toString().length() - 6).replaceAll("/", ".");
+
+                    String relpath = classes.relativize(f).toString();
+                    String className = relpath.substring(0, relpath.length() - 6).replaceAll("/", ".");
+
                     Class<? extends Config> cls;
                     try {
                         cls = (Class<? extends Config>) Class.forName(className);
@@ -42,12 +63,35 @@ public class CompileAll
                     catch (ClassNotFoundException e) {
                         throw new RuntimeException(e);
                     }
+
                     if (!Config.class.isAssignableFrom(cls) || cls == Config.class) {
                         return;
                     }
+
                     Compilation.CompiledConfig compiled = Compilation.compile(new ConfigMetadata(cls), true);
                     String src = JRenderer.renderWithIndent(compiled.getCompilationUnit(), "    ");
+
                     System.out.println(src);
+
+                    Path implJavaPath = Paths.get(tempPath.toString(), compiled.getBareName() + ".java");
+                    try {
+                        Files.write(implJavaPath, src.getBytes(Charsets.UTF_8));
+
+                        List<String> jcargs = ImmutableList.<String>builder()
+                                .addAll(compileOpts)
+                                .add(implJavaPath.toString())
+                                .build();
+                        Tool javac = ToolProvider.getSystemJavaCompiler();
+                        int ret = javac.run(null, System.out, System.err, jcargs.toArray(new String[jcargs.size()]));
+                        if (ret != 0) {
+                            throw new RuntimeException("Compilation failed");
+                        }
+
+                        System.out.println(implJavaPath);
+                    }
+                    catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
                 });
     }
 }
