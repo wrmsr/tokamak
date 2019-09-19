@@ -29,6 +29,7 @@ public class Main
         Class<? extends BootstrapConfig> bcImpl = (Class<? extends BootstrapConfig>) Class.forName(Compilation.getCompiledImplName(BootstrapConfig.class));
         Compilation.ImplFactory<BootstrapConfig> bcFac = Compilation.getImplFactory(bcImpl);
         BootstrapConfig bc = bcFac.build(new ConfigMetadata(BootstrapConfig.class));
+        bc.reexec();
 
         CliMain.main(args);
     }

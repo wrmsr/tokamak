@@ -14,6 +14,7 @@
 package com.wrmsr.tokamak.main.boot;
 
 import com.wrmsr.tokamak.main.boot.dns.Dns;
+import com.wrmsr.tokamak.util.Jdk;
 
 import java.io.InputStreamReader;
 
@@ -64,7 +65,12 @@ public final class Bootstrap
         public void run()
                 throws Exception
         {
-            Dns.fixPosixLocalhostHostsFile();
+            if (Jdk.getMajor() > 8) {
+                Dns.fixPosixLocalhostHostsFile();
+            }
+            else {
+                Dns.hookDnsToFixLocalhost();
+            }
         }
     }
 

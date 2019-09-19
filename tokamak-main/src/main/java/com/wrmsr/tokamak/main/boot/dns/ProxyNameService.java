@@ -23,6 +23,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 public abstract class ProxyNameService
         implements InvocationHandler
@@ -94,5 +95,56 @@ public abstract class ProxyNameService
             throws Exception
     {
         install(this);
+    }
+
+    public static final ProxyNameService replacing(Map<String, InetAddress[]> replacements)
+    {
+        return new ProxyNameService()
+        {
+            @Override
+            public InetAddress[] lookupAllHostAddr(String host)
+                    throws UnknownHostException
+            {
+                InetAddress[] rpl = replacements.get(host);
+                if (rpl != null) {
+                    return rpl;
+                }
+
+                try {
+                    for (Object o : this.original) {
+                        Method m = o.getClass().getDeclaredMethod("lookupAllHostAddr", String.class);
+                        m.setAccessible(true);
+                        return (InetAddress[]) m.invoke(o, host);
+                    }
+                    throw new UnknownHostException();
+                }
+                catch (UnknownHostException e) {
+                    throw e;
+                }
+                catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
+            @Override
+            public String getHostByAddr(byte[] addr)
+                    throws UnknownHostException
+            {
+                try {
+                    for (Object o : this.original) {
+                        Method m = o.getClass().getDeclaredMethod("getHostByAddr", byte[].class);
+                        m.setAccessible(true);
+                        return (String) m.invoke(o, new Object[] {addr});
+                    }
+                    throw new UnknownHostException();
+                }
+                catch (UnknownHostException e) {
+                    throw e;
+                }
+                catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        };
     }
 }

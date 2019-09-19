@@ -18,9 +18,12 @@ import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 
 import java.io.IOException;
+import java.net.Inet4Address;
+import java.net.InetAddress;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -90,5 +93,18 @@ public final class Dns
         String localHostname = LocalHostnameGetter.SUBPROCESS.get();
         Path out = rewriteHostsFile(DEFAULT_HOSTS_FILE, getDefaultHostsReplacement(localHostname));
         System.setProperty(HOSTS_FILE_PROPERTY_KEY, out.toAbsolutePath().toString());
+    }
+
+    public static void hookDnsToFixLocalhost()
+            throws Exception
+    {
+        String localHostname = LocalHostnameGetter.SUBPROCESS.get();
+        ProxyNameService.install(
+                ProxyNameService.replacing(
+                        ImmutableMap.of(
+                                localHostname, new InetAddress[] {
+                                        Inet4Address.getLoopbackAddress()
+                                }
+                        )));
     }
 }
