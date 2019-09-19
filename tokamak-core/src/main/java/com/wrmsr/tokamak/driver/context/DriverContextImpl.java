@@ -100,12 +100,6 @@ public class DriverContextImpl
 
     protected void onStateAttributesSet(State state)
     {
-        DriverRow row = new DriverRow(
-                state.getNode(),
-                driver.getLineagePolicy().build(),
-                state.getId(),
-                state.getAttributes());
-
         if (state.getMode() == State.Mode.MODIFIED) {
             invalidationManager.invalidate(state);
         }

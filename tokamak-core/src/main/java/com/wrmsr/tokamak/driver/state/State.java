@@ -246,6 +246,7 @@ public final class State
 
     public void setAttributes(@Nullable Object[] attributes)
     {
+        // FIXME: rowcache dead, need to check (optional? big blobs should be shared anyway, but good use for cachenodes)
         checkMode(mode == Mode.INVALID);
         if (attributes != null) {
             checkArgument(attributes.length == getNode().getRowLayout().getFields().size());
