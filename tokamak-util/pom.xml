@@ -123,14 +123,12 @@
     <build>
         <plugins>
 
-            <!--
             <plugin>
                 <artifactId>exec-maven-plugin</artifactId>
                 <groupId>org.codehaus.mojo</groupId>
                 <executions>
                     <execution>
-                        <id>config-compile-all</id>
-                        <phase>generate-sources</phase>
+                        <phase>prepare-package</phase>
                         <goals>
                             <goal>exec</goal>
                         </goals>
@@ -140,12 +138,12 @@
                                 <argument>-classpath</argument>
                                 <classpath />
                                 <argument>com.wrmsr.tokamak.util.config.CompileAll</argument>
+                                <argument>write</argument>
                             </arguments>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
-            -->
 
         </plugins>
     </build>

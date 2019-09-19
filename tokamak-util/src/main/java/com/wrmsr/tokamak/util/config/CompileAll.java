@@ -13,6 +13,7 @@
  */
 package com.wrmsr.tokamak.util.config;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -22,7 +23,29 @@ public class CompileAll
             throws Throwable
     {
         System.out.println("hi from compileall");
+
         Path cwd = Paths.get(System.getProperty("user.dir"));
-        System.out.println(cwd);
+
+        Path classes = Paths.get(cwd.toString(), "target", "classes");
+        Files.walk(classes)
+                .filter(Files::isRegularFile)
+                .forEach(f -> {
+                    if (!f.getFileName().toString().endsWith(".class")) {
+                        return;
+                    }
+                    String className = classes.relativize(f).toString().substring(
+                            0, classes.relativize(f).toString().length() - 6).replaceAll("/", ".");
+                    Class cls;
+                    try {
+                        cls = Class.forName(className);
+                    }
+                    catch (ClassNotFoundException e) {
+                        throw new RuntimeException(e);
+                    }
+                    if (!Config.class.isAssignableFrom(cls) || cls == Config.class) {
+                        return;
+                    }
+                    System.out.println(cls);
+                });
     }
 }
