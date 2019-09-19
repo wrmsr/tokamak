@@ -51,28 +51,24 @@ public class CompileAll
                         return;
                     }
 
-                    String relpath = classes.relativize(f).toString();
-                    String className = relpath.substring(0, relpath.length() - 6).replaceAll("/", ".");
-
-                    Class<? extends Config> cls;
                     try {
+                        String relpath = classes.relativize(f).toString();
+                        String className = relpath.substring(0, relpath.length() - 6).replaceAll("/", ".");
+
+                        Class<? extends Config> cls;
                         cls = (Class<? extends Config>) Class.forName(className);
-                    }
-                    catch (ClassNotFoundException e) {
-                        throw new RuntimeException(e);
-                    }
 
-                    if (!Config.class.isAssignableFrom(cls) || cls == Config.class || !cls.isInterface()) {
-                        return;
-                    }
+                        if (!Config.class.isAssignableFrom(cls) || cls == Config.class || !cls.isInterface()) {
+                            return;
+                        }
 
-                    Compilation.CompiledConfig compiled = Compilation.compile(new ConfigMetadata(cls), true);
-                    String src = JRenderer.renderWithIndent(compiled.getCompilationUnit(), "    ");
+                        Compilation.CompiledConfig compiled = Compilation.compile(new ConfigMetadata(cls), true);
+                        String src = JRenderer.renderWithIndent(compiled.getCompilationUnit(), "    ");
 
-                    Path implJavaPath = Paths.get(tempPath.toString(), compiled.getBareName() + ".java");
-                    Path implClassPath = Paths.get(tempPath.toString(), compiled.getBareName() + ".class");
-                    Path targetImplClassPath = Paths.get(classes.toString(), compiled.getFullClassName().replaceAll("\\.", "/") + ".class");
-                    try {
+                        Path implJavaPath = Paths.get(tempPath.toString(), compiled.getBareName() + ".java");
+                        Path implClassPath = Paths.get(tempPath.toString(), compiled.getBareName() + ".class");
+                        Path targetImplClassPath = Paths.get(classes.toString(), compiled.getFullClassName().replaceAll("\\.", "/") + ".class");
+
                         Files.write(implJavaPath, src.getBytes(Charsets.UTF_8));
 
                         List<String> jcargs = ImmutableList.<String>builder()
@@ -95,7 +91,7 @@ public class CompileAll
                         checkState(cls.isAssignableFrom(implCls));
                     }
                     catch (Exception e) {
-                        throw new RuntimeException(e);
+                        throw new RuntimeException(String.format("Failed compiling config %s", f), e);
                     }
                 });
     }
