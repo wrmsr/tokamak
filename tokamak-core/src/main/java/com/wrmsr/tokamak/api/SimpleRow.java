@@ -37,10 +37,15 @@ public final class SimpleRow
         this.attributes = attributes;
     }
 
+    public static SimpleRow copyOf(Row row)
+    {
+        return row instanceof SimpleRow ? (SimpleRow) row : new SimpleRow(row.getId(), row.getAttributes());
+    }
+
     @Override
     public String toString()
     {
-        return "Row{" +
+        return "SimpleRow{" +
                 "id=" + id +
                 ", attributes=" + Arrays.toString(attributes) +
                 '}';
