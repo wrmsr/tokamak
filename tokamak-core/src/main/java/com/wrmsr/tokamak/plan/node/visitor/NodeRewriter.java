@@ -14,6 +14,7 @@
 package com.wrmsr.tokamak.plan.node.visitor;
 
 import com.google.common.collect.ImmutableMap;
+import com.wrmsr.tokamak.plan.node.CacheNode;
 import com.wrmsr.tokamak.plan.node.CrossJoinNode;
 import com.wrmsr.tokamak.plan.node.EquijoinNode;
 import com.wrmsr.tokamak.plan.node.FilterNode;
@@ -38,6 +39,14 @@ public abstract class NodeRewriter<C>
     public String visitNodeName(String name, C context)
     {
         return name;
+    }
+
+    @Override
+    public Node visitCacheNode(CacheNode node, C context)
+    {
+        return new CacheNode(
+                visitNodeName(node.getName(), context),
+                node.getSource());
     }
 
     @Override
