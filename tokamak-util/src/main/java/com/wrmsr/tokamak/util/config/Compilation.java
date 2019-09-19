@@ -13,6 +13,7 @@
  */
 package com.wrmsr.tokamak.util.config;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -186,6 +187,19 @@ public final class Compilation
     public interface ImplConstructionFactory<T extends Config>
     {
         T build(Construction construction);
+    }
+
+    public static String getCompiledImplName(Class<? extends Config> cls)
+    {
+        JName mangledIfaceName = new JName(
+                Splitter.on(".").splitToList(cls.getName()).stream()
+                        .map(p -> p.replaceAll("\\$", "__"))
+                        .collect(Collectors.toList()));
+        return Joiner.on(".").join(
+                ImmutableList.<String>builder()
+                        .add("com", "wrmsr", "tokamak", "util", "config", "generated")
+                        .addAll(mangledIfaceName.getParts())
+                        .build());
     }
 
     public static CompiledConfig compile(ConfigMetadata md, boolean instantiateMetadata)
