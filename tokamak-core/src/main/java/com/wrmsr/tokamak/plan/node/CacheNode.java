@@ -11,22 +11,39 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.wrmsr.tokamak.plan.node;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wrmsr.tokamak.plan.node.visitor.NodeVisitor;
 import com.wrmsr.tokamak.type.Type;
 
-import java.util.List;
+import javax.annotation.concurrent.Immutable;
+
 import java.util.Map;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
+@Immutable
 public final class CacheNode
-    extends AbstractNode
+        extends AbstractNode
+        implements SingleSourceNode
 {
-    @Override
-    public List<com.wrmsr.tokamak.plan.node.Node> getSources()
+    private final Node source;
+
+    public CacheNode(
+            @JsonProperty("name") String name,
+            @JsonProperty("source") Node source)
     {
-        return null;
+        super(name);
+
+        this.source = checkNotNull(source);
+    }
+
+    @JsonProperty("source")
+    @Override
+    public Node getSource()
+    {
+        return source;
     }
 
     @Override
@@ -38,6 +55,6 @@ public final class CacheNode
     @Override
     public <R, C> R accept(NodeVisitor<R, C> visitor, C context)
     {
-        return null;
+        return visitor.visitCacheNode(this, context);
     }
 }

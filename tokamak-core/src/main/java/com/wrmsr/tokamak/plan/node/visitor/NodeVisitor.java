@@ -13,6 +13,7 @@
  */
 package com.wrmsr.tokamak.plan.node.visitor;
 
+import com.wrmsr.tokamak.plan.node.CacheNode;
 import com.wrmsr.tokamak.plan.node.CrossJoinNode;
 import com.wrmsr.tokamak.plan.node.EquijoinNode;
 import com.wrmsr.tokamak.plan.node.FilterNode;
