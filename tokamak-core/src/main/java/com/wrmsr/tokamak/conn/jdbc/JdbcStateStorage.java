@@ -16,7 +16,7 @@ package com.wrmsr.tokamak.conn.jdbc;
 import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.driver.state.StateStorage;
 import com.wrmsr.tokamak.driver.state.StorageState;
-import com.wrmsr.tokamak.node.StatefulNode;
+import com.wrmsr.tokamak.plan.node.StatefulNode;
 import com.wrmsr.tokamak.sql.SqlConnection;
 import com.wrmsr.tokamak.sql.SqlEngine;
 import com.wrmsr.tokamak.util.Span;

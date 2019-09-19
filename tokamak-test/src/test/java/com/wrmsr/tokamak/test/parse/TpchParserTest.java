@@ -15,7 +15,7 @@ package com.wrmsr.tokamak.test.parse;
 
 import com.wrmsr.tokamak.parse.tree.TreeNode;
 import com.wrmsr.tokamak.catalog.Catalog;
-import com.wrmsr.tokamak.node.Node;
+import com.wrmsr.tokamak.plan.node.Node;
 import com.wrmsr.tokamak.parse.AstBuilder;
 import com.wrmsr.tokamak.parse.AstPlanner;
 import com.wrmsr.tokamak.parse.Parsing;
@@ -25,7 +25,6 @@ import com.wrmsr.tokamak.plan.transform.Transforms;
 import com.wrmsr.tokamak.test.TpchUtils;
 import junit.framework.TestCase;
 
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
 

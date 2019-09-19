@@ -26,8 +26,8 @@ import com.wrmsr.tokamak.serde.row.RowSerdes;
 import com.wrmsr.tokamak.driver.DriverImpl;
 import com.wrmsr.tokamak.driver.DriverRow;
 import com.wrmsr.tokamak.driver.context.DriverContextImpl;
-import com.wrmsr.tokamak.node.Node;
-import com.wrmsr.tokamak.node.ScanNode;
+import com.wrmsr.tokamak.plan.node.Node;
+import com.wrmsr.tokamak.plan.node.ScanNode;
 
 import java.util.Collection;
 import java.util.List;

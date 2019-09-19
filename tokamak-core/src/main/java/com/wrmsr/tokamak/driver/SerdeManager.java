@@ -24,7 +24,7 @@ import com.wrmsr.tokamak.serde.value.ValueSerdes;
 import com.wrmsr.tokamak.serde.value.VariableLengthValueSerde;
 import com.wrmsr.tokamak.driver.state.LinkageMapStorageCodec;
 import com.wrmsr.tokamak.driver.state.StateStorageCodec;
-import com.wrmsr.tokamak.node.StatefulNode;
+import com.wrmsr.tokamak.plan.node.StatefulNode;
 import com.wrmsr.tokamak.plan.Plan;
 import com.wrmsr.tokamak.util.lazy.SupplierLazyValue;
 

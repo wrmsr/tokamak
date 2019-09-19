@@ -13,7 +13,7 @@
  */
 package com.wrmsr.tokamak.driver.context.diag;
 
-import com.wrmsr.tokamak.node.Node;
+import com.wrmsr.tokamak.plan.node.Node;
 
 public enum Stat
 {

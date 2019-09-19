@@ -29,8 +29,8 @@ import com.wrmsr.tokamak.driver.context.diag.Stat;
 import com.wrmsr.tokamak.driver.context.state.StateCache;
 import com.wrmsr.tokamak.driver.context.state.DefaultStateCache;
 import com.wrmsr.tokamak.driver.state.State;
-import com.wrmsr.tokamak.node.Node;
-import com.wrmsr.tokamak.node.StatefulNode;
+import com.wrmsr.tokamak.plan.node.Node;
+import com.wrmsr.tokamak.plan.node.StatefulNode;
 
 import java.util.Collection;
 import java.util.EnumSet;

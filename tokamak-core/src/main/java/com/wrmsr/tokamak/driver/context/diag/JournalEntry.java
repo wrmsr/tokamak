@@ -18,7 +18,7 @@ import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.driver.DriverRow;
 import com.wrmsr.tokamak.driver.state.State;
-import com.wrmsr.tokamak.node.Node;
+import com.wrmsr.tokamak.plan.node.Node;
 
 import java.util.Collection;
 import java.util.Set;

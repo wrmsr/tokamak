@@ -14,8 +14,8 @@
 package com.wrmsr.tokamak.driver.build;
 
 import com.wrmsr.tokamak.driver.DriverImpl;
-import com.wrmsr.tokamak.node.Node;
-import com.wrmsr.tokamak.node.SingleSourceNode;
+import com.wrmsr.tokamak.plan.node.Node;
+import com.wrmsr.tokamak.plan.node.SingleSourceNode;
 
 import java.util.Map;
 

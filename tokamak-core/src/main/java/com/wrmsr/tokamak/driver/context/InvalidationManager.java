@@ -15,7 +15,7 @@ package com.wrmsr.tokamak.driver.context;
 
 import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.driver.state.State;
-import com.wrmsr.tokamak.node.StatefulNode;
+import com.wrmsr.tokamak.plan.node.StatefulNode;
 
 import java.util.Map;
 import java.util.Set;

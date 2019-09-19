@@ -16,7 +16,7 @@ package com.wrmsr.tokamak.conn.heap;
 import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.driver.state.StorageState;
-import com.wrmsr.tokamak.node.StatefulNode;
+import com.wrmsr.tokamak.plan.node.StatefulNode;
 import com.wrmsr.tokamak.util.Span;
 
 import java.io.IOException;

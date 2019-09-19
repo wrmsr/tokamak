@@ -13,8 +13,8 @@
  */
 package com.wrmsr.tokamak.plan.dot;
 
-import com.wrmsr.tokamak.node.Node;
-import com.wrmsr.tokamak.node.visitor.CachingNodeVisitor;
+import com.wrmsr.tokamak.plan.node.Node;
+import com.wrmsr.tokamak.plan.node.visitor.CachingNodeVisitor;
 import com.wrmsr.tokamak.plan.Plan;
 
 import java.nio.file.Files;

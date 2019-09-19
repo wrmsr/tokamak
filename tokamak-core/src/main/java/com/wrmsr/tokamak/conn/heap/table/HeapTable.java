@@ -20,7 +20,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.layout.TableLayout;
-import com.wrmsr.tokamak.node.CrossJoinNode;
+import com.wrmsr.tokamak.plan.node.CrossJoinNode;
 
 import java.util.List;
 import java.util.Map;

@@ -91,10 +91,10 @@ public final class Function
         return executable.get(() -> executor.getExecutable(name));
     }
 
-    private final SupplierLazyValue<com.wrmsr.tokamak.node.Function> nodeFunction = new SupplierLazyValue<>();
+    private final SupplierLazyValue<com.wrmsr.tokamak.plan.node.Function> nodeFunction = new SupplierLazyValue<>();
 
-    public com.wrmsr.tokamak.node.Function asNodeFunction()
+    public com.wrmsr.tokamak.plan.node.Function asNodeFunction()
     {
-        return nodeFunction.get(() -> new com.wrmsr.tokamak.node.Function(name, signature));
+        return nodeFunction.get(() -> new com.wrmsr.tokamak.plan.node.Function(name, signature));
     }
 }

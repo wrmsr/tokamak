@@ -24,8 +24,8 @@ import com.wrmsr.tokamak.driver.build.BuilderFactory;
 import com.wrmsr.tokamak.driver.context.DriverContextImpl;
 import com.wrmsr.tokamak.conn.heap.MapHeapStateStorage;
 import com.wrmsr.tokamak.driver.state.StateStorage;
-import com.wrmsr.tokamak.node.Node;
-import com.wrmsr.tokamak.node.ScanNode;
+import com.wrmsr.tokamak.plan.node.Node;
+import com.wrmsr.tokamak.plan.node.ScanNode;
 import com.wrmsr.tokamak.plan.Plan;
 import com.wrmsr.tokamak.util.lazy.SupplierLazyValue;
 

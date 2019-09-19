@@ -24,8 +24,8 @@ import com.wrmsr.tokamak.driver.state.State;
 import com.wrmsr.tokamak.driver.state.StateStorage;
 import com.wrmsr.tokamak.driver.state.StateStorageCodec;
 import com.wrmsr.tokamak.driver.state.StorageState;
-import com.wrmsr.tokamak.node.Node;
-import com.wrmsr.tokamak.node.StatefulNode;
+import com.wrmsr.tokamak.plan.node.Node;
+import com.wrmsr.tokamak.plan.node.StatefulNode;
 import com.wrmsr.tokamak.plan.Plan;
 import com.wrmsr.tokamak.util.Pair;
 

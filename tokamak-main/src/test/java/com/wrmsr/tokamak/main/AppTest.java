@@ -28,7 +28,7 @@ import com.google.inject.PrivateModule;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
 import com.wrmsr.tokamak.api.SchemaTable;
-import com.wrmsr.tokamak.node.ScanNode;
+import com.wrmsr.tokamak.plan.node.ScanNode;
 import com.wrmsr.tokamak.type.Type;
 import junit.framework.Test;
 import junit.framework.TestCase;

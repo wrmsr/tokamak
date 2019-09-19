@@ -24,8 +24,8 @@ import com.wrmsr.tokamak.serde.Output;
 import com.wrmsr.tokamak.serde.value.ValueSerde;
 import com.wrmsr.tokamak.serde.value.ValueSerdes;
 import com.wrmsr.tokamak.serde.value.VariableLengthValueSerde;
-import com.wrmsr.tokamak.node.Node;
-import com.wrmsr.tokamak.node.StatefulNode;
+import com.wrmsr.tokamak.plan.node.Node;
+import com.wrmsr.tokamak.plan.node.StatefulNode;
 import com.wrmsr.tokamak.util.codec.Codec;
 
 import java.util.Map;

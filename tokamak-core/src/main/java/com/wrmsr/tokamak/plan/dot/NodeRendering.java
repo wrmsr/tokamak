@@ -13,7 +13,7 @@
  */
 package com.wrmsr.tokamak.plan.dot;
 
-import com.wrmsr.tokamak.node.Node;
+import com.wrmsr.tokamak.plan.node.Node;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;

@@ -18,8 +18,8 @@ import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.conn.heap.MapHeapStateStorage;
-import com.wrmsr.tokamak.node.ScanNode;
-import com.wrmsr.tokamak.node.StatefulNode;
+import com.wrmsr.tokamak.plan.node.ScanNode;
+import com.wrmsr.tokamak.plan.node.StatefulNode;
 import com.wrmsr.tokamak.type.Type;
 import junit.framework.TestCase;
 

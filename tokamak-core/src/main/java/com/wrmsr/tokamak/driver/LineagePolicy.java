@@ -14,7 +14,7 @@
 package com.wrmsr.tokamak.driver;
 
 import com.google.common.collect.ImmutableSet;
-import com.wrmsr.tokamak.node.StatefulNode;
+import com.wrmsr.tokamak.plan.node.StatefulNode;
 
 import java.util.Set;
 import java.util.stream.StreamSupport;

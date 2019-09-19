@@ -19,7 +19,7 @@ import com.wrmsr.tokamak.api.Row;
 import com.wrmsr.tokamak.catalog.Catalog;
 import com.wrmsr.tokamak.catalog.Connection;
 import com.wrmsr.tokamak.catalog.Connector;
-import com.wrmsr.tokamak.node.Node;
+import com.wrmsr.tokamak.plan.node.Node;
 import com.wrmsr.tokamak.plan.Plan;
 import com.wrmsr.tokamak.util.NoExceptAutoCloseable;
 

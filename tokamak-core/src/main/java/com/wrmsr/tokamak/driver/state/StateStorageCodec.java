@@ -15,7 +15,7 @@ package com.wrmsr.tokamak.driver.state;
 
 import com.wrmsr.tokamak.serde.value.PrefixedValueSerde;
 import com.wrmsr.tokamak.serde.value.ValueSerde;
-import com.wrmsr.tokamak.node.StatefulNode;
+import com.wrmsr.tokamak.plan.node.StatefulNode;
 import com.wrmsr.tokamak.util.codec.Codec;
 
 import static com.google.common.base.Preconditions.checkArgument;

@@ -14,18 +14,18 @@
 package com.wrmsr.tokamak.plan.dot;
 
 import com.google.common.collect.ImmutableList;
-import com.wrmsr.tokamak.node.CrossJoinNode;
-import com.wrmsr.tokamak.node.EquijoinNode;
-import com.wrmsr.tokamak.node.FilterNode;
-import com.wrmsr.tokamak.node.ListAggregateNode;
-import com.wrmsr.tokamak.node.LookupJoinNode;
-import com.wrmsr.tokamak.node.Node;
-import com.wrmsr.tokamak.node.PersistNode;
-import com.wrmsr.tokamak.node.ProjectNode;
-import com.wrmsr.tokamak.node.ScanNode;
-import com.wrmsr.tokamak.node.UnionNode;
-import com.wrmsr.tokamak.node.UnnestNode;
-import com.wrmsr.tokamak.node.ValuesNode;
+import com.wrmsr.tokamak.plan.node.CrossJoinNode;
+import com.wrmsr.tokamak.plan.node.EquijoinNode;
+import com.wrmsr.tokamak.plan.node.FilterNode;
+import com.wrmsr.tokamak.plan.node.ListAggregateNode;
+import com.wrmsr.tokamak.plan.node.LookupJoinNode;
+import com.wrmsr.tokamak.plan.node.Node;
+import com.wrmsr.tokamak.plan.node.PersistNode;
+import com.wrmsr.tokamak.plan.node.ProjectNode;
+import com.wrmsr.tokamak.plan.node.ScanNode;
+import com.wrmsr.tokamak.plan.node.UnionNode;
+import com.wrmsr.tokamak.plan.node.UnnestNode;
+import com.wrmsr.tokamak.plan.node.ValuesNode;
 import com.wrmsr.tokamak.util.lazy.CtorLazyValue;
 
 import java.util.ArrayList;
