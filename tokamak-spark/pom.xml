@@ -68,6 +68,28 @@
         <plugins>
 
             <plugin>
+                <artifactId>exec-maven-plugin</artifactId>
+                <groupId>org.codehaus.mojo</groupId>
+                <executions>
+                    <execution>
+                        <id>config-compile-all</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>${java.home}/bin/java</executable>
+                            <arguments>
+                                <argument>-classpath</argument>
+                                <classpath />
+                                <argument>com.wrmsr.tokamak.util.config.CompileAll</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <executions>

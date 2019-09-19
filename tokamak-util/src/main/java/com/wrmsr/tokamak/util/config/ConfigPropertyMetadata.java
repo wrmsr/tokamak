@@ -144,7 +144,10 @@ public final class ConfigPropertyMetadata
 
     public Class<? extends BaseConfigPropertyImpl> getImplCls()
     {
-        if (type == int.class) {
+        if (type == boolean.class) {
+            return IntConfigPropertyImpl.class;
+        }
+        else if (type == int.class) {
             return IntConfigPropertyImpl.class;
         }
         else {

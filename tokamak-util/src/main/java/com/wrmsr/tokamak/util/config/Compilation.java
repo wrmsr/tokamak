@@ -16,6 +16,13 @@ package com.wrmsr.tokamak.util.config;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.wrmsr.tokamak.util.config.props.BaseConfigPropertyImpl;
+import com.wrmsr.tokamak.util.config.props.BooleanConfigProperty;
+import com.wrmsr.tokamak.util.config.props.BooleanConfigPropertyImpl;
+import com.wrmsr.tokamak.util.config.props.ConfigPropertyImpl;
+import com.wrmsr.tokamak.util.config.props.IntConfigProperty;
+import com.wrmsr.tokamak.util.config.props.IntConfigPropertyImpl;
+import com.wrmsr.tokamak.util.func.BooleanConsumer;
 import com.wrmsr.tokamak.util.java.compile.javac.InProcJavaCompiler;
 import com.wrmsr.tokamak.util.java.lang.JAccess;
 import com.wrmsr.tokamak.util.java.lang.JName;
@@ -42,14 +49,11 @@ import com.wrmsr.tokamak.util.java.lang.tree.statement.JReturn;
 import com.wrmsr.tokamak.util.java.lang.tree.statement.JStatement;
 import com.wrmsr.tokamak.util.java.lang.unit.JCompilationUnit;
 import com.wrmsr.tokamak.util.java.lang.unit.JPackageSpec;
-import com.wrmsr.tokamak.util.config.props.BaseConfigPropertyImpl;
-import com.wrmsr.tokamak.util.config.props.ConfigPropertyImpl;
-import com.wrmsr.tokamak.util.config.props.IntConfigProperty;
-import com.wrmsr.tokamak.util.config.props.IntConfigPropertyImpl;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.IntConsumer;
 import java.util.function.IntSupplier;
@@ -115,6 +119,8 @@ public final class Compilation
 
     public interface Construction
     {
+        BooleanConfigProperty buildBooleanPropertyImpl(String name, BooleanSupplier getter, BooleanConsumer setter);
+
         <T> ConfigPropertyImpl<T> buildPropertyImpl(String name, Supplier<T> getter, Consumer<T> setter);
 
         IntConfigProperty buildIntPropertyImpl(String name, IntSupplier getter, IntConsumer setter);
@@ -133,7 +139,10 @@ public final class Compilation
         public static String getPropertyImplBuilderMethodName(ConfigPropertyMetadata pmd)
         {
             Class<? extends BaseConfigPropertyImpl> propImplCls = pmd.getImplCls();
-            if (propImplCls == ConfigPropertyImpl.class) {
+            if (propImplCls == BooleanConfigPropertyImpl.class) {
+                return "buildBooleanPropertyImpl";
+            }
+            else if (propImplCls == ConfigPropertyImpl.class) {
                 return "buildPropertyImpl";
             }
             else if (propImplCls == IntConfigPropertyImpl.class) {
@@ -142,6 +151,15 @@ public final class Compilation
             else {
                 throw new IllegalArgumentException(propImplCls.toString());
             }
+        }
+
+        @Override
+        public BooleanConfigProperty buildBooleanPropertyImpl(String name, BooleanSupplier getter, BooleanConsumer setter)
+        {
+            return new BooleanConfigPropertyImpl(
+                    metadata.getProperty(name),
+                    getter,
+                    setter);
         }
 
         @Override
