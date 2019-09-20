@@ -50,7 +50,8 @@ NUMBER
    ;
 
 fragment INT
-   : '0' | [1-9] [0-9]*
+   : '0'
+   | [1-9] [0-9]*
    ;
 
 fragment EXP

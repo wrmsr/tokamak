@@ -115,7 +115,7 @@ public class AstBuilder
             @Override
             public TreeNode visitStringLiteral(SqlParser.StringLiteralContext ctx)
             {
-                return new StringLiteral(ctx.STRING_VALUE().getText());
+                return new StringLiteral(ctx.STRING().getText());
             }
 
             @Override

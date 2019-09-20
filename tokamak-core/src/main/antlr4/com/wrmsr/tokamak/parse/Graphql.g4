@@ -36,11 +36,13 @@ document
    ;
 
 definition
-   : operationDefinition | fragmentDefinition
+   : operationDefinition
+   | fragmentDefinition
    ;
 
 operationDefinition
-   : selectionSet | operationType NAME variableDefinitions? directives? selectionSet
+   : selectionSet
+   | operationType NAME variableDefinitions? directives? selectionSet
    ;
 
 selectionSet
@@ -48,11 +50,14 @@ selectionSet
    ;
 
 operationType
-   : 'query' | 'mutation'
+   : 'query'
+   | 'mutation'
    ;
 
 selection
-   : field | fragmentSpread | inlineFragment
+   : field
+   | fragmentSpread
+   | inlineFragment
    ;
 
 field
@@ -60,7 +65,8 @@ field
    ;
 
 fieldName
-   : alias | NAME
+   : alias
+   | NAME
    ;
 
 alias
@@ -96,7 +102,9 @@ directives
    ;
 
 directive
-   : '@' NAME ':' valueOrVariable | '@' NAME | '@' NAME '(' argument ')'
+   : '@' NAME ':' valueOrVariable
+   | '@' NAME
+   | '@' NAME '(' argument ')'
    ;
 
 typeCondition
@@ -120,15 +128,20 @@ defaultValue
    ;
 
 valueOrVariable
-   : value | variable
+   : value
+   | variable
    ;
 
 value
-   : STRING # stringValue | NUMBER # numberValue | BOOLEAN # booleanValue | array # arrayValue
+   : STRING # stringValue
+   | NUMBER # numberValue
+   | BOOLEAN # booleanValue
+   | array # arrayValue
    ;
 
 type_
-   : typeName nonNullType? | listType nonNullType?
+   : typeName nonNullType?
+   | listType nonNullType?
    ;
 
 typeName
@@ -144,47 +157,43 @@ nonNullType
    ;
 
 array
-   : '[' value ( ',' value )* ']' | '[' ']'
+   : '[' value ( ',' value )* ']'
+   | '[' ']'
    ;
-
 
 NAME
    : [_A-Za-z] [_0-9A-Za-z]*
    ;
 
-
 STRING
    : '"' ( ESC | ~ ["\\] )* '"'
    ;
-
 
 BOOLEAN
    : 'true' | 'false'
    ;
 
-
 fragment ESC
    : '\\' ( ["\\/bfnrt] | UNICODE )
    ;
-
 
 fragment UNICODE
    : 'u' HEX HEX HEX HEX
    ;
 
-
 fragment HEX
    : [0-9a-fA-F]
    ;
 
-
 NUMBER
-   : '-'? INT '.' [0-9]+ EXP? | '-'? INT EXP | '-'? INT
+   : '-'? INT '.' [0-9]+ EXP?
+   | '-'? INT EXP
+   | '-'? INT
    ;
 
-
 fragment INT
-   : '0' | [1-9] [0-9]*
+   : '0'
+   | [1-9] [0-9]*
    ;
 
 // no leading zeros

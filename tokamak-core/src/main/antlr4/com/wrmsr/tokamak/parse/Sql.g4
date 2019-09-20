@@ -46,9 +46,9 @@ variable
     ;
 
 literal
-    : NULL           #nullLiteral
-    | STRING_VALUE   #stringLiteral
-    | NUMBER_VALUE   #numberLiteral
+    : NULL    #nullLiteral
+    | STRING  #stringLiteral
+    | NUMBER  #numberLiteral
     ;
 
 qualifiedName
@@ -80,12 +80,8 @@ QUOTED_IDENTIFIER
     : '"' (~'"' | '""')* '"'
     ;
 
-STRING_VALUE
+STRING
     : '\'' (~'\'' | '\'\'')* '\''
-    ;
-
-NUMBER_VALUE
-    : NUMBER
     ;
 
 fragment DIGIT
@@ -97,11 +93,14 @@ fragment LETTER
     ;
 
 NUMBER
-   : '-'? INTEGER '.' [0-9]+ EXPONENT? | '-'? INTEGER EXPONENT | '-'? INTEGER
+   : '-'? INTEGER '.' [0-9]+ EXPONENT?
+   | '-'? INTEGER EXPONENT
+   | '-'? INTEGER
    ;
 
 INTEGER
-   : '0' | [1-9] [0-9]*
+   : '0'
+   | [1-9] [0-9]*
    ;
 
 fragment EXPONENT
