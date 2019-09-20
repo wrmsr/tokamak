@@ -14,9 +14,6 @@
 package com.wrmsr.tokamak.driver.build;
 
 import com.google.common.collect.ImmutableList;
-import com.wrmsr.tokamak.api.AllKey;
-import com.wrmsr.tokamak.api.FieldKey;
-import com.wrmsr.tokamak.api.IdKey;
 import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.catalog.Function;
 import com.wrmsr.tokamak.driver.DriverImpl;
@@ -45,20 +42,11 @@ public final class ProjectBuilder
     protected Collection<DriverRow> innerBuild(DriverContextImpl context, Key key)
     {
         Key sourceKey;
-        if (key instanceof IdKey || key instanceof AllKey) {
-            sourceKey = key;
-        }
-        else if (key instanceof FieldKey) {
-            FieldKey fieldKey = (FieldKey) key;
-            sourceKey = Key.of(
-                    fieldKey.stream()
-                            .collect(toImmutableMap(
-                                    e -> node.getProjection().getInputFieldsByOutput().get(e.getKey()),
-                                    Map.Entry::getValue)));
-        }
-        else {
-            throw new IllegalArgumentException(Objects.toString(key));
-        }
+        sourceKey = Key.of(
+                key.stream()
+                        .collect(toImmutableMap(
+                                e -> node.getProjection().getInputFieldsByOutput().get(e.getKey()),
+                                Map.Entry::getValue)));
 
         ImmutableList.Builder<DriverRow> ret = ImmutableList.builder();
         for (DriverRow row : context.build(source, sourceKey)) {

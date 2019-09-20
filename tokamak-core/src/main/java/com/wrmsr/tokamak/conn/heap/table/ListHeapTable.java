@@ -17,8 +17,6 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
-import com.wrmsr.tokamak.api.AllKey;
-import com.wrmsr.tokamak.api.FieldKey;
 import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.layout.TableLayout;
@@ -112,28 +110,15 @@ public class ListHeapTable
     public List<Map<String, Object>> scan(Set<String> fields, Key key)
     {
         checkArgument(tableLayout.getRowLayout().getFields().keySet().containsAll(fields));
-
-        if (key instanceof FieldKey) {
-            FieldKey fieldKey = (FieldKey) key;
-            checkArgument(tableLayout.getRowLayout().getFields().keySet().containsAll(fields));
-        }
-        else if (key instanceof AllKey) {
-            // pass
-        }
-        else {
-            throw new IllegalArgumentException();
-        }
+        checkArgument(tableLayout.getRowLayout().getFields().keySet().containsAll(key.getFields()));
 
         ImmutableList.Builder<Map<String, Object>> builder = ImmutableList.builder();
 
         rowLoop:
         for (Object[] row : rows) {
-            if (key instanceof FieldKey) {
-                FieldKey fieldKey = (FieldKey) key;
-                for (Map.Entry<String, Object> keyEntry : fieldKey.getValuesByField().entrySet()) {
-                    if (!Objects.equals(row[tableLayout.getRowLayout().getPositionsByField().get(keyEntry.getKey())], ((FieldKey) key).get(keyEntry.getKey()))) {
-                        continue rowLoop;
-                    }
+            for (Map.Entry<String, Object> keyEntry : key.getValuesByField().entrySet()) {
+                if (!Objects.equals(row[tableLayout.getRowLayout().getPositionsByField().get(keyEntry.getKey())], key.get(keyEntry.getKey()))) {
+                    continue rowLoop;
                 }
             }
             builder.add(tableLayout.getRowLayout().arrayToMap(row));

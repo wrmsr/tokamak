@@ -16,7 +16,6 @@ package com.wrmsr.tokamak;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.wrmsr.tokamak.api.ApiJson;
 import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.api.SimpleRow;
@@ -29,7 +28,7 @@ public class JsonTest
     public void testApiJson()
             throws Throwable
     {
-        ApiJson.install();
+        ApiJson.installStatics();
 
         System.out.println(
                 Json.writeValue(

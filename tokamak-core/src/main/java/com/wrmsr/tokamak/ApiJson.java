@@ -11,11 +11,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.api;
+package com.wrmsr.tokamak;
 
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.common.collect.ImmutableList;
+import com.wrmsr.tokamak.api.Id;
+import com.wrmsr.tokamak.api.JsonConverter;
+import com.wrmsr.tokamak.api.Key;
+import com.wrmsr.tokamak.api.SchemaTable;
+import com.wrmsr.tokamak.api.SimpleRow;
 import com.wrmsr.tokamak.util.codec.Codec;
 import com.wrmsr.tokamak.util.json.CodecSerialization;
 import com.wrmsr.tokamak.util.json.Json;
@@ -29,11 +34,12 @@ public final class ApiJson
     {
     }
 
-    private static final List<JsonConverter> JSON_CONVERTERS = ImmutableList.of(
+    private static final List<JsonConverter> JSON_CONVERTERS = ImmutableList.copyOf(new JsonConverter[] {
             Id.JSON_CONVERTER,
+            Key.JSON_CONVERTER,
             SchemaTable.JSON_CONVERTER,
-            SimpleRow.JSON_CONVERTER
-    );
+            SimpleRow.JSON_CONVERTER,
+    });
 
     private static <F, T> CodecSerialization<F, T> buildSerialization(JsonConverter<F, T> converter)
     {
@@ -51,7 +57,7 @@ public final class ApiJson
 
     private static final Object lock = new Object();
 
-    public static void install()
+    public static void installStatics()
     {
         synchronized (lock) {
             if (!Json.DEFAULT_MODULE_FACTORIES.contains(MODULE_SUPPLIER)) {

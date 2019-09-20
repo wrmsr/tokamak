@@ -17,7 +17,7 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-import com.wrmsr.tokamak.api.NodeId;
+import com.wrmsr.tokamak.plan.NodeId;
 import com.wrmsr.tokamak.layout.RowLayout;
 import com.wrmsr.tokamak.plan.node.visitor.NodeVisitor;
 import com.wrmsr.tokamak.type.Type;

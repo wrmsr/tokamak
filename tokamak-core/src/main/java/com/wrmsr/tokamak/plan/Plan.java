@@ -22,7 +22,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Streams;
-import com.wrmsr.tokamak.api.NodeId;
 import com.wrmsr.tokamak.plan.node.Node;
 import com.wrmsr.tokamak.util.Pair;
 import com.wrmsr.tokamak.util.collect.Toposort;

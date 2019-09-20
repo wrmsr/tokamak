@@ -11,20 +11,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.conn.heap;
+package com.wrmsr.tokamak.plan.node;
 
-import com.wrmsr.tokamak.api.WriterTarget;
+import com.google.common.collect.ImmutableMap;
 
 import javax.annotation.concurrent.Immutable;
 
 import java.util.Map;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 @Immutable
-public final class HeapWriterTarget
-    extends WriterTarget
+public final class WriterTarget
 {
-    public HeapWriterTarget(String name, Map<String, Object> options)
+    private final String name;
+    private final Map<String, Object> options;
+
+    public WriterTarget(String name, Map<String, Object> options)
     {
-        super(name, options);
+        this.name = checkNotNull(name);
+        this.options = ImmutableMap.copyOf(options);
+    }
+
+    public String getName()
+    {
+        return name;
+    }
+
+    public Map<String, Object> getOptions()
+    {
+        return options;
     }
 }

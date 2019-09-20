@@ -16,20 +16,18 @@ package com.wrmsr.tokamak.driver.build;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.wrmsr.tokamak.api.FieldKey;
 import com.wrmsr.tokamak.api.Id;
-import com.wrmsr.tokamak.api.IdKey;
 import com.wrmsr.tokamak.api.Key;
-import com.wrmsr.tokamak.serde.value.NullableValueSerde;
-import com.wrmsr.tokamak.serde.value.TupleValueSerde;
-import com.wrmsr.tokamak.serde.value.ValueSerde;
-import com.wrmsr.tokamak.serde.value.ValueSerdes;
-import com.wrmsr.tokamak.serde.value.VariableLengthValueSerde;
 import com.wrmsr.tokamak.driver.DriverImpl;
 import com.wrmsr.tokamak.driver.DriverRow;
 import com.wrmsr.tokamak.driver.context.DriverContextImpl;
 import com.wrmsr.tokamak.plan.node.EquijoinNode;
 import com.wrmsr.tokamak.plan.node.Node;
+import com.wrmsr.tokamak.serde.value.NullableValueSerde;
+import com.wrmsr.tokamak.serde.value.TupleValueSerde;
+import com.wrmsr.tokamak.serde.value.ValueSerde;
+import com.wrmsr.tokamak.serde.value.ValueSerdes;
+import com.wrmsr.tokamak.serde.value.VariableLengthValueSerde;
 import com.wrmsr.tokamak.util.Pair;
 
 import java.util.Collection;
@@ -66,27 +64,18 @@ public final class EquijoinBuilder
 
         List<Pair<EquijoinNode.Branch, Map<String, Object>>> lookups;
 
-        if (key instanceof IdKey) {
+        Set<EquijoinNode.Branch> idBranches = node.getBranchSetsByKeyFieldSet().get(key.getValuesByField().keySet());
+        if (idBranches != null) {
+            EquijoinNode.Branch idBranch = checkNotNull(idBranches.iterator().next());
+            // branchFieldKeyPair = Pair.immutable(idBranch, Key.of())
             throw new IllegalStateException();
-        }
-        else if (key instanceof FieldKey) {
-            FieldKey fieldKey = (FieldKey) key;
-            Set<EquijoinNode.Branch> idBranches = node.getBranchSetsByKeyFieldSet().get(fieldKey.getValuesByField().keySet());
-            if (idBranches != null) {
-                EquijoinNode.Branch idBranch = checkNotNull(idBranches.iterator().next());
-                // branchFieldKeyPair = Pair.immutable(idBranch, Key.of())
-                throw new IllegalStateException();
-            }
-            else {
-                Map<EquijoinNode.Branch, List<Map.Entry<String, Object>>> m = fieldKey.getValuesByField().entrySet().stream()
-                        .collect(Collectors.groupingBy(e -> checkNotNull(node.getBranchesByUniqueField().get(e.getKey()))));
-                lookups = m.entrySet().stream()
-                        .map(e -> Pair.immutable(e.getKey(), (Map<String, Object>) e.getValue().stream().collect(toImmutableMap())))
-                        .collect(toImmutableList());
-            }
         }
         else {
-            throw new IllegalStateException();
+            Map<EquijoinNode.Branch, List<Map.Entry<String, Object>>> m = key.getValuesByField().entrySet().stream()
+                    .collect(Collectors.groupingBy(e -> checkNotNull(node.getBranchesByUniqueField().get(e.getKey()))));
+            lookups = m.entrySet().stream()
+                    .map(e -> Pair.immutable(e.getKey(), (Map<String, Object>) e.getValue().stream().collect(toImmutableMap())))
+                    .collect(toImmutableList());
         }
 
         ImmutableList.Builder<DriverRow> builder = ImmutableList.builder();

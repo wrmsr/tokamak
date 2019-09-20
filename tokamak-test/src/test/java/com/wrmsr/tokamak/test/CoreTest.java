@@ -17,6 +17,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.wrmsr.tokamak.ApiJson;
 import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.api.Row;
 import com.wrmsr.tokamak.api.SchemaTable;
@@ -33,17 +34,17 @@ import com.wrmsr.tokamak.exec.Reflection;
 import com.wrmsr.tokamak.exec.builtin.BuiltinExecutor;
 import com.wrmsr.tokamak.layout.RowLayout;
 import com.wrmsr.tokamak.layout.TableLayout;
+import com.wrmsr.tokamak.plan.Plan;
+import com.wrmsr.tokamak.plan.dot.Dot;
 import com.wrmsr.tokamak.plan.node.EquijoinNode;
 import com.wrmsr.tokamak.plan.node.FilterNode;
 import com.wrmsr.tokamak.plan.node.Node;
 import com.wrmsr.tokamak.plan.node.ProjectNode;
 import com.wrmsr.tokamak.plan.node.Projection;
 import com.wrmsr.tokamak.plan.node.ScanNode;
-import com.wrmsr.tokamak.plan.Plan;
-import com.wrmsr.tokamak.plan.dot.Dot;
-import com.wrmsr.tokamak.util.sql.SqlUtils;
 import com.wrmsr.tokamak.type.Type;
 import com.wrmsr.tokamak.util.json.Json;
+import com.wrmsr.tokamak.util.sql.SqlUtils;
 import junit.framework.TestCase;
 
 import java.nio.file.Path;
@@ -59,6 +60,12 @@ import static com.wrmsr.tokamak.util.MoreFiles.createTempDirectory;
 public class CoreTest
         extends TestCase
 {
+    @Override
+    protected void setUp()
+    {
+        ApiJson.installStatics();
+    }
+
     public void testJdbcMySql()
             throws Throwable
     {

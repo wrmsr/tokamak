@@ -14,7 +14,7 @@
 package com.wrmsr.tokamak.plan.node;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.wrmsr.tokamak.api.NodeId;
+import com.wrmsr.tokamak.plan.NodeId;
 import com.wrmsr.tokamak.layout.RowLayout;
 import com.wrmsr.tokamak.util.lazy.SupplierLazyValue;
 

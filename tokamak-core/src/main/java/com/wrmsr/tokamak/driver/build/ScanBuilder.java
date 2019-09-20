@@ -15,7 +15,6 @@ package com.wrmsr.tokamak.driver.build;
 
 import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.api.Id;
-import com.wrmsr.tokamak.api.IdKey;
 import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.catalog.Connection;
 import com.wrmsr.tokamak.catalog.Scanner;
@@ -25,7 +24,6 @@ import com.wrmsr.tokamak.driver.DriverRow;
 import com.wrmsr.tokamak.driver.context.DriverContextImpl;
 import com.wrmsr.tokamak.plan.node.Node;
 import com.wrmsr.tokamak.plan.node.ScanNode;
-import com.wrmsr.tokamak.serde.ByteArrayInput;
 import com.wrmsr.tokamak.serde.row.RowSerde;
 import com.wrmsr.tokamak.serde.row.RowSerdes;
 
@@ -80,17 +78,7 @@ public final class ScanBuilder
         Schema schema = dctx.getDriver().getCatalog().getSchemasByName().get(node.getSchemaTable().getSchema());
         Connection connection = dctx.getConnection(schema.getConnector());
 
-        Key scanKey;
-        if (key instanceof IdKey) {
-            byte[] buf = ((IdKey) key).getId().getValue();
-            Map<String, Object> keyFields = idSerde.decodeMap(new ByteArrayInput(buf));
-            scanKey = Key.of(keyFields);
-        }
-        else {
-            scanKey = key;
-        }
-
-        List<Map<String, Object>> scanRows = scanner.scan(connection, scanKey);
+        List<Map<String, Object>> scanRows = scanner.scan(connection, key);
         // FIXME: scanners can return empty, driver compensates
         checkState(!scanRows.isEmpty());
 

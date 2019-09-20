@@ -49,7 +49,7 @@ public final class Catalog
 
     public Catalog()
     {
-        this(null);
+        this(ImmutableList.of());
     }
 
     @JsonCreator

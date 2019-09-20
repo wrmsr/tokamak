@@ -14,10 +14,7 @@
 package com.wrmsr.tokamak.conn.jdbc;
 
 import com.google.common.base.Joiner;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.wrmsr.tokamak.api.AllKey;
-import com.wrmsr.tokamak.api.FieldKey;
 import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.catalog.Connection;
@@ -29,15 +26,14 @@ import com.wrmsr.tokamak.util.sql.SqlConnection;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
-import static com.wrmsr.tokamak.util.sql.SqlUtils.execute;
 import static com.wrmsr.tokamak.util.MoreCollections.checkOrdered;
+import static com.wrmsr.tokamak.util.sql.SqlUtils.execute;
 import static java.util.function.Function.identity;
 
 public final class JdbcScanner
@@ -154,18 +150,7 @@ public final class JdbcScanner
     {
         JdbcConnection jdbcConnection = (JdbcConnection) connection;
         SqlConnection sqlConnection = jdbcConnection.getSqlConnection();
-
-        if (key instanceof FieldKey) {
-            FieldKey fieldKey = (FieldKey) key;
-            Instance instance = getInstance(fieldKey.getValuesByField().keySet());
-            return instance.getRows(sqlConnection, fieldKey.getValuesByField());
-        }
-        else if (key instanceof AllKey) {
-            Instance instance = getInstance(ImmutableSet.of());
-            return instance.getRows(sqlConnection, ImmutableMap.of());
-        }
-        else {
-            throw new IllegalArgumentException(Objects.toString(key));
-        }
+        Instance instance = getInstance(key.getValuesByField().keySet());
+        return instance.getRows(sqlConnection, key.getValuesByField());
     }
 }

@@ -16,7 +16,6 @@ package com.wrmsr.tokamak.plan.node;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
-import com.wrmsr.tokamak.api.WriterTarget;
 import com.wrmsr.tokamak.plan.node.visitor.NodeVisitor;
 import com.wrmsr.tokamak.type.Type;
 
@@ -41,7 +40,7 @@ public final class PersistNode
     public PersistNode(
             @JsonProperty("name") String name,
             @JsonProperty("source") Node source,
-            @JsonProperty("outputTargets") List<WriterTarget> writerTargets,
+            @JsonProperty("writerTargets") List<WriterTarget> writerTargets,
             @JsonProperty("denormalized") boolean denormalized,
             @JsonProperty("invalidations") Map<String, Invalidation> invalidations,
             @JsonProperty("linkageMasks") Map<String, LinkageMask> linkageMasks,
@@ -63,7 +62,7 @@ public final class PersistNode
         return source;
     }
 
-    @JsonProperty("outputTargets")
+    @JsonProperty("writerTargets")
     public List<WriterTarget> getWriterTargets()
     {
         return writerTargets;

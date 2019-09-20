@@ -16,8 +16,6 @@ package com.wrmsr.tokamak.conn.kv;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
-import com.wrmsr.tokamak.api.AllKey;
-import com.wrmsr.tokamak.api.FieldKey;
 import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.layout.TableLayout;
@@ -68,17 +66,7 @@ public class KvTable
     public List<Map<String, Object>> scan(Set<String> fields, Key key)
     {
         checkArgument(tableLayout.getRowLayout().getFields().keySet().containsAll(fields));
-
-        if (key instanceof FieldKey) {
-            FieldKey fieldKey = (FieldKey) key;
-            checkArgument(tableLayout.getRowLayout().getFields().keySet().containsAll(fields));
-        }
-        else if (key instanceof AllKey) {
-            // pass
-        }
-        else {
-            throw new IllegalArgumentException();
-        }
+        checkArgument(tableLayout.getRowLayout().getFields().keySet().containsAll(key.getFields()));
 
         ImmutableList.Builder<Map<String, Object>> builder = ImmutableList.builder();
 

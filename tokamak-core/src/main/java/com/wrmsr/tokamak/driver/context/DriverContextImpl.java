@@ -14,9 +14,6 @@
 package com.wrmsr.tokamak.driver.context;
 
 import com.google.common.collect.ImmutableList;
-import com.wrmsr.tokamak.api.FieldKey;
-import com.wrmsr.tokamak.api.Id;
-import com.wrmsr.tokamak.api.IdKey;
 import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.catalog.Connection;
 import com.wrmsr.tokamak.catalog.Connector;
@@ -119,22 +116,6 @@ public class DriverContextImpl
         return (T) checkNotNull(builderContextMap.get(contextualBuilder));
     }
 
-    protected Optional<Collection<State>> getStateCached(StatefulNode node, Key key)
-    {
-        Id id;
-        if (key instanceof IdKey) {
-            id = ((IdKey) key).getId();
-        }
-        else if (key instanceof FieldKey) {
-            FieldKey fieldKey = (FieldKey) key;
-            // if (!node.getIdFieldSets().contains(fieldKey.getFields())) {
-            //     return Optional.empty();
-            // }
-            // id =
-        }
-        return Optional.empty();
-    }
-
     @SuppressWarnings({"unchecked"})
     public Collection<DriverRow> build(Builder builder, Key key)
     {
@@ -143,6 +124,7 @@ public class DriverContextImpl
             addJournalEntry(new JournalEntry.BuildInput(node, key));
         }
 
+        /*
         if (builder.getNode() instanceof StatefulNode && key instanceof IdKey) {
             StatefulNode statefulNode = (StatefulNode) builder.getNode();
             IdKey idKey = (IdKey) key;
@@ -163,6 +145,7 @@ public class DriverContextImpl
                 }
             }
         }
+        */
 
         Collection<DriverRow> rows = builder.build(this, key);
         checkNotEmpty(rows);

@@ -14,7 +14,7 @@
 package com.wrmsr.tokamak.driver;
 
 import com.google.common.collect.ImmutableMap;
-import com.wrmsr.tokamak.api.NodeId;
+import com.wrmsr.tokamak.plan.NodeId;
 import com.wrmsr.tokamak.serde.row.RowSerde;
 import com.wrmsr.tokamak.serde.row.RowSerdes;
 import com.wrmsr.tokamak.serde.value.NullableValueSerde;

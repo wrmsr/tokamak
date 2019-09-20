@@ -15,7 +15,7 @@ package com.wrmsr.tokamak.driver.queue;
 
 import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.api.Id;
-import com.wrmsr.tokamak.api.NodeId;
+import com.wrmsr.tokamak.plan.NodeId;
 
 import java.util.Map;
 import java.util.Set;

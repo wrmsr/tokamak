@@ -16,7 +16,7 @@ package com.wrmsr.tokamak.driver.state;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.api.Id;
-import com.wrmsr.tokamak.api.NodeId;
+import com.wrmsr.tokamak.plan.NodeId;
 
 import javax.annotation.concurrent.Immutable;
 
