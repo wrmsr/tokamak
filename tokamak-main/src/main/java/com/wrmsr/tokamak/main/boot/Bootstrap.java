@@ -40,6 +40,12 @@ import static com.google.common.base.Preconditions.checkState;
 
 public final class Bootstrap
 {
+    /*
+    TODO:
+     - rlimits
+     - jdk selection
+    */
+
     private final BootstrapConfig config;
     private final Class<?> mainCls;
     private final String[] args;
