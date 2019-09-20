@@ -56,8 +56,8 @@ public class CompileAll
                         String relpath = classes.relativize(f).toString();
                         String className = relpath.substring(0, relpath.length() - 6).replaceAll("/", ".");
 
-                        Class<? extends Config> cls;
-                        cls = (Class<? extends Config>) Class.forName(className);
+                        @SuppressWarnings({"unchecked"})
+                        Class<? extends Config> cls = (Class<? extends Config>) Class.forName(className);
 
                         if (!Config.class.isAssignableFrom(cls) || cls == Config.class || !cls.isInterface()) {
                             return;

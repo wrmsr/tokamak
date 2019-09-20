@@ -38,7 +38,7 @@ expression
 literal
     : NULL           #nullLiteral
     | STRING_VALUE   #stringLiteral
-    | INTEGER_VALUE  #integerLiteral
+    | NUMBER_VALUE   #numberLiteral
     ;
 
 qualifiedName
@@ -73,8 +73,8 @@ STRING_VALUE
     : '\'' (~'\'' | '\'\'')* '\''
     ;
 
-INTEGER_VALUE
-    : DIGIT+
+NUMBER_VALUE
+    : NUMBER
     ;
 
 fragment DIGIT
@@ -84,6 +84,18 @@ fragment DIGIT
 fragment LETTER
     : [A-Z]
     ;
+
+NUMBER
+   : '-'? INTEGER '.' [0-9]+ EXPONENT? | '-'? INTEGER EXPONENT | '-'? INTEGER
+   ;
+
+fragment INTEGER
+   : '0' | [1-9] [0-9]*
+   ;
+
+fragment EXPONENT
+   : [Ee] [+\-]? INTEGER
+   ;
 
 SIMPLE_COMMENT
     : ('--' | '//') ~[\r\n]* '\r'? '\n'? -> channel(2)

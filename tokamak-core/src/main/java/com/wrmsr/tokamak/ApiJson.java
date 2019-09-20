@@ -49,6 +49,7 @@ public final class ApiJson
                 Codec.of(converter.getToFn()::apply, converter.getFromFn()::apply));
     }
 
+    @SuppressWarnings({"unchecked"})
     private static final Supplier<Module> MODULE_SUPPLIER = () -> {
         SimpleModule mod = new SimpleModule();
         JSON_CONVERTERS.forEach(jc -> buildSerialization(jc).install(mod));

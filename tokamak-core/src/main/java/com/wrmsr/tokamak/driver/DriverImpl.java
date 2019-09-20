@@ -126,6 +126,7 @@ public class DriverImpl
         return new DriverContextImpl(this);
     }
 
+    @SuppressWarnings({"unchecked"})
     @Override
     public Collection<Row> build(Context context, Node node, Key key)
             throws IOException

@@ -81,11 +81,12 @@ public final class Key
         return valuesByField.entrySet().stream();
     }
 
+    @SuppressWarnings({"unchecked"})
     public static final JsonConverter<Key, Map> JSON_CONVERTER = new JsonConverter<>(
             Key.class,
             Map.class,
             id -> id.valuesByField,
-            Key::of);
+            map -> of((Map<String, Object>) map));
 
     public static Key of(Map<String, Object> map)
     {

@@ -18,7 +18,7 @@ import com.wrmsr.tokamak.parse.tree.Expression;
 import com.wrmsr.tokamak.parse.tree.ExpressionSelectItem;
 import com.wrmsr.tokamak.parse.tree.FunctionCallExpression;
 import com.wrmsr.tokamak.parse.tree.Identifier;
-import com.wrmsr.tokamak.parse.tree.IntegerLiteral;
+import com.wrmsr.tokamak.parse.tree.NumberLiteral;
 import com.wrmsr.tokamak.parse.tree.Literal;
 import com.wrmsr.tokamak.parse.tree.NullLiteral;
 import com.wrmsr.tokamak.parse.tree.QualifiedName;
@@ -65,7 +65,7 @@ public abstract class AstVisitor<R, C>
         return visitTreeNode(treeNode, context);
     }
 
-    public R visitIntegerLiteral(IntegerLiteral treeNode, C context)
+    public R visitIntegerLiteral(NumberLiteral treeNode, C context)
     {
         return visitLiteral(treeNode, context);
     }

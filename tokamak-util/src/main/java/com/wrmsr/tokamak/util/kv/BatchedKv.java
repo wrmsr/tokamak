@@ -27,6 +27,7 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 
+@SuppressWarnings({"unchecked"})
 public interface BatchedKv<K, V>
         extends Kv<K, V>
 {

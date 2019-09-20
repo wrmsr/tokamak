@@ -15,12 +15,12 @@ package com.wrmsr.tokamak.parse.tree;
 
 import com.wrmsr.tokamak.parse.tree.visitor.AstVisitor;
 
-public final class IntegerLiteral
+public final class NumberLiteral
         extends Literal
 {
     private final long value;
 
-    public IntegerLiteral(long value)
+    public NumberLiteral(long value)
     {
         this.value = value;
     }

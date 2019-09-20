@@ -18,8 +18,8 @@ import com.wrmsr.tokamak.parse.tree.Expression;
 import com.wrmsr.tokamak.parse.tree.ExpressionSelectItem;
 import com.wrmsr.tokamak.parse.tree.FunctionCallExpression;
 import com.wrmsr.tokamak.parse.tree.Identifier;
-import com.wrmsr.tokamak.parse.tree.IntegerLiteral;
 import com.wrmsr.tokamak.parse.tree.NullLiteral;
+import com.wrmsr.tokamak.parse.tree.NumberLiteral;
 import com.wrmsr.tokamak.parse.tree.QualifiedName;
 import com.wrmsr.tokamak.parse.tree.Relation;
 import com.wrmsr.tokamak.parse.tree.Select;
@@ -38,7 +38,6 @@ import java.util.stream.Collectors;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
-import static com.wrmsr.tokamak.util.MoreOptionals.optionalSingle;
 
 public class AstBuilder
 {
@@ -102,9 +101,9 @@ public class AstBuilder
             }
 
             @Override
-            public TreeNode visitIntegerLiteral(SqlParser.IntegerLiteralContext ctx)
+            public TreeNode visitNumberLiteral(SqlParser.NumberLiteralContext ctx)
             {
-                return new IntegerLiteral(Long.parseLong(ctx.getText()));
+                return new NumberLiteral(Long.parseLong(ctx.getText()));
             }
 
             @Override
