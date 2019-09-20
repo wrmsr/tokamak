@@ -51,10 +51,12 @@ identifier
     ;
 
 AS: 'AS';
+FALSE: 'FALSE';
 FROM: 'FROM';
 NOT: 'NOT';
 NULL: 'NULL';
 SELECT: 'SELECT';
+TRUE: 'TRUE';
 WHERE: 'WHERE';
 
 ASTERISK: '*';

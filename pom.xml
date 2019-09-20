@@ -689,12 +689,6 @@
                 <version>2.0.3</version>
             </dependency>
 
-            <dependency>
-                <groupId>io.airlift.resolver</groupId>
-                <artifactId>resolver</artifactId>
-                <version>1.5</version>
-            </dependency>
-
             <!-- Test -->
 
             <dependency>

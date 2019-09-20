@@ -1,4 +1,4 @@
-grammar JmesPath;
+grammar Jmes;
 
 jmesPathExpression : expression EOF ;
 

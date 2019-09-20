@@ -41,6 +41,7 @@ import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkUnique;
 import static java.util.function.Function.identity;
 
+@SuppressWarnings({"unchecked"})
 public final class ObjectArrayBackedMap<K>
         implements Map<K, Object>, Ordered
 {
