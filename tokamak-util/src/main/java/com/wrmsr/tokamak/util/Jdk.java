@@ -15,6 +15,8 @@ package com.wrmsr.tokamak.util;
 
 import com.wrmsr.tokamak.util.lazy.SupplierLazyValue;
 
+import java.lang.management.ManagementFactory;
+
 public final class Jdk
 {
     private Jdk()
@@ -43,5 +45,10 @@ public final class Jdk
             String spec = System.getProperty("java.specification.version");
             return parseSpecificationMajor(spec);
         });
+    }
+
+    public static boolean isDebug()
+    {
+        return ManagementFactory.getRuntimeMXBean().getInputArguments().toString().indexOf("-agentlib:jdwp") > 0;
     }
 }
