@@ -13,7 +13,6 @@
  */
 package com.wrmsr.tokamak.util.inject;
 
-import com.google.common.base.Throwables;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.Scope;
@@ -127,7 +126,7 @@ public class ScopeListeners<T extends Scope>
                 listener.onEnter(scopeClass);
             }
             catch (Exception e) {
-                throw Throwables.propagate(e);
+                throw new RuntimeException(e);
             }
         }
     }
@@ -140,7 +139,7 @@ public class ScopeListeners<T extends Scope>
                 listener.onExit(scopeClass);
             }
             catch (Exception e) {
-                throw Throwables.propagate(e);
+                throw new RuntimeException(e);
             }
         }
     }

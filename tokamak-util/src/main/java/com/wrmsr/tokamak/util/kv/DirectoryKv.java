@@ -15,7 +15,6 @@ package com.wrmsr.tokamak.util.kv;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableList;
 
 import java.io.File;
@@ -61,7 +60,7 @@ public class DirectoryKv
             return readFileBytes(new File(directory, key).getPath());
         }
         catch (IOException e) {
-            throw Throwables.propagate(e);
+            throw new RuntimeException(e);
         }
     }
 
@@ -72,7 +71,7 @@ public class DirectoryKv
             writeFileBytes(new File(directory, key).getPath(), value);
         }
         catch (IOException e) {
-            throw Throwables.propagate(e);
+            throw new RuntimeException(e);
         }
     }
 

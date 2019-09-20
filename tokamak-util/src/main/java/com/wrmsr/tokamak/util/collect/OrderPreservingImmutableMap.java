@@ -87,6 +87,7 @@ public final class OrderPreservingImmutableMap<K, V>
             return deserializer;
         }
 
+        @SuppressWarnings({"unchecked"})
         @Override
         public Map<?, ?> deserialize(JsonParser parser, DeserializationContext ctx)
                 throws IOException
