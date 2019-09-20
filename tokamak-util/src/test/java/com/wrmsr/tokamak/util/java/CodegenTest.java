@@ -15,6 +15,7 @@ package com.wrmsr.tokamak.util.java;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.wrmsr.tokamak.util.Jdk;
 import com.wrmsr.tokamak.util.java.compile.javac.InProcJavaCompiler;
 import com.wrmsr.tokamak.util.java.lang.JAccess;
 import com.wrmsr.tokamak.util.java.lang.JName;
@@ -100,7 +101,7 @@ public class CodegenTest
     {
         // ClassLoader cl0 = ClassLoader.getSystemClassLoader();
         // ClassLoader cl1 = InProcJavaCompiler.class.getClassLoader();
-        String cp = System.getProperty("java.class.path");
+        String cp = Jdk.getClasspath();
 
         String src = "" +
                 "package com.wrmsr.tokamak.util.java;\n" +

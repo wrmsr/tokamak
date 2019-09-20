@@ -17,6 +17,7 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.wrmsr.tokamak.util.Jdk;
 import com.wrmsr.tokamak.util.config.props.BaseConfigPropertyImpl;
 import com.wrmsr.tokamak.util.config.props.BooleanConfigProperty;
 import com.wrmsr.tokamak.util.config.props.BooleanConfigPropertyImpl;
@@ -392,7 +393,7 @@ public final class Compilation
     {
         return compileAndLoad(
                 metadata,
-                System.getProperty("java.class.path"),
+                Jdk.getClasspath(),
                 Compilation.class.getClassLoader());
     }
 

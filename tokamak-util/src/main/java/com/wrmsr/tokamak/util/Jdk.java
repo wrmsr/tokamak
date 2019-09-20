@@ -51,4 +51,9 @@ public final class Jdk
     {
         return ManagementFactory.getRuntimeMXBean().getInputArguments().toString().indexOf("-agentlib:jdwp") > 0;
     }
+
+    public static String getClasspath()
+    {
+        return System.getProperty("java.class.path");
+    }
 }

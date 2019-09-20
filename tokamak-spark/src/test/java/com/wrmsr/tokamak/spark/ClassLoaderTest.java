@@ -14,7 +14,9 @@
 package com.wrmsr.tokamak.spark;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
+import com.wrmsr.tokamak.util.Jdk;
 import com.wrmsr.tokamak.util.ParentFirstClassLoader;
 import io.airlift.resolver.ArtifactResolver;
 import io.airlift.resolver.DefaultArtifact;
@@ -35,6 +37,7 @@ import javax.xml.xpath.XPathFactory;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -113,9 +116,21 @@ public class ClassLoaderTest
 
         System.out.println(sparkClasspath);
 
+        List<URL> classpath = Splitter.on(":").splitToList(Jdk.getClasspath()).stream().map(jar -> {
+            try {
+
+                return new File(jar).toURL();
+            }
+            catch (MalformedURLException e) {
+                throw new RuntimeException(e);
+            }
+        }).collect(toImmutableList());
+
         ClassLoader sparkCl = new ParentFirstClassLoader(
                 sparkClasspath,
-                getClass().getClassLoader(),
+                new URLClassLoader(
+                        classpath.toArray(new URL[] {}),
+                        ClassLoader.getSystemClassLoader().getParent()),
                 ImmutableList.of(),
                 ImmutableList.of(
                         "org.apache.hadoop",
@@ -123,6 +138,9 @@ public class ClassLoaderTest
                 ));
 
         Class tc = sparkCl.loadClass("com.wrmsr.tokamak.spark.SparkTest$ExampleJob");
+
+        Thread.currentThread().setContextClassLoader(sparkCl);
+
         tc.getDeclaredMethod("main", String[].class).invoke(null, new Object[] {new String[] {
                 "tokamak-spark/src/test/resources/transactions.tsv",
                 "tokamak-spark/src/test/resources/users.tsv",

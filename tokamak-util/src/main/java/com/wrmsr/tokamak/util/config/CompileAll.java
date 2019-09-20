@@ -15,6 +15,7 @@ package com.wrmsr.tokamak.util.config;
 
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableList;
+import com.wrmsr.tokamak.util.Jdk;
 import com.wrmsr.tokamak.util.java.lang.JRenderer;
 
 import javax.tools.Tool;
@@ -38,7 +39,7 @@ public class CompileAll
         List<String> compileOpts = ImmutableList.of(
                 "-source", "1.8",
                 "-target", "1.8",
-                "-classpath", System.getProperty("java.class.path")
+                "-classpath", Jdk.getClasspath()
         );
 
         Path tempPath = createTempDirectory("tokamak-config-compile-all");
