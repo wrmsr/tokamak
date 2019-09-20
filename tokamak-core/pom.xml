@@ -83,7 +83,9 @@
                 <artifactId>exec-maven-plugin</artifactId>
                 <groupId>org.codehaus.mojo</groupId>
                 <executions>
+
                     <execution>
+                        <id>config-compile-all</id>
                         <phase>prepare-package</phase>
                         <goals>
                             <goal>exec</goal>
@@ -98,14 +100,9 @@
                             </arguments>
                         </configuration>
                     </execution>
-                </executions>
-            </plugin>
 
-            <plugin>
-                <artifactId>exec-maven-plugin</artifactId>
-                <groupId>org.codehaus.mojo</groupId>
-                <executions>
                     <execution>
+                        <id>write-git-revision</id>
                         <phase>prepare-package</phase>
                         <goals>
                             <goal>exec</goal>
@@ -120,6 +117,7 @@
                             </arguments>
                         </configuration>
                     </execution>
+
                 </executions>
             </plugin>
 
