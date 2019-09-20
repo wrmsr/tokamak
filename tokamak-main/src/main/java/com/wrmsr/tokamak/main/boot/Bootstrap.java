@@ -106,47 +106,6 @@ public final class Bootstrap
         }
     }
 
-    public static final String NO_REEXEC_PROPERTY_KEY = "com.wrmsr.tokamak.main.boot.noreexec";
-
-    public final class ReexecOp
-            implements Op
-    {
-        public File getJvm()
-        {
-            File jvm = Paths.get(
-                    System.getProperty("java.home"),
-                    "bin",
-                    "java" + (System.getProperty("os.name").startsWith("Win") ? ".exe" : "")
-            ).toFile();
-            checkState(jvm.exists(), "cannot find jvm: " + jvm.getAbsolutePath());
-            checkState(jvm.isFile(), "jvm is not a file: " + jvm.getAbsolutePath());
-            checkState(jvm.canExecute(), "jvm is not executable: " + jvm.getAbsolutePath());
-            return jvm;
-        }
-
-        @Override
-        public void run()
-                throws Exception
-        {
-            if (System.getProperties().containsKey(NO_REEXEC_PROPERTY_KEY)) {
-                return;
-            }
-
-            // FIXME: check if debugging
-
-            Exec exec;
-
-            exec = new JnaExec();
-            // exec = new ProcessBuilderExec();
-
-            String jvm = getJvm().getAbsolutePath();
-            String cp = System.getProperty("java.class.path");
-            String main = mainCls.getCanonicalName();
-
-            exec.exec(jvm, ImmutableList.<String>builder().add("-cp", cp, "-D" + NO_REEXEC_PROPERTY_KEY, main).add(args).build());
-        }
-    }
-
     public final class FixDnsOp
             implements Op
     {
@@ -197,15 +156,56 @@ public final class Bootstrap
         }
     }
 
+    public static final String NO_REEXEC_PROPERTY_KEY = "com.wrmsr.tokamak.main.boot.noreexec";
+
+    public final class ReexecOp
+            implements Op
+    {
+        public File getJvm()
+        {
+            File jvm = Paths.get(
+                    System.getProperty("java.home"),
+                    "bin",
+                    "java" + (System.getProperty("os.name").startsWith("Win") ? ".exe" : "")
+            ).toFile();
+            checkState(jvm.exists(), "cannot find jvm: " + jvm.getAbsolutePath());
+            checkState(jvm.isFile(), "jvm is not a file: " + jvm.getAbsolutePath());
+            checkState(jvm.canExecute(), "jvm is not executable: " + jvm.getAbsolutePath());
+            return jvm;
+        }
+
+        @Override
+        public void run()
+                throws Exception
+        {
+            if (System.getProperties().containsKey(NO_REEXEC_PROPERTY_KEY)) {
+                return;
+            }
+
+            // FIXME: check if debugging
+
+            Exec exec;
+
+            exec = new JnaExec();
+            // exec = new ProcessBuilderExec();
+
+            String jvm = getJvm().getAbsolutePath();
+            String cp = System.getProperty("java.class.path");
+            String main = mainCls.getCanonicalName();
+
+            exec.exec(jvm, ImmutableList.<String>builder().add("-cp", cp, "-D" + NO_REEXEC_PROPERTY_KEY, main).add(args).build());
+        }
+    }
+
     private void run()
             throws Exception
     {
         for (Op op : new Op[] {
                 new PauseOp(),
                 new SetHeadlessOp(),
-                new ReexecOp(),
                 new FixDnsOp(),
                 new ConfigureLoggingOp(),
+                new ReexecOp(),
         }) {
             op.run();
         }
