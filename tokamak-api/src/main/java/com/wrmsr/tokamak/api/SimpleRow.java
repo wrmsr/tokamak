@@ -54,4 +54,10 @@ public final class SimpleRow
     {
         return attributes;
     }
+
+    public static final JsonConverter JSON_CONVERTER = new JsonConverter<>(
+            SimpleRow.class,
+            Object[].class,
+            r -> new Object[] {r.id, r.attributes},
+            a -> new SimpleRow((Id) a[0], (Object[]) a[1]));
 }

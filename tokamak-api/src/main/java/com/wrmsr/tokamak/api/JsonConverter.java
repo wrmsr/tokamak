@@ -15,27 +15,41 @@ package com.wrmsr.tokamak.api;
 
 import java.util.function.Function;
 
-public interface JsonConverter<T, R>
+import static com.wrmsr.tokamak.api.Util.checkNotNull;
+
+public final class JsonConverter<F, T>
 {
-    R toJson(T obj);
+    private final Class<F> fromCls;
+    private final Class<T> toCls;
 
-    T fromJson(R jsonObj);
+    private final Function<F, T> toFn;
+    private final Function<T, F> fromFn;
 
-    static <T, R> JsonConverter<T, R> of(Function<T, R> to, Function<R, T> from)
+    public JsonConverter(Class<F> fromCls, Class<T> toCls, Function<F, T> toFn, Function<T, F> fromFn)
     {
-        return new JsonConverter<T ,R>()
-        {
-            @Override
-            public R toJson(T obj)
-            {
-                return to.apply(obj);
-            }
+        this.fromCls = checkNotNull(fromCls);
+        this.toCls = checkNotNull(toCls);
+        this.toFn = checkNotNull(toFn);
+        this.fromFn = checkNotNull(fromFn);
+    }
 
-            @Override
-            public T fromJson(R jsonObj)
-            {
-                return from.apply(jsonObj);
-            }
-        };
+    public Class<F> getFromCls()
+    {
+        return fromCls;
+    }
+
+    public Class<T> getToCls()
+    {
+        return toCls;
+    }
+
+    public Function<F, T> getToFn()
+    {
+        return toFn;
+    }
+
+    public Function<T, F> getFromFn()
+    {
+        return fromFn;
     }
 }

@@ -116,5 +116,9 @@ public final class Id
         return PREFIX + toHex(value);
     }
 
-    public static final JsonConverter<Id, String> JSON_CONVERTER = JsonConverter.of(Id::toPrefixedString, Id::parsePrefixed);
+    public static final JsonConverter<Id, String> JSON_CONVERTER = new JsonConverter<>(
+            Id.class,
+            String.class,
+            Id::toPrefixedString,
+            Id::parsePrefixed);
 }

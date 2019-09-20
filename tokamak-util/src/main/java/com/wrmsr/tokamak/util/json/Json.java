@@ -28,7 +28,6 @@ import com.fasterxml.jackson.dataformat.smile.SmileFactory;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -41,6 +40,8 @@ import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Supplier;
 
 public final class Json
 {
@@ -66,11 +67,11 @@ public final class Json
             MapperFeature.USE_BASE_TYPE_AS_DEFAULT_IMPL
     );
 
-    public static final List<Supplier<Module>> DEFAULT_MODULE_FACTORIES = ImmutableList.<Supplier<Module>>of(
+    public static final List<Supplier<Module>> DEFAULT_MODULE_FACTORIES = new CopyOnWriteArrayList<>(ImmutableList.of(
             GuavaModule::new,
             JavaTimeModule::new,
             Jdk8Module::new
-    );
+    ));
 
     public static ObjectMapper configureObjectMapper(ObjectMapper objectMapper)
     {

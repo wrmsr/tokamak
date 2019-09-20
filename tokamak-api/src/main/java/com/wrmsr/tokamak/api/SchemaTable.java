@@ -81,5 +81,9 @@ public final class SchemaTable
         return String.format("%s.%s", schema, table);
     }
 
-    public static final JsonConverter<SchemaTable, String> JSON_CONVERTER = JsonConverter.of(SchemaTable::toDotString, SchemaTable::parseDotString);
+    public static final JsonConverter<SchemaTable, String> JSON_CONVERTER = new JsonConverter<>(
+            SchemaTable.class,
+            String.class,
+            SchemaTable::toDotString,
+            SchemaTable::parseDotString);
 }
