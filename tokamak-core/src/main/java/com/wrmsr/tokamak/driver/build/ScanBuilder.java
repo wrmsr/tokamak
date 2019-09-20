@@ -20,16 +20,17 @@ import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.catalog.Connection;
 import com.wrmsr.tokamak.catalog.Scanner;
 import com.wrmsr.tokamak.catalog.Schema;
-import com.wrmsr.tokamak.serde.ByteArrayInput;
-import com.wrmsr.tokamak.serde.row.RowSerde;
-import com.wrmsr.tokamak.serde.row.RowSerdes;
 import com.wrmsr.tokamak.driver.DriverImpl;
 import com.wrmsr.tokamak.driver.DriverRow;
 import com.wrmsr.tokamak.driver.context.DriverContextImpl;
 import com.wrmsr.tokamak.plan.node.Node;
 import com.wrmsr.tokamak.plan.node.ScanNode;
+import com.wrmsr.tokamak.serde.ByteArrayInput;
+import com.wrmsr.tokamak.serde.row.RowSerde;
+import com.wrmsr.tokamak.serde.row.RowSerdes;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -40,7 +41,8 @@ import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 import static java.util.function.Function.identity;
 
 public final class ScanBuilder
-        extends Builder<ScanNode>
+        extends AbstractBuilder<ScanNode>
+        implements ContextualBuilder<ScanNode>
 {
     private final RowSerde idSerde;
 
@@ -57,12 +59,26 @@ public final class ScanBuilder
                         .collect(toImmutableMap(identity(), node.getFields()::get)));
     }
 
-    @Override
-    protected Collection<DriverRow> innerBuild(DriverContextImpl context, Key key)
+    private final class Context
+            implements BuilderContext
     {
+        private final Map<Id, DriverRow> driverRowsById = new HashMap<>();
+    }
+
+    @Override
+    public BuilderContext buildContext(DriverContextImpl driverContext)
+    {
+        return new Context();
+    }
+
+    @Override
+    protected Collection<DriverRow> innerBuild(DriverContextImpl dctx, Key key)
+    {
+        Context ctx = dctx.getBuildContext(this);
+
         Scanner scanner = driver.getScannersByNode().get(node);
-        Schema schema = context.getDriver().getCatalog().getSchemasByName().get(node.getSchemaTable().getSchema());
-        Connection connection = context.getConnection(schema.getConnector());
+        Schema schema = dctx.getDriver().getCatalog().getSchemasByName().get(node.getSchemaTable().getSchema());
+        Connection connection = dctx.getConnection(schema.getConnector());
 
         Key scanKey;
         if (key instanceof IdKey) {
@@ -81,13 +97,19 @@ public final class ScanBuilder
         ImmutableList.Builder<DriverRow> rows = ImmutableList.builder();
         for (Map<String, Object> scanRow : scanRows) {
             Id id = Id.of(idSerde.encodeBytes(scanRow));
-            Object[] attributes = scanRow.values().toArray();
-            rows.add(
-                    new DriverRow(
-                            node,
-                            context.getDriver().getLineagePolicy().build(),
-                            id,
-                            attributes));
+
+            DriverRow row = ctx.driverRowsById.get(id);
+            if (row == null) {
+                Object[] attributes = scanRow.values().toArray();
+                row = new DriverRow(
+                        node,
+                        dctx.getDriver().getLineagePolicy().build(),
+                        id,
+                        attributes);
+                ctx.driverRowsById.put(id, row);
+            }
+
+            rows.add(row);
         }
 
         return rows.build();

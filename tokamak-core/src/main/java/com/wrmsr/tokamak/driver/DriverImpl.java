@@ -19,22 +19,26 @@ import com.wrmsr.tokamak.api.Row;
 import com.wrmsr.tokamak.catalog.Catalog;
 import com.wrmsr.tokamak.catalog.Scanner;
 import com.wrmsr.tokamak.catalog.Table;
+import com.wrmsr.tokamak.conn.heap.MapHeapStateStorage;
 import com.wrmsr.tokamak.driver.build.Builder;
 import com.wrmsr.tokamak.driver.build.BuilderFactory;
+import com.wrmsr.tokamak.driver.build.ContextualBuilder;
 import com.wrmsr.tokamak.driver.context.DriverContextImpl;
-import com.wrmsr.tokamak.conn.heap.MapHeapStateStorage;
 import com.wrmsr.tokamak.driver.state.StateStorage;
+import com.wrmsr.tokamak.plan.Plan;
 import com.wrmsr.tokamak.plan.node.Node;
 import com.wrmsr.tokamak.plan.node.ScanNode;
-import com.wrmsr.tokamak.plan.Plan;
 import com.wrmsr.tokamak.util.lazy.SupplierLazyValue;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.ImmutableList.toImmutableList;
+import static com.wrmsr.tokamak.util.MoreCollections.checkOrdered;
 import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 import static java.util.function.Function.identity;
 
@@ -104,6 +108,16 @@ public class DriverImpl
             return plan.getToposortedNodes().stream()
                     .collect(toImmutableMap(identity(), factory::get));
         });
+    }
+
+    private final SupplierLazyValue<List<ContextualBuilder>> contextualBuilders = new SupplierLazyValue<>();
+
+    public List<ContextualBuilder> getContextualBuilders()
+    {
+        return contextualBuilders.get(() -> checkOrdered(getBuildersByNode()).values().stream()
+                .filter(ContextualBuilder.class::isInstance)
+                .map(ContextualBuilder.class::cast)
+                .collect(toImmutableList()));
     }
 
     @Override

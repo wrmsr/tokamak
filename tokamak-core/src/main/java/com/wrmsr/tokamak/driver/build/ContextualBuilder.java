@@ -13,27 +13,13 @@
  */
 package com.wrmsr.tokamak.driver.build;
 
-import com.wrmsr.tokamak.api.Key;
-import com.wrmsr.tokamak.driver.DriverImpl;
-import com.wrmsr.tokamak.driver.DriverRow;
 import com.wrmsr.tokamak.driver.context.DriverContextImpl;
 import com.wrmsr.tokamak.plan.node.Node;
-import com.wrmsr.tokamak.plan.node.ValuesNode;
 
-import java.util.Collection;
-import java.util.Map;
-
-public final class ValuesBuilder
-        extends AbstractBuilder<ValuesNode>
+public interface ContextualBuilder<T extends Node>
+        extends Builder<T>
 {
-    public ValuesBuilder(DriverImpl driver, ValuesNode node, Map<Node, Builder> sources)
-    {
-        super(driver, node, sources);
-    }
+    BuilderContext buildContext(DriverContextImpl driverContext);
 
-    @Override
-    protected Collection<DriverRow> innerBuild(DriverContextImpl context, Key key)
-    {
-        throw new IllegalStateException();
-    }
+    // default buildWithContext()
 }

@@ -46,7 +46,7 @@ import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 
 public final class EquijoinBuilder
-        extends Builder<EquijoinNode>
+        extends AbstractBuilder<EquijoinNode>
 {
     // FIXME: not necessarily variable
     private static final ValueSerde<byte[]> NULLABLE_BYTES_VALUE_SERDE =

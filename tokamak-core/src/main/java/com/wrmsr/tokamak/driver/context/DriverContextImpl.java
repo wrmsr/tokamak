@@ -24,10 +24,12 @@ import com.wrmsr.tokamak.driver.Driver;
 import com.wrmsr.tokamak.driver.DriverImpl;
 import com.wrmsr.tokamak.driver.DriverRow;
 import com.wrmsr.tokamak.driver.build.Builder;
+import com.wrmsr.tokamak.driver.build.BuilderContext;
+import com.wrmsr.tokamak.driver.build.ContextualBuilder;
 import com.wrmsr.tokamak.driver.context.diag.JournalEntry;
 import com.wrmsr.tokamak.driver.context.diag.Stat;
-import com.wrmsr.tokamak.driver.context.state.StateCache;
 import com.wrmsr.tokamak.driver.context.state.DefaultStateCache;
+import com.wrmsr.tokamak.driver.context.state.StateCache;
 import com.wrmsr.tokamak.driver.state.State;
 import com.wrmsr.tokamak.plan.node.Node;
 import com.wrmsr.tokamak.plan.node.StatefulNode;
@@ -41,7 +43,9 @@ import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
+import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
+import static java.util.function.UnaryOperator.identity;
 
 public class DriverContextImpl
         implements Driver.Context
@@ -54,6 +58,8 @@ public class DriverContextImpl
 
     private final boolean journaling;
     private final List<JournalEntry> journalEntries;
+
+    private final Map<ContextualBuilder, BuilderContext> builderContextMap;
 
     public DriverContextImpl(
             DriverImpl driver)
@@ -73,6 +79,8 @@ public class DriverContextImpl
 
         journaling = false;
         journalEntries = null;
+
+        builderContextMap = driver.getContextualBuilders().stream().collect(toImmutableMap(identity(), cb -> cb.buildContext(this)));
     }
 
     protected void addJournalEntry(JournalEntry entry)
@@ -103,6 +111,12 @@ public class DriverContextImpl
         if (state.getMode() == State.Mode.MODIFIED) {
             invalidationManager.invalidate(state);
         }
+    }
+
+    @SuppressWarnings({"unchecked"})
+    public <T extends BuilderContext> T getBuildContext(ContextualBuilder contextualBuilder)
+    {
+        return (T) checkNotNull(builderContextMap.get(contextualBuilder));
     }
 
     protected Optional<Collection<State>> getStateCached(StatefulNode node, Key key)

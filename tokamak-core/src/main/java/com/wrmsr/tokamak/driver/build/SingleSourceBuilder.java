@@ -23,7 +23,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkSingle;
 
 public abstract class SingleSourceBuilder<T extends SingleSourceNode>
-        extends Builder<T>
+        extends AbstractBuilder<T>
 {
     protected final Builder source;
 

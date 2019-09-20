@@ -104,8 +104,13 @@ public final class Bootstrap
     }
 
     @CheckReturnValue
-    @SuppressWarnings({"unchecked"})
     public static String[] bootstrap(Class<?> mainCls, String[] args)
+    {
+        return bootstrap(getBootstrapConfig(), mainCls, args);
+    }
+
+    @SuppressWarnings({"unchecked"})
+    public static BootstrapConfig getBootstrapConfig()
     {
         Class<? extends BootstrapConfig> bcImpl;
         try {
@@ -116,6 +121,6 @@ public final class Bootstrap
         }
         Compilation.ImplFactory<BootstrapConfig> bcFac = Compilation.getImplFactory(bcImpl);
         BootstrapConfig bc = bcFac.build(new ConfigMetadata(BootstrapConfig.class));
-        return bootstrap(bc, mainCls, args);
+        return bc;
     }
 }

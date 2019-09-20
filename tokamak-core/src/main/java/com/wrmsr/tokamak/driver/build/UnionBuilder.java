@@ -24,7 +24,7 @@ import java.util.Collection;
 import java.util.Map;
 
 public final class UnionBuilder
-        extends Builder<UnionNode>
+        extends AbstractBuilder<UnionNode>
 {
     public UnionBuilder(DriverImpl driver, UnionNode node, Map<Node, Builder> sources)
     {

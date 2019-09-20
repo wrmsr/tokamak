@@ -24,7 +24,7 @@ import java.util.Collection;
 import java.util.Map;
 
 public final class LookupJoinBuilder
-        extends Builder<LookupJoinNode>
+        extends AbstractBuilder<LookupJoinNode>
 {
     public LookupJoinBuilder(DriverImpl driver, LookupJoinNode node, Map<Node, Builder> sources)
     {

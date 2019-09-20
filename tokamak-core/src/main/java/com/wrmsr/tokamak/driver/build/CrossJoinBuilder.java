@@ -35,7 +35,7 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.wrmsr.tokamak.util.MoreCollectors.toSingle;
 
 public final class CrossJoinBuilder
-        extends Builder<CrossJoinNode>
+        extends AbstractBuilder<CrossJoinNode>
 {
     public CrossJoinBuilder(DriverImpl driver, CrossJoinNode node, Map<Node, Builder> sources)
     {

@@ -13,22 +13,6 @@
  */
 package com.wrmsr.tokamak.driver.build;
 
-import com.wrmsr.tokamak.api.Key;
-import com.wrmsr.tokamak.driver.DriverImpl;
-import com.wrmsr.tokamak.driver.DriverRow;
-import com.wrmsr.tokamak.driver.context.DriverContextImpl;
-import com.wrmsr.tokamak.plan.node.Node;
-
-import java.util.Collection;
-import java.util.Map;
-
-public interface Builder<T extends Node>
+public interface BuilderContext
 {
-    DriverImpl getDriver();
-
-    T getNode();
-
-    Map<Node, Builder> getSources();
-
-    Collection<DriverRow> build(DriverContextImpl context, Key key);
 }
