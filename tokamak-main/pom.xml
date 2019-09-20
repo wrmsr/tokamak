@@ -251,7 +251,7 @@
                             <descriptors>
                                 <descriptor>src/main/assembly/tokamak.xml</descriptor>
                             </descriptors>
-                            <finalName>tokamak-main-${project.version}</finalName>
+                            <finalName>tokamak-${project.version}</finalName>
                             <appendAssemblyId>false</appendAssemblyId>
                         </configuration>
                     </execution>

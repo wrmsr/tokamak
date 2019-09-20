@@ -66,6 +66,7 @@ public class ClassLoaderTest
         return values;
     }
 
+    @SuppressWarnings({"unchecked"})
     public void testClassLoader()
             throws Throwable
     {
@@ -107,7 +108,7 @@ public class ClassLoaderTest
 
         List<URL> sparkClasspath = artifacts.stream().map(a -> {
             try {
-                return a.getFile().toURL();
+                return a.getFile().toURI().toURL();
             }
             catch (MalformedURLException e) {
                 throw new RuntimeException(e);
@@ -119,7 +120,7 @@ public class ClassLoaderTest
         List<URL> classpath = Splitter.on(":").splitToList(Jdk.getClasspath()).stream().map(jar -> {
             try {
 
-                return new File(jar).toURL();
+                return new File(jar).toURI().toURL();
             }
             catch (MalformedURLException e) {
                 throw new RuntimeException(e);
