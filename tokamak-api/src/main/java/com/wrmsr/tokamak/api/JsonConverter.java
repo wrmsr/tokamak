@@ -11,21 +11,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.util;
+package com.wrmsr.tokamak.api;
 
-import com.wrmsr.tokamak.util.json.Json;
-import junit.framework.TestCase;
+import java.util.function.Function;
 
-public class PairTest
-        extends TestCase
+public interface JsonConverter<T, R>
 {
-    public void testJson()
-            throws Throwable
+    R toJson(T obj);
+
+    T fromJson(R jsonObj);
+
+    static <T, R> JsonConverter<T, R> of(Function<T, R> to, Function<R, T> from)
     {
-        Pair p0 = Pair.immutable("a", 0);
-        String json = Json.writeValue(p0);
-        System.out.println(json);
-        Pair p1 = Json.readValue(json, Pair.Immutable.class);
-        assertEquals(p0, p1);
+        return new JsonConverter<T ,R>()
+        {
+            @Override
+            public R toJson(T obj)
+            {
+                return to.apply(obj);
+            }
+
+            @Override
+            public T fromJson(R jsonObj)
+            {
+                return from.apply(jsonObj);
+            }
+        };
     }
 }

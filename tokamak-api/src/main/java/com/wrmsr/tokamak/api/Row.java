@@ -13,16 +13,10 @@
  */
 package com.wrmsr.tokamak.api;
 
-import javax.annotation.Nullable;
-import javax.annotation.concurrent.Immutable;
-
-@Immutable
 public interface Row
 {
-    @Nullable
     Id getId();
 
-    @Nullable
     Object[] getAttributes();
 
     default boolean hasId()

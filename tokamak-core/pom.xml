@@ -26,6 +26,11 @@
 
         <dependency>
             <groupId>com.wrmsr.tokamak</groupId>
+            <artifactId>tokamak-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.wrmsr.tokamak</groupId>
             <artifactId>tokamak-util</artifactId>
         </dependency>
 

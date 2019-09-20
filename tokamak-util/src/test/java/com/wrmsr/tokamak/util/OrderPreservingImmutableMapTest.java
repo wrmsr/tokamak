@@ -16,6 +16,7 @@ package com.wrmsr.tokamak.util;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.ImmutableBiMap;
 import com.wrmsr.tokamak.util.collect.OrderPreservingImmutableMap;
+import com.wrmsr.tokamak.util.json.Json;
 import junit.framework.TestCase;
 
 import java.util.Map;

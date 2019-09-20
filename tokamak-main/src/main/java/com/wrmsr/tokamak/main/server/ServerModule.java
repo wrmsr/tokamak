@@ -20,7 +20,7 @@ import com.wrmsr.tokamak.main.server.gsh.GshService;
 import com.wrmsr.tokamak.main.server.jaxrs.ApplicationModule;
 import com.wrmsr.tokamak.main.server.jaxrs.NettyServer;
 import com.wrmsr.tokamak.main.server.jaxrs.Resource;
-import com.wrmsr.tokamak.util.Json;
+import com.wrmsr.tokamak.util.json.Json;
 import com.wrmsr.tokamak.util.lifecycle.LifecycleModule;
 
 import static com.google.inject.multibindings.Multibinder.newSetBinder;

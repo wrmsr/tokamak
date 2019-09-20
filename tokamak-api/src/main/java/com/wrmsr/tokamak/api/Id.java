@@ -13,24 +13,16 @@
  */
 package com.wrmsr.tokamak.api;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonValue;
-import com.google.common.base.Charsets;
-import com.google.common.primitives.UnsignedBytes;
-
-import javax.annotation.concurrent.Immutable;
-
 import java.nio.ByteBuffer;
 import java.util.Arrays;
-import java.util.Comparator;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
-import static com.wrmsr.tokamak.util.MoreBytes.fromHex;
-import static com.wrmsr.tokamak.util.MoreBytes.toHex;
-import static com.wrmsr.tokamak.util.StringPrefixing.stripPrefix;
+import static com.wrmsr.tokamak.api.Util.checkArgument;
+import static com.wrmsr.tokamak.api.Util.checkNotNull;
+import static com.wrmsr.tokamak.api.Util.checkState;
+import static com.wrmsr.tokamak.api.Util.fromHex;
+import static com.wrmsr.tokamak.api.Util.toHex;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
-@Immutable
 public final class Id
         implements Comparable<Id>
 {
@@ -69,12 +61,19 @@ public final class Id
                 '}';
     }
 
-    private static final Comparator<byte[]> comparator = UnsignedBytes.lexicographicalComparator();
-
     @Override
     public int compareTo(Id o)
     {
-        return comparator.compare(value, o.value);
+        byte[] left = value;
+        byte[] right = o.value;
+        for (int i = 0, j = 0; i < left.length && j < right.length; i++, j++) {
+            int a = (left[i] & 0xff);
+            int b = (right[j] & 0xff);
+            if (a != b) {
+                return a - b;
+            }
+        }
+        return left.length - right.length;
     }
 
     public static Id of(long value)
@@ -85,7 +84,7 @@ public final class Id
     public static Id of(String value)
     {
         checkNotNull(value);
-        return of(value.getBytes(Charsets.UTF_8));
+        return of(value.getBytes(UTF_8));
     }
 
     public static Id of(byte[] value)
@@ -101,20 +100,21 @@ public final class Id
 
     public String asString()
     {
-        return new String(value, Charsets.UTF_8);
+        return new String(value, UTF_8);
     }
 
     public static String PREFIX = "id:";
 
-    @JsonCreator
     public static Id parsePrefixed(String string)
     {
-        return new Id(fromHex(stripPrefix(PREFIX, string)));
+        checkArgument(string.startsWith(PREFIX));
+        return new Id(fromHex(string.substring(PREFIX.length())));
     }
 
-    @JsonValue
     public String toPrefixedString()
     {
         return PREFIX + toHex(value);
     }
+
+    public static final JsonConverter<Id, String> JSON_CONVERTER = JsonConverter.of(Id::toPrefixedString, Id::parsePrefixed);
 }

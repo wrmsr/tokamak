@@ -19,7 +19,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
 import com.google.common.io.ByteStreams;
-import com.wrmsr.tokamak.util.Json;
+import com.wrmsr.tokamak.util.json.Json;
 import com.wrmsr.tokamak.util.io.CrLfByteReader;
 import org.newsclub.net.unix.AFUNIXSocket;
 import org.newsclub.net.unix.AFUNIXSocketAddress;

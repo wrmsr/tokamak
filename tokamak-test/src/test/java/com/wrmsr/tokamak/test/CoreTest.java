@@ -43,7 +43,7 @@ import com.wrmsr.tokamak.plan.Plan;
 import com.wrmsr.tokamak.plan.dot.Dot;
 import com.wrmsr.tokamak.util.sql.SqlUtils;
 import com.wrmsr.tokamak.type.Type;
-import com.wrmsr.tokamak.util.Json;
+import com.wrmsr.tokamak.util.json.Json;
 import junit.framework.TestCase;
 
 import java.nio.file.Path;

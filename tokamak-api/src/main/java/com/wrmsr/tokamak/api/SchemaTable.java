@@ -13,17 +13,11 @@
  */
 package com.wrmsr.tokamak.api;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonValue;
-
-import javax.annotation.concurrent.Immutable;
-
 import java.util.Objects;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
+import static com.wrmsr.tokamak.api.Util.checkArgument;
+import static com.wrmsr.tokamak.api.Util.checkNotEmpty;
 
-@Immutable
 public final class SchemaTable
 {
     private final String schema;
@@ -75,17 +69,17 @@ public final class SchemaTable
         return table;
     }
 
-    @JsonCreator
-    public static SchemaTable fromDotString(String dotString)
+    public static SchemaTable parseDotString(String dotString)
     {
         String[] parts = dotString.split("\\.");
         checkArgument(parts.length == 2);
         return new SchemaTable(parts[0], parts[1]);
     }
 
-    @JsonValue
     public String toDotString()
     {
         return String.format("%s.%s", schema, table);
     }
+
+    public static final JsonConverter<SchemaTable, String> JSON_CONVERTER = JsonConverter.of(SchemaTable::toDotString, SchemaTable::parseDotString);
 }

@@ -20,7 +20,7 @@ import com.wrmsr.tokamak.api.NodeId;
 import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.exec.Reflection;
 import com.wrmsr.tokamak.type.Type;
-import com.wrmsr.tokamak.util.Json;
+import com.wrmsr.tokamak.util.json.Json;
 import org.junit.Test;
 
 import java.util.Optional;

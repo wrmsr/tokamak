@@ -11,21 +11,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.util;
+package com.wrmsr.tokamak.api;
 
-import com.wrmsr.tokamak.util.json.Json;
-import junit.framework.TestCase;
+import org.junit.Test;
 
-public class PairTest
-        extends TestCase
+public class ApiTest
 {
-    public void testJson()
+    @Test
+    public void testApi()
             throws Throwable
     {
-        Pair p0 = Pair.immutable("a", 0);
-        String json = Json.writeValue(p0);
-        System.out.println(json);
-        Pair p1 = Json.readValue(json, Pair.Immutable.class);
-        assertEquals(p0, p1);
     }
 }

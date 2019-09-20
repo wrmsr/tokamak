@@ -17,7 +17,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wrmsr.tokamak.serde.Input;
 import com.wrmsr.tokamak.serde.Output;
-import com.wrmsr.tokamak.util.Json;
+import com.wrmsr.tokamak.util.json.Json;
 
 import javax.annotation.concurrent.Immutable;
 

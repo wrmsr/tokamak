@@ -35,6 +35,7 @@
     </properties>
 
     <modules>
+        <module>tokamak-api</module>
         <module>tokamak-core</module>
         <module>tokamak-main</module>
         <module>tokamak-spark</module>
@@ -48,6 +49,12 @@
 
             <!-- Self -->
             <!--@BEGIN-IGNORE-FOR-DEPS@-->
+
+            <dependency>
+                <groupId>com.wrmsr.tokamak</groupId>
+                <artifactId>tokamak-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
 
             <dependency>
                 <groupId>com.wrmsr.tokamak</groupId>

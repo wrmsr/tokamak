@@ -15,13 +15,13 @@ package com.wrmsr.tokamak.util;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.CharStreams;
+import com.wrmsr.tokamak.util.json.Json;
 import com.wrmsr.tokamak.util.subprocess.FinalizedProcess;
 import com.wrmsr.tokamak.util.subprocess.FinalizedProcessBuilder;
 import org.junit.Test;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.Scanner;
