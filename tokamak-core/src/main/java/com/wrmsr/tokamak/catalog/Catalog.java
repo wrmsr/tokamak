@@ -22,8 +22,6 @@ import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.exec.Signature;
 
-import javax.annotation.Nullable;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -35,7 +33,6 @@ import static com.google.common.base.Preconditions.checkState;
 @JsonIdentityInfo(generator = ObjectIdGenerators.UUIDGenerator.class)
 public final class Catalog
 {
-    @Nullable
     private final List<Catalog> parents;
 
     private final Object lock = new Object();
@@ -81,7 +78,6 @@ public final class Catalog
     }
 
     @JsonProperty("parent")
-    @Nullable
     public List<Catalog> getParents()
     {
         return parents;
