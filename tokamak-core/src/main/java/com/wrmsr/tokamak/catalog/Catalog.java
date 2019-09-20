@@ -17,6 +17,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.exec.Signature;
@@ -26,6 +27,7 @@ import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
@@ -34,7 +36,7 @@ import static com.google.common.base.Preconditions.checkState;
 public final class Catalog
 {
     @Nullable
-    private final Catalog parent;
+    private final List<Catalog> parents;
 
     private final Object lock = new Object();
 
@@ -43,9 +45,9 @@ public final class Catalog
     private volatile Map<String, Executor> executorsByName = ImmutableMap.of();
     private volatile Map<String, Function> functionsByName = ImmutableMap.of();
 
-    public Catalog(@Nullable Catalog parent)
+    public Catalog(List<Catalog> parent)
     {
-        this.parent = parent;
+        this.parents = ImmutableList.copyOf(parent);
     }
 
     public Catalog()
@@ -55,13 +57,13 @@ public final class Catalog
 
     @JsonCreator
     private Catalog(
-            @JsonProperty("parent") @Nullable Catalog parent,
+            @JsonProperty("parent") List<Catalog> parent,
             @JsonProperty("connectors") List<Connector> connectors,
             @JsonProperty("schemas") List<Schema> schemas,
             @JsonProperty("executors") List<Executor> executors,
             @JsonProperty("functions") List<Function> functions)
     {
-        this.parent = parent;
+        this.parents = ImmutableList.copyOf(parent);
         checkNotNull(connectors).forEach(this::addConnector);
         schemas.forEach(s -> {
             checkState(connectors.contains(s.getConnector()));
@@ -80,9 +82,9 @@ public final class Catalog
 
     @JsonProperty("parent")
     @Nullable
-    public Catalog getParent()
+    public List<Catalog> getParents()
     {
-        return parent;
+        return parents;
     }
 
     @JsonProperty("connectors")
@@ -171,18 +173,24 @@ public final class Catalog
         }
     }
 
-    public Schema getSchema(String name)
+    public Optional<Schema> getSchemaOptional(String name)
     {
         Schema schema = schemasByName.get(name);
-        if (schema == null) {
-            if (parent != null) {
-                return parent.getSchema(name);
-            }
-            else {
-                throw new IllegalArgumentException("Schema not found: " + name);
+        if (schema != null) {
+            return Optional.of(schema);
+        }
+        for (Catalog parent : parents) {
+            Optional<Schema> optional = parent.getSchemaOptional(name);
+            if (optional.isPresent()) {
+                return optional;
             }
         }
-        return schema;
+        return Optional.empty();
+    }
+
+    public Schema getSchema(String name)
+    {
+        return getSchemaOptional(name).orElseGet(() -> { throw new IllegalArgumentException("Schema not found: " + name); });
     }
 
     public Table getSchemaTable(SchemaTable schemaTable)
@@ -211,17 +219,23 @@ public final class Catalog
         }
     }
 
-    public Function getFunction(String name)
+    public Optional<Function> getFunctionOptional(String name)
     {
         Function function = functionsByName.get(name);
-        if (function == null) {
-            if (parent != null) {
-                return parent.getFunction(name);
-            }
-            else {
-                throw new IllegalArgumentException("Function not found: " + name);
+        if (function != null) {
+            return Optional.of(function);
+        }
+        for (Catalog parent : parents) {
+            Optional<Function> optional = parent.getFunctionOptional(name);
+            if (optional.isPresent()) {
+                return optional;
             }
         }
-        return function;
+        return Optional.empty();
+    }
+
+    public Function getFunction(String name)
+    {
+        return getFunctionOptional(name).orElseGet(() -> { throw new IllegalArgumentException("Function not found: " + name); });
     }
 }

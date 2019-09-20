@@ -33,6 +33,14 @@ public class ServerMain
     {
         args = Bootstrap.bootstrap(ServerMain.class, args);
 
+        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable()
+        {
+            public void run()
+            {
+                System.out.println("TERM");
+            }
+        }));
+
         Injector injector = Guice.createInjector(new ServerModule());
         runLifecycle(injector.getInstance(LifecycleManager.class), () -> {
             Thread.sleep(600000);
