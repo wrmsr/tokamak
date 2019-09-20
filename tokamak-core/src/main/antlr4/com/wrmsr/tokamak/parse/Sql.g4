@@ -8,6 +8,10 @@ singleStatement
     : statement EOF
     ;
 
+standaloneExpression
+    : expression EOF
+    ;
+
 statement
     : select
     ;
@@ -33,6 +37,12 @@ expression
     | qualifiedName                                          #qualifiedNameExpression
     | literal                                                #literalExpression
     | qualifiedName '(' (expression (',' expression)*)? ')'  #functionCallExpression
+    | variable                                               #variableExpression
+    ;
+
+variable
+    : DOLLAR IDENTIFIER  #nameVariable
+    | DOLLAR INTEGER     #numberVariable
     ;
 
 literal
@@ -60,6 +70,7 @@ TRUE: 'TRUE';
 WHERE: 'WHERE';
 
 ASTERISK: '*';
+DOLLAR: '$';
 
 IDENTIFIER
     : (LETTER | '_') (LETTER | DIGIT | '_' | '@' | ':')*
@@ -89,7 +100,7 @@ NUMBER
    : '-'? INTEGER '.' [0-9]+ EXPONENT? | '-'? INTEGER EXPONENT | '-'? INTEGER
    ;
 
-fragment INTEGER
+INTEGER
    : '0' | [1-9] [0-9]*
    ;
 

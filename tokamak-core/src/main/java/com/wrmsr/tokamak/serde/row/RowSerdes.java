@@ -29,6 +29,7 @@ public final class RowSerdes
     {
     }
 
+    @SuppressWarnings({"unchecked"})
     public static ValueRowSerde buildRowSerde(String field, Type type)
     {
         return new ValueRowSerde(field, ValueSerdes.VALUE_SERDES_BY_TYPE.get(type));

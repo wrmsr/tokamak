@@ -42,22 +42,21 @@ public final class NodeRenderings
     {
     }
 
-    public static final CtorLazyValue<List<NodeRendering>> RAW_NODE_RENDERINGS = new CtorLazyValue<>(() -> {
-        return ImmutableList.<NodeRendering>builder()
-                .add(new NodeRendering<>(CacheNode.class))
-                .add(new NodeRendering<>(CrossJoinNode.class))
-                .add(new NodeRendering<>(EquijoinNode.class))
-                .add(new NodeRendering<>(FilterNode.class))
-                .add(new NodeRendering<>(ListAggregateNode.class))
-                .add(new NodeRendering<>(LookupJoinNode.class))
-                .add(new NodeRendering<>(PersistNode.class))
-                .add(new NodeRendering<>(ProjectNode.class))
-                .add(new NodeRendering<>(ScanNode.class))
-                .add(new NodeRendering<>(UnionNode.class))
-                .add(new NodeRendering<>(UnnestNode.class))
-                .add(new NodeRendering<>(ValuesNode.class))
-                .build();
-    });
+    public static final CtorLazyValue<List<NodeRendering>> RAW_NODE_RENDERINGS = new CtorLazyValue<>(() ->
+            ImmutableList.<NodeRendering>builder()
+                    .add(new NodeRendering<>(CacheNode.class))
+                    .add(new NodeRendering<>(CrossJoinNode.class))
+                    .add(new NodeRendering<>(EquijoinNode.class))
+                    .add(new NodeRendering<>(FilterNode.class))
+                    .add(new NodeRendering<>(ListAggregateNode.class))
+                    .add(new NodeRendering<>(LookupJoinNode.class))
+                    .add(new NodeRendering<>(PersistNode.class))
+                    .add(new NodeRendering<>(ProjectNode.class))
+                    .add(new NodeRendering<>(ScanNode.class))
+                    .add(new NodeRendering<>(UnionNode.class))
+                    .add(new NodeRendering<>(UnnestNode.class))
+                    .add(new NodeRendering<>(ValuesNode.class))
+                    .build());
 
     @SuppressWarnings({"unchecked"})
     public static final CtorLazyValue<List<NodeRendering>> NODE_RENDERINGS = new CtorLazyValue<>(() -> {
@@ -74,6 +73,7 @@ public final class NodeRenderings
         return ImmutableList.copyOf(renderings);
     });
 
+    @SuppressWarnings({"unchecked"})
     public static final CtorLazyValue<Map<Class<? extends Node>, NodeRendering>> NODE_RENDERING_MAP =
             new CtorLazyValue<>(() -> NODE_RENDERINGS.get().stream().collect(toImmutableMap(NodeRendering::getCls, identity())));
 }

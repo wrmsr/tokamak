@@ -50,6 +50,7 @@ public final class TupleValueSerde
         return width.get(() -> Width.sum(children.stream().map(ValueSerde::getWidth).collect(toImmutableList())));
     }
 
+    @SuppressWarnings({"unchecked"})
     @Override
     public void write(Object[] value, Output output)
     {

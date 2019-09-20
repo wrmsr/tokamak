@@ -46,6 +46,7 @@ public final class ValueRowSerde<V>
         return valueSerde;
     }
 
+    @SuppressWarnings({"unchecked"})
     @Override
     public void encode(Map<String, Object> row, Output output)
     {
