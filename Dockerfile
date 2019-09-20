@@ -9,6 +9,7 @@ COPY mvnw /build/
 COPY pom.xml /build/
 COPY tokamak-api/pom.xml /build/tokamak-api/pom.xml
 COPY tokamak-core/pom.xml /build/tokamak-core/pom.xml
+COPY tokamak-dist/pom.xml /build/tokamak-dist/pom.xml
 COPY tokamak-main/pom.xml /build/tokamak-main/pom.xml
 COPY tokamak-spark/pom.xml /build/tokamak-spark/pom.xml
 COPY tokamak-test/pom.xml /build/tokamak-test/pom.xml
@@ -26,6 +27,7 @@ RUN ( \
 COPY pom.xml /build/
 COPY tokamak-api/ /build/tokamak-api
 COPY tokamak-core/ /build/tokamak-core
+COPY tokamak-dist/ /build/tokamak-dist
 COPY tokamak-main/ /build/tokamak-main
 COPY tokamak-spark/ /build/tokamak-spark
 COPY tokamak-test/ /build/tokamak-test

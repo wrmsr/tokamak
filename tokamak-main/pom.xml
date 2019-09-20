@@ -216,48 +216,6 @@
                 </executions>
             </plugin>
 
-            <!--
-            <plugin>
-                <groupId>com.github.jinnovations</groupId>
-                <artifactId>attribution-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>generate-attribution-file</goal>
-                        </goals>
-                        <phase>generate-resources</phase>
-                    </execution>
-                </executions>
-                <configuration>
-                    <outputFile>${project.build.directory}/attribution.xml</outputFile>
-                </configuration>
-            </plugin>
-            -->
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>bin</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                        <configuration>
-                            <formats>
-                                <format>tar.gz</format>
-                            </formats>
-                            <descriptors>
-                                <descriptor>src/main/assembly/tokamak.xml</descriptor>
-                            </descriptors>
-                            <finalName>tokamak-${project.version}</finalName>
-                            <appendAssemblyId>false</appendAssemblyId>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
         </plugins>
     </build>
 
