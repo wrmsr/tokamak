@@ -13,6 +13,11 @@
  */
 package com.wrmsr.tokamak.spark;
 
+import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableList;
+import com.wrmsr.tokamak.util.ParentFirstClassLoader;
+import io.airlift.resolver.ArtifactResolver;
+import io.airlift.resolver.DefaultArtifact;
 import org.apache.hadoop.mapred.TextOutputFormat;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaPairRDD;
@@ -21,11 +26,27 @@ import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.api.java.Optional;
 import org.apache.spark.api.java.function.PairFunction;
 import org.junit.Test;
+import org.sonatype.aether.artifact.Artifact;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import scala.Tuple2;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
+
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import static com.google.common.collect.ImmutableList.toImmutableList;
+import static com.wrmsr.tokamak.util.MorePreconditions.checkSingle;
 
 public class SparkTest
 {
@@ -81,8 +102,8 @@ public class SparkTest
                 output.add(new Tuple2<>(entry.getKey().toString(), String.valueOf((long) entry.getValue())));
             }
 
-            JavaPairRDD<String, String> output_rdd = sc.parallelizePairs(output);
-            return output_rdd;
+            JavaPairRDD<String, String> outputRdd = sc.parallelizePairs(output);
+            return outputRdd;
         }
 
         public static void main(String[] args)
@@ -90,15 +111,73 @@ public class SparkTest
         {
             JavaSparkContext sc = new JavaSparkContext(new SparkConf().setAppName("SparkJoins").setMaster("local"));
             ExampleJob job = new ExampleJob(sc);
-            JavaPairRDD<String, String> output_rdd = job.run(args[0], args[1]);
-            output_rdd.saveAsHadoopFile(args[2], String.class, String.class, TextOutputFormat.class);
+            JavaPairRDD<String, String> outputRdd = job.run(args[0], args[1]);
+            outputRdd.saveAsHadoopFile(args[2], String.class, String.class, TextOutputFormat.class);
             sc.close();
         }
+    }
+
+    private static List<Node> evaluateXPath(Document document, String xpathExpression)
+    {
+        XPathFactory xpathFactory = XPathFactory.newInstance();
+        XPath xpath = xpathFactory.newXPath();
+        List<Node> values = new ArrayList<>();
+        try {
+            XPathExpression expr = xpath.compile(xpathExpression);
+            NodeList nodes = (NodeList) expr.evaluate(document, XPathConstants.NODESET);
+            for (int i = 0; i < nodes.getLength(); i++) {
+                values.add(nodes.item(i));
+            }
+        }
+        catch (XPathExpressionException e) {
+            throw new RuntimeException(e);
+        }
+        return values;
     }
 
     @Test
     public void testClassloader()
             throws Throwable
     {
+        ArtifactResolver resolver = new ArtifactResolver(
+                ArtifactResolver.USER_LOCAL_REPO,
+                ImmutableList.of(ArtifactResolver.MAVEN_CENTRAL_URI));
+
+        File pomFile = new File("../pom.xml");
+
+        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+        Document doc = dBuilder.parse(pomFile);
+
+        //http://stackoverflow.com/questions/13786607/normalization-in-dom-parsing-with-java-how-does-it-work
+        doc.getDocumentElement().normalize();
+
+        String groupId = "org.apache.spark";
+        Node sparkCoreNode = checkSingle(
+                evaluateXPath(
+                        doc,
+                        "/project/dependencyManagement/dependencies/dependency" +
+                                "[groupId='" + groupId + "' and starts-with(artifactId, 'spark-core')]"));
+
+        String artifactId = null;
+        String version = null;
+        for (int i = 0; i < sparkCoreNode.getChildNodes().getLength(); ++i) {
+            Node child = sparkCoreNode.getChildNodes().item(i);
+            if (child.getNodeName().equals("artifactId")) {
+                artifactId = child.getTextContent();
+            }
+            else if (child.getNodeName().equals("version")) {
+                version = child.getTextContent();
+            }
+        }
+
+        String coords = Joiner.on(":").join(groupId, artifactId, version);
+
+        List<Artifact> artifacts = resolver.resolveArtifacts(new DefaultArtifact(coords));
+
+        List<String> classpath = artifacts.stream().map(a -> a.getFile().getAbsolutePath()).collect(toImmutableList());
+        System.out.println(classpath);
+
+        new ParentFirstClassLoader()
     }
 }

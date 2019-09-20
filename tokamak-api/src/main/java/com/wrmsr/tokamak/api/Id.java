@@ -66,9 +66,9 @@ public final class Id
     {
         byte[] left = value;
         byte[] right = o.value;
-        for (int i = 0, j = 0; i < left.length && j < right.length; i++, j++) {
-            int a = (left[i] & 0xff);
-            int b = (right[j] & 0xff);
+        for (int i = 0, j = 0; i < left.length && j < right.length; ++i, ++j) {
+            int a = left[i] & 0xff;
+            int b = right[j] & 0xff;
             if (a != b) {
                 return a - b;
             }

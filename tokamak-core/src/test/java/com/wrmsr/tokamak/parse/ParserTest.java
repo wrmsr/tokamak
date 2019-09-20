@@ -32,6 +32,8 @@ public class ParserTest
                 "select a() as c, d from e",
                 "select a(b) as c, d from e",
                 "select a(b, x) as c, d from e",
+                "select a // comment",
+                "select a -- comment",
         }) {
             System.out.println(str);
             SqlParser parser = Parsing.parse(str);

@@ -84,7 +84,7 @@ fragment LETTER
     ;
 
 SIMPLE_COMMENT
-    : '--' ~[\r\n]* '\r'? '\n'? -> channel(2)
+    : ('--' | '//') ~[\r\n]* '\r'? '\n'? -> channel(2)
     ;
 
 BRACKETED_COMMENT
