@@ -30,12 +30,14 @@ import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.util.lazy.SupplierLazyValue;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Type;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -50,36 +52,33 @@ public final class Json
     {
     }
 
+    public static final Set<MapperFeature> DEFAULT_DISABLED_FEATURES = ImmutableSet.of(
+            MapperFeature.AUTO_DETECT_CREATORS,
+            MapperFeature.AUTO_DETECT_FIELDS,
+            MapperFeature.AUTO_DETECT_SETTERS,
+            MapperFeature.AUTO_DETECT_GETTERS,
+            MapperFeature.AUTO_DETECT_IS_GETTERS,
+            MapperFeature.USE_GETTERS_AS_SETTERS,
+            MapperFeature.INFER_PROPERTY_MUTATORS,
+            MapperFeature.INFER_CREATOR_FROM_CONSTRUCTOR_PROPERTIES,
+            MapperFeature.ALLOW_FINAL_FIELDS_AS_MUTATORS,
+            MapperFeature.USE_BASE_TYPE_AS_DEFAULT_IMPL
+    );
+
+    public static final List<Supplier<Module>> DEFAULT_MODULE_FACTORIES = ImmutableList.<Supplier<Module>>of(
+            GuavaModule::new,
+            JavaTimeModule::new,
+            Jdk8Module::new
+    );
+
     public static ObjectMapper configureObjectMapper(ObjectMapper objectMapper)
     {
-        // ignore unknown fields (for backwards compatibility)
         objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-
-        // use ISO dates
         objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-
-        // skip fields that are null instead of writing an explicit json null value
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-
-        // disable auto detection of json properties... all properties must be explicit
-        objectMapper.disable(MapperFeature.AUTO_DETECT_CREATORS);
-        objectMapper.disable(MapperFeature.AUTO_DETECT_FIELDS);
-        objectMapper.disable(MapperFeature.AUTO_DETECT_SETTERS);
-        objectMapper.disable(MapperFeature.AUTO_DETECT_GETTERS);
-        objectMapper.disable(MapperFeature.AUTO_DETECT_IS_GETTERS);
-        objectMapper.disable(MapperFeature.USE_GETTERS_AS_SETTERS);
-        objectMapper.disable(MapperFeature.INFER_PROPERTY_MUTATORS);
-        objectMapper.disable(MapperFeature.INFER_CREATOR_FROM_CONSTRUCTOR_PROPERTIES);
-        objectMapper.disable(MapperFeature.ALLOW_FINAL_FIELDS_AS_MUTATORS);
-        objectMapper.disable(MapperFeature.USE_BASE_TYPE_AS_DEFAULT_IMPL);
-
-        objectMapper.registerModules(
-                new Jdk8Module(),
-                new GuavaModule(),
-                new JavaTimeModule());
-
+        DEFAULT_DISABLED_FEATURES.forEach(objectMapper::disable);
+        DEFAULT_MODULE_FACTORIES.forEach(f -> objectMapper.registerModule(f.get()));
         getAfterburnerModuleFactory().ifPresent(f -> objectMapper.registerModule(f.get()));
-
         return objectMapper;
     }
 
@@ -136,7 +135,7 @@ public final class Json
         });
     }
 
-    public static final Set<JsonParser.Feature> RELAXED_JSON_PARSER_FEATURES = ImmutableSet.of(
+    public static final Set<JsonParser.Feature> RELAXED_JSON_PARSER_ENABLED_FEATURES = ImmutableSet.of(
             JsonParser.Feature.ALLOW_COMMENTS,
             JsonParser.Feature.ALLOW_YAML_COMMENTS,
             JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES,
@@ -148,7 +147,7 @@ public final class Json
 
     public static JsonFactory configureRelaxedJsonFactory(JsonFactory jsonFactory)
     {
-        RELAXED_JSON_PARSER_FEATURES.forEach(jsonFactory::enable);
+        RELAXED_JSON_PARSER_ENABLED_FEATURES.forEach(jsonFactory::enable);
         return jsonFactory;
     }
 

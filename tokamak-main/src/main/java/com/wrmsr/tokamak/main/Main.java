@@ -17,13 +17,54 @@ import com.wrmsr.tokamak.main.boot.Bootstrap;
 import com.wrmsr.tokamak.main.boot.BootstrapConfig;
 import com.wrmsr.tokamak.util.config.Compilation;
 import com.wrmsr.tokamak.util.config.ConfigMetadata;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.core.Filter;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.appender.ConsoleAppender;
+import org.apache.logging.log4j.core.config.Configurator;
+import org.apache.logging.log4j.core.config.builder.api.AppenderComponentBuilder;
+import org.apache.logging.log4j.core.config.builder.api.ConfigurationBuilder;
+import org.apache.logging.log4j.core.config.builder.api.ConfigurationBuilderFactory;
+import org.apache.logging.log4j.core.config.builder.impl.BuiltConfiguration;
 
 public class Main
 {
+    public static LoggerContext configureLogging()
+    {
+        System.setProperty("java.util.logging.manager", "org.apache.logging.log4j.jul.LogManager");
+
+        ConfigurationBuilder<BuiltConfiguration> builder = ConfigurationBuilderFactory.newConfigurationBuilder();
+
+        builder.setStatusLevel(Level.INFO);
+
+        builder.add(builder.newFilter("ThresholdFilter", Filter.Result.ACCEPT, Filter.Result.NEUTRAL)
+                .addAttribute("level", Level.INFO));
+
+        AppenderComponentBuilder appenderBuilder = builder.newAppender("Stdout", "CONSOLE").addAttribute("target",
+                ConsoleAppender.Target.SYSTEM_OUT);
+        appenderBuilder.add(builder.newLayout("PatternLayout")
+                .addAttribute("pattern", "%d [%t] %-5level: %msg%n%throwable"));
+        appenderBuilder.add(builder.newFilter("MarkerFilter", Filter.Result.DENY, Filter.Result.NEUTRAL)
+                .addAttribute("marker", "FLOW"));
+
+        builder.add(appenderBuilder);
+
+        builder.add(builder.newLogger("org.apache.logging.log4j", Level.INFO)
+                .add(builder.newAppenderRef("Stdout")).addAttribute("additivity", false));
+
+        builder.add(builder.newRootLogger(Level.DEBUG).add(builder.newAppenderRef("Stdout")));
+
+        builder.setStatusLevel(Level.WARN);
+
+        return Configurator.initialize(builder.build());
+    }
+
     public static void main(String[] args)
             throws Throwable
     {
         Bootstrap.bootstrap();
+
+        configureLogging();
 
         @SuppressWarnings({"unchecked"})
         Class<? extends BootstrapConfig> bcImpl = (Class<? extends BootstrapConfig>) Class.forName(Compilation.getCompiledImplName(BootstrapConfig.class));

@@ -36,34 +36,12 @@ public class ServerMain
     private static final Logger log = Logger.get(ServerMain.class);
 
     // cd tokamak-main/target && tar xvf tokamak-main-0.1-SNAPSHOT.tar.gz && cd tokamak-main-0.1-SNAPSHOT
-
     // --add-opens java.base/java.lang=ALL-UNNAMED
-
-    public static LoggerContext configureLogging()
-    {
-        ConfigurationBuilder<BuiltConfiguration> builder = ConfigurationBuilderFactory.newConfigurationBuilder();
-        builder.setStatusLevel(Level.DEBUG);
-        builder.add(builder.newFilter("ThresholdFilter", Filter.Result.ACCEPT, Filter.Result.NEUTRAL)
-                .addAttribute("level", Level.INFO));
-        AppenderComponentBuilder appenderBuilder = builder.newAppender("Stdout", "CONSOLE").addAttribute("target",
-                ConsoleAppender.Target.SYSTEM_OUT);
-        appenderBuilder.add(builder.newLayout("PatternLayout")
-                .addAttribute("pattern", "%d [%t] %-5level: %msg%n%throwable"));
-        appenderBuilder.add(builder.newFilter("MarkerFilter", Filter.Result.DENY, Filter.Result.NEUTRAL)
-                .addAttribute("marker", "FLOW"));
-        builder.add(appenderBuilder);
-        builder.add(builder.newLogger("org.apache.logging.log4j", Level.INFO)
-                .add(builder.newAppenderRef("Stdout")).addAttribute("additivity", false));
-        builder.add(builder.newRootLogger(Level.DEBUG).add(builder.newAppenderRef("Stdout")));
-        return Configurator.initialize(builder.build());
-    }
 
     public static void main(String[] args)
             throws Exception
     {
         Bootstrap.bootstrap();
-
-        configureLogging();
 
         log.info(Os.get().toString());
 
