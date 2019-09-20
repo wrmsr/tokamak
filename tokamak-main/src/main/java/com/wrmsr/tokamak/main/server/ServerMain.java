@@ -43,8 +43,6 @@ public class ServerMain
     {
         Bootstrap.bootstrap();
 
-        log.info(Os.get().toString());
-
         Injector injector = Guice.createInjector(new ServerModule());
         runLifecycle(injector.getInstance(LifecycleManager.class), () -> {
             Thread.sleep(600000);

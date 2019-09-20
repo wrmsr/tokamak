@@ -35,7 +35,7 @@ public class Main
 
         ConfigurationBuilder<BuiltConfiguration> builder = ConfigurationBuilderFactory.newConfigurationBuilder();
 
-        builder.setStatusLevel(Level.INFO);
+        builder.setStatusLevel(Level.WARN);
 
         builder.add(builder.newFilter("ThresholdFilter", Filter.Result.ACCEPT, Filter.Result.NEUTRAL)
                 .addAttribute("level", Level.INFO));
@@ -52,9 +52,7 @@ public class Main
         builder.add(builder.newLogger("org.apache.logging.log4j", Level.INFO)
                 .add(builder.newAppenderRef("Stdout")).addAttribute("additivity", false));
 
-        builder.add(builder.newRootLogger(Level.DEBUG).add(builder.newAppenderRef("Stdout")));
-
-        builder.setStatusLevel(Level.WARN);
+        builder.add(builder.newRootLogger(Level.INFO).add(builder.newAppenderRef("Stdout")));
 
         return Configurator.initialize(builder.build());
     }
