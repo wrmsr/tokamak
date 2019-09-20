@@ -88,7 +88,7 @@ public class CliMain
     public static void main(String[] args)
             throws Throwable
     {
-        Bootstrap.bootstrap();
+        args = Bootstrap.bootstrap(CliMain.class, args);
         new CommandLine(new MainCommand()).execute(args);
     }
 }

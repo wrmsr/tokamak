@@ -148,7 +148,7 @@ public class ReplMain
     public static void main(String[] args)
             throws Throwable
     {
-        Bootstrap.bootstrap();
+        args = Bootstrap.bootstrap(ReplMain.class, args);
         runConsole(new AtomicBoolean());
     }
 }

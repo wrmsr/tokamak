@@ -17,17 +17,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.wrmsr.tokamak.main.boot.Bootstrap;
 import com.wrmsr.tokamak.util.Logger;
-import com.wrmsr.tokamak.util.Os;
 import com.wrmsr.tokamak.util.lifecycle.LifecycleManager;
-import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.core.Filter;
-import org.apache.logging.log4j.core.LoggerContext;
-import org.apache.logging.log4j.core.appender.ConsoleAppender;
-import org.apache.logging.log4j.core.config.Configurator;
-import org.apache.logging.log4j.core.config.builder.api.AppenderComponentBuilder;
-import org.apache.logging.log4j.core.config.builder.api.ConfigurationBuilder;
-import org.apache.logging.log4j.core.config.builder.api.ConfigurationBuilderFactory;
-import org.apache.logging.log4j.core.config.builder.impl.BuiltConfiguration;
 
 import static com.wrmsr.tokamak.util.lifecycle.Lifecycles.runLifecycle;
 
@@ -41,7 +31,7 @@ public class ServerMain
     public static void main(String[] args)
             throws Exception
     {
-        Bootstrap.bootstrap();
+        args = Bootstrap.bootstrap(ServerMain.class, args);
 
         Injector injector = Guice.createInjector(new ServerModule());
         runLifecycle(injector.getInstance(LifecycleManager.class), () -> {
