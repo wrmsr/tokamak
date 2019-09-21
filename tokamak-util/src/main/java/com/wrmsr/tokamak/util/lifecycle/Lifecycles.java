@@ -25,6 +25,7 @@ public final class Lifecycles
      - injector integration
      - @PostConstruct / javax.inject interop?
      - LifecycleController parent/hierarchy, ensure 0 or 1 parent
+     - @WeakLifecycleDependency - circdeps
     */
 
     private Lifecycles()

@@ -14,7 +14,7 @@
 package com.wrmsr.tokamak.driver.queue;
 
 import com.wrmsr.tokamak.api.Id;
-import com.wrmsr.tokamak.plan.NodeId;
+import com.wrmsr.tokamak.plan.node.NodeId;
 
 import java.util.Optional;
 import java.util.UUID;

@@ -16,7 +16,6 @@ package com.wrmsr.tokamak.plan.node;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.api.Id;
-import com.wrmsr.tokamak.plan.NodeId;
 import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.exec.Reflection;
 import com.wrmsr.tokamak.type.Type;

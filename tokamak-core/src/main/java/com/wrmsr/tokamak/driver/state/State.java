@@ -20,6 +20,7 @@ import com.wrmsr.tokamak.util.collect.ObjectArrayBackedMap;
 
 import javax.annotation.Nullable;
 
+import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Collections;
 import java.util.Map;
@@ -271,6 +272,7 @@ public final class State
         if (attributes != null) {
             checkArgument(attributes.length == getNode().getRowLayout().getFields().size());
         }
+        Arrays.equals(attributes, this.attributes);
         // if (this.row != null)
     }
 
