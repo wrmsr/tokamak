@@ -40,7 +40,6 @@
     <dependencies>
 
             <!-- Self -->
-            <!--@BEGIN-IGNORE-FOR-DEPS@-->
 
             
 
@@ -51,8 +50,6 @@
             
 
             
-
-            <!--@END-IGNORE-FOR-DEPS@-->
 
             <!-- Protobuf -->
 
@@ -247,8 +244,14 @@
 
             <dependency>
                 <groupId>io.netty</groupId>
+                <artifactId>netty-all</artifactId>
+                <version>4.1.41.Final</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.netty</groupId>
                 <artifactId>netty-codec-http</artifactId>
-                <version>4.1.37.Final</version>
+                <version>4.1.41.Final</version>
             </dependency>
 
             <dependency>

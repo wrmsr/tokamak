@@ -119,7 +119,6 @@ public class GenDepsPom
         tr.setOutputProperty(OutputKeys.INDENT, "yes");
         tr.setOutputProperty(OutputKeys.METHOD, "xml");
         tr.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
-        tr.setOutputProperty(OutputKeys.DOCTYPE_SYSTEM, "roles.dtd");
         tr.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
 
         File pomDepsFile = new File("../pom-deps.xml");
