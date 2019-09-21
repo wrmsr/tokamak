@@ -75,8 +75,10 @@ public final class StateStorageCodec
                 0.0f,
                 0.0f,
                 attributes,
+                state.getAttributesVersion(),
                 input,
-                output);
+                output,
+                state.getLinkageVersion());
     }
 
     @Override
@@ -104,6 +106,8 @@ public final class StateStorageCodec
                 storageState.getMode(),
                 storageState.getVersion(),
                 attributes,
-                linkage);
+                storageState.getAttributesVersion(),
+                linkage,
+                storageState.getLinkageVersion());
     }
 }

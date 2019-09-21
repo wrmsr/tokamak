@@ -137,6 +137,7 @@ public interface Kv<K, V>
             return ret;
         }
 
+        @SuppressWarnings({"unchecked"})
         @Override
         public boolean containsKey(Object key)
         {

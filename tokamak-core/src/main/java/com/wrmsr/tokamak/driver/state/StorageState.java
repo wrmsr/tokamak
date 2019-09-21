@@ -42,12 +42,15 @@ public final class StorageState
 
     @Nullable
     private final byte[] attributes;
+    private long attributesVersion;
 
     @Nullable
     private final byte[] input;
 
     @Nullable
     private final byte[] output;
+
+    private long linkageVersion;
 
     public StorageState(
             StatefulNode node,
@@ -57,8 +60,10 @@ public final class StorageState
             float createdAtUtc,
             float updatedAtUtc,
             @Nullable byte[] attributes,
+            long attributesVersion,
             @Nullable byte[] input,
-            @Nullable byte[] output)
+            @Nullable byte[] output,
+            long linkageVersion)
     {
         checkArgument((input == null) == (output == null));
         this.node = checkNotNull(node);
@@ -68,8 +73,10 @@ public final class StorageState
         this.createdAtUtc = createdAtUtc;
         this.updatedAtUtc = updatedAtUtc;
         this.attributes = attributes;
+        this.attributesVersion = attributesVersion;
         this.input = input;
         this.output = output;
+        this.linkageVersion = linkageVersion;
     }
 
     @Override
@@ -119,6 +126,11 @@ public final class StorageState
         return attributes;
     }
 
+    public long getAttributesVersion()
+    {
+        return attributesVersion;
+    }
+
     @Nullable
     public byte[] getInput()
     {
@@ -129,5 +141,10 @@ public final class StorageState
     public byte[] getOutput()
     {
         return output;
+    }
+
+    public long getLinkageVersion()
+    {
+        return linkageVersion;
     }
 }

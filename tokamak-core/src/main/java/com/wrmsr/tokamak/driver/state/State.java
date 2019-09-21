@@ -101,9 +101,11 @@ public final class State
 
     @Nullable
     private Object[] attributes;
+    private long attributesVersion;
 
     @Nullable
     private Linkage linkage;
+    private long linkageVersion;
 
     @Nullable
     private BitSet updatedFieldBitSet;
@@ -131,14 +133,18 @@ public final class State
             Mode mode,
             long version,
             @Nullable Object[] attributes,
-            @Nullable Linkage linkage)
+            long attributesVersion,
+            @Nullable Linkage linkage,
+            long linkageVersion)
     {
         this.node = checkNotNull(node);
         this.id = checkNotNull(id);
         this.mode = checkNotNull(mode);
         this.version = version;
         this.attributes = attributes;
+        this.attributesVersion = attributesVersion;
         this.linkage = linkage;
+        this.linkageVersion = linkageVersion;
         checkArgument(mode.isStorageMode);
     }
 
@@ -148,7 +154,9 @@ public final class State
             StorageState.Mode storageMode,
             long version,
             @Nullable Object[] attributes,
-            @Nullable Linkage linkage)
+            long attributesVersion,
+            @Nullable Linkage linkage,
+            long linkageVersion)
     {
         return new State(
                 node,
@@ -156,7 +164,9 @@ public final class State
                 Mode.fromStorageMode(storageMode),
                 version,
                 attributes,
-                linkage);
+                attributesVersion,
+                linkage,
+                linkageVersion);
     }
 
     @Override
@@ -197,11 +207,21 @@ public final class State
         return attributes;
     }
 
+    public long getAttributesVersion()
+    {
+        return attributesVersion;
+    }
+
     @Nullable
     public Linkage getLinkage()
     {
         checkMode(mode != Mode.INVALID);
         return linkage;
+    }
+
+    public long getLinkageVersion()
+    {
+        return linkageVersion;
     }
 
     public boolean isNull()

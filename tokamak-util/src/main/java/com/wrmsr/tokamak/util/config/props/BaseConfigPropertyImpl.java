@@ -33,6 +33,7 @@ public abstract class BaseConfigPropertyImpl<T>
         this.metadata = checkNotNull(metadata);
     }
 
+    @SuppressWarnings({"unchecked"})
     protected void init()
     {
         metadata.getDefaultValue().ifPresent(v -> set((T) v));

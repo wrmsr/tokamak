@@ -72,8 +72,10 @@ public class MapHeapStateStorage
                             -1.0f,
                             -1.0f,
                             null,
+                            0L,
                             null,
-                            null);
+                            null,
+                            0L);
                 }
 
                 if (state != null) {
