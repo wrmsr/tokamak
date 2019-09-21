@@ -13,6 +13,13 @@
  */
 package com.wrmsr.tokamak.dist;
 
-public class Dist
+import org.junit.Test;
+
+public class GenDepsPomTest
 {
+    @Test
+    public void testApi()
+            throws Throwable
+    {
+    }
 }

@@ -47,7 +47,6 @@ import static com.wrmsr.tokamak.util.MorePreconditions.checkSingle;
 public class ClassLoaderTest
         extends TestCase
 {
-
     private static List<Node> evaluateXPath(Document document, String xpathExpression)
     {
         XPathFactory xpathFactory = XPathFactory.newInstance();

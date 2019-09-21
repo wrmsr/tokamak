@@ -22,8 +22,6 @@
 
     <dependencies>
 
-        <!--@BEGIN-IGNORE-FOR-DEPS@-->
-
         <dependency>
             <groupId>com.wrmsr.tokamak</groupId>
             <artifactId>tokamak-main</artifactId>
@@ -34,16 +32,6 @@
             <artifactId>tokamak-spark</artifactId>
             <scope>provided</scope>
         </dependency>
-
-        <!--@END-IGNORE-FOR-DEPS@-->
-
-        <!--
-        <dependency>
-            <groupId>io.airlift.resolver</groupId>
-            <artifactId>resolver</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        -->
 
         <dependency>
             <groupId>junit</groupId>
@@ -94,6 +82,31 @@
                 </configuration>
             </plugin>
             -->
+
+            <plugin>
+                <artifactId>exec-maven-plugin</artifactId>
+                <groupId>org.codehaus.mojo</groupId>
+                <executions>
+
+                    <execution>
+                        <id>den-deps-pom</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>${java.home}/bin/java</executable>
+                            <arguments>
+                                <argument>-classpath</argument>
+                                <classpath />
+                                <argument>com.wrmsr.tokamak.dist.GenDepsPom</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+
+                </executions>
+            </plugin>
+
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

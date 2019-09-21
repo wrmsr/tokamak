@@ -22,8 +22,6 @@
 
     <dependencies>
 
-        <!--@BEGIN-IGNORE-FOR-DEPS@-->
-
         <dependency>
             <groupId>com.wrmsr.tokamak</groupId>
             <artifactId>tokamak-api</artifactId>
@@ -33,8 +31,6 @@
             <groupId>com.wrmsr.tokamak</groupId>
             <artifactId>tokamak-util</artifactId>
         </dependency>
-
-        <!--@END-IGNORE-FOR-DEPS@-->
 
         <dependency>
             <groupId>io.burt</groupId>
