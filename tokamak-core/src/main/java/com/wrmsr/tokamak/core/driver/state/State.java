@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -51,17 +52,40 @@ public final class State
         private static final long serialVersionUID = -7720805908630032266L;
 
         private final State state;
+        private final Optional<Mode> newMode;
+
+        public ModeException(State state, Optional<Mode> newMode)
+        {
+            this.state = checkNotNull(state);
+            this.newMode = checkNotNull(newMode);
+        }
+
+        public ModeException(State state, Mode newMode)
+        {
+            this(state, Optional.of(newMode));
+        }
 
         public ModeException(State state)
         {
-            this.state = checkNotNull(state);
+            this(state, Optional.empty());
+        }
+
+        public State getState()
+        {
+            return state;
+        }
+
+        public Optional<Mode> getNewMode()
+        {
+            return newMode;
         }
 
         @Override
         public String toString()
         {
-            return "State.ModeException{" +
+            return "ModeException{" +
                     "state=" + state +
+                    ", newMode=" + newMode +
                     '}';
         }
     }
@@ -214,6 +238,7 @@ public final class State
     public Map<String, Object> getRowMap()
     {
         checkMode(mode != Mode.INVALID);
+        checkNotNull(attributes);
         return Collections.unmodifiableMap(new ObjectArrayBackedMap<>(node.getRowLayout().getShape(), attributes));
     }
 
@@ -247,7 +272,6 @@ public final class State
         checkState(this.mode == Mode.CONSTRUCTING);
         checkArgument(mode != Mode.CONSTRUCTING);
         this.mode = mode;
-        // FIXME: callback?
     }
 
     public void setAttributes(@Nullable Object[] attributes)
@@ -288,16 +312,47 @@ public final class State
             throw new ModeException(this);
         }
 
-
         checkState(this.updatedFieldsMask == 0);
         this.attributes = attributes;
         this.updatedFieldsMask = updatedFieldsMask;
         updateMode((diff || storageMode == StorageState.Mode.CREATED) ? Mode.MODIFIED : Mode.EXCLUSIVE);
     }
 
-    private void updateMode(Mode mode)
+    public static boolean isValidStateTransition(Mode from, Mode to)
     {
-        throw new UnsupportedOperationException();
+        checkNotNull(from);
+        checkNotNull(to);
+        switch (from) {
+            case CONSTRUCTING:
+                return false;
+            case INVALID:
+                return to == Mode.EXCLUSIVE || to == Mode.MODIFIED;
+            case PHANTOM:
+                return to == Mode.EXCLUSIVE;
+            case SHARED:
+            case EXCLUSIVE:
+            case MODIFIED:
+                return false;
+            default:
+                throw new IllegalStateException(from.toString());
+        }
+    }
+
+    private void updateMode(Mode newMode)
+    {
+        if (mode == newMode) {
+            return;
+        }
+        if (!isValidStateTransition(mode, newMode)) {
+            throw new ModeException(this, newMode);
+        }
+
+        Mode oldMode = mode;
+        mode = newMode;
+
+        if (modeCallback != null) {
+            modeCallback.onMode(this, oldMode, newMode);
+        }
     }
 
     public void setLinkage(Linkage linkage)
