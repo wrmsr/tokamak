@@ -19,7 +19,7 @@ import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.api.SimpleRow;
-import com.wrmsr.tokamak.core.ApiJson;
+import com.wrmsr.tokamak.core.util.ApiJson;
 import com.wrmsr.tokamak.util.json.Json;
 import junit.framework.TestCase;
 

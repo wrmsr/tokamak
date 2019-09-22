@@ -17,7 +17,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.wrmsr.tokamak.core.ApiJson;
+import com.wrmsr.tokamak.core.util.ApiJson;
 import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.api.Row;
 import com.wrmsr.tokamak.api.SchemaTable;
