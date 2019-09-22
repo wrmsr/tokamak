@@ -36,41 +36,13 @@ public final class State
 {
     public enum Mode
     {
-        STORAGE_CREATED(true),
-        STORAGE_SHARED(true),
-        STORAGE_EXCLUSIVE(true),
+        CONSTRUCTING,
 
-        INVALID(false),
-        PHANTOM(false),
-        SHARED(false),
-        EXCLUSIVE(false),
-        MODIFIED(false);
-
-        private final boolean isStorageMode;
-
-        Mode(boolean isStorageMode)
-        {
-            this.isStorageMode = isStorageMode;
-        }
-
-        public boolean isStorageMode()
-        {
-            return isStorageMode;
-        }
-
-        public static Mode fromStorageMode(StorageState.Mode storageMode)
-        {
-            switch (storageMode) {
-                case CREATED:
-                    return STORAGE_CREATED;
-                case SHARED:
-                    return STORAGE_SHARED;
-                case EXCLUSIVE:
-                    return STORAGE_EXCLUSIVE;
-                default:
-                    throw new IllegalArgumentException(Objects.toString(storageMode));
-            }
-        }
+        INVALID,
+        PHANTOM,
+        SHARED,
+        EXCLUSIVE,
+        MODIFIED;
     }
 
     public static class ModeException
@@ -100,6 +72,9 @@ public final class State
     private long version;
 
     @Nullable
+    private final StorageState.Mode storageMode;
+
+    @Nullable
     private Object[] attributes;
     private long attributesVersion;
 
@@ -120,17 +95,18 @@ public final class State
 
     public State(StatefulNode node, Id id, Mode mode)
     {
-        checkArgument(!mode.isStorageMode);
+        checkArgument(mode != Mode.CONSTRUCTING);
         this.node = checkNotNull(node);
         this.id = checkNotNull(id);
         this.mode = checkNotNull(mode);
+        this.storageMode = null;
     }
 
     private State(
             StatefulNode node,
             Id id,
-            Mode mode,
             long version,
+            @Nullable StorageState.Mode storageMode,
             @Nullable Object[] attributes,
             long attributesVersion,
             @Nullable Linkage linkage,
@@ -138,13 +114,13 @@ public final class State
     {
         this.node = checkNotNull(node);
         this.id = checkNotNull(id);
-        this.mode = checkNotNull(mode);
+        this.mode = Mode.CONSTRUCTING;
         this.version = version;
+        this.storageMode = storageMode;
         this.attributes = attributes;
         this.attributesVersion = attributesVersion;
         this.linkage = linkage;
         this.linkageVersion = linkageVersion;
-        checkArgument(mode.isStorageMode);
     }
 
     public static State newFromStorage(
@@ -160,8 +136,8 @@ public final class State
         return new State(
                 node,
                 id,
-                Mode.fromStorageMode(storageMode),
                 version,
+                storageMode,
                 attributes,
                 attributesVersion,
                 linkage,
@@ -197,6 +173,12 @@ public final class State
     public long getVersion()
     {
         return version;
+    }
+
+    @Nullable
+    public StorageState.Mode getStorageMode()
+    {
+        return storageMode;
     }
 
     @Nullable
@@ -262,15 +244,15 @@ public final class State
 
     public void setInitialMode(Mode mode)
     {
-        checkArgument(!mode.isStorageMode);
-        checkState(this.mode.isStorageMode);
+        checkState(this.mode == Mode.CONSTRUCTING);
+        checkArgument(mode != Mode.CONSTRUCTING);
         this.mode = mode;
         // FIXME: callback?
     }
 
     public void setAttributes(@Nullable Object[] attributes)
     {
-        checkState(!mode.isStorageMode);
+        checkState(mode != Mode.CONSTRUCTING);
 
         // FIXME: floating point stability, fat comparison, etc
         boolean diff;
@@ -306,9 +288,16 @@ public final class State
             throw new ModeException(this);
         }
 
+
         checkState(this.updatedFieldsMask == 0);
         this.attributes = attributes;
         this.updatedFieldsMask = updatedFieldsMask;
+        updateMode((diff || storageMode == StorageState.Mode.CREATED) ? Mode.MODIFIED : Mode.EXCLUSIVE);
+    }
+
+    private void updateMode(Mode mode)
+    {
+        throw new UnsupportedOperationException();
     }
 
     public void setLinkage(Linkage linkage)
@@ -318,14 +307,14 @@ public final class State
 
     private void checkMode()
     {
-        if (mode.isStorageMode) {
+        if (mode == Mode.CONSTRUCTING) {
             throw new ModeException(this);
         }
     }
 
     private void checkMode(boolean condition)
     {
-        if (mode.isStorageMode || !condition) {
+        if (mode == Mode.CONSTRUCTING) {
             throw new ModeException(this);
         }
     }
