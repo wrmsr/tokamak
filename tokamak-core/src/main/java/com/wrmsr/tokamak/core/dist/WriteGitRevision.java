@@ -101,7 +101,7 @@ public class WriteGitRevision
         if (write) {
             checkState(Paths.get(cwd.toString(), "target").toFile().exists());
             Files.write(
-                    Paths.get(cwd.toString(), "target", "classes", "com", "wrmsr", "tokamak", "dist", ".revision"),
+                    Paths.get(cwd.toString(), "target", "classes", "com", "wrmsr", "tokamak", "core", "dist", ".revision"),
                     rev.getBytes(Charsets.UTF_8));
         }
         else {

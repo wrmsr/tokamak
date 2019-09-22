@@ -153,7 +153,7 @@ public class DefaultStateCache
         }
 
         checkNotNull(state);
-        checkState(state.getMode().isStorageMode());
+        checkState(state.getMode() == State.Mode.CONSTRUCTING);
 
         State.Mode initialMode;
         int nodePriority = prioritiesByNode.get(node);
@@ -163,14 +163,14 @@ public class DefaultStateCache
             initialMode = State.Mode.INVALID;
         }
         else {
-            switch (state.getMode()) {
-                case STORAGE_CREATED:
+            switch (state.getStorageMode()) {
+                case CREATED:
                     initialMode = State.Mode.INVALID;
                     break;
-                case STORAGE_SHARED:
+                case SHARED:
                     initialMode = State.Mode.SHARED;
                     break;
-                case STORAGE_EXCLUSIVE:
+                case EXCLUSIVE:
                     initialMode = State.Mode.EXCLUSIVE;
                     break;
                 default:
@@ -204,7 +204,7 @@ public class DefaultStateCache
 
     private void trackStateMode(State state)
     {
-        checkArgument(!state.getMode().isStorageMode());
+        checkArgument(state.getMode() != State.Mode.CONSTRUCTING);
         int nodePriority = prioritiesByNode.get(state.getNode());
 
         State.Mode oldState = modesByState.get(state);
