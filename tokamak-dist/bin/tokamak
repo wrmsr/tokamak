@@ -9,7 +9,7 @@ realpath() (
         cd $(dirname "$TARGET")
         TARGET=$(basename "$TARGET")
     done
-    DIR=`pwd -P`
+    DIR=$(pwd -P)
     echo "$DIR/$TARGET"
 )
 BIN=$(dirname $(realpath "${BASH_SOURCE%/*}/${0##*/}"))
