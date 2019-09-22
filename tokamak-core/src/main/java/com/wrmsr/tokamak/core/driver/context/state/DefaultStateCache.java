@@ -24,9 +24,9 @@ import com.wrmsr.tokamak.core.driver.state.State;
 import com.wrmsr.tokamak.core.driver.state.StateStorage;
 import com.wrmsr.tokamak.core.driver.state.StateStorageCodec;
 import com.wrmsr.tokamak.core.driver.state.StorageState;
+import com.wrmsr.tokamak.core.plan.Plan;
 import com.wrmsr.tokamak.core.plan.node.Node;
 import com.wrmsr.tokamak.core.plan.node.StatefulNode;
-import com.wrmsr.tokamak.core.plan.Plan;
 import com.wrmsr.tokamak.util.Pair;
 
 import java.io.IOException;
@@ -252,11 +252,13 @@ public class DefaultStateCache
 
     private void onStateModeChange(State state, State.Mode newMode, State.Mode oldMode)
     {
-        // for (AttributesSetCallback cb : attributesSetCallbacks) {
-        //     cb.onAttributesSet(state, newMode, oldMode);
-        // }
+        checkState(state.getMode() == newMode);
+        checkState(newMode != State.Mode.INVALID);
 
-        throw new IllegalStateException();
+        State.Mode cacheOldMode = checkNotNull(modesByState.get(state));
+        checkState(cacheOldMode == oldMode);
+
+        trackStateMode(state);
     }
 
     @Override
@@ -268,7 +270,29 @@ public class DefaultStateCache
     @Override
     public boolean isInvalidated(StatefulNode node, Id id)
     {
-        throw new IllegalStateException();
+        checkNotNull(node);
+        checkNotNull(id);
+
+        Map<Id, State> map = statesByIdByNode.get(node);
+        if (map != null) {
+            State state = map.get(id);
+            if (state != null && state.getMode() == State.Mode.INVALID) {
+                return true;
+            }
+        }
+
+        // FIXME: assert not both pending and present?
+        if (isPendingInvalidation(node, id)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private boolean isPendingInvalidation(Node node, Id id)
+    {
+        SortedSet<Id> set = pendingInvalidIdSetsByNodePriority.get(prioritiesByNode.get(node));
+        return set != null && set.contains(id);
     }
 
     @Override
