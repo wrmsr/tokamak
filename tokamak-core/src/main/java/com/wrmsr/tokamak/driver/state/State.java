@@ -13,6 +13,7 @@
  */
 package com.wrmsr.tokamak.driver.state;
 
+import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.api.Row;
 import com.wrmsr.tokamak.plan.node.StatefulNode;
@@ -21,7 +22,6 @@ import com.wrmsr.tokamak.util.collect.ObjectArrayBackedMap;
 import javax.annotation.Nullable;
 
 import java.util.Arrays;
-import java.util.BitSet;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
@@ -30,7 +30,6 @@ import java.util.Set;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.collect.ImmutableSet.toImmutableSet;
 
 public final class State
         implements Row
@@ -108,8 +107,7 @@ public final class State
     private Linkage linkage;
     private long linkageVersion;
 
-    @Nullable
-    private BitSet updatedFieldBitSet;
+    private long updatedFieldsMask;
 
     @FunctionalInterface
     public interface ModeCallback
@@ -237,17 +235,22 @@ public final class State
         return Collections.unmodifiableMap(new ObjectArrayBackedMap<>(node.getRowLayout().getShape(), attributes));
     }
 
-    public BitSet getUpdatedFieldBitSet()
+    public long getUpdatedFieldsMask()
     {
         checkMode(mode != Mode.MODIFIED);
-        return checkNotNull(updatedFieldBitSet);
+        return updatedFieldsMask;
     }
 
     public Set<String> getUpdatedFields()
     {
-        return getUpdatedFieldBitSet().stream()
-                .mapToObj(getNode().getRowLayout().getFieldNames()::get)
-                .collect(toImmutableSet());
+        checkMode(mode != Mode.MODIFIED);
+        ImmutableSet.Builder<String> builder = ImmutableSet.builder();
+        for (int i = 0; i < 64; ++i) {
+            if ((updatedFieldsMask & (1L << i)) != 0) {
+                builder.add(node.getRowLayout().getFieldNames().get(i));
+            }
+        }
+        return builder.build();
     }
 
     public State setModeCallback(ModeCallback modeCallback)
@@ -262,18 +265,50 @@ public final class State
         checkArgument(!mode.isStorageMode);
         checkState(this.mode.isStorageMode);
         this.mode = mode;
-        // FIXME: callback
+        // FIXME: callback?
     }
 
     public void setAttributes(@Nullable Object[] attributes)
     {
-        // FIXME: rowcache dead, need to check (optional? big blobs should be shared anyway, but good use for cachenodes)
-        checkMode(mode == Mode.INVALID);
+        checkState(!mode.isStorageMode);
+
+        // FIXME: floating point stability, fat comparison, etc
+        boolean diff;
         if (attributes != null) {
             checkArgument(attributes.length == getNode().getRowLayout().getFields().size());
+            diff = this.attributes == null || Arrays.equals(attributes, this.attributes);
         }
-        Arrays.equals(attributes, this.attributes);
-        // if (this.row != null)
+        else {
+            diff = this.attributes != null;
+        }
+
+        if (!diff && mode != Mode.INVALID) {
+            return;
+        }
+
+        long updatedFieldsMask;
+        if (attributes == null && this.attributes == null) {
+            updatedFieldsMask = 0;
+        }
+        else if (this.attributes != null && attributes != null) {
+            updatedFieldsMask = 0;
+            for (int i = 0; i < attributes.length; ++i) {
+                if (Objects.equals(attributes[i], this.attributes[i])) {
+                    updatedFieldsMask |= 1L << i;
+                }
+            }
+        }
+        else {
+            updatedFieldsMask = (1L << node.getRowLayout().getFieldNames().size()) - 1;
+        }
+
+        if (mode != Mode.INVALID && updatedFieldsMask != 0) {
+            throw new ModeException(this);
+        }
+
+        checkState(this.updatedFieldsMask == 0);
+        this.attributes = attributes;
+        this.updatedFieldsMask = updatedFieldsMask;
     }
 
     public void setLinkage(Linkage linkage)

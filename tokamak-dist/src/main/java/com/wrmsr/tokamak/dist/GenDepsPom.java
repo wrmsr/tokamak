@@ -40,6 +40,11 @@ import static com.wrmsr.tokamak.util.MorePreconditions.checkSingle;
 
 public class GenDepsPom
 {
+    /*
+    TODO:
+     - build doc from scratch, sort inputs
+    */
+
     private static List<Node> evaluateXPath(Document document, String xpathExpression)
     {
         XPathFactory xpathFactory = XPathFactory.newInstance();
@@ -72,6 +77,11 @@ public class GenDepsPom
     public static void main(String[] args)
             throws Throwable
     {
+        // DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        // DocumentBuilder db = dbf.newDocumentBuilder();
+        // Document dom = db.newDocument();
+        // Element root = dom.createElement("project");
+
         File pomFile = new File("../pom.xml");
 
         DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
@@ -104,7 +114,7 @@ public class GenDepsPom
         List<Node> pluginNodes = evaluateXPath(doc, "/project/build/plugins/plugin");
         for (Node pluginNode : pluginNodes) {
             Element dep = doc.createElement("dependency");
-            for (String k : new String[] { "groupId", "artifactId", "version" }) {
+            for (String k : new String[] {"groupId", "artifactId", "version"}) {
                 Element e = doc.createElement(k);
                 e.appendChild(doc.createTextNode(getChildNodeText(pluginNode, k)));
                 dep.appendChild(e);

@@ -26,6 +26,11 @@ import org.apache.logging.log4j.core.config.builder.impl.BuiltConfiguration;
 public final class ConfigureLoggingOp
         implements Bootstrap.Op
 {
+    /*
+    TODO:
+     - fix j9 - com.ibm.lang.management.internal.ExtendedRuntimeMXBeanImpl circ init in log4j config - prob classloader related
+    */
+
     @Override
     public void run()
             throws Exception
