@@ -13,15 +13,15 @@
  */
 package com.wrmsr.tokamak.test.parse;
 
-import com.wrmsr.tokamak.parse.tree.TreeNode;
-import com.wrmsr.tokamak.catalog.Catalog;
-import com.wrmsr.tokamak.plan.node.Node;
-import com.wrmsr.tokamak.parse.AstBuilder;
-import com.wrmsr.tokamak.parse.AstPlanner;
-import com.wrmsr.tokamak.parse.Parsing;
-import com.wrmsr.tokamak.parse.SqlParser;
-import com.wrmsr.tokamak.plan.Plan;
-import com.wrmsr.tokamak.plan.transform.Transforms;
+import com.wrmsr.tokamak.core.parse.tree.TreeNode;
+import com.wrmsr.tokamak.core.catalog.Catalog;
+import com.wrmsr.tokamak.core.plan.node.Node;
+import com.wrmsr.tokamak.core.parse.AstBuilder;
+import com.wrmsr.tokamak.core.parse.AstPlanner;
+import com.wrmsr.tokamak.core.parse.Parsing;
+import com.wrmsr.tokamak.core.parse.SqlParser;
+import com.wrmsr.tokamak.core.plan.Plan;
+import com.wrmsr.tokamak.core.plan.transform.Transforms;
 import com.wrmsr.tokamak.test.TpchUtils;
 import junit.framework.TestCase;
 

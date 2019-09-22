@@ -15,9 +15,9 @@ package com.wrmsr.tokamak.spark;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.wrmsr.tokamak.plan.Plan;
-import com.wrmsr.tokamak.plan.node.ValuesNode;
-import com.wrmsr.tokamak.type.Type;
+import com.wrmsr.tokamak.core.plan.Plan;
+import com.wrmsr.tokamak.core.plan.node.ValuesNode;
+import com.wrmsr.tokamak.core.type.Type;
 import org.apache.hadoop.mapred.TextOutputFormat;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaPairRDD;

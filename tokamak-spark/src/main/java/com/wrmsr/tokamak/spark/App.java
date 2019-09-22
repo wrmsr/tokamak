@@ -13,8 +13,8 @@
  */
 package com.wrmsr.tokamak.spark;
 
-import com.wrmsr.tokamak.driver.Driver;
-import com.wrmsr.tokamak.driver.DriverImpl;
+import com.wrmsr.tokamak.core.driver.Driver;
+import com.wrmsr.tokamak.core.driver.DriverImpl;
 
 public class App
 {

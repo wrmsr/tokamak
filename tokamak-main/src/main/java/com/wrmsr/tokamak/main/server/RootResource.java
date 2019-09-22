@@ -15,7 +15,7 @@ package com.wrmsr.tokamak.main.server;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.wrmsr.tokamak.dist.GitRevision;
+import com.wrmsr.tokamak.core.dist.GitRevision;
 import org.glassfish.hk2.api.Immediate;
 
 import javax.inject.Inject;

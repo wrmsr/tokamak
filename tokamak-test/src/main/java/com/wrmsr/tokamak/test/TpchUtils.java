@@ -15,9 +15,9 @@ package com.wrmsr.tokamak.test;
 
 import com.google.common.base.Joiner;
 import com.google.common.io.CharStreams;
-import com.wrmsr.tokamak.catalog.Catalog;
-import com.wrmsr.tokamak.catalog.Schema;
-import com.wrmsr.tokamak.conn.jdbc.JdbcConnector;
+import com.wrmsr.tokamak.core.catalog.Catalog;
+import com.wrmsr.tokamak.core.catalog.Schema;
+import com.wrmsr.tokamak.core.conn.jdbc.JdbcConnector;
 import com.wrmsr.tokamak.util.sql.SqlEngine;
 import com.wrmsr.tokamak.util.sql.SqlUtils;
 import io.airlift.tpch.GenerateUtils;

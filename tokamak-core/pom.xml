@@ -108,7 +108,7 @@
                             <arguments>
                                 <argument>-classpath</argument>
                                 <classpath />
-                                <argument>com.wrmsr.tokamak.dist.WriteGitRevision</argument>
+                                <argument>com.wrmsr.tokamak.core.dist.WriteGitRevision</argument>
                                 <argument>write</argument>
                             </arguments>
                         </configuration>
