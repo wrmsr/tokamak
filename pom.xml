@@ -402,12 +402,6 @@
             </dependency>
 
             <dependency>
-                <groupId>com.github.spullara.mustache.java</groupId>
-                <artifactId>compiler</artifactId>
-                <version>0.9.6</version>
-            </dependency>
-
-            <dependency>
                 <groupId>org.mozilla</groupId>
                 <artifactId>rhino</artifactId>
                 <version>1.7.11</version>
