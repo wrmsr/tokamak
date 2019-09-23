@@ -24,7 +24,7 @@ public class InvalidationManager
 {
     public void invalidate(State state)
     {
-        throw new IllegalStateException();
+        // throw new IllegalStateException();
     }
 
     public void recursiveInvalidate(
