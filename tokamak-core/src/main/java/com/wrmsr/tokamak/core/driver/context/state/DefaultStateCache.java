@@ -224,7 +224,7 @@ public class DefaultStateCache
         State.Mode newState = state.getMode();
         modesByState.put(state, newState);
 
-        Map<Integer, SortedSet<Id>> map = idSetsByNodePriorityByMode.computeIfAbsent(oldState, s -> new TreeMap<>());
+        Map<Integer, SortedSet<Id>> map = idSetsByNodePriorityByMode.computeIfAbsent(newState, s -> new TreeMap<>());
         Set<Id> set = map.computeIfAbsent(nodePriority, np -> new TreeSet<>());
         set.add(state.getId());
 
