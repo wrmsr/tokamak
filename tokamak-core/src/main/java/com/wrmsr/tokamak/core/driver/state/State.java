@@ -111,7 +111,7 @@ public final class State
     @FunctionalInterface
     public interface ModeCallback
     {
-        void onMode(State state, Mode oldMode, Mode newMode);
+        void onMode(State state, Mode oldMode);
     }
 
     @Nullable
@@ -351,7 +351,7 @@ public final class State
         mode = newMode;
 
         if (modeCallback != null) {
-            modeCallback.onMode(this, oldMode, newMode);
+            modeCallback.onMode(this, oldMode);
         }
     }
 

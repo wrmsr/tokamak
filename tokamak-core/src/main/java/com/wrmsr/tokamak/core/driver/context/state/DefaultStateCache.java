@@ -250,10 +250,10 @@ public class DefaultStateCache
         }
     }
 
-    private void onStateModeChange(State state, State.Mode newMode, State.Mode oldMode)
+    private void onStateModeChange(State state, State.Mode oldMode)
     {
-        checkState(state.getMode() == newMode);
-        checkState(newMode != State.Mode.INVALID);
+        checkState(state.getMode() != State.Mode.INVALID);
+        checkState(state.getMode() != oldMode);
 
         State.Mode cacheOldMode = checkNotNull(modesByState.get(state));
         checkState(cacheOldMode == oldMode);
