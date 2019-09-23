@@ -14,12 +14,10 @@
 
 package com.wrmsr.tokamak.core.driver.context.lineage;
 
-public final class IdLineagePolicy
-        implements LineagePolicy
-{
-    private static final class Entry
-            implements Lineage.Entry
-    {
+import com.wrmsr.tokamak.core.driver.DriverRow;
 
-    }
+public final class IdLineagePolicy
+        // implements LineagePolicy
+{
+
 }

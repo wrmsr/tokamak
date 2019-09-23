@@ -14,12 +14,88 @@
 
 package com.wrmsr.tokamak.core.driver.context.lineage;
 
-public class RowLineagePolicy
+import com.google.common.collect.ImmutableSet;
+import com.wrmsr.tokamak.api.Id;
+import com.wrmsr.tokamak.core.driver.DriverRow;
+import com.wrmsr.tokamak.core.plan.node.Node;
+
+import javax.annotation.concurrent.Immutable;
+
+import java.util.Objects;
+import java.util.Set;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+
+public final class RowLineagePolicy
         implements LineagePolicy
 {
-    private static final class Entry
-            implements Lineage.Entry
+    @Immutable
+    private static final class LineageImpl
+            implements Lineage
     {
+        @Immutable
+        private static final class EntryImpl
+                implements Entry
+        {
+            private final DriverRow row;
 
+            public EntryImpl(DriverRow row)
+            {
+                this.row = checkNotNull(row);
+            }
+
+            @Override
+            public boolean equals(Object o)
+            {
+                if (this == o) { return true; }
+                if (o == null || getClass() != o.getClass()) { return false; }
+                EntryImpl entrty = (EntryImpl) o;
+                return Objects.equals(row, entrty.row);
+            }
+
+            @Override
+            public int hashCode()
+            {
+                return Objects.hash(row);
+            }
+
+            @Override
+            public Node getNode()
+            {
+                return row.getNode();
+            }
+
+            @Override
+            public Id getId()
+            {
+                return row.getId();
+            }
+        }
+
+        private final Set<EntryImpl> set;
+
+        public LineageImpl(Set<EntryImpl> set)
+        {
+            this.set = ImmutableSet.copyOf(set);
+        }
+
+        @SuppressWarnings({"unchecked"})
+        @Override
+        public Set<Entry> getEntries()
+        {
+            return (Set) set;
+        }
+    }
+
+    @Override
+    public Retention getRetention()
+    {
+        return null;
+    }
+
+    @Override
+    public Lineage build(DriverRow... rows)
+    {
+        return null;
     }
 }

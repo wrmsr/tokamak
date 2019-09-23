@@ -17,10 +17,14 @@ package com.wrmsr.tokamak.core.driver.context.lineage;
 import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.core.plan.node.Node;
 
+import javax.annotation.concurrent.Immutable;
+
 import java.util.Set;
 
+@Immutable
 public interface Lineage
 {
+    @Immutable
     interface Entry
     {
         Node getNode();
