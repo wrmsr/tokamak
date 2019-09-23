@@ -17,6 +17,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.wrmsr.tokamak.core.plan.node.PersistNode;
 import com.wrmsr.tokamak.core.util.ApiJson;
 import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.api.Row;
@@ -186,7 +187,16 @@ public class CoreTest
                 ),
                 EquijoinNode.Mode.INNER);
 
-        return new Plan(equijoinNode0);
+        Node persistNode0 = new PersistNode(
+                "persist0",
+                equijoinNode0,
+                ImmutableList.of(),
+                false,
+                ImmutableMap.of(),
+                ImmutableMap.of(),
+                Optional.empty());
+
+        return new Plan(persistNode0);
     }
 
     // https://docs.oracle.com/javase/tutorial/jdbc/basics/prepared.html
