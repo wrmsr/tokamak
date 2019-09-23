@@ -203,22 +203,22 @@ public final class Plan
                         .collect(toImmutableMap()));
     }
 
-    public Map<Node, Set<Node>> getStatefulParentSetsByNode()
+    public Map<Node, Set<Node>> getStatefulSourceSetsByNode()
     {
         throw new IllegalStateException();
     }
 
-    public Map<Node, Set<Node>> getStatefulChildSetsByNode()
+    public Map<Node, Set<Node>> getStatefulSinkSetsByNode()
     {
         throw new IllegalStateException();
     }
 
-    public Map<Node, Set<Node>> getStatefulAncestorSetsByNode()
+    public Map<Node, Set<Node>> getDeepStatefulSourceSetsByNode()
     {
         throw new IllegalStateException();
     }
 
-    public Map<Node, Set<Node>> getStatefulDescendantsSetsByNode()
+    public Map<Node, Set<Node>> getDeepStatefulSinkSetsByNode()
     {
         throw new IllegalStateException();
     }

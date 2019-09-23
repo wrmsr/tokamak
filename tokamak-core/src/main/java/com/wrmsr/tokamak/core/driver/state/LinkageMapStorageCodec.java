@@ -59,8 +59,10 @@ public final class LinkageMapStorageCodec
         this.node = checkNotNull(node);
         this.attributesSerdesByNodeId = ImmutableMap.copyOf(attributesSerdesByNodeId);
         this.size = size;
-        Set<NodeId> sourceNodeIds = node.getSources().stream().map(Node::getId).collect(toImmutableSet());
-        sourceNodeIds.forEach(sni -> checkArgument(attributesSerdesByNodeId.containsKey(sni)));
+
+        // FIXME: these are actually only descendant
+        // Set<NodeId> sourceNodeIds = node.getSources().stream().map(Node::getId).collect(toImmutableSet());
+        // sourceNodeIds.forEach(sni -> checkArgument(this.attributesSerdesByNodeId.containsKey(sni)));
 
         varBytesSerde = new VariableLengthValueSerde<>(ValueSerdes.BYTES_VALUE_SERDE);
     }
