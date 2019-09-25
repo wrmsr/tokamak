@@ -56,7 +56,7 @@ public final class ListAggregateNode
         checkArgument(!groupField.equals(listField));
         checkArgument(source.getFields().containsKey(groupField));
 
-        structType = new StructType(source.getFields());
+        structType = new StructType(ImmutableMap.copyOf(source.getFields()));
         fields = ImmutableMap.of(
                 groupField, source.getFields().get(groupField),
                 listField, new ListType(structType)

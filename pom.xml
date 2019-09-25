@@ -741,6 +741,7 @@
                     <compilerArgs>
                         <arg>-Xlint:all,-options,-path</arg>
                         <arg>-parameters</arg>
+                        <arg>-g</arg>
                     </compilerArgs>
                 </configuration>
             </plugin>

@@ -11,50 +11,58 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.wrmsr.tokamak.core.type;
+
+import com.google.common.collect.BiMap;
+import com.google.common.collect.ImmutableList;
 
 import javax.annotation.concurrent.Immutable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
-public final class PrimitiveType<T>
+public final class BiMapType
         extends AbstractType
 {
-    private final Class<T> cls;
-    private final Class<?> primCls;
+    private final Type keyType;
+    private final Type valueType;
 
-    public PrimitiveType(String name, Class<T> cls, Class<?> primCls, int fixedSize)
+    public BiMapType(Type keyType, Type valueType)
     {
-        super(name, fixedSize);
-        this.cls = checkNotNull(cls);
-        this.primCls = checkNotNull(primCls);
+        super("BiMap");
+        this.keyType = checkNotNull(keyType);
+        this.valueType = checkNotNull(valueType);
     }
 
     @Override
     public String toString()
     {
-        return "PrimitiveType{" +
-                "name='" + name + '\'' +
-                ", cls=" + cls +
-                ", primCls=" + primCls +
-                ", fixedSize=" + fixedSize.getAsInt() +
+        return "BiMapType{" +
+                "keyType=" + keyType +
+                ", valueType=" + valueType +
                 '}';
+    }
+
+    public Type getKeyType()
+    {
+        return keyType;
+    }
+
+    public Type getValueType()
+    {
+        return valueType;
     }
 
     @Override
     public java.lang.reflect.Type getReflect()
     {
-        return cls;
+        return BiMap.class;
     }
 
-    public Class<T> getCls()
+    @Override
+    public String toRepr()
     {
-        return cls;
-    }
-
-    public Class<?> getPrimCls()
-    {
-        return primCls;
+        return Types.buildArgsRepr(name, ImmutableList.of(keyType, valueType));
     }
 }

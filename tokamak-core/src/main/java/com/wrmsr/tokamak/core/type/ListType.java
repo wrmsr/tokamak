@@ -13,18 +13,23 @@
  */
 package com.wrmsr.tokamak.core.type;
 
+import com.google.common.collect.ImmutableList;
+
 import javax.annotation.concurrent.Immutable;
+
+import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
 public final class ListType
-        implements Type
+        extends AbstractType
 {
     private final Type itemType;
 
     public ListType(Type itemType)
     {
+        super("List");
         this.itemType = checkNotNull(itemType);
     }
 
@@ -39,5 +44,17 @@ public final class ListType
     public Type getItemType()
     {
         return itemType;
+    }
+
+    @Override
+    public java.lang.reflect.Type getReflect()
+    {
+        return List.class;
+    }
+
+    @Override
+    public String toRepr()
+    {
+        return Types.buildArgsRepr(name, ImmutableList.of(itemType));
     }
 }

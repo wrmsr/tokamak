@@ -11,6 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.wrmsr.tokamak.core.type;
 
 import javax.annotation.concurrent.Immutable;
@@ -19,12 +20,12 @@ import java.lang.reflect.Type;
 import java.util.List;
 
 @Immutable
-public final class TupleType
+public final class UnionType
         extends ArgsType
 {
-    public TupleType(List<Object> args)
+    public UnionType(List<Object> args)
     {
-        super("Tuple", args);
+        super("Union", args);
     }
 
     @Override

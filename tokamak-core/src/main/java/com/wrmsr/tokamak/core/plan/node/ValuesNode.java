@@ -21,6 +21,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.core.plan.node.visitor.NodeVisitor;
 import com.wrmsr.tokamak.core.type.Type;
+import com.wrmsr.tokamak.core.type.Types;
 import com.wrmsr.tokamak.util.collect.OrderPreservingImmutableMap;
 
 import javax.annotation.concurrent.Immutable;
@@ -62,7 +63,7 @@ public final class ValuesNode
 
         ImmutableMap.Builder<String, Type> fieldsBuilder = ImmutableMap.builder();
         fieldsBuilder.putAll(this.declaredFields);
-        indexField.ifPresent(f -> fieldsBuilder.put(f, Type.LONG));
+        indexField.ifPresent(f -> fieldsBuilder.put(f, Types.LONG));
         this.fields = fieldsBuilder.build();
         this.values.forEach(l -> checkArgument(l.size() == fields.size()));
 

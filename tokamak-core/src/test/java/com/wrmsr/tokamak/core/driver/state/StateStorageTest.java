@@ -20,7 +20,7 @@ import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.core.conn.heap.MapHeapStateStorage;
 import com.wrmsr.tokamak.core.plan.node.ScanNode;
 import com.wrmsr.tokamak.core.plan.node.StatefulNode;
-import com.wrmsr.tokamak.core.type.Type;
+import com.wrmsr.tokamak.core.type.Types;
 import junit.framework.TestCase;
 
 import java.util.EnumSet;
@@ -36,7 +36,7 @@ public class StateStorageTest
         StatefulNode scanNode = new ScanNode(
                 "scan",
                 SchemaTable.of("s", "t"),
-                ImmutableMap.of("id", Type.LONG),
+                ImmutableMap.of("id", Types.LONG),
                 ImmutableSet.of("id"),
                 ImmutableSet.of(),
                 ImmutableMap.of(),

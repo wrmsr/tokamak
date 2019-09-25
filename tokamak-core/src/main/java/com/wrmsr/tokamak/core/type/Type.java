@@ -17,63 +17,28 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.google.common.collect.ImmutableMap;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Map;
 import java.util.OptionalInt;
 
 public interface Type
 {
-    /*
-    TODO:
-     - coerce, check
-     - serdes
-     - sql:
-      - bigint
-      - decimal
-     - presto:
-      - json - jsr353? over jackson/glassfish? jackson JsonObjects? reparse? ..all..
-       - JsonExtract.java, JsonPathType, JsonParser walking
-       - https://github.com/json-path/JsonPath
-      - datetime
-      - interval
-      - digest
-      - ip
-     - hppc
-     - pluggability
-    */
+    String getName();
 
-    PrimitiveType<Void> UNKNOWN = new PrimitiveType<>(Void.class, OptionalInt.empty());
+    OptionalInt getFixedSize();
 
-    PrimitiveType<Boolean> BOOLEAN = new PrimitiveType<>(Boolean.class, OptionalInt.of(1));
-    PrimitiveType<Long> LONG = new PrimitiveType<>(Long.class, OptionalInt.of(8));
-    PrimitiveType<Double> DOUBLE = new PrimitiveType<>(Double.class, OptionalInt.of(8));
-    PrimitiveType<String> STRING = new PrimitiveType<>(String.class, OptionalInt.empty());
-    PrimitiveType<byte[]> BYTES = new PrimitiveType<>(byte[].class, OptionalInt.empty());
-
-    Map<Class<?>, Type> FROM_JAVA_TYPE = ImmutableMap.<Class<?>, Type>builder()
-            .put(Boolean.class, BOOLEAN)
-            .put(boolean.class, BOOLEAN)
-            .put(Long.class, LONG)
-            .put(long.class, LONG)
-            .put(Double.class, DOUBLE)
-            .put(double.class, DOUBLE)
-            .put(String.class, STRING)
-            .put(byte[].class, BYTES)
-            .build();
-
-    default OptionalInt getFixedSize()
-    {
-        return OptionalInt.empty();
-    }
+    java.lang.reflect.Type getReflect();
 
     @JsonValue
     default String toRepr()
     {
-        return TypeUtils.toRepr(this);
+        return Types.toRepr(this);
     }
 
     @JsonCreator
     static Type parseRepr(String str)
     {
-        return TypeUtils.parseRepr(str);
+        return Types.parseRepr(str);
     }
 }

@@ -11,14 +11,39 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.wrmsr.tokamak.core.type;
 
-public final class ObjectType
-        implements Type
+import javax.annotation.concurrent.Immutable;
+
+@Immutable
+public final class SimpleType<T>
+        extends AbstractType
 {
+    private final Class<T> cls;
+
+    public SimpleType(String name, Class<T> cls)
+    {
+        super(name);
+        this.cls = cls;
+    }
+
     @Override
     public String toString()
     {
-        return "ObjectType{}";
+        return "SimpleType{" +
+                "cls=" + cls +
+                '}';
+    }
+
+    @Override
+    public java.lang.reflect.Type getReflect()
+    {
+        return cls;
+    }
+
+    public Class<T> getCls()
+    {
+        return cls;
     }
 }

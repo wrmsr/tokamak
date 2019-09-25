@@ -19,6 +19,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.core.plan.node.visitor.NodeVisitor;
 import com.wrmsr.tokamak.core.type.Type;
+import com.wrmsr.tokamak.core.type.Types;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -57,7 +58,7 @@ public final class UnionNode
 
         ImmutableMap.Builder<String, Type> fields = ImmutableMap.builder();
         fields.putAll(firstFields);
-        indexField.ifPresent(f -> fields.put(f, Type.LONG));
+        indexField.ifPresent(f -> fields.put(f, Types.LONG));
         this.fields = fields.build();
 
         checkInvariants();

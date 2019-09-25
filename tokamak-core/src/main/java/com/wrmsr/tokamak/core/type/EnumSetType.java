@@ -11,50 +11,51 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.wrmsr.tokamak.core.type;
 
+import com.google.common.collect.ImmutableList;
+
 import javax.annotation.concurrent.Immutable;
+
+import java.lang.reflect.Type;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
-public final class PrimitiveType<T>
+public final class EnumSetType
         extends AbstractType
 {
-    private final Class<T> cls;
-    private final Class<?> primCls;
+    private final EnumType enumType;
 
-    public PrimitiveType(String name, Class<T> cls, Class<?> primCls, int fixedSize)
+    public EnumSetType(EnumType enumType)
     {
-        super(name, fixedSize);
-        this.cls = checkNotNull(cls);
-        this.primCls = checkNotNull(primCls);
+        super("EnumSet");
+        this.enumType = checkNotNull(enumType);
     }
 
     @Override
     public String toString()
     {
-        return "PrimitiveType{" +
-                "name='" + name + '\'' +
-                ", cls=" + cls +
-                ", primCls=" + primCls +
-                ", fixedSize=" + fixedSize.getAsInt() +
+        return "EnumSetType{" +
+                "enumType=" + enumType +
                 '}';
     }
 
+    public EnumType getEnumType()
+    {
+        return enumType;
+    }
+
     @Override
-    public java.lang.reflect.Type getReflect()
+    public Type getReflect()
     {
-        return cls;
+        return null;
     }
 
-    public Class<T> getCls()
+    @Override
+    public String toRepr()
     {
-        return cls;
-    }
-
-    public Class<?> getPrimCls()
-    {
-        return primCls;
+        return Types.buildArgsRepr(name, ImmutableList.of(enumType));
     }
 }

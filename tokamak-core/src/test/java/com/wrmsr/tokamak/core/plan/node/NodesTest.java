@@ -18,7 +18,7 @@ import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.core.exec.Reflection;
-import com.wrmsr.tokamak.core.type.Type;
+import com.wrmsr.tokamak.core.type.Types;
 import com.wrmsr.tokamak.util.json.Json;
 import org.junit.Test;
 
@@ -50,7 +50,7 @@ public class NodesTest
         Node scanNode = new ScanNode(
                 "scan0",
                 SchemaTable.of("public", "hi"),
-                ImmutableMap.of("id", Type.LONG, "thing", Type.STRING),
+                ImmutableMap.of("id", Types.LONG, "thing", Types.STRING),
                 ImmutableSet.of("id"),
                 ImmutableSet.of(),
                 ImmutableMap.of(),

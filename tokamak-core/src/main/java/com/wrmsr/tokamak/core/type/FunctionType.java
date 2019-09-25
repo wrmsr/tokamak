@@ -11,25 +11,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.wrmsr.tokamak.core.type;
 
-import javax.annotation.concurrent.Immutable;
-
-import java.lang.reflect.Type;
-import java.util.List;
-
-@Immutable
-public final class TupleType
-        extends ArgsType
+public class FunctionType
 {
-    public TupleType(List<Object> args)
-    {
-        super("Tuple", args);
-    }
-
-    @Override
-    public Type getReflect()
-    {
-        return null;
-    }
 }

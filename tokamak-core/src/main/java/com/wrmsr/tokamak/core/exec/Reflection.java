@@ -13,7 +13,7 @@
  */
 package com.wrmsr.tokamak.core.exec;
 
-import com.wrmsr.tokamak.core.type.TypeUtils;
+import com.wrmsr.tokamak.core.type.Types;
 
 import java.lang.reflect.Method;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -40,9 +40,9 @@ public final class Reflection
         return new SimpleExecutable(
                 name,
                 new Signature(
-                        TypeUtils.fromJavaType(method.getReturnType()),
+                        Types.fromJavaType(method.getReturnType()),
                         IntStream.range(0, method.getParameterTypes().length).boxed()
-                                .collect(toImmutableMap(i -> "arg" + i, i -> TypeUtils.fromJavaType(method.getParameterTypes()[i])))),
+                                .collect(toImmutableMap(i -> "arg" + i, i -> Types.fromJavaType(method.getParameterTypes()[i])))),
                 args -> {
                     try {
                         return method.invoke(null, args);

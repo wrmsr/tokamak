@@ -13,33 +13,25 @@
  */
 package com.wrmsr.tokamak.core.type;
 
-import com.google.common.collect.ImmutableMap;
-
 import javax.annotation.concurrent.Immutable;
 
 import java.util.Map;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 @Immutable
 public final class StructType
-        implements Type
+        extends KwargsType
 {
-    private final Map<String, Type> fields;
-
-    public StructType(Map<String, Type> fields)
+    public StructType(Map<String, Object> kwargs)
     {
-        this.fields = ImmutableMap.copyOf(fields);
+        super("Struct", kwargs);
+        this.kwargs.forEach((k, v) -> checkArgument(v instanceof Type));
     }
 
     @Override
-    public String toString()
+    public java.lang.reflect.Type getReflect()
     {
-        return "StructType{" +
-                "fields=" + fields +
-                '}';
-    }
-
-    public Map<String, Type> getFields()
-    {
-        return fields;
+        return null;
     }
 }

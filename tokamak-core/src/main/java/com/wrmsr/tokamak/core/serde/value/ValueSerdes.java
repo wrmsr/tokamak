@@ -17,6 +17,7 @@ import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.core.serde.Width;
 import com.wrmsr.tokamak.core.type.Type;
+import com.wrmsr.tokamak.core.type.Types;
 
 import java.util.Map;
 import java.util.OptionalInt;
@@ -84,10 +85,10 @@ public final class ValueSerdes
 
     @SuppressWarnings({"rawtypes"})
     public static final Map<Type, ValueSerde> VALUE_SERDES_BY_TYPE = ImmutableMap.<Type, ValueSerde>builder()
-            .put(Type.BOOLEAN, BOOLEAN_VALUE_SERDE)
-            .put(Type.LONG, LONG_VALUE_SERDE)
-            .put(Type.DOUBLE, DOUBLE_VALUE_SERDE)
-            .put(Type.BYTES, BYTES_VALUE_SERDE)
-            .put(Type.STRING, STRING_VALUE_SERDE)
+            .put(Types.BOOLEAN, BOOLEAN_VALUE_SERDE)
+            .put(Types.LONG, LONG_VALUE_SERDE)
+            .put(Types.DOUBLE, DOUBLE_VALUE_SERDE)
+            .put(Types.BYTES, BYTES_VALUE_SERDE)
+            .put(Types.STRING, STRING_VALUE_SERDE)
             .build();
 }

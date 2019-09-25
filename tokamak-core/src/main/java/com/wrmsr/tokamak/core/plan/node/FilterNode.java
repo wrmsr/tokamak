@@ -18,6 +18,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.core.plan.node.visitor.NodeVisitor;
 import com.wrmsr.tokamak.core.type.Type;
+import com.wrmsr.tokamak.core.type.Types;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -52,7 +53,7 @@ public final class FilterNode
         this.args = ImmutableList.copyOf(args);
         this.unlinked = unlinked;
 
-        checkArgument(function.getSignature().getType() == Type.BOOLEAN);
+        checkArgument(function.getSignature().getType() == Types.BOOLEAN);
         checkArgument(function.getSignature().getParams().size() == this.args.size());
 
         // FIXME: check

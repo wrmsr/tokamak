@@ -11,24 +11,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.wrmsr.tokamak.core.type;
 
 import javax.annotation.concurrent.Immutable;
 
-import java.lang.reflect.Type;
-import java.util.List;
+import java.util.Map;
+
+import static com.google.common.base.Preconditions.checkArgument;
 
 @Immutable
-public final class TupleType
-        extends ArgsType
+public final class EnumType
+        extends KwargsType
 {
-    public TupleType(List<Object> args)
+    public EnumType(Map<String, Object> kwargs)
     {
-        super("Tuple", args);
+        super("Enum", kwargs);
+        this.kwargs.forEach((k, v) -> checkArgument(v instanceof Long));
     }
 
     @Override
-    public Type getReflect()
+    public java.lang.reflect.Type getReflect()
     {
         return null;
     }

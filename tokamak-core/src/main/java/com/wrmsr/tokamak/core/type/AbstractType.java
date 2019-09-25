@@ -11,50 +11,48 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.wrmsr.tokamak.core.type;
 
 import javax.annotation.concurrent.Immutable;
 
+import java.util.OptionalInt;
+
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 
 @Immutable
-public final class PrimitiveType<T>
-        extends AbstractType
+public abstract class AbstractType
+        implements Type
 {
-    private final Class<T> cls;
-    private final Class<?> primCls;
+    protected final String name;
+    protected final OptionalInt fixedSize;
 
-    public PrimitiveType(String name, Class<T> cls, Class<?> primCls, int fixedSize)
+    public AbstractType(String name, OptionalInt fixedSize)
     {
-        super(name, fixedSize);
-        this.cls = checkNotNull(cls);
-        this.primCls = checkNotNull(primCls);
+        this.name = checkNotEmpty(name);
+        this.fixedSize = checkNotNull(fixedSize);
+    }
+
+    public AbstractType(String name, int fixedSize)
+    {
+        this(name, OptionalInt.of(fixedSize));
+    }
+
+    public AbstractType(String name)
+    {
+        this(name, OptionalInt.empty());
     }
 
     @Override
-    public String toString()
+    public String getName()
     {
-        return "PrimitiveType{" +
-                "name='" + name + '\'' +
-                ", cls=" + cls +
-                ", primCls=" + primCls +
-                ", fixedSize=" + fixedSize.getAsInt() +
-                '}';
+        return name;
     }
 
     @Override
-    public java.lang.reflect.Type getReflect()
+    public OptionalInt getFixedSize()
     {
-        return cls;
-    }
-
-    public Class<T> getCls()
-    {
-        return cls;
-    }
-
-    public Class<?> getPrimCls()
-    {
-        return primCls;
+        return fixedSize;
     }
 }

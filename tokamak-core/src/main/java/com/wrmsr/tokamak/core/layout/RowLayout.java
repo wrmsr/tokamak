@@ -53,7 +53,7 @@ public final class RowLayout
         fieldNames = ImmutableList.copyOf(this.fields.keySet());
         positionsByField = IntStream.range(0, fields.size()).boxed().collect(toImmutableMap(fieldNames::get, identity()));
 
-        structType = new StructType(this.fields);
+        structType = new StructType(ImmutableMap.copyOf(this.fields));
         shape = ObjectArrayBackedMap.Shape.of(fieldNames);
     }
 

@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.core.plan.node.visitor.NodeVisitor;
 import com.wrmsr.tokamak.core.type.Type;
+import com.wrmsr.tokamak.core.type.Types;
 import com.wrmsr.tokamak.util.collect.OrderPreservingImmutableMap;
 
 import javax.annotation.concurrent.Immutable;
@@ -63,11 +64,11 @@ public final class UnnestNode
         checkArgument(fields.containsKey(listField));
         if (indexField.isPresent()) {
             if (fields.containsKey(indexField.get())) {
-                checkArgument(fields.get(indexField.get()) == Type.LONG);
+                checkArgument(fields.get(indexField.get()) == Types.LONG);
             }
             else {
                 fields = newLinkedHashMap(fields);
-                fields.put(indexField.get(), Type.LONG);
+                fields.put(indexField.get(), Types.LONG);
             }
         }
         for (Map.Entry<String, Type> entry : this.unnestedFields.entrySet()) {

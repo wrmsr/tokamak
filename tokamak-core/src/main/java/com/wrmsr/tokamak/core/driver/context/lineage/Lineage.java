@@ -15,6 +15,7 @@
 package com.wrmsr.tokamak.core.driver.context.lineage;
 
 import com.wrmsr.tokamak.api.Id;
+import com.wrmsr.tokamak.core.driver.DriverRow;
 import com.wrmsr.tokamak.core.plan.node.Node;
 
 import javax.annotation.concurrent.Immutable;
@@ -30,6 +31,11 @@ public interface Lineage
         Node getNode();
 
         Id getId();
+    }
+
+    interface Policy
+    {
+        Lineage build(DriverRow... rows);
     }
 
     Set<Entry> getEntries();

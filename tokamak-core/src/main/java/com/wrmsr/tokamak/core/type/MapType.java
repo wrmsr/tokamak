@@ -13,19 +13,24 @@
  */
 package com.wrmsr.tokamak.core.type;
 
+import com.google.common.collect.ImmutableList;
+
 import javax.annotation.concurrent.Immutable;
+
+import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
 public final class MapType
-        implements Type
+        extends AbstractType
 {
     private final Type keyType;
     private final Type valueType;
 
     public MapType(Type keyType, Type valueType)
     {
+        super("Map");
         this.keyType = checkNotNull(keyType);
         this.valueType = checkNotNull(valueType);
     }
@@ -47,5 +52,17 @@ public final class MapType
     public Type getValueType()
     {
         return valueType;
+    }
+
+    @Override
+    public java.lang.reflect.Type getReflect()
+    {
+        return Map.class;
+    }
+
+    @Override
+    public String toRepr()
+    {
+        return Types.buildArgsRepr(name, ImmutableList.of(keyType, valueType));
     }
 }

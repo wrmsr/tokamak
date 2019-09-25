@@ -18,6 +18,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.core.plan.node.PersistNode;
+import com.wrmsr.tokamak.core.type.Types;
 import com.wrmsr.tokamak.core.util.ApiJson;
 import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.api.Row;
@@ -140,9 +141,9 @@ public class CoreTest
                 "scan0",
                 SchemaTable.of("PUBLIC", "NATION"),
                 ImmutableMap.of(
-                        "N_NATIONKEY", Type.LONG,
-                        "N_NAME", Type.STRING,
-                        "N_REGIONKEY", Type.LONG
+                        "N_NATIONKEY", Types.LONG,
+                        "N_NAME", Types.STRING,
+                        "N_REGIONKEY", Types.LONG
                 ),
                 ImmutableSet.of("N_NATIONKEY"),
                 ImmutableSet.of(),
@@ -170,8 +171,8 @@ public class CoreTest
                 "scan1",
                 SchemaTable.of("PUBLIC", "REGION"),
                 ImmutableMap.of(
-                        "R_REGIONKEY", Type.LONG,
-                        "R_NAME", Type.STRING
+                        "R_REGIONKEY", Types.LONG,
+                        "R_NAME", Types.STRING
                 ),
                 ImmutableSet.of("R_REGIONKEY"),
                 ImmutableSet.of(),
@@ -255,8 +256,8 @@ public class CoreTest
                 SchemaTable.of("stuff_schema", "stuff_table"),
                 new TableLayout(
                         new RowLayout(ImmutableMap.of(
-                                "id", Type.LONG,
-                                "str", Type.STRING
+                                "id", Types.LONG,
+                                "str", Types.STRING
                         )),
                         new TableLayout.Key(ImmutableList.of("id")),
                         ImmutableList.of()));
@@ -290,8 +291,8 @@ public class CoreTest
                 "scan0",
                 SchemaTable.of("stuff_schema", "stuff_table"),
                 ImmutableMap.of(
-                        "id", Type.LONG,
-                        "str", Type.STRING
+                        "id", Types.LONG,
+                        "str", Types.STRING
                 ),
                 ImmutableSet.of("id"),
                 ImmutableSet.of(),
