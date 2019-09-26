@@ -13,18 +13,26 @@
  */
 package com.wrmsr.tokamak.core.driver.context;
 
+import com.google.common.collect.ImmutableMap;
+import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.core.driver.context.lineage.LineageEntry;
 import com.wrmsr.tokamak.core.driver.context.state.StateCache;
+import com.wrmsr.tokamak.core.driver.state.Linkage;
 import com.wrmsr.tokamak.core.driver.state.State;
+import com.wrmsr.tokamak.core.plan.node.NodeId;
 import com.wrmsr.tokamak.core.plan.node.StatefulNode;
+
+import javax.annotation.Nullable;
 
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 
 public class LinkageManager
 {
@@ -66,17 +74,42 @@ public class LinkageManager
         }
     }
 
-    private void buildStateLinkage(State state)
+    private Map<NodeId, Linkage.Links> buildLinks(Set<State> states, Map<NodeId, Linkage.Links> existingLinks)
     {
-        // state.getLinkage().getInput()
+        Map<NodeId, Set<Id>> newInputLinkage = new HashMap<>();
+
+        existingLinks.forEach((nodeId, links) -> {
+            if (links instanceof Linkage.IdLinks) {
+                Linkage.IdLinks idLinks = (Linkage.IdLinks) links;
+                newInputLinkage.computeIfAbsent(nodeId, sn -> new HashSet<>()).addAll(idLinks.getIds());
+            }
+            else {
+                throw new IllegalStateException(Objects.toString(links));
+            }
+        });
+
+        for (State inputState : states) {
+            newInputLinkage.computeIfAbsent(inputState.getNode().getId(), sn -> new HashSet<>()).add(inputState.getId());
+        }
+
+        return newInputLinkage.entrySet().stream().collect(toImmutableMap(Map.Entry::getKey, e -> new Linkage.IdLinks(e.getValue())));
+    }
+
+    private Linkage buildLinkage(Entry entry)
+    {
+        @Nullable Linkage existingLinkage = entry.state.getLinkage();
+        Map<NodeId, Linkage.Links> inputLinks = buildLinks(
+                entry.inputStates, existingLinkage != null ? existingLinkage.getInput() : ImmutableMap.of());
+        Map<NodeId, Linkage.Links> outputLinks = buildLinks(
+                entry.outputStates, existingLinkage != null ? existingLinkage.getOutput() : ImmutableMap.of());
+        return new Linkage(inputLinks, outputLinks);
     }
 
     public void update()
     {
-        for (State state : stateCache.getAll()) {
-            buildStateLinkage(state);
+        for (Entry entry : entriesByState.values()) {
+            Linkage linkage = buildLinkage(entry);
+            entry.state.setLinkage(linkage);
         }
-
-        throw new IllegalStateException();
     }
 }
