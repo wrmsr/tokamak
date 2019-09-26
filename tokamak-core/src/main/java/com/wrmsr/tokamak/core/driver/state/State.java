@@ -358,6 +358,8 @@ public final class State
     public void setLinkage(Linkage linkage)
     {
         checkNotNull(linkage);
+        checkMode(mode == Mode.EXCLUSIVE || mode == Mode.MODIFIED);
+        this.linkage = linkage;
     }
 
     private void checkMode()

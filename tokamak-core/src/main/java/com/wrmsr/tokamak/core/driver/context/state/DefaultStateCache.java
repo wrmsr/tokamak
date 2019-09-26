@@ -340,7 +340,6 @@ public class DefaultStateCache
             Map<Id, State> statesById = e0.getValue();
             StateStorageCodec stateStorageCodec = serdeManager.getStateStorageCodecsByNode().get(node);
             for (Map.Entry<Id, State> e1 : statesById.entrySet()) {
-                Id id = e1.getKey();
                 State state = e1.getValue();
                 StorageState storageState = stateStorageCodec.encode(state);
                 storageStates.add(storageState);
