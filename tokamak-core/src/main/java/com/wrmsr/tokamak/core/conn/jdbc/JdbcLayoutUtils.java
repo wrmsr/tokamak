@@ -13,12 +13,12 @@
  */
 package com.wrmsr.tokamak.core.conn.jdbc;
 
+import com.wrmsr.tokamak.core.layout.RowLayout;
+import com.wrmsr.tokamak.core.layout.TableLayout;
 import com.wrmsr.tokamak.util.sql.metadata.ColumnMetaData;
 import com.wrmsr.tokamak.util.sql.metadata.IndexMetaData;
 import com.wrmsr.tokamak.util.sql.metadata.PrimaryKeyMetaData;
 import com.wrmsr.tokamak.util.sql.metadata.TableDescription;
-import com.wrmsr.tokamak.core.layout.RowLayout;
-import com.wrmsr.tokamak.core.layout.TableLayout;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableMap.toImmutableMap;

@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class StatTracker
-    implements Stat.Updater
+        implements Stat.Updater
 {
     private final Map<Node, Map<Stat, Object>> valuesByStatByNode = new HashMap<>();
 

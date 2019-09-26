@@ -27,7 +27,6 @@ import javax.script.ScriptEngineManager;
 import javax.script.SimpleScriptContext;
 
 import java.io.InputStreamReader;
-import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static com.wrmsr.tokamak.util.MoreFiles.createTempDirectory;
@@ -101,7 +100,7 @@ public class JsTest
 
         V8Object receiver = v8.executeObjectScript("{}");
         V8Array parameters = new V8Array(v8);
-        Object ret2  = ret.call(receiver, parameters);
+        Object ret2 = ret.call(receiver, parameters);
         parameters.release();
 
         // String strRet = v8.executeStringScript("main()");

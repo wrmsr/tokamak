@@ -16,8 +16,8 @@ package com.wrmsr.tokamak.core.memcache;
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
-import com.wrmsr.tokamak.util.io.CrLfByteReader;
 import com.wrmsr.tokamak.util.collect.StreamableIterable;
+import com.wrmsr.tokamak.util.io.CrLfByteReader;
 import junit.framework.TestCase;
 
 import java.io.IOException;

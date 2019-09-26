@@ -13,8 +13,8 @@
  */
 package com.wrmsr.tokamak.core.conn.jdbc;
 
-import com.wrmsr.tokamak.util.sql.metadata.ColumnMetaData;
 import com.wrmsr.tokamak.core.type.Type;
+import com.wrmsr.tokamak.util.sql.metadata.ColumnMetaData;
 
 import java.sql.Types;
 import java.util.Objects;

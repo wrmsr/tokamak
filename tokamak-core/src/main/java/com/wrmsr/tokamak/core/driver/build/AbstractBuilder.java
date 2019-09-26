@@ -27,7 +27,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public abstract class AbstractBuilder<T extends Node>
-    implements Builder<T>
+        implements Builder<T>
 {
     protected final DriverImpl driver;
     protected final T node;

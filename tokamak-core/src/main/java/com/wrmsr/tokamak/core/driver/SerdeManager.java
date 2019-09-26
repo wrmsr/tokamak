@@ -14,7 +14,11 @@
 package com.wrmsr.tokamak.core.driver;
 
 import com.google.common.collect.ImmutableMap;
+import com.wrmsr.tokamak.core.driver.state.LinkageMapStorageCodec;
+import com.wrmsr.tokamak.core.driver.state.StateStorageCodec;
+import com.wrmsr.tokamak.core.plan.Plan;
 import com.wrmsr.tokamak.core.plan.node.NodeId;
+import com.wrmsr.tokamak.core.plan.node.StateNode;
 import com.wrmsr.tokamak.core.serde.row.RowSerde;
 import com.wrmsr.tokamak.core.serde.row.RowSerdes;
 import com.wrmsr.tokamak.core.serde.value.NullableValueSerde;
@@ -22,10 +26,6 @@ import com.wrmsr.tokamak.core.serde.value.TupleValueSerde;
 import com.wrmsr.tokamak.core.serde.value.ValueSerde;
 import com.wrmsr.tokamak.core.serde.value.ValueSerdes;
 import com.wrmsr.tokamak.core.serde.value.VariableLengthValueSerde;
-import com.wrmsr.tokamak.core.driver.state.LinkageMapStorageCodec;
-import com.wrmsr.tokamak.core.driver.state.StateStorageCodec;
-import com.wrmsr.tokamak.core.plan.node.StateNode;
-import com.wrmsr.tokamak.core.plan.Plan;
 import com.wrmsr.tokamak.util.lazy.SupplierLazyValue;
 
 import java.util.List;

@@ -13,9 +13,9 @@
  */
 package com.wrmsr.tokamak.core.plan.dot;
 
+import com.wrmsr.tokamak.core.plan.Plan;
 import com.wrmsr.tokamak.core.plan.node.Node;
 import com.wrmsr.tokamak.core.plan.node.visitor.CachingNodeVisitor;
-import com.wrmsr.tokamak.core.plan.Plan;
 
 import java.nio.file.Files;
 import java.nio.file.Path;

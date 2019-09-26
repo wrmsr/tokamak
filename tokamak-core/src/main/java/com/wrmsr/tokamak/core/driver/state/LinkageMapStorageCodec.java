@@ -17,6 +17,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.core.plan.node.NodeId;
+import com.wrmsr.tokamak.core.plan.node.StateNode;
 import com.wrmsr.tokamak.core.serde.ByteArrayInput;
 import com.wrmsr.tokamak.core.serde.ByteArrayOutput;
 import com.wrmsr.tokamak.core.serde.Input;
@@ -24,18 +25,14 @@ import com.wrmsr.tokamak.core.serde.Output;
 import com.wrmsr.tokamak.core.serde.value.ValueSerde;
 import com.wrmsr.tokamak.core.serde.value.ValueSerdes;
 import com.wrmsr.tokamak.core.serde.value.VariableLengthValueSerde;
-import com.wrmsr.tokamak.core.plan.node.Node;
-import com.wrmsr.tokamak.core.plan.node.StateNode;
 import com.wrmsr.tokamak.util.codec.Codec;
 
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.collect.ImmutableSet.toImmutableSet;
 
 public final class LinkageMapStorageCodec
         implements Codec<Map<NodeId, Linkage.Links>, byte[]>

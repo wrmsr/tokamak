@@ -17,7 +17,6 @@ import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.core.driver.DriverRow;
-import com.wrmsr.tokamak.core.driver.state.State;
 import com.wrmsr.tokamak.core.plan.node.Node;
 
 import java.util.Collection;

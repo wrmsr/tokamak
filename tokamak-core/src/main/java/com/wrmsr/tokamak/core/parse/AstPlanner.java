@@ -14,15 +14,10 @@
 package com.wrmsr.tokamak.core.parse;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.core.catalog.Catalog;
 import com.wrmsr.tokamak.core.catalog.Table;
-import com.wrmsr.tokamak.core.plan.node.Node;
-import com.wrmsr.tokamak.core.plan.node.ProjectNode;
-import com.wrmsr.tokamak.core.plan.node.Projection;
-import com.wrmsr.tokamak.core.plan.node.ScanNode;
 import com.wrmsr.tokamak.core.parse.tree.AllSelectItem;
 import com.wrmsr.tokamak.core.parse.tree.Expression;
 import com.wrmsr.tokamak.core.parse.tree.ExpressionSelectItem;
@@ -33,6 +28,10 @@ import com.wrmsr.tokamak.core.parse.tree.SelectItem;
 import com.wrmsr.tokamak.core.parse.tree.TableName;
 import com.wrmsr.tokamak.core.parse.tree.TreeNode;
 import com.wrmsr.tokamak.core.parse.tree.visitor.AstVisitor;
+import com.wrmsr.tokamak.core.plan.node.Node;
+import com.wrmsr.tokamak.core.plan.node.ProjectNode;
+import com.wrmsr.tokamak.core.plan.node.Projection;
+import com.wrmsr.tokamak.core.plan.node.ScanNode;
 import com.wrmsr.tokamak.util.NameGenerator;
 
 import java.util.HashSet;

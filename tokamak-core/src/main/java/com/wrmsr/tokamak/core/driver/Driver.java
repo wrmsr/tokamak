@@ -19,8 +19,8 @@ import com.wrmsr.tokamak.api.Row;
 import com.wrmsr.tokamak.core.catalog.Catalog;
 import com.wrmsr.tokamak.core.catalog.Connection;
 import com.wrmsr.tokamak.core.catalog.Connector;
-import com.wrmsr.tokamak.core.plan.node.Node;
 import com.wrmsr.tokamak.core.plan.Plan;
+import com.wrmsr.tokamak.core.plan.node.Node;
 import com.wrmsr.tokamak.util.NoExceptAutoCloseable;
 
 import java.io.IOException;

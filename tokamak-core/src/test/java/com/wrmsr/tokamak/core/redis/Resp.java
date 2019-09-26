@@ -15,8 +15,8 @@ package com.wrmsr.tokamak.core.redis;
 
 import com.google.common.base.Charsets;
 import com.google.common.primitives.Bytes;
-import com.wrmsr.tokamak.util.io.CrLfByteReader;
 import com.wrmsr.tokamak.util.box.Box;
+import com.wrmsr.tokamak.util.io.CrLfByteReader;
 
 import java.io.IOException;
 import java.io.InputStream;
