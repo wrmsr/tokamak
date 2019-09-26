@@ -16,6 +16,7 @@ package com.wrmsr.tokamak.core.plan.node;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.core.plan.node.visitor.NodeVisitor;
 import com.wrmsr.tokamak.core.type.Type;
 
@@ -28,16 +29,19 @@ import java.util.Optional;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
-public final class PersistNode
-        extends StatefulNode
+public final class StateNode
+        extends AbstractNode
         implements SingleSourceNode
 {
     private final Node source;
     private final List<WriterTarget> writerTargets;
     private final boolean denormalized;
+    private final Map<String, Invalidation> invalidations;
+    private final Map<String, LinkageMask> linkageMasks;
+    private final Optional<LockOverride> lockOverride;
 
     @JsonCreator
-    public PersistNode(
+    public StateNode(
             @JsonProperty("name") String name,
             @JsonProperty("source") Node source,
             @JsonProperty("writerTargets") List<WriterTarget> writerTargets,
@@ -46,11 +50,14 @@ public final class PersistNode
             @JsonProperty("linkageMasks") Map<String, LinkageMask> linkageMasks,
             @JsonProperty("lockOverride") Optional<LockOverride> lockOverride)
     {
-        super(name, invalidations, linkageMasks, lockOverride);
+        super(name);
 
         this.source = checkNotNull(source);
         this.writerTargets = ImmutableList.copyOf(writerTargets);
         this.denormalized = denormalized;
+        this.invalidations = ImmutableMap.copyOf(invalidations);
+        this.linkageMasks = ImmutableMap.copyOf(linkageMasks);
+        this.lockOverride = checkNotNull(lockOverride);
 
         checkInvariants();
     }
@@ -72,6 +79,24 @@ public final class PersistNode
     public boolean isDenormalized()
     {
         return denormalized;
+    }
+
+    @JsonProperty("invalidations")
+    public Map<String, Invalidation> getInvalidations()
+    {
+        return invalidations;
+    }
+
+    @JsonProperty("linkageMasks")
+    public Map<String, LinkageMask> getLinkageMasks()
+    {
+        return linkageMasks;
+    }
+
+    @JsonProperty("lockOverride")
+    public Optional<LockOverride> getLockOverride()
+    {
+        return lockOverride;
     }
 
     @Override

@@ -24,7 +24,7 @@ import com.wrmsr.tokamak.core.serde.value.ValueSerdes;
 import com.wrmsr.tokamak.core.serde.value.VariableLengthValueSerde;
 import com.wrmsr.tokamak.core.driver.state.LinkageMapStorageCodec;
 import com.wrmsr.tokamak.core.driver.state.StateStorageCodec;
-import com.wrmsr.tokamak.core.plan.node.StatefulNode;
+import com.wrmsr.tokamak.core.plan.node.StateNode;
 import com.wrmsr.tokamak.core.plan.Plan;
 import com.wrmsr.tokamak.util.lazy.SupplierLazyValue;
 
@@ -53,23 +53,23 @@ public final class SerdeManager
         return plan;
     }
 
-    private final SupplierLazyValue<Map<StatefulNode, RowSerde>> rowSerdesByStatefulNode = new SupplierLazyValue<>();
+    private final SupplierLazyValue<Map<StateNode, RowSerde>> rowSerdesByStateNode = new SupplierLazyValue<>();
 
-    public Map<StatefulNode, RowSerde> getRowSerdesByStatefulNode()
+    public Map<StateNode, RowSerde> getRowSerdesByStateNode()
     {
-        return rowSerdesByStatefulNode.get(() -> plan.getNodeTypeList(StatefulNode.class).stream()
+        return rowSerdesByStateNode.get(() -> plan.getNodeTypeList(StateNode.class).stream()
                 .collect(toImmutableMap(identity(), n -> RowSerdes.buildRowSerde(n.getFields()))));
     }
 
-    private final SupplierLazyValue<Map<StatefulNode, ValueSerde<Object[]>>> attributesSerdesByStatefulNode = new SupplierLazyValue<>();
+    private final SupplierLazyValue<Map<StateNode, ValueSerde<Object[]>>> attributesSerdesByStateNode = new SupplierLazyValue<>();
 
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public Map<StatefulNode, ValueSerde<Object[]>> getAttributesSerdesByStatefulNode()
+    public Map<StateNode, ValueSerde<Object[]>> getAttributesSerdesByStateNode()
     {
-        return attributesSerdesByStatefulNode.get(() -> {
-            ImmutableMap.Builder<StatefulNode, ValueSerde<Object[]>> builder = ImmutableMap.builder();
+        return attributesSerdesByStateNode.get(() -> {
+            ImmutableMap.Builder<StateNode, ValueSerde<Object[]>> builder = ImmutableMap.builder();
 
-            for (StatefulNode node : plan.getNodeTypeList(StatefulNode.class)) {
+            for (StateNode node : plan.getNodeTypeList(StateNode.class)) {
                 List<ValueSerde> parts = node.getFields().values().stream()
                         .map(t -> {
                             ValueSerde serde = checkNotNull(ValueSerdes.VALUE_SERDES_BY_TYPE.get(t));
@@ -88,18 +88,18 @@ public final class SerdeManager
         });
     }
 
-    private final SupplierLazyValue<Map<StatefulNode, StateStorageCodec>> stateStorageCodecByStatefulNode = new SupplierLazyValue<>();
+    private final SupplierLazyValue<Map<StateNode, StateStorageCodec>> stateStorageCodecByStateNode = new SupplierLazyValue<>();
 
-    public Map<StatefulNode, StateStorageCodec> getStateStorageCodecsByNode()
+    public Map<StateNode, StateStorageCodec> getStateStorageCodecsByNode()
     {
-        return stateStorageCodecByStatefulNode.get(() -> {
-            Map<NodeId, ValueSerde<Object[]>> attributesSerdeByNodeId = getAttributesSerdesByStatefulNode().entrySet().stream()
+        return stateStorageCodecByStateNode.get(() -> {
+            Map<NodeId, ValueSerde<Object[]>> attributesSerdeByNodeId = getAttributesSerdesByStateNode().entrySet().stream()
                     .collect(toImmutableMap(e -> e.getKey().getId(), Map.Entry::getValue));
 
-            return plan.getNodeTypeList(StatefulNode.class).stream()
+            return plan.getNodeTypeList(StateNode.class).stream()
                     .map(n -> new StateStorageCodec(
                             n,
-                            getAttributesSerdesByStatefulNode().get(n),
+                            getAttributesSerdesByStateNode().get(n),
                             new LinkageMapStorageCodec(
                                     n,
                                     attributesSerdeByNodeId,

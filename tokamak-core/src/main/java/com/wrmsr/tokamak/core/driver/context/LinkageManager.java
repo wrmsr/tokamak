@@ -20,7 +20,7 @@ import com.wrmsr.tokamak.core.driver.context.state.StateCache;
 import com.wrmsr.tokamak.core.driver.state.Linkage;
 import com.wrmsr.tokamak.core.driver.state.State;
 import com.wrmsr.tokamak.core.plan.node.NodeId;
-import com.wrmsr.tokamak.core.plan.node.StatefulNode;
+import com.wrmsr.tokamak.core.plan.node.StateNode;
 
 import javax.annotation.Nullable;
 
@@ -61,11 +61,11 @@ public class LinkageManager
     {
         Entry entry = entriesByState.computeIfAbsent(state, Entry::new);
         for (LineageEntry le : lineage) {
-            if (!(le.getNode() instanceof StatefulNode)) {
+            if (!(le.getNode() instanceof StateNode)) {
                 continue;
             }
 
-            StatefulNode inputNode = (StatefulNode) le.getNode();
+            StateNode inputNode = (StateNode) le.getNode();
             State inputState = stateCache.get(inputNode, le.getId(), EnumSet.of(StateCache.GetFlag.NOLOAD)).get();
             Entry inputEntry = entriesByState.computeIfAbsent(inputState, Entry::new);
 

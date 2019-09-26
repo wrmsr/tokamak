@@ -13,9 +13,9 @@
  */
 package com.wrmsr.tokamak.core.driver.state;
 
+import com.wrmsr.tokamak.core.plan.node.StateNode;
 import com.wrmsr.tokamak.core.serde.value.PrefixedValueSerde;
 import com.wrmsr.tokamak.core.serde.value.ValueSerde;
-import com.wrmsr.tokamak.core.plan.node.StatefulNode;
 import com.wrmsr.tokamak.util.codec.Codec;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -26,14 +26,14 @@ public final class StateStorageCodec
 {
     private static final byte ATTRIBUTES_PREFIX = 0x41;
 
-    private final StatefulNode node;
+    private final StateNode node;
     private final ValueSerde<Object[]> attributesSerde;
     private final LinkageMapStorageCodec linkageMapStorageCodec;
 
     private final ValueSerde<Object[]> prefixedAttributesSerde;
 
     public StateStorageCodec(
-            StatefulNode node,
+            StateNode node,
             ValueSerde<Object[]> attributesSerde,
             LinkageMapStorageCodec linkageMapStorageCodec)
     {
@@ -44,7 +44,7 @@ public final class StateStorageCodec
         prefixedAttributesSerde = new PrefixedValueSerde<>(new byte[] {ATTRIBUTES_PREFIX}, this.attributesSerde);
     }
 
-    public StatefulNode getNode()
+    public StateNode getNode()
     {
         return node;
     }

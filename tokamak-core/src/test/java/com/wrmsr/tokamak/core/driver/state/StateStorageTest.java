@@ -13,13 +13,14 @@
  */
 package com.wrmsr.tokamak.core.driver.state;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.core.conn.heap.MapHeapStateStorage;
 import com.wrmsr.tokamak.core.plan.node.ScanNode;
-import com.wrmsr.tokamak.core.plan.node.StatefulNode;
+import com.wrmsr.tokamak.core.plan.node.StateNode;
 import com.wrmsr.tokamak.core.type.Types;
 import junit.framework.TestCase;
 
@@ -33,20 +34,26 @@ public class StateStorageTest
     public void testMap()
             throws Throwable
     {
-        StatefulNode scanNode = new ScanNode(
+        ScanNode scanNode = new ScanNode(
                 "scan",
                 SchemaTable.of("s", "t"),
                 ImmutableMap.of("id", Types.LONG),
                 ImmutableSet.of("id"),
-                ImmutableSet.of(),
+                ImmutableSet.of());
+
+        StateNode stateNode = new StateNode(
+                "state",
+                scanNode,
+                ImmutableList.of(),
+                false,
                 ImmutableMap.of(),
                 ImmutableMap.of(),
                 Optional.empty());
 
         StateStorage ss = new MapHeapStateStorage();
-        Map<StatefulNode, Map<Id, StorageState>> map = ss.get(
+        Map<StateNode, Map<Id, StorageState>> map = ss.get(
                 ss.createContext(),
-                ImmutableMap.of(scanNode, ImmutableSet.of(Id.of(420))),
+                ImmutableMap.of(stateNode, ImmutableSet.of(Id.of(420))),
                 EnumSet.of(StateStorage.GetFlag.CREATE));
 
         System.out.println(map);

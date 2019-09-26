@@ -22,8 +22,6 @@ import com.wrmsr.tokamak.core.type.Types;
 import com.wrmsr.tokamak.util.json.Json;
 import org.junit.Test;
 
-import java.util.Optional;
-
 public class NodesTest
 {
     @Test
@@ -52,10 +50,7 @@ public class NodesTest
                 SchemaTable.of("public", "hi"),
                 ImmutableMap.of("id", Types.LONG, "thing", Types.STRING),
                 ImmutableSet.of("id"),
-                ImmutableSet.of(),
-                ImmutableMap.of(),
-                ImmutableMap.of(),
-                Optional.empty());
+                ImmutableSet.of());
 
         Node projectNode = new ProjectNode(
                 "project0",

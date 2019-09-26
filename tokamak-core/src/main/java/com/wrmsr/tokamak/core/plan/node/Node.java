@@ -33,7 +33,7 @@ import java.util.Map;
         @JsonSubTypes.Type(value = FilterNode.class, name = "filter"),
         @JsonSubTypes.Type(value = ListAggregateNode.class, name = "listAggregate"),
         @JsonSubTypes.Type(value = LookupJoinNode.class, name = "lookupJoin"),
-        @JsonSubTypes.Type(value = PersistNode.class, name = "persist"),
+        @JsonSubTypes.Type(value = StateNode.class, name = "persist"),
         @JsonSubTypes.Type(value = ProjectNode.class, name = "project"),
         @JsonSubTypes.Type(value = ScanNode.class, name = "scan"),
         @JsonSubTypes.Type(value = UnionNode.class, name = "union"),

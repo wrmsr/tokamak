@@ -20,7 +20,7 @@ import com.wrmsr.tokamak.core.plan.node.FilterNode;
 import com.wrmsr.tokamak.core.plan.node.ListAggregateNode;
 import com.wrmsr.tokamak.core.plan.node.LookupJoinNode;
 import com.wrmsr.tokamak.core.plan.node.Node;
-import com.wrmsr.tokamak.core.plan.node.PersistNode;
+import com.wrmsr.tokamak.core.plan.node.StateNode;
 import com.wrmsr.tokamak.core.plan.node.ProjectNode;
 import com.wrmsr.tokamak.core.plan.node.ScanNode;
 import com.wrmsr.tokamak.core.plan.node.UnionNode;
@@ -66,7 +66,7 @@ public abstract class NodeVisitor<R, C>
         return visitNode(node, context);
     }
 
-    public R visitPersistNode(PersistNode node, C context)
+    public R visitPersistNode(StateNode node, C context)
     {
         return visitNode(node, context);
     }

@@ -16,7 +16,7 @@ package com.wrmsr.tokamak.core.conn.heap;
 import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.core.driver.state.StorageState;
-import com.wrmsr.tokamak.core.plan.node.StatefulNode;
+import com.wrmsr.tokamak.core.plan.node.StateNode;
 import com.wrmsr.tokamak.util.Span;
 
 import java.io.IOException;
@@ -36,7 +36,7 @@ public class MapHeapStateStorage
      - locks
     */
 
-    private final Map<StatefulNode, Map<Id, StorageState>> statesByIdByNode = new HashMap<>();
+    private final Map<StateNode, Map<Id, StorageState>> statesByIdByNode = new HashMap<>();
 
     @Override
     public Context createContext()
@@ -51,12 +51,12 @@ public class MapHeapStateStorage
     }
 
     @Override
-    public Map<StatefulNode, Map<Id, StorageState>> get(Context ctx, Map<StatefulNode, Set<Id>> idSetsByNode, EnumSet<GetFlag> flags)
+    public Map<StateNode, Map<Id, StorageState>> get(Context ctx, Map<StateNode, Set<Id>> idSetsByNode, EnumSet<GetFlag> flags)
             throws IOException
     {
-        ImmutableMap.Builder<StatefulNode, Map<Id, StorageState>> ret = ImmutableMap.builder();
-        for (Map.Entry<StatefulNode, Set<Id>> entry : idSetsByNode.entrySet()) {
-            StatefulNode node = entry.getKey();
+        ImmutableMap.Builder<StateNode, Map<Id, StorageState>> ret = ImmutableMap.builder();
+        for (Map.Entry<StateNode, Set<Id>> entry : idSetsByNode.entrySet()) {
+            StateNode node = entry.getKey();
             Map<Id, StorageState> nodeMap = statesByIdByNode.computeIfAbsent(node, n -> new HashMap<>());
             Map<Id, StorageState> retMap = new LinkedHashMap<>();
 
@@ -103,13 +103,13 @@ public class MapHeapStateStorage
     }
 
     @Override
-    public void allocate(Context ctx, StatefulNode node, Iterable<Id> ids)
+    public void allocate(Context ctx, StateNode node, Iterable<Id> ids)
             throws IOException
     {
     }
 
     @Override
-    public List<Id> getSpanIds(Context ctx, StatefulNode node, Span<Id> span, OptionalInt limit)
+    public List<Id> getSpanIds(Context ctx, StateNode node, Span<Id> span, OptionalInt limit)
             throws IOException
     {
         throw new UnsupportedOperationException();

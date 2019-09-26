@@ -18,7 +18,7 @@ import com.wrmsr.tokamak.core.driver.DriverImpl;
 import com.wrmsr.tokamak.core.driver.DriverRow;
 import com.wrmsr.tokamak.core.driver.context.DriverContextImpl;
 import com.wrmsr.tokamak.core.plan.node.Node;
-import com.wrmsr.tokamak.core.plan.node.PersistNode;
+import com.wrmsr.tokamak.core.plan.node.StateNode;
 
 import java.util.Collection;
 import java.util.Map;
@@ -26,9 +26,9 @@ import java.util.Map;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 
 public final class PersistBuilder
-        extends SingleSourceBuilder<PersistNode>
+        extends SingleSourceBuilder<StateNode>
 {
-    public PersistBuilder(DriverImpl driver, PersistNode node, Map<Node, Builder> sources)
+    public PersistBuilder(DriverImpl driver, StateNode node, Map<Node, Builder> sources)
     {
         super(driver, node, sources);
     }

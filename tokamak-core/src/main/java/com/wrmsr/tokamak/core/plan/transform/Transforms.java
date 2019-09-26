@@ -16,12 +16,12 @@ package com.wrmsr.tokamak.core.plan.transform;
 import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.core.catalog.Catalog;
 import com.wrmsr.tokamak.core.catalog.Table;
+import com.wrmsr.tokamak.core.plan.Plan;
 import com.wrmsr.tokamak.core.plan.node.Node;
 import com.wrmsr.tokamak.core.plan.node.ProjectNode;
 import com.wrmsr.tokamak.core.plan.node.Projection;
 import com.wrmsr.tokamak.core.plan.node.ScanNode;
 import com.wrmsr.tokamak.core.plan.node.visitor.NodeRewriter;
-import com.wrmsr.tokamak.core.plan.Plan;
 import com.wrmsr.tokamak.core.type.Type;
 import com.wrmsr.tokamak.util.NameGenerator;
 
@@ -52,10 +52,7 @@ public final class Transforms
                             node.getSchemaTable(),
                             node.getFields(),
                             table.getLayout().getPrimaryKeyFields(),
-                            node.getIdNodes(),
-                            node.getInvalidations(),
-                            node.getLinkageMasks(),
-                            node.getLockOverride());
+                            node.getIdNodes());
                 }
                 else {
                     ImmutableMap.Builder<String, Type> newFields = ImmutableMap.builder();
@@ -71,10 +68,7 @@ public final class Transforms
                             node.getSchemaTable(),
                             newFields.build(),
                             table.getLayout().getPrimaryKeyFields(),
-                            node.getIdNodes(),
-                            node.getInvalidations(),
-                            node.getLinkageMasks(),
-                            node.getLockOverride());
+                            node.getIdNodes());
 
                     return new ProjectNode(
                             nameGenerator.get(),

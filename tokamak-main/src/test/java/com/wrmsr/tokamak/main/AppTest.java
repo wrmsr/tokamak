@@ -43,7 +43,6 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
-import java.util.Optional;
 import java.util.function.Supplier;
 
 public class AppTest
@@ -183,9 +182,6 @@ public class AppTest
                 SchemaTable.of("a", "b"),
                 ImmutableMap.of("id", Types.LONG),
                 ImmutableSet.of("id"),
-                ImmutableSet.of(),
-                ImmutableMap.of(),
-                ImmutableMap.of(),
-                Optional.empty());
+                ImmutableSet.of());
     }
 }

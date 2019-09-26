@@ -22,7 +22,7 @@ import com.wrmsr.tokamak.core.plan.node.FilterNode;
 import com.wrmsr.tokamak.core.plan.node.ListAggregateNode;
 import com.wrmsr.tokamak.core.plan.node.LookupJoinNode;
 import com.wrmsr.tokamak.core.plan.node.Node;
-import com.wrmsr.tokamak.core.plan.node.PersistNode;
+import com.wrmsr.tokamak.core.plan.node.StateNode;
 import com.wrmsr.tokamak.core.plan.node.ProjectNode;
 import com.wrmsr.tokamak.core.plan.node.ScanNode;
 import com.wrmsr.tokamak.core.plan.node.UnionNode;
@@ -62,7 +62,7 @@ public class BuilderFactory
                     .put(FilterNode.class, (d, n, s) -> new FilterBuilder(d, (FilterNode) n, s))
                     .put(ListAggregateNode.class, (d, n, s) -> new ListAggregateBuilder(d, (ListAggregateNode) n, s))
                     .put(LookupJoinNode.class, (d, n, s) -> new LookupJoinBuilder(d, (LookupJoinNode) n, s))
-                    .put(PersistNode.class, (d, n, s) -> new PersistBuilder(d, (PersistNode) n, s))
+                    .put(StateNode.class, (d, n, s) -> new PersistBuilder(d, (StateNode) n, s))
                     .put(ProjectNode.class, (d, n, s) -> new ProjectBuilder(d, (ProjectNode) n, s))
                     .put(ScanNode.class, (d, n, s) -> new ScanBuilder(d, (ScanNode) n, s))
                     .put(UnionNode.class, (d, n, s) -> new UnionBuilder(d, (UnionNode) n, s))

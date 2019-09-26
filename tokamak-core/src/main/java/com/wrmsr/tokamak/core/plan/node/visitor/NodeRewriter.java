@@ -22,7 +22,7 @@ import com.wrmsr.tokamak.core.plan.node.ListAggregateNode;
 import com.wrmsr.tokamak.core.plan.node.LockOverride;
 import com.wrmsr.tokamak.core.plan.node.LookupJoinNode;
 import com.wrmsr.tokamak.core.plan.node.Node;
-import com.wrmsr.tokamak.core.plan.node.PersistNode;
+import com.wrmsr.tokamak.core.plan.node.StateNode;
 import com.wrmsr.tokamak.core.plan.node.ProjectNode;
 import com.wrmsr.tokamak.core.plan.node.ScanNode;
 import com.wrmsr.tokamak.core.plan.node.UnionNode;
@@ -107,9 +107,9 @@ public abstract class NodeRewriter<C>
     }
 
     @Override
-    public Node visitPersistNode(PersistNode node, C context)
+    public Node visitPersistNode(StateNode node, C context)
     {
-        return new PersistNode(
+        return new StateNode(
                 visitNodeName(node.getName(), context),
                 get(node.getSource(), context),
                 node.getWriterTargets(),
@@ -138,12 +138,7 @@ public abstract class NodeRewriter<C>
                 node.getSchemaTable(),
                 node.getFields(),
                 node.getIdFields(),
-                node.getIdNodes(),
-                node.getInvalidations().entrySet().stream()
-                        .collect(ImmutableMap.toImmutableMap(e -> visitNodeName(e.getKey(), context), Map.Entry::getValue)),
-                node.getLinkageMasks().entrySet().stream()
-                        .collect(ImmutableMap.toImmutableMap(e -> visitNodeName(e.getKey(), context), Map.Entry::getValue)),
-                node.getLockOverride().map(lo -> new LockOverride(visitNodeName(lo.getNode(), context), lo.getField(), false)));
+                node.getIdNodes());
     }
 
     @Override

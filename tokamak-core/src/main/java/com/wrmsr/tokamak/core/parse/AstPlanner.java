@@ -204,10 +204,7 @@ public class AstPlanner
                         schemaTable,
                         columns.stream().collect(toImmutableMap(identity(), table.getRowLayout().getFields()::get)),
                         ImmutableSet.of(),
-                        ImmutableSet.of(),
-                        ImmutableMap.of(),
-                        ImmutableMap.of(),
-                        Optional.empty());
+                        ImmutableSet.of());
                 Node node = scanNode;
 
                 if (!columnsByLabel.keySet().equals(columns)) {

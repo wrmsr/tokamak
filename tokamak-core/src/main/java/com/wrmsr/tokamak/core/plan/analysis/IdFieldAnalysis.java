@@ -22,7 +22,7 @@ import com.wrmsr.tokamak.core.plan.node.FilterNode;
 import com.wrmsr.tokamak.core.plan.node.ListAggregateNode;
 import com.wrmsr.tokamak.core.plan.node.LookupJoinNode;
 import com.wrmsr.tokamak.core.plan.node.Node;
-import com.wrmsr.tokamak.core.plan.node.PersistNode;
+import com.wrmsr.tokamak.core.plan.node.StateNode;
 import com.wrmsr.tokamak.core.plan.node.ProjectNode;
 import com.wrmsr.tokamak.core.plan.node.ScanNode;
 import com.wrmsr.tokamak.core.plan.node.UnionNode;
@@ -149,7 +149,7 @@ public final class IdFieldAnalysis
             }
 
             @Override
-            public Entry visitPersistNode(PersistNode node, Void context)
+            public Entry visitPersistNode(StateNode node, Void context)
             {
                 return new Entry(node, get(node.getSource(), context));
             }

@@ -28,7 +28,6 @@ import com.wrmsr.tokamak.core.serde.row.RowSerde;
 import com.wrmsr.tokamak.core.serde.row.RowSerdes;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -40,7 +39,6 @@ import static java.util.function.Function.identity;
 
 public final class ScanBuilder
         extends AbstractBuilder<ScanNode>
-        implements ContextualBuilder<ScanNode>
 {
     private final RowSerde idSerde;
 
@@ -57,23 +55,9 @@ public final class ScanBuilder
                         .collect(toImmutableMap(identity(), node.getFields()::get)));
     }
 
-    private final class Context
-            implements BuilderContext
-    {
-        private final Map<Id, DriverRow> driverRowsById = new HashMap<>();
-    }
-
-    @Override
-    public BuilderContext buildContext(DriverContextImpl driverContext)
-    {
-        return new Context();
-    }
-
     @Override
     protected Collection<DriverRow> innerBuild(DriverContextImpl dctx, Key key)
     {
-        Context ctx = dctx.getBuildContext(this);
-
         Scanner scanner = driver.getScannersByNode().get(node);
         Schema schema = dctx.getDriver().getCatalog().getSchemasByName().get(node.getSchemaTable().getSchema());
         Connection connection = dctx.getConnection(schema.getConnector());
@@ -86,16 +70,12 @@ public final class ScanBuilder
         for (Map<String, Object> scanRow : scanRows) {
             Id id = Id.of(idSerde.encodeBytes(scanRow));
 
-            DriverRow row = ctx.driverRowsById.get(id);
-            if (row == null) {
-                Object[] attributes = scanRow.values().toArray();
-                row = new DriverRow(
-                        node,
-                        dctx.getDriver().getLineagePolicy().build(),
-                        id,
-                        attributes);
-                ctx.driverRowsById.put(id, row);
-            }
+            Object[] attributes = scanRow.values().toArray();
+            DriverRow row = new DriverRow(
+                    node,
+                    dctx.getDriver().getLineagePolicy().build(),
+                    id,
+                    attributes);
 
             rows.add(row);
         }

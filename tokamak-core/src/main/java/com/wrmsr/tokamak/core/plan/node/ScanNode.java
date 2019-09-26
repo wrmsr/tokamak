@@ -27,7 +27,6 @@ import com.wrmsr.tokamak.util.collect.OrderPreservingImmutableMap;
 import javax.annotation.concurrent.Immutable;
 
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -36,7 +35,7 @@ import static com.wrmsr.tokamak.util.MoreCollections.checkOrdered;
 
 @Immutable
 public final class ScanNode
-        extends StatefulNode
+        extends AbstractNode
         implements GeneratorNode
 {
     private final SchemaTable schemaTable;
@@ -50,12 +49,9 @@ public final class ScanNode
             @JsonProperty("schemaTable") SchemaTable schemaTable,
             @JsonProperty("fields") Map<String, Type> fields,
             @JsonProperty("idFields") Set<String> idFields,
-            @JsonProperty("idNodes") Set<String> idNodes,
-            @JsonProperty("invalidations") Map<String, Invalidation> invalidations,
-            @JsonProperty("linkageMasks") Map<String, LinkageMask> linkageMasks,
-            @JsonProperty("lockOverride") Optional<LockOverride> lockOverride)
+            @JsonProperty("idNodes") Set<String> idNodes)
     {
-        super(name, invalidations, linkageMasks, lockOverride);
+        super(name);
 
         this.schemaTable = checkNotNull(schemaTable);
         this.fields = ImmutableMap.copyOf(checkOrdered(fields));

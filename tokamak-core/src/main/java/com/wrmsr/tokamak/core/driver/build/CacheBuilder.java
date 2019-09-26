@@ -14,6 +14,7 @@
 package com.wrmsr.tokamak.core.driver.build;
 
 import com.google.common.collect.ImmutableList;
+import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.core.driver.DriverImpl;
 import com.wrmsr.tokamak.core.driver.DriverRow;
@@ -22,27 +23,57 @@ import com.wrmsr.tokamak.core.plan.node.CacheNode;
 import com.wrmsr.tokamak.core.plan.node.Node;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 
 public final class CacheBuilder
         extends SingleSourceBuilder<CacheNode>
+        implements ContextualBuilder<CacheNode>
 {
     public CacheBuilder(DriverImpl driver, CacheNode node, Map<Node, Builder> sources)
     {
         super(driver, node, sources);
     }
 
-    @Override
-    protected Collection<DriverRow> innerBuild(DriverContextImpl context, Key key)
+    private final class Context
+            implements BuilderContext
     {
+        private final Map<Id, DriverRow> driverRowsById = new HashMap<>();
+    }
+
+    @Override
+    public BuilderContext buildContext(DriverContextImpl driverContext)
+    {
+        return new Context();
+    }
+
+    @Override
+    protected Collection<DriverRow> innerBuild(DriverContextImpl dctx, Key key)
+    {
+        Context ctx = dctx.getBuildContext(this);
+
         ImmutableList.Builder<DriverRow> rows = ImmutableList.builder();
-        for (DriverRow row : context.build(node.getSource(), key)) {
-            rows.add(
-                    new DriverRow(
+        for (DriverRow row : dctx.build(node.getSource(), key)) {
+            if (row.getId() != null) {
+                DriverRow cacheRow = ctx.driverRowsById.get(row.getId());
+                if (cacheRow == null) {
+                    cacheRow = new DriverRow(
                             node,
-                            context.getDriver().getLineagePolicy().build(row),
+                            dctx.getDriver().getLineagePolicy().build(row),
                             row.getId(),
-                            row.getAttributes()));
+                            row.getAttributes());
+                    ctx.driverRowsById.put(row.getId(), cacheRow);
+                }
+                rows.add(cacheRow);
+            }
+            else {
+                rows.add(
+                        new DriverRow(
+                                node,
+                                dctx.getDriver().getLineagePolicy().build(row),
+                                row.getId(),
+                                row.getAttributes()));
+            }
         }
         return rows.build();
     }

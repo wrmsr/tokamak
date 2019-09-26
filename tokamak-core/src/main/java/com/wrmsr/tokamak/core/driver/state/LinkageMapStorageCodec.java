@@ -25,7 +25,7 @@ import com.wrmsr.tokamak.core.serde.value.ValueSerde;
 import com.wrmsr.tokamak.core.serde.value.ValueSerdes;
 import com.wrmsr.tokamak.core.serde.value.VariableLengthValueSerde;
 import com.wrmsr.tokamak.core.plan.node.Node;
-import com.wrmsr.tokamak.core.plan.node.StatefulNode;
+import com.wrmsr.tokamak.core.plan.node.StateNode;
 import com.wrmsr.tokamak.util.codec.Codec;
 
 import java.util.Map;
@@ -44,14 +44,14 @@ public final class LinkageMapStorageCodec
 
     private static final ValueSerde<Number> LONG_SERDE = ValueSerdes.LONG_VALUE_SERDE;
 
-    private final StatefulNode node;
+    private final StateNode node;
     private final Map<NodeId, ValueSerde<Object[]>> attributesSerdesByNodeId;
     private final int size;
 
     private final ValueSerde<byte[]> varBytesSerde;
 
     public LinkageMapStorageCodec(
-            StatefulNode node,
+            StateNode node,
             Map<NodeId, ValueSerde<Object[]>> attributesSerdesByNodeId,
             int size)
     {
@@ -67,7 +67,7 @@ public final class LinkageMapStorageCodec
         varBytesSerde = new VariableLengthValueSerde<>(ValueSerdes.BYTES_VALUE_SERDE);
     }
 
-    public StatefulNode getNode()
+    public StateNode getNode()
     {
         return node;
     }

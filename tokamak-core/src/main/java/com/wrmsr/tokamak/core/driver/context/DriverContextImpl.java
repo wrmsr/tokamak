@@ -29,7 +29,7 @@ import com.wrmsr.tokamak.core.driver.context.state.DefaultStateCache;
 import com.wrmsr.tokamak.core.driver.context.state.StateCache;
 import com.wrmsr.tokamak.core.driver.state.State;
 import com.wrmsr.tokamak.core.plan.node.Node;
-import com.wrmsr.tokamak.core.plan.node.StatefulNode;
+import com.wrmsr.tokamak.core.plan.node.StateNode;
 
 import java.util.Collection;
 import java.util.EnumSet;
@@ -125,8 +125,8 @@ public class DriverContextImpl
         }
 
         /*
-        if (builder.getNode() instanceof StatefulNode && key instanceof IdKey) {
-            StatefulNode statefulNode = (StatefulNode) builder.getNode();
+        if (builder.getNode() instanceof StateNode && key instanceof IdKey) {
+            StateNode statefulNode = (StateNode) builder.getNode();
             IdKey idKey = (IdKey) key;
             Optional<State> stateOpt = stateCache.get(statefulNode, idKey.getId(), EnumSet.of(StateCache.GetFlag.CREATE));
             if (stateOpt.isPresent()) {
@@ -153,8 +153,8 @@ public class DriverContextImpl
             addJournalEntry(new JournalEntry.UncachedBuildOutput(node, key, rows));
         }
 
-        if (node instanceof StatefulNode) {
-            StatefulNode statefulNode = (StatefulNode) node;
+        if (node instanceof StateNode) {
+            StateNode statefulNode = (StateNode) node;
             for (DriverRow row : rows) {
                 if (row.getId() == null) {
                     checkState(row.isNull());

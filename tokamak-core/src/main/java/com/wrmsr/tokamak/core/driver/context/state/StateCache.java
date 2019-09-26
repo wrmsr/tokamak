@@ -17,7 +17,7 @@ import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.api.Row;
 import com.wrmsr.tokamak.core.driver.state.State;
 import com.wrmsr.tokamak.core.plan.node.Node;
-import com.wrmsr.tokamak.core.plan.node.StatefulNode;
+import com.wrmsr.tokamak.core.plan.node.StateNode;
 import com.wrmsr.tokamak.util.Pair;
 
 import java.util.Collection;
@@ -35,17 +35,17 @@ public interface StateCache
         NOLOAD,
     }
 
-    Optional<State> get(StatefulNode node, Id id, EnumSet<GetFlag> flags);
+    Optional<State> get(StateNode node, Id id, EnumSet<GetFlag> flags);
 
     boolean contains(State state);
 
-    void invalidate(StatefulNode node, Set<Id> ids);
+    void invalidate(StateNode node, Set<Id> ids);
 
-    boolean isInvalidated(StatefulNode node, Id id);
+    boolean isInvalidated(StateNode node, Id id);
 
-    State createPhantom(StatefulNode node, Row row);
+    State createPhantom(StateNode node, Row row);
 
-    State setPhantomAttributes(StatefulNode node, Row row);
+    State setPhantomAttributes(StateNode node, Row row);
 
     Collection<State> getAll();
 
@@ -53,7 +53,7 @@ public interface StateCache
 
     Optional<Pair.Immutable<Node, Id>> getNextInvalid();
 
-    Map<Id, State> getIdMap(StatefulNode node);
+    Map<Id, State> getIdMap(StateNode node);
 
     void flush();
 }

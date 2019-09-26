@@ -36,6 +36,9 @@ public final class LineagePolicyImpl
     @Override
     public Set<LineageEntry> build(Iterator<DriverRow> rows)
     {
+        if (!rows.hasNext()) {
+            return ImmutableSet.of();
+        }
         // FIXME: Granularity.ID + Retention.MINIMAL optimization
         ImmutableSet.Builder<LineageEntry> builder = ImmutableSet.builder();
         retention.consume(rows, new LineageRetention.Sink()

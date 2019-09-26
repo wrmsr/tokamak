@@ -17,9 +17,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.wrmsr.tokamak.core.plan.node.PersistNode;
-import com.wrmsr.tokamak.core.type.Types;
-import com.wrmsr.tokamak.core.util.ApiJson;
 import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.api.Row;
 import com.wrmsr.tokamak.api.SchemaTable;
@@ -44,7 +41,9 @@ import com.wrmsr.tokamak.core.plan.node.Node;
 import com.wrmsr.tokamak.core.plan.node.ProjectNode;
 import com.wrmsr.tokamak.core.plan.node.Projection;
 import com.wrmsr.tokamak.core.plan.node.ScanNode;
-import com.wrmsr.tokamak.core.type.Type;
+import com.wrmsr.tokamak.core.plan.node.StateNode;
+import com.wrmsr.tokamak.core.type.Types;
+import com.wrmsr.tokamak.core.util.ApiJson;
 import com.wrmsr.tokamak.util.json.Json;
 import com.wrmsr.tokamak.util.sql.SqlUtils;
 import junit.framework.TestCase;
@@ -146,14 +145,20 @@ public class CoreTest
                         "N_REGIONKEY", Types.LONG
                 ),
                 ImmutableSet.of("N_NATIONKEY"),
-                ImmutableSet.of(),
+                ImmutableSet.of());
+
+        Node stateNode0 = new StateNode(
+                "state0",
+                scanNode0,
+                ImmutableList.of(),
+                false,
                 ImmutableMap.of(),
                 ImmutableMap.of(),
                 Optional.empty());
 
         Node filterNode0 = new FilterNode(
                 "filter0",
-                scanNode0,
+                stateNode0,
                 catalog.addFunction(be.register(Reflection.reflect(getClass().getDeclaredMethod("isStringNotNull", String.class))).getName(), be).asNodeFunction(),
                 ImmutableList.of("N_NAME"),
                 false);
@@ -175,7 +180,13 @@ public class CoreTest
                         "R_NAME", Types.STRING
                 ),
                 ImmutableSet.of("R_REGIONKEY"),
-                ImmutableSet.of(),
+                ImmutableSet.of());
+
+        Node stateNode1 = new StateNode(
+                "state1",
+                scanNode1,
+                ImmutableList.of(),
+                false,
                 ImmutableMap.of(),
                 ImmutableMap.of(),
                 Optional.empty());
@@ -184,11 +195,11 @@ public class CoreTest
                 "equijoin0",
                 ImmutableList.of(
                         new EquijoinNode.Branch(projectNode0, ImmutableList.of("N_REGIONKEY")),
-                        new EquijoinNode.Branch(scanNode1, ImmutableList.of("R_REGIONKEY"))
+                        new EquijoinNode.Branch(stateNode1, ImmutableList.of("R_REGIONKEY"))
                 ),
                 EquijoinNode.Mode.INNER);
 
-        Node persistNode0 = new PersistNode(
+        Node persistNode0 = new StateNode(
                 "persist0",
                 equijoinNode0,
                 ImmutableList.of(),
@@ -295,10 +306,7 @@ public class CoreTest
                         "str", Types.STRING
                 ),
                 ImmutableSet.of("id"),
-                ImmutableSet.of(),
-                ImmutableMap.of(),
-                ImmutableMap.of(),
-                Optional.empty());
+                ImmutableSet.of());
 
         Plan plan = new Plan(scan0);
 

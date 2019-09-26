@@ -21,7 +21,7 @@ import com.wrmsr.tokamak.core.plan.node.FilterNode;
 import com.wrmsr.tokamak.core.plan.node.ListAggregateNode;
 import com.wrmsr.tokamak.core.plan.node.LookupJoinNode;
 import com.wrmsr.tokamak.core.plan.node.Node;
-import com.wrmsr.tokamak.core.plan.node.PersistNode;
+import com.wrmsr.tokamak.core.plan.node.StateNode;
 import com.wrmsr.tokamak.core.plan.node.ProjectNode;
 import com.wrmsr.tokamak.core.plan.node.ScanNode;
 import com.wrmsr.tokamak.core.plan.node.UnionNode;
@@ -50,7 +50,7 @@ public final class NodeRenderings
                     .add(new NodeRendering<>(FilterNode.class))
                     .add(new NodeRendering<>(ListAggregateNode.class))
                     .add(new NodeRendering<>(LookupJoinNode.class))
-                    .add(new NodeRendering<>(PersistNode.class))
+                    .add(new NodeRendering<>(StateNode.class))
                     .add(new NodeRendering<>(ProjectNode.class))
                     .add(new NodeRendering<>(ScanNode.class))
                     .add(new NodeRendering<>(UnionNode.class))

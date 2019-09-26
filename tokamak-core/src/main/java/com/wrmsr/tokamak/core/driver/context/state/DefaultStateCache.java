@@ -26,7 +26,7 @@ import com.wrmsr.tokamak.core.driver.state.StateStorageCodec;
 import com.wrmsr.tokamak.core.driver.state.StorageState;
 import com.wrmsr.tokamak.core.plan.Plan;
 import com.wrmsr.tokamak.core.plan.node.Node;
-import com.wrmsr.tokamak.core.plan.node.StatefulNode;
+import com.wrmsr.tokamak.core.plan.node.StateNode;
 import com.wrmsr.tokamak.util.Pair;
 
 import java.io.IOException;
@@ -56,7 +56,7 @@ public class DefaultStateCache
 {
     /*
     TODO:
-     - StatefulNode everywhere?
+     - StateNode everywhere?
     */
 
     @FunctionalInterface
@@ -94,7 +94,7 @@ public class DefaultStateCache
         this.attributesSetCallbacks = ImmutableList.copyOf(attributesSetCallbacks);
         this.statUpdater = checkNotNull(statUpdater);
 
-        prioritizedNodes = plan.getToposortedNodes().stream().filter(StatefulNode.class::isInstance).collect(toImmutableList());
+        prioritizedNodes = plan.getToposortedNodes().stream().filter(StateNode.class::isInstance).collect(toImmutableList());
         prioritiesByNode = IntStream.range(0, prioritizedNodes.size())
                 .mapToObj(i -> new Pair.Immutable<>(prioritizedNodes.get(i), i))
                 .collect(toImmutableMap(Pair.Immutable::getKey, Pair.Immutable::getValue));
@@ -108,7 +108,7 @@ public class DefaultStateCache
     }
 
     @Override
-    public Optional<State> get(StatefulNode node, Id id, EnumSet<GetFlag> flags)
+    public Optional<State> get(StateNode node, Id id, EnumSet<GetFlag> flags)
     {
         Map<Id, State> statesById = statesByIdByNode.computeIfAbsent(node, n -> new HashMap<>());
         State state = statesById.get(id);
@@ -132,7 +132,7 @@ public class DefaultStateCache
             if (flags.contains(GetFlag.CREATE)) {
                 storageFlags.add(StateStorage.GetFlag.CREATE);
             }
-            Map<StatefulNode, Map<Id, StorageState>> storageResult;
+            Map<StateNode, Map<Id, StorageState>> storageResult;
             try {
                 storageResult = storage.get(
                         storageContext,
@@ -262,13 +262,13 @@ public class DefaultStateCache
     }
 
     @Override
-    public void invalidate(StatefulNode node, Set<Id> ids)
+    public void invalidate(StateNode node, Set<Id> ids)
     {
         throw new IllegalStateException();
     }
 
     @Override
-    public boolean isInvalidated(StatefulNode node, Id id)
+    public boolean isInvalidated(StateNode node, Id id)
     {
         checkNotNull(node);
         checkNotNull(id);
@@ -296,13 +296,13 @@ public class DefaultStateCache
     }
 
     @Override
-    public State createPhantom(StatefulNode node, Row row)
+    public State createPhantom(StateNode node, Row row)
     {
         return null;
     }
 
     @Override
-    public State setPhantomAttributes(StatefulNode node, Row row)
+    public State setPhantomAttributes(StateNode node, Row row)
     {
         throw new IllegalStateException();
     }
@@ -326,7 +326,7 @@ public class DefaultStateCache
     }
 
     @Override
-    public Map<Id, State> getIdMap(StatefulNode node)
+    public Map<Id, State> getIdMap(StateNode node)
     {
         throw new IllegalStateException();
     }
