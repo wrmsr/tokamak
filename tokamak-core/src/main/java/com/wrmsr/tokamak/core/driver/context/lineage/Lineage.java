@@ -16,13 +16,16 @@ package com.wrmsr.tokamak.core.driver.context.lineage;
 import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.core.driver.DriverRow;
 import com.wrmsr.tokamak.core.plan.node.Node;
+import com.wrmsr.tokamak.util.collect.StreamableIterable;
 
 import javax.annotation.concurrent.Immutable;
 
+import java.util.Iterator;
 import java.util.Set;
 
 @Immutable
 public interface Lineage
+        extends StreamableIterable<Lineage.Entry>
 {
     @Immutable
     interface Entry
@@ -32,10 +35,11 @@ public interface Lineage
         Id getId();
     }
 
-    interface Policy
-    {
-        Lineage build(DriverRow... rows);
-    }
-
     Set<Entry> getEntries();
+
+    @Override
+    default Iterator<Entry> iterator()
+    {
+        return getEntries().iterator();
+    }
 }

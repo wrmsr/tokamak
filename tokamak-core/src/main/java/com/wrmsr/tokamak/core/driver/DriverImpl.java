@@ -24,6 +24,10 @@ import com.wrmsr.tokamak.core.driver.build.Builder;
 import com.wrmsr.tokamak.core.driver.build.BuilderFactory;
 import com.wrmsr.tokamak.core.driver.build.ContextualBuilder;
 import com.wrmsr.tokamak.core.driver.context.DriverContextImpl;
+import com.wrmsr.tokamak.core.driver.context.lineage.LineageGranularity;
+import com.wrmsr.tokamak.core.driver.context.lineage.LineagePolicy;
+import com.wrmsr.tokamak.core.driver.context.lineage.LineagePolicyImpl;
+import com.wrmsr.tokamak.core.driver.context.lineage.LineageRetention;
 import com.wrmsr.tokamak.core.driver.state.StateStorage;
 import com.wrmsr.tokamak.core.plan.Plan;
 import com.wrmsr.tokamak.core.plan.node.Node;
@@ -50,6 +54,7 @@ public class DriverImpl
 
     private final SerdeManager serdeManager;
     private final StateStorage stateStorage;
+    private final LineagePolicy lineagePolicy;
 
     public DriverImpl(Catalog catalog, Plan plan)
     {
@@ -58,6 +63,7 @@ public class DriverImpl
 
         serdeManager = new SerdeManager(plan);
         stateStorage = new MapHeapStateStorage();
+        lineagePolicy = new LineagePolicyImpl(LineageRetention.MINIMAL, LineageGranularity.ID);
     }
 
     @Override
@@ -74,7 +80,7 @@ public class DriverImpl
 
     public LineagePolicy getLineagePolicy()
     {
-        return LineagePolicy.MINIMAL;
+        return lineagePolicy;
     }
 
     public SerdeManager getSerdeManager()

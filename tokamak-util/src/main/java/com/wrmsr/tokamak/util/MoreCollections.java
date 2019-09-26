@@ -301,4 +301,24 @@ public final class MoreCollections
         checkState(isOrdered(obj));
         return obj;
     }
+
+    public static <T> Iterator<T> arrayIterate(T[] arr)
+    {
+        return new Iterator<T>()
+        {
+            private int idx = 0;
+
+            @Override
+            public boolean hasNext()
+            {
+                return idx < arr.length;
+            }
+
+            @Override
+            public T next()
+            {
+                return arr[idx++];
+            }
+        };
+    }
 }

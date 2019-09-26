@@ -11,21 +11,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.wrmsr.tokamak.core.driver.context.lineage;
 
 import com.wrmsr.tokamak.core.driver.DriverRow;
 
 public interface LineagePolicy
 {
-    enum Retention
-    {
-        NONE,
-        MINIMAL,
-        CASCADE,
-        FULL
-    }
-
-    Retention getRetention();
-
     Lineage build(DriverRow... rows);
 }

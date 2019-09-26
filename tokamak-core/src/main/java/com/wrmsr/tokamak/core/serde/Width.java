@@ -37,10 +37,10 @@ public final class Width
     public Width(int min, OptionalInt max)
     {
         checkArgument(min >= 0);
-        max.ifPresent(v -> checkArgument(v >= 0));
-        if (max.isPresent()) {
-            checkArgument(min <= max.getAsInt());
-        }
+        max.ifPresent(v -> {
+            checkArgument(v >= 0);
+            checkArgument(min <= v);
+        });
         this.min = min;
         this.max = checkNotNull(max);
     }
