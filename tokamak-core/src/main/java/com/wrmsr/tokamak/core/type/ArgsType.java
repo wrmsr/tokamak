@@ -50,6 +50,6 @@ public abstract class ArgsType
     @Override
     public final String toRepr()
     {
-        return Types.buildArgsRepr(name, args);
+        return Types.buildArgsRepr(baseName, args);
     }
 }

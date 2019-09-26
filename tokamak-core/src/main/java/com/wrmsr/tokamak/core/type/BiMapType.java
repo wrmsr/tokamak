@@ -62,6 +62,6 @@ public final class BiMapType
     @Override
     public String toRepr()
     {
-        return Types.buildArgsRepr(name, ImmutableList.of(keyType, valueType));
+        return Types.buildArgsRepr(baseName, ImmutableList.of(keyType, valueType));
     }
 }

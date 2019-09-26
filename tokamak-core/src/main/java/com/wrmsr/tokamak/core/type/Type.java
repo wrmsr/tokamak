@@ -20,7 +20,7 @@ import java.util.OptionalInt;
 
 public interface Type
 {
-    String getName();
+    String getBaseName();
 
     OptionalInt getFixedSize();
 

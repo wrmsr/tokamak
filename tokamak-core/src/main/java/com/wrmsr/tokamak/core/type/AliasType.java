@@ -30,7 +30,7 @@ public final class AliasType
     public String toString()
     {
         return "TypedefType{" +
-                "name='" + name + '\'' +
+                "name='" + baseName + '\'' +
                 ", type=" + type +
                 '}';
     }
@@ -44,6 +44,6 @@ public final class AliasType
     @Override
     public String toRepr()
     {
-        return name;
+        return baseName;
     }
 }

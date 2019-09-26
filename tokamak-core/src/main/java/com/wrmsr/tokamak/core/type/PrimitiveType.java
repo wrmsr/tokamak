@@ -35,7 +35,7 @@ public final class PrimitiveType<T>
     public String toString()
     {
         return "PrimitiveType{" +
-                "name='" + name + '\'' +
+                "name='" + baseName + '\'' +
                 ", cls=" + cls +
                 ", primCls=" + primCls +
                 ", fixedSize=" + fixedSize.getAsInt() +

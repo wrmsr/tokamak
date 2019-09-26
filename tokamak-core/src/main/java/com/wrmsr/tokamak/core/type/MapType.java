@@ -63,6 +63,6 @@ public final class MapType
     @Override
     public String toRepr()
     {
-        return Types.buildArgsRepr(name, ImmutableList.of(keyType, valueType));
+        return Types.buildArgsRepr(baseName, ImmutableList.of(keyType, valueType));
     }
 }

@@ -55,6 +55,6 @@ public final class EnumSetType
     @Override
     public String toRepr()
     {
-        return Types.buildArgsRepr(name, ImmutableList.of(enumType));
+        return Types.buildArgsRepr(baseName, ImmutableList.of(enumType));
     }
 }

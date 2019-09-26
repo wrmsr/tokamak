@@ -55,6 +55,6 @@ public final class ListType
     @Override
     public String toRepr()
     {
-        return Types.buildArgsRepr(name, ImmutableList.of(itemType));
+        return Types.buildArgsRepr(baseName, ImmutableList.of(itemType));
     }
 }

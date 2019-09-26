@@ -24,29 +24,29 @@ import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 public abstract class AbstractType
         implements Type
 {
-    protected final String name;
+    protected final String baseName;
     protected final OptionalInt fixedSize;
 
-    public AbstractType(String name, OptionalInt fixedSize)
+    public AbstractType(String baseName, OptionalInt fixedSize)
     {
-        this.name = checkNotEmpty(name);
+        this.baseName = checkNotEmpty(baseName);
         this.fixedSize = checkNotNull(fixedSize);
     }
 
-    public AbstractType(String name, int fixedSize)
+    public AbstractType(String baseName, int fixedSize)
     {
-        this(name, OptionalInt.of(fixedSize));
+        this(baseName, OptionalInt.of(fixedSize));
     }
 
-    public AbstractType(String name)
+    public AbstractType(String baseName)
     {
-        this(name, OptionalInt.empty());
+        this(baseName, OptionalInt.empty());
     }
 
     @Override
-    public String getName()
+    public String getBaseName()
     {
-        return name;
+        return baseName;
     }
 
     @Override

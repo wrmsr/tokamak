@@ -55,6 +55,6 @@ public abstract class KwargsType
     @Override
     public final String toRepr()
     {
-        return Types.buildKwargsRepr(name, kwargs);
+        return Types.buildKwargsRepr(baseName, kwargs);
     }
 }

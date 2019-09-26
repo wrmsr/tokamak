@@ -16,7 +16,7 @@ package com.wrmsr.tokamak.spark;
 import com.wrmsr.tokamak.core.driver.Driver;
 import com.wrmsr.tokamak.core.driver.DriverImpl;
 
-public class App
+public class SparkMain
 {
     public static void main(String[] args)
             throws Throwable
