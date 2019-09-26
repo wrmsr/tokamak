@@ -24,6 +24,7 @@ public class TypeTest
         TypeParsing.parseType("Long");
         TypeParsing.parseType("List<Long>");
         TypeParsing.parseType("Map<Long, String>");
+        TypeParsing.parseType("Enum<x=0>");
         TypeParsing.parseType("Struct<x=Long, y=Double>");
     }
 }
