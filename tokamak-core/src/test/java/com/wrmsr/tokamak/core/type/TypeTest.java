@@ -21,10 +21,14 @@ public class TypeTest
     public void testParsing()
             throws Throwable
     {
-        TypeParsing.parseType("Long");
-        TypeParsing.parseType("List<Long>");
-        TypeParsing.parseType("Map<Long, String>");
-        TypeParsing.parseType("Enum<x=0>");
-        TypeParsing.parseType("Struct<x=Long, y=Double>");
+        for (String str : new String[] {
+                "Long",
+                "List<Long>",
+                "Map<Long, String>",
+                "Enum<x=0>",
+                "Struct<x=Long, y=Double>",
+        }) {
+            System.out.println(TypeParsing.parseType(str));
+        }
     }
 }

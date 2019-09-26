@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.ImmutableList.toImmutableList;
 
 public final class TypeParsing
 {
@@ -32,15 +33,34 @@ public final class TypeParsing
     {
     }
 
-    public static final class ParsedRepr
+    public static final class ParsedType
     {
         private final String name;
         private final List<ArgOrKwarg> items;
 
-        public ParsedRepr(String name, List<ArgOrKwarg> items)
+        public ParsedType(String name, List<ArgOrKwarg> items)
         {
             this.name = name;
             this.items = items;
+        }
+
+        @Override
+        public String toString()
+        {
+            return "ParsedType{" +
+                    "name='" + name + '\'' +
+                    ", items=" + items +
+                    '}';
+        }
+
+        public String getName()
+        {
+            return name;
+        }
+
+        public List<ArgOrKwarg> getItems()
+        {
+            return items;
         }
     }
 
@@ -54,39 +74,67 @@ public final class TypeParsing
             this.name = checkNotNull(name);
             this.value = checkNotNull(value);
         }
+
+        @Override
+        public String toString()
+        {
+            return "ArgOrKwarg{" +
+                    "name=" + name +
+                    ", value=" + value +
+                    '}';
+        }
+
+        public Optional<String> getName()
+        {
+            return name;
+        }
+
+        public Object getValue()
+        {
+            return value;
+        }
     }
 
-    public static void parseType(String str)
+    public static ParsedType parseType(String str)
     {
         CharStream input = new CaseInsensitiveCharStream(CharStreams.fromString(str));
         TypeLexer lexer = new TypeLexer(input);
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         TypeParser parser = new TypeParser(tokens);
 
-        parser.type().accept(new TypeBaseVisitor<Object>()
+        return (ParsedType) parser.type().accept(new TypeBaseVisitor<Object>()
         {
             @Override
             public Object visitType(TypeParser.TypeContext ctx)
             {
-                return super.visitType(ctx);
+                List<ArgOrKwarg> items = ctx.argOrKwarg().stream().map(this::visit).map(ArgOrKwarg.class::cast).collect(toImmutableList());
+                return new ParsedType(ctx.NAME().getText(), items);
             }
 
             @Override
             public Object visitArg(TypeParser.ArgContext ctx)
             {
-                return super.visitArg(ctx);
+                return new ArgOrKwarg(Optional.empty(), visit(ctx.typeOrInt()));
             }
 
             @Override
             public Object visitKwarg(TypeParser.KwargContext ctx)
             {
-                return super.visitKwarg(ctx);
+                return new ArgOrKwarg(Optional.of(ctx.NAME().getText()), visit(ctx.typeOrInt()));
             }
 
             @Override
             public Object visitTypeOrInt(TypeParser.TypeOrIntContext ctx)
             {
-                return super.visitTypeOrInt(ctx);
+                if (ctx.INT() != null) {
+                    return Long.parseLong(ctx.INT().getText());
+                }
+                else if (ctx.type() != null) {
+                    return visit(ctx.type());
+                }
+                else {
+                    throw new IllegalStateException();
+                }
             }
         });
     }
