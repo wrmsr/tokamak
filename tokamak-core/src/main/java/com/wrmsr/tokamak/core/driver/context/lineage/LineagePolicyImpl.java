@@ -11,17 +11,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.wrmsr.tokamak.core.driver.context.lineage;
 
 import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.core.driver.DriverRow;
 
+import java.util.Iterator;
 import java.util.Objects;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.wrmsr.tokamak.util.MoreCollections.arrayIterate;
 
 public final class LineagePolicyImpl
         implements LineagePolicy
@@ -76,11 +75,11 @@ public final class LineagePolicyImpl
     }
 
     @Override
-    public Lineage build(DriverRow... rows)
+    public Lineage build(Iterator<DriverRow> rows)
     {
         // FIXME: Granularity.ID + Retention.MINIMAL optimization
         ImmutableSet.Builder<Lineage.Entry> builder = ImmutableSet.builder();
-        retention.consume(arrayIterate(rows), new LineageRetention.Sink()
+        retention.consume(rows, new LineageRetention.Sink()
         {
             @Override
             public void accept(DriverRow row)

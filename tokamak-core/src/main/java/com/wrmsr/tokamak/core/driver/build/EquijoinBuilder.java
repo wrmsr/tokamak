@@ -86,7 +86,7 @@ public final class EquijoinBuilder
                 builder,
                 new byte[node.getBranches().size()][],
                 ImmutableMap.of(),
-                context.getDriver().getLineagePolicy().build(),
+                ImmutableSet.of(),
                 0);
 
         return builder.build();
@@ -139,7 +139,7 @@ public final class EquijoinBuilder
                         builder,
                         nextIdProto,
                         nextProto.build(),
-                        context.getDriver().getLineagePolicy().build(ImmutableSet.<DriverRow>builder().addAll(lineage).add(row).build()),
+                        ImmutableSet.<DriverRow>builder().addAll(lineage).add(row).build(),
                         pos + 1);
             }
         }
@@ -210,7 +210,7 @@ public final class EquijoinBuilder
                         nextIdProto,
                         nextProto.build(),
                         keyValues,
-                        context.getDriver().getLineagePolicy().build(ImmutableSet.<DriverRow>builder().addAll(lineage).add(row).build()),
+                        ImmutableSet.<DriverRow>builder().addAll(lineage).add(row).build(),
                         pos + 1);
             }
         }
@@ -229,7 +229,7 @@ public final class EquijoinBuilder
             builder.add(
                     new DriverRow(
                             node,
-                            lineage,
+                            driver.getLineagePolicy().build(lineage),
                             id,
                             attributes));
         }

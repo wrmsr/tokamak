@@ -11,12 +11,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.wrmsr.tokamak.core.driver.context.lineage;
 
 import com.wrmsr.tokamak.core.driver.DriverRow;
 
+import java.util.Iterator;
+
+import static com.wrmsr.tokamak.util.MoreCollections.arrayIterate;
+
 public interface LineagePolicy
 {
-    Lineage build(DriverRow... rows);
+    Lineage build(Iterator<DriverRow> rows);
+
+    default Lineage build(Iterable<DriverRow> rows)
+    {
+        return build(rows.iterator());
+    }
+
+    default Lineage build(DriverRow... rows)
+    {
+        return build(arrayIterate(rows));
+    }
 }
