@@ -54,7 +54,7 @@ public final class Types
     {
     }
 
-    public static final SimpleType<Void> UNKNOWN = new SimpleType<>("Unknown", Void.class);
+    public static final SimpleType<Void> VOID = new SimpleType<>("Void", Void.class);
     public static final SimpleType<Object> OBJECT = new SimpleType<>("Object", Object.class);
 
     public static final PrimitiveType<Boolean> BOOLEAN = new PrimitiveType<>("Boolean", Boolean.class, boolean.class, 1);

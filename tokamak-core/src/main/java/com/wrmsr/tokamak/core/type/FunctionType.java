@@ -13,27 +13,26 @@
  */
 package com.wrmsr.tokamak.core.type;
 
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableList;
 
 import javax.annotation.concurrent.Immutable;
 
-import java.util.Map;
+import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.wrmsr.tokamak.util.MoreCollections.checkOrdered;
 
 @Immutable
 public final class FunctionType
         extends AbstractType
 {
     private final Type returnType;
-    private final Map<String, Type> paramTypes;
+    private final List<Type> paramTypes;
 
-    public FunctionType(Type returnType, Map<String, Type> paramTypes)
+    public FunctionType(Type returnType, List<Type> paramTypes)
     {
         super("Function");
         this.returnType = checkNotNull(returnType);
-        this.paramTypes = ImmutableMap.copyOf(checkOrdered(paramTypes));
+        this.paramTypes = ImmutableList.copyOf(paramTypes);
     }
 
     public Type getReturnType()
@@ -41,7 +40,7 @@ public final class FunctionType
         return returnType;
     }
 
-    public Map<String, Type> getParamTypes()
+    public List<Type> getParamTypes()
     {
         return paramTypes;
     }
