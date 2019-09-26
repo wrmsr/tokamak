@@ -16,9 +16,11 @@ package com.wrmsr.tokamak.core.driver.context;
 import com.wrmsr.tokamak.core.driver.context.lineage.LineageEntry;
 import com.wrmsr.tokamak.core.driver.context.state.StateCache;
 import com.wrmsr.tokamak.core.driver.state.State;
+import com.wrmsr.tokamak.core.plan.node.StatefulNode;
 
+import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -28,7 +30,19 @@ public class LinkageManager
 {
     private final StateCache stateCache;
 
-    private final Map<State, Set<LineageEntry>> lineagesByState = new HashMap<>();
+    private static final class Entry
+    {
+        private final State state;
+        private final Set<State> inputStates = new HashSet<>();
+        private final Set<State> outputStates = new HashSet<>();
+
+        public Entry(State state)
+        {
+            this.state = checkNotNull(state);
+        }
+    }
+
+    private final Map<State, Entry> entriesByState = new HashMap<>();
 
     public LinkageManager(StateCache stateCache)
     {
@@ -37,7 +51,19 @@ public class LinkageManager
 
     public void addStateLineage(State state, Set<LineageEntry> lineage)
     {
-        lineagesByState.computeIfAbsent(state, st -> new LinkedHashSet<>()).addAll(lineage);
+        Entry entry = entriesByState.computeIfAbsent(state, Entry::new);
+        for (LineageEntry le : lineage) {
+            if (!(le.getNode() instanceof StatefulNode)) {
+                continue;
+            }
+
+            StatefulNode inputNode = (StatefulNode) le.getNode();
+            State inputState = stateCache.get(inputNode, le.getId(), EnumSet.of(StateCache.GetFlag.NOLOAD)).get();
+            Entry inputEntry = entriesByState.computeIfAbsent(inputState, Entry::new);
+
+            entry.inputStates.add(inputState);
+            inputEntry.outputStates.add(state);
+        }
     }
 
     private void buildStateLinkage(State state)
