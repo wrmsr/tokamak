@@ -13,6 +13,7 @@
  */
 package com.wrmsr.tokamak.core.type;
 
+import com.wrmsr.tokamak.util.json.Json;
 import junit.framework.TestCase;
 
 public class TypeTest
@@ -30,5 +31,11 @@ public class TypeTest
         }) {
             System.out.println(TypeParsing.parseType(str));
         }
+    }
+
+    public void testJson()
+            throws Throwable
+    {
+        System.out.println(Json.writeValue(new ListType(Types.LONG)));
     }
 }

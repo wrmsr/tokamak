@@ -45,4 +45,10 @@ public final class SimpleType<T>
     {
         return cls;
     }
+
+    @Override
+    public String toSpec()
+    {
+        return baseName;
+    }
 }

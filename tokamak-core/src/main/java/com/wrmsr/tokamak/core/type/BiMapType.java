@@ -60,8 +60,8 @@ public final class BiMapType
     }
 
     @Override
-    public String toRepr()
+    public String toSpec()
     {
-        return Types.buildArgsRepr(baseName, ImmutableList.of(keyType, valueType));
+        return Types.buildArgsSpec(baseName, ImmutableList.of(keyType, valueType));
     }
 }

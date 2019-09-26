@@ -42,7 +42,7 @@ public final class AliasType
     }
 
     @Override
-    public String toRepr()
+    public String toSpec()
     {
         return baseName;
     }

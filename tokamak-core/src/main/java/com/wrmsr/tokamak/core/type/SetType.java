@@ -53,8 +53,8 @@ public final class SetType
     }
 
     @Override
-    public String toRepr()
+    public String toSpec()
     {
-        return Types.buildArgsRepr(baseName, ImmutableList.of(itemType));
+        return Types.buildArgsSpec(baseName, ImmutableList.of(itemType));
     }
 }

@@ -13,7 +13,6 @@
  */
 package com.wrmsr.tokamak.core.type;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 import java.util.OptionalInt;
@@ -27,14 +26,5 @@ public interface Type
     java.lang.reflect.Type getReflect();
 
     @JsonValue
-    default String toRepr()
-    {
-        return Types.toRepr(this);
-    }
-
-    @JsonCreator
-    static Type parseRepr(String str)
-    {
-        return Types.parseRepr(str);
-    }
+    String toSpec();
 }

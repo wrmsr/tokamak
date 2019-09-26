@@ -107,12 +107,12 @@ public final class Types
         return checkNotNull(FROM_JAVA_TYPE.get(cls));
     }
 
-    static String buildArgsRepr(String name, List<Object> args)
+    static String buildArgsSpec(String name, List<Object> args)
     {
         return name + '<' + Joiner.on(", ").join(
                 args.stream().map(v -> {
                     if (v instanceof Type) {
-                        return ((Type) v).toRepr();
+                        return ((Type) v).toSpec();
                     }
                     else if (v instanceof Long) {
                         return Long.toString((Long) v);
@@ -123,14 +123,14 @@ public final class Types
                 }).collect(toImmutableList())) + '>';
     }
 
-    static String buildKwargsRepr(String name, Map<String, Object> kwargs)
+    static String buildKwargsSpec(String name, Map<String, Object> kwargs)
     {
         return name + '<' + Joiner.on(", ").join(
                 kwargs.entrySet().stream().map(e -> {
                     Object v = e.getValue();
                     String vs;
                     if (v instanceof Type) {
-                        vs = ((Type) v).toRepr();
+                        vs = ((Type) v).toSpec();
                     }
                     else if (v instanceof Long) {
                         vs = Long.toString((Long) v);

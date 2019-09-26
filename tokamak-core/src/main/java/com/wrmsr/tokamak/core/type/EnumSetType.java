@@ -53,8 +53,8 @@ public final class EnumSetType
     }
 
     @Override
-    public String toRepr()
+    public String toSpec()
     {
-        return Types.buildArgsRepr(baseName, ImmutableList.of(enumType));
+        return Types.buildArgsSpec(baseName, ImmutableList.of(enumType));
     }
 }

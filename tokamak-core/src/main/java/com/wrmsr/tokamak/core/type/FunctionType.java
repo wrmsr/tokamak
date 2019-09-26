@@ -50,4 +50,10 @@ public final class FunctionType
     {
         return null;
     }
+
+    @Override
+    public String toSpec()
+    {
+        return Types.buildArgsSpec(baseName, ImmutableList.builder().add(returnType).addAll(paramTypes).build());
+    }
 }

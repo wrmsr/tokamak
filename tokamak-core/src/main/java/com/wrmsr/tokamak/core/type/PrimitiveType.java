@@ -57,4 +57,10 @@ public final class PrimitiveType<T>
     {
         return primCls;
     }
+
+    @Override
+    public String toSpec()
+    {
+        return baseName;
+    }
 }

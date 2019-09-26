@@ -53,8 +53,8 @@ public abstract class KwargsType
     }
 
     @Override
-    public final String toRepr()
+    public final String toSpec()
     {
-        return Types.buildKwargsRepr(baseName, kwargs);
+        return Types.buildKwargsSpec(baseName, kwargs);
     }
 }

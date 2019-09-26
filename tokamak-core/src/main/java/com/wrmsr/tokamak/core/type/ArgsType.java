@@ -48,8 +48,8 @@ public abstract class ArgsType
     }
 
     @Override
-    public final String toRepr()
+    public final String toSpec()
     {
-        return Types.buildArgsRepr(baseName, args);
+        return Types.buildArgsSpec(baseName, args);
     }
 }
