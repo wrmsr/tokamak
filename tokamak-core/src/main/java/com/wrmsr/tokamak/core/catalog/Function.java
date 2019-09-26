@@ -18,7 +18,7 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.wrmsr.tokamak.core.exec.Executable;
-import com.wrmsr.tokamak.core.exec.Signature;
+import com.wrmsr.tokamak.core.type.impl.FunctionType;
 import com.wrmsr.tokamak.util.lazy.SupplierLazyValue;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -29,29 +29,29 @@ import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 public final class Function
 {
     private final String name;
-    private final Signature signature;
+    private final FunctionType type;
     private final Executor executor;
 
     private Catalog catalog;
 
     private final Object lock = new Object();
 
-    public Function(Catalog catalog, String name, Signature signature, Executor executor)
+    public Function(Catalog catalog, String name, FunctionType type, Executor executor)
     {
         this.catalog = checkNotNull(catalog);
         this.name = checkNotEmpty(name);
-        this.signature = checkNotNull(signature);
+        this.type = checkNotNull(type);
         this.executor = checkNotNull(executor);
     }
 
     @JsonCreator
     private Function(
             @JsonProperty("name") String name,
-            @JsonProperty("signature") Signature signature,
+            @JsonProperty("type") FunctionType type,
             @JsonProperty("executor") Executor executor)
     {
         this.name = checkNotNull(name);
-        this.signature = checkNotNull(signature);
+        this.type = checkNotNull(type);
         this.executor = checkNotNull(executor);
     }
 
@@ -67,10 +67,10 @@ public final class Function
         return name;
     }
 
-    @JsonProperty("signature")
-    public Signature getSignature()
+    @JsonProperty("type")
+    public FunctionType getType()
     {
-        return signature;
+        return type;
     }
 
     @JsonProperty("executor")
@@ -95,6 +95,6 @@ public final class Function
 
     public com.wrmsr.tokamak.core.plan.node.Function asNodeFunction()
     {
-        return nodeFunction.get(() -> new com.wrmsr.tokamak.core.plan.node.Function(name, signature));
+        return nodeFunction.get(() -> new com.wrmsr.tokamak.core.plan.node.Function(name, type));
     }
 }

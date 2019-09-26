@@ -13,11 +13,13 @@
  */
 package com.wrmsr.tokamak.core.exec;
 
+import com.wrmsr.tokamak.core.type.impl.FunctionType;
+
 public interface Executable
 {
     String getName();
 
-    Signature getSignature();
+    FunctionType getType();
 
     Object invoke(Object... args);
 }

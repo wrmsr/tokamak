@@ -59,7 +59,7 @@ public final class ProjectNode
                 // FIXME: check types
                 Projection.FunctionInput functionInput = (Projection.FunctionInput) entry.getValue();
                 functionInput.getArgs().forEach(f -> checkArgument(source.getFields().containsKey(f)));
-                fields.put(entry.getKey(), functionInput.getFunction().getSignature().getType());
+                fields.put(entry.getKey(), functionInput.getFunction().getType().getReturnType());
             }
             else {
                 throw new IllegalArgumentException(Objects.toString(entry.getValue()));

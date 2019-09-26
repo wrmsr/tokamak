@@ -53,8 +53,8 @@ public final class FilterNode
         this.args = ImmutableList.copyOf(args);
         this.unlinked = unlinked;
 
-        checkArgument(function.getSignature().getType() == Types.BOOLEAN);
-        checkArgument(function.getSignature().getParams().size() == this.args.size());
+        checkArgument(function.getType().getReturnType() == Types.BOOLEAN);
+        checkArgument(function.getType().getParamTypes().size() == this.args.size());
 
         // FIXME: check
         // function.getSignature().getParams().forEach((f, t) -> {

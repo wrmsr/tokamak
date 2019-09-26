@@ -16,7 +16,7 @@ package com.wrmsr.tokamak.core.plan.node;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wrmsr.tokamak.core.exec.Executable;
-import com.wrmsr.tokamak.core.exec.Signature;
+import com.wrmsr.tokamak.core.type.impl.FunctionType;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -27,15 +27,15 @@ import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 public final class Function
 {
     private final String name;
-    private final Signature signature;
+    private final FunctionType type;
 
     @JsonCreator
     public Function(
             @JsonProperty("name") String name,
-            @JsonProperty("signature") Signature signature)
+            @JsonProperty("type") FunctionType type)
     {
         this.name = checkNotEmpty(name);
-        this.signature = checkNotNull(signature);
+        this.type = checkNotNull(type);
     }
 
     @JsonProperty("name")
@@ -44,14 +44,14 @@ public final class Function
         return name;
     }
 
-    @JsonProperty("signature")
-    public Signature getSignature()
+    @JsonProperty("type")
+    public FunctionType getType()
     {
-        return signature;
+        return type;
     }
 
     public static Function of(Executable exe)
     {
-        return new Function(exe.getName(), exe.getSignature());
+        return new Function(exe.getName(), exe.getType());
     }
 }

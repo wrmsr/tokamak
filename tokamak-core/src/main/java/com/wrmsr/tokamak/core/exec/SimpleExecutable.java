@@ -13,6 +13,8 @@
  */
 package com.wrmsr.tokamak.core.exec;
 
+import com.wrmsr.tokamak.core.type.impl.FunctionType;
+
 import javax.annotation.concurrent.Immutable;
 
 import java.util.function.Function;
@@ -25,13 +27,13 @@ public final class SimpleExecutable
         implements Executable
 {
     private final String name;
-    private final Signature signature;
+    private final FunctionType type;
     private final Function<Object[], Object> function;
 
-    public SimpleExecutable(String name, Signature signature, Function<Object[], Object> function)
+    public SimpleExecutable(String name, FunctionType type, Function<Object[], Object> function)
     {
         this.name = checkNotEmpty(name);
-        this.signature = checkNotNull(signature);
+        this.type = checkNotNull(type);
         this.function = checkNotNull(function);
     }
 
@@ -40,7 +42,7 @@ public final class SimpleExecutable
     {
         return "SimpleExecutable{" +
                 "name='" + name + '\'' +
-                ", signature=" + signature +
+                ", type=" + type +
                 ", function=" + function +
                 '}';
     }
@@ -52,9 +54,9 @@ public final class SimpleExecutable
     }
 
     @Override
-    public Signature getSignature()
+    public FunctionType getType()
     {
-        return signature;
+        return type;
     }
 
     public Function<Object[], Object> getFunction()

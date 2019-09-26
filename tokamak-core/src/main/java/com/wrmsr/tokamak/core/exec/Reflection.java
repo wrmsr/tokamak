@@ -14,13 +14,14 @@
 package com.wrmsr.tokamak.core.exec;
 
 import com.wrmsr.tokamak.core.type.Types;
+import com.wrmsr.tokamak.core.type.impl.FunctionType;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
-import java.util.stream.IntStream;
 
-import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
+import static com.google.common.collect.ImmutableList.toImmutableList;
 
 public final class Reflection
 {
@@ -39,10 +40,9 @@ public final class Reflection
     {
         return new SimpleExecutable(
                 name,
-                new Signature(
+                new FunctionType(
                         Types.fromJavaType(method.getReturnType()),
-                        IntStream.range(0, method.getParameterTypes().length).boxed()
-                                .collect(toImmutableMap(i -> "arg" + i, i -> Types.fromJavaType(method.getParameterTypes()[i])))),
+                        Arrays.stream(method.getParameterTypes()).map(Types::fromJavaType).collect(toImmutableList())),
                 args -> {
                     try {
                         return method.invoke(null, args);

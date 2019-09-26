@@ -20,7 +20,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.api.SchemaTable;
-import com.wrmsr.tokamak.core.exec.Signature;
+import com.wrmsr.tokamak.core.type.impl.FunctionType;
 
 import java.util.Collection;
 import java.util.List;
@@ -208,8 +208,8 @@ public final class Catalog
             else if (existingExecutor != executor) {
                 throw new IllegalArgumentException("Executor name taken: " + executor.getName());
             }
-            Signature signature = checkNotNull(executor.getExecutable(name)).getSignature();
-            function = new Function(this, name, signature, executor);
+            FunctionType type = checkNotNull(executor.getExecutable(name)).getType();
+            function = new Function(this, name, type, executor);
             functionsByName = ImmutableMap.<String, Function>builder().putAll(functionsByName).put(name, function).build();
             return function;
         }

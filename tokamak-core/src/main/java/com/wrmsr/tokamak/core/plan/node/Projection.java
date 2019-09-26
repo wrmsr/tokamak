@@ -27,6 +27,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.core.exec.Executable;
+import com.wrmsr.tokamak.core.type.Type;
 import com.wrmsr.tokamak.util.collect.OrderPreservingImmutableMap;
 import com.wrmsr.tokamak.util.collect.StreamableIterable;
 
@@ -141,7 +142,7 @@ public final class Projection
         {
             this.function = checkNotNull(function);
             this.args = ImmutableList.copyOf(args);
-            checkArgument(function.getSignature().getParams().size() == this.args.size());
+            checkArgument(function.getType().getParamTypes().size() == this.args.size());
         }
 
         @Override
@@ -241,7 +242,7 @@ public final class Projection
                         inputObj instanceof com.wrmsr.tokamak.core.catalog.Function ? ((com.wrmsr.tokamak.core.catalog.Function) inputObj).asNodeFunction() :
                                 (Function) inputObj;
                 ImmutableList.Builder<String> funcArgs = ImmutableList.builder();
-                for (String param : function.getSignature().getParams().keySet()) {
+                for (Type param : function.getType().getParamTypes()) {
                     funcArgs.add((String) args[i++]);
                 }
                 input = new FunctionInput(function, funcArgs.build());
