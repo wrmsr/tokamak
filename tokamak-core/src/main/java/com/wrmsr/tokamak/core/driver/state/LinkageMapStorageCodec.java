@@ -22,9 +22,9 @@ import com.wrmsr.tokamak.core.serde.ByteArrayInput;
 import com.wrmsr.tokamak.core.serde.ByteArrayOutput;
 import com.wrmsr.tokamak.core.serde.Input;
 import com.wrmsr.tokamak.core.serde.Output;
-import com.wrmsr.tokamak.core.serde.value.ValueSerde;
-import com.wrmsr.tokamak.core.serde.value.ValueSerdes;
-import com.wrmsr.tokamak.core.serde.value.VariableLengthValueSerde;
+import com.wrmsr.tokamak.core.serde.Serde;
+import com.wrmsr.tokamak.core.serde.Serdes;
+import com.wrmsr.tokamak.core.serde.impl.VariableLengthSerde;
 import com.wrmsr.tokamak.util.codec.Codec;
 
 import java.util.Map;
@@ -39,17 +39,17 @@ public final class LinkageMapStorageCodec
 {
     private static final byte PREFIX = 0x42;
 
-    private static final ValueSerde<Number> LONG_SERDE = ValueSerdes.LONG_VALUE_SERDE;
+    private static final Serde<Number> LONG_SERDE = Serdes.LONG_VALUE_SERDE;
 
     private final StateNode node;
-    private final Map<NodeId, ValueSerde<Object[]>> attributesSerdesByNodeId;
+    private final Map<NodeId, Serde<Object[]>> attributesSerdesByNodeId;
     private final int size;
 
-    private final ValueSerde<byte[]> varBytesSerde;
+    private final Serde<byte[]> varBytesSerde;
 
     public LinkageMapStorageCodec(
             StateNode node,
-            Map<NodeId, ValueSerde<Object[]>> attributesSerdesByNodeId,
+            Map<NodeId, Serde<Object[]>> attributesSerdesByNodeId,
             int size)
     {
         checkArgument(size >= 0);
@@ -61,7 +61,7 @@ public final class LinkageMapStorageCodec
         // Set<NodeId> sourceNodeIds = node.getSources().stream().map(Node::getId).collect(toImmutableSet());
         // sourceNodeIds.forEach(sni -> checkArgument(this.attributesSerdesByNodeId.containsKey(sni)));
 
-        varBytesSerde = new VariableLengthValueSerde<>(ValueSerdes.BYTES_VALUE_SERDE);
+        varBytesSerde = new VariableLengthSerde<>(Serdes.BYTES_VALUE_SERDE);
     }
 
     public StateNode getNode()
@@ -89,7 +89,7 @@ public final class LinkageMapStorageCodec
 
     private void encodeDenormalizedLinks(NodeId nodeId, Linkage.DenormalizedLinks denormalizedLinks, Output output)
     {
-        ValueSerde<Object[]> attributesSerde = checkNotNull(attributesSerdesByNodeId.get(nodeId));
+        Serde<Object[]> attributesSerde = checkNotNull(attributesSerdesByNodeId.get(nodeId));
         LONG_SERDE.write(denormalizedLinks.getAttributesById().size(), output);
         for (Map.Entry<Id, Object[]> entry : denormalizedLinks.getAttributesById().entrySet()) {
             varBytesSerde.write(entry.getKey().getValue(), output);
@@ -99,7 +99,7 @@ public final class LinkageMapStorageCodec
 
     private Linkage.DenormalizedLinks decodeDenormalizedLinks(NodeId nodeId, Input input)
     {
-        ValueSerde<Object[]> attributesSerde = checkNotNull(attributesSerdesByNodeId.get(nodeId));
+        Serde<Object[]> attributesSerde = checkNotNull(attributesSerdesByNodeId.get(nodeId));
         int sz = (int) LONG_SERDE.read(input);
         ImmutableMap.Builder<Id, Object[]> builder = ImmutableMap.builderWithExpectedSize(sz);
         for (int i = 0; i < sz; ++i) {

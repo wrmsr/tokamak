@@ -24,8 +24,9 @@ import com.wrmsr.tokamak.core.driver.DriverRow;
 import com.wrmsr.tokamak.core.driver.context.DriverContextImpl;
 import com.wrmsr.tokamak.core.plan.node.Node;
 import com.wrmsr.tokamak.core.plan.node.ScanNode;
-import com.wrmsr.tokamak.core.serde.row.RowSerde;
-import com.wrmsr.tokamak.core.serde.row.RowSerdes;
+import com.wrmsr.tokamak.core.serde.impl.TupleSerde;
+import com.wrmsr.tokamak.core.serde.Serde;
+import com.wrmsr.tokamak.core.serde.Serdes;
 
 import java.util.Collection;
 import java.util.List;
@@ -33,26 +34,29 @@ import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
-import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
-import static java.util.function.Function.identity;
 
 public final class ScanBuilder
         extends AbstractBuilder<ScanNode>
 {
-    private final RowSerde idSerde;
+    private final List<String> orderedIdFields;
+    private final Serde<Object[]> idSerde;
 
     public ScanBuilder(DriverImpl driver, ScanNode node, Map<Node, Builder> sources)
     {
         super(driver, node, sources);
 
         checkNotEmpty(node.getIdFields());
-        List<String> orderedFields = node.getFields().keySet().stream()
+
+        orderedIdFields = node.getFields().keySet().stream()
                 .filter(node.getIdFields()::contains)
                 .collect(toImmutableList());
-        idSerde = RowSerdes.buildRowSerde(
-                orderedFields.stream()
-                        .collect(toImmutableMap(identity(), node.getFields()::get)));
+
+        idSerde = new TupleSerde(
+                orderedIdFields.stream()
+                        .map(node.getFields()::get)
+                        .map(Serdes.VALUE_SERDES_BY_TYPE::get)
+                        .collect(toImmutableList()));
     }
 
     @Override
@@ -68,7 +72,12 @@ public final class ScanBuilder
 
         ImmutableList.Builder<DriverRow> rows = ImmutableList.builder();
         for (Map<String, Object> scanRow : scanRows) {
-            Id id = Id.of(idSerde.encodeBytes(scanRow));
+            Object[] idAtts = new Object[orderedIdFields.size()];
+            for (int i = 0; i < idAtts.length; ++i) {
+                idAtts[i] = scanRow.get(orderedIdFields.get(i));
+            }
+
+            Id id = Id.of(idSerde.writeBytes(idAtts));
 
             Object[] attributes = scanRow.values().toArray();
             DriverRow row = new DriverRow(

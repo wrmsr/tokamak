@@ -17,8 +17,8 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.core.plan.node.visitor.NodeVisitor;
-import com.wrmsr.tokamak.core.type.ListType;
-import com.wrmsr.tokamak.core.type.StructType;
+import com.wrmsr.tokamak.core.type.impl.ListType;
+import com.wrmsr.tokamak.core.type.impl.StructType;
 import com.wrmsr.tokamak.core.type.Type;
 
 import javax.annotation.concurrent.Immutable;

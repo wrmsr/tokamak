@@ -23,11 +23,11 @@ import com.wrmsr.tokamak.core.driver.DriverRow;
 import com.wrmsr.tokamak.core.driver.context.DriverContextImpl;
 import com.wrmsr.tokamak.core.plan.node.EquijoinNode;
 import com.wrmsr.tokamak.core.plan.node.Node;
-import com.wrmsr.tokamak.core.serde.value.NullableValueSerde;
-import com.wrmsr.tokamak.core.serde.value.TupleValueSerde;
-import com.wrmsr.tokamak.core.serde.value.ValueSerde;
-import com.wrmsr.tokamak.core.serde.value.ValueSerdes;
-import com.wrmsr.tokamak.core.serde.value.VariableLengthValueSerde;
+import com.wrmsr.tokamak.core.serde.impl.NullableSerde;
+import com.wrmsr.tokamak.core.serde.impl.TupleSerde;
+import com.wrmsr.tokamak.core.serde.Serde;
+import com.wrmsr.tokamak.core.serde.Serdes;
+import com.wrmsr.tokamak.core.serde.impl.VariableLengthSerde;
 import com.wrmsr.tokamak.util.Pair;
 
 import java.util.Collection;
@@ -47,10 +47,10 @@ public final class EquijoinBuilder
         extends AbstractBuilder<EquijoinNode>
 {
     // FIXME: not necessarily variable
-    private static final ValueSerde<byte[]> NULLABLE_BYTES_VALUE_SERDE =
-            new NullableValueSerde<>(
-                    new VariableLengthValueSerde<>(
-                            ValueSerdes.BYTES_VALUE_SERDE));
+    private static final Serde<byte[]> NULLABLE_BYTES_VALUE_SERDE =
+            new NullableSerde<>(
+                    new VariableLengthSerde<>(
+                            Serdes.BYTES_VALUE_SERDE));
 
     public EquijoinBuilder(DriverImpl driver, EquijoinNode node, Map<Node, Builder> sources)
     {
@@ -220,7 +220,7 @@ public final class EquijoinBuilder
                 attributes[node.getRowLayout().getPositionsByField().get(e.getKey())] = e.getValue();
             }
 
-            ValueSerde<Object[]> idSerde = new TupleValueSerde(
+            Serde<Object[]> idSerde = new TupleSerde(
                     node.getBranches().stream().map(b -> NULLABLE_BYTES_VALUE_SERDE).collect(toImmutableList()));
             Object[] idBytesObjects = new Object[node.getBranches().size()];
             System.arraycopy(idProto, 0, idBytesObjects, 0, idProto.length);

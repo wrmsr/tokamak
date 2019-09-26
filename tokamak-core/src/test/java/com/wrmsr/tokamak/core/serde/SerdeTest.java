@@ -14,9 +14,8 @@
 package com.wrmsr.tokamak.core.serde;
 
 import com.google.common.collect.ImmutableMap;
-import com.wrmsr.tokamak.core.serde.value.FixedKeyObjectMapValueSerde;
-import com.wrmsr.tokamak.core.serde.value.ValueSerdes;
-import com.wrmsr.tokamak.core.serde.value.VariableLengthValueSerde;
+import com.wrmsr.tokamak.core.serde.impl.FixedKeyObjectMapSerde;
+import com.wrmsr.tokamak.core.serde.impl.VariableLengthSerde;
 import com.wrmsr.tokamak.util.OpenByteArrayOutputStream;
 import junit.framework.TestCase;
 
@@ -41,9 +40,9 @@ public class SerdeTest
     public void testFixedKeyObjectMapValueSerde()
             throws Throwable
     {
-        FixedKeyObjectMapValueSerde<String> codec = new FixedKeyObjectMapValueSerde<>(ImmutableMap.of(
-                "long", ValueSerdes.LONG_VALUE_SERDE,
-                "string", new VariableLengthValueSerde<>(ValueSerdes.STRING_VALUE_SERDE)
+        FixedKeyObjectMapSerde<String> codec = new FixedKeyObjectMapSerde<>(ImmutableMap.of(
+                "long", Serdes.LONG_VALUE_SERDE,
+                "string", new VariableLengthSerde<>(Serdes.STRING_VALUE_SERDE)
         ), false);
 
         Map<String, Object> expectedMap = ImmutableMap.of(

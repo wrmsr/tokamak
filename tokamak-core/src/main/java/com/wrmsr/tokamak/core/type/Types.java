@@ -17,6 +17,8 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.ImmutableMap;
+import com.wrmsr.tokamak.core.type.impl.PrimitiveType;
+import com.wrmsr.tokamak.core.type.impl.SimpleType;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -107,7 +109,7 @@ public final class Types
         return checkNotNull(FROM_JAVA_TYPE.get(cls));
     }
 
-    static String buildArgsSpec(String name, List<Object> args)
+    public static String buildArgsSpec(String name, List<Object> args)
     {
         return name + '<' + Joiner.on(", ").join(
                 args.stream().map(v -> {
@@ -123,7 +125,7 @@ public final class Types
                 }).collect(toImmutableList())) + '>';
     }
 
-    static String buildKwargsSpec(String name, Map<String, Object> kwargs)
+    public static String buildKwargsSpec(String name, Map<String, Object> kwargs)
     {
         return name + '<' + Joiner.on(", ").join(
                 kwargs.entrySet().stream().map(e -> {
