@@ -16,7 +16,7 @@
 
     <dependencySets>
         <dependencySet>
-            <!-- <useProjectArtifact>false</useProjectArtifact> -->
+             <useProjectArtifact>false</useProjectArtifact>
             <outputDirectory>lib</outputDirectory>
             <useTransitiveDependencies>true</useTransitiveDependencies>
         </dependencySet>
@@ -29,15 +29,13 @@
             <outputDirectory>bin</outputDirectory>
         </fileSet>
 
-        <!--
         <fileSet>
-            <directory>${project.build.directory}/dependency/tokamak-spark-${project.version}</directory>
+            <directory>${project.build.directory}/dependency</directory>
             <includes>
-                <include>tokamak-spark-${project.version}-shaded.jar</include>
+                <include>tokamak-spark-${project.version}.jar</include>
             </includes>
             <outputDirectory>data</outputDirectory>
         </fileSet>
-        -->
 
     </fileSets>
 </assembly>

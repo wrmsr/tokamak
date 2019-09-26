@@ -44,7 +44,6 @@
     <build>
         <plugins>
 
-            <!--
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
@@ -53,7 +52,7 @@
                         <id>copy-spark</id>
                         <phase>prepare-package</phase>
                         <goals>
-                            <goal>unpack-dependencies</goal>
+                            <goal>copy-dependencies</goal>
                         </goals>
                         <configuration>
                             <skip>false</skip>
@@ -63,7 +62,6 @@
                     </execution>
                 </executions>
             </plugin>
-            -->
 
             <!--
             <plugin>
