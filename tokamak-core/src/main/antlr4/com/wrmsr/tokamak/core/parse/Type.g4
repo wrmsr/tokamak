@@ -2,15 +2,15 @@ grammar Type;
 
 
 type
-    : NAME ('<' arg_or_kwarg (',' arg_or_kwarg)* '>')?
+    : NAME ('<' argOrKwarg (',' argOrKwarg)* '>')?
     ;
 
-arg_or_kwarg
-    : type_or_int           #arg
-    | NAME '=' type_or_int  #kwarg
+argOrKwarg
+    : typeOrInt           #arg
+    | NAME '=' typeOrInt  #kwarg
     ;
 
-type_or_int
+typeOrInt
     : type
     | INT
     ;
@@ -20,6 +20,14 @@ NAME
     ;
 
 INT
-    : '9'
+    : '0'
     | [1-9][0-9]*
+    ;
+
+WS
+    : [ \r\n\t]+ -> channel(HIDDEN)
+    ;
+
+UNRECOGNIZED
+    : .
     ;

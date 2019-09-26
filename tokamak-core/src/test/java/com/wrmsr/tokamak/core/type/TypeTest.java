@@ -13,28 +13,17 @@
  */
 package com.wrmsr.tokamak.core.type;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonValue;
+import junit.framework.TestCase;
 
-import java.util.OptionalInt;
-
-public interface Type
+public class TypeTest
+        extends TestCase
 {
-    String getName();
-
-    OptionalInt getFixedSize();
-
-    java.lang.reflect.Type getReflect();
-
-    @JsonValue
-    default String toRepr()
+    public void testParsing()
+            throws Throwable
     {
-        return Types.toRepr(this);
-    }
-
-    @JsonCreator
-    static Type parseRepr(String str)
-    {
-        return Types.parseRepr(str);
+        TypeParsing.parseType("Long");
+        TypeParsing.parseType("List<Long>");
+        TypeParsing.parseType("Map<Long, String>");
+        TypeParsing.parseType("Struct<x=Long, y=Double>");
     }
 }

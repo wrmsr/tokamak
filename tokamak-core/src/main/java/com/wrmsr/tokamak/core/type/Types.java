@@ -39,13 +39,10 @@ public final class Types
      - coerce, check
      - serdes
      - sql:
-      - bigint
-      - decimal
      - presto:
       - json - jsr353? over jackson/glassfish? jackson JsonObjects? reparse? ..all..
        - JsonExtract.java, JsonPathType, JsonParser walking
        - https://github.com/json-path/JsonPath
-      - datetime
       - interval
       - digest
       - ip
@@ -88,11 +85,11 @@ public final class Types
             .build();
 
     public static final BiMap<Type, String> PRIMITIVE_STRING_MAP = ImmutableBiMap.<Type, String>builder()
-            .put(BOOLEAN, "boolean")
-            .put(LONG, "long")
-            .put(DOUBLE, "double")
-            .put(BYTES, "bytes")
-            .put(STRING, "string")
+            .put(BOOLEAN, "Boolean")
+            .put(LONG, "Long")
+            .put(DOUBLE, "Double")
+            .put(BYTES, "Bytes")
+            .put(STRING, "String")
             .build();
 
     public static Type parseRepr(String str)

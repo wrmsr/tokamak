@@ -11,17 +11,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.wrmsr.tokamak.core.type;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public final class TypedefType
+public final class AliasType
         extends AbstractType
 {
     private final Type type;
 
-    public TypedefType(String name, Type type)
+    public AliasType(String name, Type type)
     {
         super(name);
         this.type = checkNotNull(type);

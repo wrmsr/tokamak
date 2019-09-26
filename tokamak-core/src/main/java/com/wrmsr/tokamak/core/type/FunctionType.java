@@ -11,9 +11,44 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.wrmsr.tokamak.core.type;
 
-public class FunctionType
+import com.google.common.collect.ImmutableMap;
+
+import javax.annotation.concurrent.Immutable;
+
+import java.util.Map;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.wrmsr.tokamak.util.MoreCollections.checkOrdered;
+
+@Immutable
+public final class FunctionType
+        extends AbstractType
 {
+    private final Type returnType;
+    private final Map<String, Type> paramTypes;
+
+    public FunctionType(Type returnType, Map<String, Type> paramTypes)
+    {
+        super("Function");
+        this.returnType = checkNotNull(returnType);
+        this.paramTypes = ImmutableMap.copyOf(checkOrdered(paramTypes));
+    }
+
+    public Type getReturnType()
+    {
+        return returnType;
+    }
+
+    public Map<String, Type> getParamTypes()
+    {
+        return paramTypes;
+    }
+
+    @Override
+    public java.lang.reflect.Type getReflect()
+    {
+        return null;
+    }
 }
