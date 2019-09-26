@@ -24,6 +24,7 @@ import com.wrmsr.tokamak.core.plan.node.Node;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public final class CacheBuilder
@@ -38,7 +39,8 @@ public final class CacheBuilder
     private final class Context
             implements BuilderContext
     {
-        private final Map<Id, DriverRow> driverRowsById = new HashMap<>();
+        private final Map<Id, DriverRow> rowsById = new HashMap<>();
+        private final Map<Key, List<DriverRow>> rowListsByKey = new HashMap<>();
     }
 
     @Override
@@ -52,17 +54,22 @@ public final class CacheBuilder
     {
         Context ctx = dctx.getBuildContext(this);
 
+        List<DriverRow> cacheRows = ctx.rowListsByKey.get(key);
+        if (cacheRows != null) {
+            return cacheRows;
+        }
+
         ImmutableList.Builder<DriverRow> rows = ImmutableList.builder();
         for (DriverRow row : dctx.build(node.getSource(), key)) {
             if (row.getId() != null) {
-                DriverRow cacheRow = ctx.driverRowsById.get(row.getId());
+                DriverRow cacheRow = ctx.rowsById.get(row.getId());
                 if (cacheRow == null) {
                     cacheRow = new DriverRow(
                             node,
                             dctx.getDriver().getLineagePolicy().build(row),
                             row.getId(),
                             row.getAttributes());
-                    ctx.driverRowsById.put(row.getId(), cacheRow);
+                    ctx.rowsById.put(row.getId(), cacheRow);
                 }
                 rows.add(cacheRow);
             }
@@ -75,6 +82,9 @@ public final class CacheBuilder
                                 row.getAttributes()));
             }
         }
-        return rows.build();
+
+        cacheRows = rows.build();
+        ctx.rowListsByKey.put(key, cacheRows);
+        return cacheRows;
     }
 }
