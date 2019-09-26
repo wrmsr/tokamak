@@ -137,7 +137,7 @@ public class DriverContextImpl
         Collection<DriverRow> rows = builder.build(this, key);
         checkNotEmpty(rows);
         if (journaling) {
-            addJournalEntry(new JournalEntry.UncachedBuildOutput(node, key, rows));
+            addJournalEntry(new JournalEntry.BuildOutput(node, key, rows));
         }
 
         return rows;

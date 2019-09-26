@@ -64,7 +64,7 @@ public abstract class JournalEntry
         }
     }
 
-    public static abstract class BuildOutput
+    public static final class BuildOutput
             extends JournalEntry
     {
         private final Node node;
@@ -77,41 +77,5 @@ public abstract class JournalEntry
             this.key = checkNotNull(key);
             this.rows = checkNotNull(rows);
         }
-    }
-
-    public static final class RowCachedBuildOutput
-            extends BuildOutput
-    {
-        public RowCachedBuildOutput(Node node, Key key, Collection<DriverRow> rows)
-        {
-            super(node, key, rows);
-        }
-    }
-
-    public static final class StateCachedBuildOutput
-            extends BuildOutput
-    {
-        private final State state;
-
-        public StateCachedBuildOutput(Node node, Key key, Collection<DriverRow> rows, State state)
-        {
-            super(node, key, rows);
-            this.state = checkNotNull(state);
-        }
-    }
-
-    public static final class UncachedBuildOutput
-            extends BuildOutput
-    {
-        public UncachedBuildOutput(Node node, Key key, Collection<DriverRow> rows)
-        {
-            super(node, key, rows);
-        }
-    }
-
-    public static final class DenormalizedInputJournalEntry
-            extends JournalEntry
-    {
-
     }
 }
