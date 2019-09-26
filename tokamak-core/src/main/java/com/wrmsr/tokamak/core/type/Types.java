@@ -111,7 +111,6 @@ public final class Types
     {
         return name + '<' + Joiner.on(", ").join(
                 args.stream().map(v -> {
-                    String vs;
                     if (v instanceof Type) {
                         return ((Type) v).toRepr();
                     }

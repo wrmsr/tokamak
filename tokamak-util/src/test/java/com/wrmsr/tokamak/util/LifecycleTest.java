@@ -34,7 +34,6 @@ import javax.inject.Inject;
 
 import java.util.function.UnaryOperator;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static com.wrmsr.tokamak.util.lifecycle.Lifecycles.runLifecycle;
 
 public class LifecycleTest

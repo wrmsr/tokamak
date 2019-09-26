@@ -14,7 +14,6 @@
 package com.wrmsr.tokamak.util.config;
 
 import com.wrmsr.tokamak.util.config.props.BaseConfigProperty;
-import com.wrmsr.tokamak.util.config.props.ConfigProperty;
 
 import java.lang.reflect.Method;
 import java.util.Collections;

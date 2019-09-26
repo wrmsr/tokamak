@@ -14,6 +14,6 @@
 package com.wrmsr.tokamak.util.codec;
 
 public interface StreamCodec
-    extends StreamEncoder, StreamDecoder
+        extends StreamEncoder, StreamDecoder
 {
 }

@@ -34,7 +34,7 @@ public final class HistogramTest
 
         Random r = ThreadLocalRandom.current();
         float t = 50.0f + r.nextFloat() * 100.0f;
-        for (float f = r.nextFloat() * 3.0f; f < t;) {
+        for (float f = r.nextFloat() * 3.0f; f < t; ) {
             h.add(r.nextFloat() * 100.0f);
             f += r.nextFloat() * 3.0f;
             Thread.sleep(r.nextInt(6));

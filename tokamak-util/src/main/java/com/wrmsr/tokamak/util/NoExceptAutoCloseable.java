@@ -14,7 +14,7 @@
 package com.wrmsr.tokamak.util;
 
 public interface NoExceptAutoCloseable
-    extends AutoCloseable
+        extends AutoCloseable
 {
     @Override
     default void close()
