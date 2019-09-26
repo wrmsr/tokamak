@@ -24,123 +24,123 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public enum LineageGranularity
 {
     ID() {
-        final class EntryImpl
-                implements Lineage.Entry
-        {
-            private final Node node;
-            private final Id id;
-
-            public EntryImpl(Node node, Id id)
-            {
-                this.node = checkNotNull(node);
-                this.id = checkNotNull(id);
-            }
-
-            @Override
-            public boolean equals(Object o)
-            {
-                if (this == o) { return true; }
-                if (o == null || getClass() != o.getClass()) { return false; }
-                EntryImpl entry = (EntryImpl) o;
-                return Objects.equals(node, entry.node) &&
-                        Objects.equals(id, entry.id);
-            }
-
-            @Override
-            public int hashCode()
-            {
-                return Objects.hash(node, id);
-            }
-
-            @Override
-            public String toString()
-            {
-                return "EntryImpl{" +
-                        "node=" + node +
-                        ", id=" + id +
-                        '}';
-            }
-
-            @Override
-            public Node getNode()
-            {
-                return node;
-            }
-
-            @Override
-            public Id getId()
-            {
-                return id;
-            }
-        }
-
         @Override
         Lineage.Entry newEntry(DriverRow row)
         {
-            return new EntryImpl(row.getNode(), row.getId());
+            return new IdEntryImpl(row.getNode(), row.getId());
         }
     },
 
     ROW() {
-        final class EntryImpl
-                implements Lineage.Entry
-        {
-            private final DriverRow row;
-
-            public EntryImpl(DriverRow row)
-            {
-                this.row = checkNotNull(row);
-            }
-
-            @Override
-            public boolean equals(Object o)
-            {
-                if (this == o) { return true; }
-                if (o == null || getClass() != o.getClass()) { return false; }
-                EntryImpl entry = (EntryImpl) o;
-                return Objects.equals(row, entry.row);
-            }
-
-            @Override
-            public int hashCode()
-            {
-                return Objects.hash(row);
-            }
-
-            @Override
-            public String toString()
-            {
-                return "EntryImpl{" +
-                        "row=" + row +
-                        '}';
-            }
-
-            public DriverRow getRow()
-            {
-                return row;
-            }
-
-            @Override
-            public Node getNode()
-            {
-                return row.getNode();
-            }
-
-            @Override
-            public Id getId()
-            {
-                return row.getId();
-            }
-        }
-
         @Override
         Lineage.Entry newEntry(DriverRow row)
         {
-            return new EntryImpl(row);
+            return new RowEntryImpl(row);
         }
     },
 
     ;
 
     abstract Lineage.Entry newEntry(DriverRow row);
+
+    private static final class IdEntryImpl
+            implements Lineage.Entry
+    {
+        private final Node node;
+        private final Id id;
+
+        public IdEntryImpl(Node node, Id id)
+        {
+            this.node = checkNotNull(node);
+            this.id = checkNotNull(id);
+        }
+
+        @Override
+        public boolean equals(Object o)
+        {
+            if (this == o) { return true; }
+            if (o == null || getClass() != o.getClass()) { return false; }
+            IdEntryImpl entry = (IdEntryImpl) o;
+            return Objects.equals(node, entry.node) &&
+                    Objects.equals(id, entry.id);
+        }
+
+        @Override
+        public int hashCode()
+        {
+            return Objects.hash(node, id);
+        }
+
+        @Override
+        public String toString()
+        {
+            return "IdEntryImpl{" +
+                    "node=" + node +
+                    ", id=" + id +
+                    '}';
+        }
+
+        @Override
+        public Node getNode()
+        {
+            return node;
+        }
+
+        @Override
+        public Id getId()
+        {
+            return id;
+        }
+    }
+
+    private static final class RowEntryImpl
+            implements Lineage.Entry
+    {
+        private final DriverRow row;
+
+        public RowEntryImpl(DriverRow row)
+        {
+            this.row = checkNotNull(row);
+        }
+
+        @Override
+        public boolean equals(Object o)
+        {
+            if (this == o) { return true; }
+            if (o == null || getClass() != o.getClass()) { return false; }
+            RowEntryImpl entry = (RowEntryImpl) o;
+            return Objects.equals(row, entry.row);
+        }
+
+        @Override
+        public int hashCode()
+        {
+            return Objects.hash(row);
+        }
+
+        @Override
+        public String toString()
+        {
+            return "RowEntryImpl{" +
+                    "row=" + row +
+                    '}';
+        }
+
+        public DriverRow getRow()
+        {
+            return row;
+        }
+
+        @Override
+        public Node getNode()
+        {
+            return row.getNode();
+        }
+
+        @Override
+        public Id getId()
+        {
+            return row.getId();
+        }
+    }
 }
