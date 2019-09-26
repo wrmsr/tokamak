@@ -17,6 +17,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.core.plan.node.visitor.NodeVisitor;
 import com.wrmsr.tokamak.core.type.Type;
 
@@ -25,8 +26,11 @@ import javax.annotation.concurrent.Immutable;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.ImmutableList.toImmutableList;
 
 @Immutable
 public final class StateNode
@@ -34,6 +38,7 @@ public final class StateNode
         implements SingleSourceNode
 {
     private final Node source;
+    private final Optional<List<Set<String>>> idFields;
     private final List<WriterTarget> writerTargets;
     private final boolean denormalized;
     private final Map<String, Invalidation> invalidations;
@@ -44,6 +49,7 @@ public final class StateNode
     public StateNode(
             @JsonProperty("name") String name,
             @JsonProperty("source") Node source,
+            @JsonProperty("idFields") Optional<List<Set<String>>> idFields,
             @JsonProperty("writerTargets") List<WriterTarget> writerTargets,
             @JsonProperty("denormalized") boolean denormalized,
             @JsonProperty("invalidations") Map<String, Invalidation> invalidations,
@@ -53,11 +59,14 @@ public final class StateNode
         super(name);
 
         this.source = checkNotNull(source);
+        this.idFields = checkNotNull(idFields).map(s -> s.stream().map(ImmutableSet::copyOf).collect(toImmutableList()));
         this.writerTargets = ImmutableList.copyOf(writerTargets);
         this.denormalized = denormalized;
         this.invalidations = ImmutableMap.copyOf(invalidations);
         this.linkageMasks = ImmutableMap.copyOf(linkageMasks);
         this.lockOverride = checkNotNull(lockOverride);
+
+        this.idFields.ifPresent(l -> l.forEach(s -> s.forEach(f -> checkArgument(this.getFields().containsKey(f)))));
 
         checkInvariants();
     }
@@ -67,6 +76,12 @@ public final class StateNode
     public Node getSource()
     {
         return source;
+    }
+
+    @JsonProperty("idFields")
+    public Optional<List<Set<String>>> getIdFields()
+    {
+        return idFields;
     }
 
     @JsonProperty("writerTargets")

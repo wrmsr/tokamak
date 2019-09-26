@@ -95,6 +95,21 @@ public class DriverContextImpl
         return driver;
     }
 
+    public DefaultStateCache getStateCache()
+    {
+        return stateCache;
+    }
+
+    public InvalidationManager getInvalidationManager()
+    {
+        return invalidationManager;
+    }
+
+    public LinkageManager getLinkageManager()
+    {
+        return linkageManager;
+    }
+
     private final Map<Connector, Connection> connectionsByConnection = new HashMap<>();
 
     @Override

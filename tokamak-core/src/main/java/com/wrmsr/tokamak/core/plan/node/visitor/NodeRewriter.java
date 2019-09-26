@@ -112,6 +112,7 @@ public abstract class NodeRewriter<C>
         return new StateNode(
                 visitNodeName(node.getName(), context),
                 get(node.getSource(), context),
+                node.getIdFields(),
                 node.getWriterTargets(),
                 node.isDenormalized(),
                 node.getInvalidations().entrySet().stream()

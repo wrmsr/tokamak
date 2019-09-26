@@ -150,6 +150,7 @@ public class CoreTest
         Node stateNode0 = new StateNode(
                 "state0",
                 scanNode0,
+                Optional.of(ImmutableList.of(ImmutableSet.of("N_NATIONKEY"))),
                 ImmutableList.of(),
                 false,
                 ImmutableMap.of(),
@@ -185,6 +186,7 @@ public class CoreTest
         Node stateNode1 = new StateNode(
                 "state1",
                 scanNode1,
+                Optional.of(ImmutableList.of(ImmutableSet.of("R_REGIONKEY"))),
                 ImmutableList.of(),
                 false,
                 ImmutableMap.of(),
@@ -202,6 +204,7 @@ public class CoreTest
         Node persistNode0 = new StateNode(
                 "persist0",
                 equijoinNode0,
+                Optional.of(ImmutableList.of(ImmutableSet.of("R_REGIONKEY"))),
                 ImmutableList.of(),
                 false,
                 ImmutableMap.of(),
