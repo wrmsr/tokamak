@@ -26,20 +26,15 @@ import com.wrmsr.tokamak.core.driver.build.ContextualBuilder;
 import com.wrmsr.tokamak.core.driver.context.diag.JournalEntry;
 import com.wrmsr.tokamak.core.driver.context.diag.Stat;
 import com.wrmsr.tokamak.core.driver.context.state.DefaultStateCache;
-import com.wrmsr.tokamak.core.driver.context.state.StateCache;
 import com.wrmsr.tokamak.core.driver.state.State;
 import com.wrmsr.tokamak.core.plan.node.Node;
-import com.wrmsr.tokamak.core.plan.node.StateNode;
 
 import java.util.Collection;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
 import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 import static java.util.function.UnaryOperator.identity;
@@ -139,51 +134,10 @@ public class DriverContextImpl
             addJournalEntry(new JournalEntry.BuildInput(node, key));
         }
 
-        /*
-        if (builder.getNode() instanceof StateNode && key instanceof IdKey) {
-            StateNode statefulNode = (StateNode) builder.getNode();
-            IdKey idKey = (IdKey) key;
-            Optional<State> stateOpt = stateCache.get(statefulNode, idKey.getId(), EnumSet.of(StateCache.GetFlag.CREATE));
-            if (stateOpt.isPresent()) {
-                State state = stateOpt.get();
-                checkState(state.getId().equals(idKey.getId()));
-                checkState(!state.getMode().isStorageMode());
-                if (state.getMode() != State.Mode.INVALID) {
-                    DriverRow row = new DriverRow(
-                            statefulNode,
-                            driver.getLineagePolicy().build(),
-                            state.getId(),
-                            state.getAttributes());
-                    if (journaling) {
-                        addJournalEntry(new JournalEntry.StateCachedBuildOutput(node, key, ImmutableList.of(row), state));
-                    }
-                }
-            }
-        }
-        */
-
         Collection<DriverRow> rows = builder.build(this, key);
         checkNotEmpty(rows);
         if (journaling) {
             addJournalEntry(new JournalEntry.UncachedBuildOutput(node, key, rows));
-        }
-
-        if (node instanceof StateNode) {
-            StateNode statefulNode = (StateNode) node;
-            for (DriverRow row : rows) {
-                if (row.getId() == null) {
-                    checkState(row.isNull());
-                    continue;
-                }
-
-                Optional<State> stateOpt = stateCache.get(statefulNode, row.getId(), EnumSet.of(StateCache.GetFlag.CREATE));
-                State state = stateOpt.get();
-                if (state.getMode() == State.Mode.INVALID) {
-                    state.setAttributes(row.getAttributes());
-                }
-
-                linkageManager.addStateLineage(state, row.getLineage());
-            }
         }
 
         return rows;

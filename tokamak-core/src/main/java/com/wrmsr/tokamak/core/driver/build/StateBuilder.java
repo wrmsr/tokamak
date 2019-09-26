@@ -41,6 +41,29 @@ public final class StateBuilder
     @Override
     protected Collection<DriverRow> innerBuild(DriverContextImpl context, Key key)
     {
+        /*
+        if (builder.getNode() instanceof StateNode && key instanceof IdKey) {
+            StateNode statefulNode = (StateNode) builder.getNode();
+            IdKey idKey = (IdKey) key;
+            Optional<State> stateOpt = stateCache.get(statefulNode, idKey.getId(), EnumSet.of(StateCache.GetFlag.CREATE));
+            if (stateOpt.isPresent()) {
+                State state = stateOpt.get();
+                checkState(state.getId().equals(idKey.getId()));
+                checkState(!state.getMode().isStorageMode());
+                if (state.getMode() != State.Mode.INVALID) {
+                    DriverRow row = new DriverRow(
+                            statefulNode,
+                            driver.getLineagePolicy().build(),
+                            state.getId(),
+                            state.getAttributes());
+                    if (journaling) {
+                        addJournalEntry(new JournalEntry.StateCachedBuildOutput(node, key, ImmutableList.of(row), state));
+                    }
+                }
+            }
+        }
+        */
+
         ImmutableList.Builder<DriverRow> builder = ImmutableList.builder();
 
         for (DriverRow row : context.build(source, key)) {
