@@ -14,4 +14,4 @@ realpath() (
 )
 BIN=$(dirname $(realpath "${BASH_SOURCE%/*}/${0##*/}"))
 LIB="$BIN/../lib"
-exec java $JAVA_OPTS -cp "$LIB/*" com.wrmsr.tokamak.main.Main "$*"
+exec java $JAVA_OPTS -cp "$LIB/*" com.wrmsr.tokamak.main.Main "$@"
