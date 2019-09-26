@@ -15,7 +15,7 @@ package com.wrmsr.tokamak.core.driver;
 
 import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.api.Row;
-import com.wrmsr.tokamak.core.driver.context.lineage.Lineage;
+import com.wrmsr.tokamak.core.driver.context.lineage.LineageEntry;
 import com.wrmsr.tokamak.core.plan.node.Node;
 import com.wrmsr.tokamak.util.collect.ObjectArrayBackedMap;
 
@@ -25,6 +25,7 @@ import javax.annotation.concurrent.Immutable;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkState;
 
@@ -33,14 +34,14 @@ public final class DriverRow
         implements Row
 {
     private final Node node;
-    private final Lineage lineage;
+    private final Set<LineageEntry> lineage;
 
     private final @Nullable Id id;
     private final @Nullable Object[] attributes;
 
     public DriverRow(
             Node node,
-            Lineage lineage,
+            Set<LineageEntry> lineage,
             @Nullable Id id,
             @Nullable Object[] attributes)
     {
@@ -65,7 +66,7 @@ public final class DriverRow
         return node;
     }
 
-    public Lineage getLineage()
+    public Set<LineageEntry> getLineage()
     {
         return lineage;
     }

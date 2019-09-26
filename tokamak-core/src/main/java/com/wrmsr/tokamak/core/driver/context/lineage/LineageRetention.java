@@ -17,6 +17,7 @@ import com.wrmsr.tokamak.core.driver.DriverRow;
 import com.wrmsr.tokamak.core.plan.node.StatefulNode;
 
 import java.util.Iterator;
+import java.util.Set;
 
 public enum LineageRetention
 {
@@ -78,7 +79,7 @@ public enum LineageRetention
     {
         void accept(DriverRow row);
 
-        void accept(Lineage lineage);
+        void accept(Set<LineageEntry> lineage);
     }
 
     abstract void consume(Iterator<DriverRow> rows, Sink sink);

@@ -72,7 +72,7 @@ public class DriverContextImpl
 
         this.invalidationManager = new InvalidationManager();
 
-        this.linkageManager = new LinkageManager();
+        this.linkageManager = new LinkageManager(stateCache);
 
         journaling = false;
         journalEntries = null;
@@ -166,6 +166,8 @@ public class DriverContextImpl
                 if (state.getMode() == State.Mode.INVALID) {
                     state.setAttributes(row.getAttributes());
                 }
+
+                linkageManager.addStateLineage(state, row.getLineage());
             }
         }
 
@@ -181,6 +183,7 @@ public class DriverContextImpl
     @Override
     public void commit()
     {
+        linkageManager.update();
         stateCache.flush();
     }
 

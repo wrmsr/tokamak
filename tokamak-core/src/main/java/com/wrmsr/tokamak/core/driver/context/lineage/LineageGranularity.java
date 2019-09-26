@@ -18,6 +18,7 @@ import com.wrmsr.tokamak.core.driver.DriverRow;
 import com.wrmsr.tokamak.core.plan.node.Node;
 
 import java.util.Objects;
+import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -25,7 +26,7 @@ public enum LineageGranularity
 {
     ID() {
         @Override
-        Lineage.Entry newEntry(DriverRow row)
+        LineageEntry newEntry(DriverRow row)
         {
             return new IdEntryImpl(row.getNode(), row.getId());
         }
@@ -33,7 +34,7 @@ public enum LineageGranularity
 
     ROW() {
         @Override
-        Lineage.Entry newEntry(DriverRow row)
+        LineageEntry newEntry(DriverRow row)
         {
             return new RowEntryImpl(row);
         }
@@ -41,10 +42,10 @@ public enum LineageGranularity
 
     ;
 
-    abstract Lineage.Entry newEntry(DriverRow row);
+    abstract LineageEntry newEntry(DriverRow row);
 
     private static final class IdEntryImpl
-            implements Lineage.Entry
+            implements LineageEntry
     {
         private final Node node;
         private final Id id;
@@ -94,7 +95,7 @@ public enum LineageGranularity
     }
 
     private static final class RowEntryImpl
-            implements Lineage.Entry
+            implements LineageEntry
     {
         private final DriverRow row;
 
@@ -126,9 +127,10 @@ public enum LineageGranularity
                     '}';
         }
 
-        public DriverRow getRow()
+        @Override
+        public Optional<DriverRow> getRow()
         {
-            return row;
+            return Optional.of(row);
         }
 
         @Override
