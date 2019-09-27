@@ -84,9 +84,11 @@ public class AstBuilder
             {
                 List<SelectItem> selectItems = visit(ctx.selectItem(), SelectItem.class);
                 List<AliasedRelation> relations = visit(ctx.aliasedRelation(), AliasedRelation.class);
+                Optional<Expression> where = ctx.where != null ? Optional.of((Expression) visit(ctx.where)) : Optional.empty();
                 return new Select(
                         selectItems,
-                        relations);
+                        relations,
+                        where);
             }
 
             @Override

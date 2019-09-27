@@ -71,17 +71,17 @@ public abstract class AstVisitor<R, C>
         return visitTreeNode(treeNode, context);
     }
 
-    public R visitIntegerLiteral(NumberLiteral treeNode, C context)
-    {
-        return visitLiteral(treeNode, context);
-    }
-
     public R visitLiteral(Literal treeNode, C context)
     {
         return visitExpression(treeNode, context);
     }
 
     public R visitNullLiteral(NullLiteral treeNode, C context)
+    {
+        return visitLiteral(treeNode, context);
+    }
+
+    public R visitNumberLiteral(NumberLiteral treeNode, C context)
     {
         return visitLiteral(treeNode, context);
     }

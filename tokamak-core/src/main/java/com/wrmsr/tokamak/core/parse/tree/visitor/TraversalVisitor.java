@@ -58,6 +58,7 @@ public class TraversalVisitor<R, C>
     {
         treeNode.getRelations().forEach(r -> r.accept(this, context));
         treeNode.getItems().forEach(i -> i.accept(this, context));
+        treeNode.getWhere().ifPresent(w -> w.accept(this, context));
 
         return null;
     }

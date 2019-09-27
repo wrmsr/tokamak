@@ -17,6 +17,7 @@ import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.core.parse.tree.visitor.AstVisitor;
 
 import java.util.List;
+import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -25,11 +26,13 @@ public final class Select
 {
     private final List<SelectItem> items;
     private final List<AliasedRelation> relations;
+    private final Optional<Expression> where;
 
-    public Select(List<SelectItem> items, List<AliasedRelation> relations)
+    public Select(List<SelectItem> items, List<AliasedRelation> relations, Optional<Expression> where)
     {
         this.items = ImmutableList.copyOf(items);
         this.relations = checkNotNull(relations);
+        this.where = checkNotNull(where);
     }
 
     public List<SelectItem> getItems()
@@ -40,6 +43,11 @@ public final class Select
     public List<AliasedRelation> getRelations()
     {
         return relations;
+    }
+
+    public Optional<Expression> getWhere()
+    {
+        return where;
     }
 
     @Override

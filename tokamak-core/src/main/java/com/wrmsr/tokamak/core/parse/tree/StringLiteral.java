@@ -25,6 +25,11 @@ public final class StringLiteral
         this.value = value;
     }
 
+    public String getValue()
+    {
+        return value;
+    }
+
     @Override
     public <R, C> R accept(AstVisitor<R, C> visitor, C context)
     {

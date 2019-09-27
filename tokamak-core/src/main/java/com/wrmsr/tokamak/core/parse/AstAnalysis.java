@@ -179,6 +179,10 @@ public final class AstAnalysis
                 aliasedRelation.getRelation().accept(this, relationScope);
             });
 
+            treeNode.getWhere().ifPresent(where -> {
+                where.accept(this, scope);
+            });
+
             treeNode.getItems().forEach(item -> {
                 item.accept(this, scope);
             });

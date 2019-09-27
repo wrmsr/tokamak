@@ -23,6 +23,7 @@ import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.core.type.impl.FunctionType;
 
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -41,6 +42,7 @@ public final class Catalog
     private volatile Map<String, Schema> schemasByName = ImmutableMap.of();
     private volatile Map<String, Executor> executorsByName = ImmutableMap.of();
     private volatile Map<String, Function> functionsByName = ImmutableMap.of();
+    private volatile Map<String, View> viewsByName = ImmutableMap.of();
 
     public Catalog(List<Catalog> parent)
     {
@@ -58,23 +60,32 @@ public final class Catalog
             @JsonProperty("connectors") List<Connector> connectors,
             @JsonProperty("schemas") List<Schema> schemas,
             @JsonProperty("executors") List<Executor> executors,
-            @JsonProperty("functions") List<Function> functions)
+            @JsonProperty("functions") List<Function> functions,
+            @JsonProperty("views") List<View> views)
     {
         this.parents = ImmutableList.copyOf(parent);
+
         checkNotNull(connectors).forEach(this::addConnector);
+        Map<String, Schema> schemasByName = new LinkedHashMap<>();
         schemas.forEach(s -> {
             checkState(connectors.contains(s.getConnector()));
             checkState(!schemasByName.containsKey(s.getName()));
             s.setCatalog(this);
             schemasByName.put(s.getName(), s);
         });
+        this.schemasByName = ImmutableMap.copyOf(schemasByName);
+
         checkNotNull(executors).forEach(this::addExecutor);
+        Map<String, Function> functionsByName = new LinkedHashMap<>();
         functions.forEach(f -> {
             checkState(executors.contains(f.getExecutor()));
             checkState(!schemasByName.containsKey(f.getName()));
             f.setCatalog(this);
             functionsByName.put(f.getName(), f);
         });
+        this.functionsByName = ImmutableMap.copyOf(functionsByName);
+
+        views.forEach(this::addView);
     }
 
     @JsonProperty("parent")
@@ -125,6 +136,17 @@ public final class Catalog
     public Map<String, Function> getFunctionsByName()
     {
         return functionsByName;
+    }
+
+    @JsonProperty("views")
+    public Collection<View> getViews()
+    {
+        return viewsByName.values();
+    }
+
+    public Map<String, View> getViewsByName()
+    {
+        return viewsByName;
     }
 
     public <T extends Connector> T addConnector(T connector)
@@ -233,5 +255,37 @@ public final class Catalog
     public Function getFunction(String name)
     {
         return getFunctionOptional(name).orElseGet(() -> { throw new IllegalArgumentException("Function not found: " + name); });
+    }
+
+    public View addView(View view)
+    {
+        synchronized (lock) {
+            View existingView = viewsByName.get(view.getName());
+            if (existingView != null) {
+                throw new IllegalArgumentException(String.format("Schema name %s taken under connector %s", view.getName(), existingView));
+            }
+            viewsByName = ImmutableMap.<String, View>builder().putAll(viewsByName).put(view.getName(), view).build();
+            return view;
+        }
+    }
+
+    public Optional<View> getViewOptional(String name)
+    {
+        View view = viewsByName.get(name);
+        if (view != null) {
+            return Optional.of(view);
+        }
+        for (Catalog parent : parents) {
+            Optional<View> optional = parent.getViewOptional(name);
+            if (optional.isPresent()) {
+                return optional;
+            }
+        }
+        return Optional.empty();
+    }
+
+    public View getView(String name)
+    {
+        return getViewOptional(name).orElseGet(() -> { throw new IllegalArgumentException("View not found: " + name); });
     }
 }

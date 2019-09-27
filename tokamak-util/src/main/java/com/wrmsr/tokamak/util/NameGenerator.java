@@ -15,38 +15,26 @@ package com.wrmsr.tokamak.util;
 
 import com.google.common.collect.ImmutableSet;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public final class NameGenerator
         implements Supplier<String>
 {
-    /*
-    TODO:
-     - optional prefix provided in get (idAddedScanProject$N)
-    */
-
-    public static final String DEFAULT_PREFIX = "$anon$";
+    public static final String DEFAULT_PREFIX = "_";
 
     private final Set<String> names;
-    private final String prefix;
+    private final String globalPrefix;
+    private final Map<String, Integer> prefixCounts = new HashMap<>();
 
-    private int counter;
-
-    public NameGenerator(Set<String> unavailableStrings, String prefix, int initialCount)
+    public NameGenerator(Set<String> unavailableStrings, String globalPrefix)
     {
-        checkArgument(initialCount >= 0);
         this.names = ImmutableSet.copyOf(unavailableStrings);
-        this.prefix = checkNotNull(prefix);
-        counter = initialCount;
-    }
-
-    public NameGenerator(Set<String> names, String prefix)
-    {
-        this(names, prefix, 0);
+        this.globalPrefix = checkNotNull(globalPrefix);
     }
 
     public NameGenerator(Set<String> names)
@@ -59,24 +47,26 @@ public final class NameGenerator
         this(ImmutableSet.of());
     }
 
-    public int getCounter()
+    public String getGlobalPrefix()
     {
-        return counter;
+        return globalPrefix;
     }
 
-    public String getPrefix()
+    public String get(String prefix)
     {
-        return prefix;
+        while (true) {
+            int count = prefixCounts.getOrDefault(prefix, 0);
+            prefixCounts.put(prefix, count + 1);
+            String name = globalPrefix + count;
+            if (!names.contains(name)) {
+                return name;
+            }
+        }
     }
 
     @Override
     public String get()
     {
-        while (true) {
-            String name = prefix + counter++;
-            if (!names.contains(name)) {
-                return name;
-            }
-        }
+        return get("");
     }
 }

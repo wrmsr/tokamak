@@ -25,9 +25,14 @@ public final class NumberLiteral
         this.value = value;
     }
 
+    public long getValue()
+    {
+        return value;
+    }
+
     @Override
     public <R, C> R accept(AstVisitor<R, C> visitor, C context)
     {
-        return visitor.visitIntegerLiteral(this, context);
+        return visitor.visitNumberLiteral(this, context);
     }
 }
