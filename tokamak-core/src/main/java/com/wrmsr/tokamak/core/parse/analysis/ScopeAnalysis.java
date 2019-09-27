@@ -15,6 +15,7 @@ package com.wrmsr.tokamak.core.parse.analysis;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.core.catalog.Catalog;
 import com.wrmsr.tokamak.core.catalog.Table;
@@ -31,6 +32,7 @@ import com.wrmsr.tokamak.core.parse.tree.visitor.TraversalVisitor;
 import java.util.ArrayDeque;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +42,7 @@ import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
+import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 
 public final class ScopeAnalysis
 {
@@ -198,7 +201,7 @@ public final class ScopeAnalysis
     private final Scope rootScope;
 
     private final Map<TreeNode, Scope> scopesByNode;
-    private final Map<TreeNode, Symbol> symbolsByNode;
+    private final Map<TreeNode, Set<Symbol>> symbolSetsByNode;
     private final Map<TreeNode, SymbolRef> symbolRefsByNode;
 
     private ScopeAnalysis(Scope rootScope)
@@ -206,7 +209,7 @@ public final class ScopeAnalysis
         this.rootScope = checkNotNull(rootScope);
 
         ImmutableMap.Builder<TreeNode, Scope> scopesByNode = ImmutableMap.builder();
-        ImmutableMap.Builder<TreeNode, Symbol> symbolsByNode = ImmutableMap.builder();
+        Map<TreeNode, Set<Symbol>> symbolSetsByNode = new LinkedHashMap<>();
         ImmutableMap.Builder<TreeNode, SymbolRef> symbolRefsByNode = ImmutableMap.builder();
 
         Set<Scope> seen = new HashSet<>();
@@ -215,7 +218,7 @@ public final class ScopeAnalysis
         while (!queue.isEmpty()) {
             Scope cur = queue.remove();
             scopesByNode.put(cur.node, cur);
-            cur.symbols.forEach(s -> symbolsByNode.put(s.node, s));
+            cur.symbols.forEach(s -> symbolSetsByNode.computeIfAbsent(s.node, n -> new LinkedHashSet<>()).add(s));
             cur.symbolRefs.forEach(sr -> symbolRefsByNode.put(sr.node, sr));
             cur.children.forEach(c -> {
                 checkState(!seen.contains(c));
@@ -225,7 +228,8 @@ public final class ScopeAnalysis
         }
 
         this.scopesByNode = scopesByNode.build();
-        this.symbolsByNode = symbolsByNode.build();
+        this.symbolSetsByNode = symbolSetsByNode.entrySet().stream()
+                .collect(toImmutableMap(Map.Entry::getKey, e -> ImmutableSet.copyOf(e.getValue())));
         this.symbolRefsByNode = symbolRefsByNode.build();
     }
 
@@ -234,9 +238,9 @@ public final class ScopeAnalysis
         return scopesByNode;
     }
 
-    public Map<TreeNode, Symbol> getSymbolsByNode()
+    public Map<TreeNode, Set<Symbol>> getSymbolSetsByNode()
     {
-        return symbolsByNode;
+        return symbolSetsByNode;
     }
 
     public Map<TreeNode, SymbolRef> getSymbolRefsByNode()

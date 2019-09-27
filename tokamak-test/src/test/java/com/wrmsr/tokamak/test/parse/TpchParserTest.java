@@ -19,6 +19,7 @@ import com.wrmsr.tokamak.core.parse.AstRendering;
 import com.wrmsr.tokamak.core.parse.Parsing;
 import com.wrmsr.tokamak.core.parse.SqlParser;
 import com.wrmsr.tokamak.core.parse.analysis.ScopeAnalysis;
+import com.wrmsr.tokamak.core.parse.transform.NameResolution;
 import com.wrmsr.tokamak.core.parse.transform.SelectExpansion;
 import com.wrmsr.tokamak.core.parse.transform.ViewInlining;
 import com.wrmsr.tokamak.core.parse.tree.TreeNode;
@@ -53,17 +54,14 @@ public class TpchParserTest
         }) {
             SqlParser parser = Parsing.parse(str);
             TreeNode treeNode = AstBuilding.build(parser.statement());
-
             System.out.println(AstRendering.render(treeNode));
 
             treeNode = ViewInlining.inlineViews(treeNode, catalog);
             treeNode = SelectExpansion.expandSelects(treeNode, catalog, defaultSchema);
-
             System.out.println(AstRendering.render(treeNode));
 
-            ScopeAnalysis scopeAnalysis = ScopeAnalysis.analyze(treeNode, Optional.of(catalog), defaultSchema);
-
-            System.out.println(scopeAnalysis);
+            treeNode = NameResolution.resolveNames(treeNode, Optional.of(catalog), defaultSchema);
+            System.out.println(AstRendering.render(treeNode));
 
             System.out.println();
 
