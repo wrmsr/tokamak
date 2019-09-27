@@ -13,6 +13,7 @@
  */
 package com.wrmsr.tokamak.core.parse.transform;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.core.catalog.Catalog;
@@ -21,6 +22,8 @@ import com.wrmsr.tokamak.core.parse.tree.AliasedRelation;
 import com.wrmsr.tokamak.core.parse.tree.AllSelectItem;
 import com.wrmsr.tokamak.core.parse.tree.Expression;
 import com.wrmsr.tokamak.core.parse.tree.ExpressionSelectItem;
+import com.wrmsr.tokamak.core.parse.tree.QualifiedName;
+import com.wrmsr.tokamak.core.parse.tree.Relation;
 import com.wrmsr.tokamak.core.parse.tree.Select;
 import com.wrmsr.tokamak.core.parse.tree.SelectItem;
 import com.wrmsr.tokamak.core.parse.tree.SubqueryRelation;
@@ -30,18 +33,142 @@ import com.wrmsr.tokamak.core.parse.tree.visitor.AstRewriter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
+import static com.google.common.collect.ImmutableSet.toImmutableSet;
+import static com.wrmsr.tokamak.util.MoreCollections.histogram;
 
 public final class SelectExpansion
 {
     private SelectExpansion()
     {
+    }
+
+    private static List<AliasedRelation> addRelationAliases(List<AliasedRelation> aliasedRelations)
+    {
+        Set<String> seen = new HashSet<>();
+        List<AliasedRelation> ret = new ArrayList<>();
+        int numAnon = 0;
+
+        Map<String, Long> tableNameCounts = histogram(aliasedRelations.stream()
+                .map(AliasedRelation::getRelation)
+                .filter(TableName.class::isInstance)
+                .map(TableName.class::cast)
+                .map(TableName::getQualifiedName)
+                .map(QualifiedName::getLast));
+        Map<String, Integer> dupeTableNameCounts = new HashMap<>();
+
+        for (AliasedRelation ar : aliasedRelations) {
+            if (!ar.getAlias().isPresent()) {
+                Relation r = ar.getRelation();
+                String alias;
+
+                if (r instanceof SubqueryRelation) {
+                    alias = "_" + (numAnon++);
+                }
+
+                else if (r instanceof TableName) {
+                    TableName tn = (TableName) r;
+                    String name = tn.getQualifiedName().getLast();
+                    if (tableNameCounts.get(tn) > 1) {
+                        int num = dupeTableNameCounts.getOrDefault(name, 0);
+                        dupeTableNameCounts.put(name, num + 1);
+                        alias = name + "_" + num;
+                    }
+                    else {
+                        alias = name;
+                    }
+                }
+
+                else {
+                    throw new IllegalStateException(Objects.toString(r));
+                }
+
+                ar = new AliasedRelation(
+                        ar.getRelation(),
+                        Optional.of(alias));
+            }
+
+            checkState(!seen.contains(ar.getAlias().get()));
+            seen.add(ar.getAlias().get());
+            ret.add(ar);
+        }
+
+        return ImmutableList.copyOf(ret);
+    }
+
+    private static List<SelectItem> addItemLabels(
+            List<SelectItem> items,
+            List<AliasedRelation> relations,
+            Map<TreeNode, Set<String>> fieldSetsByNode)
+    {
+        Set<String> seen = new HashSet<>();
+        List<SelectItem> ret = new ArrayList<>();
+        int numAnon = 0;
+
+        Map<String, Long> relationFieldCounts = histogram(relations.stream()
+                .map(AliasedRelation::getRelation)
+                .map(fieldSetsByNode::get)
+                .flatMap(Set::stream));
+
+        for (SelectItem item : items) {
+            if (item instanceof AllSelectItem) {
+                Map<String, Integer> dupeCounts = new HashMap<>();
+                for (AliasedRelation relation : relations) {
+                    Set<String> relationFields = fieldSetsByNode.get(relation.getRelation());
+                    for (String relationField : relationFields) {
+                        String label;
+                        if (relationFieldCounts.get(relationField) > 1) {
+                            int num = dupeCounts.getOrDefault(relationField, 0);
+                            dupeCounts.put(relationField, num + 1);
+                            label = relationField + '_' + num;
+                        }
+                        else {
+                            label = relationField;
+                        }
+
+                        checkState(!seen.contains(label));
+                        seen.add(label);
+                        ret.add(
+                                new ExpressionSelectItem(
+                                        new QualifiedName(
+                                                ImmutableList.of(relation.getAlias().get(), label)),
+                                        Optional.of(label)));
+                    }
+                }
+            }
+
+            else if (item instanceof ExpressionSelectItem) {
+                ExpressionSelectItem eitem = (ExpressionSelectItem) item;
+                String label;
+                if (eitem.getLabel().isPresent()) {
+                    label = eitem.getLabel().get();
+                }
+                else {
+                    label = "_" + (numAnon++);
+                }
+
+                checkState(!seen.contains(label));
+                seen.add(label);
+                ret.add(
+                        new ExpressionSelectItem(
+                                eitem.getExpression(),
+                                Optional.of(label)));
+            }
+
+            else {
+                throw new IllegalStateException(Objects.toString(item));
+            }
+        }
+
+        return ret;
     }
 
     public static TreeNode expandSelects(TreeNode node, Catalog catalog, Optional<String> defaultSchema)
@@ -53,31 +180,29 @@ public final class SelectExpansion
             @Override
             public TreeNode visitSelect(Select treeNode, Void context)
             {
-                List<AliasedRelation> relations = treeNode.getRelations().stream()
-                        .map(r -> (AliasedRelation) r.accept(this, context))
-                        .collect(toImmutableList());
+                List<AliasedRelation> relations = addRelationAliases(
+                        treeNode.getRelations().stream()
+                                .map(r -> (AliasedRelation) r.accept(this, context))
+                                .collect(toImmutableList()));
 
-                List<SelectItem> items = new ArrayList<>();
-                Set<String> fields = new LinkedHashSet<>();
-                int numAnon = 0;
+                List<SelectItem> items = addItemLabels(
+                        treeNode.getItems(),
+                        relations,
+                        fieldSetsByNode);
 
-                for (SelectItem item : treeNode.getItems()) {
-                    if (item instanceof AllSelectItem) {
-
-                    }
-                    else if (item instanceof ExpressionSelectItem) {
-
-                    }
-                    else {
-
-                    }
-                }
+                Set<String> fields = items.stream()
+                        .map(ExpressionSelectItem.class::cast)
+                        .map(ExpressionSelectItem::getLabel)
+                        .map(Optional::get)
+                        .collect(toImmutableSet());
 
                 Select ret = new Select(
                         items,
                         relations,
                         treeNode.getWhere().map(w -> (Expression) w.accept(this, context)));
-                fieldSetsByNode.put(ret, ImmutableSet.copyOf(fields));
+
+                fieldSetsByNode.put(ret, fields);
+
                 return ret;
             }
 

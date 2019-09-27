@@ -32,6 +32,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.Spliterator;
 import java.util.Spliterators;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -320,5 +322,20 @@ public final class MoreCollections
                 return arr[idx++];
             }
         };
+    }
+
+    public static <T> Stream<T> streamIterator(Iterator<T> iterator)
+    {
+        return StreamSupport.stream(Spliterators.spliteratorUnknownSize(iterator, Spliterator.ORDERED), false);
+    }
+
+    public static <T> Map<T, Long> histogram(Stream<T> stream)
+    {
+        return stream.collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+    }
+
+    public static <T> Map<T, Long> histogram(Iterator<T> iterator)
+    {
+        return histogram(streamIterator(iterator));
     }
 }

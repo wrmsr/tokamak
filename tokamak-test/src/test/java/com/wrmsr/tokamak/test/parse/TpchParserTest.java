@@ -13,12 +13,13 @@
  */
 package com.wrmsr.tokamak.test.parse;
 
-import com.wrmsr.tokamak.core.parse.AstAnalysis;
-import com.wrmsr.tokamak.core.parse.tree.TreeNode;
 import com.wrmsr.tokamak.core.catalog.Catalog;
+import com.wrmsr.tokamak.core.parse.AstAnalysis;
 import com.wrmsr.tokamak.core.parse.AstBuilding;
 import com.wrmsr.tokamak.core.parse.Parsing;
 import com.wrmsr.tokamak.core.parse.SqlParser;
+import com.wrmsr.tokamak.core.parse.transform.SelectExpansion;
+import com.wrmsr.tokamak.core.parse.tree.TreeNode;
 import com.wrmsr.tokamak.test.TpchUtils;
 import junit.framework.TestCase;
 
@@ -37,6 +38,7 @@ public class TpchParserTest
         String url = "jdbc:h2:file:" + tempDir.toString() + "/test.db;USER=username;PASSWORD=password";
         TpchUtils.buildDatabase(url);
         Catalog catalog = TpchUtils.buildCatalog(url);
+        Optional<String> defaultSchema = Optional.of("PUBLIC");
 
         for (String str : new String[] {
                 "select * from NATION",
@@ -49,9 +51,11 @@ public class TpchParserTest
             SqlParser parser = Parsing.parse(str);
             TreeNode treeNode = AstBuilding.build(parser.statement());
 
-            AstAnalysis.analyze(treeNode, Optional.of(catalog), Optional.of("PUBLIC"));
+            treeNode = SelectExpansion.expandSelects(treeNode, catalog, defaultSchema);
 
-            // Node node = new AstPlanner(Optional.of(catalog), Optional.of("PUBLIC")).plan(treeNode);
+            AstAnalysis.analyze(treeNode, Optional.of(catalog), defaultSchema);
+
+            // Node node = new AstPlanner(Optional.of(catalog), defaultSchema).plan(treeNode);
             // Plan transformedPlan = Transforms.addScanNodeIdFields(new Plan(node), catalog);
         }
     }
