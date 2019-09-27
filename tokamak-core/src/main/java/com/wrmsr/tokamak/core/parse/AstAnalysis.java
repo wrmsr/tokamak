@@ -13,10 +13,12 @@
  */
 package com.wrmsr.tokamak.core.parse;
 
+import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.core.catalog.Catalog;
 import com.wrmsr.tokamak.core.catalog.Table;
 import com.wrmsr.tokamak.core.parse.tree.AliasedRelation;
+import com.wrmsr.tokamak.core.parse.tree.AllSelectItem;
 import com.wrmsr.tokamak.core.parse.tree.ExpressionSelectItem;
 import com.wrmsr.tokamak.core.parse.tree.QualifiedName;
 import com.wrmsr.tokamak.core.parse.tree.Select;
@@ -42,29 +44,49 @@ public final class AstAnalysis
     {
         private final Optional<String> name;
         private final Scope scope;
+        private final Optional<Symbol> origin;
         private final TreeNode node;
 
-        public Symbol(Optional<String> name, TreeNode node, Scope scope)
+        public Symbol(Optional<String> name, TreeNode node, Optional<Symbol> origin, Scope scope)
         {
             this.name = checkNotNull(name);
             this.scope = checkNotNull(scope);
+            this.origin = checkNotNull(origin);
             this.node = checkNotNull(node);
 
             scope.symbols.add(this);
+        }
+
+        @Override
+        public String toString()
+        {
+            return "Symbol{" +
+                    "name=" + name +
+                    '}';
         }
     }
 
     public static final class SymbolRef
     {
-        private final QualifiedName qualifiedName;
+        private final Optional<List<String>> nameParts;
+        private final TreeNode node;
         private final Scope scope;
 
-        public SymbolRef(QualifiedName qualifiedName, Scope scope)
+        public SymbolRef(Optional<List<String>> nameParts, TreeNode node, Scope scope)
         {
-            this.qualifiedName = checkNotNull(qualifiedName);
+            this.nameParts = checkNotNull(nameParts).map(ImmutableList::copyOf);
+            this.node = checkNotNull(node);
             this.scope = checkNotNull(scope);
 
             scope.symbolRefs.add(this);
+        }
+
+        @Override
+        public String toString()
+        {
+            return "SymbolRef{" +
+                    "nameParts=" + nameParts +
+                    '}';
         }
     }
 
@@ -105,24 +127,35 @@ public final class AstAnalysis
         @Override
         public Scope visitAliasedRelation(AliasedRelation treeNode, Optional<Scope> context)
         {
-            Scope aliasScope = new Scope(treeNode, context, treeNode.getAlias());
-            treeNode.getRelation().accept(this, Optional.of(aliasScope));
-            return aliasScope;
+            throw new IllegalStateException();
+        }
+
+        @Override
+        public Scope visitAllSelectItem(AllSelectItem treeNode, Optional<Scope> context)
+        {
+            context.get().children.forEach(c -> c.symbols.forEach(s -> {
+                new Symbol(s.name, treeNode, Optional.of(s), context.get());
+                new SymbolRef(s.name.map(ImmutableList::of), treeNode, context.get());
+            }));
+            return null;
         }
 
         @Override
         public Scope visitExpressionSelectItem(ExpressionSelectItem treeNode, Optional<Scope> context)
         {
             treeNode.getExpression().accept(this, context);
-            new Symbol(treeNode.getLabel(), treeNode, context.get());
+            Optional<String> label = treeNode.getLabel();
+            if (!label.isPresent() && treeNode.getExpression() instanceof QualifiedName) {
+                label = Optional.of(((QualifiedName) treeNode.getExpression()).getLast());
+            }
+            new Symbol(label, treeNode, Optional.empty(), context.get());
             return null;
         }
 
         @Override
         public Scope visitQualifiedName(QualifiedName treeNode, Optional<Scope> context)
         {
-            new SymbolRef(treeNode, context.get());
-
+            new SymbolRef(Optional.of(treeNode.getParts()), treeNode, context.get());
             return null;
         }
 
@@ -131,8 +164,9 @@ public final class AstAnalysis
         {
             Scope scope = new Scope(treeNode, context, Optional.empty());
 
-            treeNode.getRelations().forEach(relation -> {
-                relation.accept(this, Optional.of(scope));
+            treeNode.getRelations().forEach(aliasedRelation -> {
+                Scope relationScope = new Scope(aliasedRelation, Optional.of(scope), aliasedRelation.getAlias());
+                aliasedRelation.getRelation().accept(this, Optional.of(relationScope));
             });
 
             treeNode.getItems().forEach(item -> {
@@ -163,12 +197,10 @@ public final class AstAnalysis
                 throw new IllegalArgumentException(tableNameParts.toString());
             }
 
-            Scope scope = new Scope(treeNode, context, Optional.of(schemaTable.getTable()));
-
             Table table = catalog.get().getSchemaTable(schemaTable);
-            table.getRowLayout().getFields().keySet().forEach(f -> new Symbol(Optional.of(f), treeNode, scope));
+            table.getRowLayout().getFields().keySet().forEach(f -> new Symbol(Optional.of(f), treeNode, Optional.empty(), context.get()));
 
-            return scope;
+            return null;
         }
     }
 

@@ -18,6 +18,8 @@ import com.wrmsr.tokamak.core.parse.tree.visitor.AstVisitor;
 
 import java.util.List;
 
+import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
+
 public final class QualifiedName
         extends Expression
 {
@@ -25,7 +27,7 @@ public final class QualifiedName
 
     public QualifiedName(List<String> parts)
     {
-        this.parts = ImmutableList.copyOf(parts);
+        this.parts = checkNotEmpty(ImmutableList.copyOf(parts));
     }
 
     @Override
@@ -39,6 +41,11 @@ public final class QualifiedName
     public List<String> getParts()
     {
         return parts;
+    }
+
+    public String getLast()
+    {
+        return parts.get(parts.size() - 1);
     }
 
     @Override
