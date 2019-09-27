@@ -13,6 +13,7 @@
  */
 package com.wrmsr.tokamak.test.parse;
 
+import com.wrmsr.tokamak.core.parse.AstAnalysis;
 import com.wrmsr.tokamak.core.parse.tree.TreeNode;
 import com.wrmsr.tokamak.core.catalog.Catalog;
 import com.wrmsr.tokamak.core.plan.node.Node;
@@ -48,15 +49,13 @@ public class TpchParserTest
                 "select N_COMMENT, exclaim(N_NAME) from NATION",
                 "select N_COMMENT, exclaim(exclaim(N_NAME)) from NATION",
         }) {
-            System.out.println(str);
             SqlParser parser = Parsing.parse(str);
-            System.out.println(parser);
             TreeNode treeNode = new AstBuilder().build(parser.statement());
-            System.out.println(treeNode);
+
+            AstAnalysis.analyze(treeNode, catalog);
+
             Node node = new AstPlanner(Optional.of(catalog), Optional.of("PUBLIC")).plan(treeNode);
-            System.out.println(node);
             Plan transformedPlan = Transforms.addScanNodeIdFields(new Plan(node), catalog);
-            System.out.println(transformedPlan);
         }
     }
 }

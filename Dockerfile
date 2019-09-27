@@ -1,4 +1,4 @@
-FROM openjdk:8u222-stretch AS build
+FROM openjdk:8u222-slim-buster AS build
 COPY .dockertimestamp /
 
 RUN mkdir /build
@@ -23,7 +23,8 @@ COPY .git /build/.git
 RUN cd /build && ./mvnw package -DskipTests
 
 
-FROM openjdk:8u222-stretch
+#FROM openjdk:8u222-slim-buster
+FROM openjdk:13-slim-buster
 COPY .dockertimestamp /
 
 COPY --from=build build/tokamak-dist/target/tokamak-*.tar.gz /tokamak-*.tar.gz

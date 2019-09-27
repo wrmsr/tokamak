@@ -133,10 +133,10 @@ valueOrVariable
    ;
 
 value
-   : STRING # stringValue
-   | NUMBER # numberValue
-   | BOOLEAN # booleanValue
-   | array # arrayValue
+   : STRING   #stringValue
+   | NUMBER   #numberValue
+   | BOOLEAN  #booleanValue
+   | array    #arrayValue
    ;
 
 type_

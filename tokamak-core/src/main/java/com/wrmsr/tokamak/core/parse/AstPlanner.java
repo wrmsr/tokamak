@@ -131,7 +131,7 @@ public class AstPlanner
             @Override
             public Node visitSelect(Select treeNode, Void context)
             {
-                TableName tableName = (TableName) treeNode.getRelation().get();
+                TableName tableName = (TableName) treeNode.getRelations().get();
                 List<String> tableNameParts = tableName.getQualifiedName().getParts();
                 SchemaTable schemaTable;
                 if (tableNameParts.size() == 1) {

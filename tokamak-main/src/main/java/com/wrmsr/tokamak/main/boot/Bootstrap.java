@@ -30,7 +30,7 @@ public final class Bootstrap
     /*
     TODO:
      - rlimits
-     - jdk selection
+     - gc
     */
 
     private final BootstrapConfig config;

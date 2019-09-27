@@ -27,7 +27,6 @@ import com.wrmsr.tokamak.core.parse.tree.SelectItem;
 import com.wrmsr.tokamak.core.parse.tree.StringLiteral;
 import com.wrmsr.tokamak.core.parse.tree.TableName;
 import com.wrmsr.tokamak.core.parse.tree.TreeNode;
-import com.wrmsr.tokamak.util.MoreOptionals;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ParseTree;
 
@@ -74,10 +73,10 @@ public class AstBuilder
             public TreeNode visitSelect(SqlParser.SelectContext ctx)
             {
                 List<SelectItem> selectItems = visit(ctx.selectItem(), SelectItem.class);
-                Optional<Relation> relation = MoreOptionals.optionalSingle(visit(ctx.relation(), Relation.class));
+                List<Relation> relations = visit(ctx.relation(), Relation.class);
                 return new Select(
                         selectItems,
-                        relation);
+                        relations);
             }
 
             @Override

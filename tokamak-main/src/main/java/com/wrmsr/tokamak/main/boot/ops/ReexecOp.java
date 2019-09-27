@@ -13,14 +13,18 @@
  */
 package com.wrmsr.tokamak.main.boot.ops;
 
-import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.main.boot.Bootstrap;
 import com.wrmsr.tokamak.main.jna.JnaExec;
 import com.wrmsr.tokamak.main.util.exec.Exec;
 import com.wrmsr.tokamak.util.Jdk;
 
 import java.io.File;
+import java.lang.management.ManagementFactory;
+import java.lang.management.RuntimeMXBean;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
@@ -70,9 +74,27 @@ public final class ReexecOp
         exec = new JnaExec();
         // exec = new ProcessBuilderExec();
 
-        String jvm = getJvm().getAbsolutePath();
-        String cp = System.getProperty("java.class.path");
+        List<String> execArgs = new ArrayList<>();
 
-        exec.exec(jvm, ImmutableList.<String>builder().add("-cp", cp, "-D" + NO_REEXEC_PROPERTY_KEY, mainClsName).add(args).build());
+        RuntimeMXBean runtimeMxBean = ManagementFactory.getRuntimeMXBean();
+        List<String> jvmArgs = runtimeMxBean.getInputArguments();
+        execArgs.addAll(jvmArgs);
+
+        String cp = System.getProperty("java.class.path");
+        execArgs.add("-cp");
+        execArgs.add(cp);
+
+        if (Jdk.getMajor() >= 9) {
+            execArgs.add("--add-opens");
+            execArgs.add("java.base/java.lang=ALL-UNNAMED");
+        }
+
+        execArgs.add("-D" + NO_REEXEC_PROPERTY_KEY);
+
+        execArgs.add(mainClsName);
+        execArgs.addAll(Arrays.asList(args));
+
+        String jvm = getJvm().getAbsolutePath();
+        exec.exec(jvm, execArgs);
     }
 }

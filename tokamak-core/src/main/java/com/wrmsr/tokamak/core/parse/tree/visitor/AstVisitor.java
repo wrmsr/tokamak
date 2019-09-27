@@ -35,7 +35,7 @@ import java.util.Objects;
 
 public abstract class AstVisitor<R, C>
 {
-    private R visitTreeNode(TreeNode treeNode, C context)
+    protected R visitTreeNode(TreeNode treeNode, C context)
     {
         throw new IllegalArgumentException(Objects.toString(treeNode));
     }

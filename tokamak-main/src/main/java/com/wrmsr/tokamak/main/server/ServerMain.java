@@ -25,10 +25,6 @@ public class ServerMain
 {
     private static final Logger log = Logger.get(ServerMain.class);
 
-    // cd tokamak-main/target && tar xvf tokamak-main-0.1-SNAPSHOT.tar.gz && cd tokamak-main-0.1-SNAPSHOT
-    // --add-opens java.base/java.lang=ALL-UNNAMED
-    // io.netty.tryReflectionSetAccessible
-
     public static void main(String[] args)
             throws Exception
     {

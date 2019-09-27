@@ -25,12 +25,12 @@ public final class Select
         extends Statement
 {
     private final List<SelectItem> items;
-    private final Optional<Relation> relation;
+    private final List<Relation> relations;
 
-    public Select(List<SelectItem> items, Optional<Relation> relation)
+    public Select(List<SelectItem> items, List<Relation> relations)
     {
         this.items = ImmutableList.copyOf(items);
-        this.relation = checkNotNull(relation);
+        this.relations = checkNotNull(relations);
     }
 
     public List<SelectItem> getItems()
@@ -38,9 +38,9 @@ public final class Select
         return items;
     }
 
-    public Optional<Relation> getRelation()
+    public List<Relation> getRelations()
     {
-        return relation;
+        return relations;
     }
 
     @Override
