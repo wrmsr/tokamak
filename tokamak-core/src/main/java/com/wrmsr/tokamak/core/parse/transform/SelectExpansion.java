@@ -141,7 +141,7 @@ public final class SelectExpansion
                                 new ExpressionSelectItem(
                                         new QualifiedNameExpression(
                                                 new QualifiedName(
-                                                        ImmutableList.of(relation.getAlias().get(), label))),
+                                                        ImmutableList.of(relation.getAlias().get(), relationField))),
                                         Optional.of(label)));
                     }
                 }
