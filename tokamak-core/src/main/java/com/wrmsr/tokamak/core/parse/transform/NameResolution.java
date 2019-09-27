@@ -15,10 +15,12 @@ package com.wrmsr.tokamak.core.parse.transform;
 
 import com.wrmsr.tokamak.core.catalog.Catalog;
 import com.wrmsr.tokamak.core.parse.analysis.ScopeAnalysis;
+import com.wrmsr.tokamak.core.parse.tree.AllSelectItem;
 import com.wrmsr.tokamak.core.parse.tree.QualifiedName;
 import com.wrmsr.tokamak.core.parse.tree.TreeNode;
 import com.wrmsr.tokamak.core.parse.tree.visitor.AstRewriter;
 
+import java.util.List;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -36,9 +38,17 @@ public final class NameResolution
         return node.accept(new AstRewriter<Void>()
         {
             @Override
+            public TreeNode visitAllSelectItem(AllSelectItem treeNode, Void context)
+            {
+                throw new IllegalStateException();
+            }
+
+            @Override
             public TreeNode visitQualifiedName(QualifiedName treeNode, Void context)
             {
                 ScopeAnalysis.SymbolRef sr = checkNotNull(sa.getSymbolRefsByNode().get(treeNode));
+                // List<ScopeAnalysis.Scope> hits = sr.getScope().getChildren().stream()
+                //         .filter(s -> s.getSymbols().stream().anyMatch(s -> s.getName().isPresent() && s.getName().get().equals()))
                 return super.visitQualifiedName(treeNode, context);
             }
         }, null);
