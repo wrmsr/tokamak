@@ -23,7 +23,6 @@ COPY .git /build/.git
 RUN cd /build && ./mvnw package -DskipTests
 
 
-#FROM openjdk:8u222-slim-buster
 FROM openjdk:13-slim-buster
 COPY .dockertimestamp /
 
