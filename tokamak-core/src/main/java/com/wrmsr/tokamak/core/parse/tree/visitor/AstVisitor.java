@@ -13,6 +13,7 @@
  */
 package com.wrmsr.tokamak.core.parse.tree.visitor;
 
+import com.wrmsr.tokamak.core.parse.tree.AliasedRelation;
 import com.wrmsr.tokamak.core.parse.tree.AllSelectItem;
 import com.wrmsr.tokamak.core.parse.tree.Expression;
 import com.wrmsr.tokamak.core.parse.tree.ExpressionSelectItem;
@@ -38,6 +39,11 @@ public abstract class AstVisitor<R, C>
     protected R visitTreeNode(TreeNode treeNode, C context)
     {
         throw new IllegalArgumentException(Objects.toString(treeNode));
+    }
+
+    public R visitAliasedRelation(AliasedRelation treeNode, C context)
+    {
+        return visitTreeNode(treeNode, context);
     }
 
     public R visitAllSelectItem(AllSelectItem treeNode, C context)

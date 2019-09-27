@@ -13,6 +13,7 @@
  */
 package com.wrmsr.tokamak.core.parse;
 
+import com.wrmsr.tokamak.core.parse.tree.AliasedRelation;
 import com.wrmsr.tokamak.core.parse.tree.AllSelectItem;
 import com.wrmsr.tokamak.core.parse.tree.Expression;
 import com.wrmsr.tokamak.core.parse.tree.ExpressionSelectItem;
@@ -37,6 +38,7 @@ import java.util.stream.Collectors;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
+import static com.wrmsr.tokamak.util.MorePreconditions.checkSingle;
 
 public class AstBuilder
 {
@@ -70,10 +72,18 @@ public class AstBuilder
             }
 
             @Override
+            public TreeNode visitAliasedRelation(SqlParser.AliasedRelationContext ctx)
+            {
+                return new AliasedRelation(
+                        (Relation) visit(ctx.relation()),
+                        ctx.identifier() != null ? Optional.of(ctx.identifier().getText()) : Optional.empty());
+            }
+
+            @Override
             public TreeNode visitSelect(SqlParser.SelectContext ctx)
             {
                 List<SelectItem> selectItems = visit(ctx.selectItem(), SelectItem.class);
-                List<Relation> relations = visit(ctx.relation(), Relation.class);
+                List<AliasedRelation> relations = visit(ctx.aliasedRelation(), AliasedRelation.class);
                 return new Select(
                         selectItems,
                         relations);

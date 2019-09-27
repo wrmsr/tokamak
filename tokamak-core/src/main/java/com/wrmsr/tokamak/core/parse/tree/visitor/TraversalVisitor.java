@@ -11,9 +11,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.wrmsr.tokamak.core.parse.tree.visitor;
 
+import com.wrmsr.tokamak.core.parse.tree.AliasedRelation;
 import com.wrmsr.tokamak.core.parse.tree.ExpressionSelectItem;
 import com.wrmsr.tokamak.core.parse.tree.FunctionCallExpression;
 import com.wrmsr.tokamak.core.parse.tree.Select;
@@ -26,6 +26,14 @@ public class TraversalVisitor<R, C>
     @Override
     protected R visitTreeNode(TreeNode treeNode, C context)
     {
+        return null;
+    }
+
+    @Override
+    public R visitAliasedRelation(AliasedRelation treeNode, C context)
+    {
+        treeNode.getRelation().accept(this, context);
+
         return null;
     }
 
@@ -48,8 +56,8 @@ public class TraversalVisitor<R, C>
     @Override
     public R visitSelect(Select treeNode, C context)
     {
-        treeNode.getItems().forEach(i -> i.accept(this, context));
         treeNode.getRelations().forEach(r -> r.accept(this, context));
+        treeNode.getItems().forEach(i -> i.accept(this, context));
 
         return null;
     }

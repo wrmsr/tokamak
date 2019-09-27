@@ -13,38 +13,37 @@
  */
 package com.wrmsr.tokamak.core.parse.tree;
 
-import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.core.parse.tree.visitor.AstVisitor;
 
-import java.util.List;
+import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public final class Select
-        extends Statement
+public final class AliasedRelation
+        extends TreeNode
 {
-    private final List<SelectItem> items;
-    private final List<AliasedRelation> relations;
+    private final Relation relation;
+    private final Optional<String> alias;
 
-    public Select(List<SelectItem> items, List<AliasedRelation> relations)
+    public AliasedRelation(Relation relation, Optional<String> alias)
     {
-        this.items = ImmutableList.copyOf(items);
-        this.relations = checkNotNull(relations);
+        this.relation = checkNotNull(relation);
+        this.alias = checkNotNull(alias);
     }
 
-    public List<SelectItem> getItems()
+    public Relation getRelation()
     {
-        return items;
+        return relation;
     }
 
-    public List<AliasedRelation> getRelations()
+    public Optional<String> getAlias()
     {
-        return relations;
+        return alias;
     }
 
     @Override
     public <R, C> R accept(AstVisitor<R, C> visitor, C context)
     {
-        return visitor.visitSelect(this, context);
+        return visitor.visitAliasedRelation(this, context);
     }
 }

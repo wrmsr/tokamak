@@ -18,13 +18,17 @@ statement
 
 select
     : SELECT selectItem (',' selectItem)*
-      (FROM relation (',' relation)*)?
+      (FROM aliasedRelation (',' aliasedRelation)*)?
       (WHERE where=expression)?
     ;
 
 selectItem
     : expression (AS? identifier)?  #selectExpression
     | ASTERISK                      #selectAll
+    ;
+
+aliasedRelation
+    : relation (AS? identifier)?
     ;
 
 relation

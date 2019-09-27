@@ -11,10 +11,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.wrmsr.tokamak.core.parse;
 
 import com.wrmsr.tokamak.core.catalog.Catalog;
+import com.wrmsr.tokamak.core.parse.tree.ExpressionSelectItem;
 import com.wrmsr.tokamak.core.parse.tree.QualifiedName;
 import com.wrmsr.tokamak.core.parse.tree.Select;
 import com.wrmsr.tokamak.core.parse.tree.TreeNode;
@@ -34,40 +34,49 @@ public final class AstAnalysis
 
     public static final class Symbol
     {
+        private final Optional<String> name;
         private final Scope scope;
-        private final String name;
+        private final TreeNode node;
 
-        public Symbol(Scope scope, String name)
+        public Symbol(Optional<String> name, TreeNode node, Scope scope)
         {
-            this.scope = checkNotNull(scope);
             this.name = checkNotNull(name);
+            this.scope = checkNotNull(scope);
+            this.node = checkNotNull(node);
+
+            scope.symbols.add(this);
         }
     }
 
     public static final class SymbolRef
     {
-        private final Scope scope;
         private final QualifiedName qualifiedName;
+        private final Scope scope;
 
-        public SymbolRef(Scope scope, QualifiedName qualifiedName)
+        public SymbolRef(QualifiedName qualifiedName, Scope scope)
         {
-            this.scope = checkNotNull(scope);
             this.qualifiedName = checkNotNull(qualifiedName);
+            this.scope = checkNotNull(scope);
+
+            scope.symbolRefs.add(this);
         }
     }
 
     public static final class Scope
     {
-        private final TreeNode root;
+        private final TreeNode node;
 
         private final Optional<Scope> parent;
         private final Set<Scope> children = new LinkedHashSet<>();
 
         private final Optional<String> name;
 
-        public Scope(TreeNode root, Optional<Scope> parent, Optional<String> name)
+        private final Set<Symbol> symbols = new LinkedHashSet<>();
+        private final Set<SymbolRef> symbolRefs = new LinkedHashSet<>();
+
+        public Scope(TreeNode node, Optional<Scope> parent, Optional<String> name)
         {
-            this.root = checkNotNull(root);
+            this.node = checkNotNull(node);
             this.parent = checkNotNull(parent);
             this.name = checkNotNull(name);
 
@@ -86,16 +95,39 @@ public final class AstAnalysis
         }
 
         @Override
+        public Scope visitExpressionSelectItem(ExpressionSelectItem treeNode, Optional<Scope> context)
+        {
+            treeNode.getExpression().accept(this, context);
+
+            new Symbol(treeNode.getLabel(), treeNode, context.get());
+
+            return null;
+        }
+
+        @Override
+        public Scope visitQualifiedName(QualifiedName treeNode, Optional<Scope> context)
+        {
+            new SymbolRef(treeNode, context.get());
+
+            return null;
+        }
+
+        @Override
         public Scope visitSelect(Select treeNode, Optional<Scope> context)
         {
             Scope scope = new Scope(treeNode, context, Optional.empty());
+
+            treeNode.getRelations().forEach(relation -> {
+                Scope relationScope = relation.accept(this, Optional.of(scope));
+                if (relationScope != null) {
+
+                }
+            });
 
             treeNode.getItems().forEach(item -> {
 
                 item.accept(this, Optional.of(scope));
             });
-
-            treeNode.getRelations().forEach(r -> r.accept(this, Optional.of(scope)));
 
             return scope;
         }

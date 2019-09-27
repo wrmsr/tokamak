@@ -46,6 +46,7 @@ public class TpchParserTest
                 "select * from NATION",
                 "select N_NAME, N_COMMENT from NATION",
                 "select N_NAME as name, N_COMMENT as comment from NATION",
+                "select N_NAME, N_COMMENT from NATION as n",
                 "select N_COMMENT, exclaim(N_NAME) from NATION",
                 "select N_COMMENT, exclaim(exclaim(N_NAME)) from NATION",
         }) {
@@ -54,8 +55,8 @@ public class TpchParserTest
 
             AstAnalysis.analyze(treeNode, catalog);
 
-            Node node = new AstPlanner(Optional.of(catalog), Optional.of("PUBLIC")).plan(treeNode);
-            Plan transformedPlan = Transforms.addScanNodeIdFields(new Plan(node), catalog);
+            // Node node = new AstPlanner(Optional.of(catalog), Optional.of("PUBLIC")).plan(treeNode);
+            // Plan transformedPlan = Transforms.addScanNodeIdFields(new Plan(node), catalog);
         }
     }
 }
