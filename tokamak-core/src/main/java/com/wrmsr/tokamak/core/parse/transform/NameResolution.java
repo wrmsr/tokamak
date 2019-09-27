@@ -22,8 +22,8 @@ import com.wrmsr.tokamak.core.parse.tree.QualifiedNameExpression;
 import com.wrmsr.tokamak.core.parse.tree.TreeNode;
 import com.wrmsr.tokamak.core.parse.tree.visitor.AstRewriter;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -54,33 +54,21 @@ public final class NameResolution
                 ScopeAnalysis.SymbolRef sr = checkNotNull(sa.getSymbolRefsByNode().get(treeNode));
                 List<String> parts = treeNode.getQualifiedName().getParts();
 
-                List<ScopeAnalysis.Symbol> hits;
+                List<ScopeAnalysis.Symbol> hits = new ArrayList<>();
 
-                if (parts.size() == 1) {
-                    String symbolName = parts.get(0);
+                hits.addAll(sr.getScope().getChildren().stream()
+                        .map(ScopeAnalysis.Scope::getSymbols)
+                        .flatMap(Set::stream)
+                        .filter(s -> s.getName().isPresent() && s.getName().get().equals(parts.get(0)))
+                        .collect(toImmutableList()));
 
-                    hits = sr.getScope().getChildren().stream()
+                if (parts.size() > 1) {
+                    hits.addAll(sr.getScope().getChildren().stream()
+                            .filter(s -> s.getName().isPresent() && s.getName().get().equals(parts.get(0)))
                             .map(ScopeAnalysis.Scope::getSymbols)
                             .flatMap(Set::stream)
-                            .filter(s -> s.getName().isPresent() && s.getName().get().equals(symbolName))
-                            .collect(toImmutableList());
-                }
-
-                else if (parts.size() == 2) {
-                    // TODO: struct traversal
-                    String scopeName = parts.get(0);
-                    String symbolName = parts.get(1);
-
-                    hits = sr.getScope().getChildren().stream()
-                            .filter(s -> s.getName().isPresent() && s.getName().get().equals(scopeName))
-                            .map(ScopeAnalysis.Scope::getSymbols)
-                            .flatMap(Set::stream)
-                            .filter(s -> s.getName().isPresent() && s.getName().get().equals(symbolName))
-                            .collect(toImmutableList());
-                }
-
-                else {
-                    throw new IllegalStateException(Objects.toString(parts));
+                            .filter(s -> s.getName().isPresent() && s.getName().get().equals(parts.get(1)))
+                            .collect(toImmutableList()));
                 }
 
                 if (hits.size() > 1) {
