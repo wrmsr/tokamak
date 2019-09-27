@@ -32,7 +32,7 @@ public final class ViewInlining
     {
     }
 
-    public TreeNode inlineViews(TreeNode root, Catalog catalog)
+    public static TreeNode inlineViews(TreeNode root, Catalog catalog)
     {
         return root.accept(new AstRewriter<Void>()
         {

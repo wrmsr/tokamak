@@ -77,7 +77,7 @@ public final class SelectExpansion
                 else if (r instanceof TableName) {
                     TableName tn = (TableName) r;
                     String name = tn.getQualifiedName().getLast();
-                    if (tableNameCounts.get(tn) > 1) {
+                    if (tableNameCounts.get(name) > 1) {
                         int num = dupeTableNameCounts.getOrDefault(name, 0);
                         dupeTableNameCounts.put(name, num + 1);
                         alias = name + "_" + num;
@@ -150,6 +150,9 @@ public final class SelectExpansion
                 String label;
                 if (eitem.getLabel().isPresent()) {
                     label = eitem.getLabel().get();
+                }
+                else if (eitem.getExpression() instanceof QualifiedName) {
+                    label = ((QualifiedName) eitem.getExpression()).getLast();
                 }
                 else {
                     label = "_" + (numAnon++);

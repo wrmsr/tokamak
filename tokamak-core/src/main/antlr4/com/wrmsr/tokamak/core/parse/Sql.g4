@@ -37,11 +37,11 @@ relation
     ;
 
 expression
-    : NOT expression                                         #notExpression
-    | qualifiedName                                          #qualifiedNameExpression
-    | literal                                                #literalExpression
-    | qualifiedName '(' (expression (',' expression)*)? ')'  #functionCallExpression
-    | variable                                               #variableExpression
+    : NOT expression                                      #notExpression
+    | qualifiedName                                       #qualifiedNameExpression
+    | literal                                             #literalExpression
+    | identifier '(' (expression (',' expression)*)? ')'  #functionCallExpression
+    | variable                                            #variableExpression
     ;
 
 variable

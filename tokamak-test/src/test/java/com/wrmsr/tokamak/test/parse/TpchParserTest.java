@@ -14,11 +14,13 @@
 package com.wrmsr.tokamak.test.parse;
 
 import com.wrmsr.tokamak.core.catalog.Catalog;
-import com.wrmsr.tokamak.core.parse.AstAnalysis;
 import com.wrmsr.tokamak.core.parse.AstBuilding;
+import com.wrmsr.tokamak.core.parse.AstRendering;
 import com.wrmsr.tokamak.core.parse.Parsing;
 import com.wrmsr.tokamak.core.parse.SqlParser;
+import com.wrmsr.tokamak.core.parse.analysis.ScopeAnalysis;
 import com.wrmsr.tokamak.core.parse.transform.SelectExpansion;
+import com.wrmsr.tokamak.core.parse.transform.ViewInlining;
 import com.wrmsr.tokamak.core.parse.tree.TreeNode;
 import com.wrmsr.tokamak.test.TpchUtils;
 import junit.framework.TestCase;
@@ -42,6 +44,7 @@ public class TpchParserTest
 
         for (String str : new String[] {
                 "select * from NATION",
+                "select * from NATION, NATION",
                 "select N_NAME, N_COMMENT from NATION",
                 "select N_NAME as name, N_COMMENT as comment from NATION",
                 "select N_NAME, N_COMMENT from NATION as n",
@@ -51,9 +54,18 @@ public class TpchParserTest
             SqlParser parser = Parsing.parse(str);
             TreeNode treeNode = AstBuilding.build(parser.statement());
 
+            System.out.println(AstRendering.render(treeNode));
+
+            treeNode = ViewInlining.inlineViews(treeNode, catalog);
             treeNode = SelectExpansion.expandSelects(treeNode, catalog, defaultSchema);
 
-            AstAnalysis.analyze(treeNode, Optional.of(catalog), defaultSchema);
+            System.out.println(AstRendering.render(treeNode));
+
+            ScopeAnalysis scopeAnalysis = ScopeAnalysis.analyze(treeNode, Optional.of(catalog), defaultSchema);
+
+            System.out.println(scopeAnalysis);
+
+            System.out.println();
 
             // Node node = new AstPlanner(Optional.of(catalog), defaultSchema).plan(treeNode);
             // Plan transformedPlan = Transforms.addScanNodeIdFields(new Plan(node), catalog);
