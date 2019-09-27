@@ -13,14 +13,20 @@
  */
 package com.wrmsr.tokamak.core.parse;
 
+import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.core.catalog.Catalog;
+import com.wrmsr.tokamak.core.catalog.Table;
+import com.wrmsr.tokamak.core.parse.tree.AliasedRelation;
 import com.wrmsr.tokamak.core.parse.tree.ExpressionSelectItem;
 import com.wrmsr.tokamak.core.parse.tree.QualifiedName;
 import com.wrmsr.tokamak.core.parse.tree.Select;
+import com.wrmsr.tokamak.core.parse.tree.SubqueryRelation;
+import com.wrmsr.tokamak.core.parse.tree.TableName;
 import com.wrmsr.tokamak.core.parse.tree.TreeNode;
 import com.wrmsr.tokamak.core.parse.tree.visitor.TraversalVisitor;
 
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -87,20 +93,28 @@ public final class AstAnalysis
     public static final class ScopeAstVisitor
             extends TraversalVisitor<Scope, Optional<Scope>>
     {
-        private final Catalog catalog;
+        private final Optional<Catalog> catalog;
+        private final Optional<String> defaultSchema;
 
-        public ScopeAstVisitor(Catalog catalog)
+        public ScopeAstVisitor(Optional<Catalog> catalog, Optional<String> defaultSchema)
         {
             this.catalog = checkNotNull(catalog);
+            this.defaultSchema = checkNotNull(defaultSchema);
+        }
+
+        @Override
+        public Scope visitAliasedRelation(AliasedRelation treeNode, Optional<Scope> context)
+        {
+            Scope aliasScope = new Scope(treeNode, context, treeNode.getAlias());
+            treeNode.getRelation().accept(this, Optional.of(aliasScope));
+            return aliasScope;
         }
 
         @Override
         public Scope visitExpressionSelectItem(ExpressionSelectItem treeNode, Optional<Scope> context)
         {
             treeNode.getExpression().accept(this, context);
-
             new Symbol(treeNode.getLabel(), treeNode, context.get());
-
             return null;
         }
 
@@ -118,23 +132,49 @@ public final class AstAnalysis
             Scope scope = new Scope(treeNode, context, Optional.empty());
 
             treeNode.getRelations().forEach(relation -> {
-                Scope relationScope = relation.accept(this, Optional.of(scope));
-                if (relationScope != null) {
-
-                }
+                relation.accept(this, Optional.of(scope));
             });
 
             treeNode.getItems().forEach(item -> {
-
                 item.accept(this, Optional.of(scope));
             });
 
             return scope;
         }
+
+        @Override
+        public Scope visitSubqueryRelation(SubqueryRelation treeNode, Optional<Scope> context)
+        {
+            return treeNode.getSelect().accept(this, context);
+        }
+
+        @Override
+        public Scope visitTableName(TableName treeNode, Optional<Scope> context)
+        {
+            List<String> tableNameParts = treeNode.getQualifiedName().getParts();
+            SchemaTable schemaTable;
+            if (tableNameParts.size() == 1) {
+                schemaTable = SchemaTable.of(defaultSchema.get(), tableNameParts.get(0));
+            }
+            else if (tableNameParts.size() == 2) {
+                schemaTable = SchemaTable.of(tableNameParts.get(0), tableNameParts.get(1));
+            }
+            else {
+                throw new IllegalArgumentException(tableNameParts.toString());
+            }
+
+            Scope scope = new Scope(treeNode, context, Optional.of(schemaTable.getTable()));
+
+            Table table = catalog.get().getSchemaTable(schemaTable);
+            table.getRowLayout().getFields().keySet().forEach(f -> new Symbol(Optional.of(f), treeNode, scope));
+
+            return scope;
+        }
     }
 
-    public static void analyze(TreeNode statement, Catalog catalog)
+    public static void analyze(TreeNode statement, Optional<Catalog> catalog, Optional<String> defaultSchema)
     {
-        statement.accept(new ScopeAstVisitor(catalog), Optional.empty());
+        Scope scope = statement.accept(new ScopeAstVisitor(catalog, defaultSchema), Optional.empty());
+        checkNotNull(scope);
     }
 }

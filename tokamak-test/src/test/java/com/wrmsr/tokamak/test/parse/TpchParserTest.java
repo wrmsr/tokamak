@@ -53,7 +53,7 @@ public class TpchParserTest
             SqlParser parser = Parsing.parse(str);
             TreeNode treeNode = new AstBuilder().build(parser.statement());
 
-            AstAnalysis.analyze(treeNode, catalog);
+            AstAnalysis.analyze(treeNode, Optional.of(catalog), Optional.of("PUBLIC"));
 
             // Node node = new AstPlanner(Optional.of(catalog), Optional.of("PUBLIC")).plan(treeNode);
             // Plan transformedPlan = Transforms.addScanNodeIdFields(new Plan(node), catalog);
