@@ -28,14 +28,18 @@ import com.wrmsr.tokamak.core.parse.tree.TableName;
 import com.wrmsr.tokamak.core.parse.tree.TreeNode;
 import com.wrmsr.tokamak.core.parse.tree.visitor.TraversalVisitor;
 
-import java.util.HashMap;
+import java.util.ArrayDeque;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Queue;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 
 public final class ScopeAnalysis
 {
@@ -172,7 +176,7 @@ public final class ScopeAnalysis
 
         public Set<Scope> getChildren()
         {
-            return children;
+            return Collections.unmodifiableSet(children);
         }
 
         public Optional<String> getName()
@@ -182,20 +186,47 @@ public final class ScopeAnalysis
 
         public Set<Symbol> getSymbols()
         {
-            return symbols;
+            return Collections.unmodifiableSet(symbols);
         }
 
         public Set<SymbolRef> getSymbolRefs()
         {
-            return symbolRefs;
+            return Collections.unmodifiableSet(symbolRefs);
         }
     }
 
-    private final Map<TreeNode, Scope> scopesByNode;
+    private final Scope rootScope;
 
-    private ScopeAnalysis(Map<TreeNode, Scope> scopesByNode)
+    private final Map<TreeNode, Scope> scopesByNode;
+    private final Map<TreeNode, Symbol> symbolsByNode;
+    private final Map<TreeNode, SymbolRef> symbolRefsByNode;
+
+    private ScopeAnalysis(Scope rootScope)
     {
-        this.scopesByNode = ImmutableMap.copyOf(scopesByNode);
+        this.rootScope = checkNotNull(rootScope);
+
+        ImmutableMap.Builder<TreeNode, Scope> scopesByNode = ImmutableMap.builder();
+        ImmutableMap.Builder<TreeNode, Symbol> symbolsByNode = ImmutableMap.builder();
+        ImmutableMap.Builder<TreeNode, SymbolRef> symbolRefsByNode = ImmutableMap.builder();
+
+        Set<Scope> seen = new HashSet<>();
+        Queue<Scope> queue = new ArrayDeque<>();
+        queue.add(rootScope);
+        while (!queue.isEmpty()) {
+            Scope cur = queue.remove();
+            scopesByNode.put(cur.node, cur);
+            cur.symbols.forEach(s -> symbolsByNode.put(s.node, s));
+            cur.symbolRefs.forEach(sr -> symbolRefsByNode.put(sr.node, sr));
+            cur.children.forEach(c -> {
+                checkState(!seen.contains(c));
+                seen.add(c);
+                queue.add(c);
+            });
+        }
+
+        this.scopesByNode = scopesByNode.build();
+        this.symbolsByNode = symbolsByNode.build();
+        this.symbolRefsByNode = symbolRefsByNode.build();
     }
 
     public Map<TreeNode, Scope> getScopesByNode()
@@ -203,11 +234,19 @@ public final class ScopeAnalysis
         return scopesByNode;
     }
 
+    public Map<TreeNode, Symbol> getSymbolsByNode()
+    {
+        return symbolsByNode;
+    }
+
+    public Map<TreeNode, SymbolRef> getSymbolRefsByNode()
+    {
+        return symbolRefsByNode;
+    }
+
     public static ScopeAnalysis analyze(TreeNode statement, Optional<Catalog> catalog, Optional<String> defaultSchema)
     {
-        Map<TreeNode, Scope> scopesByNode = new HashMap<>();
-
-        statement.accept(new TraversalVisitor<Scope, Scope>()
+        Scope scope = statement.accept(new TraversalVisitor<Scope, Scope>()
         {
             @Override
             public Scope visitAliasedRelation(AliasedRelation treeNode, Scope context)
@@ -248,7 +287,6 @@ public final class ScopeAnalysis
             public Scope visitSelect(Select treeNode, Scope context)
             {
                 Scope scope = new Scope(treeNode, Optional.ofNullable(context), Optional.empty());
-                scopesByNode.put(treeNode, scope);
 
                 treeNode.getRelations().forEach(aliasedRelation -> {
                     Scope relationScope = new Scope(aliasedRelation, Optional.of(scope), aliasedRelation.getAlias());
@@ -282,6 +320,6 @@ public final class ScopeAnalysis
             }
         }, null);
 
-        return new ScopeAnalysis(scopesByNode);
+        return new ScopeAnalysis(scope);
     }
 }
