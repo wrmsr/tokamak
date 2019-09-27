@@ -23,6 +23,7 @@ import com.wrmsr.tokamak.core.parse.tree.AllSelectItem;
 import com.wrmsr.tokamak.core.parse.tree.Expression;
 import com.wrmsr.tokamak.core.parse.tree.ExpressionSelectItem;
 import com.wrmsr.tokamak.core.parse.tree.QualifiedName;
+import com.wrmsr.tokamak.core.parse.tree.QualifiedNameExpression;
 import com.wrmsr.tokamak.core.parse.tree.Relation;
 import com.wrmsr.tokamak.core.parse.tree.Select;
 import com.wrmsr.tokamak.core.parse.tree.SelectItem;
@@ -138,8 +139,9 @@ public final class SelectExpansion
                         seen.add(label);
                         ret.add(
                                 new ExpressionSelectItem(
-                                        new QualifiedName(
-                                                ImmutableList.of(relation.getAlias().get(), label)),
+                                        new QualifiedNameExpression(
+                                                new QualifiedName(
+                                                        ImmutableList.of(relation.getAlias().get(), label))),
                                         Optional.of(label)));
                     }
                 }
@@ -151,8 +153,8 @@ public final class SelectExpansion
                 if (eitem.getLabel().isPresent()) {
                     label = eitem.getLabel().get();
                 }
-                else if (eitem.getExpression() instanceof QualifiedName) {
-                    label = ((QualifiedName) eitem.getExpression()).getLast();
+                else if (eitem.getExpression() instanceof QualifiedNameExpression) {
+                    label = ((QualifiedNameExpression) eitem.getExpression()).getQualifiedName().getLast();
                 }
                 else {
                     label = "_" + (numAnon++);

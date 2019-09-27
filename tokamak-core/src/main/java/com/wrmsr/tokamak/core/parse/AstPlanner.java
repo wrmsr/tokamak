@@ -23,6 +23,7 @@ import com.wrmsr.tokamak.core.parse.tree.Expression;
 import com.wrmsr.tokamak.core.parse.tree.ExpressionSelectItem;
 import com.wrmsr.tokamak.core.parse.tree.FunctionCallExpression;
 import com.wrmsr.tokamak.core.parse.tree.QualifiedName;
+import com.wrmsr.tokamak.core.parse.tree.QualifiedNameExpression;
 import com.wrmsr.tokamak.core.parse.tree.Select;
 import com.wrmsr.tokamak.core.parse.tree.SelectItem;
 import com.wrmsr.tokamak.core.parse.tree.TableName;
@@ -149,8 +150,8 @@ public class AstPlanner
                         Expression expr = exprItem.getExpression();
                         Set<List<String>> qns = getRecursiveExpressionReferences(expr);
                         String column;
-                        if (expr instanceof QualifiedName) {
-                            QualifiedName qname = (QualifiedName) expr;
+                        if (expr instanceof QualifiedNameExpression) {
+                            QualifiedName qname = ((QualifiedNameExpression) expr).getQualifiedName();
                             List<String> qnameParts = qname.getParts();
                             if (qnameParts.size() == 1) {
                                 column = qnameParts.get(0);

@@ -22,6 +22,7 @@ import com.wrmsr.tokamak.core.parse.tree.Identifier;
 import com.wrmsr.tokamak.core.parse.tree.NullLiteral;
 import com.wrmsr.tokamak.core.parse.tree.NumberLiteral;
 import com.wrmsr.tokamak.core.parse.tree.QualifiedName;
+import com.wrmsr.tokamak.core.parse.tree.QualifiedNameExpression;
 import com.wrmsr.tokamak.core.parse.tree.Select;
 import com.wrmsr.tokamak.core.parse.tree.StringLiteral;
 import com.wrmsr.tokamak.core.parse.tree.SubqueryRelation;
@@ -115,6 +116,13 @@ public final class AstRendering
             public Void visitQualifiedName(QualifiedName treeNode, Void context)
             {
                 sb.append(Joiner.on(".").join(treeNode.getParts()));
+                return null;
+            }
+
+            @Override
+            public Void visitQualifiedNameExpression(QualifiedNameExpression treeNode, Void context)
+            {
+                treeNode.getQualifiedName().accept(this, context);
                 return null;
             }
 

@@ -22,7 +22,7 @@ import com.wrmsr.tokamak.core.catalog.Table;
 import com.wrmsr.tokamak.core.parse.tree.AliasedRelation;
 import com.wrmsr.tokamak.core.parse.tree.AllSelectItem;
 import com.wrmsr.tokamak.core.parse.tree.ExpressionSelectItem;
-import com.wrmsr.tokamak.core.parse.tree.QualifiedName;
+import com.wrmsr.tokamak.core.parse.tree.QualifiedNameExpression;
 import com.wrmsr.tokamak.core.parse.tree.Select;
 import com.wrmsr.tokamak.core.parse.tree.SubqueryRelation;
 import com.wrmsr.tokamak.core.parse.tree.TableName;
@@ -273,17 +273,17 @@ public final class ScopeAnalysis
             {
                 treeNode.getExpression().accept(this, context);
                 Optional<String> label = treeNode.getLabel();
-                if (!label.isPresent() && treeNode.getExpression() instanceof QualifiedName) {
-                    label = Optional.of(((QualifiedName) treeNode.getExpression()).getLast());
+                if (!label.isPresent() && treeNode.getExpression() instanceof QualifiedNameExpression) {
+                    label = Optional.of(((QualifiedNameExpression) treeNode.getExpression()).getQualifiedName().getLast());
                 }
                 new Symbol(label, treeNode, Optional.empty(), context);
                 return null;
             }
 
             @Override
-            public Scope visitQualifiedName(QualifiedName treeNode, Scope context)
+            public Scope visitQualifiedNameExpression(QualifiedNameExpression treeNode, Scope context)
             {
-                new SymbolRef(Optional.of(treeNode.getParts()), treeNode, Optional.empty(), context);
+                new SymbolRef(Optional.of(treeNode.getQualifiedName().getParts()), treeNode, Optional.empty(), context);
                 return null;
             }
 

@@ -16,6 +16,7 @@ package com.wrmsr.tokamak.core.parse.tree.visitor;
 import com.wrmsr.tokamak.core.parse.tree.AliasedRelation;
 import com.wrmsr.tokamak.core.parse.tree.ExpressionSelectItem;
 import com.wrmsr.tokamak.core.parse.tree.FunctionCallExpression;
+import com.wrmsr.tokamak.core.parse.tree.QualifiedNameExpression;
 import com.wrmsr.tokamak.core.parse.tree.Select;
 import com.wrmsr.tokamak.core.parse.tree.SubqueryRelation;
 import com.wrmsr.tokamak.core.parse.tree.TreeNode;
@@ -49,6 +50,14 @@ public class TraversalVisitor<R, C>
     public R visitFunctionCallExpression(FunctionCallExpression treeNode, C context)
     {
         treeNode.getArgs().forEach(a -> a.accept(this, context));
+
+        return null;
+    }
+
+    @Override
+    public R visitQualifiedNameExpression(QualifiedNameExpression treeNode, C context)
+    {
+        treeNode.getQualifiedName().accept(this, context);
 
         return null;
     }

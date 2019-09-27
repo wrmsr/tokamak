@@ -22,6 +22,7 @@ import com.wrmsr.tokamak.core.parse.tree.Identifier;
 import com.wrmsr.tokamak.core.parse.tree.NullLiteral;
 import com.wrmsr.tokamak.core.parse.tree.NumberLiteral;
 import com.wrmsr.tokamak.core.parse.tree.QualifiedName;
+import com.wrmsr.tokamak.core.parse.tree.QualifiedNameExpression;
 import com.wrmsr.tokamak.core.parse.tree.Relation;
 import com.wrmsr.tokamak.core.parse.tree.Select;
 import com.wrmsr.tokamak.core.parse.tree.SelectItem;
@@ -135,6 +136,13 @@ public final class AstBuilding
                         .map(Identifier::getValue)
                         .collect(Collectors.toList());
                 return new QualifiedName(parts);
+            }
+
+            @Override
+            public TreeNode visitQualifiedNameExpression(SqlParser.QualifiedNameExpressionContext ctx)
+            {
+                return new QualifiedNameExpression(
+                        (QualifiedName) visit(ctx.qualifiedName()));
             }
 
             @Override

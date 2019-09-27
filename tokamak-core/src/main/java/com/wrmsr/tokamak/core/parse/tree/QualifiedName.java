@@ -23,7 +23,7 @@ import java.util.Optional;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 
 public final class QualifiedName
-        extends Expression
+        extends TreeNode
 {
     private final List<String> parts;
 

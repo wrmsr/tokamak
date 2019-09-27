@@ -16,11 +16,10 @@ package com.wrmsr.tokamak.core.parse.transform;
 import com.wrmsr.tokamak.core.catalog.Catalog;
 import com.wrmsr.tokamak.core.parse.analysis.ScopeAnalysis;
 import com.wrmsr.tokamak.core.parse.tree.AllSelectItem;
-import com.wrmsr.tokamak.core.parse.tree.QualifiedName;
+import com.wrmsr.tokamak.core.parse.tree.QualifiedNameExpression;
 import com.wrmsr.tokamak.core.parse.tree.TreeNode;
 import com.wrmsr.tokamak.core.parse.tree.visitor.AstRewriter;
 
-import java.util.List;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -44,12 +43,12 @@ public final class NameResolution
             }
 
             @Override
-            public TreeNode visitQualifiedName(QualifiedName treeNode, Void context)
+            public TreeNode visitQualifiedNameExpression(QualifiedNameExpression treeNode, Void context)
             {
                 ScopeAnalysis.SymbolRef sr = checkNotNull(sa.getSymbolRefsByNode().get(treeNode));
                 // List<ScopeAnalysis.Scope> hits = sr.getScope().getChildren().stream()
                 //         .filter(s -> s.getSymbols().stream().anyMatch(s -> s.getName().isPresent() && s.getName().get().equals()))
-                return super.visitQualifiedName(treeNode, context);
+                return super.visitQualifiedNameExpression(treeNode, context);
             }
         }, null);
     }

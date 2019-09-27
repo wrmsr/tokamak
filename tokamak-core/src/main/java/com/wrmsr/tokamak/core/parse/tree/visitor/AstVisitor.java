@@ -23,6 +23,7 @@ import com.wrmsr.tokamak.core.parse.tree.Literal;
 import com.wrmsr.tokamak.core.parse.tree.NullLiteral;
 import com.wrmsr.tokamak.core.parse.tree.NumberLiteral;
 import com.wrmsr.tokamak.core.parse.tree.QualifiedName;
+import com.wrmsr.tokamak.core.parse.tree.QualifiedNameExpression;
 import com.wrmsr.tokamak.core.parse.tree.Relation;
 import com.wrmsr.tokamak.core.parse.tree.Select;
 import com.wrmsr.tokamak.core.parse.tree.SelectItem;
@@ -87,6 +88,11 @@ public abstract class AstVisitor<R, C>
     }
 
     public R visitQualifiedName(QualifiedName treeNode, C context)
+    {
+        return visitTreeNode(treeNode, context);
+    }
+
+    public R visitQualifiedNameExpression(QualifiedNameExpression treeNode, C context)
     {
         return visitExpression(treeNode, context);
     }
