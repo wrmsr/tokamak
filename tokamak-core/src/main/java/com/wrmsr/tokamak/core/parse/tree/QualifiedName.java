@@ -14,9 +14,11 @@
 package com.wrmsr.tokamak.core.parse.tree;
 
 import com.google.common.collect.ImmutableList;
+import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.core.parse.tree.visitor.AstVisitor;
 
 import java.util.List;
+import java.util.Optional;
 
 import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 
@@ -46,6 +48,19 @@ public final class QualifiedName
     public String getLast()
     {
         return parts.get(parts.size() - 1);
+    }
+
+    public SchemaTable toSchemaTable(Optional<String> defaultSchema)
+    {
+        if (parts.size() == 1) {
+            return SchemaTable.of(defaultSchema.get(), parts.get(0));
+        }
+        else if (parts.size() == 2) {
+            return SchemaTable.of(parts.get(0), parts.get(1));
+        }
+        else {
+            throw new IllegalArgumentException(parts.toString());
+        }
     }
 
     @Override

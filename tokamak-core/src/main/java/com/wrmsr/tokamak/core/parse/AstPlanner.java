@@ -132,17 +132,7 @@ public class AstPlanner
             public Node visitSelect(Select treeNode, Void context)
             {
                 TableName tableName = (TableName) treeNode.getRelations().get(0).getRelation();
-                List<String> tableNameParts = tableName.getQualifiedName().getParts();
-                SchemaTable schemaTable;
-                if (tableNameParts.size() == 1) {
-                    schemaTable = SchemaTable.of(defaultSchema.get(), tableNameParts.get(0));
-                }
-                else if (tableNameParts.size() == 2) {
-                    schemaTable = SchemaTable.of(tableNameParts.get(0), tableNameParts.get(1));
-                }
-                else {
-                    throw new IllegalArgumentException(tableNameParts.toString());
-                }
+                SchemaTable schemaTable = tableName.getQualifiedName().toSchemaTable(defaultSchema);
 
                 Table table = catalog.get().getSchemaTable(schemaTable);
                 Map<String, String> columnsByLabel = new LinkedHashMap<>();

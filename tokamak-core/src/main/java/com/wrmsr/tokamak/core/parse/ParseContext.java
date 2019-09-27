@@ -14,25 +14,29 @@
 package com.wrmsr.tokamak.core.parse;
 
 import com.wrmsr.tokamak.core.catalog.Catalog;
-import com.wrmsr.tokamak.core.parse.tree.TableName;
-import com.wrmsr.tokamak.core.parse.tree.TreeNode;
-import com.wrmsr.tokamak.core.parse.tree.visitor.AstRewriter;
 
-public final class ViewInlining
+import java.util.Optional;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+
+public final class ParseContext
 {
-    private ViewInlining()
+    private final Optional<Catalog> catalog;
+    private final Optional<String> defaultSchema;
+
+    public ParseContext(Optional<Catalog> catalog, Optional<String> defaultSchema)
     {
+        this.catalog = checkNotNull(catalog);
+        this.defaultSchema = checkNotNull(defaultSchema);
     }
 
-    public TreeNode inlineViews(TreeNode root, Catalog catalog)
+    public Optional<Catalog> getCatalog()
     {
-        return root.accept(new AstRewriter<Void>()
-        {
-            @Override
-            public TreeNode visitTableName(TableName treeNode, Void context)
-            {
-                return super.visitTableName(treeNode, context);
-            }
-        }, null);
+        return catalog;
+    }
+
+    public Optional<String> getDefaultSchema()
+    {
+        return defaultSchema;
     }
 }

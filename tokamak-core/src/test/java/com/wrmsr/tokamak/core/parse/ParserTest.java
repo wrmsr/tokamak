@@ -38,7 +38,7 @@ public class ParserTest
             System.out.println(str);
             SqlParser parser = Parsing.parse(str);
             System.out.println(parser);
-            TreeNode treeNode = new AstBuilder().build(parser.statement());
+            TreeNode treeNode = AstBuilding.build(parser.statement());
             System.out.println(treeNode);
         }
     }

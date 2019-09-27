@@ -16,13 +16,9 @@ package com.wrmsr.tokamak.test.parse;
 import com.wrmsr.tokamak.core.parse.AstAnalysis;
 import com.wrmsr.tokamak.core.parse.tree.TreeNode;
 import com.wrmsr.tokamak.core.catalog.Catalog;
-import com.wrmsr.tokamak.core.plan.node.Node;
-import com.wrmsr.tokamak.core.parse.AstBuilder;
-import com.wrmsr.tokamak.core.parse.AstPlanner;
+import com.wrmsr.tokamak.core.parse.AstBuilding;
 import com.wrmsr.tokamak.core.parse.Parsing;
 import com.wrmsr.tokamak.core.parse.SqlParser;
-import com.wrmsr.tokamak.core.plan.Plan;
-import com.wrmsr.tokamak.core.plan.transform.Transforms;
 import com.wrmsr.tokamak.test.TpchUtils;
 import junit.framework.TestCase;
 
@@ -51,7 +47,7 @@ public class TpchParserTest
                 "select N_COMMENT, exclaim(exclaim(N_NAME)) from NATION",
         }) {
             SqlParser parser = Parsing.parse(str);
-            TreeNode treeNode = new AstBuilder().build(parser.statement());
+            TreeNode treeNode = AstBuilding.build(parser.statement());
 
             AstAnalysis.analyze(treeNode, Optional.of(catalog), Optional.of("PUBLIC"));
 

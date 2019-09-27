@@ -199,21 +199,9 @@ public final class AstAnalysis
         @Override
         public Scope visitTableName(TableName treeNode, Scope context)
         {
-            List<String> tableNameParts = treeNode.getQualifiedName().getParts();
-            SchemaTable schemaTable;
-            if (tableNameParts.size() == 1) {
-                schemaTable = SchemaTable.of(defaultSchema.get(), tableNameParts.get(0));
-            }
-            else if (tableNameParts.size() == 2) {
-                schemaTable = SchemaTable.of(tableNameParts.get(0), tableNameParts.get(1));
-            }
-            else {
-                throw new IllegalArgumentException(tableNameParts.toString());
-            }
-
+            SchemaTable schemaTable = treeNode.getQualifiedName().toSchemaTable(defaultSchema);
             Table table = catalog.get().getSchemaTable(schemaTable);
             table.getRowLayout().getFields().keySet().forEach(f -> new Symbol(Optional.of(f), treeNode, Optional.empty(), context));
-
             return null;
         }
     }

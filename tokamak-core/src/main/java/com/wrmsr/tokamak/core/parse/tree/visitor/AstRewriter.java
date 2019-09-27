@@ -125,6 +125,6 @@ public class AstRewriter<C>
     public TreeNode visitTableName(TableName treeNode, C context)
     {
         return new TableName(
-                treeNode.getQualifiedName());
+                (QualifiedName) treeNode.getQualifiedName().accept(this, context));
     }
 }

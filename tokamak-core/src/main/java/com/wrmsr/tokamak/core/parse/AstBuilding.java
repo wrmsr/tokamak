@@ -38,15 +38,14 @@ import java.util.stream.Collectors;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
-import static com.wrmsr.tokamak.util.MorePreconditions.checkSingle;
 
-public class AstBuilder
+public final class AstBuilding
 {
-    public AstBuilder()
+    private AstBuilding()
     {
     }
 
-    public TreeNode build(ParseTree parseTree)
+    public static TreeNode build(ParseTree parseTree)
     {
         return parseTree.accept(new SqlBaseVisitor<TreeNode>()
         {
