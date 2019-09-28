@@ -84,7 +84,7 @@ public final class AstRendering
             @Override
             public Void visitFunctionCallExpression(FunctionCallExpression treeNode, Void context)
             {
-                treeNode.getName().accept(this, context);
+                sb.append(treeNode.getName());
                 sb.append("(");
                 delimitedForEach(treeNode.getArgs(), ", ", a -> a.accept(this, context));
                 sb.append(")");

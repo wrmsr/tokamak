@@ -168,7 +168,7 @@ public final class AstBuilding
             public TreeNode visitFunctionCallExpression(SqlParser.FunctionCallExpressionContext ctx)
             {
                 return new FunctionCallExpression(
-                        (QualifiedName) visit(ctx.qualifiedName()),
+                        ((Identifier) visit(ctx.identifier())).getValue(),
                         visit(ctx.expression(), Expression.class));
             }
         });

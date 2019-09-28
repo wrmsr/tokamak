@@ -18,21 +18,21 @@ import com.wrmsr.tokamak.core.parse.tree.visitor.AstVisitor;
 
 import java.util.List;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 
 public final class FunctionCallExpression
         extends Expression
 {
-    private final QualifiedName name;
+    private final String name;
     private final List<Expression> args;
 
-    public FunctionCallExpression(QualifiedName name, List<Expression> args)
+    public FunctionCallExpression(String name, List<Expression> args)
     {
-        this.name = checkNotNull(name);
+        this.name = checkNotEmpty(name);
         this.args = ImmutableList.copyOf(args);
     }
 
-    public QualifiedName getName()
+    public String getName()
     {
         return name;
     }
