@@ -64,6 +64,7 @@ public class TpchParserTest
             System.out.println(AstRendering.render(treeNode));
 
             ScopeAnalysis sa = ScopeAnalysis.analyze(treeNode, Optional.of(catalog), defaultSchema);
+            ScopeAnalysis.Resolutions sar = sa.getResolutions();
 
             System.out.println();
 

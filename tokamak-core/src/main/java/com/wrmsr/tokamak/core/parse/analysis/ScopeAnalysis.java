@@ -241,6 +241,7 @@ public final class ScopeAnalysis
         Set<Scope> seen = new HashSet<>();
         Queue<Scope> queue = new ArrayDeque<>();
         queue.add(rootScope);
+        seen.add(rootScope);
         while (!queue.isEmpty()) {
             Scope cur = queue.remove();
             scopesByNode.put(cur.node, cur);
@@ -310,8 +311,6 @@ public final class ScopeAnalysis
 
             scopes.forEach(cur -> {
                 cur.symbolRefs.forEach(sr -> {
-                    symbolRefsByNode.put(sr.node, sr);
-
                     sr.nameParts.ifPresent(parts -> {
                         if (parts.size() > 1) {
                             List<Symbol> hits = getSymbolMatches(sr);
