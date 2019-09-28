@@ -291,6 +291,11 @@ public final class ScopeAnalysis
         return scopesByNode;
     }
 
+    public Optional<Scope> getScope(TreeNode node)
+    {
+        return Optional.ofNullable(scopesByNode.get(node));
+    }
+
     public Map<TreeNode, Set<Symbol>> getSymbolSetsByNode()
     {
         return symbolSetsByNode;

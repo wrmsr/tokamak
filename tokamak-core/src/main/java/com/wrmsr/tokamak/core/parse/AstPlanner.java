@@ -36,6 +36,7 @@ import com.wrmsr.tokamak.core.plan.node.ScanNode;
 import com.wrmsr.tokamak.util.NameGenerator;
 
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -145,6 +146,32 @@ public class AstPlanner
                 }
 
                 return node;
+            }
+
+            @Override
+            public Node visitTableName(TableName treeNode, Void context)
+            {
+                SchemaTable schemaTable = treeNode.getQualifiedName().toSchemaTable(defaultSchema);
+
+                Table table = catalog.get().getSchemaTable(schemaTable);
+
+                Set<String> columns = new LinkedHashSet<>();
+
+                ScopeAnalysis.Scope scope = scopeAnalysis.getScope(treeNode).get();
+                scope.getSymbols().forEach(s -> {
+                    checkState(table.getRowLayout().getFields().containsKey(s.getName().get()));
+                    Set<ScopeAnalysis.SymbolRef> srs = scopeAnalysis.getResolutions().getSymbolRefs().get(s);
+                    if (srs != null) {
+                        columns.add(s.getName().get());
+                    }
+                });
+
+                return new ScanNode(
+                        nameGenerator.get("scan"),
+                        schemaTable,
+                        columns.stream().collect(toImmutableMap(identity(), table.getRowLayout().getFields()::get)),
+                        ImmutableSet.of(),
+                        ImmutableSet.of());
             }
         }, null);
     }
