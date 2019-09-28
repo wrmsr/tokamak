@@ -53,9 +53,9 @@ public final class SymbolResolution
                 List<String> parts = treeNode.getQualifiedName().getParts();
 
                 List<ScopeAnalysis.Symbol> hits = new ArrayList<>();
-                hits.addAll(ScopeAnalysis.getScopeHits(sr));
+                hits.addAll(ScopeAnalysis.getScopeMatches(sr));
                 if (parts.size() > 1) {
-                    hits.addAll(ScopeAnalysis.getSymbolHits(sr));
+                    hits.addAll(ScopeAnalysis.getSymbolMatches(sr));
                 }
 
                 if (hits.size() > 1) {

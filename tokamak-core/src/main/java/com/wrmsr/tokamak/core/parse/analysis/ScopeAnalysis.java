@@ -28,6 +28,7 @@ import com.wrmsr.tokamak.core.parse.tree.SubqueryRelation;
 import com.wrmsr.tokamak.core.parse.tree.TableName;
 import com.wrmsr.tokamak.core.parse.tree.TreeNode;
 import com.wrmsr.tokamak.core.parse.tree.visitor.TraversalVisitor;
+import com.wrmsr.tokamak.util.lazy.SupplierLazyValue;
 
 import java.util.ArrayDeque;
 import java.util.Collections;
@@ -44,7 +45,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
-import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
+import static com.wrmsr.tokamak.util.MoreCollections.newImmutableSetMap;
 
 public final class ScopeAnalysis
 {
@@ -200,12 +201,34 @@ public final class ScopeAnalysis
         }
     }
 
+    public static final class Resolutions
+    {
+        private final Map<SymbolRef, Symbol> symbols;
+        private final Map<Symbol, Set<SymbolRef>> symbolRefs;
+
+        public Resolutions(Map<SymbolRef, Symbol> symbols, Map<Symbol, Set<SymbolRef>> symbolRefs)
+        {
+            this.symbols = ImmutableMap.copyOf(symbols);
+            this.symbolRefs = newImmutableSetMap(symbolRefs);
+        }
+
+        public Map<SymbolRef, Symbol> getSymbols()
+        {
+            return symbols;
+        }
+
+        public Map<Symbol, Set<SymbolRef>> getSymbolRefs()
+        {
+            return symbolRefs;
+        }
+    }
+
     private final Scope rootScope;
 
+    private final Set<Scope> scopes;
     private final Map<TreeNode, Scope> scopesByNode;
     private final Map<TreeNode, Set<Symbol>> symbolSetsByNode;
     private final Map<TreeNode, SymbolRef> symbolRefsByNode;
-    private final Map<SymbolRef, Symbol> symbolResolutions;
 
     private ScopeAnalysis(Scope rootScope)
     {
@@ -214,31 +237,15 @@ public final class ScopeAnalysis
         ImmutableMap.Builder<TreeNode, Scope> scopesByNode = ImmutableMap.builder();
         Map<TreeNode, Set<Symbol>> symbolSetsByNode = new LinkedHashMap<>();
         ImmutableMap.Builder<TreeNode, SymbolRef> symbolRefsByNode = ImmutableMap.builder();
-        ImmutableMap.Builder<SymbolRef, Symbol> symbolResolutions = ImmutableMap.builder();
 
         Set<Scope> seen = new HashSet<>();
         Queue<Scope> queue = new ArrayDeque<>();
         queue.add(rootScope);
         while (!queue.isEmpty()) {
             Scope cur = queue.remove();
-
             scopesByNode.put(cur.node, cur);
-
             cur.symbols.forEach(s -> symbolSetsByNode.computeIfAbsent(s.node, n -> new LinkedHashSet<>()).add(s));
-
-            cur.symbolRefs.forEach(sr -> {
-                symbolRefsByNode.put(sr.node, sr);
-
-                sr.nameParts.ifPresent(parts -> {
-                    if (parts.size() > 1) {
-                        List<Symbol> hits = getSymbolHits(sr);
-                        if (hits.size() == 1) {
-                            symbolResolutions.put(sr, hits.get(0));
-                        }
-                    }
-                });
-            });
-
+            cur.symbolRefs.forEach(sr -> symbolRefsByNode.put(sr.node, sr));
             cur.children.forEach(c -> {
                 checkState(!seen.contains(c));
                 seen.add(c);
@@ -246,14 +253,13 @@ public final class ScopeAnalysis
             });
         }
 
+        this.scopes = ImmutableSet.copyOf(seen);
         this.scopesByNode = scopesByNode.build();
-        this.symbolSetsByNode = symbolSetsByNode.entrySet().stream()
-                .collect(toImmutableMap(Map.Entry::getKey, e -> ImmutableSet.copyOf(e.getValue())));
+        this.symbolSetsByNode = newImmutableSetMap(symbolSetsByNode);
         this.symbolRefsByNode = symbolRefsByNode.build();
-        this.symbolResolutions = symbolResolutions.build();
     }
 
-    public static List<Symbol> getScopeHits(SymbolRef symbolRef)
+    public static List<Symbol> getScopeMatches(SymbolRef symbolRef)
     {
         checkArgument(symbolRef.nameParts.isPresent());
         return symbolRef.getScope().getChildren().stream()
@@ -263,7 +269,7 @@ public final class ScopeAnalysis
                 .collect(toImmutableList());
     }
 
-    public static List<Symbol> getSymbolHits(SymbolRef symbolRef)
+    public static List<Symbol> getSymbolMatches(SymbolRef symbolRef)
     {
         checkArgument(symbolRef.nameParts.isPresent() && symbolRef.nameParts.get().size() > 1);
         return symbolRef.getScope().getChildren().stream()
@@ -272,6 +278,11 @@ public final class ScopeAnalysis
                 .flatMap(Set::stream)
                 .filter(s -> s.getName().isPresent() && s.getName().get().equals(symbolRef.nameParts.get().get(1)))
                 .collect(toImmutableList());
+    }
+
+    public Set<Scope> getScopes()
+    {
+        return scopes;
     }
 
     public Map<TreeNode, Scope> getScopesByNode()
@@ -289,9 +300,35 @@ public final class ScopeAnalysis
         return symbolRefsByNode;
     }
 
-    public Map<SymbolRef, Symbol> getSymbolResolutions()
+    private final SupplierLazyValue<Resolutions> resolutions = new SupplierLazyValue<>();
+
+    public Resolutions getResolutions()
     {
-        return symbolResolutions;
+        return resolutions.get(() -> {
+            ImmutableMap.Builder<SymbolRef, Symbol> symbolResolutions = ImmutableMap.builder();
+            Map<Symbol, Set<SymbolRef>> symbolRefResolutions = new LinkedHashMap<>();
+
+            scopes.forEach(cur -> {
+                cur.symbolRefs.forEach(sr -> {
+                    symbolRefsByNode.put(sr.node, sr);
+
+                    sr.nameParts.ifPresent(parts -> {
+                        if (parts.size() > 1) {
+                            List<Symbol> hits = getSymbolMatches(sr);
+                            if (hits.size() == 1) {
+                                Symbol s = hits.get(0);
+                                symbolResolutions.put(sr, s);
+                                symbolRefResolutions.computeIfAbsent(s, s_ -> new LinkedHashSet<>()).add(sr);
+                            }
+                        }
+                    });
+                });
+            });
+
+            return new Resolutions(
+                    symbolResolutions.build(),
+                    symbolRefResolutions);
+        });
     }
 
     public static ScopeAnalysis analyze(TreeNode statement, Optional<Catalog> catalog, Optional<String> defaultSchema)

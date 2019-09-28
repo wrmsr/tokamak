@@ -42,6 +42,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.Sets.newIdentityHashSet;
+import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 import static java.util.Objects.requireNonNull;
 
 public final class MoreCollections
@@ -106,6 +107,11 @@ public final class MoreCollections
             set.add(item);
         }
         return set;
+    }
+
+    public static <K, V> Map<K, Set<V>> newImmutableSetMap(Map<K, Set<V>> map)
+    {
+        return map.entrySet().stream().collect(toImmutableMap(Map.Entry::getKey, e -> ImmutableSet.copyOf(e.getValue())));
     }
 
     public static <T> List<T> listOf(int size, T value)
