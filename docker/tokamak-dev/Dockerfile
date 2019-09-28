@@ -1,4 +1,4 @@
-FROM ubuntu:16.04
+FROM ubuntu:18.04
 COPY .dockertimestamp /
 
 
@@ -110,7 +110,7 @@ RUN ( \
 RUN ( \
     sudo add-apt-repository ppa:openjdk-r/ppa && \
     sudo apt-get update && \
-    sudo apt-get install -y openjdk-8-jdk \
+    sudo apt-get install -y openjdk-8-jdk openjdk-13-jdk \
 )
 
 RUN ( \
@@ -128,6 +128,14 @@ RUN ( \
         PYENV_ROOT=~/.pyenv \n\
         PATH=\"~/.pyenv/bin:$PATH\" \n\
     " >> ~/.bashrc \
+)
+
+
+# jp
+
+RUN ( \
+    sudo wget https://github.com/jmespath/jp/releases/download/0.1.2/jp-linux-amd64 -O /usr/local/bin/jp && \
+    sudo chmod +x /usr/local/bin/jp \
 )
 
 
