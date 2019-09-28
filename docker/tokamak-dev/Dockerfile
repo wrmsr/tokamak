@@ -94,11 +94,11 @@ RUN ( \
 )
 
 RUN ( \
-    export PERCONA_VERSION='3.0.13' && \
-    export PERCONA_SUFFIX='-1.xenial_amd64' && \
+    export PERCONA_VERSION='3.1.0' && \
+    export PERCONA_SUFFIX='-2.bionic_amd64' && \
     export PERCONA_INST_DIR=$(mktemp -d) && \
     cd "$PERCONA_INST_DIR" && \
-    wget "https://www.percona.com/downloads/percona-toolkit/${PERCONA_VERSION}/binary/debian/xenial/x86_64/percona-toolkit_${PERCONA_VERSION}${PERCONA_SUFFIX}.deb" && \
+    wget "https://www.percona.com/downloads/percona-toolkit/${PERCONA_VERSION}/binary/debian/bionic/x86_64/percona-toolkit_${PERCONA_VERSION}${PERCONA_SUFFIX}.deb" && \
     dpkg -i "percona-toolkit_${PERCONA_VERSION}${PERCONA_SUFFIX}.deb" && \
     rm -f "percona-toolkit_${PERCONA_VERSION}${PERCONA_SUFFIX}.deb" && \
     rm -rf "$PERCONA_INST_DIR" \
