@@ -19,7 +19,7 @@ import com.wrmsr.tokamak.core.parse.AstRendering;
 import com.wrmsr.tokamak.core.parse.Parsing;
 import com.wrmsr.tokamak.core.parse.SqlParser;
 import com.wrmsr.tokamak.core.parse.analysis.ScopeAnalysis;
-import com.wrmsr.tokamak.core.parse.transform.NameResolution;
+import com.wrmsr.tokamak.core.parse.transform.SymbolResolution;
 import com.wrmsr.tokamak.core.parse.transform.SelectExpansion;
 import com.wrmsr.tokamak.core.parse.transform.ViewInlining;
 import com.wrmsr.tokamak.core.parse.tree.TreeNode;
@@ -60,8 +60,10 @@ public class TpchParserTest
             treeNode = SelectExpansion.expandSelects(treeNode, catalog, defaultSchema);
             System.out.println(AstRendering.render(treeNode));
 
-            treeNode = NameResolution.resolveNames(treeNode, Optional.of(catalog), defaultSchema);
+            treeNode = SymbolResolution.resolveSymbols(treeNode, Optional.of(catalog), defaultSchema);
             System.out.println(AstRendering.render(treeNode));
+
+            ScopeAnalysis sa = ScopeAnalysis.analyze(treeNode, Optional.of(catalog), defaultSchema);
 
             System.out.println();
 

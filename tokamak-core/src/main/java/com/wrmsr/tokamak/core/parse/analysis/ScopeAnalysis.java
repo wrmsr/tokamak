@@ -40,8 +40,10 @@ import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 
 public final class ScopeAnalysis
@@ -203,6 +205,7 @@ public final class ScopeAnalysis
     private final Map<TreeNode, Scope> scopesByNode;
     private final Map<TreeNode, Set<Symbol>> symbolSetsByNode;
     private final Map<TreeNode, SymbolRef> symbolRefsByNode;
+    private final Map<SymbolRef, Symbol> symbolResolutions;
 
     private ScopeAnalysis(Scope rootScope)
     {
@@ -211,15 +214,31 @@ public final class ScopeAnalysis
         ImmutableMap.Builder<TreeNode, Scope> scopesByNode = ImmutableMap.builder();
         Map<TreeNode, Set<Symbol>> symbolSetsByNode = new LinkedHashMap<>();
         ImmutableMap.Builder<TreeNode, SymbolRef> symbolRefsByNode = ImmutableMap.builder();
+        ImmutableMap.Builder<SymbolRef, Symbol> symbolResolutions = ImmutableMap.builder();
 
         Set<Scope> seen = new HashSet<>();
         Queue<Scope> queue = new ArrayDeque<>();
         queue.add(rootScope);
         while (!queue.isEmpty()) {
             Scope cur = queue.remove();
+
             scopesByNode.put(cur.node, cur);
+
             cur.symbols.forEach(s -> symbolSetsByNode.computeIfAbsent(s.node, n -> new LinkedHashSet<>()).add(s));
-            cur.symbolRefs.forEach(sr -> symbolRefsByNode.put(sr.node, sr));
+
+            cur.symbolRefs.forEach(sr -> {
+                symbolRefsByNode.put(sr.node, sr);
+
+                sr.nameParts.ifPresent(parts -> {
+                    if (parts.size() > 1) {
+                        List<Symbol> hits = getSymbolHits(sr);
+                        if (hits.size() == 1) {
+                            symbolResolutions.put(sr, hits.get(0));
+                        }
+                    }
+                });
+            });
+
             cur.children.forEach(c -> {
                 checkState(!seen.contains(c));
                 seen.add(c);
@@ -231,6 +250,28 @@ public final class ScopeAnalysis
         this.symbolSetsByNode = symbolSetsByNode.entrySet().stream()
                 .collect(toImmutableMap(Map.Entry::getKey, e -> ImmutableSet.copyOf(e.getValue())));
         this.symbolRefsByNode = symbolRefsByNode.build();
+        this.symbolResolutions = symbolResolutions.build();
+    }
+
+    public static List<Symbol> getScopeHits(SymbolRef symbolRef)
+    {
+        checkArgument(symbolRef.nameParts.isPresent());
+        return symbolRef.getScope().getChildren().stream()
+                .map(ScopeAnalysis.Scope::getSymbols)
+                .flatMap(Set::stream)
+                .filter(s -> s.getName().isPresent() && s.getName().get().equals(symbolRef.nameParts.get().get(0)))
+                .collect(toImmutableList());
+    }
+
+    public static List<Symbol> getSymbolHits(SymbolRef symbolRef)
+    {
+        checkArgument(symbolRef.nameParts.isPresent() && symbolRef.nameParts.get().size() > 1);
+        return symbolRef.getScope().getChildren().stream()
+                .filter(s -> s.getName().isPresent() && s.getName().get().equals(symbolRef.nameParts.get().get(0)))
+                .map(ScopeAnalysis.Scope::getSymbols)
+                .flatMap(Set::stream)
+                .filter(s -> s.getName().isPresent() && s.getName().get().equals(symbolRef.nameParts.get().get(1)))
+                .collect(toImmutableList());
     }
 
     public Map<TreeNode, Scope> getScopesByNode()
@@ -246,6 +287,11 @@ public final class ScopeAnalysis
     public Map<TreeNode, SymbolRef> getSymbolRefsByNode()
     {
         return symbolRefsByNode;
+    }
+
+    public Map<SymbolRef, Symbol> getSymbolResolutions()
+    {
+        return symbolResolutions;
     }
 
     public static ScopeAnalysis analyze(TreeNode statement, Optional<Catalog> catalog, Optional<String> defaultSchema)
@@ -297,13 +343,8 @@ public final class ScopeAnalysis
                     aliasedRelation.getRelation().accept(this, relationScope);
                 });
 
-                treeNode.getWhere().ifPresent(where -> {
-                    where.accept(this, scope);
-                });
-
-                treeNode.getItems().forEach(item -> {
-                    item.accept(this, scope);
-                });
+                treeNode.getWhere().ifPresent(where -> where.accept(this, scope));
+                treeNode.getItems().forEach(item -> item.accept(this, scope));
 
                 return scope;
             }

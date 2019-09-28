@@ -25,18 +25,16 @@ import com.wrmsr.tokamak.core.parse.tree.visitor.AstRewriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.collect.ImmutableList.toImmutableList;
 
-public final class NameResolution
+public final class SymbolResolution
 {
-    private NameResolution()
+    private SymbolResolution()
     {
     }
 
-    public static TreeNode resolveNames(TreeNode node, Optional<Catalog> catalog, Optional<String> defaultSchema)
+    public static TreeNode resolveSymbols(TreeNode node, Optional<Catalog> catalog, Optional<String> defaultSchema)
     {
         ScopeAnalysis sa = ScopeAnalysis.analyze(node, catalog, defaultSchema);
 
@@ -55,20 +53,9 @@ public final class NameResolution
                 List<String> parts = treeNode.getQualifiedName().getParts();
 
                 List<ScopeAnalysis.Symbol> hits = new ArrayList<>();
-
-                hits.addAll(sr.getScope().getChildren().stream()
-                        .map(ScopeAnalysis.Scope::getSymbols)
-                        .flatMap(Set::stream)
-                        .filter(s -> s.getName().isPresent() && s.getName().get().equals(parts.get(0)))
-                        .collect(toImmutableList()));
-
+                hits.addAll(ScopeAnalysis.getScopeHits(sr));
                 if (parts.size() > 1) {
-                    hits.addAll(sr.getScope().getChildren().stream()
-                            .filter(s -> s.getName().isPresent() && s.getName().get().equals(parts.get(0)))
-                            .map(ScopeAnalysis.Scope::getSymbols)
-                            .flatMap(Set::stream)
-                            .filter(s -> s.getName().isPresent() && s.getName().get().equals(parts.get(1)))
-                            .collect(toImmutableList()));
+                    hits.addAll(ScopeAnalysis.getSymbolHits(sr));
                 }
 
                 if (hits.size() > 1) {
