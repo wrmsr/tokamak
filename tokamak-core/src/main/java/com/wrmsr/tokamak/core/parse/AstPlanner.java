@@ -13,11 +13,11 @@
  */
 package com.wrmsr.tokamak.core.parse;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.core.catalog.Catalog;
 import com.wrmsr.tokamak.core.catalog.Table;
+import com.wrmsr.tokamak.core.parse.analysis.ScopeAnalysis;
 import com.wrmsr.tokamak.core.parse.tree.AllSelectItem;
 import com.wrmsr.tokamak.core.parse.tree.Expression;
 import com.wrmsr.tokamak.core.parse.tree.ExpressionSelectItem;
@@ -35,9 +35,7 @@ import com.wrmsr.tokamak.core.plan.node.Projection;
 import com.wrmsr.tokamak.core.plan.node.ScanNode;
 import com.wrmsr.tokamak.util.NameGenerator;
 
-import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -66,67 +64,10 @@ public class AstPlanner
         this(Optional.empty(), Optional.empty());
     }
 
-    private final static class ProjectionExpression
-    {
-        private final List<QualifiedName> qualifiedNames;
-
-        private final Map<String, Set<String>> columnSetsByTable;
-        private final Set<String> rawColumns;
-
-        public ProjectionExpression(List<QualifiedName> qualifiedNames)
-        {
-            this.qualifiedNames = ImmutableList.copyOf(qualifiedNames);
-
-            Map<String, Set<String>> tableNamesBySchema = new LinkedHashMap<>();
-            Set<String> rawTableNames = new LinkedHashSet<>();
-            this.qualifiedNames.forEach(qn -> {
-                if (qn.getParts().size() == 1) {
-                    rawTableNames.add(qn.getParts().get(0));
-                }
-                else if (qn.getParts().size() == 2) {
-                    tableNamesBySchema.computeIfAbsent(qn.getParts().get(0), s -> new HashSet<>()).add(qn.getParts().get(1));
-                }
-            });
-            this.columnSetsByTable = tableNamesBySchema.entrySet().stream().collect(toImmutableMap(Map.Entry::getKey, e -> ImmutableSet.copyOf(e.getValue())));
-            this.rawColumns = ImmutableSet.copyOf(rawTableNames);
-        }
-    }
-
-    protected void addRecursiveExpressionReferences(Set<List<String>> set, Expression expr)
-    {
-        expr.accept(new AstVisitor<Void, Void>()
-        {
-            @Override
-            public Void visitExpression(Expression treeNode, Void context)
-            {
-                return null;
-            }
-
-            @Override
-            public Void visitFunctionCallExpression(FunctionCallExpression treeNode, Void context)
-            {
-                treeNode.getArgs().forEach(a -> addRecursiveExpressionReferences(set, a));
-                return null;
-            }
-
-            @Override
-            public Void visitQualifiedName(QualifiedName treeNode, Void context)
-            {
-                set.add(treeNode.getParts());
-                return null;
-            }
-        }, null);
-    }
-
-    protected Set<List<String>> getRecursiveExpressionReferences(Expression expr)
-    {
-        Set<List<String>> qualifiedNames = new LinkedHashSet<>();
-        addRecursiveExpressionReferences(qualifiedNames, expr);
-        return qualifiedNames;
-    }
-
     public Node plan(TreeNode treeNode)
     {
+        ScopeAnalysis scopeAnalysis = ScopeAnalysis.analyze(treeNode, catalog, defaultSchema);
+
         return treeNode.accept(new AstVisitor<Node, Void>()
         {
             @Override
@@ -148,7 +89,6 @@ public class AstPlanner
                     else if (item instanceof ExpressionSelectItem) {
                         ExpressionSelectItem exprItem = (ExpressionSelectItem) item;
                         Expression expr = exprItem.getExpression();
-                        Set<List<String>> qns = getRecursiveExpressionReferences(expr);
                         String column;
                         if (expr instanceof QualifiedNameExpression) {
                             QualifiedName qname = ((QualifiedNameExpression) expr).getQualifiedName();

@@ -15,6 +15,7 @@ package com.wrmsr.tokamak.test.parse;
 
 import com.wrmsr.tokamak.core.catalog.Catalog;
 import com.wrmsr.tokamak.core.parse.AstBuilding;
+import com.wrmsr.tokamak.core.parse.AstPlanner;
 import com.wrmsr.tokamak.core.parse.AstRendering;
 import com.wrmsr.tokamak.core.parse.Parsing;
 import com.wrmsr.tokamak.core.parse.SqlParser;
@@ -23,6 +24,9 @@ import com.wrmsr.tokamak.core.parse.transform.SymbolResolution;
 import com.wrmsr.tokamak.core.parse.transform.SelectExpansion;
 import com.wrmsr.tokamak.core.parse.transform.ViewInlining;
 import com.wrmsr.tokamak.core.parse.tree.TreeNode;
+import com.wrmsr.tokamak.core.plan.Plan;
+import com.wrmsr.tokamak.core.plan.node.Node;
+import com.wrmsr.tokamak.core.plan.transform.Transforms;
 import com.wrmsr.tokamak.test.TpchUtils;
 import junit.framework.TestCase;
 
@@ -66,10 +70,11 @@ public class TpchParserTest
             ScopeAnalysis sa = ScopeAnalysis.analyze(treeNode, Optional.of(catalog), defaultSchema);
             ScopeAnalysis.Resolutions sar = sa.getResolutions();
 
-            System.out.println();
+            Node node = new AstPlanner(Optional.of(catalog), defaultSchema).plan(treeNode);
 
-            // Node node = new AstPlanner(Optional.of(catalog), defaultSchema).plan(treeNode);
-            // Plan transformedPlan = Transforms.addScanNodeIdFields(new Plan(node), catalog);
+            Plan transformedPlan = Transforms.addScanNodeIdFields(new Plan(node), catalog);
+
+            System.out.println();
         }
     }
 }
