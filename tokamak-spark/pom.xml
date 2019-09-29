@@ -148,6 +148,7 @@
                                 <relocation>
                                     <shadedPattern>com.wrmsr.tokamak.shaded.</shadedPattern>
                                     <excludes>
+                                        <exclude>java.**</exclude>
                                         <exclude>com.wrmsr.tokamak.**</exclude>
                                     </excludes>
                                 </relocation>

@@ -30,12 +30,16 @@ import com.wrmsr.tokamak.core.parse.tree.TreeNode;
 import com.wrmsr.tokamak.core.plan.Plan;
 import com.wrmsr.tokamak.core.plan.node.Node;
 import com.wrmsr.tokamak.core.plan.transform.Transforms;
+import com.wrmsr.tokamak.core.type.Type;
+import com.wrmsr.tokamak.core.type.Types;
+import com.wrmsr.tokamak.core.type.impl.FunctionType;
 import com.wrmsr.tokamak.core.util.ApiJson;
 import com.wrmsr.tokamak.test.TpchUtils;
 import com.wrmsr.tokamak.util.json.Json;
 import junit.framework.TestCase;
 
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Optional;
 
 import static com.wrmsr.tokamak.util.MoreFiles.createTempDirectory;
@@ -46,6 +50,11 @@ public class TpchParserTest
     public static String exclaim(String s)
     {
         return s + "!";
+    }
+
+    public static Object java(String src, List<Object> args)
+    {
+        throw new IllegalStateException();
     }
 
     public void testTpchParse()
@@ -66,6 +75,12 @@ public class TpchParserTest
                 ).getName(),
                 be);
 
+        // rootCatalog.addFunction(
+        //         "java",
+        //         be.register()
+        //
+        // )
+
         for (String str : new String[] {
                 "select * from NATION",
                 "select * from NATION, NATION",
@@ -73,7 +88,8 @@ public class TpchParserTest
                 "select N_NAME as name, N_COMMENT as comment from NATION",
                 "select N_NAME, N_COMMENT from NATION as n",
                 "select N_COMMENT, exclaim(N_NAME) from NATION",
-                "select N_COMMENT, exclaim(exclaim(N_NAME)) from NATION",
+                "select java('_0 + \"!\"', N_NAME) from NATION",
+                // "select N_COMMENT, exclaim(exclaim(N_NAME)) from NATION",
         }) {
             Catalog catalog = new Catalog(ImmutableList.of(rootCatalog));
 
@@ -99,5 +115,15 @@ public class TpchParserTest
 
             System.out.println();
         }
+    }
+
+    public void testJavaJit()
+            throws Throwable
+    {
+        String stmt = "select java('_0 + \"!\"', N_NAME) from NATION";
+
+        Type expectedType = new FunctionType(
+                Types.STRING,
+                ImmutableList.of(Types.STRING));
     }
 }

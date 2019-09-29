@@ -19,6 +19,7 @@ import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.core.type.impl.PrimitiveType;
 import com.wrmsr.tokamak.core.type.impl.SimpleType;
+import com.wrmsr.tokamak.core.type.impl.SpecialType;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -74,6 +75,9 @@ public final class Types
     public static final SimpleType<LocalDateTime> LOCAL_DATE_TIME = new SimpleType<>("LocalDateTime", LocalDateTime.class);
     public static final SimpleType<ZonedDateTime> ZONED_DATE_TIME = new SimpleType<>("ZonedDateTime", ZonedDateTime.class);
     public static final SimpleType<Duration> DURATION = new SimpleType<>("Duration", Duration.class);
+
+    public static final SpecialType ARGS = new SpecialType("Args");
+    public static final SpecialType JIT_FUNCTION = new SpecialType("JitFunction");
 
     public static final Map<Class<?>, Type> FROM_JAVA_TYPE = ImmutableMap.<Class<?>, Type>builder()
             .put(Boolean.class, BOOLEAN)
