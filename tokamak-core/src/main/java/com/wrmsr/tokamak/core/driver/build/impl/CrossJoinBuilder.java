@@ -11,20 +11,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.core.driver.build;
+package com.wrmsr.tokamak.core.driver.build.impl;
 
 import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.core.driver.DriverImpl;
-import com.wrmsr.tokamak.core.driver.DriverRow;
+import com.wrmsr.tokamak.core.driver.build.Builder;
+import com.wrmsr.tokamak.core.driver.build.ops.BuildOp;
 import com.wrmsr.tokamak.core.driver.context.DriverContextImpl;
 import com.wrmsr.tokamak.core.plan.node.CrossJoinNode;
 import com.wrmsr.tokamak.core.plan.node.Node;
 import com.wrmsr.tokamak.util.Pair;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableList.toImmutableList;
@@ -39,7 +40,7 @@ public final class CrossJoinBuilder
     }
 
     @Override
-    protected Collection<DriverRow> innerBuild(DriverContextImpl context, Key key)
+    protected void innerBuild(DriverContextImpl context, Key key, Consumer<BuildOp> opConsumer)
     {
         List<Pair<Node, Key>> sourceKeyPairs;
         Node lookupSource = key.getValuesByField().keySet().stream()

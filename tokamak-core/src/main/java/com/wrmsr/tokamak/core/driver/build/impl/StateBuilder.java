@@ -11,22 +11,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.core.driver.build;
+package com.wrmsr.tokamak.core.driver.build.impl;
 
 import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.core.driver.DriverImpl;
 import com.wrmsr.tokamak.core.driver.DriverRow;
+import com.wrmsr.tokamak.core.driver.build.Builder;
+import com.wrmsr.tokamak.core.driver.build.ops.BuildOp;
+import com.wrmsr.tokamak.core.driver.build.ops.RequestBuildOp;
+import com.wrmsr.tokamak.core.driver.build.ops.ResponseBuildOp;
 import com.wrmsr.tokamak.core.driver.context.DriverContextImpl;
 import com.wrmsr.tokamak.core.driver.context.state.StateCache;
 import com.wrmsr.tokamak.core.driver.state.State;
 import com.wrmsr.tokamak.core.plan.node.Node;
 import com.wrmsr.tokamak.core.plan.node.StateNode;
 
-import java.util.Collection;
 import java.util.EnumSet;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 import static com.google.common.base.Preconditions.checkState;
 
@@ -39,7 +43,7 @@ public final class StateBuilder
     }
 
     @Override
-    protected Collection<DriverRow> innerBuild(DriverContextImpl context, Key key)
+    protected void innerBuild(DriverContextImpl context, Key key, Consumer<BuildOp> opConsumer)
     {
         /*
         if (builder.getNode() instanceof StateNode && key instanceof IdKey) {
@@ -64,30 +68,32 @@ public final class StateBuilder
         }
         */
 
-        ImmutableList.Builder<DriverRow> builder = ImmutableList.builder();
+        opConsumer.accept(new RequestBuildOp(source, key, srows -> {
+            ImmutableList.Builder<DriverRow> builder = ImmutableList.builder();
 
-        for (DriverRow row : context.build(source, key)) {
-            if (row.getId() == null) {
-                checkState(row.isNull());
-                continue;
+            for (DriverRow row : srows) {
+                if (row.getId() == null) {
+                    checkState(row.isNull());
+                    continue;
+                }
+
+                Optional<State> stateOpt = context.getStateCache().get(node, row.getId(), EnumSet.of(StateCache.GetFlag.CREATE));
+                State state = stateOpt.get();
+                if (state.getMode() == State.Mode.INVALID) {
+                    state.setAttributes(row.getAttributes());
+                }
+
+                context.getLinkageManager().addStateLineage(state, row.getLineage());
+
+                builder.add(
+                        new DriverRow(
+                                node,
+                                context.getDriver().getLineagePolicy().build(row),
+                                row.getId(),
+                                row.getAttributes()));
             }
 
-            Optional<State> stateOpt = context.getStateCache().get(node, row.getId(), EnumSet.of(StateCache.GetFlag.CREATE));
-            State state = stateOpt.get();
-            if (state.getMode() == State.Mode.INVALID) {
-                state.setAttributes(row.getAttributes());
-            }
-
-            context.getLinkageManager().addStateLineage(state, row.getLineage());
-
-            builder.add(
-                    new DriverRow(
-                            node,
-                            context.getDriver().getLineagePolicy().build(row),
-                            row.getId(),
-                            row.getAttributes()));
-        }
-
-        return builder.build();
+            opConsumer.accept(new ResponseBuildOp(this, key, builder.build()));
+        }));
     }
 }

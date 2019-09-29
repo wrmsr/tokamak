@@ -11,21 +11,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.core.driver.build;
+package com.wrmsr.tokamak.core.driver.build.impl;
 
 import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.core.driver.DriverImpl;
 import com.wrmsr.tokamak.core.driver.DriverRow;
+import com.wrmsr.tokamak.core.driver.build.Builder;
+import com.wrmsr.tokamak.core.driver.build.BuilderContext;
+import com.wrmsr.tokamak.core.driver.build.ContextualBuilder;
+import com.wrmsr.tokamak.core.driver.build.ops.BuildOp;
+import com.wrmsr.tokamak.core.driver.build.ops.RequestBuildOp;
+import com.wrmsr.tokamak.core.driver.build.ops.ResponseBuildOp;
 import com.wrmsr.tokamak.core.driver.context.DriverContextImpl;
 import com.wrmsr.tokamak.core.plan.node.CacheNode;
 import com.wrmsr.tokamak.core.plan.node.Node;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 public final class CacheBuilder
         extends SingleSourceBuilder<CacheNode>
@@ -50,41 +56,45 @@ public final class CacheBuilder
     }
 
     @Override
-    protected Collection<DriverRow> innerBuild(DriverContextImpl dctx, Key key)
+    protected void innerBuild(DriverContextImpl dctx, Key key, Consumer<BuildOp> opConsumer)
     {
         Context ctx = dctx.getBuildContext(this);
 
         List<DriverRow> cacheRows = ctx.rowListsByKey.get(key);
         if (cacheRows != null) {
-            return cacheRows;
+            opConsumer.accept(new ResponseBuildOp(this, key, cacheRows));
+            return;
         }
 
-        ImmutableList.Builder<DriverRow> rows = ImmutableList.builder();
-        for (DriverRow row : dctx.build(node.getSource(), key)) {
-            if (row.getId() != null) {
-                DriverRow cacheRow = ctx.rowsById.get(row.getId());
-                if (cacheRow == null) {
-                    cacheRow = new DriverRow(
-                            node,
-                            dctx.getDriver().getLineagePolicy().build(row),
-                            row.getId(),
-                            row.getAttributes());
-                    ctx.rowsById.put(row.getId(), cacheRow);
-                }
-                rows.add(cacheRow);
-            }
-            else {
-                rows.add(
-                        new DriverRow(
+        opConsumer.accept(new RequestBuildOp(source, key, srows -> {
+            ImmutableList.Builder<DriverRow> rows = ImmutableList.builder();
+
+            for (DriverRow row : srows) {
+                if (row.getId() != null) {
+                    DriverRow cacheRow = ctx.rowsById.get(row.getId());
+                    if (cacheRow == null) {
+                        cacheRow = new DriverRow(
                                 node,
                                 dctx.getDriver().getLineagePolicy().build(row),
                                 row.getId(),
-                                row.getAttributes()));
+                                row.getAttributes());
+                        ctx.rowsById.put(row.getId(), cacheRow);
+                    }
+                    rows.add(cacheRow);
+                }
+                else {
+                    rows.add(
+                            new DriverRow(
+                                    node,
+                                    dctx.getDriver().getLineagePolicy().build(row),
+                                    row.getId(),
+                                    row.getAttributes()));
+                }
             }
-        }
 
-        cacheRows = rows.build();
-        ctx.rowListsByKey.put(key, cacheRows);
-        return cacheRows;
+            List<DriverRow> newCacheRows = rows.build();
+            ctx.rowListsByKey.put(key, newCacheRows);
+            opConsumer.accept(new ResponseBuildOp(this, key, newCacheRows));
+        }));
     }
 }

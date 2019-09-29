@@ -11,17 +11,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.core.driver.build;
+package com.wrmsr.tokamak.core.driver.build.impl;
 
 import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.core.driver.DriverImpl;
-import com.wrmsr.tokamak.core.driver.DriverRow;
+import com.wrmsr.tokamak.core.driver.build.Builder;
+import com.wrmsr.tokamak.core.driver.build.ops.BuildOp;
 import com.wrmsr.tokamak.core.driver.context.DriverContextImpl;
 import com.wrmsr.tokamak.core.plan.node.Node;
 
-import java.util.Collection;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -58,13 +59,13 @@ public abstract class AbstractBuilder<T extends Node>
         return sources;
     }
 
-    public final Collection<DriverRow> build(DriverContextImpl context, Key key)
+    public final void build(DriverContextImpl context, Key key, Consumer<BuildOp> opConsumer)
     {
         checkNotNull(context);
         checkNotNull(key);
         checkArgument(context.getDriver() == driver);
-        return innerBuild(context, key);
+        innerBuild(context, key, opConsumer);
     }
 
-    protected abstract Collection<DriverRow> innerBuild(DriverContextImpl context, Key key);
+    protected abstract void innerBuild(DriverContextImpl context, Key key, Consumer<BuildOp> opConsumer);
 }

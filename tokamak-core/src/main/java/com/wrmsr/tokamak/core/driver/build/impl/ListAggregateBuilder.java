@@ -11,11 +11,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.core.driver.build;
+package com.wrmsr.tokamak.core.driver.build.impl;
 
 import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.core.driver.DriverImpl;
 import com.wrmsr.tokamak.core.driver.DriverRow;
+import com.wrmsr.tokamak.core.driver.build.Builder;
+import com.wrmsr.tokamak.core.driver.build.ops.BuildOp;
 import com.wrmsr.tokamak.core.driver.context.DriverContextImpl;
 import com.wrmsr.tokamak.core.plan.node.ListAggregateNode;
 import com.wrmsr.tokamak.core.plan.node.Node;
@@ -24,6 +26,7 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkSingle;
@@ -37,7 +40,7 @@ public final class ListAggregateBuilder
     }
 
     @Override
-    protected Collection<DriverRow> innerBuild(DriverContextImpl context, Key key)
+    protected void innerBuild(DriverContextImpl context, Key key, Consumer<BuildOp> opConsumer)
     {
         // RowCodec idCodec = context.getDriver().getCodecManager().getRowIdCodec(node);
         Key childKey;
@@ -45,19 +48,19 @@ public final class ListAggregateBuilder
         checkArgument(fieldKeyEntry.getKey().equals(node.getGroupField()));
         childKey = Key.of(node.getGroupField(), fieldKeyEntry.getValue());
 
-        Collection<DriverRow> rows = context.build(node.getSource(), key);
-        if (rows.size() == 1 && checkSingle(rows).isNull()) {
-
-        }
-
-        Map<Object, List<DriverRow>> groups = new LinkedHashMap<>();
-        for (DriverRow row : rows) {
-            if (row.isNull()) {
-
-            }
-            // Object group =
-            //         groups.computeIfAbsent(ro)
-        }
+        // Collection<DriverRow> rows = context.build(node.getSource(), key);
+        // if (rows.size() == 1 && checkSingle(rows).isNull()) {
+        //
+        // }
+        //
+        // Map<Object, List<DriverRow>> groups = new LinkedHashMap<>();
+        // for (DriverRow row : rows) {
+        //     if (row.isNull()) {
+        //
+        //     }
+        //     // Object group =
+        //     //         groups.computeIfAbsent(ro)
+        // }
 
         throw new IllegalStateException();
     }

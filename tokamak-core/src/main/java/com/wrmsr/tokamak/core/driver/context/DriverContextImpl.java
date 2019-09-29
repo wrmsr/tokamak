@@ -23,6 +23,8 @@ import com.wrmsr.tokamak.core.driver.DriverRow;
 import com.wrmsr.tokamak.core.driver.build.Builder;
 import com.wrmsr.tokamak.core.driver.build.BuilderContext;
 import com.wrmsr.tokamak.core.driver.build.ContextualBuilder;
+import com.wrmsr.tokamak.core.driver.build.ops.RequestBuildOp;
+import com.wrmsr.tokamak.core.driver.build.ops.ResponseBuildOp;
 import com.wrmsr.tokamak.core.driver.context.diag.JournalEntry;
 import com.wrmsr.tokamak.core.driver.context.diag.Stat;
 import com.wrmsr.tokamak.core.driver.context.state.DefaultStateCache;
@@ -33,8 +35,10 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 import static java.util.function.UnaryOperator.identity;
@@ -127,14 +131,32 @@ public class DriverContextImpl
     }
 
     @SuppressWarnings({"unchecked"})
-    public Collection<DriverRow> build(Builder builder, Key key)
+    public Collection<DriverRow> buildSync(Builder builder, Key key)
     {
         Node node = builder.getNode();
         if (journaling) {
             addJournalEntry(new JournalEntry.BuildInput(node, key));
         }
 
-        Collection<DriverRow> rows = builder.build(this, key);
+        ImmutableList.Builder<DriverRow> rowsBuilder = ImmutableList.builder();
+
+        builder.build(this, key, op -> {
+            if (op instanceof RequestBuildOp) {
+                RequestBuildOp rop = (RequestBuildOp) op;
+                Collection<DriverRow> rows = buildSync(rop.getBuilder(), rop.getKey());
+                rop.getCallback().accept(rows);
+            }
+            else if (op instanceof ResponseBuildOp) {
+                ResponseBuildOp rop = (ResponseBuildOp) op;
+                checkState(rop.getBuilder() == builder);
+                checkState(rop.getKey().equals(key));
+            }
+            else {
+                throw new IllegalStateException(Objects.toString(op));
+            }
+        });
+
+        Collection<DriverRow> rows = rowsBuilder.build();
         checkNotEmpty(rows);
         if (journaling) {
             addJournalEntry(new JournalEntry.BuildOutput(node, key, rows));
@@ -143,10 +165,10 @@ public class DriverContextImpl
         return rows;
     }
 
-    public Collection<DriverRow> build(Node node, Key key)
+    public Collection<DriverRow> buildSync(Node node, Key key)
     {
         Builder builder = checkNotNull(driver.getBuildersByNode().get(node));
-        return build(builder, key);
+        return buildSync(builder, key);
     }
 
     @Override

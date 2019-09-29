@@ -16,11 +16,13 @@ package com.wrmsr.tokamak.core.driver.build;
 import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.core.driver.DriverImpl;
 import com.wrmsr.tokamak.core.driver.DriverRow;
+import com.wrmsr.tokamak.core.driver.build.ops.BuildOp;
 import com.wrmsr.tokamak.core.driver.context.DriverContextImpl;
 import com.wrmsr.tokamak.core.plan.node.Node;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.function.Consumer;
 
 public interface Builder<T extends Node>
 {
@@ -30,5 +32,5 @@ public interface Builder<T extends Node>
 
     Map<Node, Builder> getSources();
 
-    Collection<DriverRow> build(DriverContextImpl context, Key key);
+    void build(DriverContextImpl context, Key key, Consumer<BuildOp> opConsumer);
 }

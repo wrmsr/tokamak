@@ -11,28 +11,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.core.driver.build;
+package com.wrmsr.tokamak.core.driver.build.impl;
 
 import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.core.driver.DriverImpl;
 import com.wrmsr.tokamak.core.driver.DriverRow;
+import com.wrmsr.tokamak.core.driver.build.Builder;
+import com.wrmsr.tokamak.core.driver.build.ops.BuildOp;
 import com.wrmsr.tokamak.core.driver.context.DriverContextImpl;
+import com.wrmsr.tokamak.core.plan.node.LookupJoinNode;
 import com.wrmsr.tokamak.core.plan.node.Node;
-import com.wrmsr.tokamak.core.plan.node.UnnestNode;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.function.Consumer;
 
-public final class UnnestBuilder
-        extends SingleSourceBuilder<UnnestNode>
+public final class LookupJoinBuilder
+        extends AbstractBuilder<LookupJoinNode>
 {
-    public UnnestBuilder(DriverImpl driver, UnnestNode node, Map<Node, Builder> sources)
+    public LookupJoinBuilder(DriverImpl driver, LookupJoinNode node, Map<Node, Builder> sources)
     {
         super(driver, node, sources);
     }
 
     @Override
-    protected Collection<DriverRow> innerBuild(DriverContextImpl context, Key key)
+    protected void innerBuild(DriverContextImpl context, Key key, Consumer<BuildOp> opConsumer)
     {
         throw new IllegalStateException();
     }

@@ -11,32 +11,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.core.driver.build;
+package com.wrmsr.tokamak.core.driver.build.impl;
 
+import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.core.driver.DriverImpl;
+import com.wrmsr.tokamak.core.driver.build.Builder;
+import com.wrmsr.tokamak.core.driver.build.ops.BuildOp;
+import com.wrmsr.tokamak.core.driver.context.DriverContextImpl;
 import com.wrmsr.tokamak.core.plan.node.Node;
-import com.wrmsr.tokamak.core.plan.node.SingleSourceNode;
+import com.wrmsr.tokamak.core.plan.node.UnnestNode;
 
 import java.util.Map;
+import java.util.function.Consumer;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.wrmsr.tokamak.util.MorePreconditions.checkSingle;
-
-public abstract class SingleSourceBuilder<T extends SingleSourceNode>
-        extends AbstractBuilder<T>
+public final class UnnestBuilder
+        extends SingleSourceBuilder<UnnestNode>
 {
-    protected final Builder source;
-
-    public SingleSourceBuilder(DriverImpl driver, T node, Map<Node, Builder> sources)
+    public UnnestBuilder(DriverImpl driver, UnnestNode node, Map<Node, Builder> sources)
     {
         super(driver, node, sources);
-        Builder source = checkSingle(this.sources.values());
-        checkArgument(source.getNode() == node.getSource());
-        this.source = source;
     }
 
-    public Builder getSource()
+    @Override
+    protected void innerBuild(DriverContextImpl context, Key key, Consumer<BuildOp> opConsumer)
     {
-        return source;
+        throw new IllegalStateException();
     }
 }
