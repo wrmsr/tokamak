@@ -15,7 +15,9 @@ package com.wrmsr.tokamak.test.parse;
 
 import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.core.catalog.Catalog;
+import com.wrmsr.tokamak.core.exec.Executable;
 import com.wrmsr.tokamak.core.exec.Reflection;
+import com.wrmsr.tokamak.core.exec.SimpleExecutable;
 import com.wrmsr.tokamak.core.exec.builtin.BuiltinExecutor;
 import com.wrmsr.tokamak.core.parse.AstBuilding;
 import com.wrmsr.tokamak.core.parse.AstPlanner;
@@ -38,6 +40,7 @@ import com.wrmsr.tokamak.test.TpchUtils;
 import com.wrmsr.tokamak.util.json.Json;
 import junit.framework.TestCase;
 
+import java.lang.reflect.Method;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
@@ -117,13 +120,36 @@ public class TpchParserTest
         }
     }
 
+    public static final class AnonFunc0
+    {
+        public static String invoke(String _0)
+        {
+            return _0 + "!";
+        }
+    }
+
     public void testJavaJit()
             throws Throwable
     {
         String stmt = "select java('_0 + \"!\"', N_NAME) from NATION";
 
-        Type expectedType = new FunctionType(
+        FunctionType funcType = new FunctionType(
                 Types.STRING,
                 ImmutableList.of(Types.STRING));
+
+        Method method = AnonFunc0.class.getDeclaredMethod("invoke");
+
+        Executable exe = new SimpleExecutable(
+                "AnonFunc0",
+                funcType,
+                args -> {
+                    try {
+                        return method.invoke(null, args);
+                    }
+                    catch (ReflectiveOperationException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+        );
     }
 }

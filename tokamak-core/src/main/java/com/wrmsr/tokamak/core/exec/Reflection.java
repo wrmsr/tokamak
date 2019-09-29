@@ -16,6 +16,8 @@ package com.wrmsr.tokamak.core.exec;
 import com.wrmsr.tokamak.core.type.Types;
 import com.wrmsr.tokamak.core.type.impl.FunctionType;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -38,6 +40,13 @@ public final class Reflection
 
     public static Executable reflect(Method method, String name)
     {
+        MethodHandle handle;
+        try {
+            handle = MethodHandles.lookup().unreflect(method);
+        }
+        catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
         return new SimpleExecutable(
                 name,
                 new FunctionType(
@@ -45,9 +54,13 @@ public final class Reflection
                         Arrays.stream(method.getParameterTypes()).map(Types::fromJavaType).collect(toImmutableList())),
                 args -> {
                     try {
-                        return method.invoke(null, args);
+                        return handle.invokeWithArguments(args);
                     }
-                    catch (ReflectiveOperationException e) {
+                    catch (Error e) {
+                        throw e;
+                    }
+                    catch (Throwable e) {
+                        // FIXME: yeesh
                         throw new RuntimeException(e);
                     }
                 });

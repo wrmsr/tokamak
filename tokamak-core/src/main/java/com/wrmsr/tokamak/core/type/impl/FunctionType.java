@@ -50,7 +50,7 @@ public final class FunctionType
     @Override
     public java.lang.reflect.Type getReflect()
     {
-        return null;
+        throw new IllegalStateException();
     }
 
     @Override
