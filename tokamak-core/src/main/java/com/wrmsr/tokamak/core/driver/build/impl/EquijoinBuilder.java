@@ -102,7 +102,8 @@ public final class EquijoinBuilder
             byte[][] idProto,
             Map<String, Object> proto,
             Set<DriverRow> lineage,
-            int pos)
+            int pos,
+            Consumer<BuildOp> opConsumer)
     {
         if (pos < lookups.size()) {
             Pair<EquijoinNode.Branch, Map<String, Object>> lookup = lookups.get(pos);
@@ -176,7 +177,8 @@ public final class EquijoinBuilder
             Map<String, Object> proto,
             Object[] keyValues,
             Set<DriverRow> lineage,
-            int pos)
+            int pos,
+            Consumer<BuildOp> opConsumer)
     {
         if (pos < branches.size()) {
             EquijoinNode.Branch branch = branches.get(pos);
