@@ -38,9 +38,12 @@ import com.wrmsr.tokamak.core.type.Types;
 import com.wrmsr.tokamak.core.type.impl.FunctionType;
 import com.wrmsr.tokamak.core.util.ApiJson;
 import com.wrmsr.tokamak.test.TpchUtils;
+import com.wrmsr.tokamak.util.Jdk;
+import com.wrmsr.tokamak.util.java.compile.javac.InProcJavaCompiler;
 import com.wrmsr.tokamak.util.java.lang.JAccess;
 import com.wrmsr.tokamak.util.java.lang.JName;
 import com.wrmsr.tokamak.util.java.lang.JParam;
+import com.wrmsr.tokamak.util.java.lang.JRenderer;
 import com.wrmsr.tokamak.util.java.lang.JTypeSpecifier;
 import com.wrmsr.tokamak.util.java.lang.tree.declaration.JDeclaration;
 import com.wrmsr.tokamak.util.java.lang.tree.declaration.JMethod;
@@ -144,14 +147,18 @@ public class TpchParserTest
         }
     }
 
-    public static void jitJavaExpr(String src, Type retType, List<Type> argTypes)
+    public static Method jitJavaExpr(String src, Type retType, List<Type> argTypes)
+            throws Throwable
     {
+        String bareName = "AnonFunc0";
+
         JCompilationUnit jcu = new JCompilationUnit(
                 Optional.of(new JPackageSpec(JName.of("com", "wmrsr", "tokamak", "generated"))),
                 ImmutableSet.of(),
                 new JType(
+                        immutableEnumSet(JAccess.PUBLIC, JAccess.FINAL),
                         JType.Kind.CLASS,
-                        "AnonFunc0",
+                        bareName,
                         ImmutableList.of(),
                         ImmutableList.<JDeclaration>of(
                                 new JMethod(
@@ -160,19 +167,38 @@ public class TpchParserTest
                                         "invoke",
                                         enumerate(argTypes.stream())
                                                 .map(a -> new JParam(
-                                                        JTypeSpecifier.of(a.getItem().getReflect())
+                                                        JTypeSpecifier.of(a.getItem().getReflect()),
                                                         "_" + a.getIndex()))
                                                 .collect(toImmutableList()),
                                         Optional.of(
                                                 jblockify(
                                                         new JReturn(
                                                                 new JRawExpression(src))))))));
+
+        String jsrc = JRenderer.renderWithIndent(jcu, "    ");
+
+        Class<?> cls = InProcJavaCompiler.compileAndLoad(
+                jsrc,
+                "com.wrmsr.tokamak.generated." + bareName,
+                bareName,
+                ImmutableList.of(
+                        "-source", "1.8",
+                        "-target", "1.8",
+                        "-classpath", Jdk.getClasspath()
+                ),
+                TpchParserTest.class.getClassLoader());
+
+        Method method = cls.getDeclaredMethod("invoke");
+
+        return method;
     }
 
     public void testJavaJit()
             throws Throwable
     {
-        String stmt = "select java('_0 + \"!\"', N_NAME) from NATION";
+        String src = "select java('_0 + \"!\"', N_NAME) from NATION";
+
+        Method metho = jitJavaExpr(src, Types.STRING, ImmutableList.of(Types.STRING));
 
         FunctionType funcType = new FunctionType(
                 Types.STRING,
