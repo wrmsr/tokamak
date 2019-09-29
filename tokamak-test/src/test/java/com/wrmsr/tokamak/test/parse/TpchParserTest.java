@@ -139,14 +139,6 @@ public class TpchParserTest
         }
     }
 
-    public static final class AnonFunc0
-    {
-        public static String invoke(String _0)
-        {
-            return _0 + "!";
-        }
-    }
-
     public static Method jitJavaExpr(String src, Type retType, List<Type> argTypes)
             throws Throwable
     {
@@ -201,13 +193,11 @@ public class TpchParserTest
         String src = "_0 + \"!\"";
         String stmt = "select java('" + src + "', N_NAME) from NATION";
 
-        Method metho = jitJavaExpr(src, Types.STRING, ImmutableList.of(Types.STRING));
+        Method method = jitJavaExpr(src, Types.STRING, ImmutableList.of(Types.STRING));
 
         FunctionType funcType = new FunctionType(
                 Types.STRING,
                 ImmutableList.of(Types.STRING));
-
-        Method method = AnonFunc0.class.getDeclaredMethod("invoke");
 
         Executable exe = new SimpleExecutable(
                 "AnonFunc0",
