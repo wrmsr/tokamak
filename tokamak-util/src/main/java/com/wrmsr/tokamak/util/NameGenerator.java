@@ -16,6 +16,7 @@ package com.wrmsr.tokamak.util;
 import com.google.common.collect.ImmutableSet;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
@@ -33,7 +34,8 @@ public final class NameGenerator
 
     public NameGenerator(Set<String> unavailableStrings, String globalPrefix)
     {
-        this.names = ImmutableSet.copyOf(unavailableStrings);
+        this.names = new HashSet<>();
+        names.addAll(unavailableStrings);
         this.globalPrefix = checkNotNull(globalPrefix);
     }
 
@@ -57,8 +59,9 @@ public final class NameGenerator
         while (true) {
             int count = prefixCounts.getOrDefault(prefix, 0);
             prefixCounts.put(prefix, count + 1);
-            String name = globalPrefix + count;
+            String name = globalPrefix + prefix + count;
             if (!names.contains(name)) {
+                names.add(name);
                 return name;
             }
         }

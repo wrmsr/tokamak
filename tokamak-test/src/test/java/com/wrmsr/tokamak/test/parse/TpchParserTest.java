@@ -20,14 +20,16 @@ import com.wrmsr.tokamak.core.parse.AstRendering;
 import com.wrmsr.tokamak.core.parse.Parsing;
 import com.wrmsr.tokamak.core.parse.SqlParser;
 import com.wrmsr.tokamak.core.parse.analysis.ScopeAnalysis;
-import com.wrmsr.tokamak.core.parse.transform.SymbolResolution;
 import com.wrmsr.tokamak.core.parse.transform.SelectExpansion;
+import com.wrmsr.tokamak.core.parse.transform.SymbolResolution;
 import com.wrmsr.tokamak.core.parse.transform.ViewInlining;
 import com.wrmsr.tokamak.core.parse.tree.TreeNode;
 import com.wrmsr.tokamak.core.plan.Plan;
 import com.wrmsr.tokamak.core.plan.node.Node;
 import com.wrmsr.tokamak.core.plan.transform.Transforms;
+import com.wrmsr.tokamak.core.util.ApiJson;
 import com.wrmsr.tokamak.test.TpchUtils;
+import com.wrmsr.tokamak.util.json.Json;
 import junit.framework.TestCase;
 
 import java.nio.file.Path;
@@ -46,6 +48,7 @@ public class TpchParserTest
         TpchUtils.buildDatabase(url);
         Catalog catalog = TpchUtils.buildCatalog(url);
         Optional<String> defaultSchema = Optional.of("PUBLIC");
+        ApiJson.installStatics();
 
         for (String str : new String[] {
                 "select * from NATION",
@@ -71,8 +74,10 @@ public class TpchParserTest
             ScopeAnalysis.Resolutions sar = sa.getResolutions();
 
             Node node = new AstPlanner(Optional.of(catalog), defaultSchema).plan(treeNode);
+            Plan plan = new Plan(node);
 
-            Plan transformedPlan = Transforms.addScanNodeIdFields(new Plan(node), catalog);
+            plan = Transforms.addScanNodeIdFields(plan, catalog);
+            System.out.println(Json.writeValuePretty(plan));
 
             System.out.println();
         }

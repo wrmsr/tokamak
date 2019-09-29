@@ -13,12 +13,13 @@
  */
 package com.wrmsr.tokamak.core.parse;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.core.catalog.Catalog;
 import com.wrmsr.tokamak.core.catalog.Table;
 import com.wrmsr.tokamak.core.parse.analysis.ScopeAnalysis;
-import com.wrmsr.tokamak.core.parse.tree.AllSelectItem;
+import com.wrmsr.tokamak.core.parse.tree.AliasedRelation;
 import com.wrmsr.tokamak.core.parse.tree.Expression;
 import com.wrmsr.tokamak.core.parse.tree.ExpressionSelectItem;
 import com.wrmsr.tokamak.core.parse.tree.FunctionCallExpression;
@@ -29,6 +30,7 @@ import com.wrmsr.tokamak.core.parse.tree.SelectItem;
 import com.wrmsr.tokamak.core.parse.tree.TableName;
 import com.wrmsr.tokamak.core.parse.tree.TreeNode;
 import com.wrmsr.tokamak.core.parse.tree.visitor.AstVisitor;
+import com.wrmsr.tokamak.core.plan.node.CrossJoinNode;
 import com.wrmsr.tokamak.core.plan.node.Node;
 import com.wrmsr.tokamak.core.plan.node.ProjectNode;
 import com.wrmsr.tokamak.core.plan.node.Projection;
@@ -44,7 +46,9 @@ import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
+import static com.wrmsr.tokamak.util.MorePreconditions.checkSingle;
 import static java.util.function.Function.identity;
 
 public class AstPlanner
@@ -69,87 +73,67 @@ public class AstPlanner
     {
         ScopeAnalysis scopeAnalysis = ScopeAnalysis.analyze(treeNode, catalog, defaultSchema);
 
-        return treeNode.accept(new AstVisitor<Node, Void>()
+        return treeNode.accept(new AstVisitor<Node, ScopeAnalysis.Scope>()
         {
             @Override
-            public Node visitSelect(Select treeNode, Void context)
+            public Node visitAliasedRelation(AliasedRelation treeNode, ScopeAnalysis.Scope context)
             {
-                TableName tableName = (TableName) treeNode.getRelations().get(0).getRelation();
-                SchemaTable schemaTable = tableName.getQualifiedName().toSchemaTable(defaultSchema);
-
-                Table table = catalog.get().getSchemaTable(schemaTable);
-                Map<String, String> columnsByLabel = new LinkedHashMap<>();
-
-                for (SelectItem item : treeNode.getItems()) {
-                    if (item instanceof AllSelectItem) {
-                        for (String column : table.getRowLayout().getFieldNames()) {
-                            checkState(!columnsByLabel.containsKey(column));
-                            columnsByLabel.put(column, column);
-                        }
-                    }
-                    else if (item instanceof ExpressionSelectItem) {
-                        ExpressionSelectItem exprItem = (ExpressionSelectItem) item;
-                        Expression expr = exprItem.getExpression();
-                        String column;
-                        if (expr instanceof QualifiedNameExpression) {
-                            QualifiedName qname = ((QualifiedNameExpression) expr).getQualifiedName();
-                            List<String> qnameParts = qname.getParts();
-                            if (qnameParts.size() == 1) {
-                                column = qnameParts.get(0);
-                            }
-                            else if (qnameParts.size() == 2) {
-                                checkState(qnameParts.get(0).equals(table.getName()));
-                                column = qnameParts.get(1);
-                            }
-                            else {
-                                throw new IllegalArgumentException(qnameParts.toString());
-                            }
-                        }
-                        else if (expr instanceof FunctionCallExpression) {
-                            FunctionCallExpression fexpr = (FunctionCallExpression) expr;
-                            throw new IllegalArgumentException(expr.toString());
-                        }
-                        else {
-                            throw new IllegalArgumentException(expr.toString());
-                        }
-
-                        checkState(table.getRowLayout().getFields().containsKey(column));
-                        String label;
-                        if (exprItem.getLabel().isPresent()) {
-                            label = exprItem.getLabel().get();
-                        }
-                        else {
-                            label = column;
-                        }
-                        checkState(!columnsByLabel.containsKey(label));
-                        columnsByLabel.put(label, column);
-                    }
-                    else {
-                        throw new IllegalArgumentException(item.toString());
-                    }
-                }
-
-                Set<String> columns = ImmutableSet.copyOf(columnsByLabel.values());
-                ScanNode scanNode = new ScanNode(
-                        "scan0",
-                        schemaTable,
-                        columns.stream().collect(toImmutableMap(identity(), table.getRowLayout().getFields()::get)),
-                        ImmutableSet.of(),
-                        ImmutableSet.of());
-                Node node = scanNode;
-
-                if (!columnsByLabel.keySet().equals(columns)) {
-                    node = new ProjectNode(
-                            nameGenerator.get(),
-                            scanNode,
-                            Projection.of(columnsByLabel));
-                }
-
-                return node;
+                Node scanNode = treeNode.getRelation().accept(this, scopeAnalysis.getScope(treeNode).get());
+                return new ProjectNode(
+                        nameGenerator.get("aliasedRelationProject"),
+                        scanNode,
+                        Projection.of(
+                                scanNode.getFields().keySet().stream()
+                                        .collect(toImmutableMap(f -> treeNode.getAlias().get() + "." + f, identity()))));
             }
 
             @Override
-            public Node visitTableName(TableName treeNode, Void context)
+            public Node visitSelect(Select treeNode, ScopeAnalysis.Scope context)
+            {
+                Map<String, Projection.Input> projection = new LinkedHashMap<>();
+
+                for (SelectItem item : treeNode.getItems()) {
+                    ExpressionSelectItem exprItem = (ExpressionSelectItem) item;
+                    String label = exprItem.getLabel().get();
+                    Expression expr = exprItem.getExpression();
+
+                    if (expr instanceof QualifiedNameExpression) {
+                        QualifiedName qname = ((QualifiedNameExpression) expr).getQualifiedName();
+                        projection.put(label, Projection.Input.of(Joiner.on(".").join(qname.getParts())));
+                    }
+
+                    else if (expr instanceof FunctionCallExpression) {
+                        FunctionCallExpression fexpr = (FunctionCallExpression) expr;
+                        throw new IllegalArgumentException(expr.toString());
+                    }
+
+                    else {
+                        throw new IllegalArgumentException(expr.toString());
+                    }
+                }
+
+                List<Node> sources = treeNode.getRelations().stream()
+                        .map(r -> r.accept(this, null))
+                        .collect(toImmutableList());
+                Node source;
+                if (sources.size() == 1) {
+                    source = checkSingle(sources);
+                }
+                else {
+                    source = new CrossJoinNode(
+                            nameGenerator.get("projectCrossJoin"),
+                            sources,
+                            CrossJoinNode.Mode.INNER);
+                }
+
+                return new ProjectNode(
+                        nameGenerator.get("selectProject"),
+                        source,
+                        new Projection(projection));
+            }
+
+            @Override
+            public Node visitTableName(TableName treeNode, ScopeAnalysis.Scope context)
             {
                 SchemaTable schemaTable = treeNode.getQualifiedName().toSchemaTable(defaultSchema);
 
@@ -157,8 +141,7 @@ public class AstPlanner
 
                 Set<String> columns = new LinkedHashSet<>();
 
-                ScopeAnalysis.Scope scope = scopeAnalysis.getScope(treeNode).get();
-                scope.getSymbols().forEach(s -> {
+                context.getSymbols().forEach(s -> {
                     checkState(table.getRowLayout().getFields().containsKey(s.getName().get()));
                     Set<ScopeAnalysis.SymbolRef> srs = scopeAnalysis.getResolutions().getSymbolRefs().get(s);
                     if (srs != null) {
