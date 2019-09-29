@@ -52,6 +52,11 @@ public class JDeclarationVisitor<R, C>
         return visitJDeclaration(jdeclaration, context);
     }
 
+    public R visitJRawDeclaration(JRawDeclaration jdeclaration, C context)
+    {
+        return visitJDeclaration(jdeclaration, context);
+    }
+
     public R visitJType(JType jdeclaration, C context)
     {
         return visitJDeclaration(jdeclaration, context);

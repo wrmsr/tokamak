@@ -97,6 +97,11 @@ public class JExpressionVisitor<R, C>
         return visitJExpression(jexpression, context);
     }
 
+    public R visitJRawExpression(JRawExpression jexpression, C context)
+    {
+        return visitJExpression(jexpression, context);
+    }
+
     public R visitJUnary(JUnary jexpression, C context)
     {
         return visitJExpression(jexpression, context);

@@ -82,6 +82,11 @@ public class JStatementVisitor<R, C>
         return visitJStatement(jstatement, context);
     }
 
+    public R visitJRawStatement(JRawStatement jstatement, C context)
+    {
+        return visitJStatement(jstatement, context);
+    }
+
     public R visitJReturn(JReturn jstatement, C context)
     {
         return visitJStatement(jstatement, context);

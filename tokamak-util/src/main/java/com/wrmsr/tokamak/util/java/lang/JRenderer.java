@@ -25,6 +25,7 @@ import com.wrmsr.tokamak.util.java.lang.tree.declaration.JDeclarationVisitor;
 import com.wrmsr.tokamak.util.java.lang.tree.declaration.JField;
 import com.wrmsr.tokamak.util.java.lang.tree.declaration.JInitializationBlock;
 import com.wrmsr.tokamak.util.java.lang.tree.declaration.JMethod;
+import com.wrmsr.tokamak.util.java.lang.tree.declaration.JRawDeclaration;
 import com.wrmsr.tokamak.util.java.lang.tree.declaration.JType;
 import com.wrmsr.tokamak.util.java.lang.tree.declaration.JVerbatimDeclaration;
 import com.wrmsr.tokamak.util.java.lang.tree.expression.JArrayAccess;
@@ -44,6 +45,7 @@ import com.wrmsr.tokamak.util.java.lang.tree.expression.JMethodInvocation;
 import com.wrmsr.tokamak.util.java.lang.tree.expression.JMethodReference;
 import com.wrmsr.tokamak.util.java.lang.tree.expression.JNew;
 import com.wrmsr.tokamak.util.java.lang.tree.expression.JNewArray;
+import com.wrmsr.tokamak.util.java.lang.tree.expression.JRawExpression;
 import com.wrmsr.tokamak.util.java.lang.tree.expression.JUnary;
 import com.wrmsr.tokamak.util.java.lang.tree.statement.JAnnotatedStatement;
 import com.wrmsr.tokamak.util.java.lang.tree.statement.JBlank;
@@ -57,6 +59,7 @@ import com.wrmsr.tokamak.util.java.lang.tree.statement.JExpressionStatement;
 import com.wrmsr.tokamak.util.java.lang.tree.statement.JForEach;
 import com.wrmsr.tokamak.util.java.lang.tree.statement.JIf;
 import com.wrmsr.tokamak.util.java.lang.tree.statement.JLabeledStatement;
+import com.wrmsr.tokamak.util.java.lang.tree.statement.JRawStatement;
 import com.wrmsr.tokamak.util.java.lang.tree.statement.JReturn;
 import com.wrmsr.tokamak.util.java.lang.tree.statement.JStatement;
 import com.wrmsr.tokamak.util.java.lang.tree.statement.JStatementVisitor;
@@ -308,6 +311,13 @@ public final class JRenderer
             }
 
             @Override
+            public Void visitJRawDeclaration(JRawDeclaration jdeclaration, Void context)
+            {
+                code.add(jdeclaration.getText());
+                return null;
+            }
+
+            @Override
             public Void visitJType(JType jdeclaration, Void context)
             {
                 renderAccess(jdeclaration.getAccess());
@@ -506,6 +516,13 @@ public final class JRenderer
                 code.add("$L", jstatement.getLabel());
                 code.add(":\n");
                 renderStatement(jstatement.getStatement());
+                return null;
+            }
+
+            @Override
+            public Void visitJRawStatement(JRawStatement jstatement, Void context)
+            {
+                code.add(jstatement.getText());
                 return null;
             }
 
@@ -731,6 +748,13 @@ public final class JRenderer
                     renderOperands(i);
                     code.add("}");
                 });
+                return null;
+            }
+
+            @Override
+            public Void visitJRawExpression(JRawExpression jexpression, Void context)
+            {
+                code.add(jexpression.getText());
                 return null;
             }
 

@@ -128,6 +128,11 @@ public class TpchParserTest
         }
     }
 
+    public static void jitJavaExpr(String src, List<Type> argTypes)
+    {
+
+    }
+
     public void testJavaJit()
             throws Throwable
     {
