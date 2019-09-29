@@ -14,6 +14,7 @@
 package com.wrmsr.tokamak.core.driver.build.ops;
 
 import com.wrmsr.tokamak.api.Id;
+import com.wrmsr.tokamak.core.driver.build.Builder;
 import com.wrmsr.tokamak.core.driver.context.state.StateCache;
 import com.wrmsr.tokamak.core.driver.state.State;
 import com.wrmsr.tokamak.core.plan.node.StateNode;
@@ -28,19 +29,31 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
 public final class GetStateBuildOp
-        implements BuildOp
+        extends AbstractBuildOp
 {
     private final StateNode node;
     private final Id id;
     private final EnumSet<StateCache.GetFlag> flags;
     private final Consumer<Optional<State>> callback;
 
-    public GetStateBuildOp(StateNode node, Id id, EnumSet<StateCache.GetFlag> flags, Consumer<Optional<State>> callback)
+    public GetStateBuildOp(Builder origin, StateNode node, Id id, EnumSet<StateCache.GetFlag> flags, Consumer<Optional<State>> callback)
     {
+        super(origin);
         this.node = checkNotNull(node);
         this.id = checkNotNull(id);
         this.flags = checkNotNull(flags);
         this.callback = checkNotNull(callback);
+    }
+
+    @Override
+    public String toString()
+    {
+        return "GetStateBuildOp{" +
+                "origin=" + origin +
+                ", node=" + node +
+                ", id=" + id +
+                ", flags=" + flags +
+                '}';
     }
 
     public StateNode getNode()

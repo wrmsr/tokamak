@@ -66,7 +66,7 @@ public final class CacheBuilder
             return;
         }
 
-        opConsumer.accept(new RequestBuildOp(source, key, srows -> {
+        opConsumer.accept(new RequestBuildOp(this, source, key, srows -> {
             ImmutableList.Builder<DriverRow> rows = ImmutableList.builder();
 
             for (DriverRow row : srows) {

@@ -47,7 +47,7 @@ public final class FilterBuilder
     @Override
     protected void innerBuild(DriverContextImpl context, Key key, Consumer<BuildOp> opConsumer)
     {
-        opConsumer.accept(new RequestBuildOp(source, key, srows -> {
+        opConsumer.accept(new RequestBuildOp(this, source, key, srows -> {
             ImmutableList.Builder<DriverRow> ret = ImmutableList.builder();
             for (DriverRow row : srows) {
                 Object[] args = new Object[node.getArgs().size()];

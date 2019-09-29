@@ -66,7 +66,7 @@ public final class ScanBuilder
     {
         Scanner scanner = driver.getScannersByNode().get(node);
 
-        opConsumer.accept(new ScanBuildOp(scanner, key, scanRows -> {
+        opConsumer.accept(new ScanBuildOp(this, scanner, key, scanRows -> {
             // FIXME: scanners can return empty, driver compensates
             checkState(!scanRows.isEmpty());
 

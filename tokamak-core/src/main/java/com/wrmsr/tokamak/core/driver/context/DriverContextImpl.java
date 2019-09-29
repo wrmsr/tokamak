@@ -24,6 +24,7 @@ import com.wrmsr.tokamak.core.driver.DriverRow;
 import com.wrmsr.tokamak.core.driver.build.Builder;
 import com.wrmsr.tokamak.core.driver.build.BuilderContext;
 import com.wrmsr.tokamak.core.driver.build.ContextualBuilder;
+import com.wrmsr.tokamak.core.driver.build.ops.BuildOp;
 import com.wrmsr.tokamak.core.driver.build.ops.RequestBuildOp;
 import com.wrmsr.tokamak.core.driver.build.ops.ResponseBuildOp;
 import com.wrmsr.tokamak.core.driver.build.ops.ScanBuildOp;
@@ -135,7 +136,7 @@ public class DriverContextImpl
     }
 
     @SuppressWarnings({"unchecked"})
-    public Collection<DriverRow> buildSync(Builder builder, Key key)
+    public Collection<DriverRow> buildSync(Builder<?> builder, Key key)
     {
         Node node = builder.getNode();
         if (journaling) {
@@ -145,6 +146,7 @@ public class DriverContextImpl
         Cell<Collection<DriverRow>> rowsCell = Cell.setOnce();
 
         builder.build(this, key, op -> {
+            checkState(op.getOrigin() == builder);
             if (op instanceof RequestBuildOp) {
                 RequestBuildOp rop = (RequestBuildOp) op;
                 Collection<DriverRow> rows = buildSync(rop.getBuilder(), rop.getKey());
@@ -152,7 +154,6 @@ public class DriverContextImpl
             }
             else if (op instanceof ResponseBuildOp) {
                 ResponseBuildOp rop = (ResponseBuildOp) op;
-                checkState(rop.getBuilder() == builder);
                 checkState(rop.getKey().equals(key));
                 rowsCell.set(rop.getRows());
             }

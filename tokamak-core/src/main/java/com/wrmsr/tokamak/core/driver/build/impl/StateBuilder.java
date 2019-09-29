@@ -68,7 +68,7 @@ public final class StateBuilder
         }
         */
 
-        opConsumer.accept(new RequestBuildOp(source, key, srows -> {
+        opConsumer.accept(new RequestBuildOp(this, source, key, srows -> {
             ImmutableList.Builder<DriverRow> builder = ImmutableList.builder();
 
             for (DriverRow row : srows) {

@@ -128,7 +128,7 @@ public final class EquijoinBuilder
 
             int branchIdx = node.getIndicesByBranch().get(lookup.first());
 
-            opConsumer.accept(new RequestBuildOp(context.getDriver().getBuildersByNode().get(lookup.first().getNode()), key, rows -> {
+            opConsumer.accept(new RequestBuildOp(this, context.getDriver().getBuildersByNode().get(lookup.first().getNode()), key, rows -> {
                 for (DriverRow row : rows) {
                     ImmutableMap.Builder<String, Object> nextProto = ImmutableMap.<String, Object>builder()
                             .putAll(proto);
@@ -208,7 +208,7 @@ public final class EquijoinBuilder
 
             int branchIdx = node.getIndicesByBranch().get(branch);
 
-            opConsumer.accept(new RequestBuildOp(context.getDriver().getBuildersByNode().get(branch.getNode()), key, rows -> {
+            opConsumer.accept(new RequestBuildOp(this, context.getDriver().getBuildersByNode().get(branch.getNode()), key, rows -> {
                 for (DriverRow row : rows) {
                     ImmutableMap.Builder<String, Object> nextProto = ImmutableMap.<String, Object>builder()
                             .putAll(proto);

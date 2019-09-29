@@ -52,7 +52,7 @@ public final class ProjectBuilder
                                 e -> node.getProjection().getInputFieldsByOutput().get(e.getKey()),
                                 Map.Entry::getValue)));
 
-        opConsumer.accept(new RequestBuildOp(source, sourceKey, srows -> {
+        opConsumer.accept(new RequestBuildOp(this, source, sourceKey, srows -> {
             ImmutableList.Builder<DriverRow> ret = ImmutableList.builder();
             for (DriverRow row : srows) {
                 Map<String, Object> rowMap = row.getMap();

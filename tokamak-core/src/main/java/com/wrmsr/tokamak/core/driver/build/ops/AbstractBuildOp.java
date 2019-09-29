@@ -18,7 +18,19 @@ import com.wrmsr.tokamak.core.driver.build.Builder;
 import javax.annotation.concurrent.Immutable;
 
 @Immutable
-public interface BuildOp
+public abstract class AbstractBuildOp
+        implements BuildOp
 {
-    Builder getOrigin();
+    protected final Builder origin;
+
+    public AbstractBuildOp(Builder origin)
+    {
+        this.origin = origin;
+    }
+
+    @Override
+    public Builder getOrigin()
+    {
+        return origin;
+    }
 }

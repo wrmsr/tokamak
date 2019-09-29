@@ -26,17 +26,28 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
 public final class RequestBuildOp
-        implements BuildOp
+        extends AbstractBuildOp
 {
     private final Builder builder;
     private final Key key;
     private final Consumer<Collection<DriverRow>> callback;
 
-    public RequestBuildOp(Builder builder, Key key, Consumer<Collection<DriverRow>> callback)
+    public RequestBuildOp(Builder origin, Builder builder, Key key, Consumer<Collection<DriverRow>> callback)
     {
+        super(origin);
         this.builder = checkNotNull(builder);
         this.key = checkNotNull(key);
         this.callback = checkNotNull(callback);
+    }
+
+    @Override
+    public String toString()
+    {
+        return "RequestBuildOp{" +
+                "origin=" + origin +
+                ", builder=" + builder +
+                ", callback=" + callback +
+                '}';
     }
 
     public Builder getBuilder()

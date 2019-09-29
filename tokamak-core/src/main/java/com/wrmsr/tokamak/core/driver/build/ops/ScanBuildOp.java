@@ -11,11 +11,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.wrmsr.tokamak.core.driver.build.ops;
 
 import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.core.catalog.Scanner;
+import com.wrmsr.tokamak.core.driver.build.Builder;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -27,17 +27,28 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
 public final class ScanBuildOp
-        implements BuildOp
+        extends AbstractBuildOp
 {
     private final Scanner scanner;
     private final Key key;
     private final Consumer<List<Map<String, Object>>> callback;
 
-    public ScanBuildOp(Scanner scanner, Key key, Consumer<List<Map<String, Object>>> callback)
+    public ScanBuildOp(Builder origin, Scanner scanner, Key key, Consumer<List<Map<String, Object>>> callback)
     {
+        super(origin);
         this.scanner = checkNotNull(scanner);
         this.key = checkNotNull(key);
         this.callback = checkNotNull(callback);
+    }
+
+    @Override
+    public String toString()
+    {
+        return "ScanBuildOp{" +
+                "origin=" + origin +
+                ", scanner=" + scanner +
+                ", key=" + key +
+                '}';
     }
 
     public Scanner getScanner()

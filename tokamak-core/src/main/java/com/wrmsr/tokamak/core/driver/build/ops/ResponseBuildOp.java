@@ -25,22 +25,25 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
 public final class ResponseBuildOp
-        implements BuildOp
+        extends AbstractBuildOp
 {
-    private final Builder builder;
     private final Key key;
     private final Collection<DriverRow> rows;
 
-    public ResponseBuildOp(Builder builder, Key key, Collection<DriverRow> rows)
+    public ResponseBuildOp(Builder origin, Key key, Collection<DriverRow> rows)
     {
-        this.builder = checkNotNull(builder);
+        super(origin);
         this.key = checkNotNull(key);
         this.rows = checkNotNull(rows);
     }
 
-    public Builder getBuilder()
+    @Override
+    public String toString()
     {
-        return builder;
+        return "ResponseBuildOp{" +
+                "origin=" + origin +
+                ", key=" + key +
+                '}';
     }
 
     public Key getKey()

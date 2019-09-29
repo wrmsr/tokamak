@@ -42,6 +42,14 @@ public abstract class AbstractBuilder<T extends Node>
     }
 
     @Override
+    public String toString()
+    {
+        return getClass().getSimpleName() + "{" +
+                "node=" + node +
+                '}';
+    }
+
+    @Override
     public DriverImpl getDriver()
     {
         return driver;
