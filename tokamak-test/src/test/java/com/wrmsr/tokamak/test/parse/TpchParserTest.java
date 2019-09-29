@@ -152,6 +152,7 @@ public class TpchParserTest
     {
         String bareName = "AnonFunc0";
 
+
         JCompilationUnit jcu = new JCompilationUnit(
                 Optional.of(new JPackageSpec(JName.of("com", "wrmsr", "tokamak", "generated"))),
                 ImmutableSet.of(),
@@ -188,7 +189,8 @@ public class TpchParserTest
                 ),
                 TpchParserTest.class.getClassLoader());
 
-        Method method = cls.getDeclaredMethod("invoke");
+        Method method = cls.getDeclaredMethod(
+                "invoke", argTypes.stream().map(Type::getReflect).collect(toImmutableList()).toArray(new Class<?>[]{}));
 
         return method;
     }
