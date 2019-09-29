@@ -22,6 +22,8 @@ import com.wrmsr.tokamak.core.driver.DriverImpl;
 import com.wrmsr.tokamak.core.driver.DriverRow;
 import com.wrmsr.tokamak.core.driver.build.Builder;
 import com.wrmsr.tokamak.core.driver.build.ops.BuildOp;
+import com.wrmsr.tokamak.core.driver.build.ops.RequestBuildOp;
+import com.wrmsr.tokamak.core.driver.build.ops.ResponseBuildOp;
 import com.wrmsr.tokamak.core.driver.context.DriverContextImpl;
 import com.wrmsr.tokamak.core.plan.node.EquijoinNode;
 import com.wrmsr.tokamak.core.plan.node.Node;
@@ -49,6 +51,11 @@ import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 public final class EquijoinBuilder
         extends AbstractBuilder<EquijoinNode>
 {
+    /*
+    TODO:
+     - rewrite entirely
+    */
+
     // FIXME: not necessarily variable
     private static final Serde<byte[]> NULLABLE_BYTES_VALUE_SERDE =
             new NullableSerde<>(
@@ -90,9 +97,9 @@ public final class EquijoinBuilder
                 new byte[node.getBranches().size()][],
                 ImmutableMap.of(),
                 ImmutableSet.of(),
-                0);
-
-        return builder.build();
+                0,
+                key,
+                opConsumer);
     }
 
     protected void buildLookups(
@@ -103,6 +110,7 @@ public final class EquijoinBuilder
             Map<String, Object> proto,
             Set<DriverRow> lineage,
             int pos,
+            Key origKey,
             Consumer<BuildOp> opConsumer)
     {
         if (pos < lookups.size()) {
@@ -120,32 +128,38 @@ public final class EquijoinBuilder
 
             int branchIdx = node.getIndicesByBranch().get(lookup.first());
 
-            Collection<DriverRow> rows = context.build(lookup.first().getNode(), key);
+            opConsumer.accept(new RequestBuildOp(context.getDriver().getBuildersByNode().get(lookup.first().getNode()), key, rows -> {
+                for (DriverRow row : rows) {
+                    ImmutableMap.Builder<String, Object> nextProto = ImmutableMap.<String, Object>builder()
+                            .putAll(proto);
+                    for (Map.Entry<String, Object> e : row.getMap().entrySet()) {
+                        if (proto.containsKey(e.getKey())) {
+                            checkState(proto.get(e.getKey()).equals(e.getValue()));
+                        }
+                        else {
+                            nextProto.put(e);
+                        }
+                    }
 
-            for (DriverRow row : rows) {
-                ImmutableMap.Builder<String, Object> nextProto = ImmutableMap.<String, Object>builder()
-                        .putAll(proto);
-                for (Map.Entry<String, Object> e : row.getMap().entrySet()) {
-                    if (proto.containsKey(e.getKey())) {
-                        checkState(proto.get(e.getKey()).equals(e.getValue()));
-                    }
-                    else {
-                        nextProto.put(e);
-                    }
+                    byte[][] nextIdProto = idProto.clone();
+                    nextIdProto[branchIdx] = row.getId().getValue();
+
+                    buildLookups(
+                            context,
+                            lookups,
+                            builder,
+                            nextIdProto,
+                            nextProto.build(),
+                            ImmutableSet.<DriverRow>builder().addAll(lineage).add(row).build(),
+                            pos + 1,
+                            origKey,
+                            opConsumer);
                 }
 
-                byte[][] nextIdProto = idProto.clone();
-                nextIdProto[branchIdx] = row.getId().getValue();
-
-                buildLookups(
-                        context,
-                        lookups,
-                        builder,
-                        nextIdProto,
-                        nextProto.build(),
-                        ImmutableSet.<DriverRow>builder().addAll(lineage).add(row).build(),
-                        pos + 1);
-            }
+                if (pos == (lookups.size() - 1)) {
+                    opConsumer.accept(new ResponseBuildOp(this, origKey, builder.build()));
+                }
+            }));
         }
         else {
             Set<EquijoinNode.Branch> lookupBranches = lookups.stream().map(Pair::first).collect(toImmutableSet());
@@ -165,7 +179,9 @@ public final class EquijoinBuilder
                     proto,
                     restKeyValues.toArray(),
                     lineage,
-                    0);
+                    0,
+                    origKey,
+                    opConsumer);
         }
     }
 
@@ -178,6 +194,7 @@ public final class EquijoinBuilder
             Object[] keyValues,
             Set<DriverRow> lineage,
             int pos,
+            Key origKey,
             Consumer<BuildOp> opConsumer)
     {
         if (pos < branches.size()) {
@@ -191,33 +208,39 @@ public final class EquijoinBuilder
 
             int branchIdx = node.getIndicesByBranch().get(branch);
 
-            Collection<DriverRow> rows = context.build(branch.getNode(), key);
+            opConsumer.accept(new RequestBuildOp(context.getDriver().getBuildersByNode().get(branch.getNode()), key, rows -> {
+                for (DriverRow row : rows) {
+                    ImmutableMap.Builder<String, Object> nextProto = ImmutableMap.<String, Object>builder()
+                            .putAll(proto);
+                    for (Map.Entry<String, Object> e : row.getMap().entrySet()) {
+                        if (proto.containsKey(e.getKey())) {
+                            checkState(proto.get(e.getKey()).equals(e.getValue()));
+                        }
+                        else {
+                            nextProto.put(e);
+                        }
+                    }
 
-            for (DriverRow row : rows) {
-                ImmutableMap.Builder<String, Object> nextProto = ImmutableMap.<String, Object>builder()
-                        .putAll(proto);
-                for (Map.Entry<String, Object> e : row.getMap().entrySet()) {
-                    if (proto.containsKey(e.getKey())) {
-                        checkState(proto.get(e.getKey()).equals(e.getValue()));
-                    }
-                    else {
-                        nextProto.put(e);
-                    }
+                    byte[][] nextIdProto = idProto.clone();
+                    nextIdProto[branchIdx] = row.getId().getValue();
+
+                    buildNonLookups(
+                            context,
+                            branches,
+                            builder,
+                            nextIdProto,
+                            nextProto.build(),
+                            keyValues,
+                            ImmutableSet.<DriverRow>builder().addAll(lineage).add(row).build(),
+                            pos + 1,
+                            origKey,
+                            opConsumer);
                 }
 
-                byte[][] nextIdProto = idProto.clone();
-                nextIdProto[branchIdx] = row.getId().getValue();
-
-                buildNonLookups(
-                        context,
-                        branches,
-                        builder,
-                        nextIdProto,
-                        nextProto.build(),
-                        keyValues,
-                        ImmutableSet.<DriverRow>builder().addAll(lineage).add(row).build(),
-                        pos + 1);
-            }
+                if (branches.size() == node.getBranches().size() && pos == (branches.size() - 1)) {
+                    opConsumer.accept(new ResponseBuildOp(this, origKey, builder.build()));
+                }
+            }));
         }
         else {
             Object[] attributes = new Object[node.getRowLayout().getFields().size()];

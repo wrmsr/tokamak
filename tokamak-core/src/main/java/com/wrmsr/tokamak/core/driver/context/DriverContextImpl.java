@@ -17,6 +17,7 @@ import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.core.catalog.Connection;
 import com.wrmsr.tokamak.core.catalog.Connector;
+import com.wrmsr.tokamak.core.catalog.Schema;
 import com.wrmsr.tokamak.core.driver.Driver;
 import com.wrmsr.tokamak.core.driver.DriverImpl;
 import com.wrmsr.tokamak.core.driver.DriverRow;
@@ -25,11 +26,14 @@ import com.wrmsr.tokamak.core.driver.build.BuilderContext;
 import com.wrmsr.tokamak.core.driver.build.ContextualBuilder;
 import com.wrmsr.tokamak.core.driver.build.ops.RequestBuildOp;
 import com.wrmsr.tokamak.core.driver.build.ops.ResponseBuildOp;
+import com.wrmsr.tokamak.core.driver.build.ops.ScanBuildOp;
 import com.wrmsr.tokamak.core.driver.context.diag.JournalEntry;
 import com.wrmsr.tokamak.core.driver.context.diag.Stat;
 import com.wrmsr.tokamak.core.driver.context.state.DefaultStateCache;
 import com.wrmsr.tokamak.core.driver.state.State;
 import com.wrmsr.tokamak.core.plan.node.Node;
+import com.wrmsr.tokamak.core.plan.node.ScanNode;
+import com.wrmsr.tokamak.util.Cell;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -138,7 +142,7 @@ public class DriverContextImpl
             addJournalEntry(new JournalEntry.BuildInput(node, key));
         }
 
-        ImmutableList.Builder<DriverRow> rowsBuilder = ImmutableList.builder();
+        Cell<Collection<DriverRow>> rowsCell = Cell.setOnce();
 
         builder.build(this, key, op -> {
             if (op instanceof RequestBuildOp) {
@@ -150,13 +154,21 @@ public class DriverContextImpl
                 ResponseBuildOp rop = (ResponseBuildOp) op;
                 checkState(rop.getBuilder() == builder);
                 checkState(rop.getKey().equals(key));
+                rowsCell.set(rop.getRows());
+            }
+            else if (op instanceof ScanBuildOp) {
+                ScanBuildOp sop = (ScanBuildOp) op;
+                Schema schema = driver.getCatalog().getSchemasByName().get(((ScanNode) builder.getNode()).getSchemaTable().getSchema());
+                Connection connection = getConnection(schema.getConnector());
+                List<Map<String, Object>> scanRows = sop.getScanner().scan(connection, key);
+                sop.getCallback().accept(scanRows);
             }
             else {
                 throw new IllegalStateException(Objects.toString(op));
             }
         });
 
-        Collection<DriverRow> rows = rowsBuilder.build();
+        Collection<DriverRow> rows = rowsCell.get();
         checkNotEmpty(rows);
         if (journaling) {
             addJournalEntry(new JournalEntry.BuildOutput(node, key, rows));

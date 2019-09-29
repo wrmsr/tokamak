@@ -66,10 +66,6 @@ public final class ScanBuilder
     {
         Scanner scanner = driver.getScannersByNode().get(node);
 
-        // Schema schema = dctx.getDriver().getCatalog().getSchemasByName().get(node.getSchemaTable().getSchema());
-        // Connection connection = dctx.getConnection(schema.getConnector());
-        // List<Map<String, Object>> scanRows = scanner.scan(connection, key);
-
         opConsumer.accept(new ScanBuildOp(scanner, key, scanRows -> {
             // FIXME: scanners can return empty, driver compensates
             checkState(!scanRows.isEmpty());

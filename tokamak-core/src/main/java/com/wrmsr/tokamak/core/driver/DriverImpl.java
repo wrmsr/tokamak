@@ -140,7 +140,7 @@ public class DriverImpl
         checkNotNull(node);
         checkNotNull(key);
         DriverContextImpl driverContextImpl = checkNotNull((DriverContextImpl) context);
-        return (Collection) driverContextImpl.build(node, key);
+        return (Collection) driverContextImpl.buildSync(node, key);
     }
 
     @Override
