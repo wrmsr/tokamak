@@ -13,7 +13,10 @@
  */
 package com.wrmsr.tokamak.test.parse;
 
+import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.core.catalog.Catalog;
+import com.wrmsr.tokamak.core.exec.Reflection;
+import com.wrmsr.tokamak.core.exec.builtin.BuiltinExecutor;
 import com.wrmsr.tokamak.core.parse.AstBuilding;
 import com.wrmsr.tokamak.core.parse.AstPlanner;
 import com.wrmsr.tokamak.core.parse.AstRendering;
@@ -40,15 +43,28 @@ import static com.wrmsr.tokamak.util.MoreFiles.createTempDirectory;
 public class TpchParserTest
         extends TestCase
 {
+    public static String exclaim(String s)
+    {
+        return s + "!";
+    }
+
     public void testTpchParse()
             throws Throwable
     {
         Path tempDir = createTempDirectory();
         String url = "jdbc:h2:file:" + tempDir.toString() + "/test.db;USER=username;PASSWORD=password";
         TpchUtils.buildDatabase(url);
-        Catalog catalog = TpchUtils.buildCatalog(url);
+        Catalog rootCatalog = TpchUtils.buildCatalog(url);
         Optional<String> defaultSchema = Optional.of("PUBLIC");
         ApiJson.installStatics();
+
+        BuiltinExecutor be = rootCatalog.addExecutor(new BuiltinExecutor("builtin"));
+        rootCatalog.addFunction(
+                be.register(
+                        Reflection.reflect(
+                                getClass().getDeclaredMethod("exclaim", String.class), "exclaim")
+                ).getName(),
+                be);
 
         for (String str : new String[] {
                 "select * from NATION",
@@ -59,6 +75,8 @@ public class TpchParserTest
                 "select N_COMMENT, exclaim(N_NAME) from NATION",
                 "select N_COMMENT, exclaim(exclaim(N_NAME)) from NATION",
         }) {
+            Catalog catalog = new Catalog(ImmutableList.of(rootCatalog));
+
             SqlParser parser = Parsing.parse(str);
             TreeNode treeNode = AstBuilding.build(parser.statement());
             System.out.println(AstRendering.render(treeNode));

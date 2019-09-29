@@ -17,6 +17,7 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.core.catalog.Catalog;
+import com.wrmsr.tokamak.core.catalog.Function;
 import com.wrmsr.tokamak.core.catalog.Table;
 import com.wrmsr.tokamak.core.parse.analysis.ScopeAnalysis;
 import com.wrmsr.tokamak.core.parse.tree.AliasedRelation;
@@ -103,8 +104,15 @@ public class AstPlanner
                     }
 
                     else if (expr instanceof FunctionCallExpression) {
-                        FunctionCallExpression fexpr = (FunctionCallExpression) expr;
-                        throw new IllegalArgumentException(expr.toString());
+                        FunctionCallExpression fcExpr = (FunctionCallExpression) expr;
+                        Function func = catalog.get().getFunction(fcExpr.getName());
+                        List<String> args = fcExpr.getArgs().stream()
+                                .map(QualifiedNameExpression.class::cast)
+                                .map(QualifiedNameExpression::getQualifiedName)
+                                .map(QualifiedName::getParts)
+                                .map(Joiner.on(".")::join)
+                                .collect(toImmutableList());
+                        projection.put(label, Projection.Input.of(func.asNodeFunction(), args));
                     }
 
                     else {
