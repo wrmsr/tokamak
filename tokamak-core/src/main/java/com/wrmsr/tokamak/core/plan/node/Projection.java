@@ -80,7 +80,7 @@ public final class Projection
                                 break;
                             case "args":
                                 checkState(args == null);
-                                function = codec.readValue(codec.treeAsTokens(parser.readValueAsTree()), new TypeReference<List<String>>() {});
+                                args = codec.readValue(codec.treeAsTokens(parser.readValueAsTree()), new TypeReference<List<String>>() {});
                                 break;
                             default:
                                 throw new IllegalStateException(name);

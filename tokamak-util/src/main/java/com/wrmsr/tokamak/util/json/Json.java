@@ -141,10 +141,7 @@ public final class Json
             JsonParser.Feature.ALLOW_COMMENTS,
             JsonParser.Feature.ALLOW_YAML_COMMENTS,
             JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES,
-            JsonParser.Feature.ALLOW_SINGLE_QUOTES,
-            JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS,
-            JsonParser.Feature.ALLOW_BACKSLASH_ESCAPING_ANY_CHARACTER,
-            JsonParser.Feature.ALLOW_MISSING_VALUES
+            JsonParser.Feature.ALLOW_SINGLE_QUOTES
     );
 
     public static JsonFactory configureRelaxedJsonFactory(JsonFactory jsonFactory)

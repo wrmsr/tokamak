@@ -28,7 +28,7 @@
 
         <dep.antlr4.version>4.7.2</dep.antlr4.version>
         <dep.guice.version>4.2.2</dep.guice.version>
-        <dep.jackson.version>2.9.10</dep.jackson.version>
+        <dep.jackson.version>2.10.0</dep.jackson.version>
         <dep.jersey.version>2.29.1</dep.jersey.version>
         <dep.protobuf.version>3.10.0</dep.protobuf.version>
 
