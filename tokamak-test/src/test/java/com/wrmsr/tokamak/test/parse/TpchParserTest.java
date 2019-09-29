@@ -153,7 +153,7 @@ public class TpchParserTest
         String bareName = "AnonFunc0";
 
         JCompilationUnit jcu = new JCompilationUnit(
-                Optional.of(new JPackageSpec(JName.of("com", "wmrsr", "tokamak", "generated"))),
+                Optional.of(new JPackageSpec(JName.of("com", "wrmsr", "tokamak", "generated"))),
                 ImmutableSet.of(),
                 new JType(
                         immutableEnumSet(JAccess.PUBLIC, JAccess.FINAL),
@@ -196,7 +196,8 @@ public class TpchParserTest
     public void testJavaJit()
             throws Throwable
     {
-        String src = "select java('_0 + \"!\"', N_NAME) from NATION";
+        String src = "_0 + \"!\"";
+        String stmt = "select java('" + src + "', N_NAME) from NATION";
 
         Method metho = jitJavaExpr(src, Types.STRING, ImmutableList.of(Types.STRING));
 
