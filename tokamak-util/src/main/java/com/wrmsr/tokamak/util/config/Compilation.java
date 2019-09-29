@@ -272,8 +272,7 @@ public final class Compilation
                                     jblockify(
                                             new JReturn(
                                                     Optional.of(
-                                                            new JIdent(JName.of(prop.getName()))))
-                                    ))));
+                                                            new JIdent(JName.of(prop.getName()))))))));
         });
 
         fields.add(

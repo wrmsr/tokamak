@@ -14,6 +14,7 @@
 package com.wrmsr.tokamak.test.parse;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.core.catalog.Catalog;
 import com.wrmsr.tokamak.core.exec.Executable;
 import com.wrmsr.tokamak.core.exec.Reflection;
@@ -37,6 +38,17 @@ import com.wrmsr.tokamak.core.type.Types;
 import com.wrmsr.tokamak.core.type.impl.FunctionType;
 import com.wrmsr.tokamak.core.util.ApiJson;
 import com.wrmsr.tokamak.test.TpchUtils;
+import com.wrmsr.tokamak.util.java.lang.JAccess;
+import com.wrmsr.tokamak.util.java.lang.JName;
+import com.wrmsr.tokamak.util.java.lang.JParam;
+import com.wrmsr.tokamak.util.java.lang.JTypeSpecifier;
+import com.wrmsr.tokamak.util.java.lang.tree.declaration.JDeclaration;
+import com.wrmsr.tokamak.util.java.lang.tree.declaration.JMethod;
+import com.wrmsr.tokamak.util.java.lang.tree.declaration.JType;
+import com.wrmsr.tokamak.util.java.lang.tree.expression.JRawExpression;
+import com.wrmsr.tokamak.util.java.lang.tree.statement.JReturn;
+import com.wrmsr.tokamak.util.java.lang.unit.JCompilationUnit;
+import com.wrmsr.tokamak.util.java.lang.unit.JPackageSpec;
 import com.wrmsr.tokamak.util.json.Json;
 import junit.framework.TestCase;
 
@@ -45,7 +57,11 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 
+import static com.google.common.collect.ImmutableList.toImmutableList;
+import static com.google.common.collect.Sets.immutableEnumSet;
+import static com.wrmsr.tokamak.util.MoreCollections.enumerate;
 import static com.wrmsr.tokamak.util.MoreFiles.createTempDirectory;
+import static com.wrmsr.tokamak.util.java.lang.tree.JTrees.jblockify;
 
 public class TpchParserTest
         extends TestCase
@@ -128,9 +144,29 @@ public class TpchParserTest
         }
     }
 
-    public static void jitJavaExpr(String src, List<Type> argTypes)
+    public static void jitJavaExpr(String src, Type retType, List<Type> argTypes)
     {
-
+        JCompilationUnit jcu = new JCompilationUnit(
+                Optional.of(new JPackageSpec(JName.of("com", "wmrsr", "tokamak", "generated"))),
+                ImmutableSet.of(),
+                new JType(
+                        JType.Kind.CLASS,
+                        "AnonFunc0",
+                        ImmutableList.of(),
+                        ImmutableList.<JDeclaration>of(
+                                new JMethod(
+                                        immutableEnumSet(JAccess.PUBLIC, JAccess.STATIC),
+                                        JTypeSpecifier.of(retType.getReflect()),
+                                        "invoke",
+                                        enumerate(argTypes.stream())
+                                                .map(a -> new JParam(
+                                                        JTypeSpecifier.of(a.getItem().getReflect())
+                                                        "_" + a.getIndex()))
+                                                .collect(toImmutableList()),
+                                        Optional.of(
+                                                jblockify(
+                                                        new JReturn(
+                                                                new JRawExpression(src))))))));
     }
 
     public void testJavaJit()

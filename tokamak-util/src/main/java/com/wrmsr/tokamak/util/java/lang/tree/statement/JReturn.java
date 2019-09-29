@@ -33,6 +33,11 @@ public final class JReturn
         this.value = checkNotNull(value);
     }
 
+    public JReturn(JExpression value)
+    {
+        this(Optional.of(value));
+    }
+
     @Override
     public boolean equals(Object o)
     {
