@@ -11,7 +11,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.wrmsr.tokamak.core.parse.analysis;
 
 import com.wrmsr.tokamak.core.catalog.Catalog;
