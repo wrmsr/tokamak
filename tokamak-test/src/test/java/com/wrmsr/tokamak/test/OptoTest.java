@@ -15,74 +15,29 @@ package com.wrmsr.tokamak.test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.function.Function;
 
 public final class OptoTest
 {
-    public interface Task
+    @FunctionalInterface
+    public interface LongToLongFunction
     {
         long run(long l);
-    }
-
-    public static final class TaskA
-            implements Task
-    {
-        @Override
-        public long run(long l)
-        {
-            l <<= 1L;
-            l ^= 13L;
-            return l;
-        }
-    }
-
-    public static final class TaskB
-            implements Task
-    {
-        @Override
-        public long run(long l)
-        {
-            l <<= 2L;
-            l ^= 15L;
-            return l;
-        }
-    }
-
-    public static final class TaskC
-            implements Task
-    {
-        @Override
-        public long run(long l)
-        {
-            l <<= 3L;
-            l ^= 17L;
-            return l;
-        }
-    }
-
-    public static final class TaskD
-            implements Task
-    {
-        @Override
-        public long run(long l)
-        {
-            l <<= 4L;
-            l ^= 19L;
-            return l;
-        }
     }
 
     public interface Node
+            extends LongToLongFunction
     {
-        long run(long l);
     }
 
     public static final class NodeImpl
             implements Node
     {
         private final Node parent;
-        private final Task task;
+        private final LongToLongFunction task;
 
-        public NodeImpl(Node parent, Task task)
+        public NodeImpl(Node parent, LongToLongFunction task)
         {
             this.parent = parent;
             this.task = task;
@@ -97,7 +52,7 @@ public final class OptoTest
         }
     }
 
-    public static Node create(Node parent, Task task, boolean specialize)
+    public static Node create(Node parent, LongToLongFunction task, boolean specialize)
             throws Throwable
     {
         Class nodeCls = NodeImpl.class;
@@ -107,21 +62,23 @@ public final class OptoTest
             nodeCls = cl.forceReloadClass(nodeCls);
         }
 
-        return (Node) nodeCls.getDeclaredConstructor(Node.class, Task.class).newInstance(parent, task);
+        return (Node) nodeCls.getDeclaredConstructor(Node.class, LongToLongFunction.class).newInstance(parent, task);
     }
 
-    public static void run(boolean specialize)
+    public static void run(int depth, long iterations, boolean specialize)
             throws Throwable
     {
         Node node = null;
 
-        node = create(node, new TaskA(), specialize);
-        node = create(node, new TaskB(), specialize);
-        node = create(node, new TaskC(), specialize);
-        node = create(node, new TaskD(), specialize);
+        for (int i = 0; i < depth; ++i) {
+            node = create(node, ((Function<Integer, LongToLongFunction>) (m -> {
+                long x = 13L + (2 * m);
+                return l -> (l << m) ^ x;
+            })).apply(i), specialize);
+        }
 
         long l = 0x12478FED1923L;
-        for (long i = 0; i < 4_000_000_000L; ++i) {
+        for (long i = 0; i < iterations; ++i) {
             l = node.run(l);
         }
 
@@ -156,9 +113,19 @@ public final class OptoTest
     public static void main(String[] args)
             throws Throwable
     {
+        // boolean specialize = true;
+        boolean specialize = false;
+
+        try (InputStreamReader isr = new InputStreamReader(System.in)) {
+            while (isr.read() != '\n') {}
+        }
+
         long start = System.currentTimeMillis();
 
-        run(false);
+        int depth = 8;
+        long iterations = 2_000_000_000L;
+
+        run(depth, iterations, specialize);
 
         long end = System.currentTimeMillis();
         System.out.println(String.format("%d ms", end - start));
