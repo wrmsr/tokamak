@@ -144,6 +144,7 @@ public final class ScopeAnalysis
     public static final class Scope
     {
         private final TreeNode node;
+        private final Set<TreeNode> enclosedNodes = new LinkedHashSet<>();
 
         private final Optional<Scope> parent;
         private final Set<Scope> children = new LinkedHashSet<>();
@@ -160,6 +161,7 @@ public final class ScopeAnalysis
             this.name = checkNotNull(name);
 
             parent.ifPresent(p -> p.children.add(this));
+            enclosedNodes.add(node);
         }
 
         @Override
@@ -173,6 +175,11 @@ public final class ScopeAnalysis
         public TreeNode getNode()
         {
             return node;
+        }
+
+        public Set<TreeNode> getEnclosedNodes()
+        {
+            return Collections.unmodifiableSet(enclosedNodes);
         }
 
         public Optional<Scope> getParent()
@@ -244,7 +251,7 @@ public final class ScopeAnalysis
         seen.add(rootScope);
         while (!queue.isEmpty()) {
             Scope cur = queue.remove();
-            scopesByNode.put(cur.node, cur);
+            cur.enclosedNodes.forEach(n -> scopesByNode.put(n, cur));
             cur.symbols.forEach(s -> symbolSetsByNode.computeIfAbsent(s.node, n -> new LinkedHashSet<>()).add(s));
             cur.symbolRefs.forEach(sr -> symbolRefsByNode.put(sr.node, sr));
             cur.children.forEach(c -> {
@@ -340,14 +347,18 @@ public final class ScopeAnalysis
         Scope scope = statement.accept(new TraversalVisitor<Scope, Scope>()
         {
             @Override
-            public Scope visitAliasedRelation(AliasedRelation treeNode, Scope context)
+            protected Scope visitTreeNode(TreeNode treeNode, Scope context)
             {
-                throw new IllegalStateException();
+                if (context != null) {
+                    context.enclosedNodes.add(treeNode);
+                }
+                return null;
             }
 
             @Override
             public Scope visitAllSelectItem(AllSelectItem treeNode, Scope context)
             {
+                context.enclosedNodes.add(treeNode);
                 context.children.forEach(c -> c.symbols.forEach(s -> {
                     Symbol symbol = new Symbol(s.name, treeNode, Optional.of(s), context);
                     new SymbolRef(s.name.map(ImmutableList::of), treeNode, Optional.of(symbol), context);
@@ -358,6 +369,7 @@ public final class ScopeAnalysis
             @Override
             public Scope visitExpressionSelectItem(ExpressionSelectItem treeNode, Scope context)
             {
+                context.enclosedNodes.add(treeNode);
                 treeNode.getExpression().accept(this, context);
                 Optional<String> label = treeNode.getLabel();
                 if (!label.isPresent() && treeNode.getExpression() instanceof QualifiedNameExpression) {
@@ -370,6 +382,7 @@ public final class ScopeAnalysis
             @Override
             public Scope visitQualifiedNameExpression(QualifiedNameExpression treeNode, Scope context)
             {
+                context.enclosedNodes.add(treeNode);
                 new SymbolRef(Optional.of(treeNode.getQualifiedName().getParts()), treeNode, Optional.empty(), context);
                 return null;
             }
@@ -393,12 +406,14 @@ public final class ScopeAnalysis
             @Override
             public Scope visitSubqueryRelation(SubqueryRelation treeNode, Scope context)
             {
+                context.enclosedNodes.add(treeNode);
                 return treeNode.getSelect().accept(this, context);
             }
 
             @Override
             public Scope visitTableName(TableName treeNode, Scope context)
             {
+                context.enclosedNodes.add(treeNode);
                 SchemaTable schemaTable = treeNode.getQualifiedName().toSchemaTable(defaultSchema);
                 Table table = catalog.get().getSchemaTable(schemaTable);
                 table.getRowLayout().getFields().keySet().forEach(f -> new Symbol(Optional.of(f), treeNode, Optional.empty(), context));

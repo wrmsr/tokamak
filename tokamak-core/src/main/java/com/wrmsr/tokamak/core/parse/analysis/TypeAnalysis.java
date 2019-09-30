@@ -14,8 +14,11 @@
 package com.wrmsr.tokamak.core.parse.analysis;
 
 import com.google.common.collect.ImmutableMap;
+import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.core.catalog.Catalog;
+import com.wrmsr.tokamak.core.catalog.Table;
 import com.wrmsr.tokamak.core.parse.tree.QualifiedNameExpression;
+import com.wrmsr.tokamak.core.parse.tree.TableName;
 import com.wrmsr.tokamak.core.parse.tree.TreeNode;
 import com.wrmsr.tokamak.core.parse.tree.visitor.TraversalVisitor;
 import com.wrmsr.tokamak.core.type.Type;
@@ -43,6 +46,9 @@ public final class TypeAnalysis
     public static TypeAnalysis analyze(TreeNode root, Catalog catalog, Optional<String> defaultSchema)
     {
         ScopeAnalysis scopeAnalysis = ScopeAnalysis.analyze(root, Optional.of(catalog), defaultSchema);
+        scopeAnalysis.getResolutions();
+
+        Map<ScopeAnalysis.Symbol, Type> typesBySymbol = new LinkedHashMap<>();
         Map<TreeNode, Type> typesByNode = new LinkedHashMap<>();
 
         root.accept(new TraversalVisitor<Void, Void>()
@@ -51,7 +57,19 @@ public final class TypeAnalysis
             public Void visitQualifiedNameExpression(QualifiedNameExpression treeNode, Void context)
             {
                 ScopeAnalysis.SymbolRef symbolRef = checkNotNull(scopeAnalysis.getSymbolRefsByNode().get(treeNode));
+                ScopeAnalysis.Symbol symbol = scopeAnalysis.getResolutions().getSymbols().get(symbolRef);
+                if (symbol != null) {
+                    checkNotNull(symbol);
+                }
                 return super.visitQualifiedNameExpression(treeNode, context);
+            }
+
+            @Override
+            public Void visitTableName(TableName treeNode, Void context)
+            {
+                SchemaTable schemaTable = treeNode.getQualifiedName().toSchemaTable(defaultSchema);
+                Table table = catalog.getSchemaTable(schemaTable);
+                table.getRowLayout().getFields().keySet().forEach(f -> typesBySymbol
             }
         }, null);
 

@@ -111,7 +111,7 @@ public class TpchParserTest
                 "select N_NAME as name, N_COMMENT as comment from NATION",
                 "select N_NAME, N_COMMENT from NATION as n",
                 "select N_COMMENT, exclaim(N_NAME) from NATION",
-                "select java('_0 + \"!\"', N_NAME) from NATION",
+                // "select java('_0 + \"!\"', N_NAME) from NATION",
                 // "select N_COMMENT, exclaim(exclaim(N_NAME)) from NATION",
         }) {
             Catalog catalog = new Catalog(ImmutableList.of(rootCatalog));
