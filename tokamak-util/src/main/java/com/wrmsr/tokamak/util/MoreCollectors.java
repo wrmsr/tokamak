@@ -28,6 +28,7 @@ import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.BinaryOperator;
@@ -220,15 +221,28 @@ public final class MoreCollectors
         return new ImmutableGroupingByCollector<>(groupingBy(classifier));
     }
 
-    public static <T> Collector<T, ?, T> toSingle()
+    public static <T> Collector<T, ?, Optional<T>> toOptionalSingle()
     {
         return Collectors.collectingAndThen(
                 Collectors.toList(),
                 list -> {
-                    if (list.size() != 1) {
-                        throw new IllegalStateException();
+                    if (list.size() == 1) {
+                        return Optional.of(list.get(0));
                     }
-                    return list.get(0);
+                    return Optional.empty();
+                }
+        );
+    }
+
+    public static <T> Collector<T, ?, T> toCheckSingle()
+    {
+        return Collectors.collectingAndThen(
+                Collectors.toList(),
+                list -> {
+                    if (list.size() == 1) {
+                        return list.get(0);
+                    }
+                    throw new IllegalStateException();
                 }
         );
     }

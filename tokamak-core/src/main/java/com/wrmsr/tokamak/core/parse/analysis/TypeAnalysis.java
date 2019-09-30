@@ -24,12 +24,12 @@ import com.wrmsr.tokamak.core.parse.tree.visitor.TraversalVisitor;
 import com.wrmsr.tokamak.core.type.Type;
 
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.collect.ImmutableList.toImmutableList;
+import static com.wrmsr.tokamak.util.MoreCollectors.toOptionalSingle;
+import static com.wrmsr.tokamak.util.MoreOptionals.optionalTest;
 
 public final class TypeAnalysis
 {
@@ -76,15 +76,11 @@ public final class TypeAnalysis
                 SchemaTable schemaTable = treeNode.getQualifiedName().toSchemaTable(defaultSchema);
                 Table table = catalog.getSchemaTable(schemaTable);
                 ScopeAnalysis.Scope scope = scopeAnalysis.getScope(treeNode).get();
-                table.getRowLayout().getFields().forEach((f, t) -> {
-                    List<ScopeAnalysis.Symbol> symbols = scope.getSymbols().stream()
-                            .filter(s -> s.getName().isPresent() && s.getName().get().equals((f)))
-                            .collect(toImmutableList());
-                    if (symbols.size() == 1) {
-                        ScopeAnalysis.Symbol symbol = symbols.get(0);
-                        typesBySymbol.put(symbol, t);
-                    }
-                });
+                table.getRowLayout().getFields().forEach((f, t) ->
+                        scope.getSymbols().stream()
+                                .filter(s -> optionalTest(s.getName(), f::equals))
+                                .collect(toOptionalSingle())
+                                .ifPresent(s -> typesBySymbol.put(s, t)));
                 return null;
             }
         }, null);

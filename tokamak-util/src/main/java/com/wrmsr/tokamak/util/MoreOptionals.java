@@ -25,6 +25,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.IntFunction;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -37,14 +38,28 @@ public final class MoreOptionals
     {
     }
 
-    public static <T> Optional<T> optionalSingle(Iterator<T> iterator)
+    public static <T> Optional<T> optionalCheckSingle(Iterator<T> iterator)
     {
         if (iterator.hasNext()) {
             return Optional.of(checkSingle(iterator));
         }
-        else {
-            return Optional.empty();
+        return Optional.empty();
+    }
+
+    public static <T> Optional<T> optionalCheckSingle(Iterable<T> iterable)
+    {
+        return optionalCheckSingle(iterable.iterator());
+    }
+
+    public static <T> Optional<T> optionalSingle(Iterator<T> iterator)
+    {
+        if (iterator.hasNext()) {
+            T item = iterator.next();
+            if (!iterator.hasNext()) {
+                return Optional.of(item);
+            }
         }
+        return Optional.empty();
     }
 
     public static <T> Optional<T> optionalSingle(Iterable<T> iterable)
@@ -157,5 +172,10 @@ public final class MoreOptionals
         if (!optional.isPresent()) {
             fn.run();
         }
+    }
+
+    public static <T> boolean optionalTest(Optional<T> optional, Predicate<T> predicate)
+    {
+        return optional.isPresent() && predicate.test(optional.get());
     }
 }

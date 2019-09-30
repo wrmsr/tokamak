@@ -25,7 +25,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
-import static com.wrmsr.tokamak.util.MoreCollectors.toSingle;
+import static com.wrmsr.tokamak.util.MoreCollectors.toCheckSingle;
 
 public final class MorePreconditions
 {
@@ -76,7 +76,7 @@ public final class MorePreconditions
 
     public static <T> T checkSingle(Stream<T> stream)
     {
-        return stream.collect(toSingle());
+        return stream.collect(toCheckSingle());
     }
 
     public static String checkNotEmpty(String obj)

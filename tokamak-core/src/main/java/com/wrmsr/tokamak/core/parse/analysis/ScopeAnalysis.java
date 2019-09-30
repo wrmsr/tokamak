@@ -19,7 +19,6 @@ import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.core.catalog.Catalog;
 import com.wrmsr.tokamak.core.catalog.Table;
-import com.wrmsr.tokamak.core.parse.tree.AliasedRelation;
 import com.wrmsr.tokamak.core.parse.tree.AllSelectItem;
 import com.wrmsr.tokamak.core.parse.tree.ExpressionSelectItem;
 import com.wrmsr.tokamak.core.parse.tree.QualifiedNameExpression;
@@ -46,6 +45,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.wrmsr.tokamak.util.MoreCollections.newImmutableSetMap;
+import static com.wrmsr.tokamak.util.MoreOptionals.optionalTest;
 
 public final class ScopeAnalysis
 {
@@ -273,18 +273,18 @@ public final class ScopeAnalysis
         return symbolRef.getScope().getChildren().stream()
                 .map(ScopeAnalysis.Scope::getSymbols)
                 .flatMap(Set::stream)
-                .filter(s -> s.getName().isPresent() && s.getName().get().equals(symbolRef.nameParts.get().get(0)))
+                .filter(s -> optionalTest(s.getName(), symbolRef.nameParts.get().get(0)::equals))
                 .collect(toImmutableList());
     }
 
     public static List<Symbol> getSymbolMatches(SymbolRef symbolRef)
     {
-        checkArgument(symbolRef.nameParts.isPresent() && symbolRef.nameParts.get().size() > 1);
+        checkArgument(optionalTest(symbolRef.nameParts, np -> np.size() > 1));
         return symbolRef.getScope().getChildren().stream()
-                .filter(s -> s.getName().isPresent() && s.getName().get().equals(symbolRef.nameParts.get().get(0)))
+                .filter(s -> optionalTest(s.getName(), symbolRef.nameParts.get().get(0)::equals))
                 .map(ScopeAnalysis.Scope::getSymbols)
                 .flatMap(Set::stream)
-                .filter(s -> s.getName().isPresent() && s.getName().get().equals(symbolRef.nameParts.get().get(1)))
+                .filter(s -> optionalTest(s.getName(), symbolRef.nameParts.get().get(1)::equals))
                 .collect(toImmutableList());
     }
 

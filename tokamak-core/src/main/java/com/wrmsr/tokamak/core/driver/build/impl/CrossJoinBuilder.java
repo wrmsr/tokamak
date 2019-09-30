@@ -29,7 +29,7 @@ import java.util.function.Consumer;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableList.toImmutableList;
-import static com.wrmsr.tokamak.util.MoreCollectors.toSingle;
+import static com.wrmsr.tokamak.util.MoreCollectors.toCheckSingle;
 
 public final class CrossJoinBuilder
         extends AbstractBuilder<CrossJoinNode>
@@ -45,7 +45,7 @@ public final class CrossJoinBuilder
         List<Pair<Node, Key>> sourceKeyPairs;
         Node lookupSource = key.getValuesByField().keySet().stream()
                 .map(f -> checkNotNull(node.getSourcesByField().get(f)))
-                .collect(toSingle());
+                .collect(toCheckSingle());
         sourceKeyPairs = ImmutableList.<Pair<Node, Key>>builder()
                 .add(Pair.immutable(lookupSource, key))
                 .addAll(node.getSources().stream()
