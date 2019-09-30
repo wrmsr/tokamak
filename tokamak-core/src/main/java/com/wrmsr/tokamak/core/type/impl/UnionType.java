@@ -15,7 +15,6 @@ package com.wrmsr.tokamak.core.type.impl;
 
 import javax.annotation.concurrent.Immutable;
 
-import java.lang.reflect.Type;
 import java.util.List;
 
 @Immutable
@@ -25,11 +24,5 @@ public final class UnionType
     public UnionType(List<Object> args)
     {
         super("Union", args);
-    }
-
-    @Override
-    public Type getReflect()
-    {
-        return null;
     }
 }

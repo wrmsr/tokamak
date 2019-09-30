@@ -26,6 +26,7 @@ import com.wrmsr.tokamak.core.parse.AstRendering;
 import com.wrmsr.tokamak.core.parse.Parsing;
 import com.wrmsr.tokamak.core.parse.SqlParser;
 import com.wrmsr.tokamak.core.parse.analysis.ScopeAnalysis;
+import com.wrmsr.tokamak.core.parse.analysis.TypeAnalysis;
 import com.wrmsr.tokamak.core.parse.transform.SelectExpansion;
 import com.wrmsr.tokamak.core.parse.transform.SymbolResolution;
 import com.wrmsr.tokamak.core.parse.transform.ViewInlining;
@@ -129,6 +130,8 @@ public class TpchParserTest
             ScopeAnalysis sa = ScopeAnalysis.analyze(treeNode, Optional.of(catalog), defaultSchema);
             ScopeAnalysis.Resolutions sar = sa.getResolutions();
 
+            TypeAnalysis ta = TypeAnalysis.analyze(treeNode, catalog, defaultSchema);
+
             Node node = new AstPlanner(Optional.of(catalog), defaultSchema).plan(treeNode);
             Plan plan = new Plan(node);
 
@@ -143,7 +146,6 @@ public class TpchParserTest
             throws Throwable
     {
         String bareName = "AnonFunc0";
-
 
         JCompilationUnit jcu = new JCompilationUnit(
                 Optional.of(new JPackageSpec(JName.of("com", "wrmsr", "tokamak", "generated"))),
@@ -182,7 +184,7 @@ public class TpchParserTest
                 TpchParserTest.class.getClassLoader());
 
         Method method = cls.getDeclaredMethod(
-                "invoke", argTypes.stream().map(Type::getReflect).collect(toImmutableList()).toArray(new Class<?>[]{}));
+                "invoke", argTypes.stream().map(Type::getReflect).collect(toImmutableList()).toArray(new Class<?>[] {}));
 
         return method;
     }

@@ -76,6 +76,7 @@ public final class Types
     public static final SimpleType<ZonedDateTime> ZONED_DATE_TIME = new SimpleType<>("ZonedDateTime", ZonedDateTime.class);
     public static final SimpleType<Duration> DURATION = new SimpleType<>("Duration", Duration.class);
 
+    public static final SpecialType UNKNOWN = new SpecialType("?");
     public static final SpecialType ARGS = new SpecialType("Args");
     public static final SpecialType JIT_FUNCTION = new SpecialType("JitFunction");
 

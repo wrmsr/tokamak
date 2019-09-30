@@ -19,6 +19,7 @@ import com.wrmsr.tokamak.core.type.Types;
 import javax.annotation.concurrent.Immutable;
 
 import java.lang.reflect.Type;
+import java.util.EnumSet;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -50,7 +51,7 @@ public final class EnumSetType
     @Override
     public Type getReflect()
     {
-        return null;
+        return EnumSet.class;
     }
 
     @Override

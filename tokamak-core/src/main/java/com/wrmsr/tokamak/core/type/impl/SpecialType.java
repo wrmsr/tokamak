@@ -33,12 +33,6 @@ public final class SpecialType
     }
 
     @Override
-    public java.lang.reflect.Type getReflect()
-    {
-        throw new IllegalStateException();
-    }
-
-    @Override
     public String toSpec()
     {
         return baseName;

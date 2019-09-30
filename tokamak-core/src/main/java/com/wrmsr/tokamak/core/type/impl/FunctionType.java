@@ -48,12 +48,6 @@ public final class FunctionType
     }
 
     @Override
-    public java.lang.reflect.Type getReflect()
-    {
-        throw new IllegalStateException();
-    }
-
-    @Override
     public String toSpec()
     {
         return Types.buildArgsSpec(baseName, ImmutableList.builder().add(returnType).addAll(paramTypes).build());

@@ -31,6 +31,7 @@ public final class NameGenerator
     private final Set<String> names;
     private final String globalPrefix;
     private final Map<String, Integer> prefixCounts = new HashMap<>();
+    private final Object lock = new Object();
 
     public NameGenerator(Set<String> unavailableStrings, String globalPrefix)
     {
@@ -56,13 +57,15 @@ public final class NameGenerator
 
     public String get(String prefix)
     {
-        while (true) {
-            int count = prefixCounts.getOrDefault(prefix, 0);
-            prefixCounts.put(prefix, count + 1);
-            String name = globalPrefix + prefix + count;
-            if (!names.contains(name)) {
-                names.add(name);
-                return name;
+        synchronized (lock) {
+            while (true) {
+                int count = prefixCounts.getOrDefault(prefix, 0);
+                prefixCounts.put(prefix, count + 1);
+                String name = globalPrefix + prefix + count;
+                if (!names.contains(name)) {
+                    names.add(name);
+                    return name;
+                }
             }
         }
     }

@@ -30,10 +30,4 @@ public final class StructType
         super("Struct", kwargs);
         this.kwargs.forEach((k, v) -> checkArgument(v instanceof Type));
     }
-
-    @Override
-    public java.lang.reflect.Type getReflect()
-    {
-        return null;
-    }
 }

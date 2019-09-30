@@ -23,7 +23,10 @@ public interface Type
 
     OptionalInt getFixedSize();
 
-    java.lang.reflect.Type getReflect();
+    default java.lang.reflect.Type getReflect()
+    {
+        throw new IllegalStateException();
+    }
 
     @JsonValue
     String toSpec();
