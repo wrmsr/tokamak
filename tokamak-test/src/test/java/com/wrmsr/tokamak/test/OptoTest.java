@@ -18,13 +18,13 @@ import java.io.InputStream;
 
 public final class OptoTest
 {
-    public interface I
+    public interface Task
     {
         long run(long l);
     }
 
-    public static final class IA
-            implements I
+    public static final class TaskA
+            implements Task
     {
         @Override
         public long run(long l)
@@ -35,8 +35,8 @@ public final class OptoTest
         }
     }
 
-    public static final class IB
-            implements I
+    public static final class TaskB
+            implements Task
     {
         @Override
         public long run(long l)
@@ -47,8 +47,8 @@ public final class OptoTest
         }
     }
 
-    public static final class IC
-            implements I
+    public static final class TaskC
+            implements Task
     {
         @Override
         public long run(long l)
@@ -59,8 +59,8 @@ public final class OptoTest
         }
     }
 
-    public static final class ID
-            implements I
+    public static final class TaskD
+            implements Task
     {
         @Override
         public long run(long l)
@@ -71,21 +71,21 @@ public final class OptoTest
         }
     }
 
-    public interface P
+    public interface Node
     {
         long run(long l);
     }
 
-    public static final class PImpl
-            implements P
+    public static final class NodeImpl
+            implements Node
     {
-        private final P parent;
-        private final I o;
+        private final Node parent;
+        private final Task task;
 
-        public PImpl(P parent, I o)
+        public NodeImpl(Node parent, Task task)
         {
             this.parent = parent;
-            this.o = o;
+            this.task = task;
         }
 
         public long run(long l)
@@ -93,52 +93,53 @@ public final class OptoTest
             if (parent != null) {
                 l = parent.run(l);
             }
-            return o.run(l);
+            return task.run(l);
         }
     }
 
-    public static P create(P parent, I o)
+    public static Node create(Node parent, Task task, boolean specialize)
             throws Throwable
     {
-        Class pcls;
+        Class nodeCls = NodeImpl.class;
 
-        pcls = PImpl.class;
-        // CL cl = new CL(OptoTest.class.getClassLoader());
-        // pcls = cl.reloadClass(PImpl.class);
+        if (specialize) {
+            ForcingClassLoader cl = new ForcingClassLoader(OptoTest.class.getClassLoader());
+            nodeCls = cl.forceReloadClass(nodeCls);
+        }
 
-        return (P) pcls.getDeclaredConstructor(P.class, I.class).newInstance(parent, o);
+        return (Node) nodeCls.getDeclaredConstructor(Node.class, Task.class).newInstance(parent, task);
     }
 
-    public static void run()
+    public static void run(boolean specialize)
             throws Throwable
     {
-        P p = null;
+        Node node = null;
 
-        p = create(p, new IA());
-        p = create(p, new IB());
-        p = create(p, new IC());
-        p = create(p, new ID());
+        node = create(node, new TaskA(), specialize);
+        node = create(node, new TaskB(), specialize);
+        node = create(node, new TaskC(), specialize);
+        node = create(node, new TaskD(), specialize);
 
         long l = 0x12478FED1923L;
         for (long i = 0; i < 4_000_000_000L; ++i) {
-            l = p.run(l);
+            l = node.run(l);
         }
 
         System.out.println(l);
     }
 
-    public static final class CL
+    public static final class ForcingClassLoader
             extends ClassLoader
     {
-        public CL(ClassLoader parent)
+        public ForcingClassLoader(ClassLoader parent)
         {
             super(parent);
         }
 
-        public Class reloadClass(Class cls)
+        public Class forceReloadClass(Class cls)
                 throws Throwable
         {
-            byte[] classData;
+            byte[] clsBytes;
             try (InputStream input = getResourceAsStream(cls.getName().replaceAll("\\.", "/") + ".class");
                     ByteArrayOutputStream buffer = new ByteArrayOutputStream()) {
                 int data = input.read();
@@ -146,9 +147,9 @@ public final class OptoTest
                     buffer.write(data);
                     data = input.read();
                 }
-                classData = buffer.toByteArray();
+                clsBytes = buffer.toByteArray();
             }
-            return defineClass(cls.getName(), classData, 0, classData.length);
+            return defineClass(cls.getName(), clsBytes, 0, clsBytes.length);
         }
     }
 
@@ -157,9 +158,9 @@ public final class OptoTest
     {
         long start = System.currentTimeMillis();
 
-        run();
+        run(false);
 
         long end = System.currentTimeMillis();
-        System.out.println(end - start);
+        System.out.println(String.format("%d ms", end - start));
     }
 }
