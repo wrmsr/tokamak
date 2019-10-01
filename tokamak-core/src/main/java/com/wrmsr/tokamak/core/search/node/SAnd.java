@@ -14,7 +14,27 @@
 
 package com.wrmsr.tokamak.core.search.node;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 public final class SAnd
         extends SOperator
 {
+    private final SNode left;
+    private final SNode right;
+
+    public SAnd(SNode left, SNode right)
+    {
+        this.left = checkNotNull(left);
+        this.right = checkNotNull(right);
+    }
+
+    public SNode getLeft()
+    {
+        return left;
+    }
+
+    public SNode getRight()
+    {
+        return right;
+    }
 }
