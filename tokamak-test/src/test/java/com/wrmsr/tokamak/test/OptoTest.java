@@ -113,8 +113,8 @@ public final class OptoTest
     public static void main(String[] args)
             throws Throwable
     {
-        // boolean specialize = true;
-        boolean specialize = false;
+        boolean specialize = true;
+        // boolean specialize = false;
 
         try (InputStreamReader isr = new InputStreamReader(System.in)) {
             while (isr.read() != '\n') {}
@@ -122,7 +122,7 @@ public final class OptoTest
 
         long start = System.currentTimeMillis();
 
-        int depth = 8;
+        int depth = 4;
         long iterations = 2_000_000_000L;
 
         run(depth, iterations, specialize);
