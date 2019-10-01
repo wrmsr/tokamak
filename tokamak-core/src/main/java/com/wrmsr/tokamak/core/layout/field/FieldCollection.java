@@ -185,7 +185,8 @@ public final class FieldCollection
         return builder().addAll(typesByName).build();
     }
 
-    public FieldCollection withoutAnnotation(Class<? extends FieldAnnotation>... annotationCls)
+    @SafeVarargs
+    public final FieldCollection withoutAnnotation(Class<? extends FieldAnnotation>... annotationCls)
     {
         return builder().addAll(fields.stream().map(f -> f.withoutAnnotation(annotationCls))).build();
     }

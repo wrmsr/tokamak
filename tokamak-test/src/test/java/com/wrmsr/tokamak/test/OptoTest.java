@@ -52,6 +52,7 @@ public final class OptoTest
         }
     }
 
+    @SuppressWarnings({"unchecked"})
     public static Node create(Node parent, LongToLongFunction task, boolean specialize)
             throws Throwable
     {

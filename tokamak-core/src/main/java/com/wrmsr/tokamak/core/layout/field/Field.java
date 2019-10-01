@@ -115,7 +115,8 @@ public final class Field
                 Iterables.<FieldAnnotation>concat(this.annotations, Arrays.asList(annotations)));
     }
 
-    public Field withoutAnnotation(Class<? extends FieldAnnotation>... annotationClss)
+    @SafeVarargs
+    public final Field withoutAnnotation(Class<? extends FieldAnnotation>... annotationClss)
     {
         return new Field(name, type,
                 Iterables.filter(annotations, a -> Arrays.stream(annotationClss).anyMatch(ac -> ac.isInstance(a))));

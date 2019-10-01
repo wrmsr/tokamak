@@ -50,9 +50,10 @@ variable
     ;
 
 literal
-    : NULL    #nullLiteral
-    | STRING  #stringLiteral
-    | NUMBER  #numberLiteral
+    : NULL         #nullLiteral
+    | STRING       #stringLiteral
+    | LONG_STRING  #longStringLiteral
+    | NUMBER       #numberLiteral
     ;
 
 qualifiedName
@@ -86,6 +87,10 @@ QUOTED_IDENTIFIER
 
 STRING
     : '\'' (~'\'' | '\'\'')* '\''
+    ;
+
+LONG_STRING
+    : '\'\'\'' (~'\'' | ('\'' ~'\'')*) | ('\'\'' ~'\'')* '\'\'\''
     ;
 
 fragment DIGIT

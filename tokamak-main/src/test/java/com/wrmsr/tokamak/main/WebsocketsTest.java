@@ -80,15 +80,13 @@ public class WebsocketsTest
                 throws Exception
         {
             super.userEventTriggered(ctx, evt);
-            //noinspection deprecation
-            if (evt == WebSocketServerProtocolHandler.ServerHandshakeStateEvent.HANDSHAKE_COMPLETE) {
-                // TODO: Handle the newly connected users
+            if (evt instanceof WebSocketServerProtocolHandler.HandshakeComplete) {
                 ctx.channel().closeFuture().addListener(new ChannelFutureListener()
                 {
                     @Override
                     public void operationComplete(ChannelFuture future)
                     {
-                        // TODO: Handle disconnected users
+                        System.out.println("Disconnected");
                     }
                 });
             }
@@ -98,7 +96,6 @@ public class WebsocketsTest
         protected void channelRead0(ChannelHandlerContext ctx, WebSocketFrame frame)
         {
             if (frame instanceof TextWebSocketFrame) {
-                // TODO: Handle user text
                 ctx.writeAndFlush(new TextWebSocketFrame(((TextWebSocketFrame) frame).text()));
             }
         }

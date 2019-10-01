@@ -82,6 +82,61 @@ public final class TreeBuilding
             }
 
             @Override
+            public TNode visitFunctionCallExpression(SqlParser.FunctionCallExpressionContext ctx)
+            {
+                return new TFunctionCallExpression(
+                        ((TIdentifier) visit(ctx.identifier())).getValue(),
+                        visit(ctx.expression(), TExpression.class));
+            }
+
+            @Override
+            public TNode visitLongStringLiteral(SqlParser.LongStringLiteralContext ctx)
+            {
+                return new TStringLiteral(ctx.LONG_STRING().getText());
+            }
+
+            @Override
+            public TNode visitNumberLiteral(SqlParser.NumberLiteralContext ctx)
+            {
+                return new TNumberLiteral(Long.parseLong(ctx.getText()));
+            }
+
+            @Override
+            public TNode visitNullLiteral(SqlParser.NullLiteralContext ctx)
+            {
+                return new TNullLiteral();
+            }
+
+            @Override
+            public TNode visitQualifiedName(SqlParser.QualifiedNameContext ctx)
+            {
+                List<String> parts = visit(ctx.identifier(), TIdentifier.class).stream()
+                        .map(TIdentifier::getValue)
+                        .collect(Collectors.toList());
+                return new TQualifiedName(parts);
+            }
+
+            @Override
+            public TNode visitQualifiedNameExpression(SqlParser.QualifiedNameExpressionContext ctx)
+            {
+                return new TQualifiedNameExpression(
+                        (TQualifiedName) visit(ctx.qualifiedName()));
+            }
+
+            @Override
+            public TNode visitQuotedIdentifier(SqlParser.QuotedIdentifierContext ctx)
+            {
+                String text = ctx.getText();
+                return new TIdentifier(text.substring(1, text.length() - 1));
+            }
+
+            @Override
+            public TNode visitUnquotedIdentifier(SqlParser.UnquotedIdentifierContext ctx)
+            {
+                return new TIdentifier(ctx.getText());
+            }
+
+            @Override
             public TNode visitSelect(SqlParser.SelectContext ctx)
             {
                 List<TSelectItem> selectItems = visit(ctx.selectItem(), TSelectItem.class);
@@ -114,64 +169,15 @@ public final class TreeBuilding
             }
 
             @Override
-            public TNode visitNumberLiteral(SqlParser.NumberLiteralContext ctx)
-            {
-                return new TNumberLiteral(Long.parseLong(ctx.getText()));
-            }
-
-            @Override
-            public TNode visitNullLiteral(SqlParser.NullLiteralContext ctx)
-            {
-                return new TNullLiteral();
-            }
-
-            @Override
             public TNode visitStringLiteral(SqlParser.StringLiteralContext ctx)
             {
                 return new TStringLiteral(ctx.STRING().getText());
             }
 
             @Override
-            public TNode visitQualifiedName(SqlParser.QualifiedNameContext ctx)
-            {
-                List<String> parts = visit(ctx.identifier(), TIdentifier.class).stream()
-                        .map(TIdentifier::getValue)
-                        .collect(Collectors.toList());
-                return new TQualifiedName(parts);
-            }
-
-            @Override
-            public TNode visitQualifiedNameExpression(SqlParser.QualifiedNameExpressionContext ctx)
-            {
-                return new TQualifiedNameExpression(
-                        (TQualifiedName) visit(ctx.qualifiedName()));
-            }
-
-            @Override
-            public TNode visitUnquotedIdentifier(SqlParser.UnquotedIdentifierContext ctx)
-            {
-                return new TIdentifier(ctx.getText());
-            }
-
-            @Override
-            public TNode visitQuotedIdentifier(SqlParser.QuotedIdentifierContext ctx)
-            {
-                String text = ctx.getText();
-                return new TIdentifier(text.substring(1, text.length() - 1));
-            }
-
-            @Override
             public TNode visitTableName(SqlParser.TableNameContext ctx)
             {
                 return new TTableName((TQualifiedName) visit(ctx.qualifiedName()));
-            }
-
-            @Override
-            public TNode visitFunctionCallExpression(SqlParser.FunctionCallExpressionContext ctx)
-            {
-                return new TFunctionCallExpression(
-                        ((TIdentifier) visit(ctx.identifier())).getValue(),
-                        visit(ctx.expression(), TExpression.class));
             }
         });
     }

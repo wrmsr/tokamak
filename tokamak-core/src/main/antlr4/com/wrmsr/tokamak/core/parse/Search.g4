@@ -1,6 +1,6 @@
-grammar Jmes;
+grammar Search;
 
-jmesPathExpression
+searchExpression
     : expression EOF
     ;
 
