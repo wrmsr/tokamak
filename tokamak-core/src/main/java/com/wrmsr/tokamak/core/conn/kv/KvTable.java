@@ -65,8 +65,8 @@ public class KvTable
 
     public List<Map<String, Object>> scan(Set<String> fields, Key key)
     {
-        checkArgument(tableLayout.getRowLayout().getFields().keySet().containsAll(fields));
-        checkArgument(tableLayout.getRowLayout().getFields().keySet().containsAll(key.getFields()));
+        checkArgument(tableLayout.getRowLayout().getFields().getNames().containsAll(fields));
+        checkArgument(tableLayout.getRowLayout().getFields().getNames().containsAll(key.getFields()));
 
         ImmutableList.Builder<Map<String, Object>> builder = ImmutableList.builder();
 

@@ -69,6 +69,6 @@ public abstract class AbstractNode
     @Override
     public RowLayout getRowLayout()
     {
-        return rowLayout.get(() -> new RowLayout(getFields().getTypesByName()));
+        return rowLayout.get(() -> new RowLayout(getFields()));
     }
 }

@@ -185,7 +185,7 @@ public final class FieldCollection
         return builder().addAll(typesByName).build();
     }
 
-    public FieldCollection withoutAnnotations(Class<? extends FieldAnnotation> annotationCls)
+    public FieldCollection withoutAnnotation(Class<? extends FieldAnnotation>... annotationCls)
     {
         return builder().addAll(fields.stream().map(f -> f.withoutAnnotation(annotationCls))).build();
     }

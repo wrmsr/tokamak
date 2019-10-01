@@ -15,6 +15,7 @@ package com.wrmsr.tokamak.core.conn.jdbc;
 
 import com.wrmsr.tokamak.core.layout.RowLayout;
 import com.wrmsr.tokamak.core.layout.TableLayout;
+import com.wrmsr.tokamak.core.layout.field.FieldCollection;
 import com.wrmsr.tokamak.util.sql.metadata.ColumnMetaData;
 import com.wrmsr.tokamak.util.sql.metadata.IndexMetaData;
 import com.wrmsr.tokamak.util.sql.metadata.PrimaryKeyMetaData;
@@ -31,10 +32,10 @@ public final class JdbcLayoutUtils
 
     public static RowLayout buildRowLayout(TableDescription tableDescription)
     {
-        return new RowLayout(
+        return new RowLayout(FieldCollection.of(
                 tableDescription.getColumnMetaDatas().stream().collect(toImmutableMap(
                         ColumnMetaData::getColumnName,
-                        JdbcTypeUtils::getTypeForColumn)));
+                        JdbcTypeUtils::getTypeForColumn))));
     }
 
     public static TableLayout buildTableLayout(TableDescription tableDescription)

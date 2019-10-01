@@ -59,7 +59,7 @@ public final class Transforms
                     newFields.putAll(node.getFields().getTypesByName());
                     table.getLayout().getPrimaryKeyFields().forEach(f -> {
                         if (!node.getFields().contains(f)) {
-                            newFields.put(f, table.getRowLayout().getFields().get(f));
+                            newFields.put(f, table.getRowLayout().getFields().getType(f));
                         }
                     });
 

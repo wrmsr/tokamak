@@ -150,7 +150,7 @@ public class AstPlanner
                 Set<String> columns = new LinkedHashSet<>();
 
                 context.getSymbols().forEach(s -> {
-                    checkState(table.getRowLayout().getFields().containsKey(s.getName().get()));
+                    checkState(table.getRowLayout().getFields().contains(s.getName().get()));
                     Set<ScopeAnalysis.SymbolRef> srs = scopeAnalysis.getResolutions().getSymbolRefs().get(s);
                     if (srs != null) {
                         columns.add(s.getName().get());
@@ -160,7 +160,7 @@ public class AstPlanner
                 return new ScanNode(
                         nameGenerator.get("scan"),
                         schemaTable,
-                        columns.stream().collect(toImmutableMap(identity(), table.getRowLayout().getFields()::get)),
+                        columns.stream().collect(toImmutableMap(identity(), table.getRowLayout().getFields()::getType)),
                         ImmutableSet.of(),
                         ImmutableSet.of());
             }

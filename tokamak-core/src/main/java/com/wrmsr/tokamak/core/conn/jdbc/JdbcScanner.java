@@ -21,6 +21,7 @@ import com.wrmsr.tokamak.core.catalog.Connection;
 import com.wrmsr.tokamak.core.catalog.Scanner;
 import com.wrmsr.tokamak.core.layout.RowLayout;
 import com.wrmsr.tokamak.core.layout.TableLayout;
+import com.wrmsr.tokamak.core.layout.field.FieldCollection;
 import com.wrmsr.tokamak.util.sql.SqlConnection;
 
 import java.sql.SQLException;
@@ -58,12 +59,12 @@ public final class JdbcScanner
         this.fields = ImmutableSet.copyOf(checkOrdered(fields));
 
         for (String field : this.fields) {
-            checkArgument(tableLayout.getRowLayout().getFields().containsKey(field));
+            checkArgument(tableLayout.getRowLayout().getFields().contains(field));
         }
 
-        rowLayout = new RowLayout(
+        rowLayout = new RowLayout(FieldCollection.of(
                 fields.stream()
-                        .collect(toImmutableMap(identity(), tableLayout.getRowLayout().getFields()::get)));
+                        .collect(toImmutableMap(identity(), tableLayout.getRowLayout().getFields().getTypesByName()::get))));
 
         idFields = ImmutableSet.copyOf(tableLayout.getPrimaryKey().getFields());
     }
@@ -98,7 +99,7 @@ public final class JdbcScanner
         private Instance(Set<String> keyFields)
         {
             this.keyFields = ImmutableSet.copyOf(checkOrdered(keyFields));
-            this.keyFields.forEach(f -> checkArgument(tableLayout.getRowLayout().getFields().containsKey(f)));
+            this.keyFields.forEach(f -> checkArgument(tableLayout.getRowLayout().getFields().contains(f)));
 
             selectedFields = ImmutableSet.<String>builder()
                     .addAll(this.keyFields)

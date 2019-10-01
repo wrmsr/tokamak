@@ -37,7 +37,7 @@ public final class KvScanner
         this.connector = checkNotNull(connector);
         this.table = checkNotNull(table);
         this.fields = ImmutableSet.copyOf(fields);
-        checkArgument(table.getTableLayout().getRowLayout().getFields().keySet().containsAll(this.fields));
+        checkArgument(table.getTableLayout().getRowLayout().getFields().getNames().containsAll(this.fields));
     }
 
     @Override

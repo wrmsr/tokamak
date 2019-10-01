@@ -25,6 +25,11 @@ import static com.google.common.base.Preconditions.checkArgument;
 public final class StructType
         extends KwargsType
 {
+    /*
+    NOTE:
+     - not 'record' to not clash with upcoming java keyword
+    */
+
     public StructType(Map<String, Object> kwargs)
     {
         super("Struct", kwargs);

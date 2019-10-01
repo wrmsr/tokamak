@@ -29,7 +29,7 @@ public class FieldsTest
     public void testFieldsJson()
             throws Throwable
     {
-        Field fld = new Field("x", Types.LONG, ImmutableList.of(FieldAnnotation.notNull()));
+        Field fld = new Field("x", Types.LONG, ImmutableList.of(FieldAnnotation.id()));
 
         String json = Json.writeValue(fld);
 
@@ -47,8 +47,7 @@ public class FieldsTest
 
         List<FieldAnnotation> anns = ImmutableList.of(
                 FieldAnnotation.id(),
-                FieldAnnotation.internal(),
-                FieldAnnotation.notNull()
+                FieldAnnotation.internal()
         );
 
         System.out.println(anns);

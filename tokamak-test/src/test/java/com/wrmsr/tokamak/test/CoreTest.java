@@ -33,6 +33,7 @@ import com.wrmsr.tokamak.core.exec.Reflection;
 import com.wrmsr.tokamak.core.exec.builtin.BuiltinExecutor;
 import com.wrmsr.tokamak.core.layout.RowLayout;
 import com.wrmsr.tokamak.core.layout.TableLayout;
+import com.wrmsr.tokamak.core.layout.field.FieldCollection;
 import com.wrmsr.tokamak.core.plan.Plan;
 import com.wrmsr.tokamak.core.plan.dot.Dot;
 import com.wrmsr.tokamak.core.plan.node.EquijoinNode;
@@ -269,10 +270,10 @@ public class CoreTest
         ListHeapTable listHeapTable = new ListHeapTable(
                 SchemaTable.of("stuff_schema", "stuff_table"),
                 new TableLayout(
-                        new RowLayout(ImmutableMap.of(
+                        new RowLayout(FieldCollection.of(ImmutableMap.of(
                                 "id", Types.LONG,
                                 "str", Types.STRING
-                        )),
+                        ))),
                         new TableLayout.Key(ImmutableList.of("id")),
                         ImmutableList.of()));
 

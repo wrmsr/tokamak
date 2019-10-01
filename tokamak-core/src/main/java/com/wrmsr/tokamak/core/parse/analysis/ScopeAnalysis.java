@@ -416,7 +416,7 @@ public final class ScopeAnalysis
                 context.enclosedNodes.add(treeNode);
                 SchemaTable schemaTable = treeNode.getQualifiedName().toSchemaTable(defaultSchema);
                 Table table = catalog.get().getSchemaTable(schemaTable);
-                table.getRowLayout().getFields().keySet().forEach(f -> new Symbol(Optional.of(f), treeNode, Optional.empty(), context));
+                table.getRowLayout().getFields().getNames().forEach(f -> new Symbol(Optional.of(f), treeNode, Optional.empty(), context));
                 return null;
             }
         }, null);

@@ -76,7 +76,7 @@ public final class TypeAnalysis
                 SchemaTable schemaTable = treeNode.getQualifiedName().toSchemaTable(defaultSchema);
                 Table table = catalog.getSchemaTable(schemaTable);
                 ScopeAnalysis.Scope scope = scopeAnalysis.getScope(treeNode).get();
-                table.getRowLayout().getFields().forEach((f, t) ->
+                table.getRowLayout().getFields().getTypesByName().forEach((f, t) ->
                         scope.getSymbols().stream()
                                 .filter(s -> optionalTest(s.getName(), f::equals))
                                 .collect(toOptionalSingle())

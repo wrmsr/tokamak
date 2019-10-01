@@ -53,7 +53,7 @@ public interface Node
 
     default RowLayout getRowLayout()
     {
-        return new RowLayout(getFields().getTypesByName());
+        return new RowLayout(getFields());
     }
 
     <R, C> R accept(NodeVisitor<R, C> visitor, C context);

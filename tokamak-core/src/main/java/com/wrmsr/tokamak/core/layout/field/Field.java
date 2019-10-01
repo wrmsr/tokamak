@@ -22,6 +22,7 @@ import com.wrmsr.tokamak.util.Pair;
 
 import javax.annotation.concurrent.Immutable;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -108,21 +109,21 @@ public final class Field
         return annotationsByCls.containsKey(cls);
     }
 
-    public Field withAnnotation(FieldAnnotation annotation)
+    public Field withAnnotation(FieldAnnotation... annotations)
     {
         return new Field(name, type,
-                Iterables.concat(annotations, ImmutableList.of(annotation)));
+                Iterables.<FieldAnnotation>concat(this.annotations, Arrays.asList(annotations)));
     }
 
-    public Field withoutAnnotation(Class<? extends FieldAnnotation> annotationCls)
+    public Field withoutAnnotation(Class<? extends FieldAnnotation>... annotationClss)
     {
         return new Field(name, type,
-                Iterables.filter(annotations, a -> !annotationCls.isInstance(a)));
+                Iterables.filter(annotations, a -> Arrays.stream(annotationClss).anyMatch(ac -> ac.isInstance(a))));
     }
 
-    public Field replacingAnnotation(FieldAnnotation annotation)
+    public Field replacingAnnotation(FieldAnnotation... annotations)
     {
         return new Field(name, type,
-                Iterables.concat(Iterables.filter(annotations, a -> !annotation.getClass().isInstance(a)), ImmutableList.of(annotation)));
+                Iterables.concat(Iterables.filter(this.annotations, a -> Arrays.stream(annotations).anyMatch(ac -> ac.getClass().isInstance(a))), Arrays.asList(annotations)));
     }
 }
