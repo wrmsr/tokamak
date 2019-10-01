@@ -17,7 +17,7 @@ package com.wrmsr.tokamak.core.plan.node.field;
 import javax.annotation.concurrent.Immutable;
 
 @Immutable
-public abstract class SimpleFieldAnnotation
+public abstract class NullaryFieldAnnotation
         implements FieldAnnotation
 {
 }

@@ -44,6 +44,8 @@ public class FieldsTest
     public void testFieldAnnsJson()
             throws Throwable
     {
+        TypeReference<List<FieldAnnotation>> tr = new TypeReference<List<FieldAnnotation>>() {};
+
         List<FieldAnnotation> anns = ImmutableList.of(
                 FieldAnnotation.id(),
                 FieldAnnotation.internal(),
@@ -52,11 +54,11 @@ public class FieldsTest
 
         System.out.println(anns);
 
-        String json = Json.writeValue(anns);
+        String json = Json.mapper().writerFor(tr).writeValueAsString(anns);
 
         System.out.println(json);
 
-        List<FieldAnnotation> anns2 = Json.readValue(json, new TypeReference<List<FieldAnnotation>>() {});
+        List<FieldAnnotation> anns2 = Json.readValue(json, tr);
 
         System.out.println(anns2);
     }

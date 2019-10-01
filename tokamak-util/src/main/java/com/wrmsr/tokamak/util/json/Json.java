@@ -172,10 +172,15 @@ public final class Json
 
     public static final Supplier<ObjectMapper> OBJECT_MAPPER_SUPPLIER = Suppliers.memoize(Json::newObjectMapper);
 
+    public static ObjectMapper mapper()
+    {
+        return OBJECT_MAPPER_SUPPLIER.get();
+    }
+
     public static String writeValue(Object object)
     {
         try {
-            return OBJECT_MAPPER_SUPPLIER.get().writeValueAsString(object);
+            return mapper().writeValueAsString(object);
         }
         catch (IOException e) {
             throw new RuntimeException(e);
@@ -185,7 +190,7 @@ public final class Json
     public static String writeValuePretty(Object object)
     {
         try {
-            return OBJECT_MAPPER_SUPPLIER.get().writerWithDefaultPrettyPrinter().writeValueAsString(object);
+            return mapper().writerWithDefaultPrettyPrinter().writeValueAsString(object);
         }
         catch (IOException e) {
             throw new RuntimeException(e);
@@ -195,7 +200,7 @@ public final class Json
     public static <T> T readValue(String src, Class<T> valueType)
     {
         try {
-            return OBJECT_MAPPER_SUPPLIER.get().readValue(src, valueType);
+            return mapper().readValue(src, valueType);
         }
         catch (IOException e) {
             throw new RuntimeException(e);
@@ -205,7 +210,7 @@ public final class Json
     public static <T> T readValue(String src, TypeReference<T> valueType)
     {
         try {
-            return OBJECT_MAPPER_SUPPLIER.get().readValue(src, valueType);
+            return mapper().readValue(src, valueType);
         }
         catch (IOException e) {
             throw new RuntimeException(e);
