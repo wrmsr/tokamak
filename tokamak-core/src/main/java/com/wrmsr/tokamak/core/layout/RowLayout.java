@@ -17,8 +17,8 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.wrmsr.tokamak.core.layout.field.FieldCollection;
 import com.wrmsr.tokamak.core.type.impl.StructType;
-import com.wrmsr.tokamak.core.type.Type;
 import com.wrmsr.tokamak.util.collect.ObjectArrayBackedMap;
 
 import javax.annotation.concurrent.Immutable;
@@ -30,13 +30,12 @@ import java.util.stream.IntStream;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
-import static com.wrmsr.tokamak.util.MoreCollections.checkOrdered;
 import static java.util.function.Function.identity;
 
 @Immutable
 public final class RowLayout
 {
-    private final Map<String, Type> fields;
+    private final FieldCollection fields;
 
     private final List<String> fieldNames;
     private final Map<String, Integer> positionsByField;
@@ -46,14 +45,14 @@ public final class RowLayout
 
     @JsonCreator
     public RowLayout(
-            @JsonProperty("fields") Map<String, Type> fields)
+            @JsonProperty("fields") FieldCollection fields)
     {
-        this.fields = ImmutableMap.copyOf(checkOrdered(fields));
+        this.fields = checkNotNull(fields);
 
-        fieldNames = ImmutableList.copyOf(this.fields.keySet());
+        fieldNames = ImmutableList.copyOf(this.fields.getNames());
         positionsByField = IntStream.range(0, fields.size()).boxed().collect(toImmutableMap(fieldNames::get, identity()));
 
-        structType = new StructType(ImmutableMap.copyOf(this.fields));
+        structType = new StructType(ImmutableMap.copyOf(this.fields.getTypesByName()));
         shape = ObjectArrayBackedMap.Shape.of(fieldNames);
     }
 
@@ -66,7 +65,7 @@ public final class RowLayout
     }
 
     @JsonProperty("fields")
-    public Map<String, Type> getFields()
+    public FieldCollection getFields()
     {
         return fields;
     }

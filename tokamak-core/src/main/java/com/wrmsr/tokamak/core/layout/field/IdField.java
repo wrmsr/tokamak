@@ -11,13 +11,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.core.plan.node.field;
+package com.wrmsr.tokamak.core.layout.field;
 
 import javax.annotation.concurrent.Immutable;
 
 @Immutable
-public final class NotNullField
+public final class IdField
         implements FieldAnnotation
 {
-    static final NotNullField INSTANCE = new NotNullField();
+    static final IdField INSTANCE = new IdField();
 }

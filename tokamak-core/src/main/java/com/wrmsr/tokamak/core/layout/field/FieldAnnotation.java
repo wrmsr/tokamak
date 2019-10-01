@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.core.plan.node.field;
+package com.wrmsr.tokamak.core.layout.field;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -24,7 +24,6 @@ import javax.annotation.concurrent.Immutable;
 @JsonSubTypes({
         @JsonSubTypes.Type(value = IdField.class, name = "id"),
         @JsonSubTypes.Type(value = InternalField.class, name = "internal"),
-        @JsonSubTypes.Type(value = NotNullField.class, name = "notNull"),
 })
 @Immutable
 public interface FieldAnnotation
@@ -37,10 +36,5 @@ public interface FieldAnnotation
     static InternalField internal()
     {
         return InternalField.INSTANCE;
-    }
-
-    static NotNullField notNull()
-    {
-        return NotNullField.INSTANCE;
     }
 }

@@ -19,7 +19,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.wrmsr.tokamak.core.plan.node.field.FieldCollection;
+import com.wrmsr.tokamak.core.layout.field.FieldCollection;
 import com.wrmsr.tokamak.core.plan.node.visitor.NodeVisitor;
 import com.wrmsr.tokamak.core.type.Type;
 import com.wrmsr.tokamak.core.type.Types;

@@ -86,8 +86,8 @@ public final class TableLayout
         this.rowLayout = checkNotNull(rowLayout);
         this.primaryKey = checkNotNull(primaryKey);
         this.secondaryKeys = ImmutableList.copyOf(secondaryKeys);
-        primaryKey.forEach(f -> checkArgument(rowLayout.getFields().containsKey(f)));
-        this.secondaryKeys.forEach(k -> k.forEach(f -> checkArgument(rowLayout.getFields().containsKey(f))));
+        primaryKey.forEach(f -> checkArgument(rowLayout.getFields().contains(f)));
+        this.secondaryKeys.forEach(k -> k.forEach(f -> checkArgument(rowLayout.getFields().contains(f))));
     }
 
     @JsonProperty("rowLayout")

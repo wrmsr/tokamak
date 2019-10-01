@@ -18,7 +18,7 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.wrmsr.tokamak.core.layout.RowLayout;
-import com.wrmsr.tokamak.core.plan.node.field.FieldCollection;
+import com.wrmsr.tokamak.core.layout.field.FieldCollection;
 import com.wrmsr.tokamak.core.plan.node.visitor.NodeVisitor;
 
 import java.util.List;

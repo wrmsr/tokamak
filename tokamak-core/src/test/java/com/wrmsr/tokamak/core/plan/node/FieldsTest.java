@@ -15,8 +15,8 @@ package com.wrmsr.tokamak.core.plan.node;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.ImmutableList;
-import com.wrmsr.tokamak.core.plan.node.field.Field;
-import com.wrmsr.tokamak.core.plan.node.field.FieldAnnotation;
+import com.wrmsr.tokamak.core.layout.field.Field;
+import com.wrmsr.tokamak.core.layout.field.FieldAnnotation;
 import com.wrmsr.tokamak.core.type.Types;
 import com.wrmsr.tokamak.util.json.Json;
 import junit.framework.TestCase;
