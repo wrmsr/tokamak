@@ -137,7 +137,7 @@ public abstract class NodeRewriter<C>
         return new ScanNode(
                 visitNodeName(node.getName(), context),
                 node.getSchemaTable(),
-                node.getFields(),
+                node.getFields().getTypesByName(),
                 node.getIdFields(),
                 node.getIdNodes());
     }
@@ -167,7 +167,7 @@ public abstract class NodeRewriter<C>
     {
         return new ValuesNode(
                 visitNodeName(node.getName(), context),
-                node.getFields(),
+                node.getFields().getTypesByName(),
                 node.getValues(),
                 node.getIndexField(),
                 node.isWeak());

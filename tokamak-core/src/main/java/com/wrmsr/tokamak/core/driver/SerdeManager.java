@@ -19,10 +19,10 @@ import com.wrmsr.tokamak.core.driver.state.StateStorageCodec;
 import com.wrmsr.tokamak.core.plan.Plan;
 import com.wrmsr.tokamak.core.plan.node.NodeId;
 import com.wrmsr.tokamak.core.plan.node.StateNode;
-import com.wrmsr.tokamak.core.serde.impl.NullableSerde;
-import com.wrmsr.tokamak.core.serde.impl.TupleSerde;
 import com.wrmsr.tokamak.core.serde.Serde;
 import com.wrmsr.tokamak.core.serde.Serdes;
+import com.wrmsr.tokamak.core.serde.impl.NullableSerde;
+import com.wrmsr.tokamak.core.serde.impl.TupleSerde;
 import com.wrmsr.tokamak.core.serde.impl.VariableLengthSerde;
 import com.wrmsr.tokamak.util.lazy.SupplierLazyValue;
 
@@ -60,7 +60,7 @@ public final class SerdeManager
             ImmutableMap.Builder<StateNode, Serde<Object[]>> builder = ImmutableMap.builder();
 
             for (StateNode node : plan.getNodeTypeList(StateNode.class)) {
-                List<Serde> parts = node.getFields().values().stream()
+                List<Serde> parts = node.getFields().getTypesByName().values().stream()
                         .map(t -> {
                             Serde serde = checkNotNull(Serdes.VALUE_SERDES_BY_TYPE.get(t));
                             if (!t.getFixedSize().isPresent()) {

@@ -18,8 +18,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.wrmsr.tokamak.core.plan.node.field.FieldCollection;
 import com.wrmsr.tokamak.core.plan.node.visitor.NodeVisitor;
-import com.wrmsr.tokamak.core.type.Type;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -51,7 +51,7 @@ public final class LookupJoinNode
         {
             this.node = node;
             this.fields = ImmutableSet.copyOf(checkOrdered(fields));
-            this.fields.forEach(f -> checkArgument(node.getFields().containsKey(f)));
+            this.fields.forEach(f -> checkArgument(node.getFields().contains(f)));
         }
 
         @JsonProperty("node")
@@ -86,11 +86,11 @@ public final class LookupJoinNode
         this.sourceKeyFields = ImmutableSet.copyOf(checkOrdered(sourceKeyFields));
         this.branches = checkNotEmpty(ImmutableList.copyOf(branches));
 
-        this.sourceKeyFields.forEach(f -> checkArgument(source.getFields().containsKey(f)));
+        this.sourceKeyFields.forEach(f -> checkArgument(source.getFields().contains(f)));
 
         ImmutableMap.Builder<Set<String>, Branch> branchesByFieldSets = ImmutableMap.builder();
         for (Branch branch : this.branches) {
-            branch.getFields().forEach(f -> checkArgument(source.getFields().containsKey(f)));
+            branch.getFields().forEach(f -> checkArgument(source.getFields().contains(f)));
             branchesByFieldSets.put(branch.getFields(), branch);
         }
         this.branchesByFieldSets = branchesByFieldSets.build();
@@ -126,7 +126,7 @@ public final class LookupJoinNode
     }
 
     @Override
-    public Map<String, Type> getFields()
+    public FieldCollection getFields()
     {
         return source.getFields();
     }

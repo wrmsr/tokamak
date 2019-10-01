@@ -16,6 +16,7 @@ package com.wrmsr.tokamak.core.plan.node;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
+import com.wrmsr.tokamak.core.plan.node.field.FieldCollection;
 import com.wrmsr.tokamak.core.plan.node.visitor.NodeVisitor;
 import com.wrmsr.tokamak.core.type.Type;
 
@@ -35,7 +36,7 @@ public final class ProjectNode
     private final Node source;
     private final Projection projection;
 
-    private final Map<String, Type> fields;
+    private final FieldCollection fields;
 
     @JsonCreator
     public ProjectNode(
@@ -52,20 +53,20 @@ public final class ProjectNode
         for (Map.Entry<String, Projection.Input> entry : projection.getInputsByOutput().entrySet()) {
             if (entry.getValue() instanceof Projection.FieldInput) {
                 String inputField = ((Projection.FieldInput) entry.getValue()).getField();
-                checkArgument(source.getFields().containsKey(inputField));
-                fields.put(entry.getKey(), source.getFields().get(inputField));
+                checkArgument(source.getFields().contains(inputField));
+                fields.put(entry.getKey(), source.getFields().getType(inputField));
             }
             else if (entry.getValue() instanceof Projection.FunctionInput) {
                 // FIXME: check types
                 Projection.FunctionInput functionInput = (Projection.FunctionInput) entry.getValue();
-                functionInput.getArgs().forEach(f -> checkArgument(source.getFields().containsKey(f)));
+                functionInput.getArgs().forEach(f -> checkArgument(source.getFields().contains(f)));
                 fields.put(entry.getKey(), functionInput.getFunction().getType().getReturnType());
             }
             else {
                 throw new IllegalArgumentException(Objects.toString(entry.getValue()));
             }
         }
-        this.fields = fields.build();
+        this.fields = FieldCollection.of(fields.build());
 
         checkInvariants();
     }
@@ -84,7 +85,7 @@ public final class ProjectNode
     }
 
     @Override
-    public Map<String, Type> getFields()
+    public FieldCollection getFields()
     {
         return fields;
     }

@@ -17,6 +17,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.wrmsr.tokamak.core.plan.node.field.FieldCollection;
 import com.wrmsr.tokamak.core.plan.node.visitor.NodeVisitor;
 import com.wrmsr.tokamak.core.type.Type;
 
@@ -42,7 +43,7 @@ public final class CrossJoinNode
     private final List<Node> sources;
     private final Mode mode;
 
-    private final Map<String, Type> fields;
+    private final FieldCollection fields;
     private final Map<String, Node> sourcesByField;
 
     @JsonCreator
@@ -56,11 +57,11 @@ public final class CrossJoinNode
         this.sources = checkNotEmpty(ImmutableList.copyOf(sources));
         this.mode = checkNotNull(mode);
 
-        ImmutableMap.Builder<String, Type> fields = ImmutableMap.builder();
+        FieldCollection.Builder fields = FieldCollection.builder();
         ImmutableMap.Builder<String, Node> sourcesByField = ImmutableMap.builder();
         for (Node source : this.sources) {
-            for (Map.Entry<String, Type> e : source.getFields().entrySet()) {
-                fields.put(e.getKey(), e.getValue());
+            for (Map.Entry<String, Type> e : source.getFields().getTypesByName().entrySet()) {
+                fields.add(e.getKey(), e.getValue());
                 sourcesByField.put(e.getKey(), source);
             }
         }
@@ -84,7 +85,7 @@ public final class CrossJoinNode
     }
 
     @Override
-    public Map<String, Type> getFields()
+    public FieldCollection getFields()
     {
         return fields;
     }

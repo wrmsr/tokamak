@@ -18,11 +18,10 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.wrmsr.tokamak.core.layout.RowLayout;
+import com.wrmsr.tokamak.core.plan.node.field.FieldCollection;
 import com.wrmsr.tokamak.core.plan.node.visitor.NodeVisitor;
-import com.wrmsr.tokamak.core.type.Type;
 
 import java.util.List;
-import java.util.Map;
 
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
@@ -50,11 +49,11 @@ public interface Node
 
     List<Node> getSources();
 
-    Map<String, Type> getFields();
+    FieldCollection getFields();
 
     default RowLayout getRowLayout()
     {
-        return new RowLayout(getFields());
+        return new RowLayout(getFields().getTypesByName());
     }
 
     <R, C> R accept(NodeVisitor<R, C> visitor, C context);

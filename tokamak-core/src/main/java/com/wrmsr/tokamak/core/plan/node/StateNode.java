@@ -18,8 +18,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.wrmsr.tokamak.core.plan.node.field.FieldCollection;
 import com.wrmsr.tokamak.core.plan.node.visitor.NodeVisitor;
-import com.wrmsr.tokamak.core.type.Type;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -66,7 +66,7 @@ public final class StateNode
         this.linkageMasks = ImmutableMap.copyOf(linkageMasks);
         this.lockOverride = checkNotNull(lockOverride);
 
-        this.idFields.ifPresent(l -> l.forEach(s -> s.forEach(f -> checkArgument(this.getFields().containsKey(f)))));
+        this.idFields.ifPresent(l -> l.forEach(s -> s.forEach(f -> checkArgument(this.getFields().contains(f)))));
 
         checkInvariants();
     }
@@ -115,7 +115,7 @@ public final class StateNode
     }
 
     @Override
-    public Map<String, Type> getFields()
+    public FieldCollection getFields()
     {
         return source.getFields();
     }

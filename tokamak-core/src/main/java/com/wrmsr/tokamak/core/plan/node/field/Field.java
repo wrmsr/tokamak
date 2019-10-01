@@ -16,9 +16,9 @@ package com.wrmsr.tokamak.core.plan.node.field;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import com.wrmsr.tokamak.core.type.Type;
 import com.wrmsr.tokamak.util.Pair;
-import com.wrmsr.tokamak.util.lazy.SupplierLazyValue;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -45,7 +45,7 @@ public final class Field
     public Field(
             @JsonProperty("name") String name,
             @JsonProperty("type") Type type,
-            @JsonProperty("annotations") List<FieldAnnotation> annotations)
+            @JsonProperty("annotations") Iterable<FieldAnnotation> annotations)
     {
         this.name = checkNotEmpty(name);
         this.type = checkNotNull(type);
@@ -75,7 +75,7 @@ public final class Field
         return name;
     }
 
-    @JsonProperty("type{")
+    @JsonProperty("type")
     public Type getType()
     {
         return type;
@@ -103,12 +103,26 @@ public final class Field
         return Optional.ofNullable((T) annotationsByCls.get(cls));
     }
 
-    private final SupplierLazyValue<Map<Class<? extends FieldAnnotation>, List<Field>>> fieldListsByAnnotationCls = new SupplierLazyValue<>();
-
-    public Map<Class<? extends FieldAnnotation>, List<Field>> getFieldListsByAnnotationCls()
+    public boolean hasAttribute(Class<? extends FieldAnnotation> cls)
     {
-        return fieldListsByAnnotationCls.get(() -> {
+        return annotationsByCls.containsKey(cls);
+    }
 
-        }):
+    public Field withAnnotation(FieldAnnotation annotation)
+    {
+        return new Field(name, type,
+                Iterables.concat(annotations, ImmutableList.of(annotation)));
+    }
+
+    public Field withoutAnnotation(Class<? extends FieldAnnotation> annotationCls)
+    {
+        return new Field(name, type,
+                Iterables.filter(annotations, a -> !annotationCls.isInstance(a)));
+    }
+
+    public Field replacingAnnotation(FieldAnnotation annotation)
+    {
+        return new Field(name, type,
+                Iterables.concat(Iterables.filter(annotations, a -> !annotation.getClass().isInstance(a)), ImmutableList.of(annotation)));
     }
 }

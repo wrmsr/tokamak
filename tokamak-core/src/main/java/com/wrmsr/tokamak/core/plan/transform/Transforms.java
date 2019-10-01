@@ -46,19 +46,19 @@ public final class Transforms
                     checkState(table.getLayout().getPrimaryKeyFields().equals(node.getIdFields()));
                     return super.visitScanNode(node, context);
                 }
-                else if (node.getFields().keySet().containsAll(table.getLayout().getPrimaryKeyFields())) {
+                else if (node.getFields().getNames().containsAll(table.getLayout().getPrimaryKeyFields())) {
                     return new ScanNode(
                             node.getName(),
                             node.getSchemaTable(),
-                            node.getFields(),
+                            node.getFields().getTypesByName(),
                             table.getLayout().getPrimaryKeyFields(),
                             node.getIdNodes());
                 }
                 else {
                     ImmutableMap.Builder<String, Type> newFields = ImmutableMap.builder();
-                    newFields.putAll(node.getFields());
+                    newFields.putAll(node.getFields().getTypesByName());
                     table.getLayout().getPrimaryKeyFields().forEach(f -> {
-                        if (!node.getFields().containsKey(f)) {
+                        if (!node.getFields().contains(f)) {
                             newFields.put(f, table.getRowLayout().getFields().get(f));
                         }
                     });
@@ -73,7 +73,7 @@ public final class Transforms
                     return new ProjectNode(
                             nameGenerator.get(),
                             newScan,
-                            Projection.only(node.getFields().keySet()));
+                            Projection.only(node.getFields().getNames()));
                 }
             }
         }, null));

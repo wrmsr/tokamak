@@ -18,6 +18,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.wrmsr.tokamak.core.plan.node.field.FieldCollection;
 import com.wrmsr.tokamak.core.plan.node.visitor.NodeVisitor;
 import com.wrmsr.tokamak.core.type.Type;
 import com.wrmsr.tokamak.util.MoreCollections;
@@ -71,7 +72,7 @@ public final class EquijoinNode
         {
             this.node = node;
             this.fields = checkNotEmpty(ImmutableList.copyOf(fields));
-            this.fields.forEach(f -> checkArgument(node.getFields().containsKey(f)));
+            this.fields.forEach(f -> checkArgument(node.getFields().contains(f)));
         }
 
         @Override
@@ -121,7 +122,7 @@ public final class EquijoinNode
     private final Map<String, Set<Branch>> branchSetsByField;
     private final Set<String> keyFields;
     private final Map<String, Branch> branchesByUniqueField;
-    private final Map<String, Type> fields;
+    private final FieldCollection fields;
     private final int keyLength;
 
     @JsonCreator
@@ -142,7 +143,7 @@ public final class EquijoinNode
         indicesByBranch = IntStream.range(0, this.branches.size()).boxed().collect(toImmutableMap(this.branches::get, identity()));
 
         branchSetsByField = this.branches.stream()
-                .flatMap(b -> b.getNode().getFields().keySet().stream().map(f -> Pair.immutable(f, b)))
+                .flatMap(b -> b.getNode().getFields().getNames().stream().map(f -> Pair.immutable(f, b)))
                 .collect(groupingBy(Pair::first)).entrySet().stream()
                 .collect(toImmutableMap(Map.Entry::getKey, e -> e.getValue().stream().map(Pair::second).collect(toImmutableSet())));
 
@@ -155,7 +156,7 @@ public final class EquijoinNode
 
         Map<String, Type> fields = new LinkedHashMap<>();
         for (Branch branch : this.branches) {
-            for (Map.Entry<String, Type> entry : branch.getNode().getFields().entrySet()) {
+            for (Map.Entry<String, Type> entry : branch.getNode().getFields().getTypesByName().entrySet()) {
                 if (!fields.containsKey(entry.getKey())) {
                     fields.put(entry.getKey(), entry.getValue());
                 }
@@ -165,7 +166,7 @@ public final class EquijoinNode
                 }
             }
         }
-        this.fields = ImmutableMap.copyOf(fields);
+        this.fields = FieldCollection.of(ImmutableMap.copyOf(fields));
 
         keyLength = this.branches.stream().map(b -> b.getFields().size()).distinct().collect(toCheckSingle());
 
@@ -185,7 +186,7 @@ public final class EquijoinNode
     }
 
     @Override
-    public Map<String, Type> getFields()
+    public FieldCollection getFields()
     {
         return fields;
     }
@@ -259,7 +260,7 @@ public final class EquijoinNode
                     equivalentFieldsByField.put(field, fieldSet);
                 }
             }
-            for (String field : fields.keySet()) {
+            for (String field : fields.getNames()) {
                 if (!equivalentFieldsByField.containsKey(field)) {
                     equivalentFieldsByField.put(field, ImmutableSet.of(field));
                 }

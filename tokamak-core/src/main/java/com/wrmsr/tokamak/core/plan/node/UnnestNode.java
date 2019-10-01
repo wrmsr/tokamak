@@ -18,6 +18,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.collect.ImmutableMap;
+import com.wrmsr.tokamak.core.plan.node.field.FieldCollection;
 import com.wrmsr.tokamak.core.plan.node.visitor.NodeVisitor;
 import com.wrmsr.tokamak.core.type.Type;
 import com.wrmsr.tokamak.core.type.Types;
@@ -43,7 +44,7 @@ public final class UnnestNode
     private final Map<String, Type> unnestedFields;
     private final Optional<String> indexField;
 
-    private final Map<String, Type> fields;
+    private final FieldCollection fields;
 
     @JsonCreator
     public UnnestNode(
@@ -60,7 +61,7 @@ public final class UnnestNode
         this.unnestedFields = ImmutableMap.copyOf(checkOrdered(unnestedFields));
         this.indexField = checkNotNull(indexField);
 
-        Map<String, Type> fields = source.getFields();
+        Map<String, Type> fields = source.getFields().getTypesByName();
         checkArgument(fields.containsKey(listField));
         if (indexField.isPresent()) {
             if (fields.containsKey(indexField.get())) {
@@ -76,7 +77,7 @@ public final class UnnestNode
             fields.put(entry.getKey(), entry.getValue());
         }
 
-        this.fields = fields;
+        this.fields = FieldCollection.of(fields);
 
         checkInvariants();
     }
@@ -109,7 +110,7 @@ public final class UnnestNode
     }
 
     @Override
-    public Map<String, Type> getFields()
+    public FieldCollection getFields()
     {
         return fields;
     }

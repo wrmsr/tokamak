@@ -14,12 +14,10 @@
 package com.wrmsr.tokamak.core.plan.node;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.wrmsr.tokamak.core.plan.node.field.FieldCollection;
 import com.wrmsr.tokamak.core.plan.node.visitor.NodeVisitor;
-import com.wrmsr.tokamak.core.type.Type;
 
 import javax.annotation.concurrent.Immutable;
-
-import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -47,9 +45,9 @@ public final class CacheNode
     }
 
     @Override
-    public Map<String, Type> getFields()
+    public FieldCollection getFields()
     {
-        return null;
+        return source.getFields();
     }
 
     @Override

@@ -62,7 +62,7 @@ public final class IdFieldAnalysis
             this.sets = sets.stream().map(ImmutableSet::copyOf).collect(toImmutableSet());
             this.sets.forEach(s -> {
                 checkNotEmpty(s);
-                s.forEach(f -> checkState(node.getFields().containsKey(f)));
+                s.forEach(f -> checkState(node.getFields().contains(f)));
             });
         }
 

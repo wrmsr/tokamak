@@ -18,12 +18,16 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.core.type.Type;
 import com.wrmsr.tokamak.util.collect.StreamableIterable;
+import com.wrmsr.tokamak.util.lazy.SupplierLazyValue;
 
 import javax.annotation.concurrent.Immutable;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -39,6 +43,7 @@ public final class FieldCollection
     private final List<Field> fields;
 
     private final Map<String, Field> fieldsByName;
+    private final Map<String, Type> typesByName;
 
     @JsonCreator
     public FieldCollection(
@@ -48,6 +53,12 @@ public final class FieldCollection
         checkNotEmpty(this.fields);
 
         fieldsByName = this.fields.stream().collect(toImmutableMap(Field::getName, identity()));
+        typesByName = this.fields.stream().collect(toImmutableMap(Field::getName, Field::getType));
+    }
+
+    public boolean contains(String name)
+    {
+        return fieldsByName.containsKey(name);
     }
 
     public int size()
@@ -67,14 +78,40 @@ public final class FieldCollection
         return fields;
     }
 
+    public Set<String> getNames()
+    {
+        return fieldsByName.keySet();
+    }
+
     public Map<String, Field> getFieldsByName()
     {
         return fieldsByName;
     }
 
+    public Map<String, Type> getTypesByName()
+    {
+        return typesByName;
+    }
+
     public Field get(String name)
     {
         return checkNotNull(fieldsByName.get(name));
+    }
+
+    public Type getType(String name)
+    {
+        return checkNotNull(getFieldsByName().get(name)).getType();
+    }
+
+    private final SupplierLazyValue<Map<Class<? extends FieldAnnotation>, List<Field>>> fieldListsByAnnotationCls = new SupplierLazyValue<>();
+
+    public Map<Class<? extends FieldAnnotation>, List<Field>> getFieldListsByAnnotationCls()
+    {
+        return fieldListsByAnnotationCls.get(() -> {
+            Map<Class<? extends FieldAnnotation>, List<Field>> listsByCls = new LinkedHashMap<>();
+            fields.forEach(f -> f.getAnnotationsByCls().keySet().forEach(ac -> listsByCls.computeIfAbsent(ac, ac_ -> new ArrayList<>()).add(f)));
+            return listsByCls.entrySet().stream().collect(toImmutableMap(Map.Entry::getKey, e -> ImmutableList.copyOf(e.getValue())));
+        });
     }
 
     public static final class Builder
@@ -146,5 +183,10 @@ public final class FieldCollection
     public static FieldCollection of(Map<String, Type> typesByName)
     {
         return builder().addAll(typesByName).build();
+    }
+
+    public FieldCollection withoutAnnotations(Class<? extends FieldAnnotation> annotationCls)
+    {
+        return builder().addAll(fields.stream().map(f -> f.withoutAnnotation(annotationCls))).build();
     }
 }

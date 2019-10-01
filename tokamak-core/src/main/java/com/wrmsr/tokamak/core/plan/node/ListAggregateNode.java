@@ -16,14 +16,12 @@ package com.wrmsr.tokamak.core.plan.node;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
+import com.wrmsr.tokamak.core.plan.node.field.FieldCollection;
 import com.wrmsr.tokamak.core.plan.node.visitor.NodeVisitor;
 import com.wrmsr.tokamak.core.type.impl.ListType;
 import com.wrmsr.tokamak.core.type.impl.StructType;
-import com.wrmsr.tokamak.core.type.Type;
 
 import javax.annotation.concurrent.Immutable;
-
-import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -38,7 +36,7 @@ public final class ListAggregateNode
     private final String listField;
 
     private final StructType structType;
-    private final Map<String, Type> fields;
+    private final FieldCollection fields;
 
     @JsonCreator
     public ListAggregateNode(
@@ -54,13 +52,13 @@ public final class ListAggregateNode
         this.listField = checkNotNull(listField);
 
         checkArgument(!groupField.equals(listField));
-        checkArgument(source.getFields().containsKey(groupField));
+        checkArgument(source.getFields().contains(groupField));
 
-        structType = new StructType(ImmutableMap.copyOf(source.getFields()));
-        fields = ImmutableMap.of(
-                groupField, source.getFields().get(groupField),
+        structType = new StructType(ImmutableMap.copyOf(source.getFields().getTypesByName()));
+        fields = FieldCollection.of(ImmutableMap.of(
+                groupField, source.getFields().getType(groupField),
                 listField, new ListType(structType)
-        );
+        ));
 
         checkInvariants();
     }
@@ -85,7 +83,7 @@ public final class ListAggregateNode
     }
 
     @Override
-    public Map<String, Type> getFields()
+    public FieldCollection getFields()
     {
         return fields;
     }

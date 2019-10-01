@@ -50,7 +50,7 @@ public final class ScanBuilder
 
         checkNotEmpty(node.getIdFields());
 
-        orderedIdFields = node.getFields().keySet().stream()
+        orderedIdFields = node.getFields().getNames().stream()
                 .filter(node.getIdFields()::contains)
                 .collect(toImmutableList());
 

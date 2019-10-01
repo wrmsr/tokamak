@@ -101,7 +101,7 @@ public class DriverImpl
                 plan.getNodeTypeList(ScanNode.class).stream()
                         .collect(toImmutableMap(identity(), scanNode -> {
                             Table table = catalog.getSchemaTable(scanNode.getSchemaTable());
-                            return table.getSchema().getConnector().createScanner(table, scanNode.getFields().keySet());
+                            return table.getSchema().getConnector().createScanner(table, scanNode.getFields().getNames());
                         })));
     }
 

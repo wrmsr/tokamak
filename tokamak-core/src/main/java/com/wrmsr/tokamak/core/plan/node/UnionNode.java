@@ -17,6 +17,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.wrmsr.tokamak.core.plan.node.field.FieldCollection;
 import com.wrmsr.tokamak.core.plan.node.visitor.NodeVisitor;
 import com.wrmsr.tokamak.core.type.Type;
 import com.wrmsr.tokamak.core.type.Types;
@@ -38,7 +39,7 @@ public final class UnionNode
     private final List<Node> sources;
     private final Optional<String> indexField;
 
-    private final Map<String, Type> fields;
+    private final FieldCollection fields;
 
     @JsonCreator
     public UnionNode(
@@ -51,7 +52,7 @@ public final class UnionNode
         this.sources = checkNotEmpty(ImmutableList.copyOf(sources));
         this.indexField = checkNotNull(indexField);
 
-        Map<String, Type> firstFields = this.sources.get(0).getFields();
+        Map<String, Type> firstFields = this.sources.get(0).getFields().getTypesByName();
         for (int i = 1; i < this.sources.size(); ++i) {
             checkArgument(firstFields.equals(this.sources.get(i).getFields()));
         }
@@ -59,7 +60,7 @@ public final class UnionNode
         ImmutableMap.Builder<String, Type> fields = ImmutableMap.builder();
         fields.putAll(firstFields);
         indexField.ifPresent(f -> fields.put(f, Types.LONG));
-        this.fields = fields.build();
+        this.fields = FieldCollection.of(fields.build());
 
         checkInvariants();
     }
@@ -78,7 +79,7 @@ public final class UnionNode
     }
 
     @Override
-    public Map<String, Type> getFields()
+    public FieldCollection getFields()
     {
         return fields;
     }

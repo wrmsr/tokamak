@@ -84,7 +84,7 @@ public class AstPlanner
                         nameGenerator.get("aliasedRelationProject"),
                         scanNode,
                         Projection.of(
-                                scanNode.getFields().keySet().stream()
+                                scanNode.getFields().getNames().stream()
                                         .collect(toImmutableMap(f -> treeNode.getAlias().get() + "." + f, identity()))));
             }
 

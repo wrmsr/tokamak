@@ -15,14 +15,11 @@ package com.wrmsr.tokamak.core.plan.node;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.api.SchemaTable;
+import com.wrmsr.tokamak.core.plan.node.field.FieldCollection;
 import com.wrmsr.tokamak.core.plan.node.visitor.NodeVisitor;
 import com.wrmsr.tokamak.core.type.Type;
-import com.wrmsr.tokamak.util.collect.OrderPreservingImmutableMap;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -31,7 +28,6 @@ import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
-import static com.wrmsr.tokamak.util.MoreCollections.checkOrdered;
 
 @Immutable
 public final class ScanNode
@@ -39,7 +35,7 @@ public final class ScanNode
         implements GeneratorNode
 {
     private final SchemaTable schemaTable;
-    private final Map<String, Type> fields;
+    private final FieldCollection fields;
     private final Set<String> idFields;
     private final Set<String> idNodes;
 
@@ -54,11 +50,11 @@ public final class ScanNode
         super(name);
 
         this.schemaTable = checkNotNull(schemaTable);
-        this.fields = ImmutableMap.copyOf(checkOrdered(fields));
+        this.fields = FieldCollection.of(fields);
         this.idFields = ImmutableSet.copyOf(idFields);
         this.idNodes = ImmutableSet.copyOf(idNodes);
 
-        this.idFields.forEach(f -> checkState(this.fields.containsKey(f)));
+        this.idFields.forEach(f -> checkState(this.fields.contains(f)));
 
         checkInvariants();
     }
@@ -69,10 +65,8 @@ public final class ScanNode
         return schemaTable;
     }
 
-    @JsonSerialize(using = OrderPreservingImmutableMap.Serializer.class)
-    @JsonDeserialize(using = OrderPreservingImmutableMap.Deserializer.class)
     @JsonProperty("fields")
-    public Map<String, Type> getFields()
+    public FieldCollection getFields()
     {
         return fields;
     }

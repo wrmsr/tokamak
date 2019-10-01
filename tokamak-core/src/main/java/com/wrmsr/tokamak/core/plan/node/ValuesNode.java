@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.wrmsr.tokamak.core.plan.node.field.FieldCollection;
 import com.wrmsr.tokamak.core.plan.node.visitor.NodeVisitor;
 import com.wrmsr.tokamak.core.type.Type;
 import com.wrmsr.tokamak.core.type.Types;
@@ -44,7 +45,7 @@ public final class ValuesNode
     private final Optional<String> indexField;
     private final boolean weak;
 
-    private final Map<String, Type> fields;
+    private final FieldCollection fields;
 
     @JsonCreator
     public ValuesNode(
@@ -64,7 +65,7 @@ public final class ValuesNode
         ImmutableMap.Builder<String, Type> fieldsBuilder = ImmutableMap.builder();
         fieldsBuilder.putAll(this.declaredFields);
         indexField.ifPresent(f -> fieldsBuilder.put(f, Types.LONG));
-        this.fields = fieldsBuilder.build();
+        this.fields = FieldCollection.of(fieldsBuilder.build());
         this.values.forEach(l -> checkArgument(l.size() == fields.size()));
 
         checkInvariants();
@@ -79,7 +80,7 @@ public final class ValuesNode
     }
 
     @Override
-    public Map<String, Type> getFields()
+    public FieldCollection getFields()
     {
         return fields;
     }

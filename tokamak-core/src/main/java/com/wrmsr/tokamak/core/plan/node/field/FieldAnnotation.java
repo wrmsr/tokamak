@@ -13,14 +13,30 @@
  */
 package com.wrmsr.tokamak.core.plan.node.field;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 import javax.annotation.concurrent.Immutable;
 
+@JsonTypeInfo(
+        use = JsonTypeInfo.Id.NAME,
+        include = JsonTypeInfo.As.WRAPPER_OBJECT)
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = IdField.class, name = "id"),
+        @JsonSubTypes.Type(value = InternalField.class, name = "internal"),
+        @JsonSubTypes.Type(value = NotNullField.class, name = "notNull"),
+})
 @Immutable
 public interface FieldAnnotation
 {
     static IdField id()
     {
         return IdField.INSTANCE;
+    }
+
+    static InternalField internal()
+    {
+        return InternalField.INSTANCE;
     }
 
     static NotNullField notNull()
