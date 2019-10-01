@@ -18,7 +18,7 @@ import com.wrmsr.tokamak.core.plan.node.PCache;
 import com.wrmsr.tokamak.core.plan.node.PCrossJoin;
 import com.wrmsr.tokamak.core.plan.node.PEquiJoin;
 import com.wrmsr.tokamak.core.plan.node.PFilter;
-import com.wrmsr.tokamak.core.plan.node.PListAggregate;
+import com.wrmsr.tokamak.core.plan.node.PGroupBy;
 import com.wrmsr.tokamak.core.plan.node.PLockOverride;
 import com.wrmsr.tokamak.core.plan.node.PLookupJoin;
 import com.wrmsr.tokamak.core.plan.node.PNode;
@@ -59,7 +59,7 @@ public abstract class PNodeRewriter<C>
     }
 
     @Override
-    public PNode visitEquijoinNode(PEquiJoin node, C context)
+    public PNode visitEquiJoinNode(PEquiJoin node, C context)
     {
         return new PEquiJoin(
                 visitNodeName(node.getName(), context),
@@ -83,9 +83,9 @@ public abstract class PNodeRewriter<C>
     }
 
     @Override
-    public PNode visitListAggregateNode(PListAggregate node, C context)
+    public PNode visitGroupByNode(PGroupBy node, C context)
     {
-        return new PListAggregate(
+        return new PGroupBy(
                 visitNodeName(node.getName(), context),
                 get(node.getSource(), context),
                 node.getGroupField(),

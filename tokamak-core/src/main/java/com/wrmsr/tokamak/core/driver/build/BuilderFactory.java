@@ -19,7 +19,7 @@ import com.wrmsr.tokamak.core.driver.build.impl.CacheBuilder;
 import com.wrmsr.tokamak.core.driver.build.impl.CrossJoinBuilder;
 import com.wrmsr.tokamak.core.driver.build.impl.EquijoinBuilder;
 import com.wrmsr.tokamak.core.driver.build.impl.FilterBuilder;
-import com.wrmsr.tokamak.core.driver.build.impl.ListAggregateBuilder;
+import com.wrmsr.tokamak.core.driver.build.impl.GroupByBuilder;
 import com.wrmsr.tokamak.core.driver.build.impl.LookupJoinBuilder;
 import com.wrmsr.tokamak.core.driver.build.impl.ProjectBuilder;
 import com.wrmsr.tokamak.core.driver.build.impl.ScanBuilder;
@@ -31,7 +31,7 @@ import com.wrmsr.tokamak.core.plan.node.PCache;
 import com.wrmsr.tokamak.core.plan.node.PCrossJoin;
 import com.wrmsr.tokamak.core.plan.node.PEquiJoin;
 import com.wrmsr.tokamak.core.plan.node.PFilter;
-import com.wrmsr.tokamak.core.plan.node.PListAggregate;
+import com.wrmsr.tokamak.core.plan.node.PGroupBy;
 import com.wrmsr.tokamak.core.plan.node.PLookupJoin;
 import com.wrmsr.tokamak.core.plan.node.PNode;
 import com.wrmsr.tokamak.core.plan.node.PProject;
@@ -72,7 +72,7 @@ public class BuilderFactory
                     .put(PCrossJoin.class, (d, n, s) -> new CrossJoinBuilder(d, (PCrossJoin) n, s))
                     .put(PEquiJoin.class, (d, n, s) -> new EquijoinBuilder(d, (PEquiJoin) n, s))
                     .put(PFilter.class, (d, n, s) -> new FilterBuilder(d, (PFilter) n, s))
-                    .put(PListAggregate.class, (d, n, s) -> new ListAggregateBuilder(d, (PListAggregate) n, s))
+                    .put(PGroupBy.class, (d, n, s) -> new GroupByBuilder(d, (PGroupBy) n, s))
                     .put(PLookupJoin.class, (d, n, s) -> new LookupJoinBuilder(d, (PLookupJoin) n, s))
                     .put(PProject.class, (d, n, s) -> new ProjectBuilder(d, (PProject) n, s))
                     .put(PScan.class, (d, n, s) -> new ScanBuilder(d, (PScan) n, s))

@@ -27,7 +27,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
-public final class PListAggregate
+public final class PGroupBy
         extends PAbstractNode
         implements PAggregate, PSingleSource
 {
@@ -39,7 +39,7 @@ public final class PListAggregate
     private final FieldCollection fields;
 
     @JsonCreator
-    public PListAggregate(
+    public PGroupBy(
             @JsonProperty("name") String name,
             @JsonProperty("source") PNode source,
             @JsonProperty("groupField") String groupField,
@@ -91,6 +91,6 @@ public final class PListAggregate
     @Override
     public <R, C> R accept(PNodeVisitor<R, C> visitor, C context)
     {
-        return visitor.visitListAggregateNode(this, context);
+        return visitor.visitGroupByNode(this, context);
     }
 }

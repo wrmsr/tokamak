@@ -15,34 +15,19 @@ package com.wrmsr.tokamak.core.plan.analysis;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
-import com.wrmsr.tokamak.core.plan.node.PCrossJoin;
-import com.wrmsr.tokamak.core.plan.node.PEquiJoin;
-import com.wrmsr.tokamak.core.plan.node.PFilter;
-import com.wrmsr.tokamak.core.plan.node.PListAggregate;
-import com.wrmsr.tokamak.core.plan.node.PLookupJoin;
+import com.wrmsr.tokamak.core.plan.Plan;
 import com.wrmsr.tokamak.core.plan.node.PNode;
-import com.wrmsr.tokamak.core.plan.node.PProject;
-import com.wrmsr.tokamak.core.plan.node.PScan;
-import com.wrmsr.tokamak.core.plan.node.PState;
-import com.wrmsr.tokamak.core.plan.node.PUnion;
-import com.wrmsr.tokamak.core.plan.node.PUnnest;
-import com.wrmsr.tokamak.core.plan.node.PValues;
-import com.wrmsr.tokamak.core.plan.node.visitor.CachingPNodeVisitor;
-import com.wrmsr.tokamak.core.plan.node.visitor.PNodeVisitors;
 import com.wrmsr.tokamak.util.collect.StreamableIterable;
 
 import javax.annotation.concurrent.Immutable;
 
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 
@@ -102,12 +87,19 @@ public final class IdFieldAnalysis
         this.entriesByNode.forEach((k, v) -> checkState(k == v.getNode()));
     }
 
-    public static IdFieldAnalysis analyze(PNode node)
+    public static IdFieldAnalysis analyze(Plan plan)
     {
         Map<PNode, Entry> entriesByNode = new HashMap<>();
 
-        PNodeVisitors.cacheAll(node, new CachingPNodeVisitor<Entry, Void>(entriesByNode)
+        /*
+        PNodeVisitors.cacheAll(plan.getRoot(), new PNodeVisitor<Entry, Void>()
         {
+            @Override
+            public Entry visitCacheNode(PCache node, Void context)
+            {
+                throw new IllegalStateException();
+            }
+
             @Override
             public Entry visitCrossJoinNode(PCrossJoin node, Void context)
             {
@@ -137,7 +129,7 @@ public final class IdFieldAnalysis
             }
 
             @Override
-            public Entry visitListAggregateNode(PListAggregate node, Void context)
+            public Entry visitGroupByNode(PGroupBy node, Void context)
             {
                 return new Entry(node, ImmutableSet.of(ImmutableSet.of(node.getGroupField())));
             }
@@ -228,5 +220,8 @@ public final class IdFieldAnalysis
         }, null);
 
         return new IdFieldAnalysis(entriesByNode);
+        */
+
+        throw new IllegalStateException();
     }
 }

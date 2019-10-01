@@ -35,6 +35,7 @@ import com.wrmsr.tokamak.core.layout.RowLayout;
 import com.wrmsr.tokamak.core.layout.TableLayout;
 import com.wrmsr.tokamak.core.layout.field.FieldCollection;
 import com.wrmsr.tokamak.core.plan.Plan;
+import com.wrmsr.tokamak.core.plan.analysis.IdFieldAnalysis;
 import com.wrmsr.tokamak.core.plan.dot.Dot;
 import com.wrmsr.tokamak.core.plan.node.PEquiJoin;
 import com.wrmsr.tokamak.core.plan.node.PFilter;
@@ -234,6 +235,9 @@ public class CoreTest
         // catalog = om.readValue(src, Catalog.class);
 
         Plan plan = buildPlan(catalog);
+
+        IdFieldAnalysis ifa = IdFieldAnalysis.analyze(plan);
+        System.out.println(ifa);
 
         src = om.writerWithDefaultPrettyPrinter().writeValueAsString(plan);
         System.out.println(src);

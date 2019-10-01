@@ -18,7 +18,7 @@ import com.wrmsr.tokamak.core.plan.node.PCache;
 import com.wrmsr.tokamak.core.plan.node.PCrossJoin;
 import com.wrmsr.tokamak.core.plan.node.PEquiJoin;
 import com.wrmsr.tokamak.core.plan.node.PFilter;
-import com.wrmsr.tokamak.core.plan.node.PListAggregate;
+import com.wrmsr.tokamak.core.plan.node.PGroupBy;
 import com.wrmsr.tokamak.core.plan.node.PLookupJoin;
 import com.wrmsr.tokamak.core.plan.node.PNode;
 import com.wrmsr.tokamak.core.plan.node.PProject;
@@ -48,7 +48,7 @@ public final class NodeRenderings
                     .add(new NodeRendering<>(PCrossJoin.class))
                     .add(new NodeRendering<>(PEquiJoin.class))
                     .add(new NodeRendering<>(PFilter.class))
-                    .add(new NodeRendering<>(PListAggregate.class))
+                    .add(new NodeRendering<>(PGroupBy.class))
                     .add(new NodeRendering<>(PLookupJoin.class))
                     .add(new NodeRendering<>(PProject.class))
                     .add(new NodeRendering<>(PScan.class))
