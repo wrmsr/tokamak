@@ -13,10 +13,10 @@
  */
 package com.wrmsr.tokamak.core.type;
 
-import com.wrmsr.tokamak.core.parse.CaseInsensitiveCharStream;
 import com.wrmsr.tokamak.core.parse.TypeBaseVisitor;
 import com.wrmsr.tokamak.core.parse.TypeLexer;
 import com.wrmsr.tokamak.core.parse.TypeParser;
+import com.wrmsr.tokamak.core.tree.CaseInsensitiveCharStream;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;

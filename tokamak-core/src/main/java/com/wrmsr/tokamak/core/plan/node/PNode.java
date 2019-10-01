@@ -29,7 +29,7 @@ import java.util.List;
 @JsonSubTypes({
         @JsonSubTypes.Type(value = PCache.class, name = "cache"),
         @JsonSubTypes.Type(value = PCrossJoin.class, name = "crossJoin"),
-        @JsonSubTypes.Type(value = PEquiJoin.class, name = "equijoin"),
+        @JsonSubTypes.Type(value = PEquiJoin.class, name = "equiJoin"),
         @JsonSubTypes.Type(value = PFilter.class, name = "filter"),
         @JsonSubTypes.Type(value = PListAggregate.class, name = "listAggregate"),
         @JsonSubTypes.Type(value = PLookupJoin.class, name = "lookupJoin"),

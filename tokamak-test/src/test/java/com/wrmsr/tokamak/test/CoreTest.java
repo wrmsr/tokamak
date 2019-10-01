@@ -194,8 +194,8 @@ public class CoreTest
                 ImmutableMap.of(),
                 Optional.empty());
 
-        PNode equijoinNode0 = new PEquiJoin(
-                "equijoin0",
+        PNode equiJoinNode0 = new PEquiJoin(
+                "equiJoin0",
                 ImmutableList.of(
                         new PEquiJoin.Branch(projectNode0, ImmutableList.of("N_REGIONKEY")),
                         new PEquiJoin.Branch(stateNode1, ImmutableList.of("R_REGIONKEY"))
@@ -204,7 +204,7 @@ public class CoreTest
 
         PNode persistNode0 = new PState(
                 "persist0",
-                equijoinNode0,
+                equiJoinNode0,
                 Optional.of(ImmutableList.of(ImmutableSet.of("R_REGIONKEY"))),
                 ImmutableList.of(),
                 false,

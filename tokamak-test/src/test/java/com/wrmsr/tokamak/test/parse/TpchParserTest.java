@@ -20,20 +20,20 @@ import com.wrmsr.tokamak.core.exec.Executable;
 import com.wrmsr.tokamak.core.exec.Reflection;
 import com.wrmsr.tokamak.core.exec.SimpleExecutable;
 import com.wrmsr.tokamak.core.exec.builtin.BuiltinExecutor;
-import com.wrmsr.tokamak.core.parse.AstBuilding;
-import com.wrmsr.tokamak.core.parse.AstPlanner;
-import com.wrmsr.tokamak.core.parse.AstRendering;
-import com.wrmsr.tokamak.core.parse.Parsing;
 import com.wrmsr.tokamak.core.parse.SqlParser;
-import com.wrmsr.tokamak.core.parse.analysis.ScopeAnalysis;
-import com.wrmsr.tokamak.core.parse.analysis.TypeAnalysis;
-import com.wrmsr.tokamak.core.parse.transform.SelectExpansion;
-import com.wrmsr.tokamak.core.parse.transform.SymbolResolution;
-import com.wrmsr.tokamak.core.parse.transform.ViewInlining;
-import com.wrmsr.tokamak.core.parse.node.TNode;
 import com.wrmsr.tokamak.core.plan.Plan;
 import com.wrmsr.tokamak.core.plan.node.PNode;
 import com.wrmsr.tokamak.core.plan.transform.PTransforms;
+import com.wrmsr.tokamak.core.tree.TreeBuilding;
+import com.wrmsr.tokamak.core.tree.TreeParsing;
+import com.wrmsr.tokamak.core.tree.TreePlanner;
+import com.wrmsr.tokamak.core.tree.TreeRendering;
+import com.wrmsr.tokamak.core.tree.analysis.ScopeAnalysis;
+import com.wrmsr.tokamak.core.tree.analysis.TypeAnalysis;
+import com.wrmsr.tokamak.core.tree.node.TNode;
+import com.wrmsr.tokamak.core.tree.transform.SelectExpansion;
+import com.wrmsr.tokamak.core.tree.transform.SymbolResolution;
+import com.wrmsr.tokamak.core.tree.transform.ViewInlining;
 import com.wrmsr.tokamak.core.type.Type;
 import com.wrmsr.tokamak.core.type.Types;
 import com.wrmsr.tokamak.core.type.impl.FunctionType;
@@ -116,23 +116,23 @@ public class TpchParserTest
         }) {
             Catalog catalog = new Catalog(ImmutableList.of(rootCatalog));
 
-            SqlParser parser = Parsing.parse(str);
-            TNode treeNode = AstBuilding.build(parser.statement());
-            System.out.println(AstRendering.render(treeNode));
+            SqlParser parser = TreeParsing.parse(str);
+            TNode treeNode = TreeBuilding.build(parser.statement());
+            System.out.println(TreeRendering.render(treeNode));
 
             treeNode = ViewInlining.inlineViews(treeNode, catalog);
             treeNode = SelectExpansion.expandSelects(treeNode, catalog, defaultSchema);
-            System.out.println(AstRendering.render(treeNode));
+            System.out.println(TreeRendering.render(treeNode));
 
             treeNode = SymbolResolution.resolveSymbols(treeNode, Optional.of(catalog), defaultSchema);
-            System.out.println(AstRendering.render(treeNode));
+            System.out.println(TreeRendering.render(treeNode));
 
             ScopeAnalysis sa = ScopeAnalysis.analyze(treeNode, Optional.of(catalog), defaultSchema);
             ScopeAnalysis.Resolutions sar = sa.getResolutions();
 
             TypeAnalysis ta = TypeAnalysis.analyze(treeNode, catalog, defaultSchema);
 
-            PNode node = new AstPlanner(Optional.of(catalog), defaultSchema).plan(treeNode);
+            PNode node = new TreePlanner(Optional.of(catalog), defaultSchema).plan(treeNode);
             Plan plan = new Plan(node);
 
             plan = PTransforms.addScanNodeIdFields(plan, catalog);
