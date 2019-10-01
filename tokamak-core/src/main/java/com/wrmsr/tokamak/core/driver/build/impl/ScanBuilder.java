@@ -56,7 +56,7 @@ public final class ScanBuilder
 
         idSerde = new TupleSerde(
                 orderedIdFields.stream()
-                        .map(node.getFields()::get)
+                        .map(node.getFields()::getType)
                         .map(Serdes.VALUE_SERDES_BY_TYPE::get)
                         .collect(toImmutableList()));
     }
