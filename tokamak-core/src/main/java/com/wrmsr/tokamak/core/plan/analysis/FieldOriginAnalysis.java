@@ -14,6 +14,7 @@
 
 package com.wrmsr.tokamak.core.plan.analysis;
 
+import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.core.plan.Plan;
 import com.wrmsr.tokamak.core.plan.node.PCache;
 import com.wrmsr.tokamak.core.plan.node.PCrossJoin;
@@ -24,6 +25,7 @@ import com.wrmsr.tokamak.core.plan.node.PLookupJoin;
 import com.wrmsr.tokamak.core.plan.node.PNode;
 import com.wrmsr.tokamak.core.plan.node.PProject;
 import com.wrmsr.tokamak.core.plan.node.PScan;
+import com.wrmsr.tokamak.core.plan.node.PSingleSource;
 import com.wrmsr.tokamak.core.plan.node.PState;
 import com.wrmsr.tokamak.core.plan.node.PUnion;
 import com.wrmsr.tokamak.core.plan.node.PUnnest;
@@ -32,14 +34,12 @@ import com.wrmsr.tokamak.core.plan.node.visitor.PNodeVisitor;
 
 import javax.annotation.concurrent.Immutable;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.wrmsr.tokamak.util.MoreCollections.newImmutableSetMap;
-import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
+import static com.google.common.base.Preconditions.checkState;
 
 @Immutable
 public final class FieldOriginAnalysis
@@ -54,6 +54,7 @@ public final class FieldOriginAnalysis
         {
             this.node = checkNotNull(node);
             this.field = checkNotNull(field);
+            checkState(node.getFields().contains(field));
         }
 
         @Override
@@ -90,26 +91,80 @@ public final class FieldOriginAnalysis
         {
             return field;
         }
+
+        public static NodeField of(PNode node, String field)
+        {
+            return new NodeField(node, field);
+        }
     }
 
-    private final Map<PNode, Map<String, Set<NodeField>>> originSetsByFieldByNode;
-
-    private FieldOriginAnalysis(Map<PNode, Map<String, Set<NodeField>>> originSetsByFieldByNode)
+    @Immutable
+    public static final class Origination
     {
-        this.originSetsByFieldByNode = originSetsByFieldByNode.entrySet().stream()
-                .collect(toImmutableMap(Map.Entry::getKey, e -> newImmutableSetMap(e.getValue())));
+        private final NodeField sink;
+        private final NodeField source;
+        private final boolean weak;
+
+        private Origination(NodeField sink, NodeField source, boolean weak)
+        {
+            this.sink = checkNotNull(sink);
+            this.source = checkNotNull(source);
+            this.weak = weak;
+
+            checkState(sink.node.getSources().contains(source.node));
+        }
+
+        @Override
+        public String toString()
+        {
+            return "Origination{" +
+                    "sink=" + sink +
+                    ", source=" + source +
+                    ", weak=" + weak +
+                    '}';
+        }
+
+        public NodeField getSink()
+        {
+            return sink;
+        }
+
+        public NodeField getSource()
+        {
+            return source;
+        }
+
+        public boolean isWeak()
+        {
+            return weak;
+        }
+    }
+
+    private final List<Origination> originations;
+
+    private FieldOriginAnalysis(List<Origination> originations)
+    {
+        this.originations = ImmutableList.copyOf(originations);
     }
 
     public static FieldOriginAnalysis analyze(Plan plan)
     {
-        Map<PNode, Map<String, Set<NodeField>>> originSetsByFieldByNode = new LinkedHashMap<>();
+        List<Origination> originations = new ArrayList<>();
 
         plan.getRoot().accept(new PNodeVisitor<Void, Void>()
         {
+            private void addSimple(PSingleSource node)
+            {
+                node.getFields().getNames().forEach(f ->
+                        originations.add(new Origination(NodeField.of(node, f), NodeField.of(node.getSource(), f), false)));
+            }
+
             @Override
             public Void visitCacheNode(PCache node, Void context)
             {
-                return super.visitCacheNode(node, context);
+                node.getSource().accept(this, context);
+                addSimple(node);
+                return null;
             }
 
             @Override
@@ -178,5 +233,7 @@ public final class FieldOriginAnalysis
                 return super.visitValuesNode(node, context);
             }
         }, null);
+
+        return new FieldOriginAnalysis(originations);
     }
 }
