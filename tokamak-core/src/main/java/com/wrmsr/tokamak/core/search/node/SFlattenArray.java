@@ -14,7 +14,14 @@
 
 package com.wrmsr.tokamak.core.search.node;
 
+import com.wrmsr.tokamak.core.search.node.visitor.SNodeVisitor;
+
 public final class SFlattenArray
         extends SNode
 {
+    @Override
+    public <R, C> R accept(SNodeVisitor<R, C> visitor, C context)
+    {
+        return visitor.visitFlattenArray(this, context);
+    }
 }

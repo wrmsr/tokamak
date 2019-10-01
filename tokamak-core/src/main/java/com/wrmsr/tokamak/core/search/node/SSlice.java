@@ -14,7 +14,14 @@
 
 package com.wrmsr.tokamak.core.search.node;
 
+import com.wrmsr.tokamak.core.search.node.visitor.SNodeVisitor;
+
 public final class SSlice
         extends SNode
 {
+    @Override
+    public <R, C> R accept(SNodeVisitor<R, C> visitor, C context)
+    {
+        return visitor.visitSlice(this, context);
+    }
 }
