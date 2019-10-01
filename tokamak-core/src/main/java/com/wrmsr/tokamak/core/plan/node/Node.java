@@ -28,6 +28,7 @@ import java.util.Map;
         use = JsonTypeInfo.Id.NAME,
         include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonSubTypes({
+        @JsonSubTypes.Type(value = CacheNode.class, name = "cache"),
         @JsonSubTypes.Type(value = CrossJoinNode.class, name = "crossJoin"),
         @JsonSubTypes.Type(value = EquijoinNode.class, name = "equijoin"),
         @JsonSubTypes.Type(value = FilterNode.class, name = "filter"),
