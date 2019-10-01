@@ -18,19 +18,19 @@ import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.core.catalog.Catalog;
 import com.wrmsr.tokamak.core.catalog.Table;
-import com.wrmsr.tokamak.core.parse.tree.AliasedRelation;
-import com.wrmsr.tokamak.core.parse.tree.AllSelectItem;
-import com.wrmsr.tokamak.core.parse.tree.Expression;
-import com.wrmsr.tokamak.core.parse.tree.ExpressionSelectItem;
-import com.wrmsr.tokamak.core.parse.tree.QualifiedName;
-import com.wrmsr.tokamak.core.parse.tree.QualifiedNameExpression;
-import com.wrmsr.tokamak.core.parse.tree.Relation;
-import com.wrmsr.tokamak.core.parse.tree.Select;
-import com.wrmsr.tokamak.core.parse.tree.SelectItem;
-import com.wrmsr.tokamak.core.parse.tree.SubqueryRelation;
-import com.wrmsr.tokamak.core.parse.tree.TableName;
-import com.wrmsr.tokamak.core.parse.tree.TreeNode;
-import com.wrmsr.tokamak.core.parse.tree.visitor.AstRewriter;
+import com.wrmsr.tokamak.core.parse.node.TAliasedRelation;
+import com.wrmsr.tokamak.core.parse.node.TAllSelectItem;
+import com.wrmsr.tokamak.core.parse.node.TExpression;
+import com.wrmsr.tokamak.core.parse.node.TExpressionSelectItem;
+import com.wrmsr.tokamak.core.parse.node.TQualifiedName;
+import com.wrmsr.tokamak.core.parse.node.TQualifiedNameExpression;
+import com.wrmsr.tokamak.core.parse.node.TRelation;
+import com.wrmsr.tokamak.core.parse.node.TSelect;
+import com.wrmsr.tokamak.core.parse.node.TSelectItem;
+import com.wrmsr.tokamak.core.parse.node.TSubqueryRelation;
+import com.wrmsr.tokamak.core.parse.node.TTableName;
+import com.wrmsr.tokamak.core.parse.node.TNode;
+import com.wrmsr.tokamak.core.parse.node.visitor.TNodeRewriter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -52,31 +52,31 @@ public final class SelectExpansion
     {
     }
 
-    private static List<AliasedRelation> addRelationAliases(List<AliasedRelation> aliasedRelations)
+    private static List<TAliasedRelation> addRelationAliases(List<TAliasedRelation> aliasedRelations)
     {
         Set<String> seen = new HashSet<>();
-        List<AliasedRelation> ret = new ArrayList<>();
+        List<TAliasedRelation> ret = new ArrayList<>();
         int numAnon = 0;
 
         Map<String, Long> tableNameCounts = histogram(aliasedRelations.stream()
-                .map(AliasedRelation::getRelation)
-                .filter(TableName.class::isInstance)
-                .map(TableName.class::cast)
-                .map(TableName::getQualifiedName)
-                .map(QualifiedName::getLast));
+                .map(TAliasedRelation::getRelation)
+                .filter(TTableName.class::isInstance)
+                .map(TTableName.class::cast)
+                .map(TTableName::getQualifiedName)
+                .map(TQualifiedName::getLast));
         Map<String, Integer> dupeTableNameCounts = new HashMap<>();
 
-        for (AliasedRelation ar : aliasedRelations) {
+        for (TAliasedRelation ar : aliasedRelations) {
             if (!ar.getAlias().isPresent()) {
-                Relation r = ar.getRelation();
+                TRelation r = ar.getRelation();
                 String alias;
 
-                if (r instanceof SubqueryRelation) {
+                if (r instanceof TSubqueryRelation) {
                     alias = "_" + (numAnon++);
                 }
 
-                else if (r instanceof TableName) {
-                    TableName tn = (TableName) r;
+                else if (r instanceof TTableName) {
+                    TTableName tn = (TTableName) r;
                     String name = tn.getQualifiedName().getLast();
                     if (tableNameCounts.get(name) > 1) {
                         int num = dupeTableNameCounts.getOrDefault(name, 0);
@@ -92,7 +92,7 @@ public final class SelectExpansion
                     throw new IllegalStateException(Objects.toString(r));
                 }
 
-                ar = new AliasedRelation(
+                ar = new TAliasedRelation(
                         ar.getRelation(),
                         Optional.of(alias));
             }
@@ -105,24 +105,24 @@ public final class SelectExpansion
         return ImmutableList.copyOf(ret);
     }
 
-    private static List<SelectItem> addItemLabels(
-            List<SelectItem> items,
-            List<AliasedRelation> relations,
-            Map<TreeNode, Set<String>> fieldSetsByNode)
+    private static List<TSelectItem> addItemLabels(
+            List<TSelectItem> items,
+            List<TAliasedRelation> relations,
+            Map<TNode, Set<String>> fieldSetsByNode)
     {
         Set<String> seen = new HashSet<>();
-        List<SelectItem> ret = new ArrayList<>();
+        List<TSelectItem> ret = new ArrayList<>();
         int numAnon = 0;
 
         Map<String, Long> relationFieldCounts = histogram(relations.stream()
-                .map(AliasedRelation::getRelation)
+                .map(TAliasedRelation::getRelation)
                 .map(fieldSetsByNode::get)
                 .flatMap(Set::stream));
 
-        for (SelectItem item : items) {
-            if (item instanceof AllSelectItem) {
+        for (TSelectItem item : items) {
+            if (item instanceof TAllSelectItem) {
                 Map<String, Integer> dupeCounts = new HashMap<>();
-                for (AliasedRelation relation : relations) {
+                for (TAliasedRelation relation : relations) {
                     Set<String> relationFields = fieldSetsByNode.get(relation.getRelation());
                     for (String relationField : relationFields) {
                         String label;
@@ -138,23 +138,23 @@ public final class SelectExpansion
                         checkState(!seen.contains(label));
                         seen.add(label);
                         ret.add(
-                                new ExpressionSelectItem(
-                                        new QualifiedNameExpression(
-                                                new QualifiedName(
+                                new TExpressionSelectItem(
+                                        new TQualifiedNameExpression(
+                                                new TQualifiedName(
                                                         ImmutableList.of(relation.getAlias().get(), relationField))),
                                         Optional.of(label)));
                     }
                 }
             }
 
-            else if (item instanceof ExpressionSelectItem) {
-                ExpressionSelectItem eitem = (ExpressionSelectItem) item;
+            else if (item instanceof TExpressionSelectItem) {
+                TExpressionSelectItem eitem = (TExpressionSelectItem) item;
                 String label;
                 if (eitem.getLabel().isPresent()) {
                     label = eitem.getLabel().get();
                 }
-                else if (eitem.getExpression() instanceof QualifiedNameExpression) {
-                    label = ((QualifiedNameExpression) eitem.getExpression()).getQualifiedName().getLast();
+                else if (eitem.getExpression() instanceof TQualifiedNameExpression) {
+                    label = ((TQualifiedNameExpression) eitem.getExpression()).getQualifiedName().getLast();
                 }
                 else {
                     label = "_" + (numAnon++);
@@ -163,7 +163,7 @@ public final class SelectExpansion
                 checkState(!seen.contains(label));
                 seen.add(label);
                 ret.add(
-                        new ExpressionSelectItem(
+                        new TExpressionSelectItem(
                                 eitem.getExpression(),
                                 Optional.of(label)));
             }
@@ -176,35 +176,35 @@ public final class SelectExpansion
         return ret;
     }
 
-    public static TreeNode expandSelects(TreeNode node, Catalog catalog, Optional<String> defaultSchema)
+    public static TNode expandSelects(TNode node, Catalog catalog, Optional<String> defaultSchema)
     {
-        return node.accept(new AstRewriter<Void>()
+        return node.accept(new TNodeRewriter<Void>()
         {
-            private final Map<TreeNode, Set<String>> fieldSetsByNode = new HashMap<>();
+            private final Map<TNode, Set<String>> fieldSetsByNode = new HashMap<>();
 
             @Override
-            public TreeNode visitSelect(Select treeNode, Void context)
+            public TNode visitSelect(TSelect treeNode, Void context)
             {
-                List<AliasedRelation> relations = addRelationAliases(
+                List<TAliasedRelation> relations = addRelationAliases(
                         treeNode.getRelations().stream()
-                                .map(r -> (AliasedRelation) r.accept(this, context))
+                                .map(r -> (TAliasedRelation) r.accept(this, context))
                                 .collect(toImmutableList()));
 
-                List<SelectItem> items = addItemLabels(
+                List<TSelectItem> items = addItemLabels(
                         treeNode.getItems(),
                         relations,
                         fieldSetsByNode);
 
                 Set<String> fields = items.stream()
-                        .map(ExpressionSelectItem.class::cast)
-                        .map(ExpressionSelectItem::getLabel)
+                        .map(TExpressionSelectItem.class::cast)
+                        .map(TExpressionSelectItem::getLabel)
                         .map(Optional::get)
                         .collect(toImmutableSet());
 
-                Select ret = new Select(
+                TSelect ret = new TSelect(
                         items,
                         relations,
-                        treeNode.getWhere().map(w -> (Expression) w.accept(this, context)));
+                        treeNode.getWhere().map(w -> (TExpression) w.accept(this, context)));
 
                 fieldSetsByNode.put(ret, fields);
 
@@ -212,15 +212,15 @@ public final class SelectExpansion
             }
 
             @Override
-            public TreeNode visitSubqueryRelation(SubqueryRelation treeNode, Void context)
+            public TNode visitSubqueryRelation(TSubqueryRelation treeNode, Void context)
             {
                 return super.visitSubqueryRelation(treeNode, context);
             }
 
             @Override
-            public TreeNode visitTableName(TableName treeNode, Void context)
+            public TNode visitTableName(TTableName treeNode, Void context)
             {
-                TableName ret = (TableName) super.visitTableName(treeNode, context);
+                TTableName ret = (TTableName) super.visitTableName(treeNode, context);
                 SchemaTable schemaTable = treeNode.getQualifiedName().toSchemaTable(defaultSchema);
                 Table table = catalog.getSchemaTable(schemaTable);
                 fieldSetsByNode.put(ret, ImmutableSet.copyOf(table.getRowLayout().getFieldNames()));

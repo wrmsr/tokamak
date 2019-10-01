@@ -27,19 +27,19 @@ import com.wrmsr.tokamak.core.driver.build.impl.StateBuilder;
 import com.wrmsr.tokamak.core.driver.build.impl.UnionBuilder;
 import com.wrmsr.tokamak.core.driver.build.impl.UnnestBuilder;
 import com.wrmsr.tokamak.core.driver.build.impl.ValuesBuilder;
-import com.wrmsr.tokamak.core.plan.node.CacheNode;
-import com.wrmsr.tokamak.core.plan.node.CrossJoinNode;
-import com.wrmsr.tokamak.core.plan.node.EquijoinNode;
-import com.wrmsr.tokamak.core.plan.node.FilterNode;
-import com.wrmsr.tokamak.core.plan.node.ListAggregateNode;
-import com.wrmsr.tokamak.core.plan.node.LookupJoinNode;
-import com.wrmsr.tokamak.core.plan.node.Node;
-import com.wrmsr.tokamak.core.plan.node.ProjectNode;
-import com.wrmsr.tokamak.core.plan.node.ScanNode;
-import com.wrmsr.tokamak.core.plan.node.StateNode;
-import com.wrmsr.tokamak.core.plan.node.UnionNode;
-import com.wrmsr.tokamak.core.plan.node.UnnestNode;
-import com.wrmsr.tokamak.core.plan.node.ValuesNode;
+import com.wrmsr.tokamak.core.plan.node.PCache;
+import com.wrmsr.tokamak.core.plan.node.PCrossJoin;
+import com.wrmsr.tokamak.core.plan.node.PEquiJoin;
+import com.wrmsr.tokamak.core.plan.node.PFilter;
+import com.wrmsr.tokamak.core.plan.node.PListAggregate;
+import com.wrmsr.tokamak.core.plan.node.PLookupJoin;
+import com.wrmsr.tokamak.core.plan.node.PNode;
+import com.wrmsr.tokamak.core.plan.node.PProject;
+import com.wrmsr.tokamak.core.plan.node.PScan;
+import com.wrmsr.tokamak.core.plan.node.PState;
+import com.wrmsr.tokamak.core.plan.node.PUnion;
+import com.wrmsr.tokamak.core.plan.node.PUnnest;
+import com.wrmsr.tokamak.core.plan.node.PValues;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -53,7 +53,7 @@ public class BuilderFactory
 {
     private final DriverImpl driver;
 
-    private final Map<Node, Builder> buildersByNode = new HashMap<>();
+    private final Map<PNode, Builder> buildersByNode = new HashMap<>();
 
     public BuilderFactory(DriverImpl driver)
     {
@@ -63,33 +63,33 @@ public class BuilderFactory
     @FunctionalInterface
     private interface BuilderConstructor
     {
-        Builder create(DriverImpl driver, Node node, Map<Node, Builder> sources);
+        Builder create(DriverImpl driver, PNode node, Map<PNode, Builder> sources);
     }
 
-    private final Map<Class<? extends Node>, BuilderConstructor> BUILDER_CONSTRUCTORS_BY_NODE_TYPE =
-            ImmutableMap.<Class<? extends Node>, BuilderConstructor>builder()
-                    .put(CacheNode.class, (d, n, s) -> new CacheBuilder(d, (CacheNode) n, s))
-                    .put(CrossJoinNode.class, (d, n, s) -> new CrossJoinBuilder(d, (CrossJoinNode) n, s))
-                    .put(EquijoinNode.class, (d, n, s) -> new EquijoinBuilder(d, (EquijoinNode) n, s))
-                    .put(FilterNode.class, (d, n, s) -> new FilterBuilder(d, (FilterNode) n, s))
-                    .put(ListAggregateNode.class, (d, n, s) -> new ListAggregateBuilder(d, (ListAggregateNode) n, s))
-                    .put(LookupJoinNode.class, (d, n, s) -> new LookupJoinBuilder(d, (LookupJoinNode) n, s))
-                    .put(ProjectNode.class, (d, n, s) -> new ProjectBuilder(d, (ProjectNode) n, s))
-                    .put(ScanNode.class, (d, n, s) -> new ScanBuilder(d, (ScanNode) n, s))
-                    .put(StateNode.class, (d, n, s) -> new StateBuilder(d, (StateNode) n, s))
-                    .put(UnionNode.class, (d, n, s) -> new UnionBuilder(d, (UnionNode) n, s))
-                    .put(UnnestNode.class, (d, n, s) -> new UnnestBuilder(d, (UnnestNode) n, s))
-                    .put(ValuesNode.class, (d, n, s) -> new ValuesBuilder(d, (ValuesNode) n, s))
+    private final Map<Class<? extends PNode>, BuilderConstructor> BUILDER_CONSTRUCTORS_BY_NODE_TYPE =
+            ImmutableMap.<Class<? extends PNode>, BuilderConstructor>builder()
+                    .put(PCache.class, (d, n, s) -> new CacheBuilder(d, (PCache) n, s))
+                    .put(PCrossJoin.class, (d, n, s) -> new CrossJoinBuilder(d, (PCrossJoin) n, s))
+                    .put(PEquiJoin.class, (d, n, s) -> new EquijoinBuilder(d, (PEquiJoin) n, s))
+                    .put(PFilter.class, (d, n, s) -> new FilterBuilder(d, (PFilter) n, s))
+                    .put(PListAggregate.class, (d, n, s) -> new ListAggregateBuilder(d, (PListAggregate) n, s))
+                    .put(PLookupJoin.class, (d, n, s) -> new LookupJoinBuilder(d, (PLookupJoin) n, s))
+                    .put(PProject.class, (d, n, s) -> new ProjectBuilder(d, (PProject) n, s))
+                    .put(PScan.class, (d, n, s) -> new ScanBuilder(d, (PScan) n, s))
+                    .put(PState.class, (d, n, s) -> new StateBuilder(d, (PState) n, s))
+                    .put(PUnion.class, (d, n, s) -> new UnionBuilder(d, (PUnion) n, s))
+                    .put(PUnnest.class, (d, n, s) -> new UnnestBuilder(d, (PUnnest) n, s))
+                    .put(PValues.class, (d, n, s) -> new ValuesBuilder(d, (PValues) n, s))
                     .build();
 
-    public synchronized Builder get(Node node)
+    public synchronized Builder get(PNode node)
     {
         Builder builder = buildersByNode.get(node);
         if (builder != null) {
             return builder;
         }
 
-        Map<Node, Builder> sources = node.getSources().stream()
+        Map<PNode, Builder> sources = node.getSources().stream()
                 .collect(toImmutableMap(identity(), this::get));
 
         BuilderConstructor ctor = checkNotNull(BUILDER_CONSTRUCTORS_BY_NODE_TYPE.get(node.getClass()));

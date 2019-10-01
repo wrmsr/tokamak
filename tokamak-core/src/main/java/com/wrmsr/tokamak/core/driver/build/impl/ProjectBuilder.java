@@ -24,9 +24,9 @@ import com.wrmsr.tokamak.core.driver.build.ops.RequestBuildOp;
 import com.wrmsr.tokamak.core.driver.build.ops.ResponseBuildOp;
 import com.wrmsr.tokamak.core.driver.context.DriverContextImpl;
 import com.wrmsr.tokamak.core.exec.Executable;
-import com.wrmsr.tokamak.core.plan.node.Node;
-import com.wrmsr.tokamak.core.plan.node.ProjectNode;
-import com.wrmsr.tokamak.core.plan.node.Projection;
+import com.wrmsr.tokamak.core.plan.node.PNode;
+import com.wrmsr.tokamak.core.plan.node.PProject;
+import com.wrmsr.tokamak.core.plan.node.PProjection;
 
 import java.util.Map;
 import java.util.Objects;
@@ -35,9 +35,9 @@ import java.util.function.Consumer;
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
 
 public final class ProjectBuilder
-        extends SingleSourceBuilder<ProjectNode>
+        extends SingleSourceBuilder<PProject>
 {
-    public ProjectBuilder(DriverImpl driver, ProjectNode node, Map<Node, Builder> sources)
+    public ProjectBuilder(DriverImpl driver, PProject node, Map<PNode, Builder> sources)
     {
         super(driver, node, sources);
     }
@@ -58,15 +58,15 @@ public final class ProjectBuilder
                 Map<String, Object> rowMap = row.getMap();
                 Object[] attributes = new Object[node.getFields().size()];
                 int pos = 0;
-                for (Map.Entry<String, Projection.Input> entry : node.getProjection()) {
+                for (Map.Entry<String, PProjection.Input> entry : node.getProjection()) {
                     Object value;
 
-                    if (entry.getValue() instanceof Projection.FieldInput) {
-                        Projection.FieldInput fieldInput = (Projection.FieldInput) entry.getValue();
+                    if (entry.getValue() instanceof PProjection.FieldInput) {
+                        PProjection.FieldInput fieldInput = (PProjection.FieldInput) entry.getValue();
                         value = rowMap.get(fieldInput.getField());
                     }
-                    else if (entry.getValue() instanceof Projection.FunctionInput) {
-                        Projection.FunctionInput functionInput = (Projection.FunctionInput) entry.getValue();
+                    else if (entry.getValue() instanceof PProjection.FunctionInput) {
+                        PProjection.FunctionInput functionInput = (PProjection.FunctionInput) entry.getValue();
                         // FIXME: check lol
                         Function function = context.getDriver().getCatalog().getFunctionsByName()
                                 .get(functionInput.getFunction().getName());

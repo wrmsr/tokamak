@@ -24,18 +24,18 @@ import com.wrmsr.tokamak.core.driver.build.ops.RequestBuildOp;
 import com.wrmsr.tokamak.core.driver.build.ops.ResponseBuildOp;
 import com.wrmsr.tokamak.core.driver.context.DriverContextImpl;
 import com.wrmsr.tokamak.core.exec.Executable;
-import com.wrmsr.tokamak.core.plan.node.FilterNode;
-import com.wrmsr.tokamak.core.plan.node.Node;
+import com.wrmsr.tokamak.core.plan.node.PFilter;
+import com.wrmsr.tokamak.core.plan.node.PNode;
 
 import java.util.Map;
 import java.util.function.Consumer;
 
 public final class FilterBuilder
-        extends SingleSourceBuilder<FilterNode>
+        extends SingleSourceBuilder<PFilter>
 {
     private final Executable executable;
 
-    public FilterBuilder(DriverImpl driver, FilterNode node, Map<Node, Builder> sources)
+    public FilterBuilder(DriverImpl driver, PFilter node, Map<PNode, Builder> sources)
     {
         super(driver, node, sources);
 

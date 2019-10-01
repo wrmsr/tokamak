@@ -30,9 +30,9 @@ public class NodesTest
     {
         Object obj = Json.OBJECT_MAPPER_SUPPLIER.get().readValue("{\"a\": [420]}", Object.class);
 
-        String s = Json.writeValue(NodeId.of("hi there"));
+        String s = Json.writeValue(PNodeId.of("hi there"));
         System.out.println(s);
-        NodeId nid = Json.readValue(s, NodeId.class);
+        PNodeId nid = Json.readValue(s, PNodeId.class);
         System.out.println(nid);
 
         s = Json.writeValue(Id.of(new byte[] {(byte) 0x12, (byte) 0x14}));
@@ -45,17 +45,17 @@ public class NodesTest
     public void testNodes()
             throws Throwable
     {
-        Node scanNode = new ScanNode(
+        PNode scanNode = new PScan(
                 "scan0",
                 SchemaTable.of("public", "hi"),
                 ImmutableMap.of("id", Types.LONG, "thing", Types.STRING),
                 ImmutableSet.of("id"),
                 ImmutableSet.of());
 
-        Node projectNode = new ProjectNode(
+        PNode projectNode = new PProject(
                 "project0",
                 scanNode,
-                Projection.of(
+                PProjection.of(
                         "id", "id",
                         "fn", Reflection.reflect(() -> 0L)
                 ));
@@ -63,7 +63,7 @@ public class NodesTest
         String json = Json.writeValuePretty(projectNode);
         System.out.println(json);
 
-        Node deserNode = Json.readValue(json, Node.class);
+        PNode deserNode = Json.readValue(json, PNode.class);
         System.out.println(deserNode);
     }
 }

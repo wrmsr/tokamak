@@ -14,8 +14,8 @@
 package com.wrmsr.tokamak.core.plan.dot;
 
 import com.wrmsr.tokamak.core.plan.Plan;
-import com.wrmsr.tokamak.core.plan.node.Node;
-import com.wrmsr.tokamak.core.plan.node.visitor.CachingNodeVisitor;
+import com.wrmsr.tokamak.core.plan.node.PNode;
+import com.wrmsr.tokamak.core.plan.node.visitor.CachingPNodeVisitor;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -31,7 +31,7 @@ public final class Dot
     }
 
     public static class Visitor
-            extends CachingNodeVisitor<String, Void>
+            extends CachingPNodeVisitor<String, Void>
     {
         private final Plan plan;
 
@@ -41,7 +41,7 @@ public final class Dot
         }
 
         @Override
-        protected String visitNode(Node node, Void context)
+        protected String visitNode(PNode node, Void context)
         {
             NodeRendering rendering = checkNotNull(NodeRenderings.NODE_RENDERING_MAP.get().get(node.getClass()));
             return String.format("%s [style=filled, fillcolor=\"%s\", label=%s];", node.getName(), rendering.getColor().toString(), node.getName());
@@ -54,13 +54,13 @@ public final class Dot
         sb.append("digraph G {\n");
 
         Visitor visitor = new Visitor(plan);
-        for (Node node : plan.getReverseToposortedNodes()) {
+        for (PNode node : plan.getReverseToposortedNodes()) {
             sb.append(node.accept(visitor, null));
             sb.append("\n");
         }
 
-        for (Node node : plan.getToposortedNodes()) {
-            for (Node source : node.getSources()) {
+        for (PNode node : plan.getToposortedNodes()) {
+            for (PNode source : node.getSources()) {
                 sb.append(String.format("%s -> %s [dir=back];\n", node.getName(), source.getName()));
             }
         }

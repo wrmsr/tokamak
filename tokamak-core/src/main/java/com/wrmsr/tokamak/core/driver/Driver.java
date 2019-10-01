@@ -20,7 +20,7 @@ import com.wrmsr.tokamak.core.catalog.Catalog;
 import com.wrmsr.tokamak.core.catalog.Connection;
 import com.wrmsr.tokamak.core.catalog.Connector;
 import com.wrmsr.tokamak.core.plan.Plan;
-import com.wrmsr.tokamak.core.plan.node.Node;
+import com.wrmsr.tokamak.core.plan.node.PNode;
 import com.wrmsr.tokamak.util.NoExceptAutoCloseable;
 
 import java.io.IOException;
@@ -47,9 +47,9 @@ public interface Driver
     Context createContext()
             throws IOException;
 
-    Collection<Row> build(Context context, Node node, Key key)
+    Collection<Row> build(Context context, PNode node, Key key)
             throws IOException;
 
-    Collection<Row> sync(Context context, Map<Node, Set<Id>> idSetsByNode)
+    Collection<Row> sync(Context context, Map<PNode, Set<Id>> idSetsByNode)
             throws IOException;
 }

@@ -19,8 +19,8 @@ import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.core.conn.heap.MapHeapStateStorage;
-import com.wrmsr.tokamak.core.plan.node.ScanNode;
-import com.wrmsr.tokamak.core.plan.node.StateNode;
+import com.wrmsr.tokamak.core.plan.node.PScan;
+import com.wrmsr.tokamak.core.plan.node.PState;
 import com.wrmsr.tokamak.core.type.Types;
 import junit.framework.TestCase;
 
@@ -34,14 +34,14 @@ public class StateStorageTest
     public void testMap()
             throws Throwable
     {
-        ScanNode scanNode = new ScanNode(
+        PScan scanNode = new PScan(
                 "scan",
                 SchemaTable.of("s", "t"),
                 ImmutableMap.of("id", Types.LONG),
                 ImmutableSet.of("id"),
                 ImmutableSet.of());
 
-        StateNode stateNode = new StateNode(
+        PState stateNode = new PState(
                 "state",
                 scanNode,
                 Optional.of(ImmutableList.of(ImmutableSet.of("id"))),
@@ -52,7 +52,7 @@ public class StateStorageTest
                 Optional.empty());
 
         StateStorage ss = new MapHeapStateStorage();
-        Map<StateNode, Map<Id, StorageState>> map = ss.get(
+        Map<PState, Map<Id, StorageState>> map = ss.get(
                 ss.createContext(),
                 ImmutableMap.of(stateNode, ImmutableSet.of(Id.of(420))),
                 EnumSet.of(StateStorage.GetFlag.CREATE));

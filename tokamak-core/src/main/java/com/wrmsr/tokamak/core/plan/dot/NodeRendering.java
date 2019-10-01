@@ -13,7 +13,7 @@
  */
 package com.wrmsr.tokamak.core.plan.dot;
 
-import com.wrmsr.tokamak.core.plan.node.Node;
+import com.wrmsr.tokamak.core.plan.node.PNode;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
@@ -21,7 +21,7 @@ import javax.annotation.concurrent.Immutable;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
-final class NodeRendering<T extends Node>
+final class NodeRendering<T extends PNode>
 {
     private final Class<T> cls;
 

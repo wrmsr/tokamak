@@ -14,7 +14,7 @@
 package com.wrmsr.tokamak.core.driver.queue;
 
 import com.wrmsr.tokamak.api.Id;
-import com.wrmsr.tokamak.core.plan.node.NodeId;
+import com.wrmsr.tokamak.core.plan.node.PNodeId;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -22,7 +22,7 @@ import java.util.UUID;
 public final class QueueEntry
 {
     private final int seq;
-    private final NodeId lockNodeId;
+    private final PNodeId lockNodeId;
     private final Id lockId;
     private final UUID uuid;
     private final boolean force;
@@ -34,7 +34,7 @@ public final class QueueEntry
 
     public QueueEntry(
             int seq,
-            NodeId lockNodeId,
+            PNodeId lockNodeId,
             Id lockId,
             UUID uuid,
             boolean force,
@@ -61,7 +61,7 @@ public final class QueueEntry
         return seq;
     }
 
-    public NodeId getLockNodeId()
+    public PNodeId getLockNodeId()
     {
         return lockNodeId;
     }

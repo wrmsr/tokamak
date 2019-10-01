@@ -36,13 +36,13 @@ import com.wrmsr.tokamak.core.layout.TableLayout;
 import com.wrmsr.tokamak.core.layout.field.FieldCollection;
 import com.wrmsr.tokamak.core.plan.Plan;
 import com.wrmsr.tokamak.core.plan.dot.Dot;
-import com.wrmsr.tokamak.core.plan.node.EquijoinNode;
-import com.wrmsr.tokamak.core.plan.node.FilterNode;
-import com.wrmsr.tokamak.core.plan.node.Node;
-import com.wrmsr.tokamak.core.plan.node.ProjectNode;
-import com.wrmsr.tokamak.core.plan.node.Projection;
-import com.wrmsr.tokamak.core.plan.node.ScanNode;
-import com.wrmsr.tokamak.core.plan.node.StateNode;
+import com.wrmsr.tokamak.core.plan.node.PEquiJoin;
+import com.wrmsr.tokamak.core.plan.node.PFilter;
+import com.wrmsr.tokamak.core.plan.node.PNode;
+import com.wrmsr.tokamak.core.plan.node.PProject;
+import com.wrmsr.tokamak.core.plan.node.PProjection;
+import com.wrmsr.tokamak.core.plan.node.PScan;
+import com.wrmsr.tokamak.core.plan.node.PState;
 import com.wrmsr.tokamak.core.type.Types;
 import com.wrmsr.tokamak.core.util.ApiJson;
 import com.wrmsr.tokamak.util.json.Json;
@@ -137,7 +137,7 @@ public class CoreTest
     {
         BuiltinExecutor be = catalog.addExecutor(new BuiltinExecutor("builtin"));
 
-        Node scanNode0 = new ScanNode(
+        PNode scanNode0 = new PScan(
                 "scan0",
                 SchemaTable.of("PUBLIC", "NATION"),
                 ImmutableMap.of(
@@ -148,7 +148,7 @@ public class CoreTest
                 ImmutableSet.of("N_NATIONKEY"),
                 ImmutableSet.of());
 
-        Node stateNode0 = new StateNode(
+        PNode stateNode0 = new PState(
                 "state0",
                 scanNode0,
                 Optional.of(ImmutableList.of(ImmutableSet.of("N_NATIONKEY"))),
@@ -158,23 +158,23 @@ public class CoreTest
                 ImmutableMap.of(),
                 Optional.empty());
 
-        Node filterNode0 = new FilterNode(
+        PNode filterNode0 = new PFilter(
                 "filter0",
                 stateNode0,
                 catalog.addFunction(be.register(Reflection.reflect(getClass().getDeclaredMethod("isStringNotNull", String.class))).getName(), be).asNodeFunction(),
                 ImmutableList.of("N_NAME"),
                 false);
 
-        Node projectNode0 = new ProjectNode(
+        PNode projectNode0 = new PProject(
                 "project0",
                 filterNode0,
-                Projection.of(
+                PProjection.of(
                         "N_NATIONKEY", "N_NATIONKEY",
                         "N_NAME", catalog.addFunction(be.register(Reflection.reflect(getClass().getDeclaredMethod("addExclamationMark", String.class))).getName(), be), "N_NAME",
                         "N_REGIONKEY", "N_REGIONKEY"
                 ));
 
-        Node scanNode1 = new ScanNode(
+        PNode scanNode1 = new PScan(
                 "scan1",
                 SchemaTable.of("PUBLIC", "REGION"),
                 ImmutableMap.of(
@@ -184,7 +184,7 @@ public class CoreTest
                 ImmutableSet.of("R_REGIONKEY"),
                 ImmutableSet.of());
 
-        Node stateNode1 = new StateNode(
+        PNode stateNode1 = new PState(
                 "state1",
                 scanNode1,
                 Optional.of(ImmutableList.of(ImmutableSet.of("R_REGIONKEY"))),
@@ -194,15 +194,15 @@ public class CoreTest
                 ImmutableMap.of(),
                 Optional.empty());
 
-        Node equijoinNode0 = new EquijoinNode(
+        PNode equijoinNode0 = new PEquiJoin(
                 "equijoin0",
                 ImmutableList.of(
-                        new EquijoinNode.Branch(projectNode0, ImmutableList.of("N_REGIONKEY")),
-                        new EquijoinNode.Branch(stateNode1, ImmutableList.of("R_REGIONKEY"))
+                        new PEquiJoin.Branch(projectNode0, ImmutableList.of("N_REGIONKEY")),
+                        new PEquiJoin.Branch(stateNode1, ImmutableList.of("R_REGIONKEY"))
                 ),
-                EquijoinNode.Mode.INNER);
+                PEquiJoin.Mode.INNER);
 
-        Node persistNode0 = new StateNode(
+        PNode persistNode0 = new PState(
                 "persist0",
                 equijoinNode0,
                 Optional.of(ImmutableList.of(ImmutableSet.of("R_REGIONKEY"))),
@@ -302,7 +302,7 @@ public class CoreTest
         System.out.println(src);
         // catalog = om.readValue(src, Catalog.class);
 
-        ScanNode scan0 = new ScanNode(
+        PScan scan0 = new PScan(
                 "scan0",
                 SchemaTable.of("stuff_schema", "stuff_table"),
                 ImmutableMap.of(

@@ -13,22 +13,22 @@
  */
 package com.wrmsr.tokamak.core.parse;
 
-import com.wrmsr.tokamak.core.parse.tree.AliasedRelation;
-import com.wrmsr.tokamak.core.parse.tree.AllSelectItem;
-import com.wrmsr.tokamak.core.parse.tree.Expression;
-import com.wrmsr.tokamak.core.parse.tree.ExpressionSelectItem;
-import com.wrmsr.tokamak.core.parse.tree.FunctionCallExpression;
-import com.wrmsr.tokamak.core.parse.tree.Identifier;
-import com.wrmsr.tokamak.core.parse.tree.NullLiteral;
-import com.wrmsr.tokamak.core.parse.tree.NumberLiteral;
-import com.wrmsr.tokamak.core.parse.tree.QualifiedName;
-import com.wrmsr.tokamak.core.parse.tree.QualifiedNameExpression;
-import com.wrmsr.tokamak.core.parse.tree.Relation;
-import com.wrmsr.tokamak.core.parse.tree.Select;
-import com.wrmsr.tokamak.core.parse.tree.SelectItem;
-import com.wrmsr.tokamak.core.parse.tree.StringLiteral;
-import com.wrmsr.tokamak.core.parse.tree.TableName;
-import com.wrmsr.tokamak.core.parse.tree.TreeNode;
+import com.wrmsr.tokamak.core.parse.node.TAliasedRelation;
+import com.wrmsr.tokamak.core.parse.node.TAllSelectItem;
+import com.wrmsr.tokamak.core.parse.node.TExpression;
+import com.wrmsr.tokamak.core.parse.node.TExpressionSelectItem;
+import com.wrmsr.tokamak.core.parse.node.TFunctionCallExpression;
+import com.wrmsr.tokamak.core.parse.node.TIdentifier;
+import com.wrmsr.tokamak.core.parse.node.TNullLiteral;
+import com.wrmsr.tokamak.core.parse.node.TNumberLiteral;
+import com.wrmsr.tokamak.core.parse.node.TQualifiedName;
+import com.wrmsr.tokamak.core.parse.node.TQualifiedNameExpression;
+import com.wrmsr.tokamak.core.parse.node.TRelation;
+import com.wrmsr.tokamak.core.parse.node.TSelect;
+import com.wrmsr.tokamak.core.parse.node.TSelectItem;
+import com.wrmsr.tokamak.core.parse.node.TStringLiteral;
+import com.wrmsr.tokamak.core.parse.node.TTableName;
+import com.wrmsr.tokamak.core.parse.node.TNode;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ParseTree;
 
@@ -46,18 +46,18 @@ public final class AstBuilding
     {
     }
 
-    public static TreeNode build(ParseTree parseTree)
+    public static TNode build(ParseTree parseTree)
     {
-        return parseTree.accept(new SqlBaseVisitor<TreeNode>()
+        return parseTree.accept(new SqlBaseVisitor<TNode>()
         {
             @Override
-            protected TreeNode defaultResult()
+            protected TNode defaultResult()
             {
                 return super.defaultResult();
             }
 
             @Override
-            protected TreeNode aggregateResult(TreeNode aggregate, TreeNode nextResult)
+            protected TNode aggregateResult(TNode aggregate, TNode nextResult)
             {
                 checkState(aggregate == null);
                 return checkNotNull(nextResult);
@@ -72,104 +72,104 @@ public final class AstBuilding
             }
 
             @Override
-            public TreeNode visitAliasedRelation(SqlParser.AliasedRelationContext ctx)
+            public TNode visitAliasedRelation(SqlParser.AliasedRelationContext ctx)
             {
-                return new AliasedRelation(
-                        (Relation) visit(ctx.relation()),
+                return new TAliasedRelation(
+                        (TRelation) visit(ctx.relation()),
                         ctx.identifier() != null ? Optional.of(ctx.identifier().getText()) : Optional.empty());
             }
 
             @Override
-            public TreeNode visitSelect(SqlParser.SelectContext ctx)
+            public TNode visitSelect(SqlParser.SelectContext ctx)
             {
-                List<SelectItem> selectItems = visit(ctx.selectItem(), SelectItem.class);
-                List<AliasedRelation> relations = visit(ctx.aliasedRelation(), AliasedRelation.class);
-                Optional<Expression> where = ctx.where != null ? Optional.of((Expression) visit(ctx.where)) : Optional.empty();
-                return new Select(
+                List<TSelectItem> selectItems = visit(ctx.selectItem(), TSelectItem.class);
+                List<TAliasedRelation> relations = visit(ctx.aliasedRelation(), TAliasedRelation.class);
+                Optional<TExpression> where = ctx.where != null ? Optional.of((TExpression) visit(ctx.where)) : Optional.empty();
+                return new TSelect(
                         selectItems,
                         relations,
                         where);
             }
 
             @Override
-            public TreeNode visitSelectAll(SqlParser.SelectAllContext ctx)
+            public TNode visitSelectAll(SqlParser.SelectAllContext ctx)
             {
-                return new AllSelectItem();
+                return new TAllSelectItem();
             }
 
             @Override
-            public TreeNode visitSelectExpression(SqlParser.SelectExpressionContext ctx)
+            public TNode visitSelectExpression(SqlParser.SelectExpressionContext ctx)
             {
-                return new ExpressionSelectItem(
-                        (Expression) visit(ctx.expression()),
+                return new TExpressionSelectItem(
+                        (TExpression) visit(ctx.expression()),
                         ctx.identifier() != null ? Optional.of(ctx.identifier().getText()) : Optional.empty());
             }
 
             @Override
-            public TreeNode visitSingleStatement(SqlParser.SingleStatementContext ctx)
+            public TNode visitSingleStatement(SqlParser.SingleStatementContext ctx)
             {
                 return visit(ctx.statement());
             }
 
             @Override
-            public TreeNode visitNumberLiteral(SqlParser.NumberLiteralContext ctx)
+            public TNode visitNumberLiteral(SqlParser.NumberLiteralContext ctx)
             {
-                return new NumberLiteral(Long.parseLong(ctx.getText()));
+                return new TNumberLiteral(Long.parseLong(ctx.getText()));
             }
 
             @Override
-            public TreeNode visitNullLiteral(SqlParser.NullLiteralContext ctx)
+            public TNode visitNullLiteral(SqlParser.NullLiteralContext ctx)
             {
-                return new NullLiteral();
+                return new TNullLiteral();
             }
 
             @Override
-            public TreeNode visitStringLiteral(SqlParser.StringLiteralContext ctx)
+            public TNode visitStringLiteral(SqlParser.StringLiteralContext ctx)
             {
-                return new StringLiteral(ctx.STRING().getText());
+                return new TStringLiteral(ctx.STRING().getText());
             }
 
             @Override
-            public TreeNode visitQualifiedName(SqlParser.QualifiedNameContext ctx)
+            public TNode visitQualifiedName(SqlParser.QualifiedNameContext ctx)
             {
-                List<String> parts = visit(ctx.identifier(), Identifier.class).stream()
-                        .map(Identifier::getValue)
+                List<String> parts = visit(ctx.identifier(), TIdentifier.class).stream()
+                        .map(TIdentifier::getValue)
                         .collect(Collectors.toList());
-                return new QualifiedName(parts);
+                return new TQualifiedName(parts);
             }
 
             @Override
-            public TreeNode visitQualifiedNameExpression(SqlParser.QualifiedNameExpressionContext ctx)
+            public TNode visitQualifiedNameExpression(SqlParser.QualifiedNameExpressionContext ctx)
             {
-                return new QualifiedNameExpression(
-                        (QualifiedName) visit(ctx.qualifiedName()));
+                return new TQualifiedNameExpression(
+                        (TQualifiedName) visit(ctx.qualifiedName()));
             }
 
             @Override
-            public TreeNode visitUnquotedIdentifier(SqlParser.UnquotedIdentifierContext ctx)
+            public TNode visitUnquotedIdentifier(SqlParser.UnquotedIdentifierContext ctx)
             {
-                return new Identifier(ctx.getText());
+                return new TIdentifier(ctx.getText());
             }
 
             @Override
-            public TreeNode visitQuotedIdentifier(SqlParser.QuotedIdentifierContext ctx)
+            public TNode visitQuotedIdentifier(SqlParser.QuotedIdentifierContext ctx)
             {
                 String text = ctx.getText();
-                return new Identifier(text.substring(1, text.length() - 1));
+                return new TIdentifier(text.substring(1, text.length() - 1));
             }
 
             @Override
-            public TreeNode visitTableName(SqlParser.TableNameContext ctx)
+            public TNode visitTableName(SqlParser.TableNameContext ctx)
             {
-                return new TableName((QualifiedName) visit(ctx.qualifiedName()));
+                return new TTableName((TQualifiedName) visit(ctx.qualifiedName()));
             }
 
             @Override
-            public TreeNode visitFunctionCallExpression(SqlParser.FunctionCallExpressionContext ctx)
+            public TNode visitFunctionCallExpression(SqlParser.FunctionCallExpressionContext ctx)
             {
-                return new FunctionCallExpression(
-                        ((Identifier) visit(ctx.identifier())).getValue(),
-                        visit(ctx.expression(), Expression.class));
+                return new TFunctionCallExpression(
+                        ((TIdentifier) visit(ctx.identifier())).getValue(),
+                        visit(ctx.expression(), TExpression.class));
             }
         });
     }

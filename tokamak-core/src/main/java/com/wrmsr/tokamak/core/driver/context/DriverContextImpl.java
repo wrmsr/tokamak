@@ -24,7 +24,6 @@ import com.wrmsr.tokamak.core.driver.DriverRow;
 import com.wrmsr.tokamak.core.driver.build.Builder;
 import com.wrmsr.tokamak.core.driver.build.BuilderContext;
 import com.wrmsr.tokamak.core.driver.build.ContextualBuilder;
-import com.wrmsr.tokamak.core.driver.build.ops.BuildOp;
 import com.wrmsr.tokamak.core.driver.build.ops.RequestBuildOp;
 import com.wrmsr.tokamak.core.driver.build.ops.ResponseBuildOp;
 import com.wrmsr.tokamak.core.driver.build.ops.ScanBuildOp;
@@ -32,8 +31,8 @@ import com.wrmsr.tokamak.core.driver.context.diag.JournalEntry;
 import com.wrmsr.tokamak.core.driver.context.diag.Stat;
 import com.wrmsr.tokamak.core.driver.context.state.DefaultStateCache;
 import com.wrmsr.tokamak.core.driver.state.State;
-import com.wrmsr.tokamak.core.plan.node.Node;
-import com.wrmsr.tokamak.core.plan.node.ScanNode;
+import com.wrmsr.tokamak.core.plan.node.PNode;
+import com.wrmsr.tokamak.core.plan.node.PScan;
 import com.wrmsr.tokamak.util.Cell;
 
 import java.util.Collection;
@@ -138,7 +137,7 @@ public class DriverContextImpl
     @SuppressWarnings({"unchecked"})
     public Collection<DriverRow> buildSync(Builder<?> builder, Key key)
     {
-        Node node = builder.getNode();
+        PNode node = builder.getNode();
         if (journaling) {
             addJournalEntry(new JournalEntry.BuildInput(node, key));
         }
@@ -159,7 +158,7 @@ public class DriverContextImpl
             }
             else if (op instanceof ScanBuildOp) {
                 ScanBuildOp sop = (ScanBuildOp) op;
-                Schema schema = driver.getCatalog().getSchemasByName().get(((ScanNode) builder.getNode()).getSchemaTable().getSchema());
+                Schema schema = driver.getCatalog().getSchemasByName().get(((PScan) builder.getNode()).getSchemaTable().getSchema());
                 Connection connection = getConnection(schema.getConnector());
                 List<Map<String, Object>> scanRows = sop.getScanner().scan(connection, key);
                 sop.getCallback().accept(scanRows);
@@ -178,7 +177,7 @@ public class DriverContextImpl
         return rows;
     }
 
-    public Collection<DriverRow> buildSync(Node node, Key key)
+    public Collection<DriverRow> buildSync(PNode node, Key key)
     {
         Builder builder = checkNotNull(driver.getBuildersByNode().get(node));
         return buildSync(builder, key);

@@ -14,7 +14,7 @@
 package com.wrmsr.tokamak.core.parse.transform;
 
 import com.wrmsr.tokamak.core.catalog.Catalog;
-import com.wrmsr.tokamak.core.parse.tree.TreeNode;
+import com.wrmsr.tokamak.core.parse.node.TNode;
 
 public final class FunctionGeneration
 {
@@ -22,7 +22,7 @@ public final class FunctionGeneration
     {
     }
 
-    public static TreeNode expandFunctions(TreeNode root, Catalog catalog)
+    public static TNode expandFunctions(TNode root, Catalog catalog)
     {
         throw new IllegalStateException();
     }

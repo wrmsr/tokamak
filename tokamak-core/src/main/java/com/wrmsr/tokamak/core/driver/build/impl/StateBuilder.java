@@ -24,8 +24,8 @@ import com.wrmsr.tokamak.core.driver.build.ops.ResponseBuildOp;
 import com.wrmsr.tokamak.core.driver.context.DriverContextImpl;
 import com.wrmsr.tokamak.core.driver.context.state.StateCache;
 import com.wrmsr.tokamak.core.driver.state.State;
-import com.wrmsr.tokamak.core.plan.node.Node;
-import com.wrmsr.tokamak.core.plan.node.StateNode;
+import com.wrmsr.tokamak.core.plan.node.PNode;
+import com.wrmsr.tokamak.core.plan.node.PState;
 
 import java.util.EnumSet;
 import java.util.Map;
@@ -35,9 +35,9 @@ import java.util.function.Consumer;
 import static com.google.common.base.Preconditions.checkState;
 
 public final class StateBuilder
-        extends SingleSourceBuilder<StateNode>
+        extends SingleSourceBuilder<PState>
 {
-    public StateBuilder(DriverImpl driver, StateNode node, Map<Node, Builder> sources)
+    public StateBuilder(DriverImpl driver, PState node, Map<PNode, Builder> sources)
     {
         super(driver, node, sources);
     }

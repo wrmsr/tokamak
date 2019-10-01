@@ -14,7 +14,7 @@
 package com.wrmsr.tokamak.core.driver.context.lineage;
 
 import com.wrmsr.tokamak.core.driver.DriverRow;
-import com.wrmsr.tokamak.core.plan.node.StateNode;
+import com.wrmsr.tokamak.core.plan.node.PState;
 
 import java.util.Iterator;
 import java.util.Set;
@@ -34,7 +34,7 @@ public enum LineageRetention
         {
             while (rows.hasNext()) {
                 DriverRow row = rows.next();
-                if (row.getNode() instanceof StateNode) {
+                if (row.getNode() instanceof PState) {
                     sink.accept(row);
                 }
                 else {
@@ -50,7 +50,7 @@ public enum LineageRetention
         {
             while (rows.hasNext()) {
                 DriverRow row = rows.next();
-                if (row.getNode() instanceof StateNode) {
+                if (row.getNode() instanceof PState) {
                     sink.accept(row);
                 }
                 else {

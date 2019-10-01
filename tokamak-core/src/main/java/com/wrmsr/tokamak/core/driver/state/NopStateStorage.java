@@ -15,7 +15,7 @@ package com.wrmsr.tokamak.core.driver.state;
 
 import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.api.Id;
-import com.wrmsr.tokamak.core.plan.node.StateNode;
+import com.wrmsr.tokamak.core.plan.node.PState;
 import com.wrmsr.tokamak.util.Span;
 
 import java.io.IOException;
@@ -41,7 +41,7 @@ public final class NopStateStorage
     }
 
     @Override
-    public Map<StateNode, Map<Id, StorageState>> get(Context ctx, Map<StateNode, Set<Id>> idSetsByNode, EnumSet<GetFlag> flags)
+    public Map<PState, Map<Id, StorageState>> get(Context ctx, Map<PState, Set<Id>> idSetsByNode, EnumSet<GetFlag> flags)
             throws IOException
     {
         return ImmutableMap.of();
@@ -54,13 +54,13 @@ public final class NopStateStorage
     }
 
     @Override
-    public void allocate(Context ctx, StateNode node, Iterable<Id> ids)
+    public void allocate(Context ctx, PState node, Iterable<Id> ids)
             throws IOException
     {
     }
 
     @Override
-    public List<Id> getSpanIds(Context ctx, StateNode node, Span<Id> span, OptionalInt limit)
+    public List<Id> getSpanIds(Context ctx, PState node, Span<Id> span, OptionalInt limit)
             throws IOException
     {
         throw new UnsupportedOperationException();

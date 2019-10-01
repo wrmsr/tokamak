@@ -13,7 +13,7 @@
  */
 package com.wrmsr.tokamak.core.parse;
 
-import com.wrmsr.tokamak.core.parse.tree.TreeNode;
+import com.wrmsr.tokamak.core.parse.node.TNode;
 import junit.framework.TestCase;
 
 public class ParserTest
@@ -38,7 +38,7 @@ public class ParserTest
             System.out.println(str);
             SqlParser parser = Parsing.parse(str);
             System.out.println(parser);
-            TreeNode treeNode = AstBuilding.build(parser.statement());
+            TNode treeNode = AstBuilding.build(parser.statement());
             System.out.println(treeNode);
         }
     }

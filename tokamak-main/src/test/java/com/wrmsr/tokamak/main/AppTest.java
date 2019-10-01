@@ -28,7 +28,7 @@ import com.google.inject.PrivateModule;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
 import com.wrmsr.tokamak.api.SchemaTable;
-import com.wrmsr.tokamak.core.plan.node.ScanNode;
+import com.wrmsr.tokamak.core.plan.node.PScan;
 import com.wrmsr.tokamak.core.type.Types;
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -177,7 +177,7 @@ public class AppTest
     public void testCore()
             throws Throwable
     {
-        ScanNode scanNode = new ScanNode(
+        PScan scanNode = new PScan(
                 "scan0",
                 SchemaTable.of("a", "b"),
                 ImmutableMap.of("id", Types.LONG),

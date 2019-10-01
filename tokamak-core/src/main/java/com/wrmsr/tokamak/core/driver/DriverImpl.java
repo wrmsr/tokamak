@@ -30,8 +30,8 @@ import com.wrmsr.tokamak.core.driver.context.lineage.LineagePolicyImpl;
 import com.wrmsr.tokamak.core.driver.context.lineage.LineageRetention;
 import com.wrmsr.tokamak.core.driver.state.StateStorage;
 import com.wrmsr.tokamak.core.plan.Plan;
-import com.wrmsr.tokamak.core.plan.node.Node;
-import com.wrmsr.tokamak.core.plan.node.ScanNode;
+import com.wrmsr.tokamak.core.plan.node.PNode;
+import com.wrmsr.tokamak.core.plan.node.PScan;
 import com.wrmsr.tokamak.util.lazy.SupplierLazyValue;
 
 import java.io.IOException;
@@ -93,21 +93,21 @@ public class DriverImpl
         return stateStorage;
     }
 
-    private final SupplierLazyValue<Map<ScanNode, Scanner>> scannersByScanNode = new SupplierLazyValue<>();
+    private final SupplierLazyValue<Map<PScan, Scanner>> scannersByScanNode = new SupplierLazyValue<>();
 
-    public Map<ScanNode, Scanner> getScannersByNode()
+    public Map<PScan, Scanner> getScannersByNode()
     {
         return scannersByScanNode.get(() ->
-                plan.getNodeTypeList(ScanNode.class).stream()
+                plan.getNodeTypeList(PScan.class).stream()
                         .collect(toImmutableMap(identity(), scanNode -> {
                             Table table = catalog.getSchemaTable(scanNode.getSchemaTable());
                             return table.getSchema().getConnector().createScanner(table, scanNode.getFields().getNames());
                         })));
     }
 
-    private final SupplierLazyValue<Map<Node, Builder>> buildersByNode = new SupplierLazyValue<>();
+    private final SupplierLazyValue<Map<PNode, Builder>> buildersByNode = new SupplierLazyValue<>();
 
-    public Map<Node, Builder> getBuildersByNode()
+    public Map<PNode, Builder> getBuildersByNode()
     {
         return buildersByNode.get(() -> {
             BuilderFactory factory = new BuilderFactory(this);
@@ -134,7 +134,7 @@ public class DriverImpl
 
     @SuppressWarnings({"unchecked"})
     @Override
-    public Collection<Row> build(Context context, Node node, Key key)
+    public Collection<Row> build(Context context, PNode node, Key key)
             throws IOException
     {
         checkNotNull(node);
@@ -144,7 +144,7 @@ public class DriverImpl
     }
 
     @Override
-    public Collection<Row> sync(Context context, Map<Node, Set<Id>> idSetsByNode)
+    public Collection<Row> sync(Context context, Map<PNode, Set<Id>> idSetsByNode)
             throws IOException
     {
         checkNotNull(idSetsByNode);

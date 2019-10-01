@@ -19,8 +19,8 @@ import com.wrmsr.tokamak.core.driver.context.lineage.LineageEntry;
 import com.wrmsr.tokamak.core.driver.context.state.StateCache;
 import com.wrmsr.tokamak.core.driver.state.Linkage;
 import com.wrmsr.tokamak.core.driver.state.State;
-import com.wrmsr.tokamak.core.plan.node.NodeId;
-import com.wrmsr.tokamak.core.plan.node.StateNode;
+import com.wrmsr.tokamak.core.plan.node.PNodeId;
+import com.wrmsr.tokamak.core.plan.node.PState;
 
 import javax.annotation.Nullable;
 
@@ -61,11 +61,11 @@ public class LinkageManager
     {
         Entry entry = entriesByState.computeIfAbsent(state, Entry::new);
         for (LineageEntry le : lineage) {
-            if (!(le.getNode() instanceof StateNode)) {
+            if (!(le.getNode() instanceof PState)) {
                 continue;
             }
 
-            StateNode inputNode = (StateNode) le.getNode();
+            PState inputNode = (PState) le.getNode();
             State inputState = stateCache.get(inputNode, le.getId(), EnumSet.of(StateCache.GetFlag.NOLOAD)).get();
             Entry inputEntry = entriesByState.computeIfAbsent(inputState, Entry::new);
 
@@ -74,9 +74,9 @@ public class LinkageManager
         }
     }
 
-    private Map<NodeId, Linkage.Links> buildLinks(Set<State> states, Map<NodeId, Linkage.Links> existingLinks)
+    private Map<PNodeId, Linkage.Links> buildLinks(Set<State> states, Map<PNodeId, Linkage.Links> existingLinks)
     {
-        Map<NodeId, Set<Id>> newInputLinkage = new HashMap<>();
+        Map<PNodeId, Set<Id>> newInputLinkage = new HashMap<>();
 
         existingLinks.forEach((nodeId, links) -> {
             if (links instanceof Linkage.IdLinks) {
@@ -98,9 +98,9 @@ public class LinkageManager
     private Linkage buildLinkage(Entry entry)
     {
         @Nullable Linkage existingLinkage = entry.state.getLinkage();
-        Map<NodeId, Linkage.Links> inputLinks = buildLinks(
+        Map<PNodeId, Linkage.Links> inputLinks = buildLinks(
                 entry.inputStates, existingLinkage != null ? existingLinkage.getInput() : ImmutableMap.of());
-        Map<NodeId, Linkage.Links> outputLinks = buildLinks(
+        Map<PNodeId, Linkage.Links> outputLinks = buildLinks(
                 entry.outputStates, existingLinkage != null ? existingLinkage.getOutput() : ImmutableMap.of());
         return new Linkage(inputLinks, outputLinks);
     }

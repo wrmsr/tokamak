@@ -16,8 +16,8 @@ package com.wrmsr.tokamak.core.driver.context.state;
 import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.api.Row;
 import com.wrmsr.tokamak.core.driver.state.State;
-import com.wrmsr.tokamak.core.plan.node.Node;
-import com.wrmsr.tokamak.core.plan.node.StateNode;
+import com.wrmsr.tokamak.core.plan.node.PNode;
+import com.wrmsr.tokamak.core.plan.node.PState;
 import com.wrmsr.tokamak.util.Pair;
 
 import java.util.Collection;
@@ -35,25 +35,25 @@ public interface StateCache
         NOLOAD,
     }
 
-    Optional<State> get(StateNode node, Id id, EnumSet<GetFlag> flags);
+    Optional<State> get(PState node, Id id, EnumSet<GetFlag> flags);
 
     boolean contains(State state);
 
-    void invalidate(StateNode node, Set<Id> ids);
+    void invalidate(PState node, Set<Id> ids);
 
-    boolean isInvalidated(StateNode node, Id id);
+    boolean isInvalidated(PState node, Id id);
 
-    State createPhantom(StateNode node, Row row);
+    State createPhantom(PState node, Row row);
 
-    State setPhantomAttributes(StateNode node, Row row);
+    State setPhantomAttributes(PState node, Row row);
 
     Collection<State> getAll();
 
-    Map<Node, Set<Id>> getInvalid();
+    Map<PNode, Set<Id>> getInvalid();
 
-    Optional<Pair.Immutable<Node, Id>> getNextInvalid();
+    Optional<Pair.Immutable<PNode, Id>> getNextInvalid();
 
-    Map<Id, State> getIdMap(StateNode node);
+    Map<Id, State> getIdMap(PState node);
 
     void flush();
 }

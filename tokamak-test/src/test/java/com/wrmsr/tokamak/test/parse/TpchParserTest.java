@@ -30,10 +30,10 @@ import com.wrmsr.tokamak.core.parse.analysis.TypeAnalysis;
 import com.wrmsr.tokamak.core.parse.transform.SelectExpansion;
 import com.wrmsr.tokamak.core.parse.transform.SymbolResolution;
 import com.wrmsr.tokamak.core.parse.transform.ViewInlining;
-import com.wrmsr.tokamak.core.parse.tree.TreeNode;
+import com.wrmsr.tokamak.core.parse.node.TNode;
 import com.wrmsr.tokamak.core.plan.Plan;
-import com.wrmsr.tokamak.core.plan.node.Node;
-import com.wrmsr.tokamak.core.plan.transform.Transforms;
+import com.wrmsr.tokamak.core.plan.node.PNode;
+import com.wrmsr.tokamak.core.plan.transform.PTransforms;
 import com.wrmsr.tokamak.core.type.Type;
 import com.wrmsr.tokamak.core.type.Types;
 import com.wrmsr.tokamak.core.type.impl.FunctionType;
@@ -117,7 +117,7 @@ public class TpchParserTest
             Catalog catalog = new Catalog(ImmutableList.of(rootCatalog));
 
             SqlParser parser = Parsing.parse(str);
-            TreeNode treeNode = AstBuilding.build(parser.statement());
+            TNode treeNode = AstBuilding.build(parser.statement());
             System.out.println(AstRendering.render(treeNode));
 
             treeNode = ViewInlining.inlineViews(treeNode, catalog);
@@ -132,10 +132,10 @@ public class TpchParserTest
 
             TypeAnalysis ta = TypeAnalysis.analyze(treeNode, catalog, defaultSchema);
 
-            Node node = new AstPlanner(Optional.of(catalog), defaultSchema).plan(treeNode);
+            PNode node = new AstPlanner(Optional.of(catalog), defaultSchema).plan(treeNode);
             Plan plan = new Plan(node);
 
-            plan = Transforms.addScanNodeIdFields(plan, catalog);
+            plan = PTransforms.addScanNodeIdFields(plan, catalog);
             System.out.println(Json.writeValuePretty(plan));
 
             System.out.println();

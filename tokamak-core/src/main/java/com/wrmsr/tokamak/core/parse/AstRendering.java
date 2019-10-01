@@ -14,21 +14,21 @@
 package com.wrmsr.tokamak.core.parse;
 
 import com.google.common.base.Joiner;
-import com.wrmsr.tokamak.core.parse.tree.AliasedRelation;
-import com.wrmsr.tokamak.core.parse.tree.AllSelectItem;
-import com.wrmsr.tokamak.core.parse.tree.ExpressionSelectItem;
-import com.wrmsr.tokamak.core.parse.tree.FunctionCallExpression;
-import com.wrmsr.tokamak.core.parse.tree.Identifier;
-import com.wrmsr.tokamak.core.parse.tree.NullLiteral;
-import com.wrmsr.tokamak.core.parse.tree.NumberLiteral;
-import com.wrmsr.tokamak.core.parse.tree.QualifiedName;
-import com.wrmsr.tokamak.core.parse.tree.QualifiedNameExpression;
-import com.wrmsr.tokamak.core.parse.tree.Select;
-import com.wrmsr.tokamak.core.parse.tree.StringLiteral;
-import com.wrmsr.tokamak.core.parse.tree.SubqueryRelation;
-import com.wrmsr.tokamak.core.parse.tree.TableName;
-import com.wrmsr.tokamak.core.parse.tree.TreeNode;
-import com.wrmsr.tokamak.core.parse.tree.visitor.AstVisitor;
+import com.wrmsr.tokamak.core.parse.node.TAliasedRelation;
+import com.wrmsr.tokamak.core.parse.node.TAllSelectItem;
+import com.wrmsr.tokamak.core.parse.node.TExpressionSelectItem;
+import com.wrmsr.tokamak.core.parse.node.TFunctionCallExpression;
+import com.wrmsr.tokamak.core.parse.node.TIdentifier;
+import com.wrmsr.tokamak.core.parse.node.TNullLiteral;
+import com.wrmsr.tokamak.core.parse.node.TNumberLiteral;
+import com.wrmsr.tokamak.core.parse.node.TQualifiedName;
+import com.wrmsr.tokamak.core.parse.node.TQualifiedNameExpression;
+import com.wrmsr.tokamak.core.parse.node.TSelect;
+import com.wrmsr.tokamak.core.parse.node.TStringLiteral;
+import com.wrmsr.tokamak.core.parse.node.TSubqueryRelation;
+import com.wrmsr.tokamak.core.parse.node.TTableName;
+import com.wrmsr.tokamak.core.parse.node.TNode;
+import com.wrmsr.tokamak.core.parse.node.visitor.TNodeVisitor;
 
 import java.util.function.Consumer;
 
@@ -38,11 +38,11 @@ public final class AstRendering
     {
     }
 
-    public static String render(TreeNode node)
+    public static String render(TNode node)
     {
         StringBuilder sb = new StringBuilder();
 
-        node.accept(new AstVisitor<Void, Void>()
+        node.accept(new TNodeVisitor<Void, Void>()
         {
             private <T> void delimitedForEach(Iterable<T> items, String delimiter, Consumer<T> consumer)
             {
@@ -59,7 +59,7 @@ public final class AstRendering
             }
 
             @Override
-            public Void visitAliasedRelation(AliasedRelation treeNode, Void context)
+            public Void visitAliasedRelation(TAliasedRelation treeNode, Void context)
             {
                 treeNode.getRelation().accept(this, context);
                 treeNode.getAlias().ifPresent(a -> sb.append(" as ").append(a));
@@ -67,14 +67,14 @@ public final class AstRendering
             }
 
             @Override
-            public Void visitAllSelectItem(AllSelectItem treeNode, Void context)
+            public Void visitAllSelectItem(TAllSelectItem treeNode, Void context)
             {
                 sb.append("*");
                 return null;
             }
 
             @Override
-            public Void visitExpressionSelectItem(ExpressionSelectItem treeNode, Void context)
+            public Void visitExpressionSelectItem(TExpressionSelectItem treeNode, Void context)
             {
                 treeNode.getExpression().accept(this, context);
                 treeNode.getLabel().ifPresent(l -> sb.append(" as ").append(l));
@@ -82,7 +82,7 @@ public final class AstRendering
             }
 
             @Override
-            public Void visitFunctionCallExpression(FunctionCallExpression treeNode, Void context)
+            public Void visitFunctionCallExpression(TFunctionCallExpression treeNode, Void context)
             {
                 sb.append(treeNode.getName());
                 sb.append("(");
@@ -92,42 +92,42 @@ public final class AstRendering
             }
 
             @Override
-            public Void visitIdentifier(Identifier treeNode, Void context)
+            public Void visitIdentifier(TIdentifier treeNode, Void context)
             {
                 sb.append(treeNode.getValue());
                 return null;
             }
 
             @Override
-            public Void visitNullLiteral(NullLiteral treeNode, Void context)
+            public Void visitNullLiteral(TNullLiteral treeNode, Void context)
             {
                 sb.append("null");
                 return null;
             }
 
             @Override
-            public Void visitNumberLiteral(NumberLiteral treeNode, Void context)
+            public Void visitNumberLiteral(TNumberLiteral treeNode, Void context)
             {
                 sb.append(treeNode.getValue());
                 return null;
             }
 
             @Override
-            public Void visitQualifiedName(QualifiedName treeNode, Void context)
+            public Void visitQualifiedName(TQualifiedName treeNode, Void context)
             {
                 sb.append(Joiner.on(".").join(treeNode.getParts()));
                 return null;
             }
 
             @Override
-            public Void visitQualifiedNameExpression(QualifiedNameExpression treeNode, Void context)
+            public Void visitQualifiedNameExpression(TQualifiedNameExpression treeNode, Void context)
             {
                 treeNode.getQualifiedName().accept(this, context);
                 return null;
             }
 
             @Override
-            public Void visitSelect(Select treeNode, Void context)
+            public Void visitSelect(TSelect treeNode, Void context)
             {
                 sb.append("select ");
                 delimitedForEach(treeNode.getItems(), ", ", i -> i.accept(this, context));
@@ -143,14 +143,14 @@ public final class AstRendering
             }
 
             @Override
-            public Void visitStringLiteral(StringLiteral treeNode, Void context)
+            public Void visitStringLiteral(TStringLiteral treeNode, Void context)
             {
                 sb.append(treeNode.getValue());
                 return null;
             }
 
             @Override
-            public Void visitSubqueryRelation(SubqueryRelation treeNode, Void context)
+            public Void visitSubqueryRelation(TSubqueryRelation treeNode, Void context)
             {
                 sb.append("(");
                 treeNode.getSelect().accept(this, context);
@@ -159,7 +159,7 @@ public final class AstRendering
             }
 
             @Override
-            public Void visitTableName(TableName treeNode, Void context)
+            public Void visitTableName(TTableName treeNode, Void context)
             {
                 treeNode.getQualifiedName().accept(this, context);
                 return null;

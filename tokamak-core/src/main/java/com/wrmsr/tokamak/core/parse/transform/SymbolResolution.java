@@ -16,11 +16,11 @@ package com.wrmsr.tokamak.core.parse.transform;
 import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.core.catalog.Catalog;
 import com.wrmsr.tokamak.core.parse.analysis.ScopeAnalysis;
-import com.wrmsr.tokamak.core.parse.tree.AllSelectItem;
-import com.wrmsr.tokamak.core.parse.tree.QualifiedName;
-import com.wrmsr.tokamak.core.parse.tree.QualifiedNameExpression;
-import com.wrmsr.tokamak.core.parse.tree.TreeNode;
-import com.wrmsr.tokamak.core.parse.tree.visitor.AstRewriter;
+import com.wrmsr.tokamak.core.parse.node.TAllSelectItem;
+import com.wrmsr.tokamak.core.parse.node.TQualifiedName;
+import com.wrmsr.tokamak.core.parse.node.TQualifiedNameExpression;
+import com.wrmsr.tokamak.core.parse.node.TNode;
+import com.wrmsr.tokamak.core.parse.node.visitor.TNodeRewriter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,20 +34,20 @@ public final class SymbolResolution
     {
     }
 
-    public static TreeNode resolveSymbols(TreeNode node, Optional<Catalog> catalog, Optional<String> defaultSchema)
+    public static TNode resolveSymbols(TNode node, Optional<Catalog> catalog, Optional<String> defaultSchema)
     {
         ScopeAnalysis sa = ScopeAnalysis.analyze(node, catalog, defaultSchema);
 
-        return node.accept(new AstRewriter<Void>()
+        return node.accept(new TNodeRewriter<Void>()
         {
             @Override
-            public TreeNode visitAllSelectItem(AllSelectItem treeNode, Void context)
+            public TNode visitAllSelectItem(TAllSelectItem treeNode, Void context)
             {
                 throw new IllegalStateException();
             }
 
             @Override
-            public TreeNode visitQualifiedNameExpression(QualifiedNameExpression treeNode, Void context)
+            public TNode visitQualifiedNameExpression(TQualifiedNameExpression treeNode, Void context)
             {
                 ScopeAnalysis.SymbolRef sr = checkNotNull(sa.getSymbolRefsByNode().get(treeNode));
                 List<String> parts = treeNode.getQualifiedName().getParts();
@@ -67,8 +67,8 @@ public final class SymbolResolution
 
                 ScopeAnalysis.Symbol hit = hits.get(0);
 
-                return new QualifiedNameExpression(
-                        new QualifiedName(
+                return new TQualifiedNameExpression(
+                        new TQualifiedName(
                                 ImmutableList.of(hit.getScope().getName().get(), hit.getName().get())));
             }
         }, null);

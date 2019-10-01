@@ -13,7 +13,7 @@
  */
 package com.wrmsr.tokamak.core.driver.context.diag;
 
-import com.wrmsr.tokamak.core.plan.node.Node;
+import com.wrmsr.tokamak.core.plan.node.PNode;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,16 +21,16 @@ import java.util.Map;
 public class StatTracker
         implements Stat.Updater
 {
-    private final Map<Node, Map<Stat, Object>> valuesByStatByNode = new HashMap<>();
+    private final Map<PNode, Map<Stat, Object>> valuesByStatByNode = new HashMap<>();
 
     @Override
-    public void update(Node node, Stat stat, long num)
+    public void update(PNode node, Stat stat, long num)
     {
         valuesByStatByNode.computeIfAbsent(node, n -> new HashMap<>()).compute(stat, (k, v) -> v == null ? 1L : ((Long) v) + num);
     }
 
     @Override
-    public void update(Node node, Stat stat, double num)
+    public void update(PNode node, Stat stat, double num)
     {
         valuesByStatByNode.computeIfAbsent(node, n -> new HashMap<>()).compute(stat, (k, v) -> v == null ? 1. : ((Double) v) + num);
     }

@@ -14,19 +14,19 @@
 package com.wrmsr.tokamak.core.plan.dot;
 
 import com.google.common.collect.ImmutableList;
-import com.wrmsr.tokamak.core.plan.node.CacheNode;
-import com.wrmsr.tokamak.core.plan.node.CrossJoinNode;
-import com.wrmsr.tokamak.core.plan.node.EquijoinNode;
-import com.wrmsr.tokamak.core.plan.node.FilterNode;
-import com.wrmsr.tokamak.core.plan.node.ListAggregateNode;
-import com.wrmsr.tokamak.core.plan.node.LookupJoinNode;
-import com.wrmsr.tokamak.core.plan.node.Node;
-import com.wrmsr.tokamak.core.plan.node.ProjectNode;
-import com.wrmsr.tokamak.core.plan.node.ScanNode;
-import com.wrmsr.tokamak.core.plan.node.StateNode;
-import com.wrmsr.tokamak.core.plan.node.UnionNode;
-import com.wrmsr.tokamak.core.plan.node.UnnestNode;
-import com.wrmsr.tokamak.core.plan.node.ValuesNode;
+import com.wrmsr.tokamak.core.plan.node.PCache;
+import com.wrmsr.tokamak.core.plan.node.PCrossJoin;
+import com.wrmsr.tokamak.core.plan.node.PEquiJoin;
+import com.wrmsr.tokamak.core.plan.node.PFilter;
+import com.wrmsr.tokamak.core.plan.node.PListAggregate;
+import com.wrmsr.tokamak.core.plan.node.PLookupJoin;
+import com.wrmsr.tokamak.core.plan.node.PNode;
+import com.wrmsr.tokamak.core.plan.node.PProject;
+import com.wrmsr.tokamak.core.plan.node.PScan;
+import com.wrmsr.tokamak.core.plan.node.PState;
+import com.wrmsr.tokamak.core.plan.node.PUnion;
+import com.wrmsr.tokamak.core.plan.node.PUnnest;
+import com.wrmsr.tokamak.core.plan.node.PValues;
 import com.wrmsr.tokamak.util.lazy.CtorLazyValue;
 
 import java.util.ArrayList;
@@ -44,18 +44,18 @@ public final class NodeRenderings
 
     public static final CtorLazyValue<List<NodeRendering>> RAW_NODE_RENDERINGS = new CtorLazyValue<>(() ->
             ImmutableList.<NodeRendering>builder()
-                    .add(new NodeRendering<>(CacheNode.class))
-                    .add(new NodeRendering<>(CrossJoinNode.class))
-                    .add(new NodeRendering<>(EquijoinNode.class))
-                    .add(new NodeRendering<>(FilterNode.class))
-                    .add(new NodeRendering<>(ListAggregateNode.class))
-                    .add(new NodeRendering<>(LookupJoinNode.class))
-                    .add(new NodeRendering<>(ProjectNode.class))
-                    .add(new NodeRendering<>(ScanNode.class))
-                    .add(new NodeRendering<>(StateNode.class))
-                    .add(new NodeRendering<>(UnionNode.class))
-                    .add(new NodeRendering<>(UnnestNode.class))
-                    .add(new NodeRendering<>(ValuesNode.class))
+                    .add(new NodeRendering<>(PCache.class))
+                    .add(new NodeRendering<>(PCrossJoin.class))
+                    .add(new NodeRendering<>(PEquiJoin.class))
+                    .add(new NodeRendering<>(PFilter.class))
+                    .add(new NodeRendering<>(PListAggregate.class))
+                    .add(new NodeRendering<>(PLookupJoin.class))
+                    .add(new NodeRendering<>(PProject.class))
+                    .add(new NodeRendering<>(PScan.class))
+                    .add(new NodeRendering<>(PState.class))
+                    .add(new NodeRendering<>(PUnion.class))
+                    .add(new NodeRendering<>(PUnnest.class))
+                    .add(new NodeRendering<>(PValues.class))
                     .build());
 
     @SuppressWarnings({"unchecked"})
@@ -74,6 +74,6 @@ public final class NodeRenderings
     });
 
     @SuppressWarnings({"unchecked"})
-    public static final CtorLazyValue<Map<Class<? extends Node>, NodeRendering>> NODE_RENDERING_MAP =
+    public static final CtorLazyValue<Map<Class<? extends PNode>, NodeRendering>> NODE_RENDERING_MAP =
             new CtorLazyValue<>(() -> NODE_RENDERINGS.get().stream().collect(toImmutableMap(NodeRendering::getCls, identity())));
 }

@@ -15,7 +15,7 @@ package com.wrmsr.tokamak.core.driver.context.lineage;
 
 import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.core.driver.DriverRow;
-import com.wrmsr.tokamak.core.plan.node.Node;
+import com.wrmsr.tokamak.core.plan.node.PNode;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -47,10 +47,10 @@ public enum LineageGranularity
     private static final class IdEntryImpl
             implements LineageEntry
     {
-        private final Node node;
+        private final PNode node;
         private final Id id;
 
-        public IdEntryImpl(Node node, Id id)
+        public IdEntryImpl(PNode node, Id id)
         {
             this.node = checkNotNull(node);
             this.id = checkNotNull(id);
@@ -82,7 +82,7 @@ public enum LineageGranularity
         }
 
         @Override
-        public Node getNode()
+        public PNode getNode()
         {
             return node;
         }
@@ -134,7 +134,7 @@ public enum LineageGranularity
         }
 
         @Override
-        public Node getNode()
+        public PNode getNode()
         {
             return row.getNode();
         }

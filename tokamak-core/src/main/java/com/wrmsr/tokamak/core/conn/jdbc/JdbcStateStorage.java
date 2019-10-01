@@ -16,7 +16,7 @@ package com.wrmsr.tokamak.core.conn.jdbc;
 import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.core.driver.state.StateStorage;
 import com.wrmsr.tokamak.core.driver.state.StorageState;
-import com.wrmsr.tokamak.core.plan.node.StateNode;
+import com.wrmsr.tokamak.core.plan.node.PState;
 import com.wrmsr.tokamak.util.Span;
 import com.wrmsr.tokamak.util.sql.SqlConnection;
 import com.wrmsr.tokamak.util.sql.SqlEngine;
@@ -82,7 +82,7 @@ public class JdbcStateStorage
     }
 
     @Override
-    public Map<StateNode, Map<Id, StorageState>> get(Context ctx, Map<StateNode, Set<Id>> idSetsByNode, EnumSet<GetFlag> flags)
+    public Map<PState, Map<Id, StorageState>> get(Context ctx, Map<PState, Set<Id>> idSetsByNode, EnumSet<GetFlag> flags)
             throws IOException
     {
         return null;
@@ -96,14 +96,14 @@ public class JdbcStateStorage
     }
 
     @Override
-    public void allocate(Context ctx, StateNode node, Iterable<Id> ids)
+    public void allocate(Context ctx, PState node, Iterable<Id> ids)
             throws IOException
     {
 
     }
 
     @Override
-    public List<Id> getSpanIds(Context ctx, StateNode node, Span<Id> span, OptionalInt limit)
+    public List<Id> getSpanIds(Context ctx, PState node, Span<Id> span, OptionalInt limit)
             throws IOException
     {
         return null;

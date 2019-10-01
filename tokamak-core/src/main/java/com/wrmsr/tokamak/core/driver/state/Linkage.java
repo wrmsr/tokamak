@@ -16,7 +16,7 @@ package com.wrmsr.tokamak.core.driver.state;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.api.Id;
-import com.wrmsr.tokamak.core.plan.node.NodeId;
+import com.wrmsr.tokamak.core.plan.node.PNodeId;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -95,14 +95,14 @@ public final class Linkage
         }
     }
 
-    private final Map<NodeId, Links> input;
-    private final Map<NodeId, Links> output;
+    private final Map<PNodeId, Links> input;
+    private final Map<PNodeId, Links> output;
 
     public static final Linkage EMPTY = new Linkage(
             ImmutableMap.of(),
             ImmutableMap.of());
 
-    public Linkage(Map<NodeId, Links> input, Map<NodeId, Links> output)
+    public Linkage(Map<PNodeId, Links> input, Map<PNodeId, Links> output)
     {
         this.input = ImmutableMap.copyOf(input);
         this.output = ImmutableMap.copyOf(output);
@@ -124,12 +124,12 @@ public final class Linkage
         return Objects.hash(input, output);
     }
 
-    public Map<NodeId, Links> getInput()
+    public Map<PNodeId, Links> getInput()
     {
         return input;
     }
 
-    public Map<NodeId, Links> getOutput()
+    public Map<PNodeId, Links> getOutput()
     {
         return output;
     }

@@ -18,11 +18,11 @@ import com.wrmsr.tokamak.core.catalog.View;
 import com.wrmsr.tokamak.core.parse.AstBuilding;
 import com.wrmsr.tokamak.core.parse.Parsing;
 import com.wrmsr.tokamak.core.parse.SqlParser;
-import com.wrmsr.tokamak.core.parse.tree.Select;
-import com.wrmsr.tokamak.core.parse.tree.SubqueryRelation;
-import com.wrmsr.tokamak.core.parse.tree.TableName;
-import com.wrmsr.tokamak.core.parse.tree.TreeNode;
-import com.wrmsr.tokamak.core.parse.tree.visitor.AstRewriter;
+import com.wrmsr.tokamak.core.parse.node.TSelect;
+import com.wrmsr.tokamak.core.parse.node.TSubqueryRelation;
+import com.wrmsr.tokamak.core.parse.node.TTableName;
+import com.wrmsr.tokamak.core.parse.node.TNode;
+import com.wrmsr.tokamak.core.parse.node.visitor.TNodeRewriter;
 
 import java.util.Optional;
 
@@ -32,12 +32,12 @@ public final class ViewInlining
     {
     }
 
-    public static TreeNode inlineViews(TreeNode root, Catalog catalog)
+    public static TNode inlineViews(TNode root, Catalog catalog)
     {
-        return root.accept(new AstRewriter<Void>()
+        return root.accept(new TNodeRewriter<Void>()
         {
             @Override
-            public TreeNode visitTableName(TableName treeNode, Void context)
+            public TNode visitTableName(TTableName treeNode, Void context)
             {
                 if (treeNode.getQualifiedName().getParts().size() == 1) {
                     String name = treeNode.getQualifiedName().getParts().get(0);
@@ -45,9 +45,9 @@ public final class ViewInlining
                     if (viewOpt.isPresent()) {
                         View view = viewOpt.get();
                         SqlParser viewParser = Parsing.parse(view.getSql());
-                        Select viewSelect = (Select) AstBuilding.build(viewParser.statement());
-                        Select processedSelect = (Select) viewSelect.accept(this, context);
-                        return new SubqueryRelation(processedSelect);
+                        TSelect viewSelect = (TSelect) AstBuilding.build(viewParser.statement());
+                        TSelect processedSelect = (TSelect) viewSelect.accept(this, context);
+                        return new TSubqueryRelation(processedSelect);
                     }
                 }
                 return super.visitTableName(treeNode, context);

@@ -19,7 +19,7 @@ import com.wrmsr.tokamak.core.driver.DriverImpl;
 import com.wrmsr.tokamak.core.driver.build.Builder;
 import com.wrmsr.tokamak.core.driver.build.ops.BuildOp;
 import com.wrmsr.tokamak.core.driver.context.DriverContextImpl;
-import com.wrmsr.tokamak.core.plan.node.Node;
+import com.wrmsr.tokamak.core.plan.node.PNode;
 
 import java.util.Map;
 import java.util.function.Consumer;
@@ -27,14 +27,14 @@ import java.util.function.Consumer;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public abstract class AbstractBuilder<T extends Node>
+public abstract class AbstractBuilder<T extends PNode>
         implements Builder<T>
 {
     protected final DriverImpl driver;
     protected final T node;
-    protected final Map<Node, Builder> sources;
+    protected final Map<PNode, Builder> sources;
 
-    public AbstractBuilder(DriverImpl driver, T node, Map<Node, Builder> sources)
+    public AbstractBuilder(DriverImpl driver, T node, Map<PNode, Builder> sources)
     {
         this.driver = checkNotNull(driver);
         this.node = checkNotNull(node);
@@ -62,7 +62,7 @@ public abstract class AbstractBuilder<T extends Node>
     }
 
     @Override
-    public Map<Node, Builder> getSources()
+    public Map<PNode, Builder> getSources()
     {
         return sources;
     }

@@ -14,9 +14,9 @@
 package com.wrmsr.tokamak.core.driver.build;
 
 import com.wrmsr.tokamak.core.driver.context.DriverContextImpl;
-import com.wrmsr.tokamak.core.plan.node.Node;
+import com.wrmsr.tokamak.core.plan.node.PNode;
 
-public interface ContextualBuilder<T extends Node>
+public interface ContextualBuilder<T extends PNode>
         extends Builder<T>
 {
     BuilderContext buildContext(DriverContextImpl driverContext);

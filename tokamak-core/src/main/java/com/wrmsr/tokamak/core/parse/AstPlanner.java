@@ -20,22 +20,22 @@ import com.wrmsr.tokamak.core.catalog.Catalog;
 import com.wrmsr.tokamak.core.catalog.Function;
 import com.wrmsr.tokamak.core.catalog.Table;
 import com.wrmsr.tokamak.core.parse.analysis.ScopeAnalysis;
-import com.wrmsr.tokamak.core.parse.tree.AliasedRelation;
-import com.wrmsr.tokamak.core.parse.tree.Expression;
-import com.wrmsr.tokamak.core.parse.tree.ExpressionSelectItem;
-import com.wrmsr.tokamak.core.parse.tree.FunctionCallExpression;
-import com.wrmsr.tokamak.core.parse.tree.QualifiedName;
-import com.wrmsr.tokamak.core.parse.tree.QualifiedNameExpression;
-import com.wrmsr.tokamak.core.parse.tree.Select;
-import com.wrmsr.tokamak.core.parse.tree.SelectItem;
-import com.wrmsr.tokamak.core.parse.tree.TableName;
-import com.wrmsr.tokamak.core.parse.tree.TreeNode;
-import com.wrmsr.tokamak.core.parse.tree.visitor.AstVisitor;
-import com.wrmsr.tokamak.core.plan.node.CrossJoinNode;
-import com.wrmsr.tokamak.core.plan.node.Node;
-import com.wrmsr.tokamak.core.plan.node.ProjectNode;
-import com.wrmsr.tokamak.core.plan.node.Projection;
-import com.wrmsr.tokamak.core.plan.node.ScanNode;
+import com.wrmsr.tokamak.core.parse.node.TAliasedRelation;
+import com.wrmsr.tokamak.core.parse.node.TExpression;
+import com.wrmsr.tokamak.core.parse.node.TExpressionSelectItem;
+import com.wrmsr.tokamak.core.parse.node.TFunctionCallExpression;
+import com.wrmsr.tokamak.core.parse.node.TQualifiedName;
+import com.wrmsr.tokamak.core.parse.node.TQualifiedNameExpression;
+import com.wrmsr.tokamak.core.parse.node.TSelect;
+import com.wrmsr.tokamak.core.parse.node.TSelectItem;
+import com.wrmsr.tokamak.core.parse.node.TTableName;
+import com.wrmsr.tokamak.core.parse.node.TNode;
+import com.wrmsr.tokamak.core.parse.node.visitor.TNodeVisitor;
+import com.wrmsr.tokamak.core.plan.node.PCrossJoin;
+import com.wrmsr.tokamak.core.plan.node.PNode;
+import com.wrmsr.tokamak.core.plan.node.PProject;
+import com.wrmsr.tokamak.core.plan.node.PProjection;
+import com.wrmsr.tokamak.core.plan.node.PScan;
 import com.wrmsr.tokamak.util.NameGenerator;
 
 import java.util.LinkedHashMap;
@@ -70,49 +70,49 @@ public class AstPlanner
         this(Optional.empty(), Optional.empty());
     }
 
-    public Node plan(TreeNode treeNode)
+    public PNode plan(TNode treeNode)
     {
         ScopeAnalysis scopeAnalysis = ScopeAnalysis.analyze(treeNode, catalog, defaultSchema);
 
-        return treeNode.accept(new AstVisitor<Node, ScopeAnalysis.Scope>()
+        return treeNode.accept(new TNodeVisitor<PNode, ScopeAnalysis.Scope>()
         {
             @Override
-            public Node visitAliasedRelation(AliasedRelation treeNode, ScopeAnalysis.Scope context)
+            public PNode visitAliasedRelation(TAliasedRelation treeNode, ScopeAnalysis.Scope context)
             {
-                Node scanNode = treeNode.getRelation().accept(this, scopeAnalysis.getScope(treeNode).get());
-                return new ProjectNode(
+                PNode scanNode = treeNode.getRelation().accept(this, scopeAnalysis.getScope(treeNode).get());
+                return new PProject(
                         nameGenerator.get("aliasedRelationProject"),
                         scanNode,
-                        Projection.of(
+                        PProjection.of(
                                 scanNode.getFields().getNames().stream()
                                         .collect(toImmutableMap(f -> treeNode.getAlias().get() + "." + f, identity()))));
             }
 
             @Override
-            public Node visitSelect(Select treeNode, ScopeAnalysis.Scope context)
+            public PNode visitSelect(TSelect treeNode, ScopeAnalysis.Scope context)
             {
-                Map<String, Projection.Input> projection = new LinkedHashMap<>();
+                Map<String, PProjection.Input> projection = new LinkedHashMap<>();
 
-                for (SelectItem item : treeNode.getItems()) {
-                    ExpressionSelectItem exprItem = (ExpressionSelectItem) item;
+                for (TSelectItem item : treeNode.getItems()) {
+                    TExpressionSelectItem exprItem = (TExpressionSelectItem) item;
                     String label = exprItem.getLabel().get();
-                    Expression expr = exprItem.getExpression();
+                    TExpression expr = exprItem.getExpression();
 
-                    if (expr instanceof QualifiedNameExpression) {
-                        QualifiedName qname = ((QualifiedNameExpression) expr).getQualifiedName();
-                        projection.put(label, Projection.Input.of(Joiner.on(".").join(qname.getParts())));
+                    if (expr instanceof TQualifiedNameExpression) {
+                        TQualifiedName qname = ((TQualifiedNameExpression) expr).getQualifiedName();
+                        projection.put(label, PProjection.Input.of(Joiner.on(".").join(qname.getParts())));
                     }
 
-                    else if (expr instanceof FunctionCallExpression) {
-                        FunctionCallExpression fcExpr = (FunctionCallExpression) expr;
+                    else if (expr instanceof TFunctionCallExpression) {
+                        TFunctionCallExpression fcExpr = (TFunctionCallExpression) expr;
                         Function func = catalog.get().getFunction(fcExpr.getName());
                         List<String> args = fcExpr.getArgs().stream()
-                                .map(QualifiedNameExpression.class::cast)
-                                .map(QualifiedNameExpression::getQualifiedName)
-                                .map(QualifiedName::getParts)
+                                .map(TQualifiedNameExpression.class::cast)
+                                .map(TQualifiedNameExpression::getQualifiedName)
+                                .map(TQualifiedName::getParts)
                                 .map(Joiner.on(".")::join)
                                 .collect(toImmutableList());
-                        projection.put(label, Projection.Input.of(func.asNodeFunction(), args));
+                        projection.put(label, PProjection.Input.of(func.asNodeFunction(), args));
                     }
 
                     else {
@@ -120,28 +120,28 @@ public class AstPlanner
                     }
                 }
 
-                List<Node> sources = treeNode.getRelations().stream()
+                List<PNode> sources = treeNode.getRelations().stream()
                         .map(r -> r.accept(this, null))
                         .collect(toImmutableList());
-                Node source;
+                PNode source;
                 if (sources.size() == 1) {
                     source = checkSingle(sources);
                 }
                 else {
-                    source = new CrossJoinNode(
+                    source = new PCrossJoin(
                             nameGenerator.get("projectCrossJoin"),
                             sources,
-                            CrossJoinNode.Mode.INNER);
+                            PCrossJoin.Mode.INNER);
                 }
 
-                return new ProjectNode(
+                return new PProject(
                         nameGenerator.get("selectProject"),
                         source,
-                        new Projection(projection));
+                        new PProjection(projection));
             }
 
             @Override
-            public Node visitTableName(TableName treeNode, ScopeAnalysis.Scope context)
+            public PNode visitTableName(TTableName treeNode, ScopeAnalysis.Scope context)
             {
                 SchemaTable schemaTable = treeNode.getQualifiedName().toSchemaTable(defaultSchema);
 
@@ -157,7 +157,7 @@ public class AstPlanner
                     }
                 });
 
-                return new ScanNode(
+                return new PScan(
                         nameGenerator.get("scan"),
                         schemaTable,
                         columns.stream().collect(toImmutableMap(identity(), table.getRowLayout().getFields()::getType)),

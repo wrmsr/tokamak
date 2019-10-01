@@ -19,14 +19,14 @@ import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.core.catalog.Catalog;
 import com.wrmsr.tokamak.core.catalog.Table;
-import com.wrmsr.tokamak.core.parse.tree.AllSelectItem;
-import com.wrmsr.tokamak.core.parse.tree.ExpressionSelectItem;
-import com.wrmsr.tokamak.core.parse.tree.QualifiedNameExpression;
-import com.wrmsr.tokamak.core.parse.tree.Select;
-import com.wrmsr.tokamak.core.parse.tree.SubqueryRelation;
-import com.wrmsr.tokamak.core.parse.tree.TableName;
-import com.wrmsr.tokamak.core.parse.tree.TreeNode;
-import com.wrmsr.tokamak.core.parse.tree.visitor.TraversalVisitor;
+import com.wrmsr.tokamak.core.parse.node.TAllSelectItem;
+import com.wrmsr.tokamak.core.parse.node.TExpressionSelectItem;
+import com.wrmsr.tokamak.core.parse.node.TQualifiedNameExpression;
+import com.wrmsr.tokamak.core.parse.node.TSelect;
+import com.wrmsr.tokamak.core.parse.node.TSubqueryRelation;
+import com.wrmsr.tokamak.core.parse.node.TTableName;
+import com.wrmsr.tokamak.core.parse.node.TNode;
+import com.wrmsr.tokamak.core.parse.node.visitor.TraversalTNodeVisitor;
 import com.wrmsr.tokamak.util.lazy.SupplierLazyValue;
 
 import java.util.ArrayDeque;
@@ -54,9 +54,9 @@ public final class ScopeAnalysis
         private final Optional<String> name;
         private final Scope scope;
         private final Optional<Symbol> origin;
-        private final TreeNode node;
+        private final TNode node;
 
-        public Symbol(Optional<String> name, TreeNode node, Optional<Symbol> origin, Scope scope)
+        public Symbol(Optional<String> name, TNode node, Optional<Symbol> origin, Scope scope)
         {
             this.name = checkNotNull(name);
             this.scope = checkNotNull(scope);
@@ -89,7 +89,7 @@ public final class ScopeAnalysis
             return origin;
         }
 
-        public TreeNode getNode()
+        public TNode getNode()
         {
             return node;
         }
@@ -98,11 +98,11 @@ public final class ScopeAnalysis
     public static final class SymbolRef
     {
         private final Optional<List<String>> nameParts;
-        private final TreeNode node;
+        private final TNode node;
         private final Optional<Symbol> binding;
         private final Scope scope;
 
-        public SymbolRef(Optional<List<String>> nameParts, TreeNode node, Optional<Symbol> binding, Scope scope)
+        public SymbolRef(Optional<List<String>> nameParts, TNode node, Optional<Symbol> binding, Scope scope)
         {
             this.nameParts = checkNotNull(nameParts).map(ImmutableList::copyOf);
             this.node = checkNotNull(node);
@@ -125,7 +125,7 @@ public final class ScopeAnalysis
             return nameParts;
         }
 
-        public TreeNode getNode()
+        public TNode getNode()
         {
             return node;
         }
@@ -143,8 +143,8 @@ public final class ScopeAnalysis
 
     public static final class Scope
     {
-        private final TreeNode node;
-        private final Set<TreeNode> enclosedNodes = new LinkedHashSet<>();
+        private final TNode node;
+        private final Set<TNode> enclosedNodes = new LinkedHashSet<>();
 
         private final Optional<Scope> parent;
         private final Set<Scope> children = new LinkedHashSet<>();
@@ -154,7 +154,7 @@ public final class ScopeAnalysis
         private final Set<Symbol> symbols = new LinkedHashSet<>();
         private final Set<SymbolRef> symbolRefs = new LinkedHashSet<>();
 
-        public Scope(TreeNode node, Optional<Scope> parent, Optional<String> name)
+        public Scope(TNode node, Optional<Scope> parent, Optional<String> name)
         {
             this.node = checkNotNull(node);
             this.parent = checkNotNull(parent);
@@ -172,12 +172,12 @@ public final class ScopeAnalysis
                     '}';
         }
 
-        public TreeNode getNode()
+        public TNode getNode()
         {
             return node;
         }
 
-        public Set<TreeNode> getEnclosedNodes()
+        public Set<TNode> getEnclosedNodes()
         {
             return Collections.unmodifiableSet(enclosedNodes);
         }
@@ -233,17 +233,17 @@ public final class ScopeAnalysis
     private final Scope rootScope;
 
     private final Set<Scope> scopes;
-    private final Map<TreeNode, Scope> scopesByNode;
-    private final Map<TreeNode, Set<Symbol>> symbolSetsByNode;
-    private final Map<TreeNode, SymbolRef> symbolRefsByNode;
+    private final Map<TNode, Scope> scopesByNode;
+    private final Map<TNode, Set<Symbol>> symbolSetsByNode;
+    private final Map<TNode, SymbolRef> symbolRefsByNode;
 
     private ScopeAnalysis(Scope rootScope)
     {
         this.rootScope = checkNotNull(rootScope);
 
-        ImmutableMap.Builder<TreeNode, Scope> scopesByNode = ImmutableMap.builder();
-        Map<TreeNode, Set<Symbol>> symbolSetsByNode = new LinkedHashMap<>();
-        ImmutableMap.Builder<TreeNode, SymbolRef> symbolRefsByNode = ImmutableMap.builder();
+        ImmutableMap.Builder<TNode, Scope> scopesByNode = ImmutableMap.builder();
+        Map<TNode, Set<Symbol>> symbolSetsByNode = new LinkedHashMap<>();
+        ImmutableMap.Builder<TNode, SymbolRef> symbolRefsByNode = ImmutableMap.builder();
 
         Set<Scope> seen = new HashSet<>();
         Queue<Scope> queue = new ArrayDeque<>();
@@ -293,22 +293,22 @@ public final class ScopeAnalysis
         return scopes;
     }
 
-    public Map<TreeNode, Scope> getScopesByNode()
+    public Map<TNode, Scope> getScopesByNode()
     {
         return scopesByNode;
     }
 
-    public Optional<Scope> getScope(TreeNode node)
+    public Optional<Scope> getScope(TNode node)
     {
         return Optional.ofNullable(scopesByNode.get(node));
     }
 
-    public Map<TreeNode, Set<Symbol>> getSymbolSetsByNode()
+    public Map<TNode, Set<Symbol>> getSymbolSetsByNode()
     {
         return symbolSetsByNode;
     }
 
-    public Map<TreeNode, SymbolRef> getSymbolRefsByNode()
+    public Map<TNode, SymbolRef> getSymbolRefsByNode()
     {
         return symbolRefsByNode;
     }
@@ -342,12 +342,12 @@ public final class ScopeAnalysis
         });
     }
 
-    public static ScopeAnalysis analyze(TreeNode statement, Optional<Catalog> catalog, Optional<String> defaultSchema)
+    public static ScopeAnalysis analyze(TNode statement, Optional<Catalog> catalog, Optional<String> defaultSchema)
     {
-        Scope scope = statement.accept(new TraversalVisitor<Scope, Scope>()
+        Scope scope = statement.accept(new TraversalTNodeVisitor<Scope, Scope>()
         {
             @Override
-            protected Scope visitTreeNode(TreeNode treeNode, Scope context)
+            protected Scope visitTreeNode(TNode treeNode, Scope context)
             {
                 if (context != null) {
                     context.enclosedNodes.add(treeNode);
@@ -356,7 +356,7 @@ public final class ScopeAnalysis
             }
 
             @Override
-            public Scope visitAllSelectItem(AllSelectItem treeNode, Scope context)
+            public Scope visitAllSelectItem(TAllSelectItem treeNode, Scope context)
             {
                 context.enclosedNodes.add(treeNode);
                 context.children.forEach(c -> c.symbols.forEach(s -> {
@@ -367,20 +367,20 @@ public final class ScopeAnalysis
             }
 
             @Override
-            public Scope visitExpressionSelectItem(ExpressionSelectItem treeNode, Scope context)
+            public Scope visitExpressionSelectItem(TExpressionSelectItem treeNode, Scope context)
             {
                 context.enclosedNodes.add(treeNode);
                 treeNode.getExpression().accept(this, context);
                 Optional<String> label = treeNode.getLabel();
-                if (!label.isPresent() && treeNode.getExpression() instanceof QualifiedNameExpression) {
-                    label = Optional.of(((QualifiedNameExpression) treeNode.getExpression()).getQualifiedName().getLast());
+                if (!label.isPresent() && treeNode.getExpression() instanceof TQualifiedNameExpression) {
+                    label = Optional.of(((TQualifiedNameExpression) treeNode.getExpression()).getQualifiedName().getLast());
                 }
                 new Symbol(label, treeNode, Optional.empty(), context);
                 return null;
             }
 
             @Override
-            public Scope visitQualifiedNameExpression(QualifiedNameExpression treeNode, Scope context)
+            public Scope visitQualifiedNameExpression(TQualifiedNameExpression treeNode, Scope context)
             {
                 context.enclosedNodes.add(treeNode);
                 new SymbolRef(Optional.of(treeNode.getQualifiedName().getParts()), treeNode, Optional.empty(), context);
@@ -388,7 +388,7 @@ public final class ScopeAnalysis
             }
 
             @Override
-            public Scope visitSelect(Select treeNode, Scope context)
+            public Scope visitSelect(TSelect treeNode, Scope context)
             {
                 Scope scope = new Scope(treeNode, Optional.ofNullable(context), Optional.empty());
 
@@ -404,14 +404,14 @@ public final class ScopeAnalysis
             }
 
             @Override
-            public Scope visitSubqueryRelation(SubqueryRelation treeNode, Scope context)
+            public Scope visitSubqueryRelation(TSubqueryRelation treeNode, Scope context)
             {
                 context.enclosedNodes.add(treeNode);
                 return treeNode.getSelect().accept(this, context);
             }
 
             @Override
-            public Scope visitTableName(TableName treeNode, Scope context)
+            public Scope visitTableName(TTableName treeNode, Scope context)
             {
                 context.enclosedNodes.add(treeNode);
                 SchemaTable schemaTable = treeNode.getQualifiedName().toSchemaTable(defaultSchema);

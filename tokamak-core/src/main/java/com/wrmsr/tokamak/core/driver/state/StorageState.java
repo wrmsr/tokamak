@@ -14,7 +14,7 @@
 package com.wrmsr.tokamak.core.driver.state;
 
 import com.wrmsr.tokamak.api.Id;
-import com.wrmsr.tokamak.core.plan.node.StateNode;
+import com.wrmsr.tokamak.core.plan.node.PState;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
@@ -32,7 +32,7 @@ public final class StorageState
         EXCLUSIVE,
     }
 
-    private final StateNode node;
+    private final PState node;
     private final Id id;
     private final Mode mode;
     private final long version;
@@ -53,7 +53,7 @@ public final class StorageState
     private long linkageVersion;
 
     public StorageState(
-            StateNode node,
+            PState node,
             Id id,
             Mode mode,
             long version,
@@ -90,7 +90,7 @@ public final class StorageState
                 '}';
     }
 
-    public StateNode getNode()
+    public PState getNode()
     {
         return node;
     }

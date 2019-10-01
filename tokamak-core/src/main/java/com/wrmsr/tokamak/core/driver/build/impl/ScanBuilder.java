@@ -24,8 +24,8 @@ import com.wrmsr.tokamak.core.driver.build.ops.BuildOp;
 import com.wrmsr.tokamak.core.driver.build.ops.ResponseBuildOp;
 import com.wrmsr.tokamak.core.driver.build.ops.ScanBuildOp;
 import com.wrmsr.tokamak.core.driver.context.DriverContextImpl;
-import com.wrmsr.tokamak.core.plan.node.Node;
-import com.wrmsr.tokamak.core.plan.node.ScanNode;
+import com.wrmsr.tokamak.core.plan.node.PNode;
+import com.wrmsr.tokamak.core.plan.node.PScan;
 import com.wrmsr.tokamak.core.serde.Serde;
 import com.wrmsr.tokamak.core.serde.Serdes;
 import com.wrmsr.tokamak.core.serde.impl.TupleSerde;
@@ -39,12 +39,12 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 
 public final class ScanBuilder
-        extends AbstractBuilder<ScanNode>
+        extends AbstractBuilder<PScan>
 {
     private final List<String> orderedIdFields;
     private final Serde<Object[]> idSerde;
 
-    public ScanBuilder(DriverImpl driver, ScanNode node, Map<Node, Builder> sources)
+    public ScanBuilder(DriverImpl driver, PScan node, Map<PNode, Builder> sources)
     {
         super(driver, node, sources);
 

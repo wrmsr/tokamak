@@ -17,7 +17,7 @@ import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.core.driver.DriverRow;
-import com.wrmsr.tokamak.core.plan.node.Node;
+import com.wrmsr.tokamak.core.plan.node.PNode;
 
 import java.util.Collection;
 import java.util.Set;
@@ -38,11 +38,11 @@ public abstract class JournalEntry
     public static final class Invalidate
             extends JournalEntry
     {
-        private final Node node;
+        private final PNode node;
         private final Set<Id> ids;
         private final InvalidateReason reason;
 
-        public Invalidate(Node node, Set<Id> ids, InvalidateReason reason)
+        public Invalidate(PNode node, Set<Id> ids, InvalidateReason reason)
         {
             this.node = checkNotNull(node);
             this.ids = ImmutableSet.copyOf(ids);
@@ -53,10 +53,10 @@ public abstract class JournalEntry
     public static final class BuildInput
             extends JournalEntry
     {
-        private final Node node;
+        private final PNode node;
         private final Key key;
 
-        public BuildInput(Node node, Key key)
+        public BuildInput(PNode node, Key key)
         {
             this.node = checkNotNull(node);
             this.key = checkNotNull(key);
@@ -66,11 +66,11 @@ public abstract class JournalEntry
     public static final class BuildOutput
             extends JournalEntry
     {
-        private final Node node;
+        private final PNode node;
         private final Key key;
         private final Collection<DriverRow> rows;
 
-        public BuildOutput(Node node, Key key, Collection<DriverRow> rows)
+        public BuildOutput(PNode node, Key key, Collection<DriverRow> rows)
         {
             this.node = checkNotNull(node);
             this.key = checkNotNull(key);

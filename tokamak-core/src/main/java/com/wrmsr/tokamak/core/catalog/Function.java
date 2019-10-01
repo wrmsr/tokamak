@@ -18,6 +18,7 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.wrmsr.tokamak.core.exec.Executable;
+import com.wrmsr.tokamak.core.plan.node.PFunction;
 import com.wrmsr.tokamak.core.type.impl.FunctionType;
 import com.wrmsr.tokamak.util.lazy.SupplierLazyValue;
 
@@ -91,10 +92,10 @@ public final class Function
         return executable.get(() -> executor.getExecutable(name));
     }
 
-    private final SupplierLazyValue<com.wrmsr.tokamak.core.plan.node.Function> nodeFunction = new SupplierLazyValue<>();
+    private final SupplierLazyValue<PFunction> nodeFunction = new SupplierLazyValue<>();
 
-    public com.wrmsr.tokamak.core.plan.node.Function asNodeFunction()
+    public PFunction asNodeFunction()
     {
-        return nodeFunction.get(() -> new com.wrmsr.tokamak.core.plan.node.Function(name, type));
+        return nodeFunction.get(() -> new PFunction(name, type));
     }
 }

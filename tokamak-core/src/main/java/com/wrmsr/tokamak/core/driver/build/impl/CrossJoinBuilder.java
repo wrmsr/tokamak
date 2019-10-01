@@ -19,8 +19,8 @@ import com.wrmsr.tokamak.core.driver.DriverImpl;
 import com.wrmsr.tokamak.core.driver.build.Builder;
 import com.wrmsr.tokamak.core.driver.build.ops.BuildOp;
 import com.wrmsr.tokamak.core.driver.context.DriverContextImpl;
-import com.wrmsr.tokamak.core.plan.node.CrossJoinNode;
-import com.wrmsr.tokamak.core.plan.node.Node;
+import com.wrmsr.tokamak.core.plan.node.PCrossJoin;
+import com.wrmsr.tokamak.core.plan.node.PNode;
 import com.wrmsr.tokamak.util.Pair;
 
 import java.util.List;
@@ -32,9 +32,9 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.wrmsr.tokamak.util.MoreCollectors.toCheckSingle;
 
 public final class CrossJoinBuilder
-        extends AbstractBuilder<CrossJoinNode>
+        extends AbstractBuilder<PCrossJoin>
 {
-    public CrossJoinBuilder(DriverImpl driver, CrossJoinNode node, Map<Node, Builder> sources)
+    public CrossJoinBuilder(DriverImpl driver, PCrossJoin node, Map<PNode, Builder> sources)
     {
         super(driver, node, sources);
     }
@@ -42,15 +42,15 @@ public final class CrossJoinBuilder
     @Override
     protected void innerBuild(DriverContextImpl context, Key key, Consumer<BuildOp> opConsumer)
     {
-        List<Pair<Node, Key>> sourceKeyPairs;
-        Node lookupSource = key.getValuesByField().keySet().stream()
+        List<Pair<PNode, Key>> sourceKeyPairs;
+        PNode lookupSource = key.getValuesByField().keySet().stream()
                 .map(f -> checkNotNull(node.getSourcesByField().get(f)))
                 .collect(toCheckSingle());
-        sourceKeyPairs = ImmutableList.<Pair<Node, Key>>builder()
+        sourceKeyPairs = ImmutableList.<Pair<PNode, Key>>builder()
                 .add(Pair.immutable(lookupSource, key))
                 .addAll(node.getSources().stream()
                         .filter(s -> s != lookupSource)
-                        .map(s -> Pair.<Node, Key>immutable(s, Key.all()))
+                        .map(s -> Pair.<PNode, Key>immutable(s, Key.all()))
                         .collect(toImmutableList()))
                 .build();
 

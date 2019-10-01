@@ -25,8 +25,8 @@ import com.wrmsr.tokamak.core.driver.state.StateStorage;
 import com.wrmsr.tokamak.core.driver.state.StateStorageCodec;
 import com.wrmsr.tokamak.core.driver.state.StorageState;
 import com.wrmsr.tokamak.core.plan.Plan;
-import com.wrmsr.tokamak.core.plan.node.Node;
-import com.wrmsr.tokamak.core.plan.node.StateNode;
+import com.wrmsr.tokamak.core.plan.node.PNode;
+import com.wrmsr.tokamak.core.plan.node.PState;
 import com.wrmsr.tokamak.util.Pair;
 
 import java.io.IOException;
@@ -71,11 +71,11 @@ public class DefaultStateCache
     private final List<AttributesSetCallback> attributesSetCallbacks;
     private final Stat.Updater statUpdater;
 
-    private final List<Node> prioritizedNodes;
-    private final Map<Node, Integer> prioritiesByNode;
+    private final List<PNode> prioritizedNodes;
+    private final Map<PNode, Integer> prioritiesByNode;
 
     private final Set<State> allStates;
-    private final Map<Node, Map<Id, State>> statesByIdByNode;
+    private final Map<PNode, Map<Id, State>> statesByIdByNode;
     private final Map<State, State.Mode> modesByState;
     private final Map<State.Mode, SortedMap<Integer, SortedSet<Id>>> idSetsByNodePriorityByMode;
     private final SortedMap<Integer, SortedSet<Id>> pendingInvalidIdSetsByNodePriority;
@@ -94,7 +94,7 @@ public class DefaultStateCache
         this.attributesSetCallbacks = ImmutableList.copyOf(attributesSetCallbacks);
         this.statUpdater = checkNotNull(statUpdater);
 
-        prioritizedNodes = plan.getToposortedNodes().stream().filter(StateNode.class::isInstance).collect(toImmutableList());
+        prioritizedNodes = plan.getToposortedNodes().stream().filter(PState.class::isInstance).collect(toImmutableList());
         prioritiesByNode = IntStream.range(0, prioritizedNodes.size())
                 .mapToObj(i -> new Pair.Immutable<>(prioritizedNodes.get(i), i))
                 .collect(toImmutableMap(Pair.Immutable::getKey, Pair.Immutable::getValue));
@@ -108,7 +108,7 @@ public class DefaultStateCache
     }
 
     @Override
-    public Optional<State> get(StateNode node, Id id, EnumSet<GetFlag> flags)
+    public Optional<State> get(PState node, Id id, EnumSet<GetFlag> flags)
     {
         Map<Id, State> statesById = statesByIdByNode.computeIfAbsent(node, n -> new HashMap<>());
         State state = statesById.get(id);
@@ -132,7 +132,7 @@ public class DefaultStateCache
             if (flags.contains(GetFlag.CREATE)) {
                 storageFlags.add(StateStorage.GetFlag.CREATE);
             }
-            Map<StateNode, Map<Id, StorageState>> storageResult;
+            Map<PState, Map<Id, StorageState>> storageResult;
             try {
                 storageResult = storage.get(
                         storageContext,
@@ -262,13 +262,13 @@ public class DefaultStateCache
     }
 
     @Override
-    public void invalidate(StateNode node, Set<Id> ids)
+    public void invalidate(PState node, Set<Id> ids)
     {
         throw new IllegalStateException();
     }
 
     @Override
-    public boolean isInvalidated(StateNode node, Id id)
+    public boolean isInvalidated(PState node, Id id)
     {
         checkNotNull(node);
         checkNotNull(id);
@@ -289,20 +289,20 @@ public class DefaultStateCache
         return false;
     }
 
-    private boolean isPendingInvalidation(Node node, Id id)
+    private boolean isPendingInvalidation(PNode node, Id id)
     {
         SortedSet<Id> set = pendingInvalidIdSetsByNodePriority.get(prioritiesByNode.get(node));
         return set != null && set.contains(id);
     }
 
     @Override
-    public State createPhantom(StateNode node, Row row)
+    public State createPhantom(PState node, Row row)
     {
         return null;
     }
 
     @Override
-    public State setPhantomAttributes(StateNode node, Row row)
+    public State setPhantomAttributes(PState node, Row row)
     {
         throw new IllegalStateException();
     }
@@ -314,19 +314,19 @@ public class DefaultStateCache
     }
 
     @Override
-    public Map<Node, Set<Id>> getInvalid()
+    public Map<PNode, Set<Id>> getInvalid()
     {
         throw new IllegalStateException();
     }
 
     @Override
-    public Optional<Pair.Immutable<Node, Id>> getNextInvalid()
+    public Optional<Pair.Immutable<PNode, Id>> getNextInvalid()
     {
         throw new IllegalStateException();
     }
 
     @Override
-    public Map<Id, State> getIdMap(StateNode node)
+    public Map<Id, State> getIdMap(PState node)
     {
         throw new IllegalStateException();
     }
@@ -335,8 +335,8 @@ public class DefaultStateCache
     public void flush()
     {
         ImmutableList.Builder<StorageState> storageStates = ImmutableList.builder();
-        for (Map.Entry<Node, Map<Id, State>> e0 : statesByIdByNode.entrySet()) {
-            Node node = e0.getKey();
+        for (Map.Entry<PNode, Map<Id, State>> e0 : statesByIdByNode.entrySet()) {
+            PNode node = e0.getKey();
             Map<Id, State> statesById = e0.getValue();
             StateStorageCodec stateStorageCodec = serdeManager.getStateStorageCodecsByNode().get(node);
             for (Map.Entry<Id, State> e1 : statesById.entrySet()) {

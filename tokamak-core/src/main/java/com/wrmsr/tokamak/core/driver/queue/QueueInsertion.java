@@ -14,14 +14,14 @@
 package com.wrmsr.tokamak.core.driver.queue;
 
 import com.wrmsr.tokamak.api.Id;
-import com.wrmsr.tokamak.core.plan.node.NodeId;
+import com.wrmsr.tokamak.core.plan.node.PNodeId;
 
 import java.util.Optional;
 import java.util.UUID;
 
 public final class QueueInsertion
 {
-    private final NodeId lockNodeId;
+    private final PNodeId lockNodeId;
     private final Id lockId;
     private final QueueInvalidations invalidations;
     private final Optional<UUID> uuid;
@@ -30,7 +30,7 @@ public final class QueueInsertion
     private final Optional<UUID> cycleTaskUuid;
 
     public QueueInsertion(
-            NodeId lockNodeId,
+            PNodeId lockNodeId,
             Id lockId,
             QueueInvalidations invalidations,
             Optional<UUID> uuid,
@@ -47,7 +47,7 @@ public final class QueueInsertion
         this.cycleTaskUuid = cycleTaskUuid;
     }
 
-    public NodeId getLockNodeId()
+    public PNodeId getLockNodeId()
     {
         return lockNodeId;
     }

@@ -22,8 +22,8 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Streams;
-import com.wrmsr.tokamak.core.plan.node.Node;
-import com.wrmsr.tokamak.core.plan.node.NodeId;
+import com.wrmsr.tokamak.core.plan.node.PNode;
+import com.wrmsr.tokamak.core.plan.node.PNodeId;
 import com.wrmsr.tokamak.util.Pair;
 import com.wrmsr.tokamak.util.collect.Toposort;
 import com.wrmsr.tokamak.util.lazy.SupplierLazyValue;
@@ -50,26 +50,26 @@ import static java.util.function.Function.identity;
 @Immutable
 public final class Plan
 {
-    private final Node root;
+    private final PNode root;
 
-    private final Set<Node> nodes;
-    private final Map<String, Node> nodesByName;
-    private final Map<NodeId, Node> nodesByNodeId;
+    private final Set<PNode> nodes;
+    private final Map<String, PNode> nodesByName;
+    private final Map<PNodeId, PNode> nodesByNodeId;
 
     @JsonCreator
     public Plan(
-            @JsonProperty("root") Node root)
+            @JsonProperty("root") PNode root)
     {
         this.root = root;
 
-        Set<Node> nodes = new HashSet<>();
-        Map<String, Node> nodesByName = new HashMap<>();
-        Map<NodeId, Node> nodesById = new HashMap<>();
+        Set<PNode> nodes = new HashSet<>();
+        Map<String, PNode> nodesByName = new HashMap<>();
+        Map<PNodeId, PNode> nodesById = new HashMap<>();
 
-        List<Node> nodeStack = new ArrayList<>();
+        List<PNode> nodeStack = new ArrayList<>();
         nodeStack.add(root);
         while (!nodeStack.isEmpty()) {
-            Node cur = nodeStack.remove(nodeStack.size() - 1);
+            PNode cur = nodeStack.remove(nodeStack.size() - 1);
             checkState(!nodes.contains(cur));
             checkArgument(!nodesByName.containsKey(cur.getName()));
             checkArgument(!nodesById.containsKey(cur.getId()));
@@ -87,17 +87,17 @@ public final class Plan
     }
 
     @JsonProperty("root")
-    public Node getRoot()
+    public PNode getRoot()
     {
         return root;
     }
 
-    public Set<Node> getNodes()
+    public Set<PNode> getNodes()
     {
         return nodes;
     }
 
-    public Map<String, Node> getNodesByName()
+    public Map<String, PNode> getNodesByName()
     {
         return nodesByName;
     }
@@ -107,28 +107,28 @@ public final class Plan
         return nodesByName.keySet();
     }
 
-    public Map<NodeId, Node> getNodesById()
+    public Map<PNodeId, PNode> getNodesById()
     {
         return nodesByNodeId;
     }
 
-    private final SupplierLazyValue<List<Node>> nameSortedNodes = new SupplierLazyValue<>();
+    private final SupplierLazyValue<List<PNode>> nameSortedNodes = new SupplierLazyValue<>();
 
-    public List<Node> getNameSortedNodes()
+    public List<PNode> getNameSortedNodes()
     {
         return nameSortedNodes.get(() -> nodes.stream()
-                .sorted(Comparator.comparing(Node::getName))
+                .sorted(Comparator.comparing(PNode::getName))
                 .collect(toImmutableList()));
     }
 
-    private final Map<Class<? extends Node>, List> nodeListsByType = new HashMap<>();
+    private final Map<Class<? extends PNode>, List> nodeListsByType = new HashMap<>();
 
     @SuppressWarnings({"unchecked"})
-    public <T extends Node> List<T> getNodeTypeList(Class<T> nodeType)
+    public <T extends PNode> List<T> getNodeTypeList(Class<T> nodeType)
     {
         return nodeListsByType.computeIfAbsent(nodeType, nt -> {
             ImmutableList.Builder<T> ret = ImmutableList.builder();
-            for (Node node : getNameSortedNodes()) {
+            for (PNode node : getNameSortedNodes()) {
                 if (nodeType.isInstance(node)) {
                     ret.add((T) node);
                 }
@@ -137,51 +137,51 @@ public final class Plan
         });
     }
 
-    private final SupplierLazyValue<Set<Node>> leafNodes = new SupplierLazyValue<>();
+    private final SupplierLazyValue<Set<PNode>> leafNodes = new SupplierLazyValue<>();
 
-    public Set<Node> getLeafNodes()
+    public Set<PNode> getLeafNodes()
     {
         return leafNodes.get(() -> getNameSortedNodes().stream()
                 .filter(n -> n.getSources().isEmpty())
                 .collect(toImmutableSet()));
     }
 
-    private final SupplierLazyValue<List<Set<Node>>> nodeToposort = new SupplierLazyValue<>();
+    private final SupplierLazyValue<List<Set<PNode>>> nodeToposort = new SupplierLazyValue<>();
 
-    public List<Set<Node>> getNodeToposort()
+    public List<Set<PNode>> getNodeToposort()
     {
         return nodeToposort.get(() -> Toposort.toposort(getNameSortedNodes().stream()
                 .collect(toImmutableMap(identity(), n -> ImmutableSet.copyOf(n.getSources())))));
     }
 
-    private final SupplierLazyValue<List<Set<Node>>> nodeReverseToposort = new SupplierLazyValue<>();
+    private final SupplierLazyValue<List<Set<PNode>>> nodeReverseToposort = new SupplierLazyValue<>();
 
-    public List<Set<Node>> getNodeReverseToposort()
+    public List<Set<PNode>> getNodeReverseToposort()
     {
         return nodeReverseToposort.get(() -> ImmutableList.copyOf(Lists.reverse(getNodeToposort())));
     }
 
-    private final SupplierLazyValue<List<Node>> toposortedNodes = new SupplierLazyValue<>();
+    private final SupplierLazyValue<List<PNode>> toposortedNodes = new SupplierLazyValue<>();
 
-    public List<Node> getToposortedNodes()
+    public List<PNode> getToposortedNodes()
     {
         return toposortedNodes.get(() -> getNodeToposort().stream()
                 .flatMap(Set::stream)
                 .collect(toImmutableList()));
     }
 
-    private final SupplierLazyValue<List<Node>> reverseToposortedNodes = new SupplierLazyValue<>();
+    private final SupplierLazyValue<List<PNode>> reverseToposortedNodes = new SupplierLazyValue<>();
 
-    public List<Node> getReverseToposortedNodes()
+    public List<PNode> getReverseToposortedNodes()
     {
         return reverseToposortedNodes.get(() -> getNodeReverseToposort().stream()
                 .flatMap(Set::stream)
                 .collect(toImmutableList()));
     }
 
-    private final SupplierLazyValue<Map<Node, Integer>> toposortIndicesByNode = new SupplierLazyValue<>();
+    private final SupplierLazyValue<Map<PNode, Integer>> toposortIndicesByNode = new SupplierLazyValue<>();
 
-    public Map<Node, Integer> getToposortIndicesByNode()
+    public Map<PNode, Integer> getToposortIndicesByNode()
     {
         return toposortIndicesByNode.get(() ->
                 Streams.zip(
@@ -191,9 +191,9 @@ public final class Plan
                         .collect(toImmutableMap()));
     }
 
-    private final SupplierLazyValue<Map<Node, Integer>> reverseToposortIndicesByNode = new SupplierLazyValue<>();
+    private final SupplierLazyValue<Map<PNode, Integer>> reverseToposortIndicesByNode = new SupplierLazyValue<>();
 
-    public Map<Node, Integer> getReverseToposortIndicesByNode()
+    public Map<PNode, Integer> getReverseToposortIndicesByNode()
     {
         return reverseToposortIndicesByNode.get(() ->
                 Streams.zip(
@@ -203,22 +203,22 @@ public final class Plan
                         .collect(toImmutableMap()));
     }
 
-    public Map<Node, Set<Node>> getStatefulSourceSetsByNode()
+    public Map<PNode, Set<PNode>> getStatefulSourceSetsByNode()
     {
         throw new IllegalStateException();
     }
 
-    public Map<Node, Set<Node>> getStatefulSinkSetsByNode()
+    public Map<PNode, Set<PNode>> getStatefulSinkSetsByNode()
     {
         throw new IllegalStateException();
     }
 
-    public Map<Node, Set<Node>> getDeepStatefulSourceSetsByNode()
+    public Map<PNode, Set<PNode>> getDeepStatefulSourceSetsByNode()
     {
         throw new IllegalStateException();
     }
 
-    public Map<Node, Set<Node>> getDeepStatefulSinkSetsByNode()
+    public Map<PNode, Set<PNode>> getDeepStatefulSinkSetsByNode()
     {
         throw new IllegalStateException();
     }

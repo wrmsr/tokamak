@@ -16,7 +16,7 @@ package com.wrmsr.tokamak.spark;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.core.plan.Plan;
-import com.wrmsr.tokamak.core.plan.node.ValuesNode;
+import com.wrmsr.tokamak.core.plan.node.PValues;
 import com.wrmsr.tokamak.core.type.Types;
 import org.apache.hadoop.mapred.TextOutputFormat;
 import org.apache.spark.SparkConf;
@@ -93,7 +93,7 @@ public class SparkTest
                 throws Exception
         {
             Plan plan = new Plan(
-                    new ValuesNode(
+                    new PValues(
                             "values",
                             ImmutableMap.of("x", Types.LONG),
                             ImmutableList.of(ImmutableList.of(420L)),

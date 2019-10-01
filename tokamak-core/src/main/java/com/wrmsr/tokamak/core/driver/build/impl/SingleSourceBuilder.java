@@ -15,8 +15,8 @@ package com.wrmsr.tokamak.core.driver.build.impl;
 
 import com.wrmsr.tokamak.core.driver.DriverImpl;
 import com.wrmsr.tokamak.core.driver.build.Builder;
-import com.wrmsr.tokamak.core.plan.node.Node;
-import com.wrmsr.tokamak.core.plan.node.SingleSourceNode;
+import com.wrmsr.tokamak.core.plan.node.PNode;
+import com.wrmsr.tokamak.core.plan.node.PSingleSource;
 import com.wrmsr.tokamak.util.MorePreconditions;
 
 import java.util.Map;
@@ -24,12 +24,12 @@ import java.util.Map;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkSingle;
 
-public abstract class SingleSourceBuilder<T extends SingleSourceNode>
+public abstract class SingleSourceBuilder<T extends PSingleSource>
         extends AbstractBuilder<T>
 {
     protected final Builder source;
 
-    public SingleSourceBuilder(DriverImpl driver, T node, Map<Node, Builder> sources)
+    public SingleSourceBuilder(DriverImpl driver, T node, Map<PNode, Builder> sources)
     {
         super(driver, node, sources);
         Builder source = MorePreconditions.checkSingle(this.sources.values());

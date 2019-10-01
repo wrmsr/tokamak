@@ -13,7 +13,7 @@
  */
 package com.wrmsr.tokamak.core.driver.context.diag;
 
-import com.wrmsr.tokamak.core.plan.node.Node;
+import com.wrmsr.tokamak.core.plan.node.PNode;
 
 public enum Stat
 {
@@ -48,26 +48,26 @@ public enum Stat
 
     public interface Updater
     {
-        default void update(Node node, Stat stat)
+        default void update(PNode node, Stat stat)
         {
             update(node, stat, 1L);
         }
 
-        void update(Node node, Stat stat, long num);
+        void update(PNode node, Stat stat, long num);
 
-        void update(Node node, Stat stat, double num);
+        void update(PNode node, Stat stat, double num);
 
         static Updater nop()
         {
             return new Updater()
             {
                 @Override
-                public void update(Node node, Stat stat, long num)
+                public void update(PNode node, Stat stat, long num)
                 {
                 }
 
                 @Override
-                public void update(Node node, Stat stat, double num)
+                public void update(PNode node, Stat stat, double num)
                 {
                 }
             };

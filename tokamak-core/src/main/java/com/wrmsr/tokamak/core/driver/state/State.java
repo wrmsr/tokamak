@@ -16,7 +16,7 @@ package com.wrmsr.tokamak.core.driver.state;
 import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.api.Row;
-import com.wrmsr.tokamak.core.plan.node.StateNode;
+import com.wrmsr.tokamak.core.plan.node.PState;
 import com.wrmsr.tokamak.util.collect.ObjectArrayBackedMap;
 
 import javax.annotation.Nullable;
@@ -90,7 +90,7 @@ public final class State
         }
     }
 
-    private final StateNode node;
+    private final PState node;
     private final Id id;
     private Mode mode;
     private long version;
@@ -117,7 +117,7 @@ public final class State
     @Nullable
     private ModeCallback modeCallback;
 
-    public State(StateNode node, Id id, Mode mode)
+    public State(PState node, Id id, Mode mode)
     {
         checkArgument(mode != Mode.CONSTRUCTING);
         this.node = checkNotNull(node);
@@ -127,7 +127,7 @@ public final class State
     }
 
     private State(
-            StateNode node,
+            PState node,
             Id id,
             long version,
             @Nullable StorageState.Mode storageMode,
@@ -148,7 +148,7 @@ public final class State
     }
 
     public static State newFromStorage(
-            StateNode node,
+            PState node,
             Id id,
             StorageState.Mode storageMode,
             long version,
@@ -178,7 +178,7 @@ public final class State
                 '}';
     }
 
-    public StateNode getNode()
+    public PState getNode()
     {
         return node;
     }

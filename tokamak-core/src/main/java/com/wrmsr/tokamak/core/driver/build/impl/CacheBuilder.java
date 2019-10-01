@@ -25,8 +25,8 @@ import com.wrmsr.tokamak.core.driver.build.ops.BuildOp;
 import com.wrmsr.tokamak.core.driver.build.ops.RequestBuildOp;
 import com.wrmsr.tokamak.core.driver.build.ops.ResponseBuildOp;
 import com.wrmsr.tokamak.core.driver.context.DriverContextImpl;
-import com.wrmsr.tokamak.core.plan.node.CacheNode;
-import com.wrmsr.tokamak.core.plan.node.Node;
+import com.wrmsr.tokamak.core.plan.node.PCache;
+import com.wrmsr.tokamak.core.plan.node.PNode;
 
 import java.util.HashMap;
 import java.util.List;
@@ -34,10 +34,10 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 public final class CacheBuilder
-        extends SingleSourceBuilder<CacheNode>
-        implements ContextualBuilder<CacheNode>
+        extends SingleSourceBuilder<PCache>
+        implements ContextualBuilder<PCache>
 {
-    public CacheBuilder(DriverImpl driver, CacheNode node, Map<Node, Builder> sources)
+    public CacheBuilder(DriverImpl driver, PCache node, Map<PNode, Builder> sources)
     {
         super(driver, node, sources);
     }

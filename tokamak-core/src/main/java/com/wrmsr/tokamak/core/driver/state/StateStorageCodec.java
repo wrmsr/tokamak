@@ -13,7 +13,7 @@
  */
 package com.wrmsr.tokamak.core.driver.state;
 
-import com.wrmsr.tokamak.core.plan.node.StateNode;
+import com.wrmsr.tokamak.core.plan.node.PState;
 import com.wrmsr.tokamak.core.serde.impl.PrefixedSerde;
 import com.wrmsr.tokamak.core.serde.Serde;
 import com.wrmsr.tokamak.util.codec.Codec;
@@ -26,14 +26,14 @@ public final class StateStorageCodec
 {
     private static final byte ATTRIBUTES_PREFIX = 0x41;
 
-    private final StateNode node;
+    private final PState node;
     private final Serde<Object[]> attributesSerde;
     private final LinkageMapStorageCodec linkageMapStorageCodec;
 
     private final Serde<Object[]> prefixedAttributesSerde;
 
     public StateStorageCodec(
-            StateNode node,
+            PState node,
             Serde<Object[]> attributesSerde,
             LinkageMapStorageCodec linkageMapStorageCodec)
     {
@@ -44,7 +44,7 @@ public final class StateStorageCodec
         prefixedAttributesSerde = new PrefixedSerde<>(new byte[] {ATTRIBUTES_PREFIX}, this.attributesSerde);
     }
 
-    public StateNode getNode()
+    public PState getNode()
     {
         return node;
     }

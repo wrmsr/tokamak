@@ -18,16 +18,16 @@ import com.wrmsr.tokamak.core.driver.DriverImpl;
 import com.wrmsr.tokamak.core.driver.build.Builder;
 import com.wrmsr.tokamak.core.driver.build.ops.BuildOp;
 import com.wrmsr.tokamak.core.driver.context.DriverContextImpl;
-import com.wrmsr.tokamak.core.plan.node.Node;
-import com.wrmsr.tokamak.core.plan.node.UnionNode;
+import com.wrmsr.tokamak.core.plan.node.PNode;
+import com.wrmsr.tokamak.core.plan.node.PUnion;
 
 import java.util.Map;
 import java.util.function.Consumer;
 
 public final class UnionBuilder
-        extends AbstractBuilder<UnionNode>
+        extends AbstractBuilder<PUnion>
 {
-    public UnionBuilder(DriverImpl driver, UnionNode node, Map<Node, Builder> sources)
+    public UnionBuilder(DriverImpl driver, PUnion node, Map<PNode, Builder> sources)
     {
         super(driver, node, sources);
     }

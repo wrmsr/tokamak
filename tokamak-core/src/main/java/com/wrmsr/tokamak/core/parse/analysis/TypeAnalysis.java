@@ -17,10 +17,10 @@ import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.core.catalog.Catalog;
 import com.wrmsr.tokamak.core.catalog.Table;
-import com.wrmsr.tokamak.core.parse.tree.QualifiedNameExpression;
-import com.wrmsr.tokamak.core.parse.tree.TableName;
-import com.wrmsr.tokamak.core.parse.tree.TreeNode;
-import com.wrmsr.tokamak.core.parse.tree.visitor.TraversalVisitor;
+import com.wrmsr.tokamak.core.parse.node.TQualifiedNameExpression;
+import com.wrmsr.tokamak.core.parse.node.TTableName;
+import com.wrmsr.tokamak.core.parse.node.TNode;
+import com.wrmsr.tokamak.core.parse.node.visitor.TraversalTNodeVisitor;
 import com.wrmsr.tokamak.core.type.Type;
 
 import java.util.LinkedHashMap;
@@ -33,30 +33,30 @@ import static com.wrmsr.tokamak.util.MoreOptionals.optionalTest;
 
 public final class TypeAnalysis
 {
-    private final Map<TreeNode, Type> typesByNode;
+    private final Map<TNode, Type> typesByNode;
 
-    private TypeAnalysis(Map<TreeNode, Type> typesByNode)
+    private TypeAnalysis(Map<TNode, Type> typesByNode)
     {
         this.typesByNode = ImmutableMap.copyOf(typesByNode);
     }
 
-    public Map<TreeNode, Type> getTypesByNode()
+    public Map<TNode, Type> getTypesByNode()
     {
         return typesByNode;
     }
 
-    public static TypeAnalysis analyze(TreeNode root, Catalog catalog, Optional<String> defaultSchema)
+    public static TypeAnalysis analyze(TNode root, Catalog catalog, Optional<String> defaultSchema)
     {
         ScopeAnalysis scopeAnalysis = ScopeAnalysis.analyze(root, Optional.of(catalog), defaultSchema);
         scopeAnalysis.getResolutions();
 
         Map<ScopeAnalysis.Symbol, Type> typesBySymbol = new LinkedHashMap<>();
-        Map<TreeNode, Type> typesByNode = new LinkedHashMap<>();
+        Map<TNode, Type> typesByNode = new LinkedHashMap<>();
 
-        root.accept(new TraversalVisitor<Void, Void>()
+        root.accept(new TraversalTNodeVisitor<Void, Void>()
         {
             @Override
-            public Void visitQualifiedNameExpression(QualifiedNameExpression treeNode, Void context)
+            public Void visitQualifiedNameExpression(TQualifiedNameExpression treeNode, Void context)
             {
                 ScopeAnalysis.SymbolRef symbolRef = checkNotNull(scopeAnalysis.getSymbolRefsByNode().get(treeNode));
                 ScopeAnalysis.Symbol symbol = scopeAnalysis.getResolutions().getSymbols().get(symbolRef);
@@ -71,7 +71,7 @@ public final class TypeAnalysis
             }
 
             @Override
-            public Void visitTableName(TableName treeNode, Void context)
+            public Void visitTableName(TTableName treeNode, Void context)
             {
                 SchemaTable schemaTable = treeNode.getQualifiedName().toSchemaTable(defaultSchema);
                 Table table = catalog.getSchemaTable(schemaTable);
