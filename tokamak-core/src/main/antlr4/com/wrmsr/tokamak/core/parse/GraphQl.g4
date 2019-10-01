@@ -29,7 +29,7 @@ GraphQL grammar derived from:
     https://github.com/facebook/graphql
   AB:10-dep19: replaced type with type_ to resolve conflict for golang generator
 */
-grammar Graphql;
+grammar GraphQl;
 
 document
    : definition+
