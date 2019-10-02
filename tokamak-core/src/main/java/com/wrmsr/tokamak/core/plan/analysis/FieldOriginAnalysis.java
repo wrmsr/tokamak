@@ -38,6 +38,7 @@ import javax.annotation.concurrent.Immutable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
@@ -111,16 +112,15 @@ public final class FieldOriginAnalysis
     public static final class Origination
     {
         private final NodeField sink;
-        private final NodeField source;
+        private final Optional<NodeField> source;
         private final Strength strength;
 
-        private Origination(NodeField sink, NodeField source, Strength strength)
+        private Origination(NodeField sink, Optional<NodeField> source, Strength strength)
         {
             this.sink = checkNotNull(sink);
             this.source = checkNotNull(source);
             this.strength = checkNotNull(strength);
-
-            checkState(sink.node.getSources().contains(source.node));
+            source.ifPresent(s -> checkState(sink.node.getSources().contains(s.node)));
         }
 
         @Override
@@ -138,7 +138,7 @@ public final class FieldOriginAnalysis
             return sink;
         }
 
-        public NodeField getSource()
+        public Optional<NodeField> getSource()
         {
             return source;
         }
@@ -165,7 +165,7 @@ public final class FieldOriginAnalysis
             private void addSimple(PSingleSource node)
             {
                 node.getFields().getNames().forEach(f ->
-                        originations.add(new Origination(NodeField.of(node, f), NodeField.of(node.getSource(), f), Strength.STRONG)));
+                        originations.add(new Origination(NodeField.of(node, f), Optional.of(NodeField.of(node.getSource(), f)), Strength.STRONG)));
             }
 
             @Override
@@ -219,7 +219,7 @@ public final class FieldOriginAnalysis
                 node.getProjection().getInputsByOutput().forEach((o, i) -> {
                     if (i instanceof PProjection.FieldInput) {
                         PProjection.FieldInput fi = (PProjection.FieldInput) i;
-                        originations.add(new Origination(NodeField.of(node, o), NodeField.of(node.getSource(), fi.getField()), Strength.STRONG));
+                        originations.add(new Origination(NodeField.of(node, o), Optional.of(NodeField.of(node.getSource(), fi.getField())), Strength.STRONG));
                     }
                 });
                 return super.visitProjectNode(node, context);
@@ -228,7 +228,7 @@ public final class FieldOriginAnalysis
             @Override
             public Void visitScanNode(PScan node, Void context)
             {
-                return super.visitScanNode(node, context);
+                return null;
             }
 
             @Override
@@ -253,7 +253,7 @@ public final class FieldOriginAnalysis
             @Override
             public Void visitValuesNode(PValues node, Void context)
             {
-                return super.visitValuesNode(node, context);
+                return null;
             }
         }, null);
 
