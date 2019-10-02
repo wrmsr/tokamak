@@ -48,6 +48,12 @@ import static com.google.common.base.Preconditions.checkState;
 @Immutable
 public final class FieldOriginAnalysis
 {
+    /*
+    TODO:
+     - SUBFIELD TRACKING. INTO STRUCTS.
+      - class PSearch extends PNode { private final SNode search
+    */
+
     @Immutable
     public static final class NodeField
     {
@@ -219,6 +225,10 @@ public final class FieldOriginAnalysis
             @Override
             public Void visitGroupBy(PGroupBy node, Void context)
             {
+                originations.add(new Origination(
+                        NodeField.of(node, node.getListField())));
+                originations.add(new Origination(
+                        NodeField.of(node, node.getGroupField()), Optional.of(NodeField.of(node.getSource(), node.getGroupField())), Strength.STRONG));
                 return super.visitGroupBy(node, context);
             }
 
