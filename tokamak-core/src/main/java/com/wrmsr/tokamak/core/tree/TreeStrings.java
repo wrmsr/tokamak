@@ -26,7 +26,7 @@ public final class TreeStrings
 {
     /*
     TODO:
-     - unicode literals: \u+0123
+     - unicode literals: \\u+0123
     */
 
     private TreeStrings()
