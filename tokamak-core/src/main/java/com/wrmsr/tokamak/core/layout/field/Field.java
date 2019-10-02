@@ -104,7 +104,7 @@ public final class Field
         return Optional.ofNullable((T) annotationsByCls.get(cls));
     }
 
-    public boolean hasAttribute(Class<? extends FieldAnnotation> cls)
+    public boolean hasAnnotation(Class<? extends FieldAnnotation> cls)
     {
         return annotationsByCls.containsKey(cls);
     }

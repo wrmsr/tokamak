@@ -15,7 +15,10 @@ package com.wrmsr.tokamak.core.plan.node;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.wrmsr.tokamak.core.layout.field.Field;
+import com.wrmsr.tokamak.core.layout.field.FieldAnnotation;
 import com.wrmsr.tokamak.core.layout.field.FieldCollection;
 import com.wrmsr.tokamak.core.plan.node.visitor.PNodeVisitor;
 import com.wrmsr.tokamak.core.type.impl.ListType;
@@ -55,10 +58,13 @@ public final class PGroupBy
         checkArgument(source.getFields().contains(groupField));
 
         structType = new StructType(ImmutableMap.copyOf(source.getFields().getTypesByName()));
-        fields = FieldCollection.of(ImmutableMap.of(
-                groupField, source.getFields().getType(groupField),
-                listField, new ListType(structType)
-        ));
+        fields = FieldCollection.builder()
+                .add(new Field(groupField, source.getFields().getType(groupField), ImmutableList.of(FieldAnnotation.id())))
+                .add(listField, new ListType(structType))
+                .build();
+
+        // FIXME:
+        // checkState(fields.get(groupField).hasAnnotation(IdField.class));
 
         checkInvariants();
     }

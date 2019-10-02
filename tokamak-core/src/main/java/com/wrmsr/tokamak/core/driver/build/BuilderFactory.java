@@ -15,6 +15,7 @@ package com.wrmsr.tokamak.core.driver.build;
 
 import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.core.driver.DriverImpl;
+import com.wrmsr.tokamak.core.driver.build.impl.BuildStructBuilder;
 import com.wrmsr.tokamak.core.driver.build.impl.CacheBuilder;
 import com.wrmsr.tokamak.core.driver.build.impl.CrossJoinBuilder;
 import com.wrmsr.tokamak.core.driver.build.impl.EquijoinBuilder;
@@ -27,6 +28,7 @@ import com.wrmsr.tokamak.core.driver.build.impl.StateBuilder;
 import com.wrmsr.tokamak.core.driver.build.impl.UnionBuilder;
 import com.wrmsr.tokamak.core.driver.build.impl.UnnestBuilder;
 import com.wrmsr.tokamak.core.driver.build.impl.ValuesBuilder;
+import com.wrmsr.tokamak.core.plan.node.PBuildStruct;
 import com.wrmsr.tokamak.core.plan.node.PCache;
 import com.wrmsr.tokamak.core.plan.node.PCrossJoin;
 import com.wrmsr.tokamak.core.plan.node.PEquiJoin;
@@ -68,6 +70,7 @@ public class BuilderFactory
 
     private final Map<Class<? extends PNode>, BuilderConstructor> BUILDER_CONSTRUCTORS_BY_NODE_TYPE =
             ImmutableMap.<Class<? extends PNode>, BuilderConstructor>builder()
+                    .put(PBuildStruct.class, (d, n, s) -> new BuildStructBuilder(d, (PBuildStruct) n, s))
                     .put(PCache.class, (d, n, s) -> new CacheBuilder(d, (PCache) n, s))
                     .put(PCrossJoin.class, (d, n, s) -> new CrossJoinBuilder(d, (PCrossJoin) n, s))
                     .put(PEquiJoin.class, (d, n, s) -> new EquijoinBuilder(d, (PEquiJoin) n, s))

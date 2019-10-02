@@ -15,8 +15,11 @@ package com.wrmsr.tokamak.core.plan.node;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.api.SchemaTable;
+import com.wrmsr.tokamak.core.layout.field.Field;
+import com.wrmsr.tokamak.core.layout.field.FieldAnnotation;
 import com.wrmsr.tokamak.core.layout.field.FieldCollection;
 import com.wrmsr.tokamak.core.plan.node.visitor.PNodeVisitor;
 import com.wrmsr.tokamak.core.type.Type;
@@ -29,6 +32,7 @@ import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
+import static com.wrmsr.tokamak.core.layout.field.FieldCollection.toFieldCollection;
 import static com.wrmsr.tokamak.util.MoreCollections.checkOrdered;
 
 @Immutable
@@ -52,7 +56,9 @@ public final class PScan
         super(name);
 
         this.schemaTable = checkNotNull(schemaTable);
-        this.fields = FieldCollection.of(fields);
+        this.fields = checkNotNull(fields).entrySet().stream()
+                .map(e -> new Field(e.getKey(), e.getValue(), ImmutableList.of(FieldAnnotation.id())))
+                .collect(toFieldCollection());
         this.idFields = ImmutableSet.copyOf(idFields);
         this.idNodes = ImmutableSet.copyOf(idNodes);
 
