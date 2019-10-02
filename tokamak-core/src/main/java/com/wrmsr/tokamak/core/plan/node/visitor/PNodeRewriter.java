@@ -107,7 +107,7 @@ public abstract class PNodeRewriter<C>
     }
 
     @Override
-    public PNode visitPersistNode(PState node, C context)
+    public PNode visitStateNode(PState node, C context)
     {
         return new PState(
                 visitNodeName(node.getName(), context),

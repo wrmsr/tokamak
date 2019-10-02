@@ -24,6 +24,7 @@ import com.wrmsr.tokamak.core.plan.node.PGroupBy;
 import com.wrmsr.tokamak.core.plan.node.PLookupJoin;
 import com.wrmsr.tokamak.core.plan.node.PNode;
 import com.wrmsr.tokamak.core.plan.node.PProject;
+import com.wrmsr.tokamak.core.plan.node.PProjection;
 import com.wrmsr.tokamak.core.plan.node.PScan;
 import com.wrmsr.tokamak.core.plan.node.PSingleSource;
 import com.wrmsr.tokamak.core.plan.node.PState;
@@ -98,18 +99,26 @@ public final class FieldOriginAnalysis
         }
     }
 
+    public enum Strength
+    {
+        WEAK,
+        STRONG;
+    }
+
+    ;
+
     @Immutable
     public static final class Origination
     {
         private final NodeField sink;
         private final NodeField source;
-        private final boolean weak;
+        private final Strength strength;
 
-        private Origination(NodeField sink, NodeField source, boolean weak)
+        private Origination(NodeField sink, NodeField source, Strength strength)
         {
             this.sink = checkNotNull(sink);
             this.source = checkNotNull(source);
-            this.weak = weak;
+            this.strength = checkNotNull(strength);
 
             checkState(sink.node.getSources().contains(source.node));
         }
@@ -120,7 +129,7 @@ public final class FieldOriginAnalysis
             return "Origination{" +
                     "sink=" + sink +
                     ", source=" + source +
-                    ", weak=" + weak +
+                    ", strength=" + strength +
                     '}';
         }
 
@@ -134,9 +143,9 @@ public final class FieldOriginAnalysis
             return source;
         }
 
-        public boolean isWeak()
+        public Strength getStrength()
         {
-            return weak;
+            return strength;
         }
     }
 
@@ -156,15 +165,21 @@ public final class FieldOriginAnalysis
             private void addSimple(PSingleSource node)
             {
                 node.getFields().getNames().forEach(f ->
-                        originations.add(new Origination(NodeField.of(node, f), NodeField.of(node.getSource(), f), false)));
+                        originations.add(new Origination(NodeField.of(node, f), NodeField.of(node.getSource(), f), Strength.STRONG)));
+            }
+
+            @Override
+            protected Void visitNode(PNode node, Void context)
+            {
+                node.getSources().forEach(s -> s.accept(this, context));
+                return null;
             }
 
             @Override
             public Void visitCacheNode(PCache node, Void context)
             {
-                node.getSource().accept(this, context);
                 addSimple(node);
-                return null;
+                return super.visitCacheNode(node, context);
             }
 
             @Override
@@ -182,6 +197,7 @@ public final class FieldOriginAnalysis
             @Override
             public Void visitFilterNode(PFilter node, Void context)
             {
+                addSimple(node);
                 return super.visitFilterNode(node, context);
             }
 
@@ -198,14 +214,14 @@ public final class FieldOriginAnalysis
             }
 
             @Override
-            public Void visitPersistNode(PState node, Void context)
-            {
-                return super.visitPersistNode(node, context);
-            }
-
-            @Override
             public Void visitProjectNode(PProject node, Void context)
             {
+                node.getProjection().getInputsByOutput().forEach((o, i) -> {
+                    if (i instanceof PProjection.FieldInput) {
+                        PProjection.FieldInput fi = (PProjection.FieldInput) i;
+                        originations.add(new Origination(NodeField.of(node, o), NodeField.of(node.getSource(), fi.getField()), Strength.STRONG));
+                    }
+                });
                 return super.visitProjectNode(node, context);
             }
 
@@ -213,6 +229,13 @@ public final class FieldOriginAnalysis
             public Void visitScanNode(PScan node, Void context)
             {
                 return super.visitScanNode(node, context);
+            }
+
+            @Override
+            public Void visitStateNode(PState node, Void context)
+            {
+                addSimple(node);
+                return super.visitStateNode(node, context);
             }
 
             @Override
