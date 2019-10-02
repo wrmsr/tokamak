@@ -37,102 +37,102 @@ public class TNodeRewriter<C>
         extends TNodeVisitor<TNode, C>
 {
     @Override
-    protected TNode visitTreeNode(TNode treeNode, C context)
+    protected TNode visitTreeNode(TNode node, C context)
     {
         throw new IllegalStateException();
     }
 
     @Override
-    public TNode visitAliasedRelation(TAliasedRelation treeNode, C context)
+    public TNode visitAliasedRelation(TAliasedRelation node, C context)
     {
         return new TAliasedRelation(
-                (TRelation) treeNode.getRelation().accept(this, context),
-                treeNode.getAlias());
+                (TRelation) node.getRelation().accept(this, context),
+                node.getAlias());
     }
 
     @Override
-    public TNode visitAllSelectItem(TAllSelectItem treeNode, C context)
+    public TNode visitAllSelectItem(TAllSelectItem node, C context)
     {
         return new TAllSelectItem();
     }
 
     @Override
-    public TNode visitExpressionSelectItem(TExpressionSelectItem treeNode, C context)
+    public TNode visitExpressionSelectItem(TExpressionSelectItem node, C context)
     {
         return new TExpressionSelectItem(
-                (TExpression) treeNode.getExpression().accept(this, context),
-                treeNode.getLabel());
+                (TExpression) node.getExpression().accept(this, context),
+                node.getLabel());
     }
 
     @Override
-    public TNode visitFunctionCallExpression(TFunctionCallExpression treeNode, C context)
+    public TNode visitFunctionCallExpression(TFunctionCallExpression node, C context)
     {
         return new TFunctionCallExpression(
-                treeNode.getName(),
-                treeNode.getArgs().stream().map(a -> (TExpression) a.accept(this, context)).collect(toImmutableList()));
+                node.getName(),
+                node.getArgs().stream().map(a -> (TExpression) a.accept(this, context)).collect(toImmutableList()));
     }
 
     @Override
-    public TNode visitIdentifier(TIdentifier treeNode, C context)
+    public TNode visitIdentifier(TIdentifier node, C context)
     {
         return new TIdentifier(
-                treeNode.getValue());
+                node.getValue());
     }
 
     @Override
-    public TNode visitNullLiteral(TNullLiteral treeNode, C context)
+    public TNode visitNullLiteral(TNullLiteral node, C context)
     {
         return new TNullLiteral();
     }
 
     @Override
-    public TNode visitNumberLiteral(TNumberLiteral treeNode, C context)
+    public TNode visitNumberLiteral(TNumberLiteral node, C context)
     {
         return new TNumberLiteral(
-                treeNode.getValue());
+                node.getValue());
     }
 
     @Override
-    public TNode visitQualifiedName(TQualifiedName treeNode, C context)
+    public TNode visitQualifiedName(TQualifiedName node, C context)
     {
         return new TQualifiedName(
-                treeNode.getParts());
+                node.getParts());
     }
 
     @Override
-    public TNode visitQualifiedNameExpression(TQualifiedNameExpression treeNode, C context)
+    public TNode visitQualifiedNameExpression(TQualifiedNameExpression node, C context)
     {
         return new TQualifiedNameExpression(
-                (TQualifiedName) treeNode.getQualifiedName().accept(this, context));
+                (TQualifiedName) node.getQualifiedName().accept(this, context));
     }
 
     @Override
-    public TNode visitSelect(TSelect treeNode, C context)
+    public TNode visitSelect(TSelect node, C context)
     {
         return new TSelect(
-                treeNode.getItems().stream().map(i -> (TSelectItem) i.accept(this, context)).collect(toImmutableList()),
-                treeNode.getRelations().stream().map(r -> (TAliasedRelation) r.accept(this, context)).collect(toImmutableList()),
-                treeNode.getWhere().map(w -> (TExpression) w.accept(this, context)));
+                node.getItems().stream().map(i -> (TSelectItem) i.accept(this, context)).collect(toImmutableList()),
+                node.getRelations().stream().map(r -> (TAliasedRelation) r.accept(this, context)).collect(toImmutableList()),
+                node.getWhere().map(w -> (TExpression) w.accept(this, context)));
     }
 
     @Override
-    public TNode visitStringLiteral(TStringLiteral treeNode, C context)
+    public TNode visitStringLiteral(TStringLiteral node, C context)
     {
         return new TStringLiteral(
-                treeNode.getValue());
+                node.getValue());
     }
 
     @Override
-    public TNode visitSubqueryRelation(TSubqueryRelation treeNode, C context)
+    public TNode visitSubqueryRelation(TSubqueryRelation node, C context)
     {
         return new TSubqueryRelation(
-                (TSelect) treeNode.getSelect().accept(this, context));
+                (TSelect) node.getSelect().accept(this, context));
     }
 
     @Override
-    public TNode visitTableName(TTableName treeNode, C context)
+    public TNode visitTableName(TTableName node, C context)
     {
         return new TTableName(
-                (TQualifiedName) treeNode.getQualifiedName().accept(this, context));
+                (TQualifiedName) node.getQualifiedName().accept(this, context));
     }
 }

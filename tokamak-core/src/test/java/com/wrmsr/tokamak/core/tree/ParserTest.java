@@ -36,6 +36,7 @@ public class ParserTest
                 // "select a // comment",
                 // "select a -- comment",
                 "select 'hi' a",
+                "select 'hi\\\'' a",
                 "select '''hi''' a",
                 "select '''hi'there''' a",
                 "select ''''hi'''' a",

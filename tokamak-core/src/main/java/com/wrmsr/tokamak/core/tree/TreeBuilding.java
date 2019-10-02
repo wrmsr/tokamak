@@ -48,9 +48,14 @@ public final class TreeBuilding
     {
     }
 
-    public static TNode build(ParseTree parseTree)
+    public static TNode build(ParseTree tree)
     {
-        return parseTree.accept(new SqlBaseVisitor<TNode>()
+        return build(tree, new ParseOptions());
+    }
+
+    public static TNode build(ParseTree tree, ParseOptions options)
+    {
+        return tree.accept(new SqlBaseVisitor<TNode>()
         {
             @Override
             protected TNode defaultResult()
@@ -161,6 +166,7 @@ public final class TreeBuilding
             {
                 String raw = ctx.getText();
                 checkState(raw.length() >= 2 && raw.startsWith("'") && raw.endsWith("'"));
+                if (options.isTwoQuotesAsEscapedQuote() && raw.length() >)
                 return new TStringLiteral(TreeStrings.escaped(raw.substring(1, raw.length() - 1)));
             }
 
