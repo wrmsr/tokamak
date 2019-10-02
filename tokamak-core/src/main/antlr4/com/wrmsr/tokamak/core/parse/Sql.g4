@@ -51,8 +51,8 @@ variable
 
 literal
     : NULL                  #nullLiteral
-    | SINGLE_QUOTED_STRING  #singleQuotedStringLiteral
     | TRIPLE_QUOTED_STRING  #tripleQuotedStringLiteral
+    | SINGLE_QUOTED_STRING  #singleQuotedStringLiteral
     | NUMBER                #numberLiteral
     ;
 
