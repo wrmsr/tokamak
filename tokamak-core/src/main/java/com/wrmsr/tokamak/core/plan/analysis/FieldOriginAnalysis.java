@@ -52,6 +52,7 @@ public final class FieldOriginAnalysis
     TODO:
      - SUBFIELD TRACKING. INTO STRUCTS.
       - class PSearch extends PNode { private final SNode search
+      - groupBy List<Struct<...>> ele origins?
     */
 
     @Immutable
@@ -133,6 +134,11 @@ public final class FieldOriginAnalysis
             }
         }
 
+        private Origination(NodeField sink, NodeField source, Strength strength)
+        {
+            this(sink, Optional.of(source), strength);
+        }
+
         private Origination(NodeField sink)
         {
             this(sink, Optional.empty(), Strength.GENERATED);
@@ -180,13 +186,13 @@ public final class FieldOriginAnalysis
             private void addGenerator(PGenerator node)
             {
                 node.getFields().getNames().forEach(f ->
-                        originations.add(new Origination(NodeField.of(node, f), Optional.empty(), Strength.STRONG)));
+                        originations.add(new Origination(NodeField.of(node, f))));
             }
 
             private void addSimpleSingleSource(PSingleSource node)
             {
                 node.getFields().getNames().forEach(f ->
-                        originations.add(new Origination(NodeField.of(node, f))));
+                        originations.add(new Origination(NodeField.of(node, f), NodeField.of(node.getSource(), f), Strength.STRONG)));
             }
 
             @Override
@@ -228,7 +234,7 @@ public final class FieldOriginAnalysis
                 originations.add(new Origination(
                         NodeField.of(node, node.getListField())));
                 originations.add(new Origination(
-                        NodeField.of(node, node.getGroupField()), Optional.of(NodeField.of(node.getSource(), node.getGroupField())), Strength.STRONG));
+                        NodeField.of(node, node.getGroupField()), NodeField.of(node.getSource(), node.getGroupField()), Strength.STRONG));
                 return super.visitGroupBy(node, context);
             }
 
@@ -244,7 +250,7 @@ public final class FieldOriginAnalysis
                 node.getProjection().getInputsByOutput().forEach((o, i) -> {
                     if (i instanceof PProjection.FieldInput) {
                         PProjection.FieldInput fi = (PProjection.FieldInput) i;
-                        originations.add(new Origination(NodeField.of(node, o), Optional.of(NodeField.of(node.getSource(), fi.getField())), Strength.STRONG));
+                        originations.add(new Origination(NodeField.of(node, o), NodeField.of(node.getSource(), fi.getField()), Strength.STRONG));
                     }
                 });
                 return super.visitProject(node, context);
