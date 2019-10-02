@@ -50,9 +50,10 @@ variable
     ;
 
 literal
-    : NULL    #nullLiteral
-    | STRING  #stringLiteral
-    | NUMBER  #numberLiteral
+    : NULL                  #nullLiteral
+    | SINGLE_QUOTED_STRING  #singleQuotedStringLiteral
+    | TRIPLE_QUOTED_STRING  #tripleQuotedStringLiteral
+    | NUMBER                #numberLiteral
     ;
 
 qualifiedName
@@ -84,9 +85,12 @@ QUOTED_IDENTIFIER
     : '"' (~'"' | '""')* '"'
     ;
 
-STRING
+SINGLE_QUOTED_STRING
+    : '\'' (~'\'' | '\'\'')* '\''
+    ;
+
+TRIPLE_QUOTED_STRING
     : '\'\'\'' (~'\'' | ('\'' ~'\'') | ('\'\'' ~'\''))* '\'\'\''
-    | '\'' (~'\'' | '\'\'')* '\''
     ;
 
 fragment DIGIT

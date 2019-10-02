@@ -13,19 +13,41 @@
  */
 package com.wrmsr.tokamak.core.tree;
 
+import com.wrmsr.tokamak.util.box.Box;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+
 public final class TreeStrings
 {
     private TreeStrings()
     {
     }
 
-    public static String escapeTreeString(String unescaped)
+    public static final class Escaped
+            extends Box<String>
     {
-        throw new IllegalStateException();
+        public Escaped(String value)
+        {
+            super(checkNotNull(value));
+        }
     }
 
-    public static String unescapeTreeString(String escaped)
+    public static final class Unescaped
+            extends Box<String>
     {
-        throw new IllegalStateException();
+        public Unescaped(String value)
+        {
+            super(checkNotNull(value));
+        }
+    }
+
+    public static Escaped escaped(String escaped)
+    {
+        return new Escaped(escaped);
+    }
+
+    public static Unescaped unescaped(String unescaped)
+    {
+        return new Unescaped(unescaped);
     }
 }
