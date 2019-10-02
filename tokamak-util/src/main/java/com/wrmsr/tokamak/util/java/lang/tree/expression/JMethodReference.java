@@ -65,6 +65,6 @@ public final class JMethodReference
     @Override
     public <R, C> R accept(JExpressionVisitor<R, C> visitor, C context)
     {
-        return visitor.visitJMethodReference(this, context);
+        return visitor.visitMethodReference(this, context);
     }
 }

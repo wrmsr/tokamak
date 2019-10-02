@@ -22,6 +22,6 @@ public final class QSubqueryExpression
     @Override
     public <R, C> R accept(QExpressionVisitor<R, C> visitor, C context)
     {
-        return visitor.visitQSubqueryExpression(this, context);
+        return visitor.visitSubqueryExpression(this, context);
     }
 }

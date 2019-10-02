@@ -76,6 +76,6 @@ public final class JCase
     @Override
     public <R, C> R accept(JStatementVisitor<R, C> visitor, C context)
     {
-        return visitor.visitJCase(this, context);
+        return visitor.visitCase(this, context);
     }
 }

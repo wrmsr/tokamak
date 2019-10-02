@@ -33,6 +33,6 @@ public final class QReferenceExpression
     @Override
     public <R, C> R accept(QExpressionVisitor<R, C> visitor, C context)
     {
-        return visitor.visitQReferenceExpression(this, context);
+        return visitor.visitReferenceExpression(this, context);
     }
 }

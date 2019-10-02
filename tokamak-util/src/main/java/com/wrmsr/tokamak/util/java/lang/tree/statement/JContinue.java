@@ -58,6 +58,6 @@ public final class JContinue
     @Override
     public <R, C> R accept(JStatementVisitor<R, C> visitor, C context)
     {
-        return visitor.visitJContinue(this, context);
+        return visitor.visitContinue(this, context);
     }
 }

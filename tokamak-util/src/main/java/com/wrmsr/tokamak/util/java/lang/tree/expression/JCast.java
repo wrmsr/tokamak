@@ -67,6 +67,6 @@ public final class JCast
     @Override
     public <R, C> R accept(JExpressionVisitor<R, C> visitor, C context)
     {
-        return visitor.visitJCast(this, context);
+        return visitor.visitCast(this, context);
     }
 }

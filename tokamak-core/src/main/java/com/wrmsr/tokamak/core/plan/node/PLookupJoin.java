@@ -139,6 +139,6 @@ public final class PLookupJoin
     @Override
     public <R, C> R accept(PNodeVisitor<R, C> visitor, C context)
     {
-        return visitor.visitLookupJoinNode(this, context);
+        return visitor.visitLookupJoin(this, context);
     }
 }

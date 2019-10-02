@@ -99,6 +99,6 @@ public final class JMethod
     @Override
     public <R, C> R accept(JDeclarationVisitor<R, C> visitor, C context)
     {
-        return visitor.visitJMethod(this, context);
+        return visitor.visitMethod(this, context);
     }
 }

@@ -17,98 +17,98 @@ import java.util.Objects;
 
 public class JStatementVisitor<R, C>
 {
-    protected R visitJStatement(JStatement jstatement, C context)
+    protected R visitStatement(JStatement jstatement, C context)
     {
         throw new IllegalStateException(Objects.toString(jstatement));
     }
 
-    public R visitJAnnotatedStatement(JAnnotatedStatement jstatement, C context)
+    public R visitAnnotatedStatement(JAnnotatedStatement jstatement, C context)
     {
-        return visitJStatement(jstatement, context);
+        return visitStatement(jstatement, context);
     }
 
-    public R visitJBlank(JBlank jstatement, C context)
+    public R visitBlank(JBlank jstatement, C context)
     {
-        return visitJStatement(jstatement, context);
+        return visitStatement(jstatement, context);
     }
 
-    public R visitJBlock(JBlock jstatement, C context)
+    public R visitBlock(JBlock jstatement, C context)
     {
-        return visitJStatement(jstatement, context);
+        return visitStatement(jstatement, context);
     }
 
-    public R visitJBreak(JBreak jstatement, C context)
+    public R visitBreak(JBreak jstatement, C context)
     {
-        return visitJStatement(jstatement, context);
+        return visitStatement(jstatement, context);
     }
 
-    public R visitJCase(JCase jstatement, C context)
+    public R visitCase(JCase jstatement, C context)
     {
-        return visitJStatement(jstatement, context);
+        return visitStatement(jstatement, context);
     }
 
-    public R visitJContinue(JContinue jstatement, C context)
+    public R visitContinue(JContinue jstatement, C context)
     {
-        return visitJStatement(jstatement, context);
+        return visitStatement(jstatement, context);
     }
 
-    public R visitJDoWhileLoop(JDoWhileLoop jstatement, C context)
+    public R visitDoWhileLoop(JDoWhileLoop jstatement, C context)
     {
-        return visitJStatement(jstatement, context);
+        return visitStatement(jstatement, context);
     }
 
-    public R visitJEmpty(JEmpty jstatement, C context)
+    public R visitEmpty(JEmpty jstatement, C context)
     {
-        return visitJStatement(jstatement, context);
+        return visitStatement(jstatement, context);
     }
 
-    public R visitJExpressionStatement(JExpressionStatement jstatement, C context)
+    public R visitExpressionStatement(JExpressionStatement jstatement, C context)
     {
-        return visitJStatement(jstatement, context);
+        return visitStatement(jstatement, context);
     }
 
-    public R visitJForEach(JForEach jstatement, C context)
+    public R visitForEach(JForEach jstatement, C context)
     {
-        return visitJStatement(jstatement, context);
+        return visitStatement(jstatement, context);
     }
 
-    public R visitJIf(JIf jstatement, C context)
+    public R visitIf(JIf jstatement, C context)
     {
-        return visitJStatement(jstatement, context);
+        return visitStatement(jstatement, context);
     }
 
-    public R visitJLabeledStatement(JLabeledStatement jstatement, C context)
+    public R visitLabeledStatement(JLabeledStatement jstatement, C context)
     {
-        return visitJStatement(jstatement, context);
+        return visitStatement(jstatement, context);
     }
 
-    public R visitJRawStatement(JRawStatement jstatement, C context)
+    public R visitRawStatement(JRawStatement jstatement, C context)
     {
-        return visitJStatement(jstatement, context);
+        return visitStatement(jstatement, context);
     }
 
-    public R visitJReturn(JReturn jstatement, C context)
+    public R visitReturn(JReturn jstatement, C context)
     {
-        return visitJStatement(jstatement, context);
+        return visitStatement(jstatement, context);
     }
 
-    public R visitJSwitch(JSwitch jstatement, C context)
+    public R visitSwitch(JSwitch jstatement, C context)
     {
-        return visitJStatement(jstatement, context);
+        return visitStatement(jstatement, context);
     }
 
-    public R visitJThrow(JThrow jstatement, C context)
+    public R visitThrow(JThrow jstatement, C context)
     {
-        return visitJStatement(jstatement, context);
+        return visitStatement(jstatement, context);
     }
 
-    public R visitJVariable(JVariable jstatement, C context)
+    public R visitVariable(JVariable jstatement, C context)
     {
-        return visitJStatement(jstatement, context);
+        return visitStatement(jstatement, context);
     }
 
-    public R visitJWhileLoop(JWhileLoop jstatement, C context)
+    public R visitWhileLoop(JWhileLoop jstatement, C context)
     {
-        return visitJStatement(jstatement, context);
+        return visitStatement(jstatement, context);
     }
 }

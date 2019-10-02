@@ -53,6 +53,6 @@ public final class JRawExpression
     @Override
     public <R, C> R accept(JExpressionVisitor<R, C> visitor, C context)
     {
-        return visitor.visitJRawExpression(this, context);
+        return visitor.visitRawExpression(this, context);
     }
 }

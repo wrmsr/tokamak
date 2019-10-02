@@ -272,6 +272,6 @@ public final class PEquiJoin
     @Override
     public <R, C> R accept(PNodeVisitor<R, C> visitor, C context)
     {
-        return visitor.visitEquiJoinNode(this, context);
+        return visitor.visitEquiJoin(this, context);
     }
 }

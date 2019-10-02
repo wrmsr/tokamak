@@ -79,6 +79,6 @@ public final class JIf
     @Override
     public <R, C> R accept(JStatementVisitor<R, C> visitor, C context)
     {
-        return visitor.visitJIf(this, context);
+        return visitor.visitIf(this, context);
     }
 }

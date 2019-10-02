@@ -17,28 +17,28 @@ import java.util.Objects;
 
 public class QRelationVisitor<R, C>
 {
-    protected R visitQRelation(QRelation qrelation, C context)
+    protected R visitRelation(QRelation qrelation, C context)
     {
         throw new IllegalStateException(Objects.toString(qrelation));
     }
 
-    public R visitQAlias(QAlias qrelation, C context)
+    public R visitAlias(QAlias qrelation, C context)
     {
-        return visitQRelation(qrelation, context);
+        return visitRelation(qrelation, context);
     }
 
-    public R visitQJoin(QJoin qrelation, C context)
+    public R visitJoin(QJoin qrelation, C context)
     {
-        return visitQRelation(qrelation, context);
+        return visitRelation(qrelation, context);
     }
 
-    public R visitQReferenceRelation(QReferenceRelation qrelation, C context)
+    public R visitReferenceRelation(QReferenceRelation qrelation, C context)
     {
-        return visitQRelation(qrelation, context);
+        return visitRelation(qrelation, context);
     }
 
-    public R visitQSubqueryRelation(QSubqueryRelation qrelation, C context)
+    public R visitSubqueryRelation(QSubqueryRelation qrelation, C context)
     {
-        return visitQRelation(qrelation, context);
+        return visitRelation(qrelation, context);
     }
 }

@@ -59,6 +59,6 @@ public final class JExpressionStatement
     @Override
     public <R, C> R accept(JStatementVisitor<R, C> visitor, C context)
     {
-        return visitor.visitJExpressionStatement(this, context);
+        return visitor.visitExpressionStatement(this, context);
     }
 }

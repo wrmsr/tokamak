@@ -37,98 +37,98 @@ import java.util.Objects;
 
 public abstract class TNodeVisitor<R, C>
 {
-    protected R visitTreeNode(TNode treeNode, C context)
+    protected R visitTreeNode(TNode node, C context)
     {
-        throw new IllegalArgumentException(Objects.toString(treeNode));
+        throw new IllegalArgumentException(Objects.toString(node));
     }
 
-    public R visitAliasedRelation(TAliasedRelation treeNode, C context)
+    public R visitAliasedRelation(TAliasedRelation node, C context)
     {
-        return visitTreeNode(treeNode, context);
+        return visitTreeNode(node, context);
     }
 
-    public R visitAllSelectItem(TAllSelectItem treeNode, C context)
+    public R visitAllSelectItem(TAllSelectItem node, C context)
     {
-        return visitSelectItem(treeNode, context);
+        return visitSelectItem(node, context);
     }
 
-    public R visitExpression(TExpression treeNode, C context)
+    public R visitExpression(TExpression node, C context)
     {
-        return visitTreeNode(treeNode, context);
+        return visitTreeNode(node, context);
     }
 
-    public R visitExpressionSelectItem(TExpressionSelectItem treeNode, C context)
+    public R visitExpressionSelectItem(TExpressionSelectItem node, C context)
     {
-        return visitSelectItem(treeNode, context);
+        return visitSelectItem(node, context);
     }
 
-    public R visitFunctionCallExpression(TFunctionCallExpression treeNode, C context)
+    public R visitFunctionCallExpression(TFunctionCallExpression node, C context)
     {
-        return visitExpression(treeNode, context);
+        return visitExpression(node, context);
     }
 
-    public R visitIdentifier(TIdentifier treeNode, C context)
+    public R visitIdentifier(TIdentifier node, C context)
     {
-        return visitTreeNode(treeNode, context);
+        return visitTreeNode(node, context);
     }
 
-    public R visitLiteral(TLiteral treeNode, C context)
+    public R visitLiteral(TLiteral node, C context)
     {
-        return visitExpression(treeNode, context);
+        return visitExpression(node, context);
     }
 
-    public R visitNullLiteral(TNullLiteral treeNode, C context)
+    public R visitNullLiteral(TNullLiteral node, C context)
     {
-        return visitLiteral(treeNode, context);
+        return visitLiteral(node, context);
     }
 
-    public R visitNumberLiteral(TNumberLiteral treeNode, C context)
+    public R visitNumberLiteral(TNumberLiteral node, C context)
     {
-        return visitLiteral(treeNode, context);
+        return visitLiteral(node, context);
     }
 
-    public R visitQualifiedName(TQualifiedName treeNode, C context)
+    public R visitQualifiedName(TQualifiedName node, C context)
     {
-        return visitTreeNode(treeNode, context);
+        return visitTreeNode(node, context);
     }
 
-    public R visitQualifiedNameExpression(TQualifiedNameExpression treeNode, C context)
+    public R visitQualifiedNameExpression(TQualifiedNameExpression node, C context)
     {
-        return visitExpression(treeNode, context);
+        return visitExpression(node, context);
     }
 
-    public R visitRelation(TRelation treeNode, C context)
+    public R visitRelation(TRelation node, C context)
     {
-        return visitTreeNode(treeNode, context);
+        return visitTreeNode(node, context);
     }
 
-    public R visitSelect(TSelect treeNode, C context)
+    public R visitSelect(TSelect node, C context)
     {
-        return visitStatement(treeNode, context);
+        return visitStatement(node, context);
     }
 
-    public R visitSelectItem(TSelectItem treeNode, C context)
+    public R visitSelectItem(TSelectItem node, C context)
     {
-        return visitTreeNode(treeNode, context);
+        return visitTreeNode(node, context);
     }
 
-    public R visitStatement(TStatement treeNode, C context)
+    public R visitStatement(TStatement node, C context)
     {
-        return visitTreeNode(treeNode, context);
+        return visitTreeNode(node, context);
     }
 
-    public R visitStringLiteral(TStringLiteral treeNode, C context)
+    public R visitStringLiteral(TStringLiteral node, C context)
     {
-        return visitLiteral(treeNode, context);
+        return visitLiteral(node, context);
     }
 
-    public R visitSubqueryRelation(TSubqueryRelation treeNode, C context)
+    public R visitSubqueryRelation(TSubqueryRelation node, C context)
     {
-        return visitRelation(treeNode, context);
+        return visitRelation(node, context);
     }
 
-    public R visitTableName(TTableName treeNode, C context)
+    public R visitTableName(TTableName node, C context)
     {
-        return visitRelation(treeNode, context);
+        return visitRelation(node, context);
     }
 }

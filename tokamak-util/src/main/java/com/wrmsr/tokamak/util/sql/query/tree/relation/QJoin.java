@@ -89,6 +89,6 @@ public final class QJoin
     @Override
     public <R, C> R accept(QRelationVisitor<R, C> visitor, C context)
     {
-        return visitor.visitQJoin(this, context);
+        return visitor.visitJoin(this, context);
     }
 }

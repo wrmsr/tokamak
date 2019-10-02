@@ -67,6 +67,6 @@ public final class JWhileLoop
     @Override
     public <R, C> R accept(JStatementVisitor<R, C> visitor, C context)
     {
-        return visitor.visitJWhileLoop(this, context);
+        return visitor.visitWhileLoop(this, context);
     }
 }

@@ -58,6 +58,6 @@ public final class JLiteral
     @Override
     public <R, C> R accept(JExpressionVisitor<R, C> visitor, C context)
     {
-        return visitor.visitJLiteral(this, context);
+        return visitor.visitLiteral(this, context);
     }
 }

@@ -39,12 +39,12 @@ public final class PTransforms
         return new Plan(plan.getRoot().accept(new PNodeRewriter<Void>()
         {
             @Override
-            public PNode visitScanNode(PScan node, Void context)
+            public PNode visitScan(PScan node, Void context)
             {
                 Table table = catalog.getSchemaTable(node.getSchemaTable());
                 if (!node.getIdFields().isEmpty()) {
                     checkState(table.getLayout().getPrimaryKeyFields().equals(node.getIdFields()));
-                    return super.visitScanNode(node, context);
+                    return super.visitScan(node, context);
                 }
                 else if (node.getFields().getNames().containsAll(table.getLayout().getPrimaryKeyFields())) {
                     return new PScan(

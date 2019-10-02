@@ -73,6 +73,6 @@ public final class JConditional
     @Override
     public <R, C> R accept(JExpressionVisitor<R, C> visitor, C context)
     {
-        return visitor.visitJConditional(this, context);
+        return visitor.visitConditional(this, context);
     }
 }

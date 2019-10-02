@@ -70,6 +70,6 @@ public final class JNewArray
     @Override
     public <R, C> R accept(JExpressionVisitor<R, C> visitor, C context)
     {
-        return visitor.visitJNewArray(this, context);
+        return visitor.visitNewArray(this, context);
     }
 }

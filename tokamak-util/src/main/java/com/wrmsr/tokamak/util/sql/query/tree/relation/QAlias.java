@@ -46,6 +46,6 @@ public final class QAlias
     @Override
     public <R, C> R accept(QRelationVisitor<R, C> visitor, C context)
     {
-        return visitor.visitQAlias(this, context);
+        return visitor.visitAlias(this, context);
     }
 }

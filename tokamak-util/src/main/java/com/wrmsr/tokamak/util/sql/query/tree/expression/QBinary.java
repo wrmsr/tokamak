@@ -52,6 +52,6 @@ public final class QBinary
     @Override
     public <R, C> R accept(QExpressionVisitor<R, C> visitor, C context)
     {
-        return visitor.visitQBinary(this, context);
+        return visitor.visitBinary(this, context);
     }
 }

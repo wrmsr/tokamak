@@ -69,6 +69,6 @@ public final class JNew
     @Override
     public <R, C> R accept(JExpressionVisitor<R, C> visitor, C context)
     {
-        return visitor.visitJNew(this, context);
+        return visitor.visitNew(this, context);
     }
 }

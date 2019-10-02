@@ -91,6 +91,6 @@ public final class PGroupBy
     @Override
     public <R, C> R accept(PNodeVisitor<R, C> visitor, C context)
     {
-        return visitor.visitGroupByNode(this, context);
+        return visitor.visitGroupBy(this, context);
     }
 }

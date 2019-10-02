@@ -88,6 +88,6 @@ public final class JField
     @Override
     public <R, C> R accept(JDeclarationVisitor<R, C> visitor, C context)
     {
-        return visitor.visitJField(this, context);
+        return visitor.visitField(this, context);
     }
 }

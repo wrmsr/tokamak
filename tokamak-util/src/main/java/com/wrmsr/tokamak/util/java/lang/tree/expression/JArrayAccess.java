@@ -65,6 +65,6 @@ public final class JArrayAccess
     @Override
     public <R, C> R accept(JExpressionVisitor<R, C> visitor, C context)
     {
-        return visitor.visitJArrayAccess(this, context);
+        return visitor.visitArrayAccess(this, context);
     }
 }

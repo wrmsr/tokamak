@@ -58,6 +58,6 @@ public final class JDeclarationBlock
     @Override
     public <R, C> R accept(JDeclarationVisitor<R, C> visitor, C context)
     {
-        return visitor.visitJDeclarationBlock(this, context);
+        return visitor.visitDeclarationBlock(this, context);
     }
 }

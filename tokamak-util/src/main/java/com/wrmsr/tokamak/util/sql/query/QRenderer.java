@@ -56,7 +56,7 @@ public class QRenderer
             extends QStatementVisitor<Void, Void>
     {
         @Override
-        public Void visitQCreateTable(QCreateTable qstatement, Void context)
+        public Void visitCreateTable(QCreateTable qstatement, Void context)
         {
             sb.append("CREATE TABLE ");
             renderName(qstatement.getName());
@@ -75,7 +75,7 @@ public class QRenderer
         }
 
         @Override
-        public Void visitQSelect(QSelect qstatement, Void context)
+        public Void visitSelect(QSelect qstatement, Void context)
         {
             sb.append("SELECT");
             int i = 0;
@@ -108,7 +108,7 @@ public class QRenderer
             extends QRelationVisitor<Void, Void>
     {
         @Override
-        public Void visitQAlias(QAlias qrelation, Void context)
+        public Void visitAlias(QAlias qrelation, Void context)
         {
             renderRelation(qrelation.getChild());
             sb.append(" AS ");
@@ -117,7 +117,7 @@ public class QRenderer
         }
 
         @Override
-        public Void visitQJoin(QJoin qrelation, Void context)
+        public Void visitJoin(QJoin qrelation, Void context)
         {
             renderRelation(qrelation.getLeft());
             qrelation.getMode().ifPresent(m -> {
@@ -134,14 +134,14 @@ public class QRenderer
         }
 
         @Override
-        public Void visitQReferenceRelation(QReferenceRelation qrelation, Void context)
+        public Void visitReferenceRelation(QReferenceRelation qrelation, Void context)
         {
             renderName(qrelation.getName());
             return null;
         }
 
         @Override
-        public Void visitQSubqueryRelation(QSubqueryRelation qrelation, Void context)
+        public Void visitSubqueryRelation(QSubqueryRelation qrelation, Void context)
         {
             sb.append("(");
             renderStatement(qrelation.getQuery());
@@ -159,7 +159,7 @@ public class QRenderer
             extends QExpressionVisitor<Void, Void>
     {
         @Override
-        public Void visitQBinary(QBinary qexpression, Void context)
+        public Void visitBinary(QBinary qexpression, Void context)
         {
             renderExpression(qexpression.getLeft());
             sb.append(" ");
@@ -176,7 +176,7 @@ public class QRenderer
         }
 
         @Override
-        public Void visitQParen(QParen qexpression, Void context)
+        public Void visitParen(QParen qexpression, Void context)
         {
             sb.append("(");
             renderExpression(qexpression.getChild());
@@ -185,14 +185,14 @@ public class QRenderer
         }
 
         @Override
-        public Void visitQTextExpression(QTextExpression qexpression, Void context)
+        public Void visitTextExpression(QTextExpression qexpression, Void context)
         {
             sb.append(qexpression.getText());
             return null;
         }
 
         @Override
-        public Void visitQUnary(QUnary qexpression, Void context)
+        public Void visitUnary(QUnary qexpression, Void context)
         {
             sb.append(qexpression.getOp().getAnsi().get());
             if (qexpression.getOp().isRequiresSpace()) {

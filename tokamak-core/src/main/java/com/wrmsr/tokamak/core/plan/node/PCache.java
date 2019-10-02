@@ -53,6 +53,6 @@ public final class PCache
     @Override
     public <R, C> R accept(PNodeVisitor<R, C> visitor, C context)
     {
-        return visitor.visitCacheNode(this, context);
+        return visitor.visitCache(this, context);
     }
 }

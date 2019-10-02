@@ -74,6 +74,6 @@ public final class JMethodInvocation
     @Override
     public <R, C> R accept(JExpressionVisitor<R, C> visitor, C context)
     {
-        return visitor.visitJMethodInvocation(this, context);
+        return visitor.visitMethodInvocation(this, context);
     }
 }

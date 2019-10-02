@@ -17,93 +17,93 @@ import java.util.Objects;
 
 public class JExpressionVisitor<R, C>
 {
-    protected R visitJExpression(JExpression jexpression, C context)
+    protected R visitExpression(JExpression expression, C context)
     {
-        throw new IllegalStateException(Objects.toString(jexpression));
+        throw new IllegalStateException(Objects.toString(expression));
     }
 
-    public R visitJArrayAccess(JArrayAccess jexpression, C context)
+    public R visitArrayAccess(JArrayAccess expression, C context)
     {
-        return visitJExpression(jexpression, context);
+        return visitExpression(expression, context);
     }
 
-    public R visitJAssignment(JAssignment jexpression, C context)
+    public R visitAssignment(JAssignment expression, C context)
     {
-        return visitJExpression(jexpression, context);
+        return visitExpression(expression, context);
     }
 
-    public R visitJCast(JCast jexpression, C context)
+    public R visitCast(JCast expression, C context)
     {
-        return visitJExpression(jexpression, context);
+        return visitExpression(expression, context);
     }
 
-    public R visitJBinary(JBinary jexpression, C context)
+    public R visitBinary(JBinary expression, C context)
     {
-        return visitJExpression(jexpression, context);
+        return visitExpression(expression, context);
     }
 
-    public R visitJConditional(JConditional jexpression, C context)
+    public R visitConditional(JConditional expression, C context)
     {
-        return visitJExpression(jexpression, context);
+        return visitExpression(expression, context);
     }
 
-    public R visitJIdent(JIdent jexpression, C context)
+    public R visitIdent(JIdent expression, C context)
     {
-        return visitJExpression(jexpression, context);
+        return visitExpression(expression, context);
     }
 
-    public R visitJLambda(JLambda jexpression, C context)
+    public R visitLambda(JLambda expression, C context)
     {
-        return visitJExpression(jexpression, context);
+        return visitExpression(expression, context);
     }
 
-    public R visitJLiteral(JLiteral jexpression, C context)
+    public R visitLiteral(JLiteral expression, C context)
     {
-        return visitJExpression(jexpression, context);
+        return visitExpression(expression, context);
     }
 
-    public R visitJLongArrayLiteral(JLongArrayLiteral jexpression, C context)
+    public R visitLongArrayLiteral(JLongArrayLiteral expression, C context)
     {
-        return visitJExpression(jexpression, context);
+        return visitExpression(expression, context);
     }
 
-    public R visitJLongStringLiteral(JLongStringLiteral jexpression, C context)
+    public R visitLongStringLiteral(JLongStringLiteral expression, C context)
     {
-        return visitJExpression(jexpression, context);
+        return visitExpression(expression, context);
     }
 
-    public R visitJMemberAccess(JMemberAccess jexpression, C context)
+    public R visitMemberAccess(JMemberAccess expression, C context)
     {
-        return visitJExpression(jexpression, context);
+        return visitExpression(expression, context);
     }
 
-    public R visitJMethodInvocation(JMethodInvocation jexpression, C context)
+    public R visitMethodInvocation(JMethodInvocation expression, C context)
     {
-        return visitJExpression(jexpression, context);
+        return visitExpression(expression, context);
     }
 
-    public R visitJMethodReference(JMethodReference jexpression, C context)
+    public R visitMethodReference(JMethodReference expression, C context)
     {
-        return visitJExpression(jexpression, context);
+        return visitExpression(expression, context);
     }
 
-    public R visitJNew(JNew jexpression, C context)
+    public R visitNew(JNew expression, C context)
     {
-        return visitJExpression(jexpression, context);
+        return visitExpression(expression, context);
     }
 
-    public R visitJNewArray(JNewArray jexpression, C context)
+    public R visitNewArray(JNewArray expression, C context)
     {
-        return visitJExpression(jexpression, context);
+        return visitExpression(expression, context);
     }
 
-    public R visitJRawExpression(JRawExpression jexpression, C context)
+    public R visitRawExpression(JRawExpression expression, C context)
     {
-        return visitJExpression(jexpression, context);
+        return visitExpression(expression, context);
     }
 
-    public R visitJUnary(JUnary jexpression, C context)
+    public R visitUnary(JUnary expression, C context)
     {
-        return visitJExpression(jexpression, context);
+        return visitExpression(expression, context);
     }
 }

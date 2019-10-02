@@ -78,6 +78,6 @@ public final class JAnnotatedDeclaration
     @Override
     public <R, C> R accept(JDeclarationVisitor<R, C> visitor, C context)
     {
-        return visitor.visitJAnnotatedDeclaration(this, context);
+        return visitor.visitAnnotatedDeclaration(this, context);
     }
 }

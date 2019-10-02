@@ -87,6 +87,6 @@ public final class PUnion
     @Override
     public <R, C> R accept(PNodeVisitor<R, C> visitor, C context)
     {
-        return visitor.visitUnionNode(this, context);
+        return visitor.visitUnion(this, context);
     }
 }

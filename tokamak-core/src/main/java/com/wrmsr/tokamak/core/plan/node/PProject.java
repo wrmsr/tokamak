@@ -93,6 +93,6 @@ public final class PProject
     @Override
     public <R, C> R accept(PNodeVisitor<R, C> visitor, C context)
     {
-        return visitor.visitProjectNode(this, context);
+        return visitor.visitProject(this, context);
     }
 }

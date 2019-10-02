@@ -106,6 +106,6 @@ public final class PValues
     @Override
     public <R, C> R accept(PNodeVisitor<R, C> visitor, C context)
     {
-        return visitor.visitValuesNode(this, context);
+        return visitor.visitValues(this, context);
     }
 }

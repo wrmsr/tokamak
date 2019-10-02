@@ -62,6 +62,6 @@ public final class JLambda
     @Override
     public <R, C> R accept(JExpressionVisitor<R, C> visitor, C context)
     {
-        return visitor.visitJLambda(this, context);
+        return visitor.visitLambda(this, context);
     }
 }

@@ -65,6 +65,6 @@ public final class JReturn
     @Override
     public <R, C> R accept(JStatementVisitor<R, C> visitor, C context)
     {
-        return visitor.visitJReturn(this, context);
+        return visitor.visitReturn(this, context);
     }
 }

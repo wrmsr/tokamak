@@ -80,6 +80,6 @@ public final class QSelect
     @Override
     public <R, C> R accept(QStatementVisitor<R, C> visitor, C context)
     {
-        return visitor.visitQSelect(this, context);
+        return visitor.visitSelect(this, context);
     }
 }

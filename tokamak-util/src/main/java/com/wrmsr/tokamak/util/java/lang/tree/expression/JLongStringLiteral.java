@@ -57,6 +57,6 @@ public final class JLongStringLiteral
     @Override
     public <R, C> R accept(JExpressionVisitor<R, C> visitor, C context)
     {
-        return visitor.visitJLongStringLiteral(this, context);
+        return visitor.visitLongStringLiteral(this, context);
     }
 }

@@ -42,7 +42,7 @@ public abstract class PNodeRewriter<C>
     }
 
     @Override
-    public PNode visitCacheNode(PCache node, C context)
+    public PNode visitCache(PCache node, C context)
     {
         return new PCache(
                 visitNodeName(node.getName(), context),
@@ -50,7 +50,7 @@ public abstract class PNodeRewriter<C>
     }
 
     @Override
-    public PNode visitCrossJoinNode(PCrossJoin node, C context)
+    public PNode visitCrossJoin(PCrossJoin node, C context)
     {
         return new PCrossJoin(
                 visitNodeName(node.getName(), context),
@@ -59,7 +59,7 @@ public abstract class PNodeRewriter<C>
     }
 
     @Override
-    public PNode visitEquiJoinNode(PEquiJoin node, C context)
+    public PNode visitEquiJoin(PEquiJoin node, C context)
     {
         return new PEquiJoin(
                 visitNodeName(node.getName(), context),
@@ -72,7 +72,7 @@ public abstract class PNodeRewriter<C>
     }
 
     @Override
-    public PNode visitFilterNode(PFilter node, C context)
+    public PNode visitFilter(PFilter node, C context)
     {
         return new PFilter(
                 visitNodeName(node.getName(), context),
@@ -83,7 +83,7 @@ public abstract class PNodeRewriter<C>
     }
 
     @Override
-    public PNode visitGroupByNode(PGroupBy node, C context)
+    public PNode visitGroupBy(PGroupBy node, C context)
     {
         return new PGroupBy(
                 visitNodeName(node.getName(), context),
@@ -93,7 +93,7 @@ public abstract class PNodeRewriter<C>
     }
 
     @Override
-    public PNode visitLookupJoinNode(PLookupJoin node, C context)
+    public PNode visitLookupJoin(PLookupJoin node, C context)
     {
         return new PLookupJoin(
                 visitNodeName(node.getName(), context),
@@ -107,7 +107,7 @@ public abstract class PNodeRewriter<C>
     }
 
     @Override
-    public PNode visitStateNode(PState node, C context)
+    public PNode visitState(PState node, C context)
     {
         return new PState(
                 visitNodeName(node.getName(), context),
@@ -123,7 +123,7 @@ public abstract class PNodeRewriter<C>
     }
 
     @Override
-    public PNode visitProjectNode(PProject node, C context)
+    public PNode visitProject(PProject node, C context)
     {
         return new PProject(
                 visitNodeName(node.getName(), context),
@@ -132,7 +132,7 @@ public abstract class PNodeRewriter<C>
     }
 
     @Override
-    public PNode visitScanNode(PScan node, C context)
+    public PNode visitScan(PScan node, C context)
     {
         return new PScan(
                 visitNodeName(node.getName(), context),
@@ -143,7 +143,7 @@ public abstract class PNodeRewriter<C>
     }
 
     @Override
-    public PNode visitUnionNode(PUnion node, C context)
+    public PNode visitUnion(PUnion node, C context)
     {
         return new PUnion(
                 visitNodeName(node.getName(), context),
@@ -152,7 +152,7 @@ public abstract class PNodeRewriter<C>
     }
 
     @Override
-    public PNode visitUnnestNode(PUnnest node, C context)
+    public PNode visitUnnest(PUnnest node, C context)
     {
         return new PUnnest(
                 visitNodeName(node.getName(), context),
@@ -163,7 +163,7 @@ public abstract class PNodeRewriter<C>
     }
 
     @Override
-    public PNode visitValuesNode(PValues node, C context)
+    public PNode visitValues(PValues node, C context)
     {
         return new PValues(
                 visitNodeName(node.getName(), context),

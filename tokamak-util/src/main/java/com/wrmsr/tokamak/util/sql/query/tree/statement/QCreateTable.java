@@ -71,6 +71,6 @@ public final class QCreateTable
     @Override
     public <R, C> R accept(QStatementVisitor<R, C> visitor, C context)
     {
-        return visitor.visitQCreateTable(this, context);
+        return visitor.visitCreateTable(this, context);
     }
 }

@@ -58,6 +58,6 @@ public final class JLongArrayLiteral
     @Override
     public <R, C> R accept(JExpressionVisitor<R, C> visitor, C context)
     {
-        return visitor.visitJLongArrayLiteral(this, context);
+        return visitor.visitLongArrayLiteral(this, context);
     }
 }

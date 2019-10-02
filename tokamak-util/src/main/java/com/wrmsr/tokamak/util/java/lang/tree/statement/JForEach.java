@@ -84,6 +84,6 @@ public final class JForEach
     @Override
     public <R, C> R accept(JStatementVisitor<R, C> visitor, C context)
     {
-        return visitor.visitJForEach(this, context);
+        return visitor.visitForEach(this, context);
     }
 }

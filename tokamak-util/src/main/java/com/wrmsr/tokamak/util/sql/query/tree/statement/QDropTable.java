@@ -19,6 +19,6 @@ public final class QDropTable
     @Override
     public <R, C> R accept(QStatementVisitor<R, C> visitor, C context)
     {
-        return visitor.visitQDropTable(this, context);
+        return visitor.visitDropTable(this, context);
     }
 }

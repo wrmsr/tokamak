@@ -22,6 +22,6 @@ public final class QUpdate
     @Override
     public <R, C> R accept(QStatementVisitor<R, C> visitor, C context)
     {
-        return visitor.visitQUpdate(this, context);
+        return visitor.visitUpdate(this, context);
     }
 }

@@ -17,38 +17,38 @@ import java.util.Objects;
 
 public class QStatementVisitor<R, C>
 {
-    protected R visitQStatement(QStatement qstatement, C context)
+    protected R visitStatement(QStatement qstatement, C context)
     {
         throw new IllegalStateException(Objects.toString(qstatement));
     }
 
-    public R visitQCreateTable(QCreateTable qstatement, C context)
+    public R visitCreateTable(QCreateTable qstatement, C context)
     {
-        return visitQStatement(qstatement, context);
+        return visitStatement(qstatement, context);
     }
 
-    public R visitQDelete(QDelete qstatement, C context)
+    public R visitDelete(QDelete qstatement, C context)
     {
-        return visitQStatement(qstatement, context);
+        return visitStatement(qstatement, context);
     }
 
-    public R visitQDropTable(QDropTable qstatement, C context)
+    public R visitDropTable(QDropTable qstatement, C context)
     {
-        return visitQStatement(qstatement, context);
+        return visitStatement(qstatement, context);
     }
 
-    public R visitQInsert(QInsert qstatement, C context)
+    public R visitInsert(QInsert qstatement, C context)
     {
-        return visitQStatement(qstatement, context);
+        return visitStatement(qstatement, context);
     }
 
-    public R visitQSelect(QSelect qstatement, C context)
+    public R visitSelect(QSelect qstatement, C context)
     {
-        return visitQStatement(qstatement, context);
+        return visitStatement(qstatement, context);
     }
 
-    public R visitQUpdate(QUpdate qstatement, C context)
+    public R visitUpdate(QUpdate qstatement, C context)
     {
-        return visitQStatement(qstatement, context);
+        return visitStatement(qstatement, context);
     }
 }

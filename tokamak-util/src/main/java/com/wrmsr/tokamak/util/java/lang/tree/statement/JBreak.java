@@ -58,6 +58,6 @@ public final class JBreak
     @Override
     public <R, C> R accept(JStatementVisitor<R, C> visitor, C context)
     {
-        return visitor.visitJBreak(this, context);
+        return visitor.visitBreak(this, context);
     }
 }

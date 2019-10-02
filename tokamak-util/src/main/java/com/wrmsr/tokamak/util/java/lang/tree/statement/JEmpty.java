@@ -40,6 +40,6 @@ public final class JEmpty
     @Override
     public <R, C> R accept(JStatementVisitor<R, C> visitor, C context)
     {
-        return visitor.visitJEmpty(this, context);
+        return visitor.visitEmpty(this, context);
     }
 }

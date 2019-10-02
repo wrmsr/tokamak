@@ -45,6 +45,6 @@ public final class QUnary
     @Override
     public <R, C> R accept(QExpressionVisitor<R, C> visitor, C context)
     {
-        return visitor.visitQUnary(this, context);
+        return visitor.visitUnary(this, context);
     }
 }

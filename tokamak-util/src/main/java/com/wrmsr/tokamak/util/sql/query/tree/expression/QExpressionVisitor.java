@@ -17,38 +17,38 @@ import java.util.Objects;
 
 public class QExpressionVisitor<R, C>
 {
-    protected R visitQExpression(QExpression qexpression, C context)
+    protected R visitExpression(QExpression qexpression, C context)
     {
         throw new IllegalStateException(Objects.toString(qexpression));
     }
 
-    public R visitQBinary(QBinary qexpression, C context)
+    public R visitBinary(QBinary qexpression, C context)
     {
-        return visitQExpression(qexpression, context);
+        return visitExpression(qexpression, context);
     }
 
-    public R visitQParen(QParen qexpression, C context)
+    public R visitParen(QParen qexpression, C context)
     {
-        return visitQExpression(qexpression, context);
+        return visitExpression(qexpression, context);
     }
 
-    public R visitQReferenceExpression(QReferenceExpression qexpression, C context)
+    public R visitReferenceExpression(QReferenceExpression qexpression, C context)
     {
-        return visitQExpression(qexpression, context);
+        return visitExpression(qexpression, context);
     }
 
-    public R visitQSubqueryExpression(QSubqueryExpression qexpression, C context)
+    public R visitSubqueryExpression(QSubqueryExpression qexpression, C context)
     {
-        return visitQExpression(qexpression, context);
+        return visitExpression(qexpression, context);
     }
 
-    public R visitQTextExpression(QTextExpression qexpression, C context)
+    public R visitTextExpression(QTextExpression qexpression, C context)
     {
-        return visitQExpression(qexpression, context);
+        return visitExpression(qexpression, context);
     }
 
-    public R visitQUnary(QUnary qexpression, C context)
+    public R visitUnary(QUnary qexpression, C context)
     {
-        return visitQExpression(qexpression, context);
+        return visitExpression(qexpression, context);
     }
 }

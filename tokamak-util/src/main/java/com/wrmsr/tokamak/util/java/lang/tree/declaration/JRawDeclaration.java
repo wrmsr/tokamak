@@ -53,6 +53,6 @@ public final class JRawDeclaration
     @Override
     public <R, C> R accept(JDeclarationVisitor<R, C> visitor, C context)
     {
-        return visitor.visitJRawDeclaration(this, context);
+        return visitor.visitRawDeclaration(this, context);
     }
 }

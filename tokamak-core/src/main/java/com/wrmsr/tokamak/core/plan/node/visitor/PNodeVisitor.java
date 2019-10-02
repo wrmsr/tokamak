@@ -36,62 +36,62 @@ public abstract class PNodeVisitor<R, C>
         throw new IllegalStateException(Objects.toString(node));
     }
 
-    public R visitCacheNode(PCache node, C context)
+    public R visitCache(PCache node, C context)
     {
         return visitNode(node, context);
     }
 
-    public R visitCrossJoinNode(PCrossJoin node, C context)
+    public R visitCrossJoin(PCrossJoin node, C context)
     {
         return visitNode(node, context);
     }
 
-    public R visitEquiJoinNode(PEquiJoin node, C context)
+    public R visitEquiJoin(PEquiJoin node, C context)
     {
         return visitNode(node, context);
     }
 
-    public R visitFilterNode(PFilter node, C context)
+    public R visitFilter(PFilter node, C context)
     {
         return visitNode(node, context);
     }
 
-    public R visitGroupByNode(PGroupBy node, C context)
+    public R visitGroupBy(PGroupBy node, C context)
     {
         return visitNode(node, context);
     }
 
-    public R visitLookupJoinNode(PLookupJoin node, C context)
+    public R visitLookupJoin(PLookupJoin node, C context)
     {
         return visitNode(node, context);
     }
 
-    public R visitStateNode(PState node, C context)
+    public R visitState(PState node, C context)
     {
         return visitNode(node, context);
     }
 
-    public R visitProjectNode(PProject node, C context)
+    public R visitProject(PProject node, C context)
     {
         return visitNode(node, context);
     }
 
-    public R visitScanNode(PScan node, C context)
+    public R visitScan(PScan node, C context)
     {
         return visitNode(node, context);
     }
 
-    public R visitUnionNode(PUnion node, C context)
+    public R visitUnion(PUnion node, C context)
     {
         return visitNode(node, context);
     }
 
-    public R visitUnnestNode(PUnnest node, C context)
+    public R visitUnnest(PUnnest node, C context)
     {
         return visitNode(node, context);
     }
 
-    public R visitValuesNode(PValues node, C context)
+    public R visitValues(PValues node, C context)
     {
         return visitNode(node, context);
     }

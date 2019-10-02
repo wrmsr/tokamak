@@ -53,6 +53,6 @@ public class JRawStatement
     @Override
     public <R, C> R accept(JStatementVisitor<R, C> visitor, C context)
     {
-        return visitor.visitJRawStatement(this, context);
+        return visitor.visitRawStatement(this, context);
     }
 }

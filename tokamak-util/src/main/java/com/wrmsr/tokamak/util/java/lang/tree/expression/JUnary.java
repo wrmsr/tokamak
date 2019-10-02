@@ -67,6 +67,6 @@ public final class JUnary
     @Override
     public <R, C> R accept(JExpressionVisitor<R, C> visitor, C context)
     {
-        return visitor.visitJUnary(this, context);
+        return visitor.visitUnary(this, context);
     }
 }

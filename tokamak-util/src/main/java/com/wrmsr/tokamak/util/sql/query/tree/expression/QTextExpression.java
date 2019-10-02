@@ -34,6 +34,6 @@ public final class QTextExpression
     @Override
     public <R, C> R accept(QExpressionVisitor<R, C> visitor, C context)
     {
-        return visitor.visitQTextExpression(this, context);
+        return visitor.visitTextExpression(this, context);
     }
 }

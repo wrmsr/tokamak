@@ -118,6 +118,6 @@ public final class PUnnest
     @Override
     public <R, C> R accept(PNodeVisitor<R, C> visitor, C context)
     {
-        return visitor.visitUnnestNode(this, context);
+        return visitor.visitUnnest(this, context);
     }
 }

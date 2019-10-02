@@ -65,6 +65,6 @@ public final class JMemberAccess
     @Override
     public <R, C> R accept(JExpressionVisitor<R, C> visitor, C context)
     {
-        return visitor.visitJMemberAccess(this, context);
+        return visitor.visitMemberAccess(this, context);
     }
 }

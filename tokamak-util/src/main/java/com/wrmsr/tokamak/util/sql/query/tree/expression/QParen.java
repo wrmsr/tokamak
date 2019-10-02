@@ -36,6 +36,6 @@ public final class QParen
     @Override
     public <R, C> R accept(QExpressionVisitor<R, C> visitor, C context)
     {
-        return visitor.visitQParen(this, context);
+        return visitor.visitParen(this, context);
     }
 }

@@ -103,6 +103,6 @@ public final class JType
     @Override
     public <R, C> R accept(JDeclarationVisitor<R, C> visitor, C context)
     {
-        return visitor.visitJType(this, context);
+        return visitor.visitType(this, context);
     }
 }

@@ -57,6 +57,6 @@ public final class JVerbatimDeclaration
     @Override
     public <R, C> R accept(JDeclarationVisitor<R, C> visitor, C context)
     {
-        return visitor.visitJVerbatimDeclaration(this, context);
+        return visitor.visitVerbatimDeclaration(this, context);
     }
 }

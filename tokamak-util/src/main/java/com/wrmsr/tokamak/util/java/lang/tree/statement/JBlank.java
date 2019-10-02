@@ -40,6 +40,6 @@ public final class JBlank
     @Override
     public <R, C> R accept(JStatementVisitor<R, C> visitor, C context)
     {
-        return visitor.visitJBlank(this, context);
+        return visitor.visitBlank(this, context);
     }
 }

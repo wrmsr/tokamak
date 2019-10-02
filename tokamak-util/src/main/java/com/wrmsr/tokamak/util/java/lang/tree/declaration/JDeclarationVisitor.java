@@ -17,53 +17,53 @@ import java.util.Objects;
 
 public class JDeclarationVisitor<R, C>
 {
-    protected R visitJDeclaration(JDeclaration jdeclaration, C context)
+    protected R visitDeclaration(JDeclaration jdeclaration, C context)
     {
         throw new IllegalStateException(Objects.toString(jdeclaration));
     }
 
-    public R visitJAnnotatedDeclaration(JAnnotatedDeclaration jdeclaration, C context)
+    public R visitAnnotatedDeclaration(JAnnotatedDeclaration jdeclaration, C context)
     {
-        return visitJDeclaration(jdeclaration, context);
+        return visitDeclaration(jdeclaration, context);
     }
 
-    public R visitJConstructor(JConstructor jdeclaration, C context)
+    public R visitConstructor(JConstructor jdeclaration, C context)
     {
-        return visitJDeclaration(jdeclaration, context);
+        return visitDeclaration(jdeclaration, context);
     }
 
-    public R visitJDeclarationBlock(JDeclarationBlock jdeclaration, C context)
+    public R visitDeclarationBlock(JDeclarationBlock jdeclaration, C context)
     {
-        return visitJDeclaration(jdeclaration, context);
+        return visitDeclaration(jdeclaration, context);
     }
 
-    public R visitJField(JField jdeclaration, C context)
+    public R visitField(JField jdeclaration, C context)
     {
-        return visitJDeclaration(jdeclaration, context);
+        return visitDeclaration(jdeclaration, context);
     }
 
-    public R visitJInitializationBlock(JInitializationBlock jdeclaration, C context)
+    public R visitInitializationBlock(JInitializationBlock jdeclaration, C context)
     {
-        return visitJDeclaration(jdeclaration, context);
+        return visitDeclaration(jdeclaration, context);
     }
 
-    public R visitJMethod(JMethod jdeclaration, C context)
+    public R visitMethod(JMethod jdeclaration, C context)
     {
-        return visitJDeclaration(jdeclaration, context);
+        return visitDeclaration(jdeclaration, context);
     }
 
-    public R visitJRawDeclaration(JRawDeclaration jdeclaration, C context)
+    public R visitRawDeclaration(JRawDeclaration jdeclaration, C context)
     {
-        return visitJDeclaration(jdeclaration, context);
+        return visitDeclaration(jdeclaration, context);
     }
 
-    public R visitJType(JType jdeclaration, C context)
+    public R visitType(JType jdeclaration, C context)
     {
-        return visitJDeclaration(jdeclaration, context);
+        return visitDeclaration(jdeclaration, context);
     }
 
-    public R visitJVerbatimDeclaration(JVerbatimDeclaration jdeclaration, C context)
+    public R visitVerbatimDeclaration(JVerbatimDeclaration jdeclaration, C context)
     {
-        return visitJDeclaration(jdeclaration, context);
+        return visitDeclaration(jdeclaration, context);
     }
 }

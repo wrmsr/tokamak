@@ -86,6 +86,6 @@ public final class PScan
     @Override
     public <R, C> R accept(PNodeVisitor<R, C> visitor, C context)
     {
-        return visitor.visitScanNode(this, context);
+        return visitor.visitScan(this, context);
     }
 }

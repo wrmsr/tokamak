@@ -123,6 +123,6 @@ public final class PState
     @Override
     public <R, C> R accept(PNodeVisitor<R, C> visitor, C context)
     {
-        return visitor.visitStateNode(this, context);
+        return visitor.visitState(this, context);
     }
 }

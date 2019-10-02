@@ -22,6 +22,6 @@ public final class QDelete
     @Override
     public <R, C> R accept(QStatementVisitor<R, C> visitor, C context)
     {
-        return visitor.visitQDelete(this, context);
+        return visitor.visitDelete(this, context);
     }
 }

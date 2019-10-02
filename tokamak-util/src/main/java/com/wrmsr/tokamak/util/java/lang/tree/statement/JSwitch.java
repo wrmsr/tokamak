@@ -69,6 +69,6 @@ public final class JSwitch
     @Override
     public <R, C> R accept(JStatementVisitor<R, C> visitor, C context)
     {
-        return visitor.visitJSwitch(this, context);
+        return visitor.visitSwitch(this, context);
     }
 }

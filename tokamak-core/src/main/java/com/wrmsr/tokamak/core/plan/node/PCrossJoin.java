@@ -98,6 +98,6 @@ public final class PCrossJoin
     @Override
     public <R, C> R accept(PNodeVisitor<R, C> visitor, C context)
     {
-        return visitor.visitCrossJoinNode(this, context);
+        return visitor.visitCrossJoin(this, context);
     }
 }

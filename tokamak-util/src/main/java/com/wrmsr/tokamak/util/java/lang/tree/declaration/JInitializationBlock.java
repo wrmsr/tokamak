@@ -59,6 +59,6 @@ public final class JInitializationBlock
     @Override
     public <R, C> R accept(JDeclarationVisitor<R, C> visitor, C context)
     {
-        return visitor.visitJInitializationBlock(this, context);
+        return visitor.visitInitializationBlock(this, context);
     }
 }

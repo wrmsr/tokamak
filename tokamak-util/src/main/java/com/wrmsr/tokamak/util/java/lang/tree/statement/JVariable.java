@@ -77,6 +77,6 @@ public final class JVariable
     @Override
     public <R, C> R accept(JStatementVisitor<R, C> visitor, C context)
     {
-        return visitor.visitJVariable(this, context);
+        return visitor.visitVariable(this, context);
     }
 }

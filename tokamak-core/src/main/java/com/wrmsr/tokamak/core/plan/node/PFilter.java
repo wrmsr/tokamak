@@ -99,6 +99,6 @@ public final class PFilter
     @Override
     public <R, C> R accept(PNodeVisitor<R, C> visitor, C context)
     {
-        return visitor.visitFilterNode(this, context);
+        return visitor.visitFilter(this, context);
     }
 }

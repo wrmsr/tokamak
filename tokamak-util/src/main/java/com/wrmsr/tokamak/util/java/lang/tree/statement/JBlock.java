@@ -60,6 +60,6 @@ public final class JBlock
     @Override
     public <R, C> R accept(JStatementVisitor<R, C> visitor, C context)
     {
-        return visitor.visitJBlock(this, context);
+        return visitor.visitBlock(this, context);
     }
 }

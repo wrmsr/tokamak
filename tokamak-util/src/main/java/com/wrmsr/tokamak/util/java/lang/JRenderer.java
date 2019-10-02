@@ -234,13 +234,13 @@ public final class JRenderer
         curr.accept(new JDeclarationVisitor<Void, Void>()
         {
             @Override
-            protected Void visitJDeclaration(JDeclaration jstatement, Void context)
+            protected Void visitDeclaration(JDeclaration jstatement, Void context)
             {
                 throw new IllegalStateException();
             }
 
             @Override
-            public Void visitJAnnotatedDeclaration(JAnnotatedDeclaration jdeclaration, Void context)
+            public Void visitAnnotatedDeclaration(JAnnotatedDeclaration jdeclaration, Void context)
             {
                 code.add("@");
                 renderName(jdeclaration.getAnnotation());
@@ -255,7 +255,7 @@ public final class JRenderer
             }
 
             @Override
-            public Void visitJConstructor(JConstructor jdeclaration, Void context)
+            public Void visitConstructor(JConstructor jdeclaration, Void context)
             {
                 renderAccess(jdeclaration.getAccess());
                 code.add("$L", jdeclaration.getName());
@@ -266,14 +266,14 @@ public final class JRenderer
             }
 
             @Override
-            public Void visitJDeclarationBlock(JDeclarationBlock jdeclaration, Void context)
+            public Void visitDeclarationBlock(JDeclarationBlock jdeclaration, Void context)
             {
                 jdeclaration.getBody().forEach(JRenderer.this::renderDeclaration);
                 return null;
             }
 
             @Override
-            public Void visitJField(JField jdeclaration, Void context)
+            public Void visitField(JField jdeclaration, Void context)
             {
                 renderAccess(jdeclaration.getAccess());
                 renderTypeSpecifier(jdeclaration.getType());
@@ -287,14 +287,14 @@ public final class JRenderer
             }
 
             @Override
-            public Void visitJInitializationBlock(JInitializationBlock jdeclaration, Void context)
+            public Void visitInitializationBlock(JInitializationBlock jdeclaration, Void context)
             {
                 renderStatement(jdeclaration.getBlock());
                 return null;
             }
 
             @Override
-            public Void visitJMethod(JMethod jdeclaration, Void context)
+            public Void visitMethod(JMethod jdeclaration, Void context)
             {
                 renderAccess(jdeclaration.getAccess());
                 renderTypeSpecifier(jdeclaration.getType());
@@ -311,14 +311,14 @@ public final class JRenderer
             }
 
             @Override
-            public Void visitJRawDeclaration(JRawDeclaration jdeclaration, Void context)
+            public Void visitRawDeclaration(JRawDeclaration jdeclaration, Void context)
             {
                 code.add(jdeclaration.getText());
                 return null;
             }
 
             @Override
-            public Void visitJType(JType jdeclaration, Void context)
+            public Void visitType(JType jdeclaration, Void context)
             {
                 renderAccess(jdeclaration.getAccess());
                 code.add("$L $L\n", jdeclaration.getKind().toString().toLowerCase(), jdeclaration.getName());
@@ -356,7 +356,7 @@ public final class JRenderer
             }
 
             @Override
-            public Void visitJVerbatimDeclaration(JVerbatimDeclaration jdeclaration, Void context)
+            public Void visitVerbatimDeclaration(JVerbatimDeclaration jdeclaration, Void context)
             {
                 code.add("$L", jdeclaration.getText());
                 return null;
@@ -369,13 +369,13 @@ public final class JRenderer
         curr.accept(new JStatementVisitor<Void, Void>()
         {
             @Override
-            protected Void visitJStatement(JStatement jstatement, Void context)
+            protected Void visitStatement(JStatement jstatement, Void context)
             {
                 throw new IllegalStateException();
             }
 
             @Override
-            public Void visitJAnnotatedStatement(JAnnotatedStatement jstatement, Void context)
+            public Void visitAnnotatedStatement(JAnnotatedStatement jstatement, Void context)
             {
                 code.add("@");
                 renderName(jstatement.getAnnotation());
@@ -390,14 +390,14 @@ public final class JRenderer
             }
 
             @Override
-            public Void visitJBlank(JBlank jstatement, Void context)
+            public Void visitBlank(JBlank jstatement, Void context)
             {
                 code.add("\n");
                 return null;
             }
 
             @Override
-            public Void visitJBlock(JBlock jstatement, Void context)
+            public Void visitBlock(JBlock jstatement, Void context)
             {
                 code.add("{\n");
                 code.indent();
@@ -410,7 +410,7 @@ public final class JRenderer
             }
 
             @Override
-            public Void visitJBreak(JBreak jstatement, Void context)
+            public Void visitBreak(JBreak jstatement, Void context)
             {
                 if (jstatement.getLabel().isPresent()) {
                     code.addStatement("break $L", jstatement.getLabel().get());
@@ -422,7 +422,7 @@ public final class JRenderer
             }
 
             @Override
-            public Void visitJCase(JCase jstatement, Void context)
+            public Void visitCase(JCase jstatement, Void context)
             {
                 boolean newline = false;
                 for (Object value : jstatement.getValues()) {
@@ -448,7 +448,7 @@ public final class JRenderer
             }
 
             @Override
-            public Void visitJContinue(JContinue jstatement, Void context)
+            public Void visitContinue(JContinue jstatement, Void context)
             {
                 if (jstatement.getLabel().isPresent()) {
                     code.addStatement("continue $L", jstatement.getLabel().get());
@@ -460,7 +460,7 @@ public final class JRenderer
             }
 
             @Override
-            public Void visitJDoWhileLoop(JDoWhileLoop jstatement, Void context)
+            public Void visitDoWhileLoop(JDoWhileLoop jstatement, Void context)
             {
                 code.add("do ");
                 renderStatement(jstatement.getBody());
@@ -471,13 +471,13 @@ public final class JRenderer
             }
 
             @Override
-            public Void visitJEmpty(JEmpty jstatement, Void context)
+            public Void visitEmpty(JEmpty jstatement, Void context)
             {
                 return null;
             }
 
             @Override
-            public Void visitJExpressionStatement(JExpressionStatement jstatement, Void context)
+            public Void visitExpressionStatement(JExpressionStatement jstatement, Void context)
             {
                 renderExpression(jstatement.getExpression());
                 code.add(";\n");
@@ -485,7 +485,7 @@ public final class JRenderer
             }
 
             @Override
-            public Void visitJForEach(JForEach jstatement, Void context)
+            public Void visitForEach(JForEach jstatement, Void context)
             {
                 code.add("for (");
                 renderTypeSpecifier(jstatement.getType());
@@ -497,7 +497,7 @@ public final class JRenderer
             }
 
             @Override
-            public Void visitJIf(JIf jstatement, Void context)
+            public Void visitIf(JIf jstatement, Void context)
             {
                 code.add("if (");
                 renderExpression(jstatement.getCondition());
@@ -511,7 +511,7 @@ public final class JRenderer
             }
 
             @Override
-            public Void visitJLabeledStatement(JLabeledStatement jstatement, Void context)
+            public Void visitLabeledStatement(JLabeledStatement jstatement, Void context)
             {
                 code.add("$L", jstatement.getLabel());
                 code.add(":\n");
@@ -520,14 +520,14 @@ public final class JRenderer
             }
 
             @Override
-            public Void visitJRawStatement(JRawStatement jstatement, Void context)
+            public Void visitRawStatement(JRawStatement jstatement, Void context)
             {
                 code.add(jstatement.getText());
                 return null;
             }
 
             @Override
-            public Void visitJReturn(JReturn jstatement, Void context)
+            public Void visitReturn(JReturn jstatement, Void context)
             {
                 if (jstatement.getValue().isPresent()) {
                     code.add("return ");
@@ -541,7 +541,7 @@ public final class JRenderer
             }
 
             @Override
-            public Void visitJSwitch(JSwitch jstatement, Void context)
+            public Void visitSwitch(JSwitch jstatement, Void context)
             {
                 code.add("switch (");
                 renderExpression(jstatement.getSelector());
@@ -551,7 +551,7 @@ public final class JRenderer
             }
 
             @Override
-            public Void visitJThrow(JThrow jstatement, Void context)
+            public Void visitThrow(JThrow jstatement, Void context)
             {
                 code.add("throw ");
                 renderParamExpression(jstatement.getException());
@@ -560,7 +560,7 @@ public final class JRenderer
             }
 
             @Override
-            public Void visitJVariable(JVariable jstatement, Void context)
+            public Void visitVariable(JVariable jstatement, Void context)
             {
                 renderTypeSpecifier(jstatement.getType());
                 code.add(" $L", jstatement.getName());
@@ -573,7 +573,7 @@ public final class JRenderer
             }
 
             @Override
-            public Void visitJWhileLoop(JWhileLoop jstatement, Void context)
+            public Void visitWhileLoop(JWhileLoop jstatement, Void context)
             {
                 code.add("while (");
                 renderExpression(jstatement.getCondition());
@@ -589,13 +589,13 @@ public final class JRenderer
         curr.accept(new JExpressionVisitor<Void, Void>()
         {
             @Override
-            protected Void visitJExpression(JExpression jexpression, Void context)
+            protected Void visitExpression(JExpression jexpression, Void context)
             {
                 throw new IllegalStateException();
             }
 
             @Override
-            public Void visitJArrayAccess(JArrayAccess jexpression, Void context)
+            public Void visitArrayAccess(JArrayAccess jexpression, Void context)
             {
                 renderExpression(jexpression.getArray());
                 code.add("[");
@@ -605,7 +605,7 @@ public final class JRenderer
             }
 
             @Override
-            public Void visitJAssignment(JAssignment jexpression, Void context)
+            public Void visitAssignment(JAssignment jexpression, Void context)
             {
                 renderExpression(jexpression.getLeft());
                 code.add(" = ");
@@ -614,7 +614,7 @@ public final class JRenderer
             }
 
             @Override
-            public Void visitJBinary(JBinary jexpression, Void context)
+            public Void visitBinary(JBinary jexpression, Void context)
             {
                 renderParamExpression(jexpression.getLeft());
                 code.add(" ");
@@ -625,7 +625,7 @@ public final class JRenderer
             }
 
             @Override
-            public Void visitJCast(JCast jexpression, Void context)
+            public Void visitCast(JCast jexpression, Void context)
             {
                 code.add("(");
                 renderTypeSpecifier(jexpression.getType());
@@ -635,7 +635,7 @@ public final class JRenderer
             }
 
             @Override
-            public Void visitJConditional(JConditional jexpression, Void context)
+            public Void visitConditional(JConditional jexpression, Void context)
             {
                 renderParamExpression(jexpression.getCondition());
                 code.add(" ? ");
@@ -646,14 +646,14 @@ public final class JRenderer
             }
 
             @Override
-            public Void visitJIdent(JIdent jexpression, Void context)
+            public Void visitIdent(JIdent jexpression, Void context)
             {
                 renderName(jexpression.getName());
                 return null;
             }
 
             @Override
-            public Void visitJLambda(JLambda jexpression, Void context)
+            public Void visitLambda(JLambda jexpression, Void context)
             {
                 code.add("(");
                 delimitedForEach(jexpression.getParams(), ", ", code::add);
@@ -663,14 +663,14 @@ public final class JRenderer
             }
 
             @Override
-            public Void visitJLiteral(JLiteral jexpression, Void context)
+            public Void visitLiteral(JLiteral jexpression, Void context)
             {
                 renderLiteralValue(jexpression.getValue());
                 return null;
             }
 
             @Override
-            public Void visitJLongArrayLiteral(JLongArrayLiteral jexpression, Void context)
+            public Void visitLongArrayLiteral(JLongArrayLiteral jexpression, Void context)
             {
                 if (jexpression.getItems().isEmpty()) {
                     code.add("{}");
@@ -686,7 +686,7 @@ public final class JRenderer
             }
 
             @Override
-            public Void visitJLongStringLiteral(JLongStringLiteral jexpression, Void context)
+            public Void visitLongStringLiteral(JLongStringLiteral jexpression, Void context)
             {
                 String str = jexpression.getValue();
                 code.add("\"\" + \n");
@@ -702,7 +702,7 @@ public final class JRenderer
             }
 
             @Override
-            public Void visitJMemberAccess(JMemberAccess jexpression, Void context)
+            public Void visitMemberAccess(JMemberAccess jexpression, Void context)
             {
                 renderExpression(jexpression.getInstance());
                 code.add(".$L", jexpression.getMember());
@@ -710,7 +710,7 @@ public final class JRenderer
             }
 
             @Override
-            public Void visitJMethodInvocation(JMethodInvocation jexpression, Void context)
+            public Void visitMethodInvocation(JMethodInvocation jexpression, Void context)
             {
                 renderExpression(jexpression.getMethod());
                 code.add("(");
@@ -720,7 +720,7 @@ public final class JRenderer
             }
 
             @Override
-            public Void visitJMethodReference(JMethodReference jexpression, Void context)
+            public Void visitMethodReference(JMethodReference jexpression, Void context)
             {
                 renderExpression(jexpression.getInstance());
                 code.add("::$L", jexpression.getMethodName());
@@ -728,7 +728,7 @@ public final class JRenderer
             }
 
             @Override
-            public Void visitJNew(JNew jexpression, Void context)
+            public Void visitNew(JNew jexpression, Void context)
             {
                 code.add("new ");
                 renderTypeSpecifier(jexpression.getType());
@@ -739,7 +739,7 @@ public final class JRenderer
             }
 
             @Override
-            public Void visitJNewArray(JNewArray jexpression, Void context)
+            public Void visitNewArray(JNewArray jexpression, Void context)
             {
                 code.add("new ");
                 renderTypeSpecifier(jexpression.getType());
@@ -752,14 +752,14 @@ public final class JRenderer
             }
 
             @Override
-            public Void visitJRawExpression(JRawExpression jexpression, Void context)
+            public Void visitRawExpression(JRawExpression jexpression, Void context)
             {
                 code.add(jexpression.getText());
                 return null;
             }
 
             @Override
-            public Void visitJUnary(JUnary jexpression, Void context)
+            public Void visitUnary(JUnary jexpression, Void context)
             {
                 code.add(jexpression.getOp().getPrefix());
                 renderOperands(ImmutableList.of(jexpression.getValue()));
@@ -774,7 +774,7 @@ public final class JRenderer
         curr.accept(new JExpressionVisitor<Void, Void>()
         {
             @Override
-            protected Void visitJExpression(JExpression jexpression, Void context)
+            protected Void visitExpression(JExpression jexpression, Void context)
             {
                 code.add("(");
                 renderExpression(jexpression);
@@ -783,14 +783,14 @@ public final class JRenderer
             }
 
             @Override
-            public Void visitJIdent(JIdent jexpression, Void context)
+            public Void visitIdent(JIdent jexpression, Void context)
             {
                 renderExpression(jexpression);
                 return null;
             }
 
             @Override
-            public Void visitJLiteral(JLiteral jexpression, Void context)
+            public Void visitLiteral(JLiteral jexpression, Void context)
             {
                 renderExpression(jexpression);
                 return null;

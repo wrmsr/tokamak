@@ -191,45 +191,45 @@ public final class FieldOriginAnalysis
             }
 
             @Override
-            public Void visitCacheNode(PCache node, Void context)
+            public Void visitCache(PCache node, Void context)
             {
                 addSimpleSingleSource(node);
-                return super.visitCacheNode(node, context);
+                return super.visitCache(node, context);
             }
 
             @Override
-            public Void visitCrossJoinNode(PCrossJoin node, Void context)
+            public Void visitCrossJoin(PCrossJoin node, Void context)
             {
-                return super.visitCrossJoinNode(node, context);
+                return super.visitCrossJoin(node, context);
             }
 
             @Override
-            public Void visitEquiJoinNode(PEquiJoin node, Void context)
+            public Void visitEquiJoin(PEquiJoin node, Void context)
             {
-                return super.visitEquiJoinNode(node, context);
+                return super.visitEquiJoin(node, context);
             }
 
             @Override
-            public Void visitFilterNode(PFilter node, Void context)
+            public Void visitFilter(PFilter node, Void context)
             {
                 addSimpleSingleSource(node);
-                return super.visitFilterNode(node, context);
+                return super.visitFilter(node, context);
             }
 
             @Override
-            public Void visitGroupByNode(PGroupBy node, Void context)
+            public Void visitGroupBy(PGroupBy node, Void context)
             {
-                return super.visitGroupByNode(node, context);
+                return super.visitGroupBy(node, context);
             }
 
             @Override
-            public Void visitLookupJoinNode(PLookupJoin node, Void context)
+            public Void visitLookupJoin(PLookupJoin node, Void context)
             {
-                return super.visitLookupJoinNode(node, context);
+                return super.visitLookupJoin(node, context);
             }
 
             @Override
-            public Void visitProjectNode(PProject node, Void context)
+            public Void visitProject(PProject node, Void context)
             {
                 node.getProjection().getInputsByOutput().forEach((o, i) -> {
                     if (i instanceof PProjection.FieldInput) {
@@ -237,37 +237,37 @@ public final class FieldOriginAnalysis
                         originations.add(new Origination(NodeField.of(node, o), Optional.of(NodeField.of(node.getSource(), fi.getField())), Strength.STRONG));
                     }
                 });
-                return super.visitProjectNode(node, context);
+                return super.visitProject(node, context);
             }
 
             @Override
-            public Void visitScanNode(PScan node, Void context)
+            public Void visitScan(PScan node, Void context)
             {
                 addGenerator(node);
                 return null;
             }
 
             @Override
-            public Void visitStateNode(PState node, Void context)
+            public Void visitState(PState node, Void context)
             {
                 addSimpleSingleSource(node);
-                return super.visitStateNode(node, context);
+                return super.visitState(node, context);
             }
 
             @Override
-            public Void visitUnionNode(PUnion node, Void context)
+            public Void visitUnion(PUnion node, Void context)
             {
-                return super.visitUnionNode(node, context);
+                return super.visitUnion(node, context);
             }
 
             @Override
-            public Void visitUnnestNode(PUnnest node, Void context)
+            public Void visitUnnest(PUnnest node, Void context)
             {
-                return super.visitUnnestNode(node, context);
+                return super.visitUnnest(node, context);
             }
 
             @Override
-            public Void visitValuesNode(PValues node, Void context)
+            public Void visitValues(PValues node, Void context)
             {
                 addGenerator(node);
                 return null;

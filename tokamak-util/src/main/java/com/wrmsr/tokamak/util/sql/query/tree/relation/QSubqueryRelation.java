@@ -38,6 +38,6 @@ public final class QSubqueryRelation
     @Override
     public <R, C> R accept(QRelationVisitor<R, C> visitor, C context)
     {
-        return visitor.visitQSubqueryRelation(this, context);
+        return visitor.visitSubqueryRelation(this, context);
     }
 }

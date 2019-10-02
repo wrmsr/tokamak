@@ -36,6 +36,6 @@ public final class QReferenceRelation
     @Override
     public <R, C> R accept(QRelationVisitor<R, C> visitor, C context)
     {
-        return visitor.visitQReferenceRelation(this, context);
+        return visitor.visitReferenceRelation(this, context);
     }
 }

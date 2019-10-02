@@ -65,6 +65,6 @@ public final class JLabeledStatement
     @Override
     public <R, C> R accept(JStatementVisitor<R, C> visitor, C context)
     {
-        return visitor.visitJLabeledStatement(this, context);
+        return visitor.visitLabeledStatement(this, context);
     }
 }

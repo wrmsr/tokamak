@@ -65,6 +65,6 @@ public final class JIdent
     @Override
     public <R, C> R accept(JExpressionVisitor<R, C> visitor, C context)
     {
-        return visitor.visitJIdent(this, context);
+        return visitor.visitIdent(this, context);
     }
 }

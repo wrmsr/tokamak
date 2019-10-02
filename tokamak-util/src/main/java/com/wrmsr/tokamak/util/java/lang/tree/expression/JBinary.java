@@ -75,6 +75,6 @@ public final class JBinary
     @Override
     public <R, C> R accept(JExpressionVisitor<R, C> visitor, C context)
     {
-        return visitor.visitJBinary(this, context);
+        return visitor.visitBinary(this, context);
     }
 }

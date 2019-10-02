@@ -72,6 +72,6 @@ public final class JAssignment
     @Override
     public <R, C> R accept(JExpressionVisitor<R, C> visitor, C context)
     {
-        return visitor.visitJAssignment(this, context);
+        return visitor.visitAssignment(this, context);
     }
 }
