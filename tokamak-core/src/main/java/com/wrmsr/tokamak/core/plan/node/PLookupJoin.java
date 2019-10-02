@@ -49,7 +49,7 @@ public final class PLookupJoin
                 @JsonProperty("node") PNode node,
                 @JsonProperty("fields") Set<String> fields)
         {
-            this.node = node;
+            this.node = checkNotNull(node);
             this.fields = ImmutableSet.copyOf(checkOrdered(fields));
             this.fields.forEach(f -> checkArgument(node.getFields().contains(f)));
         }
