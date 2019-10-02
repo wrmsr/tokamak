@@ -24,7 +24,6 @@ import com.wrmsr.tokamak.core.parse.SqlParser;
 import com.wrmsr.tokamak.core.plan.Plan;
 import com.wrmsr.tokamak.core.plan.node.PNode;
 import com.wrmsr.tokamak.core.plan.transform.PTransforms;
-import com.wrmsr.tokamak.core.tree.TreeBuilding;
 import com.wrmsr.tokamak.core.tree.TreeParsing;
 import com.wrmsr.tokamak.core.tree.TreePlanner;
 import com.wrmsr.tokamak.core.tree.TreeRendering;
@@ -117,7 +116,7 @@ public class TpchParserTest
             Catalog catalog = new Catalog(ImmutableList.of(rootCatalog));
 
             SqlParser parser = TreeParsing.parse(str);
-            TNode treeNode = TreeBuilding.build(parser.statement());
+            TNode treeNode = TreeParsing.build(parser.statement());
             System.out.println(TreeRendering.render(treeNode));
 
             treeNode = ViewInlining.inlineViews(treeNode, catalog);

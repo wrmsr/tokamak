@@ -16,7 +16,6 @@ package com.wrmsr.tokamak.core.tree.transform;
 import com.wrmsr.tokamak.core.catalog.Catalog;
 import com.wrmsr.tokamak.core.catalog.View;
 import com.wrmsr.tokamak.core.parse.SqlParser;
-import com.wrmsr.tokamak.core.tree.TreeBuilding;
 import com.wrmsr.tokamak.core.tree.TreeParsing;
 import com.wrmsr.tokamak.core.tree.node.TNode;
 import com.wrmsr.tokamak.core.tree.node.TSelect;
@@ -45,7 +44,7 @@ public final class ViewInlining
                     if (viewOpt.isPresent()) {
                         View view = viewOpt.get();
                         SqlParser viewParser = TreeParsing.parse(view.getSql());
-                        TSelect viewSelect = (TSelect) TreeBuilding.build(viewParser.statement());
+                        TSelect viewSelect = (TSelect) TreeParsing.build(viewParser.statement());
                         TSelect processedSelect = (TSelect) viewSelect.accept(this, context);
                         return new TSubqueryRelation(processedSelect);
                     }

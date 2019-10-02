@@ -13,9 +13,60 @@
  */
 package com.wrmsr.tokamak.core.search;
 
+import com.wrmsr.tokamak.core.parse.SearchBaseVisitor;
+import com.wrmsr.tokamak.core.parse.SearchLexer;
+import com.wrmsr.tokamak.core.parse.SearchParser;
+import com.wrmsr.tokamak.core.search.node.SNode;
+import org.antlr.v4.runtime.CharStream;
+import org.antlr.v4.runtime.CharStreams;
+import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.tree.ParseTree;
+
+import java.util.List;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.collect.ImmutableList.toImmutableList;
+
 public final class SearchParsing
 {
     private SearchParsing()
     {
+    }
+
+    public static SearchParser parse(String str)
+    {
+        CharStream input = CharStreams.fromString(str);
+        SearchLexer lexer = new SearchLexer(input);
+        CommonTokenStream tokens = new CommonTokenStream(lexer);
+        return new SearchParser(tokens);
+    }
+
+    public static SNode build(ParseTree tree)
+    {
+        return tree.accept(new SearchBaseVisitor<SNode>()
+        {
+            @Override
+            protected SNode defaultResult()
+            {
+                return super.defaultResult();
+            }
+
+            @Override
+            protected SNode aggregateResult(SNode aggregate, SNode nextResult)
+            {
+                checkState(aggregate == null);
+                return checkNotNull(nextResult);
+            }
+
+            private <T> List<T> visit(List<? extends ParserRuleContext> contexts, Class<T> cls)
+            {
+                return contexts.stream()
+                        .map(this::visit)
+                        .map(cls::cast)
+                        .collect(toImmutableList());
+            }
+        });
     }
 }

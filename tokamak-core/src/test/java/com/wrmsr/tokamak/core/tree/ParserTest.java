@@ -52,7 +52,7 @@ public class ParserTest
             System.out.println(str);
             SqlParser parser = TreeParsing.parse(str);
             System.out.println(parser);
-            TNode node = TreeBuilding.build(parser.statement());
+            TNode node = TreeParsing.build(parser.statement());
             System.out.println(getSelectItemText(node));
         }
     }
@@ -75,7 +75,7 @@ public class ParserTest
             for (boolean mode : new boolean[] {false, true}) {
                 System.out.println(mode);
                 SqlParser parser = TreeParsing.parse(str);
-                TNode node = TreeBuilding.build(parser.statement(), ParseOptions.builder().twoQuotesAsEscapedQuote(mode).build());
+                TNode node = TreeParsing.build(parser.statement(), ParseOptions.builder().twoQuotesAsEscapedQuote(mode).build());
                 System.out.println(getSelectItemText(node));
             }
             System.out.println();
@@ -90,7 +90,7 @@ public class ParserTest
         }) {
             System.out.println(str);
             SqlParser parser = TreeParsing.parse(str);
-            TNode node = TreeBuilding.build(parser.statement());
+            TNode node = TreeParsing.build(parser.statement());
             System.out.println(node);
         }
     }
