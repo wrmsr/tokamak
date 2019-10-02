@@ -24,17 +24,21 @@ public class ParserTest
             throws Throwable
     {
         for (String str : new String[] {
-                "select *",
-                "select 420",
-                "select /*+ hint */ 1",
-                "select 'hu'",
-                "select a",
-                "select a from a",
-                "select a() as c, d from e",
-                "select a(b) as c, d from e",
-                "select a(b, x) as c, d from e",
-                "select a // comment",
-                "select a -- comment",
+                // "select *",
+                // "select 420",
+                // "select /*+ hint */ 1",
+                // "select 'hu'",
+                // "select a",
+                // "select a from a",
+                // "select a() as c, d from e",
+                // "select a(b) as c, d from e",
+                // "select a(b, x) as c, d from e",
+                // "select a // comment",
+                // "select a -- comment",
+                "select 'hi' a",
+                "select '''hi''' a",
+                "select '''hi'there''' a",
+                "select ''''hi'''' a",
         }) {
             System.out.println(str);
             SqlParser parser = TreeParsing.parse(str);

@@ -90,12 +90,6 @@ public final class TreeBuilding
             }
 
             @Override
-            public TNode visitLongStringLiteral(SqlParser.LongStringLiteralContext ctx)
-            {
-                return new TStringLiteral(ctx.LONG_STRING().getText());
-            }
-
-            @Override
             public TNode visitNumberLiteral(SqlParser.NumberLiteralContext ctx)
             {
                 return new TNumberLiteral(Long.parseLong(ctx.getText()));
