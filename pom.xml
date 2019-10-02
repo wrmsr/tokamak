@@ -672,7 +672,7 @@
             <dependency>
                 <groupId>com.facebook.presto</groupId>
                 <artifactId>presto-bytecode</artifactId>
-                <version>0.225</version>
+                <version>0.226</version>
             </dependency>
 
             <dependency>

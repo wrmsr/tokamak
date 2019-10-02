@@ -50,7 +50,7 @@ dependency-tree: java-home
 
 .PHONY: dependency-updates
 dependency-updates: java-home
-	JAVA_HOME=$(JAVA_HOME) ./mvnw versions:display-dependency-updates
+	JAVA_HOME=$(JAVA_HOME) ./mvnw -N versions:display-dependency-updates
 
 
 # Python
