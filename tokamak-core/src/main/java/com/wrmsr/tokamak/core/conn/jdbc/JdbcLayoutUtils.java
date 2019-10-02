@@ -13,16 +13,23 @@
  */
 package com.wrmsr.tokamak.core.conn.jdbc;
 
+import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.core.layout.RowLayout;
 import com.wrmsr.tokamak.core.layout.TableLayout;
+import com.wrmsr.tokamak.core.layout.field.Field;
+import com.wrmsr.tokamak.core.layout.field.FieldAnnotation;
 import com.wrmsr.tokamak.core.layout.field.FieldCollection;
-import com.wrmsr.tokamak.util.sql.metadata.ColumnMetaData;
+import com.wrmsr.tokamak.core.type.Type;
 import com.wrmsr.tokamak.util.sql.metadata.IndexMetaData;
 import com.wrmsr.tokamak.util.sql.metadata.PrimaryKeyMetaData;
 import com.wrmsr.tokamak.util.sql.metadata.TableDescription;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
 import static com.google.common.collect.ImmutableList.toImmutableList;
-import static com.google.common.collect.ImmutableMap.toImmutableMap;
+import static com.google.common.collect.ImmutableSet.toImmutableSet;
 
 public final class JdbcLayoutUtils
 {
@@ -32,10 +39,25 @@ public final class JdbcLayoutUtils
 
     public static RowLayout buildRowLayout(TableDescription tableDescription)
     {
-        return new RowLayout(FieldCollection.of(
-                tableDescription.getColumnMetaDatas().stream().collect(toImmutableMap(
-                        ColumnMetaData::getColumnName,
-                        JdbcTypeUtils::getTypeForColumn))));
+        Set<String> pks;
+        if (tableDescription.getCompositePrimaryKeyMetaData() != null) {
+            pks = tableDescription.getCompositePrimaryKeyMetaData().stream().map(PrimaryKeyMetaData::getColumnName).collect(toImmutableSet());
+        }
+        else {
+            pks = ImmutableSet.of();
+        }
+
+        FieldCollection.Builder builder = FieldCollection.builder();
+        tableDescription.getColumnMetaDatas().forEach(cmd -> {
+            String name = cmd.getColumnName();
+            Type type = JdbcTypeUtils.getTypeForColumn(cmd);
+            List<FieldAnnotation> anns = new ArrayList<>();
+            if (pks.contains(name)) {
+                anns.add(FieldAnnotation.id());
+            }
+            builder.add(new Field(name, type, anns));
+        });
+        return new RowLayout(builder.build());
     }
 
     public static TableLayout buildTableLayout(TableDescription tableDescription)
