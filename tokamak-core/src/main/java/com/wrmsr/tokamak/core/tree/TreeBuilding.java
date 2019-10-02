@@ -157,21 +157,31 @@ public final class TreeBuilding
             }
 
             @Override
+            public TNode visitSingleQuotedStringLiteral(SqlParser.SingleQuotedStringLiteralContext ctx)
+            {
+                String raw = ctx.getText();
+                checkState(raw.length() >= 2 && raw.startsWith("'") && raw.endsWith("'"));
+                return new TStringLiteral(TreeStrings.escaped(raw.substring(1, raw.length() - 1)));
+            }
+
+            @Override
             public TNode visitSingleStatement(SqlParser.SingleStatementContext ctx)
             {
                 return visit(ctx.statement());
             }
 
             @Override
-            public TNode visitStringLiteral(SqlParser.StringLiteralContext ctx)
-            {
-                return new TStringLiteral(ctx.STRING().getText());
-            }
-
-            @Override
             public TNode visitTableName(SqlParser.TableNameContext ctx)
             {
                 return new TTableName((TQualifiedName) visit(ctx.qualifiedName()));
+            }
+
+            @Override
+            public TNode visitTripleQuotedStringLiteral(SqlParser.TripleQuotedStringLiteralContext ctx)
+            {
+                String raw = ctx.getText();
+                checkState(raw.length() >= 6 && raw.startsWith("'''") && raw.endsWith("'''"));
+                return new TStringLiteral(TreeStrings.escaped(raw.substring(3, raw.length() - 3)));
             }
         });
     }

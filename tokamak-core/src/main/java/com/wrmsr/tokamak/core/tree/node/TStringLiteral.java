@@ -13,19 +13,22 @@
  */
 package com.wrmsr.tokamak.core.tree.node;
 
+import com.wrmsr.tokamak.core.tree.TreeStrings;
 import com.wrmsr.tokamak.core.tree.node.visitor.TNodeVisitor;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public final class TStringLiteral
         extends TLiteral
 {
-    private final String value;
+    private final TreeStrings.Escaped value;
 
-    public TStringLiteral(String value)
+    public TStringLiteral(TreeStrings.Escaped value)
     {
-        this.value = value;
+        this.value = checkNotNull(value);
     }
 
-    public String getValue()
+    public TreeStrings.Escaped getValue()
     {
         return value;
     }
