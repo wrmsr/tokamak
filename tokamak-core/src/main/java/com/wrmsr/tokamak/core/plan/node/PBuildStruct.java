@@ -16,12 +16,19 @@ package com.wrmsr.tokamak.core.plan.node;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.core.layout.field.FieldCollection;
 import com.wrmsr.tokamak.core.plan.node.visitor.PNodeVisitor;
 
 import javax.annotation.concurrent.Immutable;
 
+import java.util.Set;
+
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.wrmsr.tokamak.util.MoreCollections.checkOrdered;
+import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
+import static com.wrmsr.tokamak.util.MorePreconditions.checkUnique;
 
 @Immutable
 public final class PBuildStruct
@@ -29,14 +36,21 @@ public final class PBuildStruct
         implements PSingleSource
 {
     private final PNode source;
+    private final Set<String> structFields;
+    private final String structField;
 
     @JsonCreator
     public PBuildStruct(
             @JsonProperty("name") String name,
-            @JsonProperty("source") PNode source)
+            @JsonProperty("source") PNode source,
+            @JsonProperty("structFields") Iterable<String> structFields,
+            @JsonProperty("structFields") String structField)
     {
         super(name);
         this.source = checkNotNull(source);
+        this.structFields = ImmutableSet.copyOf(checkUnique(ImmutableList.copyOf(checkOrdered(structFields))));
+        this.structField = checkNotEmpty(structField);
+        this.structFields.forEach(f -> checkNotEmpty(f));
     }
 
     @JsonProperty("source")
@@ -44,6 +58,18 @@ public final class PBuildStruct
     public PNode getSource()
     {
         return source;
+    }
+
+    @JsonProperty("structFields")
+    public Set<String> getStructFields()
+    {
+        return structFields;
+    }
+
+    @JsonProperty("structField")
+    public String getStructField()
+    {
+        return structField;
     }
 
     @Override

@@ -19,11 +19,20 @@ import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.core.exec.Reflection;
 import com.wrmsr.tokamak.core.type.Types;
+import com.wrmsr.tokamak.core.util.ApiJson;
 import com.wrmsr.tokamak.util.json.Json;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class NodesTest
 {
+    @BeforeClass
+    public static void beforeClass()
+            throws Throwable
+    {
+        ApiJson.installStatics();
+    }
+
     @Test
     public void testJsonStuff()
             throws Throwable
@@ -41,6 +50,11 @@ public class NodesTest
         System.out.println(id);
     }
 
+    public static long zero()
+    {
+        return 0L;
+    }
+
     @Test
     public void testNodes()
             throws Throwable
@@ -52,18 +66,24 @@ public class NodesTest
                 ImmutableSet.of("id"),
                 ImmutableSet.of());
 
+        String json = Json.writeValuePretty(scanNode);
+        System.out.println(json);
+
+        PNode deserNode = Json.readValue(json, PNode.class);
+        System.out.println(deserNode);
+
         PNode projectNode = new PProject(
                 "project0",
                 scanNode,
                 PProjection.of(
                         "id", "id",
-                        "fn", Reflection.reflect(() -> 0L)
+                        "fn", Reflection.reflect(NodesTest.class.getDeclaredMethod("zero"))
                 ));
 
-        String json = Json.writeValuePretty(projectNode);
+        json = Json.writeValuePretty(projectNode);
         System.out.println(json);
 
-        PNode deserNode = Json.readValue(json, PNode.class);
+        deserNode = Json.readValue(json, PNode.class);
         System.out.println(deserNode);
     }
 }

@@ -20,6 +20,7 @@ import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.core.layout.field.FieldCollection;
 import com.wrmsr.tokamak.core.plan.node.visitor.PNodeVisitor;
 import com.wrmsr.tokamak.core.type.Type;
+import com.wrmsr.tokamak.util.collect.OrderPreservingImmutableMap;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -28,6 +29,7 @@ import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
+import static com.wrmsr.tokamak.util.MoreCollections.checkOrdered;
 
 @Immutable
 public final class PScan
@@ -40,10 +42,10 @@ public final class PScan
     private final Set<String> idNodes;
 
     @JsonCreator
-    public PScan(
+    private PScan(
             @JsonProperty("name") String name,
             @JsonProperty("schemaTable") SchemaTable schemaTable,
-            @JsonProperty("fields") Map<String, Type> fields,
+            @JsonProperty("fields") OrderPreservingImmutableMap<String, Type> fields,
             @JsonProperty("idFields") Set<String> idFields,
             @JsonProperty("idNodes") Set<String> idNodes)
     {
@@ -59,16 +61,37 @@ public final class PScan
         checkInvariants();
     }
 
+    public PScan(
+            String name,
+            SchemaTable schemaTable,
+            Map<String, Type> fields,
+            Set<String> idFields,
+            Set<String> idNodes)
+    {
+        this(
+                name,
+                schemaTable,
+                new OrderPreservingImmutableMap<>(checkOrdered(fields)),
+                idFields,
+                idNodes);
+    }
+
     @JsonProperty("schemaTable")
     public SchemaTable getSchemaTable()
     {
         return schemaTable;
     }
 
-    @JsonProperty("fields")
+    @Override
     public FieldCollection getFields()
     {
         return fields;
+    }
+
+    @JsonProperty("fields")
+    private OrderPreservingImmutableMap<String, Type> getJsonFields()
+    {
+        return new OrderPreservingImmutableMap<>(fields.getTypesByName());
     }
 
     @JsonProperty("idFields")

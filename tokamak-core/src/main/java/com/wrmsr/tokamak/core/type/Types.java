@@ -51,6 +51,7 @@ public final class Types
       - ip
      - hppc
      - pluggability
+     - structural areEquivalent
     */
 
     private Types()
@@ -147,5 +148,13 @@ public final class Types
                     }
                     return e.getKey() + '=' + vs;
                 }).collect(toImmutableList())) + '>';
+    }
+
+    public static boolean areEquivalent(Type l, Type r)
+    {
+        checkNotNull(l);
+        checkNotNull(r);
+        // FIXME: structural
+        return l.toSpec().equals(r.toSpec());
     }
 }

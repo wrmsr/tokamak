@@ -47,7 +47,9 @@ public abstract class PNodeRewriter<C>
     {
         return new PBuildStruct(
                 visitNodeName(node.getName(), context),
-                get(node.getSource(), context));
+                get(node.getSource(), context),
+                node.getStructFields(),
+                node.getStructField());
     }
 
     @Override

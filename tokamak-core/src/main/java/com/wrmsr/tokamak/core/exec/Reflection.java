@@ -38,15 +38,27 @@ public final class Reflection
 
     private static final AtomicInteger reflectedCount = new AtomicInteger();
 
-    public static Executable reflect(Method method, String name)
+    public static Executable reflectWithoutHandle(Method method, String name)
     {
-        MethodHandle handle;
-        try {
-            handle = MethodHandles.lookup().unreflect(method);
-        }
-        catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
+        return new SimpleExecutable(
+                name,
+                new FunctionType(
+                        Types.fromJavaType(method.getReturnType()),
+                        Arrays.stream(method.getParameterTypes()).map(Types::fromJavaType).collect(toImmutableList())),
+                args -> {
+                    try {
+                        return method.invoke(args);
+                    }
+                    catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                });
+    }
+
+    public static Executable reflectWithHandle(Method method, String name)
+            throws IllegalAccessException
+    {
+        MethodHandle handle = MethodHandles.lookup().unreflect(method);
         return new SimpleExecutable(
                 name,
                 new FunctionType(
@@ -64,6 +76,16 @@ public final class Reflection
                         throw new RuntimeException(e);
                     }
                 });
+    }
+
+    public static Executable reflect(Method method, String name)
+    {
+        try {
+            return reflectWithHandle(method, name);
+        }
+        catch (IllegalAccessException e) {
+            return reflectWithoutHandle(method, name);
+        }
     }
 
     public static Executable reflect(Method method)

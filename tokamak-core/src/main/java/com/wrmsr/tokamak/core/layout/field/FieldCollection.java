@@ -16,7 +16,9 @@ package com.wrmsr.tokamak.core.layout.field;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.core.type.Type;
+import com.wrmsr.tokamak.core.type.Types;
 import com.wrmsr.tokamak.util.collect.StreamableIterable;
 import com.wrmsr.tokamak.util.lazy.SupplierLazyValue;
 
@@ -28,6 +30,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.function.BinaryOperator;
+import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.stream.Collector;
 import java.util.stream.Stream;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -114,6 +121,27 @@ public final class FieldCollection
         });
     }
 
+    public boolean containsEquivalent(Field field)
+    {
+        Field thisField = fieldsByName.get(field.getName());
+        return thisField != null && Types.areEquivalent(field.getType(), thisField.getType());
+    }
+
+    public boolean containsEquivalents(Iterator<Field> fields)
+    {
+        while (fields.hasNext()) {
+            if (!containsEquivalent(fields.next())) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public boolean containsEquivalents(Iterable<Field> fields)
+    {
+        return containsEquivalents(fields.iterator());
+    }
+
     public static final class Builder
     {
         private final ImmutableList.Builder<Field> fields = ImmutableList.builder();
@@ -189,5 +217,41 @@ public final class FieldCollection
     public final FieldCollection withoutAnnotation(Class<? extends FieldAnnotation>... annotationCls)
     {
         return builder().addAll(fields.stream().map(f -> f.withoutAnnotation(annotationCls))).build();
+    }
+
+    public static Collector<Field, ?, FieldCollection> toFieldCollection()
+    {
+        return new Collector<Field, Builder, FieldCollection>()
+        {
+            @Override
+            public Supplier<Builder> supplier()
+            {
+                return () -> builder();
+            }
+
+            @Override
+            public BiConsumer<Builder, Field> accumulator()
+            {
+                return (b, f) -> b.add(f);
+            }
+
+            @Override
+            public BinaryOperator<Builder> combiner()
+            {
+                return (l, r) -> l.addAll(r.build());
+            }
+
+            @Override
+            public Function<Builder, FieldCollection> finisher()
+            {
+                return b -> b.build();
+            }
+
+            @Override
+            public Set<Characteristics> characteristics()
+            {
+                return ImmutableSet.of();
+            }
+        };
     }
 }
