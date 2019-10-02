@@ -100,6 +100,11 @@ public final class MoreCollections
         return b;
     }
 
+    public static <K, V> Map<V, K> invertMap(Map<K, V> map)
+    {
+        return map.entrySet().stream().collect(toImmutableMap(Map.Entry::getValue, Map.Entry::getKey));
+    }
+
     public static <T> Set<T> newIdentityHashSetOf(Iterable<T> src)
     {
         Set<T> set = newIdentityHashSet();

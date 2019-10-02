@@ -24,6 +24,7 @@ public class EscapeTest
     {
         ImmutableMap.<String, String>builder()
                 .put("abcd", "abcd")
+                .put("ab'cd", "ab\\'cd")
                 .build().forEach((u, e) -> {
             TreeStrings.Unescaped us = TreeStrings.unescaped(u);
             TreeStrings.Escaped es = us.escaped();

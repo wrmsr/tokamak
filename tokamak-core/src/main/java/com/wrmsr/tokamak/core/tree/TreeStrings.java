@@ -33,19 +33,24 @@ public final class TreeStrings
     {
     }
 
+    public static final Character QUOTE_CHAR = '\'';
+
+    public static final Character ESCAPE_CHAR = '\\';
+
+    public static final String SINGLE_QUOTE = "" + QUOTE_CHAR;
+    public static final String TRIPLE_QUOTE = "" + QUOTE_CHAR + QUOTE_CHAR + QUOTE_CHAR;
+
     public static final Set<Character> TRIPLE_QUOTE_CHARS = ImmutableSet.copyOf(new Character[] {
-            '\'',
             '\n',
             '\r',
+            QUOTE_CHAR,
     });
 
-    public static final Character ESCAPE_CHAR = '\'';
-
-    public static final BiMap<Character, Character> ESCAPED_BY_UNESCAPED_MAP = ImmutableBiMap.<Character, Character>builder()
-            .put('\'', '\'')
+    public static final BiMap<Character, Character> ESCAPED_BY_UNESCAPED_CHARS = ImmutableBiMap.<Character, Character>builder()
             .put('\n', 'n')
             .put('\r', 'r')
             .put(ESCAPE_CHAR, ESCAPE_CHAR)
+            .put(QUOTE_CHAR, QUOTE_CHAR)
             .build();
 
     public static final class Escaped
@@ -63,7 +68,7 @@ public final class TreeStrings
 
         public String quoted()
         {
-            return shouldTripleQuote() ? "'''" + value + "'''" : "'" + value + "'";
+            return shouldTripleQuote() ? TRIPLE_QUOTE + value + TRIPLE_QUOTE_CHARS : SINGLE_QUOTE + value + SINGLE_QUOTE;
         }
 
         public Unescaped unescaped()
@@ -71,7 +76,7 @@ public final class TreeStrings
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < value.length(); ++i) {
                 if (value.charAt(i) == ESCAPE_CHAR) {
-                    sb.append(checkNotNull(ESCAPED_BY_UNESCAPED_MAP.inverse().get(value.charAt(++i))));
+                    sb.append(checkNotNull(ESCAPED_BY_UNESCAPED_CHARS.inverse().get(value.charAt(++i))));
                 }
                 else {
                     sb.append(value.charAt(i));
@@ -93,12 +98,12 @@ public final class TreeStrings
         {
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < value.length(); ++i) {
-                Character rep = ESCAPED_BY_UNESCAPED_MAP.get(value.charAt(i));
+                Character rep = ESCAPED_BY_UNESCAPED_CHARS.get(value.charAt(i));
                 if (rep != null) {
                     sb.append(ESCAPE_CHAR).append(rep);
                 }
                 else {
-                    sb.append(rep);
+                    sb.append(value.charAt(i));
                 }
             }
             return new Escaped(sb.toString());
