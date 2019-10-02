@@ -145,7 +145,7 @@ public final class TreeRendering
             @Override
             public Void visitStringLiteral(TStringLiteral treeNode, Void context)
             {
-                sb.append(treeNode.getValue());
+                sb.append(treeNode.getValue().quoted());
                 return null;
             }
 

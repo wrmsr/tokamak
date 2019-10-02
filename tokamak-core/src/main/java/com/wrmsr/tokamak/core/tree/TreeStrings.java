@@ -13,7 +13,10 @@
  */
 package com.wrmsr.tokamak.core.tree;
 
+import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.util.box.Box;
+
+import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -23,21 +26,46 @@ public final class TreeStrings
     {
     }
 
+    public static final Set<Character> ESCAPED_CHARS = ImmutableSet.of(
+            '\'',
+            '\\'
+    );
+
     public static final class Escaped
             extends Box<String>
     {
-        public Escaped(String value)
+        private Escaped(String value)
         {
             super(checkNotNull(value));
+        }
+
+        public boolean shouldTripleQuote()
+        {
+            return value.contains("'");
+        }
+
+        public String quoted()
+        {
+            return shouldTripleQuote() ? "'''" + value + "'''" : "'" + value + "'";
+        }
+
+        public Unescaped unescaped()
+        {
+
         }
     }
 
     public static final class Unescaped
             extends Box<String>
     {
-        public Unescaped(String value)
+        private Unescaped(String value)
         {
             super(checkNotNull(value));
+        }
+
+        public Escaped escaped()
+        {
+
         }
     }
 
