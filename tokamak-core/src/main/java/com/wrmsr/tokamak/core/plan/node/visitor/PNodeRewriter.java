@@ -112,7 +112,6 @@ public abstract class PNodeRewriter<C>
         return new PState(
                 visitNodeName(node.getName(), context),
                 get(node.getSource(), context),
-                node.getIdFields(),
                 node.getWriterTargets(),
                 node.isDenormalized(),
                 node.getInvalidations().entrySet().stream()

@@ -217,6 +217,14 @@ public final class FieldOriginAnalysis
             @Override
             public Void visitEquiJoin(PEquiJoin node, Void context)
             {
+                node.getBranches().forEach(b -> {
+                    Strength str =
+                            ((node.getMode() == PEquiJoin.Mode.INNER && b == node.getBranches().get(0)) || node.getMode() == PEquiJoin.Mode.FULL) ?
+                                    Strength.STRONG : Strength.WEAK;
+                    b.getNode().getFields().getNames().forEach(f -> {
+                        originations.add(new Origination(NodeField.of(node, f), NodeField.of(b.getNode(), f), str));
+                    });
+                });
                 return super.visitEquiJoin(node, context);
             }
 

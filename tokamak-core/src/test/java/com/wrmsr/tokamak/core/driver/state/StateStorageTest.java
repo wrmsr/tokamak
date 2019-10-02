@@ -44,7 +44,6 @@ public class StateStorageTest
         PState stateNode = new PState(
                 "state",
                 scanNode,
-                Optional.of(ImmutableList.of(ImmutableSet.of("id"))),
                 ImmutableList.of(),
                 false,
                 ImmutableMap.of(),

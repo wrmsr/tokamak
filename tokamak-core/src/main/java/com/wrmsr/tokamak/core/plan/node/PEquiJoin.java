@@ -70,7 +70,7 @@ public final class PEquiJoin
                 @JsonProperty("node") PNode node,
                 @JsonProperty("fields") List<String> fields)
         {
-            this.node = node;
+            this.node = checkNotNull(node);
             this.fields = checkNotEmpty(ImmutableList.copyOf(fields));
             this.fields.forEach(f -> checkArgument(node.getFields().contains(f)));
         }

@@ -151,7 +151,6 @@ public class CoreTest
         PNode stateNode0 = new PState(
                 "state0",
                 scanNode0,
-                Optional.of(ImmutableList.of(ImmutableSet.of("N_NATIONKEY"))),
                 ImmutableList.of(),
                 false,
                 ImmutableMap.of(),
@@ -187,7 +186,6 @@ public class CoreTest
         PNode stateNode1 = new PState(
                 "state1",
                 scanNode1,
-                Optional.of(ImmutableList.of(ImmutableSet.of("R_REGIONKEY"))),
                 ImmutableList.of(),
                 false,
                 ImmutableMap.of(),
@@ -205,7 +203,6 @@ public class CoreTest
         PNode persistNode0 = new PState(
                 "persist0",
                 equiJoinNode0,
-                Optional.of(ImmutableList.of(ImmutableSet.of("R_REGIONKEY"))),
                 ImmutableList.of(),
                 false,
                 ImmutableMap.of(),
