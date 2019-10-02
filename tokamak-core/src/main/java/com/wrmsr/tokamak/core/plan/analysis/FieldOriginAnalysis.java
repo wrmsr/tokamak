@@ -20,6 +20,7 @@ import com.wrmsr.tokamak.core.plan.node.PCache;
 import com.wrmsr.tokamak.core.plan.node.PCrossJoin;
 import com.wrmsr.tokamak.core.plan.node.PEquiJoin;
 import com.wrmsr.tokamak.core.plan.node.PFilter;
+import com.wrmsr.tokamak.core.plan.node.PGenerator;
 import com.wrmsr.tokamak.core.plan.node.PGroupBy;
 import com.wrmsr.tokamak.core.plan.node.PLookupJoin;
 import com.wrmsr.tokamak.core.plan.node.PNode;
@@ -40,6 +41,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
@@ -103,10 +105,9 @@ public final class FieldOriginAnalysis
     public enum Strength
     {
         WEAK,
-        STRONG;
+        STRONG,
+        GENERATED,
     }
-
-    ;
 
     @Immutable
     public static final class Origination
@@ -121,6 +122,14 @@ public final class FieldOriginAnalysis
             this.source = checkNotNull(source);
             this.strength = checkNotNull(strength);
             source.ifPresent(s -> checkState(sink.node.getSources().contains(s.node)));
+            if (!source.isPresent()) {
+                checkArgument(strength == Strength.GENERATED);
+            }
+        }
+
+        private Origination(NodeField sink)
+        {
+            this(sink, Optional.empty(), Strength.GENERATED);
         }
 
         @Override
@@ -162,10 +171,16 @@ public final class FieldOriginAnalysis
 
         plan.getRoot().accept(new PNodeVisitor<Void, Void>()
         {
-            private void addSimple(PSingleSource node)
+            private void addGenerator(PGenerator node)
             {
                 node.getFields().getNames().forEach(f ->
-                        originations.add(new Origination(NodeField.of(node, f), Optional.of(NodeField.of(node.getSource(), f)), Strength.STRONG)));
+                        originations.add(new Origination(NodeField.of(node, f), Optional.empty(), Strength.STRONG)));
+            }
+
+            private void addSimpleSingleSource(PSingleSource node)
+            {
+                node.getFields().getNames().forEach(f ->
+                        originations.add(new Origination(NodeField.of(node, f))));
             }
 
             @Override
@@ -178,7 +193,7 @@ public final class FieldOriginAnalysis
             @Override
             public Void visitCacheNode(PCache node, Void context)
             {
-                addSimple(node);
+                addSimpleSingleSource(node);
                 return super.visitCacheNode(node, context);
             }
 
@@ -197,7 +212,7 @@ public final class FieldOriginAnalysis
             @Override
             public Void visitFilterNode(PFilter node, Void context)
             {
-                addSimple(node);
+                addSimpleSingleSource(node);
                 return super.visitFilterNode(node, context);
             }
 
@@ -228,13 +243,14 @@ public final class FieldOriginAnalysis
             @Override
             public Void visitScanNode(PScan node, Void context)
             {
+                addGenerator(node);
                 return null;
             }
 
             @Override
             public Void visitStateNode(PState node, Void context)
             {
-                addSimple(node);
+                addSimpleSingleSource(node);
                 return super.visitStateNode(node, context);
             }
 
@@ -253,6 +269,7 @@ public final class FieldOriginAnalysis
             @Override
             public Void visitValuesNode(PValues node, Void context)
             {
+                addGenerator(node);
                 return null;
             }
         }, null);
