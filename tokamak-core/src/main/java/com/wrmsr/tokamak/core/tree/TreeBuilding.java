@@ -166,8 +166,16 @@ public final class TreeBuilding
             {
                 String raw = ctx.getText();
                 checkState(raw.length() >= 2 && raw.startsWith("'") && raw.endsWith("'"));
-                if (options.isTwoQuotesAsEscapedQuote() && raw.length() >)
-                return new TStringLiteral(TreeStrings.escaped(raw.substring(1, raw.length() - 1)));
+                if (!options.isTwoQuotesAsEscapedQuote() && raw.length() >= 6 && raw.startsWith("'''") && raw.endsWith("'''")) {
+                    raw = raw.substring(3, raw.length() - 3);
+                }
+                else {
+                    raw = raw.substring(1, raw.length() - 1);
+                }
+                if (options.isTwoQuotesAsEscapedQuote()) {
+                    raw = raw.replaceAll("''", "'");
+                }
+                return new TStringLiteral(TreeStrings.escaped(raw));
             }
 
             @Override
@@ -187,7 +195,8 @@ public final class TreeBuilding
             {
                 String raw = ctx.getText();
                 checkState(raw.length() >= 6 && raw.startsWith("'''") && raw.endsWith("'''"));
-                return new TStringLiteral(TreeStrings.escaped(raw.substring(3, raw.length() - 3)));
+                raw = raw.substring(3, raw.length() - 3);
+                return new TStringLiteral(TreeStrings.escaped(raw));
             }
         });
     }

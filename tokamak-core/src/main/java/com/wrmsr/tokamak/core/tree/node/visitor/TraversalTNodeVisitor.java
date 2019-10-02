@@ -16,10 +16,11 @@ package com.wrmsr.tokamak.core.tree.node.visitor;
 import com.wrmsr.tokamak.core.tree.node.TAliasedRelation;
 import com.wrmsr.tokamak.core.tree.node.TExpressionSelectItem;
 import com.wrmsr.tokamak.core.tree.node.TFunctionCallExpression;
+import com.wrmsr.tokamak.core.tree.node.TNode;
 import com.wrmsr.tokamak.core.tree.node.TQualifiedNameExpression;
+import com.wrmsr.tokamak.core.tree.node.TSearch;
 import com.wrmsr.tokamak.core.tree.node.TSelect;
 import com.wrmsr.tokamak.core.tree.node.TSubqueryRelation;
-import com.wrmsr.tokamak.core.tree.node.TNode;
 
 public class TraversalTNodeVisitor<R, C>
         extends TNodeVisitor<R, C>
@@ -76,6 +77,14 @@ public class TraversalTNodeVisitor<R, C>
     public R visitSubqueryRelation(TSubqueryRelation node, C context)
     {
         node.getSelect().accept(this, context);
+
+        return null;
+    }
+
+    @Override
+    public R visitSearch(TSearch node, C context)
+    {
+        node.getArgs().forEach(a -> a.accept(this, context));
 
         return null;
     }

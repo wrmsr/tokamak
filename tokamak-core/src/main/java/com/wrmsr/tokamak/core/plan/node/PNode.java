@@ -27,6 +27,7 @@ import java.util.List;
         use = JsonTypeInfo.Id.NAME,
         include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonSubTypes({
+        @JsonSubTypes.Type(value = PBuildStruct.class, name = "buildStruct"),
         @JsonSubTypes.Type(value = PCache.class, name = "cache"),
         @JsonSubTypes.Type(value = PCrossJoin.class, name = "crossJoin"),
         @JsonSubTypes.Type(value = PEquiJoin.class, name = "equiJoin"),

@@ -20,18 +20,19 @@ import com.wrmsr.tokamak.core.tree.node.TExpressionSelectItem;
 import com.wrmsr.tokamak.core.tree.node.TFunctionCallExpression;
 import com.wrmsr.tokamak.core.tree.node.TIdentifier;
 import com.wrmsr.tokamak.core.tree.node.TLiteral;
+import com.wrmsr.tokamak.core.tree.node.TNode;
 import com.wrmsr.tokamak.core.tree.node.TNullLiteral;
 import com.wrmsr.tokamak.core.tree.node.TNumberLiteral;
 import com.wrmsr.tokamak.core.tree.node.TQualifiedName;
 import com.wrmsr.tokamak.core.tree.node.TQualifiedNameExpression;
 import com.wrmsr.tokamak.core.tree.node.TRelation;
+import com.wrmsr.tokamak.core.tree.node.TSearch;
 import com.wrmsr.tokamak.core.tree.node.TSelect;
 import com.wrmsr.tokamak.core.tree.node.TSelectItem;
 import com.wrmsr.tokamak.core.tree.node.TStatement;
 import com.wrmsr.tokamak.core.tree.node.TStringLiteral;
 import com.wrmsr.tokamak.core.tree.node.TSubqueryRelation;
 import com.wrmsr.tokamak.core.tree.node.TTableName;
-import com.wrmsr.tokamak.core.tree.node.TNode;
 
 import java.util.Objects;
 
@@ -100,6 +101,11 @@ public abstract class TNodeVisitor<R, C>
     public R visitRelation(TRelation node, C context)
     {
         return visitTreeNode(node, context);
+    }
+
+    public R visitSearch(TSearch node, C context)
+    {
+        return visitExpression(node, context);
     }
 
     public R visitSelect(TSelect node, C context)

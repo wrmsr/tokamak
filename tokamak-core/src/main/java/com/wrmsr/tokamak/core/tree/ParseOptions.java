@@ -16,6 +16,16 @@ package com.wrmsr.tokamak.core.tree;
 
 public class ParseOptions
 {
+    public ParseOptions()
+    {
+        this(builder());
+    }
+
+    public static Builder builder()
+    {
+        return new Builder();
+    }
+
     private boolean twoQuotesAsEscapedQuote;
 
     public boolean isTwoQuotesAsEscapedQuote()

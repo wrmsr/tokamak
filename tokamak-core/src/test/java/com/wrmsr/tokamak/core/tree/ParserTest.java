@@ -14,12 +14,20 @@
 package com.wrmsr.tokamak.core.tree;
 
 import com.wrmsr.tokamak.core.parse.SqlParser;
+import com.wrmsr.tokamak.core.tree.node.TExpressionSelectItem;
 import com.wrmsr.tokamak.core.tree.node.TNode;
+import com.wrmsr.tokamak.core.tree.node.TSelect;
+import com.wrmsr.tokamak.core.tree.node.TStringLiteral;
 import junit.framework.TestCase;
 
 public class ParserTest
         extends TestCase
 {
+    private static String getSelectItemText(TNode node)
+    {
+        return ((TStringLiteral) ((TExpressionSelectItem) ((TSelect) node).getItems().get(0)).getExpression()).getValue().getValue();
+    }
+
     public void testParse()
             throws Throwable
     {
@@ -44,8 +52,46 @@ public class ParserTest
             System.out.println(str);
             SqlParser parser = TreeParsing.parse(str);
             System.out.println(parser);
-            TNode treeNode = TreeBuilding.build(parser.statement());
-            System.out.println(treeNode);
+            TNode node = TreeBuilding.build(parser.statement());
+            System.out.println(getSelectItemText(node));
+        }
+    }
+
+    public void testParseQuoteMode()
+            throws Throwable
+    {
+        for (String str : new String[] {
+                "select 'hi' a",
+                "select 'h''i' a",
+                "select 'h\\''i' a",
+                "select '''hi''' a",
+                "select '''hi'there''' a",
+                "select ''''h''i''' a",
+                "select ''''h\\''i''' a",
+                "select ''''''' a",
+                "select '''''''' a",
+        }) {
+            System.out.println(str);
+            for (boolean mode : new boolean[] {false, true}) {
+                System.out.println(mode);
+                SqlParser parser = TreeParsing.parse(str);
+                TNode node = TreeBuilding.build(parser.statement(), ParseOptions.builder().twoQuotesAsEscapedQuote(mode).build());
+                System.out.println(getSelectItemText(node));
+            }
+            System.out.println();
+        }
+    }
+
+    public void testGarbage()
+            throws Throwable
+    {
+        for (String str : new String[] {
+                "select 'hi' a a a",
+        }) {
+            System.out.println(str);
+            SqlParser parser = TreeParsing.parse(str);
+            TNode node = TreeBuilding.build(parser.statement());
+            System.out.println(node);
         }
     }
 }
