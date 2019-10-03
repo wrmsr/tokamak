@@ -22,18 +22,19 @@ COPY .git /build/.git
 
 RUN cd /build && ./mvnw package -DskipTests
 
+RUN ( \
+    cd /build/tokamak-dist/target && \
+    tar xvf tokamak-*.tar.gz && \
+    mv $(find . -name 'tokamak-*' -type d | head -n 1) tokamak \
+)
+
 
 FROM openjdk:13-slim-buster
 COPY .dockertimestamp /
 
-COPY --from=build build/tokamak-dist/target/tokamak-*.tar.gz /tokamak-*.tar.gz
+COPY --from=build build/tokamak-dist/target/tokamak/ /tokamak
 
-RUN ( \
-    tar xvf tokamak-*.tar.gz && \
-    rm tokamak-*.tar.gz && \
-    mv $(find . -name 'tokamak-*' -type d | head -n 1) tokamak && \
-    (cd /tokamak/bin && for f in $(find * -type f -print) ; do ln -s "/tokamak/bin/$f" "/usr/bin/$f" ; done) \
-)
+RUN cd /tokamak/bin && for f in $(find * -type f -print) ; do ln -s "/tokamak/bin/$f" "/usr/bin/$f" ; done
 
 WORKDIR /root
 ENTRYPOINT ["tokamak"]
