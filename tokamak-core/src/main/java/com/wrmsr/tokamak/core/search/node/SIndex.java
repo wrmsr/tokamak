@@ -18,6 +18,18 @@ import com.wrmsr.tokamak.core.search.node.visitor.SNodeVisitor;
 public final class SIndex
         extends SNode
 {
+    private final int value;
+
+    public SIndex(int value)
+    {
+        this.value = value;
+    }
+
+    public int getValue()
+    {
+        return value;
+    }
+
     @Override
     public <R, C> R accept(SNodeVisitor<R, C> visitor, C context)
     {

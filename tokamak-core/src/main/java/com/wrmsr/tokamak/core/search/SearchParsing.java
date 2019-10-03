@@ -23,12 +23,21 @@ import com.wrmsr.tokamak.core.search.node.SCmp;
 import com.wrmsr.tokamak.core.search.node.SComparison;
 import com.wrmsr.tokamak.core.search.node.SCreateArray;
 import com.wrmsr.tokamak.core.search.node.SCreateObject;
+import com.wrmsr.tokamak.core.search.node.SCurrent;
+import com.wrmsr.tokamak.core.search.node.SExpressionRef;
+import com.wrmsr.tokamak.core.search.node.SFlattenArray;
 import com.wrmsr.tokamak.core.search.node.SFlattenObject;
+import com.wrmsr.tokamak.core.search.node.SFunctionCall;
+import com.wrmsr.tokamak.core.search.node.SIndex;
+import com.wrmsr.tokamak.core.search.node.SJsonLiteral;
 import com.wrmsr.tokamak.core.search.node.SNegate;
 import com.wrmsr.tokamak.core.search.node.SNode;
 import com.wrmsr.tokamak.core.search.node.SOr;
 import com.wrmsr.tokamak.core.search.node.SProject;
+import com.wrmsr.tokamak.core.search.node.SProperty;
+import com.wrmsr.tokamak.core.search.node.SSelection;
 import com.wrmsr.tokamak.core.search.node.SSequence;
+import com.wrmsr.tokamak.core.search.node.SSlice;
 import com.wrmsr.tokamak.core.search.node.SString;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
@@ -36,7 +45,9 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ParseTree;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.OptionalInt;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
@@ -139,6 +150,51 @@ public final class SearchParsing
             }
 
             @Override
+            public SNode visitBracketFlatten(SearchParser.BracketFlattenContext ctx)
+            {
+                return createProjectionIfChained(new SFlattenArray());
+            }
+
+            @Override
+            public SNode visitBracketIndex(SearchParser.BracketIndexContext ctx)
+            {
+                int index = Integer.parseInt(ctx.SIGNED_INT().getText());
+                chainedNode = createSequenceIfChained(new SIndex(index));
+                return null;
+            }
+
+            @Override
+            public SNode visitBracketSlice(SearchParser.BracketSliceContext ctx)
+            {
+                OptionalInt start = OptionalInt.empty();
+                OptionalInt stop = OptionalInt.empty();
+                OptionalInt step = OptionalInt.empty();
+                SearchParser.SliceContext sliceCtx = ctx.slice();
+                if (sliceCtx.start != null) {
+                    start = OptionalInt.of(Integer.parseInt(sliceCtx.start.getText()));
+                }
+                if (sliceCtx.stop != null) {
+                    stop = OptionalInt.of(Integer.parseInt(sliceCtx.stop.getText()));
+                }
+                if (sliceCtx.step != null) {
+                    step = OptionalInt.of(Integer.parseInt(sliceCtx.step.getText()));
+                    if (step.getAsInt() == 0) {
+                        throw new IllegalArgumentException();
+                    }
+                }
+                chainedNode = createProjectionIfChained(new SSlice(start, stop, step));
+                return null;
+            }
+
+            @Override
+            public SNode visitBracketStar(SearchParser.BracketStarContext ctx)
+            {
+                SNode projection = (chainedNode == null) ? new SCurrent() : chainedNode;
+                chainedNode = new SProject(projection);
+                return null;
+            }
+
+            @Override
             public SNode visitChainExpression(SearchParser.ChainExpressionContext ctx)
             {
                 chainedNode = visit(ctx.chainedExpression());
@@ -155,9 +211,56 @@ public final class SearchParsing
             }
 
             @Override
+            public SNode visitCurrentNode(SearchParser.CurrentNodeContext ctx)
+            {
+                if (chainedNode == null) {
+                    return new SCurrent();
+                }
+                else {
+                    SNode result = chainedNode;
+                    chainedNode = null;
+                    return result;
+                }
+            }
+
+            @Override
+            public SNode visitExpressionType(SearchParser.ExpressionTypeContext ctx)
+            {
+                SNode expression = createSequenceIfChained(visit(ctx.expression()));
+                return new SExpressionRef(expression);
+            }
+
+            @Override
+            public SNode visitFunctionExpression(SearchParser.FunctionExpressionContext ctx)
+            {
+                String name = ctx.NAME().getText();
+                int n = ctx.functionArg().size();
+                List<SNode> args = new ArrayList<>(n);
+                for (int i = 0; i < n; i++) {
+                    args.add(nonChainingVisit(ctx.functionArg(i)));
+                }
+                return createSequenceIfChained(new SFunctionCall(name, args));
+            }
+
+            @Override
+            public SNode visitIdentifier(SearchParser.IdentifierContext ctx)
+            {
+                return createSequenceIfChained(new SProperty(ctx.getText()));
+            }
+
+            @Override
             public SNode visitIdentifierExpression(SearchParser.IdentifierExpressionContext ctx)
             {
                 return visit(ctx.identifier());
+            }
+
+            @Override
+            public SNode visitLiteral(SearchParser.LiteralContext ctx)
+            {
+                visit(ctx.jsonValue());
+                // FIXME: unescape
+                String string = ctx.jsonValue().getText();
+                return new SJsonLiteral(string);
             }
 
             @Override
@@ -219,6 +322,13 @@ public final class SearchParsing
             {
                 // FIXME: shared escaping with tree
                 return new SString(ctx.RAW_STRING().getText());
+            }
+
+            @Override
+            public SNode visitSelect(SearchParser.SelectContext ctx)
+            {
+                chainedNode = createProjectionIfChained(new SSelection(nonChainingVisit(ctx.expression())));
+                return null;
             }
 
             @Override

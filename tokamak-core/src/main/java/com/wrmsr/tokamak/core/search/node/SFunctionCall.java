@@ -13,11 +13,35 @@
  */
 package com.wrmsr.tokamak.core.search.node;
 
+import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.core.search.node.visitor.SNodeVisitor;
+
+import java.util.List;
+
+import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 
 public final class SFunctionCall
         extends SNode
 {
+    private final String name;
+    private final List<SNode> args;
+
+    public SFunctionCall(String name, List<SNode> args)
+    {
+        this.name = checkNotEmpty(name);
+        this.args = ImmutableList.copyOf(args);
+    }
+
+    public String getName()
+    {
+        return name;
+    }
+
+    public List<SNode> getArgs()
+    {
+        return args;
+    }
+
     @Override
     public <R, C> R accept(SNodeVisitor<R, C> visitor, C context)
     {

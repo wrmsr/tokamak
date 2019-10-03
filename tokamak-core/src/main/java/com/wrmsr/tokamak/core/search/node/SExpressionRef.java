@@ -15,9 +15,23 @@ package com.wrmsr.tokamak.core.search.node;
 
 import com.wrmsr.tokamak.core.search.node.visitor.SNodeVisitor;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 public final class SExpressionRef
         extends SNode
 {
+    private final SNode expression;
+
+    public SExpressionRef(SNode expression)
+    {
+        this.expression = checkNotNull(expression);
+    }
+
+    public SNode getExpression()
+    {
+        return expression;
+    }
+
     @Override
     public <R, C> R accept(SNodeVisitor<R, C> visitor, C context)
     {

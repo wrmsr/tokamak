@@ -15,9 +15,23 @@ package com.wrmsr.tokamak.core.search.node;
 
 import com.wrmsr.tokamak.core.search.node.visitor.SNodeVisitor;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 public final class SJsonLiteral
         extends SNode
 {
+    private final String text;
+
+    public SJsonLiteral(String text)
+    {
+        this.text = checkNotNull(text);
+    }
+
+    public String getText()
+    {
+        return text;
+    }
+
     @Override
     public <R, C> R accept(SNodeVisitor<R, C> visitor, C context)
     {

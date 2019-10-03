@@ -15,9 +15,23 @@ package com.wrmsr.tokamak.core.search.node;
 
 import com.wrmsr.tokamak.core.search.node.visitor.SNodeVisitor;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 public final class SSelection
         extends SNode
 {
+    private final SNode child;
+
+    public SSelection(SNode child)
+    {
+        this.child = checkNotNull(child);
+    }
+
+    public SNode getChild()
+    {
+        return child;
+    }
+
     @Override
     public <R, C> R accept(SNodeVisitor<R, C> visitor, C context)
     {

@@ -15,9 +15,39 @@ package com.wrmsr.tokamak.core.search.node;
 
 import com.wrmsr.tokamak.core.search.node.visitor.SNodeVisitor;
 
+import java.util.OptionalInt;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+
 public final class SSlice
         extends SNode
 {
+    private final OptionalInt start;
+    private final OptionalInt stop;
+    private final OptionalInt step;
+
+    public SSlice(OptionalInt start, OptionalInt stop, OptionalInt step)
+    {
+        this.start = checkNotNull(start);
+        this.stop = checkNotNull(stop);
+        this.step = checkNotNull(step);
+    }
+
+    public OptionalInt getStart()
+    {
+        return start;
+    }
+
+    public OptionalInt getStop()
+    {
+        return stop;
+    }
+
+    public OptionalInt getStep()
+    {
+        return step;
+    }
+
     @Override
     public <R, C> R accept(SNodeVisitor<R, C> visitor, C context)
     {
