@@ -39,108 +39,108 @@ import java.util.Objects;
 
 public abstract class SNodeVisitor<R, C>
 {
-    protected R visitNode(SNode snode, C context)
+    protected R visitNode(SNode node, C context)
     {
-        throw new IllegalArgumentException(Objects.toString(snode));
+        throw new IllegalArgumentException(Objects.toString(node));
     }
 
-    public R visitAnd(SAnd snode, C context)
+    public R visitAnd(SAnd node, C context)
     {
-        return visitOperator(snode, context);
+        return visitOperator(node, context);
     }
 
-    public R visitComparison(SComparison snode, C context)
+    public R visitComparison(SComparison node, C context)
     {
-        return visitOperator(snode, context);
+        return visitOperator(node, context);
     }
 
-    public R visitCreateArray(SCreateArray snode, C context)
+    public R visitCreateArray(SCreateArray node, C context)
     {
-        return visitNode(snode, context);
+        return visitNode(node, context);
     }
 
-    public R visitCreateObject(SCreateObject snode, C context)
+    public R visitCreateObject(SCreateObject node, C context)
     {
-        return visitNode(snode, context);
+        return visitNode(node, context);
     }
 
-    public R visitCurrent(SCurrent snode, C context)
+    public R visitCurrent(SCurrent node, C context)
     {
-        return visitNode(snode, context);
+        return visitNode(node, context);
     }
 
-    public R visitExpressionRef(SExpressionRef snode, C context)
+    public R visitExpressionRef(SExpressionRef node, C context)
     {
-        return visitNode(snode, context);
+        return visitNode(node, context);
     }
 
-    public R visitFlattenArray(SFlattenArray snode, C context)
+    public R visitFlattenArray(SFlattenArray node, C context)
     {
-        return visitNode(snode, context);
+        return visitNode(node, context);
     }
 
-    public R visitFlattenObject(SFlattenObject snode, C context)
+    public R visitFlattenObject(SFlattenObject node, C context)
     {
-        return visitNode(snode, context);
+        return visitNode(node, context);
     }
 
-    public R visitFunctionCall(SFunctionCall snode, C context)
+    public R visitFunctionCall(SFunctionCall node, C context)
     {
-        return visitNode(snode, context);
+        return visitNode(node, context);
     }
 
-    public R visitIndex(SIndex snode, C context)
+    public R visitIndex(SIndex node, C context)
     {
-        return visitNode(snode, context);
+        return visitNode(node, context);
     }
 
-    public R visitJsonLiteral(SJsonLiteral snode, C context)
+    public R visitJsonLiteral(SJsonLiteral node, C context)
     {
-        return visitNode(snode, context);
+        return visitNode(node, context);
     }
 
-    public R visitNegate(SNegate snode, C context)
+    public R visitNegate(SNegate node, C context)
     {
-        return visitNode(snode, context);
+        return visitNode(node, context);
     }
 
-    public R visitOperator(SOperator snode, C context)
+    public R visitOperator(SOperator node, C context)
     {
-        return visitNode(snode, context);
+        return visitNode(node, context);
     }
 
-    public R visitOr(SOr snode, C context)
+    public R visitOr(SOr node, C context)
     {
-        return visitOperator(snode, context);
+        return visitOperator(node, context);
     }
 
-    public R visitProject(SProject snode, C context)
+    public R visitProject(SProject node, C context)
     {
-        return visitNode(snode, context);
+        return visitNode(node, context);
     }
 
-    public R visitProperty(SProperty snode, C context)
+    public R visitProperty(SProperty node, C context)
     {
-        return visitNode(snode, context);
+        return visitNode(node, context);
     }
 
-    public R visitSelection(SSelection snode, C context)
+    public R visitSelection(SSelection node, C context)
     {
-        return visitNode(snode, context);
+        return visitNode(node, context);
     }
 
-    public R visitSequence(SSequence snode, C context)
+    public R visitSequence(SSequence node, C context)
     {
-        return visitNode(snode, context);
+        return visitNode(node, context);
     }
 
-    public R visitSlice(SSlice snode, C context)
+    public R visitSlice(SSlice node, C context)
     {
-        return visitNode(snode, context);
+        return visitNode(node, context);
     }
 
-    public R visitString(SString snode, C context)
+    public R visitString(SString node, C context)
     {
-        return visitNode(snode, context);
+        return visitNode(node, context);
     }
 }
