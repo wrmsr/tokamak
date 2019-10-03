@@ -13,7 +13,6 @@
  */
 package com.wrmsr.tokamak.core.plan.node.visitor;
 
-import com.wrmsr.tokamak.core.plan.node.PBuildStruct;
 import com.wrmsr.tokamak.core.plan.node.PCache;
 import com.wrmsr.tokamak.core.plan.node.PCrossJoin;
 import com.wrmsr.tokamak.core.plan.node.PEquiJoin;
@@ -24,6 +23,7 @@ import com.wrmsr.tokamak.core.plan.node.PNode;
 import com.wrmsr.tokamak.core.plan.node.PProject;
 import com.wrmsr.tokamak.core.plan.node.PScan;
 import com.wrmsr.tokamak.core.plan.node.PState;
+import com.wrmsr.tokamak.core.plan.node.PStruct;
 import com.wrmsr.tokamak.core.plan.node.PUnion;
 import com.wrmsr.tokamak.core.plan.node.PUnnest;
 import com.wrmsr.tokamak.core.plan.node.PValues;
@@ -35,11 +35,6 @@ public abstract class PNodeVisitor<R, C>
     protected R visitNode(PNode node, C context)
     {
         throw new IllegalStateException(Objects.toString(node));
-    }
-
-    public R visitBuildStruct(PBuildStruct node, C context)
-    {
-        return visitNode(node, context);
     }
 
     public R visitCache(PCache node, C context)
@@ -83,6 +78,11 @@ public abstract class PNodeVisitor<R, C>
     }
 
     public R visitScan(PScan node, C context)
+    {
+        return visitNode(node, context);
+    }
+
+    public R visitStruct(PStruct node, C context)
     {
         return visitNode(node, context);
     }

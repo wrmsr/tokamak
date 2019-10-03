@@ -14,7 +14,7 @@
 package com.wrmsr.tokamak.core.plan.node.visitor;
 
 import com.google.common.collect.ImmutableMap;
-import com.wrmsr.tokamak.core.plan.node.PBuildStruct;
+import com.wrmsr.tokamak.core.plan.node.PStruct;
 import com.wrmsr.tokamak.core.plan.node.PCache;
 import com.wrmsr.tokamak.core.plan.node.PCrossJoin;
 import com.wrmsr.tokamak.core.plan.node.PEquiJoin;
@@ -40,16 +40,6 @@ public abstract class PNodeRewriter<C>
     public String visitNodeName(String name, C context)
     {
         return name;
-    }
-
-    @Override
-    public PNode visitBuildStruct(PBuildStruct node, C context)
-    {
-        return new PBuildStruct(
-                visitNodeName(node.getName(), context),
-                get(node.getSource(), context),
-                node.getStructFields(),
-                node.getStructField());
     }
 
     @Override
@@ -150,6 +140,16 @@ public abstract class PNodeRewriter<C>
                 node.getFields().getTypesByName(),
                 node.getIdFields(),
                 node.getIdNodes());
+    }
+
+    @Override
+    public PNode visitStruct(PStruct node, C context)
+    {
+        return new PStruct(
+                visitNodeName(node.getName(), context),
+                get(node.getSource(), context),
+                node.getStructFields(),
+                node.getStructField());
     }
 
     @Override

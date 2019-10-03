@@ -30,7 +30,7 @@ import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkUnique;
 
 @Immutable
-public final class PBuildStruct
+public final class PStruct
         extends PAbstractNode
         implements PSingleSource
 {
@@ -39,7 +39,7 @@ public final class PBuildStruct
     private final String structField;
 
     @JsonCreator
-    public PBuildStruct(
+    public PStruct(
             @JsonProperty("name") String name,
             @JsonProperty("source") PNode source,
             @JsonProperty("structFields") Iterable<String> structFields,
@@ -80,6 +80,6 @@ public final class PBuildStruct
     @Override
     public <R, C> R accept(PNodeVisitor<R, C> visitor, C context)
     {
-        return visitor.visitBuildStruct(this, context);
+        return visitor.visitStruct(this, context);
     }
 }

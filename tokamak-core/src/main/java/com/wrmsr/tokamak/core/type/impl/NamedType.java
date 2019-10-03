@@ -17,12 +17,12 @@ import com.wrmsr.tokamak.core.type.Type;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public final class AliasType
+public final class NamedType
         extends AbstractType
 {
     private final Type type;
 
-    public AliasType(String name, Type type)
+    public NamedType(String name, Type type)
     {
         super(name);
         this.type = checkNotNull(type);
@@ -31,7 +31,7 @@ public final class AliasType
     @Override
     public String toString()
     {
-        return "TypedefType{" +
+        return "NamedType{" +
                 "name='" + baseName + '\'' +
                 ", type=" + type +
                 '}';
