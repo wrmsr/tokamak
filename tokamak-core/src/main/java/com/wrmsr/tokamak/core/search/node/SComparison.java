@@ -15,9 +15,22 @@ package com.wrmsr.tokamak.core.search.node;
 
 import com.wrmsr.tokamak.core.search.node.visitor.SNodeVisitor;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 public final class SComparison
         extends SOperator
 {
+    private final SCmp op;
+    private final SNode left;
+    private final SNode right;
+
+    public SComparison(SCmp op, SNode left, SNode right)
+    {
+        this.op = checkNotNull(op);
+        this.left = checkNotNull(left);
+        this.right = checkNotNull(right);
+    }
+
     @Override
     public <R, C> R accept(SNodeVisitor<R, C> visitor, C context)
     {

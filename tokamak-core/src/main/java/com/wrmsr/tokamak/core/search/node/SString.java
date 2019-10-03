@@ -15,9 +15,23 @@ package com.wrmsr.tokamak.core.search.node;
 
 import com.wrmsr.tokamak.core.search.node.visitor.SNodeVisitor;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 public final class SString
         extends SNode
 {
+    private final String value;
+
+    public SString(String value)
+    {
+        this.value = checkNotNull(value);
+    }
+
+    public String getValue()
+    {
+        return value;
+    }
+
     @Override
     public <R, C> R accept(SNodeVisitor<R, C> visitor, C context)
     {

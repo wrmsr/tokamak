@@ -13,11 +13,26 @@
  */
 package com.wrmsr.tokamak.core.search.node;
 
+import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.core.search.node.visitor.SNodeVisitor;
+
+import java.util.List;
 
 public final class SCreateArray
         extends SNode
 {
+    private final List<SNode> items;
+
+    public SCreateArray(List<SNode> items)
+    {
+        this.items = ImmutableList.copyOf(items);
+    }
+
+    public List<SNode> getItems()
+    {
+        return items;
+    }
+
     @Override
     public <R, C> R accept(SNodeVisitor<R, C> visitor, C context)
     {

@@ -13,11 +13,28 @@
  */
 package com.wrmsr.tokamak.core.search.node;
 
+import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.core.search.node.visitor.SNodeVisitor;
+
+import java.util.Map;
+
+import static com.wrmsr.tokamak.util.MoreCollections.checkOrdered;
 
 public final class SCreateObject
         extends SNode
 {
+    private final Map<String, SNode> items;
+
+    public SCreateObject(Map<String, SNode> items)
+    {
+        this.items = ImmutableMap.copyOf(checkOrdered(items));
+    }
+
+    public Map<String, SNode> getItems()
+    {
+        return items;
+    }
+
     @Override
     public <R, C> R accept(SNodeVisitor<R, C> visitor, C context)
     {
