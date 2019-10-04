@@ -49,10 +49,11 @@ public final class PCrossJoin
     @JsonCreator
     public PCrossJoin(
             @JsonProperty("name") String name,
+            @JsonProperty("annotations") PNodeAnnotations annotations,
             @JsonProperty("sources") List<PNode> sources,
             @JsonProperty("mode") Mode mode)
     {
-        super(name);
+        super(name, annotations);
 
         this.sources = checkNotEmpty(ImmutableList.copyOf(sources));
         this.mode = checkNotNull(mode);

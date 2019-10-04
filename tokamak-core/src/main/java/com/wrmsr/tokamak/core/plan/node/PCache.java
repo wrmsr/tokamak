@@ -30,9 +30,10 @@ public final class PCache
 
     public PCache(
             @JsonProperty("name") String name,
+            @JsonProperty("annotations") PNodeAnnotations annotations,
             @JsonProperty("source") PNode source)
     {
-        super(name);
+        super(name, annotations);
 
         this.source = checkNotNull(source);
     }

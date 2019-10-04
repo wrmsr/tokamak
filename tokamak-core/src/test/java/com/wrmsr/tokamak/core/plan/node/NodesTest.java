@@ -61,6 +61,7 @@ public class NodesTest
     {
         PNode scanNode = new PScan(
                 "scan0",
+                PNodeAnnotations.empty(),
                 SchemaTable.of("public", "hi"),
                 ImmutableMap.of("id", Types.LONG, "thing", Types.STRING),
                 ImmutableSet.of("id"),
@@ -74,6 +75,7 @@ public class NodesTest
 
         PNode projectNode = new PProject(
                 "project0",
+                PNodeAnnotations.empty(),
                 scanNode,
                 PProjection.of(
                         "id", "id",

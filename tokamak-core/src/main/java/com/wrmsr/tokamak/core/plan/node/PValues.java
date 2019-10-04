@@ -50,12 +50,13 @@ public final class PValues
     @JsonCreator
     public PValues(
             @JsonProperty("name") String name,
+            @JsonProperty("annotations") PNodeAnnotations annotations,
             @JsonProperty("fields") Map<String, Type> fields,
             @JsonProperty("values") List<List<Object>> values,
             @JsonProperty("indexField") Optional<String> indexField,
             @JsonProperty("weak") boolean weak)
     {
-        super(name);
+        super(name, annotations);
 
         this.declaredFields = ImmutableMap.copyOf(fields);
         this.values = checkNotNull(values).stream().map(ImmutableList::copyOf).collect(toImmutableList());

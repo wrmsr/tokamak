@@ -13,10 +13,10 @@
  */
 package com.wrmsr.tokamak.core.layout;
 
-import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.core.layout.field.Field;
-import com.wrmsr.tokamak.core.layout.field.annotation.FieldAnnotation;
+import com.wrmsr.tokamak.core.layout.field.FieldAnnotations;
 import com.wrmsr.tokamak.core.layout.field.FieldCollection;
+import com.wrmsr.tokamak.core.layout.field.annotation.FieldAnnotation;
 import com.wrmsr.tokamak.core.type.Types;
 import com.wrmsr.tokamak.util.json.Json;
 import junit.framework.TestCase;
@@ -28,8 +28,8 @@ public class LayoutTest
             throws Throwable
     {
         FieldCollection fc = FieldCollection.builder()
-                .add(new Field("x", Types.LONG, ImmutableList.of(FieldAnnotation.id())))
-                .add(new Field("y", Types.LONG, ImmutableList.of(FieldAnnotation.internal())))
+                .add(new Field("x", Types.LONG, FieldAnnotations.of(FieldAnnotation.id())))
+                .add(new Field("y", Types.LONG, FieldAnnotations.of(FieldAnnotation.internal())))
                 .build();
         String src = Json.writeValue(fc);
         System.out.println(src);

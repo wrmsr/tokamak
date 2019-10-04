@@ -48,6 +48,8 @@ public interface PNode
 
     PNodeId getId();
 
+    PNodeAnnotations getAnnotations();
+
     List<PNode> getSources();
 
     FieldCollection getFields();

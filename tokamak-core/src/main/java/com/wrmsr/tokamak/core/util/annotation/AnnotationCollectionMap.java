@@ -15,11 +15,13 @@ package com.wrmsr.tokamak.core.util.annotation;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
+import com.wrmsr.tokamak.util.collect.StreamableIterable;
 
 import javax.annotation.concurrent.Immutable;
 
 import java.util.Arrays;
-import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.StreamSupport;
@@ -35,9 +37,10 @@ public abstract class AnnotationCollectionMap<
         T extends Annotation,
         E extends AnnotationCollectionMap.Entry<K, T, E>,
         Self extends AnnotationCollectionMap<K, T, E, Self>>
+        implements StreamableIterable<E>
 {
     @Immutable
-    protected static abstract class Entry<K, T extends Annotation, Self extends AnnotationCollectionMap.Entry<K, T, Self>>
+    public static abstract class Entry<K, T extends Annotation, Self extends AnnotationCollectionMap.Entry<K, T, Self>>
             extends AnnotationCollection<T, Self>
     {
         protected K key;
@@ -63,11 +66,15 @@ public abstract class AnnotationCollectionMap<
         }
     }
 
+    protected final List<E> entries;
+
     protected final Map<K, E> entriesByKey;
 
     protected AnnotationCollectionMap(Iterable<E> entries)
     {
-        entriesByKey = StreamSupport.stream(checkNotNull(entries).spliterator(), false)
+        this.entries = ImmutableList.copyOf(entries);
+
+        entriesByKey = StreamSupport.stream(this.entries.spliterator(), false)
                 .collect(toImmutableMap(Entry::getKey, identity()));
     }
 
@@ -75,9 +82,15 @@ public abstract class AnnotationCollectionMap<
 
     protected abstract E newEntry(K key, Iterable<T> annotations);
 
-    public Collection<E> getEntries()
+    public List<E> getEntries()
     {
-        return entriesByKey.values();
+        return entries;
+    }
+
+    @Override
+    public Iterator<E> iterator()
+    {
+        return entries.iterator();
     }
 
     public Map<K, E> getEntriesByKey()
@@ -91,32 +104,32 @@ public abstract class AnnotationCollectionMap<
     }
 
     @SafeVarargs
-    public final Self withAnnotation(T... annotations)
+    public final Self with(T... annotations)
     {
         return rebuildWithEntries(getEntries().stream()
-                .map(fa -> fa.withAnnotation(annotations)).collect(toImmutableList()));
+                .map(fa -> fa.with(annotations)).collect(toImmutableList()));
     }
 
     @SafeVarargs
-    public final Self withoutAnnotation(Class<? extends T>... annotationClss)
+    public final Self without(Class<? extends T>... annotationClss)
     {
         return rebuildWithEntries(getEntries().stream()
-                .map(fa -> fa.withoutAnnotation(annotationClss)).collect(toImmutableList()));
+                .map(fa -> fa.without(annotationClss)).collect(toImmutableList()));
     }
 
     @SafeVarargs
-    public final Self overwritingAnnotation(T... annotations)
+    public final Self overwriting(T... annotations)
     {
         return rebuildWithEntries(getEntries().stream()
-                .map(fa -> fa.overwritingAnnotation(annotations)).collect(toImmutableList()));
+                .map(fa -> fa.overwriting(annotations)).collect(toImmutableList()));
     }
 
     @SafeVarargs
-    public final Self withAnnotation(K key, T... annotations)
+    public final Self with(K key, T... annotations)
     {
         if (entriesByKey.containsKey(key)) {
             return rebuildWithEntries(getEntries().stream()
-                    .map(fa -> fa.getKey().equals(key) ? fa.withAnnotation(annotations) : fa)
+                    .map(fa -> fa.getKey().equals(key) ? fa.with(annotations) : fa)
                     .collect(toImmutableList()));
         }
         else {
@@ -127,19 +140,19 @@ public abstract class AnnotationCollectionMap<
     }
 
     @SafeVarargs
-    public final Self withoutAnnotation(K key, Class<? extends T>... annotationClss)
+    public final Self without(K key, Class<? extends T>... annotationClss)
     {
         return rebuildWithEntries(getEntries().stream()
-                .map(fa -> fa.getKey().equals(key) ? fa.withoutAnnotation(annotationClss) : fa)
+                .map(fa -> fa.getKey().equals(key) ? fa.without(annotationClss) : fa)
                 .collect(toImmutableList()));
     }
 
     @SafeVarargs
-    public final Self overwritingAnnotation(K key, T... annotations)
+    public final Self overwriting(K key, T... annotations)
     {
         if (entriesByKey.containsKey(key)) {
             return rebuildWithEntries(getEntries().stream()
-                    .map(fa -> fa.getKey().equals(key) ? fa.overwritingAnnotation(annotations) : fa)
+                    .map(fa -> fa.getKey().equals(key) ? fa.overwriting(annotations) : fa)
                     .collect(toImmutableList()));
         }
         else {
@@ -150,34 +163,34 @@ public abstract class AnnotationCollectionMap<
     }
 
     @SafeVarargs
-    public final Self withAnnotation(Iterable<K> keys, T... annotations)
+    public final Self with(Iterable<K> keys, T... annotations)
     {
         @SuppressWarnings({"unchecked"})
         Self ret = (Self) this;
         for (K key : keys) {
-            ret = ret.withAnnotation(key, annotations);
+            ret = ret.with(key, annotations);
         }
         return ret;
     }
 
     @SafeVarargs
-    public final Self withoutAnnotation(Iterable<K> keys, Class<? extends T>... annotationClss)
+    public final Self without(Iterable<K> keys, Class<? extends T>... annotationClss)
     {
         @SuppressWarnings({"unchecked"})
         Self ret = (Self) this;
         for (K key : keys) {
-            ret = ret.withoutAnnotation(key, annotationClss);
+            ret = ret.without(key, annotationClss);
         }
         return ret;
     }
 
     @SafeVarargs
-    public final Self overwritingAnnotation(Iterable<K> keys, T... annotations)
+    public final Self overwriting(Iterable<K> keys, T... annotations)
     {
         @SuppressWarnings({"unchecked"})
         Self ret = (Self) this;
         for (K key : keys) {
-            ret = ret.overwritingAnnotation(key, annotations);
+            ret = ret.overwriting(key, annotations);
         }
         return ret;
     }

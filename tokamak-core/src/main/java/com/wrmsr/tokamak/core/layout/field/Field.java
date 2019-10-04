@@ -15,25 +15,22 @@ package com.wrmsr.tokamak.core.layout.field;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.collect.ImmutableList;
-import com.wrmsr.tokamak.core.layout.field.annotation.FieldAnnotation;
 import com.wrmsr.tokamak.core.type.Type;
-import com.wrmsr.tokamak.core.util.annotation.AnnotationCollection;
 import com.wrmsr.tokamak.util.Pair;
 
 import javax.annotation.concurrent.Immutable;
 
-import java.util.List;
+import java.util.function.Function;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 
 @Immutable
 public final class Field
-        extends AnnotationCollection<FieldAnnotation, Field>
 {
     private final String name;
     private final Type type;
+    private final FieldAnnotations annotations;
 
     private final Pair<String, Type> nameTypePair;
 
@@ -41,31 +38,18 @@ public final class Field
     public Field(
             @JsonProperty("name") String name,
             @JsonProperty("type") Type type,
-            @JsonProperty("annotations") Iterable<FieldAnnotation> annotations)
+            @JsonProperty("annotations") FieldAnnotations annotations)
     {
-        super(annotations);
-
         this.name = checkNotEmpty(name);
         this.type = checkNotNull(type);
+        this.annotations = checkNotNull(annotations);
 
         nameTypePair = Pair.immutable(name, type);
     }
 
     public Field(String name, Type type)
     {
-        this(name, type, ImmutableList.of());
-    }
-
-    @Override
-    public Class<FieldAnnotation> getAnnotationCls()
-    {
-        return FieldAnnotation.class;
-    }
-
-    @Override
-    protected Field rebuildWithAnnotations(Iterable<FieldAnnotation> annotations)
-    {
-        return new Field(name, type, annotations);
+        this(name, type, FieldAnnotations.empty());
     }
 
     @Override
@@ -95,8 +79,18 @@ public final class Field
     }
 
     @JsonProperty("annotations")
-    public List<FieldAnnotation> getAnnotations()
+    public FieldAnnotations getAnnotations()
     {
         return annotations;
+    }
+
+    public Field withAnnotations(FieldAnnotations annotations)
+    {
+        return new Field(name, type, annotations);
+    }
+
+    public Field mapAnnotations(Function<FieldAnnotations, FieldAnnotations> fn)
+    {
+        return withAnnotations(fn.apply(annotations));
     }
 }

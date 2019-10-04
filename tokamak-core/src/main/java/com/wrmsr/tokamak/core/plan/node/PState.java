@@ -43,6 +43,7 @@ public final class PState
     @JsonCreator
     public PState(
             @JsonProperty("name") String name,
+            @JsonProperty("annotations") PNodeAnnotations annotations,
             @JsonProperty("source") PNode source,
             @JsonProperty("writerTargets") List<PWriterTarget> writerTargets,
             @JsonProperty("denormalized") boolean denormalized,
@@ -50,7 +51,7 @@ public final class PState
             @JsonProperty("linkageMasks") Map<String, PLinkageMask> linkageMasks,
             @JsonProperty("lockOverride") Optional<PLockOverride> lockOverride)
     {
-        super(name);
+        super(name, annotations);
 
         this.source = checkNotNull(source);
         this.writerTargets = ImmutableList.copyOf(writerTargets);

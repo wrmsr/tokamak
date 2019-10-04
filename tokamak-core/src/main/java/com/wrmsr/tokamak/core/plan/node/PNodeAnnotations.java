@@ -23,7 +23,6 @@ import com.wrmsr.tokamak.core.util.annotation.AnnotationCollectionMap;
 
 import javax.annotation.concurrent.Immutable;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
 
@@ -57,21 +56,26 @@ public final class PNodeAnnotations
                 return super.getKey();
             }
 
+            public String getField()
+            {
+                return key;
+            }
+
             @JsonProperty("annotations")
             @Override
-            public List<FieldAnnotation> getAnnotations()
+            public List<FieldAnnotation> get()
             {
-                return super.getAnnotations();
+                return super.get();
             }
 
             @Override
-            public Class<FieldAnnotation> getAnnotationCls()
+            public Class<FieldAnnotation> getBaseCls()
             {
                 return FieldAnnotation.class;
             }
 
             @Override
-            protected Entry rebuildWithAnnotations(Iterable<FieldAnnotation> annotations)
+            protected Entry rebuildWith(Iterable<FieldAnnotation> annotations)
             {
                 return new Entry(key, annotations);
             }
@@ -86,7 +90,7 @@ public final class PNodeAnnotations
 
         @JsonProperty("entries")
         @Override
-        public Collection<Entry> getEntries()
+        public List<Entry> getEntries()
         {
             return super.getEntries();
         }
@@ -118,18 +122,18 @@ public final class PNodeAnnotations
 
     @JsonProperty("annotations")
     @Override
-    public List<PNodeAnnotation> getAnnotations()
+    public List<PNodeAnnotation> get()
     {
-        return super.getAnnotations();
+        return super.get();
     }
 
     @JsonProperty("fields")
-    public Fields getField()
+    public Fields getFields()
     {
         return fields;
     }
 
-    public PNodeAnnotations()
+    private PNodeAnnotations()
     {
         this(ImmutableList.of(), new Fields(ImmutableList.of()));
     }
@@ -142,13 +146,13 @@ public final class PNodeAnnotations
     }
 
     @Override
-    public Class<PNodeAnnotation> getAnnotationCls()
+    public Class<PNodeAnnotation> getBaseCls()
     {
         return PNodeAnnotation.class;
     }
 
     @Override
-    protected PNodeAnnotations rebuildWithAnnotations(Iterable<PNodeAnnotation> annotations)
+    protected PNodeAnnotations rebuildWith(Iterable<PNodeAnnotation> annotations)
     {
         return new PNodeAnnotations(annotations, fields);
     }
@@ -160,6 +164,6 @@ public final class PNodeAnnotations
 
     public PNodeAnnotations mapFields(Function<Fields, Fields> fn)
     {
-        return new PNodeAnnotations(annotations, fn.apply(fields));
+        return withFields(fn.apply(fields));
     }
 }

@@ -18,6 +18,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.core.layout.field.Field;
+import com.wrmsr.tokamak.core.layout.field.FieldAnnotations;
 import com.wrmsr.tokamak.core.layout.field.annotation.FieldAnnotation;
 import com.wrmsr.tokamak.core.layout.field.FieldCollection;
 import com.wrmsr.tokamak.core.plan.node.visitor.PNodeVisitor;
@@ -46,11 +47,12 @@ public final class PGroupBy
     @JsonCreator
     public PGroupBy(
             @JsonProperty("name") String name,
+            @JsonProperty("annotations") PNodeAnnotations annotations,
             @JsonProperty("source") PNode source,
             @JsonProperty("groupFields") List<String> groupFields,
             @JsonProperty("listField") String listField)
     {
-        super(name);
+        super(name, annotations);
 
         this.source = checkNotNull(source);
         this.groupFields = ImmutableList.copyOf(groupFields);
@@ -61,7 +63,8 @@ public final class PGroupBy
 
         structType = new StructType(ImmutableMap.copyOf(source.getFields().getTypesByName()));
         fields = FieldCollection.builder()
-                .addAll(groupFields.stream().map(f -> new Field(f, source.getFields().getType(f), ImmutableList.of(FieldAnnotation.id()))))
+                .addAll(groupFields.stream()
+                        .map(f -> new Field(f, source.getFields().getType(f), new FieldAnnotations(ImmutableList.of(FieldAnnotation.id())))))
                 .add(listField, new ListType(structType))
                 .build();
 

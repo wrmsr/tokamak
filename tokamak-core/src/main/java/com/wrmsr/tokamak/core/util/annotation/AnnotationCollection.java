@@ -15,10 +15,12 @@ package com.wrmsr.tokamak.core.util.annotation;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
+import com.wrmsr.tokamak.util.collect.StreamableIterable;
 
 import javax.annotation.concurrent.Immutable;
 
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -29,6 +31,7 @@ import static java.util.function.Function.identity;
 
 @Immutable
 public abstract class AnnotationCollection<T extends Annotation, Self extends AnnotationCollection<T, Self>>
+        implements StreamableIterable<T>
 {
     protected final List<T> annotations;
 
@@ -39,18 +42,24 @@ public abstract class AnnotationCollection<T extends Annotation, Self extends An
     {
         this.annotations = ImmutableList.copyOf(annotations);
 
-        this.annotations.forEach(a -> checkArgument(getAnnotationCls().isInstance(a)));
+        this.annotations.forEach(a -> checkArgument(getBaseCls().isInstance(a)));
         annotationsByCls = (Map) this.annotations.stream().collect(toImmutableMap(Annotation::getClass, identity()));
     }
 
-    public List<T> getAnnotations()
+    public List<T> get()
     {
         return annotations;
     }
 
-    public Map<Class<? extends T>, T> getAnnotationsByCls()
+    public Map<Class<? extends T>, T> getByCls()
     {
         return annotationsByCls;
+    }
+
+    @Override
+    public Iterator<T> iterator()
+    {
+        return annotations.iterator();
     }
 
     @Override
@@ -61,38 +70,38 @@ public abstract class AnnotationCollection<T extends Annotation, Self extends An
                 '}';
     }
 
-    public abstract Class<T> getAnnotationCls();
+    public abstract Class<T> getBaseCls();
 
-    protected abstract Self rebuildWithAnnotations(Iterable<T> annotations);
+    protected abstract Self rebuildWith(Iterable<T> annotations);
 
     @SuppressWarnings({"unchecked"})
-    public <U extends T> Optional<T> getAnnotation(Class<U> cls)
+    public <U extends T> Optional<T> get(Class<U> cls)
     {
         return Optional.ofNullable((U) annotationsByCls.get(cls));
     }
 
-    public boolean hasAnnotation(Class<? extends T> cls)
+    public boolean has(Class<? extends T> cls)
     {
         return annotationsByCls.containsKey(cls);
     }
 
     @SafeVarargs
-    public final Self withAnnotation(T... annotations)
+    public final Self with(T... annotations)
     {
-        return rebuildWithAnnotations(Iterables.<T>concat(this.annotations, Arrays.asList(annotations)));
+        return rebuildWith(Iterables.<T>concat(this.annotations, Arrays.asList(annotations)));
     }
 
     @SafeVarargs
-    public final Self withoutAnnotation(Class<? extends T>... annotationClss)
+    public final Self without(Class<? extends T>... annotationClss)
     {
-        return rebuildWithAnnotations(
+        return rebuildWith(
                 Iterables.filter(annotations, a -> Arrays.stream(annotationClss).anyMatch(ac -> ac.isInstance(a))));
     }
 
     @SafeVarargs
-    public final Self overwritingAnnotation(T... annotations)
+    public final Self overwriting(T... annotations)
     {
-        return rebuildWithAnnotations(
+        return rebuildWith(
                 Iterables.concat(Iterables.filter(this.annotations, a -> Arrays.stream(annotations).anyMatch(ac -> ac.getClass().isInstance(a))), Arrays.asList(annotations)));
     }
 }

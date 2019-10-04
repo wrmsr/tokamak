@@ -41,10 +41,11 @@ public final class PProject
     @JsonCreator
     public PProject(
             @JsonProperty("name") String name,
+            @JsonProperty("annotations") PNodeAnnotations annotations,
             @JsonProperty("source") PNode source,
             @JsonProperty("projection") PProjection projection)
     {
-        super(name);
+        super(name, annotations);
 
         this.source = checkNotNull(source);
         this.projection = checkNotNull(projection);

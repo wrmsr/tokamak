@@ -123,7 +123,7 @@ public final class FieldCollection
     {
         return fieldListsByAnnotationCls.get(() -> {
             Map<Class<? extends FieldAnnotation>, List<Field>> listsByCls = new LinkedHashMap<>();
-            fields.forEach(f -> f.getAnnotationsByCls().keySet().forEach(ac -> listsByCls.computeIfAbsent(ac, ac_ -> new ArrayList<>()).add(f)));
+            fields.forEach(f -> f.getAnnotations().getByCls().keySet().forEach(ac -> listsByCls.computeIfAbsent(ac, ac_ -> new ArrayList<>()).add(f)));
             return listsByCls.entrySet().stream().collect(toImmutableMap(Map.Entry::getKey, e -> ImmutableList.copyOf(e.getValue())));
         });
     }
@@ -223,7 +223,7 @@ public final class FieldCollection
     @SafeVarargs
     public final FieldCollection withoutAnnotation(Class<? extends FieldAnnotation>... annotationCls)
     {
-        return builder().addAll(fields.stream().map(f -> f.withoutAnnotation(annotationCls))).build();
+        return builder().addAll(fields.stream().map(f -> f.mapAnnotations(a -> a.without(annotationCls)))).build();
     }
 
     public static Collector<Field, ?, FieldCollection> toFieldCollection()

@@ -16,6 +16,7 @@ package com.wrmsr.tokamak.core.plan.node;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.core.layout.field.Field;
+import com.wrmsr.tokamak.core.layout.field.FieldAnnotations;
 import com.wrmsr.tokamak.core.layout.field.annotation.FieldAnnotation;
 import com.wrmsr.tokamak.core.type.Types;
 import com.wrmsr.tokamak.util.json.Json;
@@ -29,7 +30,7 @@ public class FieldsTest
     public void testFieldsJson()
             throws Throwable
     {
-        Field fld = new Field("x", Types.LONG, ImmutableList.of(FieldAnnotation.id()));
+        Field fld = new Field("x", Types.LONG, FieldAnnotations.of(FieldAnnotation.id()));
 
         String json = Json.writeValue(fld);
 

@@ -49,6 +49,7 @@ public final class PTransforms
                 else if (node.getFields().getNames().containsAll(table.getLayout().getPrimaryKeyFields())) {
                     return new PScan(
                             node.getName(),
+                            node.getAnnotations(),
                             node.getSchemaTable(),
                             node.getFields().getTypesByName(),
                             table.getLayout().getPrimaryKeyFields(),
@@ -65,6 +66,7 @@ public final class PTransforms
 
                     PNode newScan = new PScan(
                             node.getName(),
+                            node.getAnnotations(),
                             node.getSchemaTable(),
                             newFields.build(),
                             table.getLayout().getPrimaryKeyFields(),
@@ -72,6 +74,7 @@ public final class PTransforms
 
                     return new PProject(
                             nameGenerator.get(),
+                            node.getAnnotations(),
                             newScan,
                             PProjection.only(node.getFields().getNames()));
                 }

@@ -49,12 +49,13 @@ public final class PUnnest
     @JsonCreator
     public PUnnest(
             @JsonProperty("name") String name,
+            @JsonProperty("annotations") PNodeAnnotations annotations,
             @JsonProperty("source") PNode source,
             @JsonProperty("listField") String listField,
             @JsonProperty("unnestedFields") Map<String, Type> unnestedFields,
             @JsonProperty("indexField") Optional<String> indexField)
     {
-        super(name);
+        super(name, annotations);
 
         this.source = checkNotNull(source);
         this.listField = checkNotNull(listField);

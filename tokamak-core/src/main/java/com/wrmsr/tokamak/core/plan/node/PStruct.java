@@ -41,11 +41,12 @@ public final class PStruct
     @JsonCreator
     public PStruct(
             @JsonProperty("name") String name,
+            @JsonProperty("annotations") PNodeAnnotations annotations,
             @JsonProperty("source") PNode source,
             @JsonProperty("structFields") Iterable<String> structFields,
             @JsonProperty("structFields") String structField)
     {
-        super(name);
+        super(name, annotations);
         this.source = checkNotNull(source);
         this.structFields = ImmutableSet.copyOf(checkUnique(ImmutableList.copyOf(checkOrdered(structFields))));
         this.structField = checkNotEmpty(structField);

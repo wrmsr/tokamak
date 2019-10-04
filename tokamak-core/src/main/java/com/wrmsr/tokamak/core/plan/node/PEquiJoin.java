@@ -128,10 +128,11 @@ public final class PEquiJoin
     @JsonCreator
     public PEquiJoin(
             @JsonProperty("name") String name,
+            @JsonProperty("annotations") PNodeAnnotations annotations,
             @JsonProperty("branches") List<Branch> branches,
             @JsonProperty("mode") Mode mode)
     {
-        super(name);
+        super(name, annotations);
 
         this.branches = checkNotEmpty(ImmutableList.copyOf(branches));
         this.mode = checkNotNull(mode);

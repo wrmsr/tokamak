@@ -40,12 +40,13 @@ public final class PFilter
     @JsonCreator
     public PFilter(
             @JsonProperty("name") String name,
+            @JsonProperty("annotations") PNodeAnnotations annotations,
             @JsonProperty("source") PNode source,
             @JsonProperty("function") PFunction function,
             @JsonProperty("args") List<String> args,
             @JsonProperty("unlinked") boolean unlinked)
     {
-        super(name);
+        super(name, annotations);
 
         this.source = checkNotNull(source);
         this.function = checkNotNull(function);

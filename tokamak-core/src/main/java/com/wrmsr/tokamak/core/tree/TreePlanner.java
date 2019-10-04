@@ -19,23 +19,24 @@ import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.core.catalog.Catalog;
 import com.wrmsr.tokamak.core.catalog.Function;
 import com.wrmsr.tokamak.core.catalog.Table;
+import com.wrmsr.tokamak.core.plan.node.PCrossJoin;
+import com.wrmsr.tokamak.core.plan.node.PNode;
+import com.wrmsr.tokamak.core.plan.node.PNodeAnnotations;
+import com.wrmsr.tokamak.core.plan.node.PProject;
+import com.wrmsr.tokamak.core.plan.node.PProjection;
+import com.wrmsr.tokamak.core.plan.node.PScan;
 import com.wrmsr.tokamak.core.tree.analysis.ScopeAnalysis;
 import com.wrmsr.tokamak.core.tree.node.TAliasedRelation;
 import com.wrmsr.tokamak.core.tree.node.TExpression;
 import com.wrmsr.tokamak.core.tree.node.TExpressionSelectItem;
 import com.wrmsr.tokamak.core.tree.node.TFunctionCallExpression;
+import com.wrmsr.tokamak.core.tree.node.TNode;
 import com.wrmsr.tokamak.core.tree.node.TQualifiedName;
 import com.wrmsr.tokamak.core.tree.node.TQualifiedNameExpression;
 import com.wrmsr.tokamak.core.tree.node.TSelect;
 import com.wrmsr.tokamak.core.tree.node.TSelectItem;
 import com.wrmsr.tokamak.core.tree.node.TTableName;
-import com.wrmsr.tokamak.core.tree.node.TNode;
 import com.wrmsr.tokamak.core.tree.node.visitor.TNodeVisitor;
-import com.wrmsr.tokamak.core.plan.node.PCrossJoin;
-import com.wrmsr.tokamak.core.plan.node.PNode;
-import com.wrmsr.tokamak.core.plan.node.PProject;
-import com.wrmsr.tokamak.core.plan.node.PProjection;
-import com.wrmsr.tokamak.core.plan.node.PScan;
 import com.wrmsr.tokamak.util.NameGenerator;
 
 import java.util.LinkedHashMap;
@@ -82,6 +83,7 @@ public class TreePlanner
                 PNode scanNode = treeNode.getRelation().accept(this, scopeAnalysis.getScope(treeNode).get());
                 return new PProject(
                         nameGenerator.get("aliasedRelationProject"),
+                        PNodeAnnotations.empty(),
                         scanNode,
                         PProjection.of(
                                 scanNode.getFields().getNames().stream()
@@ -130,12 +132,14 @@ public class TreePlanner
                 else {
                     source = new PCrossJoin(
                             nameGenerator.get("projectCrossJoin"),
+                            PNodeAnnotations.empty(),
                             sources,
                             PCrossJoin.Mode.INNER);
                 }
 
                 return new PProject(
                         nameGenerator.get("selectProject"),
+                        PNodeAnnotations.empty(),
                         source,
                         new PProjection(projection));
             }
@@ -159,6 +163,7 @@ public class TreePlanner
 
                 return new PScan(
                         nameGenerator.get("scan"),
+                        PNodeAnnotations.empty(),
                         schemaTable,
                         columns.stream().collect(toImmutableMap(identity(), table.getRowLayout().getFields()::getType)),
                         ImmutableSet.of(),

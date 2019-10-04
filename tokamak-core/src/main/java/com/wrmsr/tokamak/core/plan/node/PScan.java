@@ -19,6 +19,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.core.layout.field.Field;
+import com.wrmsr.tokamak.core.layout.field.FieldAnnotations;
 import com.wrmsr.tokamak.core.layout.field.annotation.FieldAnnotation;
 import com.wrmsr.tokamak.core.layout.field.FieldCollection;
 import com.wrmsr.tokamak.core.plan.node.visitor.PNodeVisitor;
@@ -48,16 +49,17 @@ public final class PScan
     @JsonCreator
     private PScan(
             @JsonProperty("name") String name,
+            @JsonProperty("annotations") PNodeAnnotations annotations,
             @JsonProperty("schemaTable") SchemaTable schemaTable,
             @JsonProperty("fields") OrderPreservingImmutableMap<String, Type> fields,
             @JsonProperty("idFields") Set<String> idFields,
             @JsonProperty("idNodes") Set<String> idNodes)
     {
-        super(name);
+        super(name, annotations);
 
         this.schemaTable = checkNotNull(schemaTable);
         this.fields = checkNotNull(fields).entrySet().stream()
-                .map(e -> new Field(e.getKey(), e.getValue(), ImmutableList.of(FieldAnnotation.id())))
+                .map(e -> new Field(e.getKey(), e.getValue(), new FieldAnnotations(ImmutableList.of(FieldAnnotation.id()))))
                 .collect(toFieldCollection());
         this.idFields = ImmutableSet.copyOf(idFields);
         this.idNodes = ImmutableSet.copyOf(idNodes);
@@ -67,8 +69,10 @@ public final class PScan
         checkInvariants();
     }
 
+    // FIXME: P.java
     public PScan(
             String name,
+            PNodeAnnotations annotations,
             SchemaTable schemaTable,
             Map<String, Type> fields,
             Set<String> idFields,
@@ -76,6 +80,7 @@ public final class PScan
     {
         this(
                 name,
+                annotations,
                 schemaTable,
                 new OrderPreservingImmutableMap<>(checkOrdered(fields)),
                 idFields,

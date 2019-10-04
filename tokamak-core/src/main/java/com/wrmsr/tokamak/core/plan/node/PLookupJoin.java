@@ -76,11 +76,12 @@ public final class PLookupJoin
     @JsonCreator
     public PLookupJoin(
             @JsonProperty("name") String name,
+            @JsonProperty("annotations") PNodeAnnotations annotations,
             @JsonProperty("source") PNode source,
             @JsonProperty("sourceKeyFields") Set<String> sourceKeyFields,
             @JsonProperty("branches") List<Branch> branches)
     {
-        super(name);
+        super(name, annotations);
 
         this.source = checkNotNull(source);
         this.sourceKeyFields = ImmutableSet.copyOf(checkOrdered(sourceKeyFields));

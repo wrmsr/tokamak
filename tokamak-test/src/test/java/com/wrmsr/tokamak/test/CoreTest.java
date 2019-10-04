@@ -39,6 +39,7 @@ import com.wrmsr.tokamak.core.plan.dot.Dot;
 import com.wrmsr.tokamak.core.plan.node.PEquiJoin;
 import com.wrmsr.tokamak.core.plan.node.PFilter;
 import com.wrmsr.tokamak.core.plan.node.PNode;
+import com.wrmsr.tokamak.core.plan.node.PNodeAnnotations;
 import com.wrmsr.tokamak.core.plan.node.PProject;
 import com.wrmsr.tokamak.core.plan.node.PProjection;
 import com.wrmsr.tokamak.core.plan.node.PScan;
@@ -139,6 +140,7 @@ public class CoreTest
 
         PNode scanNode0 = new PScan(
                 "scan0",
+                PNodeAnnotations.empty(),
                 SchemaTable.of("PUBLIC", "NATION"),
                 ImmutableMap.of(
                         "N_NATIONKEY", Types.LONG,
@@ -150,6 +152,7 @@ public class CoreTest
 
         PNode stateNode0 = new PState(
                 "state0",
+                PNodeAnnotations.empty(),
                 scanNode0,
                 ImmutableList.of(),
                 false,
@@ -159,6 +162,7 @@ public class CoreTest
 
         PNode filterNode0 = new PFilter(
                 "filter0",
+                PNodeAnnotations.empty(),
                 stateNode0,
                 catalog.addFunction(be.register(Reflection.reflect(getClass().getDeclaredMethod("isStringNotNull", String.class))).getName(), be).asNodeFunction(),
                 ImmutableList.of("N_NAME"),
@@ -166,6 +170,7 @@ public class CoreTest
 
         PNode projectNode0 = new PProject(
                 "project0",
+                PNodeAnnotations.empty(),
                 filterNode0,
                 PProjection.of(
                         "N_NATIONKEY", "N_NATIONKEY",
@@ -175,6 +180,7 @@ public class CoreTest
 
         PNode scanNode1 = new PScan(
                 "scan1",
+                PNodeAnnotations.empty(),
                 SchemaTable.of("PUBLIC", "REGION"),
                 ImmutableMap.of(
                         "R_REGIONKEY", Types.LONG,
@@ -185,6 +191,7 @@ public class CoreTest
 
         PNode stateNode1 = new PState(
                 "state1",
+                PNodeAnnotations.empty(),
                 scanNode1,
                 ImmutableList.of(),
                 false,
@@ -194,6 +201,7 @@ public class CoreTest
 
         PNode equiJoinNode0 = new PEquiJoin(
                 "equiJoin0",
+                PNodeAnnotations.empty(),
                 ImmutableList.of(
                         new PEquiJoin.Branch(projectNode0, ImmutableList.of("N_REGIONKEY")),
                         new PEquiJoin.Branch(stateNode1, ImmutableList.of("R_REGIONKEY"))
@@ -202,6 +210,7 @@ public class CoreTest
 
         PNode persistNode0 = new PState(
                 "persist0",
+                PNodeAnnotations.empty(),
                 equiJoinNode0,
                 ImmutableList.of(),
                 false,
@@ -304,6 +313,7 @@ public class CoreTest
 
         PScan scan0 = new PScan(
                 "scan0",
+                PNodeAnnotations.empty(),
                 SchemaTable.of("stuff_schema", "stuff_table"),
                 ImmutableMap.of(
                         "id", Types.LONG,

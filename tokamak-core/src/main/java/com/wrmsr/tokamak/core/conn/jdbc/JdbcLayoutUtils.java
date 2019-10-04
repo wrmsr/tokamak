@@ -17,6 +17,7 @@ import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.core.layout.RowLayout;
 import com.wrmsr.tokamak.core.layout.TableLayout;
 import com.wrmsr.tokamak.core.layout.field.Field;
+import com.wrmsr.tokamak.core.layout.field.FieldAnnotations;
 import com.wrmsr.tokamak.core.layout.field.annotation.FieldAnnotation;
 import com.wrmsr.tokamak.core.layout.field.FieldCollection;
 import com.wrmsr.tokamak.core.type.Type;
@@ -55,7 +56,7 @@ public final class JdbcLayoutUtils
             if (pks.contains(name)) {
                 anns.add(FieldAnnotation.id());
             }
-            builder.add(new Field(name, type, anns));
+            builder.add(new Field(name, type, new FieldAnnotations(anns)));
         });
         return new RowLayout(builder.build());
     }

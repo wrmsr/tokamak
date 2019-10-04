@@ -44,10 +44,11 @@ public final class PUnion
     @JsonCreator
     public PUnion(
             @JsonProperty("name") String name,
+            @JsonProperty("annotations") PNodeAnnotations annotations,
             @JsonProperty("sources") List<PNode> sources,
             @JsonProperty("indexField") Optional<String> indexField)
     {
-        super(name);
+        super(name, annotations);
 
         this.sources = checkNotEmpty(ImmutableList.copyOf(sources));
         this.indexField = checkNotNull(indexField);

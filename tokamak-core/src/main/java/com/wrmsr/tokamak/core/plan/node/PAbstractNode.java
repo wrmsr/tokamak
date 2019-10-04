@@ -19,6 +19,7 @@ import com.wrmsr.tokamak.util.lazy.SupplierLazyValue;
 
 import javax.annotation.concurrent.Immutable;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkUnique;
@@ -29,17 +30,20 @@ public abstract class PAbstractNode
 {
     private final String name;
     private final PNodeId nodeId;
+    private final PNodeAnnotations annotations;
 
-    protected PAbstractNode(String name)
+    protected PAbstractNode(String name, PNodeAnnotations annotations)
     {
         this.name = checkNotEmpty(name);
         this.nodeId = PNodeId.of(name);
+        this.annotations = checkNotNull(annotations);
     }
 
     protected void checkInvariants()
     {
         checkUnique(getSources());
         checkState(getSources().isEmpty() == (this instanceof PGenerator));
+        annotations.getFields().forEach(f -> checkState(getFields().getNames().contains(f.getField())));
     }
 
     @Override
@@ -62,6 +66,13 @@ public abstract class PAbstractNode
     public PNodeId getId()
     {
         return nodeId;
+    }
+
+    @JsonProperty("annotations")
+    @Override
+    public PNodeAnnotations getAnnotations()
+    {
+        return annotations;
     }
 
     private final SupplierLazyValue<RowLayout> rowLayout = new SupplierLazyValue<>();

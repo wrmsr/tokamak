@@ -47,6 +47,7 @@ public abstract class PNodeRewriter<C>
     {
         return new PCache(
                 visitNodeName(node.getName(), context),
+                node.getAnnotations(),
                 node.getSource());
     }
 
@@ -55,6 +56,7 @@ public abstract class PNodeRewriter<C>
     {
         return new PCrossJoin(
                 visitNodeName(node.getName(), context),
+                node.getAnnotations(),
                 node.getSources().stream().map(n -> get(n, context)).collect(toImmutableList()),
                 node.getMode());
     }
@@ -64,6 +66,7 @@ public abstract class PNodeRewriter<C>
     {
         return new PEquiJoin(
                 visitNodeName(node.getName(), context),
+                node.getAnnotations(),
                 node.getBranches().stream()
                         .map(b -> new PEquiJoin.Branch(
                                 get(b.getNode(), context),
@@ -77,6 +80,7 @@ public abstract class PNodeRewriter<C>
     {
         return new PFilter(
                 visitNodeName(node.getName(), context),
+                node.getAnnotations(),
                 get(node.getSource(), context),
                 node.getFunction(),
                 node.getArgs(),
@@ -88,6 +92,7 @@ public abstract class PNodeRewriter<C>
     {
         return new PGroupBy(
                 visitNodeName(node.getName(), context),
+                node.getAnnotations(),
                 get(node.getSource(), context),
                 node.getGroupFields(),
                 node.getListField());
@@ -98,6 +103,7 @@ public abstract class PNodeRewriter<C>
     {
         return new PLookupJoin(
                 visitNodeName(node.getName(), context),
+                node.getAnnotations(),
                 get(node.getSource(), context),
                 node.getSourceKeyFields(),
                 node.getBranches().stream()
@@ -112,6 +118,7 @@ public abstract class PNodeRewriter<C>
     {
         return new PState(
                 visitNodeName(node.getName(), context),
+                node.getAnnotations(),
                 get(node.getSource(), context),
                 node.getWriterTargets(),
                 node.isDenormalized(),
@@ -127,6 +134,7 @@ public abstract class PNodeRewriter<C>
     {
         return new PProject(
                 visitNodeName(node.getName(), context),
+                node.getAnnotations(),
                 get(node.getSource(), context),
                 node.getProjection());
     }
@@ -136,6 +144,7 @@ public abstract class PNodeRewriter<C>
     {
         return new PScan(
                 visitNodeName(node.getName(), context),
+                node.getAnnotations(),
                 node.getSchemaTable(),
                 node.getFields().getTypesByName(),
                 node.getIdFields(),
@@ -147,6 +156,7 @@ public abstract class PNodeRewriter<C>
     {
         return new PStruct(
                 visitNodeName(node.getName(), context),
+                node.getAnnotations(),
                 get(node.getSource(), context),
                 node.getStructFields(),
                 node.getStructField());
@@ -157,6 +167,7 @@ public abstract class PNodeRewriter<C>
     {
         return new PUnion(
                 visitNodeName(node.getName(), context),
+                node.getAnnotations(),
                 node.getSources().stream().map(n -> get(n, context)).collect(toImmutableList()),
                 node.getIndexField());
     }
@@ -166,6 +177,7 @@ public abstract class PNodeRewriter<C>
     {
         return new PUnnest(
                 visitNodeName(node.getName(), context),
+                node.getAnnotations(),
                 get(node.getSource(), context),
                 node.getListField(),
                 node.getUnnestedFields(),
@@ -177,6 +189,7 @@ public abstract class PNodeRewriter<C>
     {
         return new PValues(
                 visitNodeName(node.getName(), context),
+                node.getAnnotations(),
                 node.getFields().getTypesByName(),
                 node.getValues(),
                 node.getIndexField(),
