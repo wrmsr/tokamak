@@ -56,11 +56,6 @@ public final class PNodeAnnotations
                 return super.getKey();
             }
 
-            public String getField()
-            {
-                return key;
-            }
-
             @JsonProperty("annotations")
             @Override
             public List<FieldAnnotation> get()

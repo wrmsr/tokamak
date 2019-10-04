@@ -14,6 +14,7 @@
 package com.wrmsr.tokamak.core.util.annotation;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.wrmsr.tokamak.util.collect.StreamableIterable;
 
@@ -24,7 +25,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.StreamSupport;
+import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableList.toImmutableList;
@@ -74,7 +75,7 @@ public abstract class AnnotationCollectionMap<
     {
         this.entries = ImmutableList.copyOf(entries);
 
-        entriesByKey = StreamSupport.stream(this.entries.spliterator(), false)
+        entriesByKey = this.entries.stream()
                 .collect(toImmutableMap(Entry::getKey, identity()));
     }
 
@@ -193,5 +194,23 @@ public abstract class AnnotationCollectionMap<
             ret = ret.overwriting(key, annotations);
         }
         return ret;
+    }
+
+    public final Self withoutKeys(Set<K> keys)
+    {
+        return rebuildWithEntries(getEntries().stream()
+                .filter(e -> !keys.contains(e.key))
+                .collect(toImmutableList()));
+    }
+
+    public final Self withoutKeys(Iterable<K> keys)
+    {
+        return withoutKeys(ImmutableSet.copyOf(keys));
+    }
+
+    @SafeVarargs
+    public final Self withoutKeys(K... keys)
+    {
+        return withoutKeys(ImmutableSet.copyOf(keys));
     }
 }

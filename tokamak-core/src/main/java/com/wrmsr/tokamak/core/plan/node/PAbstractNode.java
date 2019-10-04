@@ -43,7 +43,7 @@ public abstract class PAbstractNode
     {
         checkUnique(getSources());
         checkState(getSources().isEmpty() == (this instanceof PGenerator));
-        annotations.getFields().forEach(f -> checkState(getFields().getNames().contains(f.getField())));
+        annotations.getFields().forEach(f -> checkState(getFields().getNames().contains(f.getKey())));
     }
 
     @Override
