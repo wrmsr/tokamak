@@ -14,18 +14,20 @@
 
 package com.wrmsr.tokamak.core.util.annotation;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 
 import javax.annotation.concurrent.Immutable;
 
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.StreamSupport;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.ImmutableList.toImmutableList;
+import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 import static java.util.function.Function.identity;
 
 @Immutable
@@ -37,9 +39,9 @@ public abstract class AnnotationCollectionMap<K, T extends Annotation, Self exte
     {
         private K key;
 
-        public Entry(Class<T> annotationBaseCls, K key, Iterable<T> annotations)
+        public Entry(K key, Iterable<T> annotations)
         {
-            super(annotationBaseCls, annotations);
+            super(annotations);
 
             this.key = checkNotNull(key);
         }
@@ -60,13 +62,15 @@ public abstract class AnnotationCollectionMap<K, T extends Annotation, Self exte
 
     private final Map<K, Entry<K, T>> entriesByKey;
 
-    public AnnotationCollectionMap(Iterable<Entry<K ,T>> entries)
+    public AnnotationCollectionMap(Iterable<Entry<K, T>> entries)
     {
         entriesByKey = StreamSupport.stream(checkNotNull(entries).spliterator(), false)
                 .collect(toImmutableMap(Entry::getKey, identity()));
     }
 
     protected abstract Self rebuildWithEntries(Iterable<Entry<K, T>> entries);
+
+    protected abstract Entry<K, T> newEntry(K key, Iterable<T> annotations);
 
     public Collection<Entry<K, T>> getEntries()
     {
@@ -83,58 +87,62 @@ public abstract class AnnotationCollectionMap<K, T extends Annotation, Self exte
         return Optional.ofNullable(entriesByKey.get(key));
     }
 
-    public final Self withFieldAnnotation(FieldAnnotation... fieldAnnotations)
+    @SafeVarargs
+    public final Self withAnnotation(T... annotations)
     {
-        return rebuildWithFieldAnnotations(getFieldAnnotations().stream()
-                .map(fa -> fa.withAnnotation(fieldAnnotations)).collect(toImmutableList()));
+        return rebuildWithEntries(getEntries().stream()
+                .map(fa -> fa.withAnnotation(annotations)).collect(toImmutableList()));
     }
 
     @SafeVarargs
-    public final Self withoutFieldAnnotation(Class<? extends FieldAnnotation>... fieldAnnotationClss)
+    public final Self withoutAnnotation(Class<? extends T>... annotationClss)
     {
-        return rebuildWithFieldAnnotations(getFieldAnnotations().stream()
-                .map(fa -> fa.withoutAnnotation(fieldAnnotationClss)).collect(toImmutableList()));
+        return rebuildWithEntries(getEntries().stream()
+                .map(fa -> fa.withoutAnnotation(annotationClss)).collect(toImmutableList()));
     }
 
-    public final Self overwritingFieldAnnotation(FieldAnnotation... fieldAnnotations)
+    @SafeVarargs
+    public final Self overwritingAnnotation(T... annotations)
     {
-        return rebuildWithFieldAnnotations(getFieldAnnotations().stream()
-                .map(fa -> fa.overwritingAnnotation(fieldAnnotations)).collect(toImmutableList()));
+        return rebuildWithEntries(getEntries().stream()
+                .map(fa -> fa.overwritingAnnotation(annotations)).collect(toImmutableList()));
     }
 
-    public final Self withFieldAnnotation(String field, FieldAnnotation... fieldAnnotations)
+    @SafeVarargs
+    public final Self withFieldAnnotation(K key, T... annotations)
     {
-        if (fieldAnnotationsByField.containsKey(field)) {
-            return rebuildWithFieldAnnotations(getFieldAnnotations().stream()
-                    .map(fa -> fa.field.equals(field) ? fa.withAnnotation(fieldAnnotations) : fa)
+        if (entriesByKey.containsKey(key)) {
+            return rebuildWithEntries(getEntries().stream()
+                    .map(fa -> fa.key.equals(key) ? fa.withAnnotation(annotations) : fa)
                     .collect(toImmutableList()));
         }
         else {
-            return rebuildWithFieldAnnotations(Iterables.concat(
-                    getFieldAnnotations(),
-                    ImmutableList.of(new FieldAnnotations(field, Arrays.asList(fieldAnnotations)))));
+            return rebuildWithEntries(Iterables.concat(
+                    getEntries(),
+                    ImmutableList.of(newEntry(key, Arrays.asList(annotations)))));
         }
     }
 
     @SafeVarargs
-    public final Self withoutFieldAnnotation(String field, Class<? extends FieldAnnotation>... fieldAnnotationClss)
+    public final Self withoutFieldAnnotation(K key, Class<? extends T>... annotationClss)
     {
-        return rebuildWithFieldAnnotations(getFieldAnnotations().stream()
-                .map(fa -> fa.field.equals(field) ? fa.withoutAnnotation(fieldAnnotationClss) : fa)
+        return rebuildWithEntries(getEntries().stream()
+                .map(fa -> fa.key.equals(key) ? fa.withoutAnnotation(annotationClss) : fa)
                 .collect(toImmutableList()));
     }
 
-    public final Self overwritingFieldAnnotation(String field, FieldAnnotation... fieldAnnotations)
+    @SafeVarargs
+    public final Self overwritingFieldAnnotation(K key, T... annotations)
     {
-        if (fieldAnnotationsByField.containsKey(field)) {
-            return rebuildWithFieldAnnotations(getFieldAnnotations().stream()
-                    .map(fa -> fa.field.equals(field) ? fa.overwritingAnnotation(fieldAnnotations) : fa)
+        if (entriesByKey.containsKey(key)) {
+            return rebuildWithEntries(getEntries().stream()
+                    .map(fa -> fa.key.equals(key) ? fa.overwritingAnnotation(annotations) : fa)
                     .collect(toImmutableList()));
         }
         else {
-            return rebuildWithFieldAnnotations(Iterables.concat(
-                    getFieldAnnotations(),
-                    ImmutableList.of(new FieldAnnotations(field, Arrays.asList(fieldAnnotations)))));
+            return rebuildWithEntries(Iterables.concat(
+                    getEntries(),
+                    ImmutableList.of(newEntry(key, Arrays.asList(annotations)))));
         }
     }
 }

@@ -24,25 +24,22 @@ import java.util.Map;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
 import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 import static java.util.function.Function.identity;
 
 @Immutable
 public abstract class AnnotationCollection<T extends Annotation, Self extends AnnotationCollection<T, Self>>
 {
-    protected final Class<T> annotationBaseCls;
     protected final List<T> annotations;
 
     protected final Map<Class<? extends T>, T> annotationsByCls;
 
     @SuppressWarnings({"unchecked"})
-    protected AnnotationCollection(Class<T> annotationBaseCls, Iterable<T> annotations)
+    protected AnnotationCollection(Iterable<T> annotations)
     {
-        this.annotationBaseCls = checkNotNull(annotationBaseCls);
         this.annotations = ImmutableList.copyOf(annotations);
 
-        this.annotations.forEach(a -> checkArgument(annotationBaseCls.isInstance(a)));
+        this.annotations.forEach(a -> checkArgument(getAnnotationCls().isInstance(a)));
         annotationsByCls = (Map) this.annotations.stream().collect(toImmutableMap(Annotation::getClass, identity()));
     }
 
@@ -63,6 +60,8 @@ public abstract class AnnotationCollection<T extends Annotation, Self extends An
                 "annotations=" + annotations +
                 '}';
     }
+
+    public abstract Class<T> getAnnotationCls();
 
     protected abstract Self rebuildWithAnnotations(Iterable<T> annotations);
 
