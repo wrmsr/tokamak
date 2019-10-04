@@ -211,6 +211,10 @@ public final class FieldOriginAnalysis
             @Override
             public Void visitCrossJoin(PCrossJoin node, Void context)
             {
+                Strength str = node.getMode() == PCrossJoin.Mode.FULL ? Strength.STRONG : Strength.WEAK;
+                node.getSources().forEach(s ->
+                        s.getFields().getNames().forEach(f -> originations.add(new Origination(
+                                NodeField.of(node, f), NodeField.of(s, f), str))));
                 return super.visitCrossJoin(node, context);
             }
 
@@ -219,7 +223,7 @@ public final class FieldOriginAnalysis
             {
                 node.getBranches().forEach(b -> {
                     Strength str =
-                            ((node.getMode() == PEquiJoin.Mode.INNER && b == node.getBranches().get(0)) || node.getMode() == PEquiJoin.Mode.FULL) ?
+                            ((node.getMode() == PEquiJoin.Mode.LEFT && b == node.getBranches().get(0)) || node.getMode() == PEquiJoin.Mode.FULL) ?
                                     Strength.STRONG : Strength.WEAK;
                     b.getNode().getFields().getNames().forEach(f -> {
                         originations.add(new Origination(NodeField.of(node, f), NodeField.of(b.getNode(), f), str));

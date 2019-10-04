@@ -15,7 +15,7 @@ package com.wrmsr.tokamak.core.layout;
 
 import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.core.layout.field.Field;
-import com.wrmsr.tokamak.core.layout.field.FieldAnnotation;
+import com.wrmsr.tokamak.core.layout.field.annotation.FieldAnnotation;
 import com.wrmsr.tokamak.core.layout.field.FieldCollection;
 import com.wrmsr.tokamak.core.type.Types;
 import com.wrmsr.tokamak.util.json.Json;
