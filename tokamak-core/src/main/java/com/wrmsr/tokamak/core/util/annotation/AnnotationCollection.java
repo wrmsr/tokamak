@@ -16,6 +16,8 @@ package com.wrmsr.tokamak.core.util.annotation;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 
+import javax.annotation.concurrent.Immutable;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +28,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 import static java.util.function.Function.identity;
 
+@Immutable
 public abstract class AnnotationCollection<T extends Annotation, Self extends AnnotationCollection<T, Self>>
 {
     protected final Class<T> annotationBaseCls;

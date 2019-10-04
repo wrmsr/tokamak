@@ -11,13 +11,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.core.layout.field.annotation;
+package com.wrmsr.tokamak.core.plan.node.annotation;
+
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.wrmsr.tokamak.core.util.annotation.Annotation;
 
 import javax.annotation.concurrent.Immutable;
 
+@JsonTypeInfo(
+        use = JsonTypeInfo.Id.NAME,
+        include = JsonTypeInfo.As.WRAPPER_OBJECT)
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = ExposedPNode.class, name = "exposed"),
+})
 @Immutable
-public final class InternalField
-        implements FieldAnnotation
+public interface PNodeAnnotation
+        extends Annotation
 {
-    static final InternalField INSTANCE = new InternalField();
+    static ExposedPNode exposed()
+    {
+        return ExposedPNode.INSTANCE;
+    }
 }
