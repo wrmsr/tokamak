@@ -46,11 +46,6 @@ public abstract class AnnotationCollection<T extends Annotation, Self extends An
         annotationsByCls = (Map) this.annotations.stream().collect(toImmutableMap(Annotation::getClass, identity()));
     }
 
-    protected AnnotationCollection(Class<T> annotationBaseCls)
-    {
-        this(annotationBaseCls, ImmutableList.of());
-    }
-
     public List<T> getAnnotations()
     {
         return annotations;
@@ -59,6 +54,14 @@ public abstract class AnnotationCollection<T extends Annotation, Self extends An
     public Map<Class<? extends T>, T> getAnnotationsByCls()
     {
         return annotationsByCls;
+    }
+
+    @Override
+    public String toString()
+    {
+        return getClass().getSimpleName() + "{" +
+                "annotations=" + annotations +
+                '}';
     }
 
     protected abstract Self rebuildWithAnnotations(Iterable<T> annotations);
