@@ -39,6 +39,7 @@ import java.util.stream.Stream;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.wrmsr.tokamak.util.MoreCollections.checkOrdered;
+import static com.wrmsr.tokamak.util.MoreCollections.streamIterator;
 import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 import static java.util.function.Function.identity;
@@ -66,6 +67,11 @@ public final class FieldCollection
     public boolean contains(String name)
     {
         return fieldsByName.containsKey(name);
+    }
+
+    public boolean containsAll(Iterable<String> names)
+    {
+        return streamIterator(names.iterator()).allMatch(fieldsByName::containsKey);
     }
 
     public int size()

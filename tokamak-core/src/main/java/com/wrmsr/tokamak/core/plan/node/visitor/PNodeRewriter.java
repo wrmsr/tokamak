@@ -89,7 +89,7 @@ public abstract class PNodeRewriter<C>
         return new PGroupBy(
                 visitNodeName(node.getName(), context),
                 get(node.getSource(), context),
-                node.getGroupField(),
+                node.getGroupFields(),
                 node.getListField());
     }
 

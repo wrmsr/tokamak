@@ -26,6 +26,8 @@ import com.wrmsr.tokamak.core.type.impl.StructType;
 
 import javax.annotation.concurrent.Immutable;
 
+import java.util.List;
+
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -35,7 +37,7 @@ public final class PGroupBy
         implements PAggregate, PSingleSource
 {
     private final PNode source;
-    private final String groupField;
+    private final List<String> groupFields;
     private final String listField;
 
     private final StructType structType;
@@ -45,21 +47,21 @@ public final class PGroupBy
     public PGroupBy(
             @JsonProperty("name") String name,
             @JsonProperty("source") PNode source,
-            @JsonProperty("groupField") String groupField,
+            @JsonProperty("groupFields") List<String> groupFields,
             @JsonProperty("listField") String listField)
     {
         super(name);
 
         this.source = checkNotNull(source);
-        this.groupField = checkNotNull(groupField);
+        this.groupFields = ImmutableList.copyOf(groupFields);
         this.listField = checkNotNull(listField);
 
-        checkArgument(!groupField.equals(listField));
-        checkArgument(source.getFields().contains(groupField));
+        checkArgument(!groupFields.contains(listField));
+        checkArgument(source.getFields().containsAll(groupFields));
 
         structType = new StructType(ImmutableMap.copyOf(source.getFields().getTypesByName()));
         fields = FieldCollection.builder()
-                .add(new Field(groupField, source.getFields().getType(groupField), ImmutableList.of(FieldAnnotation.id())))
+                .addAll(groupFields.stream().map(f -> new Field(f, source.getFields().getType(f), ImmutableList.of(FieldAnnotation.id()))))
                 .add(listField, new ListType(structType))
                 .build();
 
@@ -76,10 +78,10 @@ public final class PGroupBy
         return source;
     }
 
-    @JsonProperty("groupField")
-    public String getGroupField()
+    @JsonProperty("groupFields")
+    public List<String> getGroupFields()
     {
-        return groupField;
+        return groupFields;
     }
 
     @JsonProperty("listField")
