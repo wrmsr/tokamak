@@ -88,7 +88,7 @@ public abstract class AnnotationCollection<T extends Annotation, Self extends An
     }
 
     @SafeVarargs
-    public final Self replacingAnnotation(T... annotations)
+    public final Self overwritingAnnotation(T... annotations)
     {
         return rebuildWithAnnotations(
                 Iterables.concat(Iterables.filter(this.annotations, a -> Arrays.stream(annotations).anyMatch(ac -> ac.getClass().isInstance(a))), Arrays.asList(annotations)));
