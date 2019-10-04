@@ -347,7 +347,10 @@ public final class FieldOriginAnalysis
             @Override
             public Void visitLookupJoin(PLookupJoin node, Void context)
             {
-                checkState(false);
+                node.getSource().getFields().getNames().forEach(f -> originations.add(new Origination(
+                        NodeField.of(node, f), NodeField.of(node.getSource(), f), Strength.STRONG, Nesting.none())));
+                node.getBranches().forEach(b -> b.getFields().forEach(f -> originations.add(new Origination(
+                        NodeField.of(node, f), NodeField.of(b.getNode(), f), Strength.WEAK, Nesting.none()))));
 
                 visitSources(node, context);
                 return null;
