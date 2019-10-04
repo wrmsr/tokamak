@@ -31,11 +31,15 @@ import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 import static java.util.function.Function.identity;
 
 @Immutable
-public abstract class AnnotationCollectionMap<K, T extends Annotation, Self extends AnnotationCollectionMap<K, T, Self>>
+public abstract class AnnotationCollectionMap<
+        K,
+        T extends Annotation,
+        E extends AnnotationCollectionMap.Entry<K, T, E>,
+        Self extends AnnotationCollectionMap<K, T, E, Self>>
 {
     @Immutable
-    public static abstract class Entry<K, T extends Annotation>
-            extends AnnotationCollection<T, AnnotationCollectionMap.Entry<K, T>>
+    protected static abstract class Entry<K, T extends Annotation, Self extends AnnotationCollectionMap.Entry<K, T, Self>>
+            extends AnnotationCollection<T, Self>
     {
         private K key;
 
@@ -60,29 +64,29 @@ public abstract class AnnotationCollectionMap<K, T extends Annotation, Self exte
         }
     }
 
-    private final Map<K, Entry<K, T>> entriesByKey;
+    private final Map<K, E> entriesByKey;
 
-    public AnnotationCollectionMap(Iterable<Entry<K, T>> entries)
+    public AnnotationCollectionMap(Iterable<E> entries)
     {
         entriesByKey = StreamSupport.stream(checkNotNull(entries).spliterator(), false)
                 .collect(toImmutableMap(Entry::getKey, identity()));
     }
 
-    protected abstract Self rebuildWithEntries(Iterable<Entry<K, T>> entries);
+    protected abstract Self rebuildWithEntries(Iterable<E> entries);
 
-    protected abstract Entry<K, T> newEntry(K key, Iterable<T> annotations);
+    protected abstract E newEntry(K key, Iterable<T> annotations);
 
-    public Collection<Entry<K, T>> getEntries()
+    public Collection<E> getEntries()
     {
         return entriesByKey.values();
     }
 
-    public Map<K, Entry<K, T>> getEntriesByKey()
+    public Map<K, E> getEntriesByKey()
     {
         return entriesByKey;
     }
 
-    public Optional<Entry> getEntry(K key)
+    public Optional<E> getEntry(K key)
     {
         return Optional.ofNullable(entriesByKey.get(key));
     }
@@ -113,7 +117,7 @@ public abstract class AnnotationCollectionMap<K, T extends Annotation, Self exte
     {
         if (entriesByKey.containsKey(key)) {
             return rebuildWithEntries(getEntries().stream()
-                    .map(fa -> fa.key.equals(key) ? fa.withAnnotation(annotations) : fa)
+                    .map(fa -> fa.getKey().equals(key) ? fa.withAnnotation(annotations) : fa)
                     .collect(toImmutableList()));
         }
         else {
@@ -127,7 +131,7 @@ public abstract class AnnotationCollectionMap<K, T extends Annotation, Self exte
     public final Self withoutFieldAnnotation(K key, Class<? extends T>... annotationClss)
     {
         return rebuildWithEntries(getEntries().stream()
-                .map(fa -> fa.key.equals(key) ? fa.withoutAnnotation(annotationClss) : fa)
+                .map(fa -> fa.getKey().equals(key) ? fa.withoutAnnotation(annotationClss) : fa)
                 .collect(toImmutableList()));
     }
 
@@ -136,7 +140,7 @@ public abstract class AnnotationCollectionMap<K, T extends Annotation, Self exte
     {
         if (entriesByKey.containsKey(key)) {
             return rebuildWithEntries(getEntries().stream()
-                    .map(fa -> fa.key.equals(key) ? fa.overwritingAnnotation(annotations) : fa)
+                    .map(fa -> fa.getKey().equals(key) ? fa.overwritingAnnotation(annotations) : fa)
                     .collect(toImmutableList()));
         }
         else {

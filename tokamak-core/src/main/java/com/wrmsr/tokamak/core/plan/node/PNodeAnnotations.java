@@ -20,6 +20,7 @@ import com.google.common.collect.Iterables;
 import com.wrmsr.tokamak.core.layout.field.annotation.FieldAnnotation;
 import com.wrmsr.tokamak.core.plan.node.annotation.PNodeAnnotation;
 import com.wrmsr.tokamak.core.util.annotation.AnnotationCollection;
+import com.wrmsr.tokamak.core.util.annotation.AnnotationCollectionMap;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -41,17 +42,44 @@ public final class PNodeAnnotations
         extends AnnotationCollection<PNodeAnnotation, PNodeAnnotations>
 {
     @Immutable
-    public static final class FieldAnnotations
-            extends AnnotationCollection<FieldAnnotation, FieldAnnotations>
+    public static final class Fields
+            extends AnnotationCollectionMap<String, FieldAnnotation, Fields>
     {
-        private String field;
+        @Immutable
+        public static final class Entry
+                extends AnnotationCollectionMap.Entry<String, FieldAnnotation, PNodeAnnotations.Fields.Entry>
+        {
+            public Entry(String key, Iterable<FieldAnnotation> annotations)
+            {
+                super(key, annotations);
+            }
+
+            @Override
+            public Class<FieldAnnotation> getAnnotationCls()
+            {
+                return null;
+            }
+
+            @Override
+            protected Entry rebuildWithAnnotations(Iterable<FieldAnnotation> annotations)
+            {
+                return null;
+            }
+        }
+
+        @JsonCreator
+        public Fields(
+                @JsonProperty("entries") Iterable<Entry<String, FieldAnnotation>> entries)
+        {
+            super(entries);
+        }
 
         @JsonCreator
         public FieldAnnotations(
                 @JsonProperty("field") String field,
                 @JsonProperty("annotations") Iterable<FieldAnnotation> annotations)
         {
-            super(FieldAnnotation.class, annotations);
+            super(annotations);
 
             this.field = checkNotEmpty(field);
         }
@@ -96,7 +124,7 @@ public final class PNodeAnnotations
             @JsonProperty("annotations") Iterable<PNodeAnnotation> annotations,
             @JsonProperty("fields") Iterable<FieldAnnotations> fieldAnnotations)
     {
-        super(PNodeAnnotation.class, annotations);
+        super(annotations);
 
         fieldAnnotationsByField = StreamSupport.stream(checkNotNull(fieldAnnotations).spliterator(), false)
                 .collect(toImmutableMap(FieldAnnotations::getField, identity()));
@@ -105,6 +133,12 @@ public final class PNodeAnnotations
     public PNodeAnnotations()
     {
         this(ImmutableList.of(), ImmutableList.of());
+    }
+
+    @Override
+    public Class<PNodeAnnotation> getAnnotationCls()
+    {
+        return PNodeAnnotation.class;
     }
 
     @Override

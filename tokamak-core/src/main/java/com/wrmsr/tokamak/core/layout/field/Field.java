@@ -43,7 +43,7 @@ public final class Field
             @JsonProperty("type") Type type,
             @JsonProperty("annotations") Iterable<FieldAnnotation> annotations)
     {
-        super(FieldAnnotation.class, annotations);
+        super(annotations);
 
         this.name = checkNotEmpty(name);
         this.type = checkNotNull(type);
@@ -54,6 +54,12 @@ public final class Field
     public Field(String name, Type type)
     {
         this(name, type, ImmutableList.of());
+    }
+
+    @Override
+    public Class<FieldAnnotation> getAnnotationCls()
+    {
+        return FieldAnnotation.class;
     }
 
     @Override
