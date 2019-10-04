@@ -28,6 +28,7 @@ import com.wrmsr.tokamak.core.plan.node.PProjection;
 import com.wrmsr.tokamak.core.plan.node.PScan;
 import com.wrmsr.tokamak.core.plan.node.PSingleSource;
 import com.wrmsr.tokamak.core.plan.node.PState;
+import com.wrmsr.tokamak.core.plan.node.PStruct;
 import com.wrmsr.tokamak.core.plan.node.PUnion;
 import com.wrmsr.tokamak.core.plan.node.PUnnest;
 import com.wrmsr.tokamak.core.plan.node.PValues;
@@ -115,32 +116,117 @@ public final class FieldOriginAnalysis
         GENERATED,
     }
 
+    public interface Nesting
+    {
+        final class Nested
+                implements Nesting
+        {
+            private final String subfield;
+
+            private Nested(String subfield)
+            {
+                this.subfield = checkNotNull(subfield);
+            }
+
+            public String getSubfield()
+            {
+                return subfield;
+            }
+
+            @Override
+            public String toString()
+            {
+                return "Nested{" +
+                        "subfield='" + subfield + '\'' +
+                        '}';
+            }
+        }
+
+        final class None
+                implements Nesting
+        {
+            private static final None INSTANCE = new None();
+
+            private None()
+            {
+            }
+
+            @Override
+            public String toString()
+            {
+                return "None{}";
+            }
+        }
+
+        final class Unnested
+                implements Nesting
+        {
+            private final String subfield;
+
+            private Unnested(String subfield)
+            {
+                this.subfield = checkNotNull(subfield);
+            }
+
+            public String getSubfield()
+            {
+                return subfield;
+            }
+
+            @Override
+            public String toString()
+            {
+                return "Unnested{" +
+                        "subfield='" + subfield + '\'' +
+                        '}';
+            }
+        }
+
+        static Nested nested(String subfield)
+        {
+            return new Nested(subfield);
+        }
+
+        static None none()
+        {
+            return None.INSTANCE;
+        }
+
+        static Unnested unnested(String subfield)
+        {
+            return new Unnested(subfield);
+        }
+    }
+
     @Immutable
     public static final class Origination
     {
         private final NodeField sink;
         private final Optional<NodeField> source;
         private final Strength strength;
+        private final Nesting nesting;
 
-        private Origination(NodeField sink, Optional<NodeField> source, Strength strength)
+        private Origination(NodeField sink, Optional<NodeField> source, Strength strength, Nesting nesting)
         {
             this.sink = checkNotNull(sink);
             this.source = checkNotNull(source);
             this.strength = checkNotNull(strength);
+            this.nesting = checkNotNull(nesting);
             source.ifPresent(s -> checkState(sink.node.getSources().contains(s.node)));
             if (!source.isPresent()) {
                 checkArgument(strength == Strength.GENERATED);
+                checkArgument(nesting instanceof Nesting.None);
             }
         }
 
-        private Origination(NodeField sink, NodeField source, Strength strength)
+        private Origination(NodeField sink, NodeField source, Strength strength, Nesting nesting)
         {
-            this(sink, Optional.of(source), strength);
+            this(sink, Optional.of(source), strength, nesting);
         }
 
         private Origination(NodeField sink)
         {
-            this(sink, Optional.empty(), Strength.GENERATED);
+            this(sink, Optional.empty(), Strength.GENERATED, Nesting.none());
         }
 
         @Override
@@ -150,6 +236,7 @@ public final class FieldOriginAnalysis
                     "sink=" + sink +
                     ", source=" + source +
                     ", strength=" + strength +
+                    ", nesting=" + nesting +
                     '}';
         }
 
@@ -191,21 +278,21 @@ public final class FieldOriginAnalysis
             private void addSimpleSingleSource(PSingleSource node)
             {
                 node.getFields().getNames().forEach(f ->
-                        originations.add(new Origination(NodeField.of(node, f), NodeField.of(node.getSource(), f), Strength.STRONG)));
+                        originations.add(new Origination(NodeField.of(node, f), NodeField.of(node.getSource(), f), Strength.STRONG, Nesting.none())));
             }
 
-            @Override
-            protected Void visitNode(PNode node, Void context)
+            protected void visitSources(PNode node, Void context)
             {
                 node.getSources().forEach(s -> s.accept(this, context));
-                return null;
             }
 
             @Override
             public Void visitCache(PCache node, Void context)
             {
                 addSimpleSingleSource(node);
-                return super.visitCache(node, context);
+
+                visitSources(node, context);
+                return null;
             }
 
             @Override
@@ -214,8 +301,10 @@ public final class FieldOriginAnalysis
                 Strength str = node.getMode() == PCrossJoin.Mode.FULL ? Strength.STRONG : Strength.WEAK;
                 node.getSources().forEach(s ->
                         s.getFields().getNames().forEach(f -> originations.add(new Origination(
-                                NodeField.of(node, f), NodeField.of(s, f), str))));
-                return super.visitCrossJoin(node, context);
+                                NodeField.of(node, f), NodeField.of(s, f), str, Nesting.none()))));
+
+                visitSources(node, context);
+                return null;
             }
 
             @Override
@@ -226,17 +315,21 @@ public final class FieldOriginAnalysis
                             ((node.getMode() == PEquiJoin.Mode.LEFT && b == node.getBranches().get(0)) || node.getMode() == PEquiJoin.Mode.FULL) ?
                                     Strength.STRONG : Strength.WEAK;
                     b.getNode().getFields().getNames().forEach(f -> {
-                        originations.add(new Origination(NodeField.of(node, f), NodeField.of(b.getNode(), f), str));
+                        originations.add(new Origination(NodeField.of(node, f), NodeField.of(b.getNode(), f), str, Nesting.none()));
                     });
                 });
-                return super.visitEquiJoin(node, context);
+
+                visitSources(node, context);
+                return null;
             }
 
             @Override
             public Void visitFilter(PFilter node, Void context)
             {
                 addSimpleSingleSource(node);
-                return super.visitFilter(node, context);
+
+                visitSources(node, context);
+                return null;
             }
 
             @Override
@@ -245,14 +338,19 @@ public final class FieldOriginAnalysis
                 originations.add(new Origination(
                         NodeField.of(node, node.getListField())));
                 node.getGroupFields().forEach(gf -> originations.add(new Origination(
-                        NodeField.of(node, gf), NodeField.of(node.getSource(), gf), Strength.STRONG)));
-                return super.visitGroupBy(node, context);
+                        NodeField.of(node, gf), NodeField.of(node.getSource(), gf), Strength.STRONG, Nesting.none())));
+
+                visitSources(node, context);
+                return null;
             }
 
             @Override
             public Void visitLookupJoin(PLookupJoin node, Void context)
             {
-                return super.visitLookupJoin(node, context);
+                checkState(false);
+
+                visitSources(node, context);
+                return null;
             }
 
             @Override
@@ -261,10 +359,12 @@ public final class FieldOriginAnalysis
                 node.getProjection().getInputsByOutput().forEach((o, i) -> {
                     if (i instanceof PProjection.FieldInput) {
                         PProjection.FieldInput fi = (PProjection.FieldInput) i;
-                        originations.add(new Origination(NodeField.of(node, o), NodeField.of(node.getSource(), fi.getField()), Strength.STRONG));
+                        originations.add(new Origination(NodeField.of(node, o), NodeField.of(node.getSource(), fi.getField()), Strength.STRONG, Nesting.none()));
                     }
                 });
-                return super.visitProject(node, context);
+
+                visitSources(node, context);
+                return null;
             }
 
             @Override
@@ -282,15 +382,30 @@ public final class FieldOriginAnalysis
             }
 
             @Override
+            public Void visitStruct(PStruct node, Void context)
+            {
+                checkState(false);
+
+                visitSources(node, context);
+                return null;
+            }
+
+            @Override
             public Void visitUnion(PUnion node, Void context)
             {
-                return super.visitUnion(node, context);
+                checkState(false);
+
+                visitSources(node, context);
+                return null;
             }
 
             @Override
             public Void visitUnnest(PUnnest node, Void context)
             {
-                return super.visitUnnest(node, context);
+                checkState(false);
+
+                visitSources(node, context);
+                return null;
             }
 
             @Override
