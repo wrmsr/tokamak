@@ -121,23 +121,23 @@ public final class FieldOriginAnalysis
         final class Nested
                 implements Nesting
         {
-            private final String subfield;
+            private final String sinkSubfield;
 
-            private Nested(String subfield)
+            private Nested(String sinkSubfield)
             {
-                this.subfield = checkNotNull(subfield);
+                this.sinkSubfield = checkNotNull(sinkSubfield);
             }
 
-            public String getSubfield()
+            public String getSinkSubfield()
             {
-                return subfield;
+                return sinkSubfield;
             }
 
             @Override
             public String toString()
             {
                 return "Nested{" +
-                        "subfield='" + subfield + '\'' +
+                        "sinkSubfield='" + sinkSubfield + '\'' +
                         '}';
             }
         }
@@ -161,23 +161,23 @@ public final class FieldOriginAnalysis
         final class Unnested
                 implements Nesting
         {
-            private final String subfield;
+            private final String sourceSubfield;
 
-            private Unnested(String subfield)
+            private Unnested(String sourceSubfield)
             {
-                this.subfield = checkNotNull(subfield);
+                this.sourceSubfield = checkNotNull(sourceSubfield);
             }
 
-            public String getSubfield()
+            public String getSourceSubfield()
             {
-                return subfield;
+                return sourceSubfield;
             }
 
             @Override
             public String toString()
             {
                 return "Unnested{" +
-                        "subfield='" + subfield + '\'' +
+                        "sourceSubfield='" + sourceSubfield + '\'' +
                         '}';
             }
         }
