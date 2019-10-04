@@ -15,6 +15,7 @@ package com.wrmsr.tokamak.core.layout.field;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.wrmsr.tokamak.core.util.annotation.Annotation;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -27,6 +28,7 @@ import javax.annotation.concurrent.Immutable;
 })
 @Immutable
 public interface FieldAnnotation
+        extends Annotation
 {
     static IdField id()
     {

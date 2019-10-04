@@ -28,10 +28,10 @@ import static java.util.function.Function.identity;
 
 public abstract class AnnotationCollection<T extends Annotation, Self extends AnnotationCollection<T, Self>>
 {
-    private final Class<T> annotationBaseCls;
-    private final List<T> annotations;
+    protected final Class<T> annotationBaseCls;
+    protected final List<T> annotations;
 
-    private final Map<Class<? extends T>, T> annotationsByCls;
+    protected final Map<Class<? extends T>, T> annotationsByCls;
 
     @SuppressWarnings({"unchecked"})
     protected AnnotationCollection(Class<T> annotationBaseCls, Iterable<T> annotations)
@@ -58,7 +58,7 @@ public abstract class AnnotationCollection<T extends Annotation, Self extends An
         return annotationsByCls;
     }
 
-    protected abstract Self rebuildWith(Iterable<T> annotations);
+    protected abstract Self rebuildWithAnnotations(Iterable<T> annotations);
 
     @SuppressWarnings({"unchecked"})
     public <U extends T> Optional<T> getAnnotation(Class<U> cls)
@@ -74,20 +74,20 @@ public abstract class AnnotationCollection<T extends Annotation, Self extends An
     @SafeVarargs
     public final Self withAnnotation(T... annotations)
     {
-        return rebuildWith(Iterables.<T>concat(this.annotations, Arrays.asList(annotations)));
+        return rebuildWithAnnotations(Iterables.<T>concat(this.annotations, Arrays.asList(annotations)));
     }
 
     @SafeVarargs
     public final Self withoutAnnotation(Class<? extends T>... annotationClss)
     {
-        return rebuildWith(
+        return rebuildWithAnnotations(
                 Iterables.filter(annotations, a -> Arrays.stream(annotationClss).anyMatch(ac -> ac.isInstance(a))));
     }
 
     @SafeVarargs
     public final Self replacingAnnotation(T... annotations)
     {
-        return rebuildWith(
+        return rebuildWithAnnotations(
                 Iterables.concat(Iterables.filter(this.annotations, a -> Arrays.stream(annotations).anyMatch(ac -> ac.getClass().isInstance(a))), Arrays.asList(annotations)));
     }
 }

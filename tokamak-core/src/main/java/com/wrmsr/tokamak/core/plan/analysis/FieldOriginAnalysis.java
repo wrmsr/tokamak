@@ -240,8 +240,8 @@ public final class FieldOriginAnalysis
             {
                 originations.add(new Origination(
                         NodeField.of(node, node.getListField())));
-                originations.add(new Origination(
-                        NodeField.of(node, node.getGroupField()), NodeField.of(node.getSource(), node.getGroupField()), Strength.STRONG));
+                node.getGroupFields().forEach(gf -> originations.add(new Origination(
+                        NodeField.of(node, gf), NodeField.of(node.getSource(), gf), Strength.STRONG)));
                 return super.visitGroupBy(node, context);
             }
 

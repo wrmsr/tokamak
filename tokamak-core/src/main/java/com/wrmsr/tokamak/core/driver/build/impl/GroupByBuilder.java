@@ -24,7 +24,6 @@ import com.wrmsr.tokamak.core.plan.node.PNode;
 import java.util.Map;
 import java.util.function.Consumer;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkSingle;
 
 public final class GroupByBuilder
@@ -41,8 +40,8 @@ public final class GroupByBuilder
         // RowCodec idCodec = context.getDriver().getCodecManager().getRowIdCodec(node);
         Key childKey;
         Map.Entry<String, Object> fieldKeyEntry = checkSingle(key);
-        checkArgument(fieldKeyEntry.getKey().equals(node.getGroupField()));
-        childKey = Key.of(node.getGroupField(), fieldKeyEntry.getValue());
+        // checkArgument(fieldKeyEntry.getKey().equals(node.getGroupField()));
+        // childKey = Key.of(node.getGroupField(), fieldKeyEntry.getValue());
 
         // Collection<DriverRow> rows = context.build(node.getSource(), key);
         // if (rows.size() == 1 && checkSingle(rows).isNull()) {

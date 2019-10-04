@@ -16,31 +16,25 @@ package com.wrmsr.tokamak.core.layout.field;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
 import com.wrmsr.tokamak.core.type.Type;
+import com.wrmsr.tokamak.core.util.annotation.AnnotationCollection;
 import com.wrmsr.tokamak.util.Pair;
 
 import javax.annotation.concurrent.Immutable;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
-import static java.util.function.UnaryOperator.identity;
 
 @Immutable
 public final class Field
+        extends AnnotationCollection<FieldAnnotation, Field>
 {
     private final String name;
     private final Type type;
-    private final List<FieldAnnotation> annotations;
 
     private final Pair<String, Type> nameTypePair;
-    private final Map<Class<? extends FieldAnnotation>, FieldAnnotation> annotationsByCls;
 
     @JsonCreator
     public Field(
@@ -48,17 +42,23 @@ public final class Field
             @JsonProperty("type") Type type,
             @JsonProperty("annotations") Iterable<FieldAnnotation> annotations)
     {
+        super(FieldAnnotation.class, annotations);
+
         this.name = checkNotEmpty(name);
         this.type = checkNotNull(type);
-        this.annotations = ImmutableList.copyOf(annotations);
 
         nameTypePair = Pair.immutable(name, type);
-        annotationsByCls = this.annotations.stream().collect(toImmutableMap(FieldAnnotation::getClass, identity()));
     }
 
     public Field(String name, Type type)
     {
         this(name, type, ImmutableList.of());
+    }
+
+    @Override
+    protected Field rebuildWithAnnotations(Iterable<FieldAnnotation> annotations)
+    {
+        return new Field(name, type, annotations);
     }
 
     @Override
@@ -91,40 +91,5 @@ public final class Field
     public List<FieldAnnotation> getAnnotations()
     {
         return annotations;
-    }
-
-    public Map<Class<? extends FieldAnnotation>, FieldAnnotation> getAnnotationsByCls()
-    {
-        return annotationsByCls;
-    }
-
-    @SuppressWarnings({"unchecked"})
-    public <T extends FieldAnnotation> Optional<T> getAnnotation(Class<T> cls)
-    {
-        return Optional.ofNullable((T) annotationsByCls.get(cls));
-    }
-
-    public boolean hasAnnotation(Class<? extends FieldAnnotation> cls)
-    {
-        return annotationsByCls.containsKey(cls);
-    }
-
-    public Field withAnnotation(FieldAnnotation... annotations)
-    {
-        return new Field(name, type,
-                Iterables.<FieldAnnotation>concat(this.annotations, Arrays.asList(annotations)));
-    }
-
-    @SafeVarargs
-    public final Field withoutAnnotation(Class<? extends FieldAnnotation>... annotationClss)
-    {
-        return new Field(name, type,
-                Iterables.filter(annotations, a -> Arrays.stream(annotationClss).anyMatch(ac -> ac.isInstance(a))));
-    }
-
-    public Field replacingAnnotation(FieldAnnotation... annotations)
-    {
-        return new Field(name, type,
-                Iterables.concat(Iterables.filter(this.annotations, a -> Arrays.stream(annotations).anyMatch(ac -> ac.getClass().isInstance(a))), Arrays.asList(annotations)));
     }
 }

@@ -320,7 +320,7 @@ public final class SearchParsing
             @Override
             public SNode visitRawStringExpression(SearchParser.RawStringExpressionContext ctx)
             {
-                // FIXME: shared escaping with tree
+                // FIXME: shared escaping with tree (core.util.StringEscaping) - really, in tok.util for java/sql?
                 return new SString(ctx.RAW_STRING().getText());
             }
 
