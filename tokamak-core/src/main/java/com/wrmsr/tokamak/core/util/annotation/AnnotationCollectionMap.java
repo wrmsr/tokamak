@@ -11,7 +11,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.wrmsr.tokamak.core.util.annotation;
 
 import com.google.common.collect.ImmutableList;
@@ -41,9 +40,9 @@ public abstract class AnnotationCollectionMap<
     protected static abstract class Entry<K, T extends Annotation, Self extends AnnotationCollectionMap.Entry<K, T, Self>>
             extends AnnotationCollection<T, Self>
     {
-        private K key;
+        protected K key;
 
-        public Entry(K key, Iterable<T> annotations)
+        protected Entry(K key, Iterable<T> annotations)
         {
             super(annotations);
 
@@ -64,9 +63,9 @@ public abstract class AnnotationCollectionMap<
         }
     }
 
-    private final Map<K, E> entriesByKey;
+    protected final Map<K, E> entriesByKey;
 
-    public AnnotationCollectionMap(Iterable<E> entries)
+    protected AnnotationCollectionMap(Iterable<E> entries)
     {
         entriesByKey = StreamSupport.stream(checkNotNull(entries).spliterator(), false)
                 .collect(toImmutableMap(Entry::getKey, identity()));
@@ -113,7 +112,7 @@ public abstract class AnnotationCollectionMap<
     }
 
     @SafeVarargs
-    public final Self withFieldAnnotation(K key, T... annotations)
+    public final Self withAnnotation(K key, T... annotations)
     {
         if (entriesByKey.containsKey(key)) {
             return rebuildWithEntries(getEntries().stream()
@@ -128,7 +127,7 @@ public abstract class AnnotationCollectionMap<
     }
 
     @SafeVarargs
-    public final Self withoutFieldAnnotation(K key, Class<? extends T>... annotationClss)
+    public final Self withoutAnnotation(K key, Class<? extends T>... annotationClss)
     {
         return rebuildWithEntries(getEntries().stream()
                 .map(fa -> fa.getKey().equals(key) ? fa.withoutAnnotation(annotationClss) : fa)
@@ -136,7 +135,7 @@ public abstract class AnnotationCollectionMap<
     }
 
     @SafeVarargs
-    public final Self overwritingFieldAnnotation(K key, T... annotations)
+    public final Self overwritingAnnotation(K key, T... annotations)
     {
         if (entriesByKey.containsKey(key)) {
             return rebuildWithEntries(getEntries().stream()
@@ -148,5 +147,38 @@ public abstract class AnnotationCollectionMap<
                     getEntries(),
                     ImmutableList.of(newEntry(key, Arrays.asList(annotations)))));
         }
+    }
+
+    @SafeVarargs
+    public final Self withAnnotation(Iterable<K> keys, T... annotations)
+    {
+        @SuppressWarnings({"unchecked"})
+        Self ret = (Self) this;
+        for (K key : keys) {
+            ret = ret.withAnnotation(key, annotations);
+        }
+        return ret;
+    }
+
+    @SafeVarargs
+    public final Self withoutAnnotation(Iterable<K> keys, Class<? extends T>... annotationClss)
+    {
+        @SuppressWarnings({"unchecked"})
+        Self ret = (Self) this;
+        for (K key : keys) {
+            ret = ret.withoutAnnotation(key, annotationClss);
+        }
+        return ret;
+    }
+
+    @SafeVarargs
+    public final Self overwritingAnnotation(Iterable<K> keys, T... annotations)
+    {
+        @SuppressWarnings({"unchecked"})
+        Self ret = (Self) this;
+        for (K key : keys) {
+            ret = ret.overwritingAnnotation(key, annotations);
+        }
+        return ret;
     }
 }

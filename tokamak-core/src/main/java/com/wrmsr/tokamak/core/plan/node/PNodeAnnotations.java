@@ -16,7 +16,6 @@ package com.wrmsr.tokamak.core.plan.node;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
 import com.wrmsr.tokamak.core.layout.field.annotation.FieldAnnotation;
 import com.wrmsr.tokamak.core.plan.node.annotation.PNodeAnnotation;
 import com.wrmsr.tokamak.core.util.annotation.AnnotationCollection;
@@ -24,18 +23,12 @@ import com.wrmsr.tokamak.core.util.annotation.AnnotationCollectionMap;
 
 import javax.annotation.concurrent.Immutable;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.StreamSupport;
+import java.util.function.Function;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.collect.ImmutableList.toImmutableList;
-import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
-import static java.util.function.Function.identity;
 
 @Immutable
 public final class PNodeAnnotations
@@ -43,96 +36,109 @@ public final class PNodeAnnotations
 {
     @Immutable
     public static final class Fields
-            extends AnnotationCollectionMap<String, FieldAnnotation, Fields>
+            extends AnnotationCollectionMap<String, FieldAnnotation, Fields.Entry, Fields>
     {
         @Immutable
         public static final class Entry
                 extends AnnotationCollectionMap.Entry<String, FieldAnnotation, PNodeAnnotations.Fields.Entry>
         {
-            public Entry(String key, Iterable<FieldAnnotation> annotations)
+            @JsonCreator
+            public Entry(
+                    @JsonProperty("key") String key,
+                    @JsonProperty("annotations") Iterable<FieldAnnotation> annotations)
             {
-                super(key, annotations);
+                super(checkNotEmpty(key), annotations);
+            }
+
+            @JsonProperty("key")
+            @Override
+            public String getKey()
+            {
+                return super.getKey();
+            }
+
+            @JsonProperty("annotations")
+            @Override
+            public List<FieldAnnotation> getAnnotations()
+            {
+                return super.getAnnotations();
             }
 
             @Override
             public Class<FieldAnnotation> getAnnotationCls()
             {
-                return null;
+                return FieldAnnotation.class;
             }
 
             @Override
             protected Entry rebuildWithAnnotations(Iterable<FieldAnnotation> annotations)
             {
-                return null;
+                return new Entry(key, annotations);
             }
         }
 
         @JsonCreator
         public Fields(
-                @JsonProperty("entries") Iterable<Entry<String, FieldAnnotation>> entries)
+                @JsonProperty("entries") Iterable<Entry> entries)
         {
             super(entries);
         }
 
-        @JsonCreator
-        public FieldAnnotations(
-                @JsonProperty("field") String field,
-                @JsonProperty("annotations") Iterable<FieldAnnotation> annotations)
+        @JsonProperty("entries")
+        @Override
+        public Collection<Entry> getEntries()
         {
-            super(annotations);
-
-            this.field = checkNotEmpty(field);
-        }
-
-        public FieldAnnotations(String field)
-        {
-            this(field, ImmutableList.of());
+            return super.getEntries();
         }
 
         @Override
-        public String toString()
+        protected Fields rebuildWithEntries(Iterable<Entry> entries)
         {
-            return "FieldAnnotations{" +
-                    "field='" + field + '\'' +
-                    '}';
+            return new Fields(entries);
         }
 
         @Override
-        protected FieldAnnotations rebuildWithAnnotations(Iterable<FieldAnnotation> annotations)
+        protected Entry newEntry(String key, Iterable<FieldAnnotation> annotations)
         {
-            return new FieldAnnotations(field, annotations);
-        }
-
-        @JsonProperty("field")
-        public String getField()
-        {
-            return field;
-        }
-
-        @JsonProperty("annotations")
-        @Override
-        public List<FieldAnnotation> getAnnotations()
-        {
-            return super.getAnnotations();
+            return new Entry(key, annotations);
         }
     }
 
-    private final Map<String, FieldAnnotations> fieldAnnotationsByField;
+    private final Fields fields;
 
     @JsonCreator
     public PNodeAnnotations(
             @JsonProperty("annotations") Iterable<PNodeAnnotation> annotations,
-            @JsonProperty("fields") Iterable<FieldAnnotations> fieldAnnotations)
+            @JsonProperty("fields") Fields fields)
     {
         super(annotations);
 
-        fieldAnnotationsByField = StreamSupport.stream(checkNotNull(fieldAnnotations).spliterator(), false)
-                .collect(toImmutableMap(FieldAnnotations::getField, identity()));
+        this.fields = checkNotNull(fields);
+    }
+
+    @JsonProperty("annotations")
+    @Override
+    public List<PNodeAnnotation> getAnnotations()
+    {
+        return super.getAnnotations();
+    }
+
+    @JsonProperty("fields")
+    public Fields getField()
+    {
+        return fields;
     }
 
     public PNodeAnnotations()
     {
-        this(ImmutableList.of(), ImmutableList.of());
+        this(ImmutableList.of(), new Fields(ImmutableList.of()));
+    }
+
+    private static final PNodeAnnotations EMPTY = new PNodeAnnotations();
+
+    public static PNodeAnnotations empty()
+    {
+        return EMPTY;
     }
 
     @Override
@@ -144,89 +150,16 @@ public final class PNodeAnnotations
     @Override
     protected PNodeAnnotations rebuildWithAnnotations(Iterable<PNodeAnnotation> annotations)
     {
-        return new PNodeAnnotations(annotations, getFieldAnnotations());
+        return new PNodeAnnotations(annotations, fields);
     }
 
-    protected PNodeAnnotations rebuildWithFieldAnnotations(Iterable<FieldAnnotations> fieldAnnotations)
+    public PNodeAnnotations withFields(Fields fields)
     {
-        return new PNodeAnnotations(annotations, fieldAnnotations);
+        return new PNodeAnnotations(annotations, fields);
     }
 
-    @JsonProperty("annotations")
-    @Override
-    public List<PNodeAnnotation> getAnnotations()
+    public PNodeAnnotations mapFields(Function<Fields, Fields> fn)
     {
-        return super.getAnnotations();
-    }
-
-    @JsonProperty("fieldAnnotations")
-    public Collection<FieldAnnotations> getFieldAnnotations()
-    {
-        return fieldAnnotationsByField.values();
-    }
-
-    public Map<String, FieldAnnotations> getFieldAnnotationsByField()
-    {
-        return fieldAnnotationsByField;
-    }
-
-    public Optional<FieldAnnotations> getFieldAnnotations(String field)
-    {
-        return Optional.ofNullable(fieldAnnotationsByField.get(field));
-    }
-
-    public final PNodeAnnotations withFieldAnnotation(FieldAnnotation... fieldAnnotations)
-    {
-        return rebuildWithFieldAnnotations(getFieldAnnotations().stream()
-                .map(fa -> fa.withAnnotation(fieldAnnotations)).collect(toImmutableList()));
-    }
-
-    @SafeVarargs
-    public final PNodeAnnotations withoutFieldAnnotation(Class<? extends FieldAnnotation>... fieldAnnotationClss)
-    {
-        return rebuildWithFieldAnnotations(getFieldAnnotations().stream()
-                .map(fa -> fa.withoutAnnotation(fieldAnnotationClss)).collect(toImmutableList()));
-    }
-
-    public final PNodeAnnotations overwritingFieldAnnotation(FieldAnnotation... fieldAnnotations)
-    {
-        return rebuildWithFieldAnnotations(getFieldAnnotations().stream()
-                .map(fa -> fa.overwritingAnnotation(fieldAnnotations)).collect(toImmutableList()));
-    }
-
-    public final PNodeAnnotations withFieldAnnotation(String field, FieldAnnotation... fieldAnnotations)
-    {
-        if (fieldAnnotationsByField.containsKey(field)) {
-            return rebuildWithFieldAnnotations(getFieldAnnotations().stream()
-                    .map(fa -> fa.field.equals(field) ? fa.withAnnotation(fieldAnnotations) : fa)
-                    .collect(toImmutableList()));
-        }
-        else {
-            return rebuildWithFieldAnnotations(Iterables.concat(
-                    getFieldAnnotations(),
-                    ImmutableList.of(new FieldAnnotations(field, Arrays.asList(fieldAnnotations)))));
-        }
-    }
-
-    @SafeVarargs
-    public final PNodeAnnotations withoutFieldAnnotation(String field, Class<? extends FieldAnnotation>... fieldAnnotationClss)
-    {
-        return rebuildWithFieldAnnotations(getFieldAnnotations().stream()
-                .map(fa -> fa.field.equals(field) ? fa.withoutAnnotation(fieldAnnotationClss) : fa)
-                .collect(toImmutableList()));
-    }
-
-    public final PNodeAnnotations overwritingFieldAnnotation(String field, FieldAnnotation... fieldAnnotations)
-    {
-        if (fieldAnnotationsByField.containsKey(field)) {
-            return rebuildWithFieldAnnotations(getFieldAnnotations().stream()
-                    .map(fa -> fa.field.equals(field) ? fa.overwritingAnnotation(fieldAnnotations) : fa)
-                    .collect(toImmutableList()));
-        }
-        else {
-            return rebuildWithFieldAnnotations(Iterables.concat(
-                    getFieldAnnotations(),
-                    ImmutableList.of(new FieldAnnotations(field, Arrays.asList(fieldAnnotations)))));
-        }
+        return new PNodeAnnotations(annotations, fn.apply(fields));
     }
 }
