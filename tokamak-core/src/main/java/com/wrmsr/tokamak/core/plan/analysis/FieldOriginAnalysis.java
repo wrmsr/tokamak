@@ -378,7 +378,9 @@ public final class FieldOriginAnalysis
             public Void visitState(PState node, Void context)
             {
                 addSimpleSingleSource(node);
-                return super.visitState(node, context);
+
+                visitSources(node, context);
+                return null;
             }
 
             @Override
