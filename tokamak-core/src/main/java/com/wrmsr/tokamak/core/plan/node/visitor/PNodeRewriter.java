@@ -57,7 +57,7 @@ public abstract class PNodeRewriter<C>
         return new PCrossJoin(
                 visitNodeName(node.getName(), context),
                 node.getAnnotations(),
-                node.getSources().stream().map(n -> get(n, context)).collect(toImmutableList()),
+                node.getSources().stream().map(n -> process(n, context)).collect(toImmutableList()),
                 node.getMode());
     }
 
@@ -69,7 +69,7 @@ public abstract class PNodeRewriter<C>
                 node.getAnnotations(),
                 node.getBranches().stream()
                         .map(b -> new PEquiJoin.Branch(
-                                get(b.getNode(), context),
+                                process(b.getNode(), context),
                                 b.getFields()))
                         .collect(toImmutableList()),
                 node.getMode());
@@ -81,7 +81,7 @@ public abstract class PNodeRewriter<C>
         return new PFilter(
                 visitNodeName(node.getName(), context),
                 node.getAnnotations(),
-                get(node.getSource(), context),
+                process(node.getSource(), context),
                 node.getFunction(),
                 node.getArgs(),
                 node.isUnlinked());
@@ -93,7 +93,7 @@ public abstract class PNodeRewriter<C>
         return new PGroupBy(
                 visitNodeName(node.getName(), context),
                 node.getAnnotations(),
-                get(node.getSource(), context),
+                process(node.getSource(), context),
                 node.getGroupFields(),
                 node.getListField());
     }
@@ -104,11 +104,11 @@ public abstract class PNodeRewriter<C>
         return new PLookupJoin(
                 visitNodeName(node.getName(), context),
                 node.getAnnotations(),
-                get(node.getSource(), context),
+                process(node.getSource(), context),
                 node.getSourceKeyFields(),
                 node.getBranches().stream()
                         .map(b -> new PLookupJoin.Branch(
-                                get(b.getNode(), context),
+                                process(b.getNode(), context),
                                 b.getFields()))
                         .collect(toImmutableList()));
     }
@@ -119,7 +119,7 @@ public abstract class PNodeRewriter<C>
         return new PState(
                 visitNodeName(node.getName(), context),
                 node.getAnnotations(),
-                get(node.getSource(), context),
+                process(node.getSource(), context),
                 node.getWriterTargets(),
                 node.isDenormalized(),
                 node.getInvalidations().entrySet().stream()
@@ -135,7 +135,7 @@ public abstract class PNodeRewriter<C>
         return new PProject(
                 visitNodeName(node.getName(), context),
                 node.getAnnotations(),
-                get(node.getSource(), context),
+                process(node.getSource(), context),
                 node.getProjection());
     }
 
@@ -157,7 +157,7 @@ public abstract class PNodeRewriter<C>
         return new PStruct(
                 visitNodeName(node.getName(), context),
                 node.getAnnotations(),
-                get(node.getSource(), context),
+                process(node.getSource(), context),
                 node.getStructFields(),
                 node.getStructField());
     }
@@ -168,7 +168,7 @@ public abstract class PNodeRewriter<C>
         return new PUnion(
                 visitNodeName(node.getName(), context),
                 node.getAnnotations(),
-                node.getSources().stream().map(n -> get(n, context)).collect(toImmutableList()),
+                node.getSources().stream().map(n -> process(n, context)).collect(toImmutableList()),
                 node.getIndexField());
     }
 
@@ -178,7 +178,7 @@ public abstract class PNodeRewriter<C>
         return new PUnnest(
                 visitNodeName(node.getName(), context),
                 node.getAnnotations(),
-                get(node.getSource(), context),
+                process(node.getSource(), context),
                 node.getListField(),
                 node.getUnnestedFields(),
                 node.getIndexField());

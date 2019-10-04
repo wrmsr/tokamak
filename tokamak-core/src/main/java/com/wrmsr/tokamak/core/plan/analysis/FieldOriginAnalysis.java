@@ -32,26 +32,34 @@ import com.wrmsr.tokamak.core.plan.node.PStruct;
 import com.wrmsr.tokamak.core.plan.node.PUnion;
 import com.wrmsr.tokamak.core.plan.node.PUnnest;
 import com.wrmsr.tokamak.core.plan.node.PValues;
-import com.wrmsr.tokamak.core.plan.node.visitor.PNodeVisitor;
+import com.wrmsr.tokamak.core.plan.node.visitor.CachingPNodeVisitor;
+import com.wrmsr.tokamak.util.collect.StreamableIterable;
 
 import javax.annotation.concurrent.Immutable;
 
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.collect.Sets.newLinkedHashSet;
 
 @Immutable
 public final class FieldOriginAnalysis
+        implements StreamableIterable<FieldOriginAnalysis.Origination>
 {
     /*
     TODO:
+     - DFS caching visitor
      - SUBFIELD TRACKING. INTO STRUCTS.
-      - class PSearch extends PNode { private final SNode search
       - groupBy List<Struct<...>> ele origins?
     */
 
@@ -261,13 +269,36 @@ public final class FieldOriginAnalysis
     private FieldOriginAnalysis(List<Origination> originations)
     {
         this.originations = ImmutableList.copyOf(originations);
+
+        Map<NodeField, Set<Origination>> originationSetsBySink = new LinkedHashMap<>();
+        Map<NodeField, Set<Origination>> originationSetsBySource = new LinkedHashMap<>();
+        Map<NodeField, Set<Origination>> rootOriginationsBySink = new LinkedHashMap<>();
+
+        this.originations.forEach(o -> {
+            originationSetsBySink.computeIfAbsent(o.sink, nf -> new LinkedHashSet<>()).add(o);
+            o.source.ifPresent(s -> originationSetsBySource.computeIfAbsent(s, nf -> new LinkedHashSet<>()).add(o));
+            $ Set<Origination> sourceRoots = rootOriginationsBySink.get(o.source);
+            if (sourceRoots == null) {
+                rootOriginationsBySink.put(o.sink, newLinkedHashSet(ImmutableList.of(o)));
+            }
+            else {
+                sourceRoots.
+            }
+
+        });
+    }
+
+    @Override
+    public Iterator<Origination> iterator()
+    {
+        return originations.iterator();
     }
 
     public static FieldOriginAnalysis analyze(Plan plan)
     {
         List<Origination> originations = new ArrayList<>();
 
-        plan.getRoot().accept(new PNodeVisitor<Void, Void>()
+        plan.getRoot().accept(new CachingPNodeVisitor<Void, Void>()
         {
             private void addGenerator(PGenerator node)
             {
@@ -283,33 +314,37 @@ public final class FieldOriginAnalysis
 
             protected void visitSources(PNode node, Void context)
             {
-                node.getSources().forEach(s -> s.accept(this, context));
+                node.getSources().forEach(s -> process(s, context));
             }
 
             @Override
             public Void visitCache(PCache node, Void context)
             {
+                visitSources(node, context);
+
                 addSimpleSingleSource(node);
 
-                visitSources(node, context);
                 return null;
             }
 
             @Override
             public Void visitCrossJoin(PCrossJoin node, Void context)
             {
+                visitSources(node, context);
+
                 Strength str = node.getMode() == PCrossJoin.Mode.FULL ? Strength.STRONG : Strength.WEAK;
                 node.getSources().forEach(s ->
                         s.getFields().getNames().forEach(f -> originations.add(new Origination(
                                 NodeField.of(node, f), NodeField.of(s, f), str, Nesting.none()))));
 
-                visitSources(node, context);
                 return null;
             }
 
             @Override
             public Void visitEquiJoin(PEquiJoin node, Void context)
             {
+                visitSources(node, context);
+
                 node.getBranches().forEach(b -> {
                     Strength str =
                             ((node.getMode() == PEquiJoin.Mode.LEFT && b == node.getBranches().get(0)) || node.getMode() == PEquiJoin.Mode.FULL) ?
@@ -319,46 +354,50 @@ public final class FieldOriginAnalysis
                     });
                 });
 
-                visitSources(node, context);
                 return null;
             }
 
             @Override
             public Void visitFilter(PFilter node, Void context)
             {
+                visitSources(node, context);
+
                 addSimpleSingleSource(node);
 
-                visitSources(node, context);
                 return null;
             }
 
             @Override
             public Void visitGroupBy(PGroupBy node, Void context)
             {
+                visitSources(node, context);
+
                 originations.add(new Origination(
                         NodeField.of(node, node.getListField())));
                 node.getGroupFields().forEach(gf -> originations.add(new Origination(
                         NodeField.of(node, gf), NodeField.of(node.getSource(), gf), Strength.STRONG, Nesting.none())));
 
-                visitSources(node, context);
                 return null;
             }
 
             @Override
             public Void visitLookupJoin(PLookupJoin node, Void context)
             {
+                visitSources(node, context);
+
                 node.getSource().getFields().getNames().forEach(f -> originations.add(new Origination(
                         NodeField.of(node, f), NodeField.of(node.getSource(), f), Strength.STRONG, Nesting.none())));
                 node.getBranches().forEach(b -> b.getFields().forEach(f -> originations.add(new Origination(
                         NodeField.of(node, f), NodeField.of(b.getNode(), f), Strength.WEAK, Nesting.none()))));
 
-                visitSources(node, context);
                 return null;
             }
 
             @Override
             public Void visitProject(PProject node, Void context)
             {
+                visitSources(node, context);
+
                 node.getProjection().getInputsByOutput().forEach((o, i) -> {
                     if (i instanceof PProjection.FieldInput) {
                         PProjection.FieldInput fi = (PProjection.FieldInput) i;
@@ -366,7 +405,6 @@ public final class FieldOriginAnalysis
                     }
                 });
 
-                visitSources(node, context);
                 return null;
             }
 
@@ -380,36 +418,43 @@ public final class FieldOriginAnalysis
             @Override
             public Void visitState(PState node, Void context)
             {
+                visitSources(node, context);
+
                 addSimpleSingleSource(node);
 
-                visitSources(node, context);
                 return null;
             }
 
             @Override
             public Void visitStruct(PStruct node, Void context)
             {
+                visitSources(node, context);
+
+                // FIXME:
                 checkState(false);
 
-                visitSources(node, context);
                 return null;
             }
 
             @Override
             public Void visitUnion(PUnion node, Void context)
             {
+                visitSources(node, context);
+
+                // FIXME:
                 checkState(false);
 
-                visitSources(node, context);
                 return null;
             }
 
             @Override
             public Void visitUnnest(PUnnest node, Void context)
             {
+                visitSources(node, context);
+
+                // FIXME:
                 checkState(false);
 
-                visitSources(node, context);
                 return null;
             }
 

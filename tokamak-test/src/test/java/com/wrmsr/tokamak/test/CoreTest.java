@@ -35,6 +35,7 @@ import com.wrmsr.tokamak.core.layout.RowLayout;
 import com.wrmsr.tokamak.core.layout.TableLayout;
 import com.wrmsr.tokamak.core.layout.field.FieldCollection;
 import com.wrmsr.tokamak.core.plan.Plan;
+import com.wrmsr.tokamak.core.plan.analysis.FieldOriginAnalysis;
 import com.wrmsr.tokamak.core.plan.dot.Dot;
 import com.wrmsr.tokamak.core.plan.node.PEquiJoin;
 import com.wrmsr.tokamak.core.plan.node.PFilter;
@@ -209,7 +210,7 @@ public class CoreTest
                 PEquiJoin.Mode.INNER);
 
         PNode persistNode0 = new PState(
-                "persist0",
+                "state2",
                 PNodeAnnotations.empty(),
                 equiJoinNode0,
                 ImmutableList.of(),
@@ -240,6 +241,8 @@ public class CoreTest
         // catalog = om.readValue(src, Catalog.class);
 
         Plan plan = buildPlan(catalog);
+
+        FieldOriginAnalysis foa = FieldOriginAnalysis.analyze(plan);
 
         // IdFieldAnalysis ifa = IdFieldAnalysis.analyze(plan);
         // System.out.println(ifa);

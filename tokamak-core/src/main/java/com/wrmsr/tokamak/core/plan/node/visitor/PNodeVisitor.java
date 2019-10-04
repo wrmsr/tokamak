@@ -32,6 +32,11 @@ import java.util.Objects;
 
 public abstract class PNodeVisitor<R, C>
 {
+    public R process(PNode node, C context)
+    {
+        return node.accept(this, context);
+    }
+
     protected R visitNode(PNode node, C context)
     {
         throw new IllegalStateException(Objects.toString(node));

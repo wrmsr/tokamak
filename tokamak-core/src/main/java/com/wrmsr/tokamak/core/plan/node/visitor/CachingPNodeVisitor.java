@@ -33,9 +33,10 @@ public abstract class CachingPNodeVisitor<R, C>
         this.cache = cache;
     }
 
-    protected R get(PNode node, C context)
+    @Override
+    public R process(PNode node, C context)
     {
-        return cache.computeIfAbsent(node, n -> n.accept(this, context));
+        return cache.computeIfAbsent(node, n -> super.process(node, context));
     }
 
     public Map<PNode, R> getCache()

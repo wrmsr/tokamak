@@ -35,7 +35,7 @@ import java.util.List;
         @JsonSubTypes.Type(value = PLookupJoin.class, name = "lookupJoin"),
         @JsonSubTypes.Type(value = PProject.class, name = "project"),
         @JsonSubTypes.Type(value = PScan.class, name = "scan"),
-        @JsonSubTypes.Type(value = PState.class, name = "persist"),
+        @JsonSubTypes.Type(value = PState.class, name = "state"),
         @JsonSubTypes.Type(value = PStruct.class, name = "struct"),
         @JsonSubTypes.Type(value = PUnion.class, name = "union"),
         @JsonSubTypes.Type(value = PUnnest.class, name = "unnest"),

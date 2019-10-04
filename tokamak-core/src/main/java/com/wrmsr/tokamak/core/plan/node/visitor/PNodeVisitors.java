@@ -73,6 +73,6 @@ public final class PNodeVisitors
 
     public static <C, R> void cacheAll(PNode root, CachingPNodeVisitor<R, C> visitor, C context)
     {
-        linearize(root).forEach(n -> visitor.get(n, context));
+        linearize(root).forEach(n -> visitor.process(n, context));
     }
 }
