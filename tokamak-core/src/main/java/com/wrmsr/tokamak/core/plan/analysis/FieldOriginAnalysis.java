@@ -191,13 +191,13 @@ public final class FieldOriginAnalysis
             this.source = checkNotNull(source);
             this.strength = checkNotNull(strength);
             this.nesting = checkNotNull(nesting);
-            source.ifPresent(s -> checkState(sink.getNode().getSources().contains(s.getNode())));
-            if (!source.isPresent()) {
-                checkArgument(strength.generated);
-                checkArgument(nesting instanceof Nesting.None);
+            if (source.isPresent()) {
+                checkState(sink.getNode().getSources().contains(source.get().getNode()));
+                checkArgument(!strength.generated);
             }
             else {
-                checkArgument(!strength.generated);
+                checkArgument(strength.generated);
+                checkArgument(nesting instanceof Nesting.None);
             }
         }
 
@@ -450,6 +450,7 @@ public final class FieldOriginAnalysis
             @Override
             public Void visitEquiJoin(PEquiJoin node, Void context)
             {
+                // FIXME: JOIN FIELDS COME FROM BOTH SIDES
                 node.getBranches().forEach(b -> {
                     Strength str =
                             ((node.getMode() == PEquiJoin.Mode.LEFT && b == node.getBranches().get(0)) || node.getMode() == PEquiJoin.Mode.FULL) ?

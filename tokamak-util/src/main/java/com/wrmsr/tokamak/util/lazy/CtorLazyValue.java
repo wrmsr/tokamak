@@ -39,4 +39,14 @@ public final class CtorLazyValue<T>
         }
         return value;
     }
+
+    @Override
+    public String toString()
+    {
+        return "CtorLazyValue{" +
+                "supplier=" + supplier +
+                ", isSet=" + isSet +
+                ", value=" + value +
+                '}';
+    }
 }

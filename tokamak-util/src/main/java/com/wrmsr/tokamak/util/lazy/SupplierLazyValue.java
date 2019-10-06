@@ -32,4 +32,13 @@ public final class SupplierLazyValue<T>
         }
         return value;
     }
+
+    @Override
+    public String toString()
+    {
+        return "SupplierLazyValue{" +
+                "isSet=" + isSet +
+                ", value=" + value +
+                '}';
+    }
 }
