@@ -15,6 +15,7 @@ package com.wrmsr.tokamak.core.plan.analysis;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.core.plan.Plan;
 import com.wrmsr.tokamak.core.plan.node.PCache;
 import com.wrmsr.tokamak.core.plan.node.PCrossJoin;
@@ -57,6 +58,8 @@ import static com.google.common.base.Preconditions.checkState;
 import static com.wrmsr.tokamak.util.MoreCollections.newImmutableSetMap;
 import static com.wrmsr.tokamak.util.MoreCollections.newImmutableSetMapMap;
 import static com.wrmsr.tokamak.util.MoreCollections.sorted;
+import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
+import static com.wrmsr.tokamak.util.MorePreconditions.checkSingle;
 
 @Immutable
 public final class FieldOriginAnalysis
@@ -355,19 +358,27 @@ public final class FieldOriginAnalysis
 
             sorted(sinkOriginationSetsByNodeByField.keySet(), Comparator.comparing(toposortIndicesByNode::get)).forEach(snkNode -> {
                 sinkOriginationSetsByNodeByField.get(snkNode).forEach((snkField, snkOris) -> {
-                    // if (srcOri.source.isPresent()) {
-                    //     NodeField srcNf = srcOri.source.get();
-                    //     Set<Origination> leafOriginationSet = leafOriginationSetsBySink.get(srcNf);
-                    //     if (leafOriginationSet != null) {
-                    //         leafOriginationSetsBySink.put(srcOri.sink, leafOriginationSet);
-                    //     }
-                    //     else {
-                    //         leafOriginationSetsBySink.put(srcOri.sink, ImmutableSet.of());
-                    //     }
-                    // }
-                    // else {
-                    //
-                    // }
+                    checkNotEmpty(snkOris);
+                    Set<Origination> snkLeafOriginationSet;
+                    if (snkOris.stream().anyMatch(o -> o.strength == Strength.GENERATED)) {
+                        snkLeafOriginationSet = ImmutableSet.of(checkSingle(snkOris));
+                    }
+                    else {
+                        snkLeafOriginationSet = new LinkedHashSet<>();
+                        snkOris.forEach(snkOri -> {
+                            if (snkOri.source.isPresent()) {
+                                NodeField srcNf = snkOri.source.get();
+                                Set<Origination> srcLeafOriginationSet = checkNotNull(leafOriginationSetsBySink.get(srcNf));
+                                snkLeafOriginationSet.addAll(checkNotEmpty(srcLeafOriginationSet));
+                            }
+                            else {
+                                snkLeafOriginationSet.add(snkOri);
+                            }
+                        });
+                    }
+                    NodeField snkNf = NodeField.of(snkNode, snkField);
+                    checkState(!leafOriginationSetsBySink.containsKey(snkNf));
+                    leafOriginationSetsBySink.put(snkNf, checkNotEmpty(ImmutableSet.copyOf(snkLeafOriginationSet)));
                 });
             });
 
