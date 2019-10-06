@@ -41,6 +41,7 @@ import com.wrmsr.tokamak.core.plan.node.PEquiJoin;
 import com.wrmsr.tokamak.core.plan.node.PFilter;
 import com.wrmsr.tokamak.core.plan.node.PNode;
 import com.wrmsr.tokamak.core.plan.node.PNodeAnnotations;
+import com.wrmsr.tokamak.core.plan.node.PNodeField;
 import com.wrmsr.tokamak.core.plan.node.PProject;
 import com.wrmsr.tokamak.core.plan.node.PProjection;
 import com.wrmsr.tokamak.core.plan.node.PScan;
@@ -57,7 +58,9 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.Collection;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import static com.wrmsr.tokamak.util.MoreFiles.createTempDirectory;
 
@@ -243,6 +246,7 @@ public class CoreTest
         Plan plan = buildPlan(catalog);
 
         FieldOriginAnalysis foa = FieldOriginAnalysis.analyze(plan);
+        Map<PNodeField, Set<FieldOriginAnalysis.Origination>> losbs = foa.getLeafOriginationSetsBySink();
 
         // IdFieldAnalysis ifa = IdFieldAnalysis.analyze(plan);
         // System.out.println(ifa);
