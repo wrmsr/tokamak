@@ -450,6 +450,7 @@ public final class FieldOriginAnalysis
             @Override
             public Void visitEquiJoin(PEquiJoin node, Void context)
             {
+                // FIXME: cross-branch field equivalence through leaf squashing discards inner/outerness
                 node.getBranches().forEach(b -> {
                     Strength str =
                             ((node.getMode() == PEquiJoin.Mode.LEFT && b == node.getBranches().get(0)) || node.getMode() == PEquiJoin.Mode.FULL) ?
