@@ -118,9 +118,19 @@ public final class MoreCollections
         return set;
     }
 
+    public static <K, V0, V1> Map<K, V1> immutableMapValues(Map<K, V0> map, Function<V0, V1> fn)
+    {
+        return map.entrySet().stream().collect(toImmutableMap(Map.Entry::getKey, e -> fn.apply(e.getValue())));
+    }
+
     public static <K, V> Map<K, Set<V>> newImmutableSetMap(Map<K, Set<V>> map)
     {
-        return map.entrySet().stream().collect(toImmutableMap(Map.Entry::getKey, e -> ImmutableSet.copyOf(e.getValue())));
+        return immutableMapValues(map, ImmutableSet::copyOf);
+    }
+
+    public static <K0, K1, V> Map<K0, Map<K1, Set<V>>> newImmutableSetMapMap(Map<K0, Map<K1, Set<V>>> map)
+    {
+        return immutableMapValues(map, m -> immutableMapValues(m, ImmutableSet::copyOf));
     }
 
     public static <T> List<T> listOf(int size, T value)

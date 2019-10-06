@@ -41,6 +41,7 @@ import com.wrmsr.tokamak.util.lazy.SupplierLazyValue;
 import javax.annotation.concurrent.Immutable;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -54,6 +55,8 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.wrmsr.tokamak.util.MoreCollections.newImmutableSetMap;
+import static com.wrmsr.tokamak.util.MoreCollections.newImmutableSetMapMap;
+import static com.wrmsr.tokamak.util.MoreCollections.sorted;
 
 @Immutable
 public final class FieldOriginAnalysis
@@ -272,8 +275,8 @@ public final class FieldOriginAnalysis
     private final Map<NodeField, Set<Origination>> originationSetsBySink;
     private final Map<NodeField, Set<Origination>> originationSetsBySource;
 
-    private final Map<PNode, Set<Origination>> sinkOriginationSetsByNode;
-    private final Map<PNode, Set<Origination>> sourceOriginationSetsByNode;
+    private final Map<PNode, Map<String, Set<Origination>>> sinkOriginationSetsByNodeByField;
+    private final Map<PNode, Map<String, Set<Origination>>> sourceOriginationSetsByNodeByField;
 
     private FieldOriginAnalysis(List<Origination> originations, Map<PNode, Integer> toposortIndicesByNode)
     {
@@ -283,25 +286,36 @@ public final class FieldOriginAnalysis
         Map<NodeField, Set<Origination>> originationSetsBySink = new LinkedHashMap<>();
         Map<NodeField, Set<Origination>> originationSetsBySource = new LinkedHashMap<>();
 
-        Map<PNode, Set<Origination>> sinkOriginationSetsByNode = new LinkedHashMap<>();
-        Map<PNode, Set<Origination>> sourceOriginationSetsByNode = new LinkedHashMap<>();
+        Map<PNode, Map<String, Set<Origination>>> sinkOriginationSetsByNodeByField = new LinkedHashMap<>();
+        Map<PNode, Map<String, Set<Origination>>> sourceOriginationSetsByNodeByField = new LinkedHashMap<>();
 
         this.originations.forEach(o -> {
             checkState(toposortIndicesByNode.containsKey(o.sink.node));
-            originationSetsBySink.computeIfAbsent(o.sink, nf -> new LinkedHashSet<>()).add(o);
-            sinkOriginationSetsByNode.computeIfAbsent(o.sink.node, n -> new LinkedHashSet<>()).add(o);
+            originationSetsBySink
+                    .computeIfAbsent(o.sink, nf -> new LinkedHashSet<>())
+                    .add(o);
+            sinkOriginationSetsByNodeByField
+                    .computeIfAbsent(o.sink.node, n -> new LinkedHashMap<>())
+                    .computeIfAbsent(o.sink.field, f -> new LinkedHashSet<>())
+                    .add(o);
             o.source.ifPresent(src -> {
                 checkState(toposortIndicesByNode.containsKey(src.node));
-                originationSetsBySource.computeIfAbsent(src, nf -> new LinkedHashSet<>()).add(o);
-                sourceOriginationSetsByNode.computeIfAbsent(src.node, n -> new LinkedHashSet<>()).add(o);
+                checkState(toposortIndicesByNode.get(src.node) < toposortIndicesByNode.get(o.sink.node));
+                originationSetsBySource
+                        .computeIfAbsent(src, nf -> new LinkedHashSet<>())
+                        .add(o);
+                sourceOriginationSetsByNodeByField
+                        .computeIfAbsent(src.node, n -> new LinkedHashMap<>())
+                        .computeIfAbsent(src.field, f -> new LinkedHashSet<>())
+                        .add(o);
             });
         });
 
         this.originationSetsBySink = newImmutableSetMap(originationSetsBySink);
         this.originationSetsBySource = newImmutableSetMap(originationSetsBySource);
 
-        this.sinkOriginationSetsByNode = newImmutableSetMap(sinkOriginationSetsByNode);
-        this.sourceOriginationSetsByNode = newImmutableSetMap(sourceOriginationSetsByNode);
+        this.sinkOriginationSetsByNodeByField = newImmutableSetMapMap(sinkOriginationSetsByNodeByField);
+        this.sourceOriginationSetsByNodeByField = newImmutableSetMapMap(sourceOriginationSetsByNodeByField);
     }
 
     public List<Origination> getOriginations()
@@ -319,14 +333,14 @@ public final class FieldOriginAnalysis
         return originationSetsBySource;
     }
 
-    public Map<PNode, Set<Origination>> getSinkOriginationSetsByNode()
+    public Map<PNode, Map<String, Set<Origination>>> getSinkOriginationSetsByNodeByField()
     {
-        return sinkOriginationSetsByNode;
+        return sinkOriginationSetsByNodeByField;
     }
 
-    public Map<PNode, Set<Origination>> getSourceOriginationSetsByNode()
+    public Map<PNode, Map<String, Set<Origination>>> getSourceOriginationSetsByNodeByField()
     {
-        return sourceOriginationSetsByNode;
+        return sourceOriginationSetsByNodeByField;
     }
 
     private final SupplierLazyValue<Map<NodeField, Set<Origination>>> leafOriginationSetsBySink = new SupplierLazyValue<>();
@@ -334,7 +348,27 @@ public final class FieldOriginAnalysis
     public Map<NodeField, Set<Origination>> getLeafOriginationSetsBySink()
     {
         return leafOriginationSetsBySink.get(() -> {
-            throw new IllegalStateException();
+            Map<NodeField, Set<Origination>> leafOriginationSetsBySink = new LinkedHashMap<>();
+
+            sorted(sourceOriginationSetsByNodeByField.keySet(), Comparator.comparing(toposortIndicesByNode::get)).forEach(srcNode -> {
+                sourceOriginationSetsByNodeByField.get(srcNode).forEach((srcField, srcOris) -> {
+                    // if (srcOri.source.isPresent()) {
+                    //     NodeField srcNf = srcOri.source.get();
+                    //     Set<Origination> leafOriginationSet = leafOriginationSetsBySink.get(srcNf);
+                    //     if (leafOriginationSet != null) {
+                    //         leafOriginationSetsBySink.put(srcOri.sink, leafOriginationSet);
+                    //     }
+                    //     else {
+                    //         leafOriginationSetsBySink.put(srcOri.sink, ImmutableSet.of());
+                    //     }
+                    // }
+                    // else {
+                    //
+                    // }
+                });
+            });
+
+            return newImmutableSetMap(leafOriginationSetsBySink);
         });
     }
 
