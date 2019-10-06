@@ -41,8 +41,8 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
-import static com.google.common.collect.Lists.newArrayList;
 import static com.wrmsr.tokamak.util.MoreCollections.buildListIndexMap;
+import static com.wrmsr.tokamak.util.MoreCollections.sorted;
 import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 import static java.util.function.Function.identity;
 
@@ -161,11 +161,7 @@ public final class Plan
             List<Set<PNode>> ts = Toposort.toposort(getNameSortedNodes().stream()
                     .collect(toImmutableMap(identity(), n -> ImmutableSet.copyOf(n.getSources()))));
             return ts.stream()
-                    .map(step -> {
-                        List<PNode> list = newArrayList(step);
-                        list.sort(Comparator.comparing(getNameSortedIndicesByNode()::get));
-                        return ImmutableSet.copyOf(list);
-                    })
+                    .map(step -> ImmutableSet.copyOf(sorted(step, Comparator.comparing(getNameSortedIndicesByNode()::get))))
                     .collect(toImmutableList());
         });
     }

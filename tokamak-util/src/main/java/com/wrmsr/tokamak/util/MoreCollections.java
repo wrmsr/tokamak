@@ -14,6 +14,7 @@
 package com.wrmsr.tokamak.util;
 
 import com.google.common.base.MoreObjects;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
@@ -23,6 +24,7 @@ import com.wrmsr.tokamak.util.collect.Ordered;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -42,6 +44,7 @@ import java.util.stream.StreamSupport;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
+import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newIdentityHashSet;
 import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 import static java.util.Objects.requireNonNull;
@@ -258,6 +261,18 @@ public final class MoreCollections
         return Streams.zip(
                 IntStream.range(0, list.size()).boxed(), list.stream(), (i, n) -> new Pair.Immutable<>(n, i)
         ).collect(toImmutableMap());
+    }
+
+    public static <T> List<T> sorted(Iterator<T> iterator, Comparator<? super T> c)
+    {
+        List<T> list = newArrayList(iterator);
+        list.sort(c);
+        return ImmutableList.copyOf(list);
+    }
+
+    public static <T> List<T> sorted(Iterable<T> iterable, Comparator<? super T> c)
+    {
+        return sorted(iterable.iterator(), c);
     }
 
     public static <T extends Comparable<S>, S> int compareIterators(Iterator<T> a, Iterator<S> b)
