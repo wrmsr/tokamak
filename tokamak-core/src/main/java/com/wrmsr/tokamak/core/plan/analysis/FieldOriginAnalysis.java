@@ -270,7 +270,7 @@ public final class FieldOriginAnalysis
         this.sourceOriginationSetsByNodeByField = newImmutableSetMapMap(sourceOriginationSetsByNodeByField);
 
         sinkOriginationSetsByNodeByField.forEach((snkNode, snkOrisByField) -> {
-            snkOrisByField.forEach((snkField, snkOris -> {
+            snkOrisByField.forEach((snkField, snkOris) -> {
                 checkNotEmpty(snkOris);
                 if (snkOris.stream().anyMatch(o -> o.strength == Strength.GENERATED)) {
                     checkSingle(snkOris);
