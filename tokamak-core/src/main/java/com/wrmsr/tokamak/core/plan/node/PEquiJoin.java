@@ -44,6 +44,7 @@ import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static com.wrmsr.tokamak.util.MoreCollectors.groupingByImmutableSet;
 import static com.wrmsr.tokamak.util.MoreCollectors.toCheckSingle;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
+import static com.wrmsr.tokamak.util.MorePreconditions.checkSingle;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.groupingBy;
 
@@ -153,7 +154,7 @@ public final class PEquiJoin
                 .collect(toImmutableSet());
         branchesByUniqueField = this.branchSetsByField.entrySet().stream()
                 .filter(e -> e.getValue().size() == 1)
-                .collect(toImmutableMap(Map.Entry::getKey, e -> e.getValue().stream().findFirst().get()));
+                .collect(toImmutableMap(Map.Entry::getKey, e -> checkSingle(e.getValue())));
 
         Map<String, Type> fields = new LinkedHashMap<>();
         for (Branch branch : this.branches) {

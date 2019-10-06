@@ -450,13 +450,20 @@ public final class FieldOriginAnalysis
             @Override
             public Void visitEquiJoin(PEquiJoin node, Void context)
             {
-                // FIXME: JOIN FIELDS COME FROM BOTH SIDES
                 node.getBranches().forEach(b -> {
                     Strength str =
                             ((node.getMode() == PEquiJoin.Mode.LEFT && b == node.getBranches().get(0)) || node.getMode() == PEquiJoin.Mode.FULL) ?
                                     Strength.INNER : Strength.OUTER;
                     b.getNode().getFields().getNames().forEach(f -> {
                         originations.add(new Origination(PNodeField.of(node, f), PNodeField.of(b.getNode(), f), str, Nesting.none()));
+                    });
+                    node.getBranches().forEach(ob -> {
+                        checkState(ob.getFields().size() == b.getFields().size());
+                        for (int i = 0; i < b.getFields().size(); ++i) {
+                            String kf = b.getFields().get(i);
+                            String okf = ob.getFields().get(i);
+                            originations.add(new Origination(PNodeField.of(node, kf), PNodeField.of(ob.getNode(), okf), str, Nesting.none()));
+                        }
                     });
                 });
 
