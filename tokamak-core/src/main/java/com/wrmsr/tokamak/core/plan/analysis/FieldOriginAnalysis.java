@@ -230,6 +230,9 @@ public final class FieldOriginAnalysis
                 checkArgument(strength == Strength.GENERATED);
                 checkArgument(nesting instanceof Nesting.None);
             }
+            else {
+                checkArgument(strength != Strength.GENERATED);
+            }
         }
 
         private Origination(NodeField sink, NodeField source, Strength strength, Nesting nesting)
@@ -350,8 +353,8 @@ public final class FieldOriginAnalysis
         return leafOriginationSetsBySink.get(() -> {
             Map<NodeField, Set<Origination>> leafOriginationSetsBySink = new LinkedHashMap<>();
 
-            sorted(sourceOriginationSetsByNodeByField.keySet(), Comparator.comparing(toposortIndicesByNode::get)).forEach(srcNode -> {
-                sourceOriginationSetsByNodeByField.get(srcNode).forEach((srcField, srcOris) -> {
+            sorted(sinkOriginationSetsByNodeByField.keySet(), Comparator.comparing(toposortIndicesByNode::get)).forEach(snkNode -> {
+                sinkOriginationSetsByNodeByField.get(snkNode).forEach((snkField, snkOris) -> {
                     // if (srcOri.source.isPresent()) {
                     //     NodeField srcNf = srcOri.source.get();
                     //     Set<Origination> leafOriginationSet = leafOriginationSetsBySink.get(srcNf);
