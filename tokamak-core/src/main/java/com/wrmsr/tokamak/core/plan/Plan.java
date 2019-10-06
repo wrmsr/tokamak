@@ -21,10 +21,9 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Streams;
 import com.wrmsr.tokamak.core.plan.node.PNode;
 import com.wrmsr.tokamak.core.plan.node.PNodeId;
-import com.wrmsr.tokamak.util.Pair;
+import com.wrmsr.tokamak.core.plan.node.PState;
 import com.wrmsr.tokamak.util.collect.Toposort;
 import com.wrmsr.tokamak.util.lazy.SupplierLazyValue;
 
@@ -37,12 +36,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.IntStream;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
+import static com.google.common.collect.Lists.newArrayList;
+import static com.wrmsr.tokamak.util.MoreCollections.buildListIndexMap;
 import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 import static java.util.function.Function.identity;
 
@@ -121,6 +121,13 @@ public final class Plan
                 .collect(toImmutableList()));
     }
 
+    private final SupplierLazyValue<Map<PNode, Integer>> nameSortedIndicesByNode = new SupplierLazyValue<>();
+
+    public Map<PNode, Integer> getNameSortedIndicesByNode()
+    {
+        return nameSortedIndicesByNode.get(() -> buildListIndexMap(getNameSortedNodes()));
+    }
+
     private final Map<Class<? extends PNode>, List> nodeListsByType = new HashMap<>();
 
     @SuppressWarnings({"unchecked"})
@@ -150,8 +157,17 @@ public final class Plan
 
     public List<Set<PNode>> getNodeToposort()
     {
-        return nodeToposort.get(() -> Toposort.toposort(getNameSortedNodes().stream()
-                .collect(toImmutableMap(identity(), n -> ImmutableSet.copyOf(n.getSources())))));
+        return nodeToposort.get(() -> {
+            List<Set<PNode>> ts = Toposort.toposort(getNameSortedNodes().stream()
+                    .collect(toImmutableMap(identity(), n -> ImmutableSet.copyOf(n.getSources()))));
+            return ts.stream()
+                    .map(step -> {
+                        List<PNode> list = newArrayList(step);
+                        list.sort(Comparator.comparing(getNameSortedIndicesByNode()::get));
+                        return ImmutableSet.copyOf(list);
+                    })
+                    .collect(toImmutableList());
+        });
     }
 
     private final SupplierLazyValue<List<Set<PNode>>> nodeReverseToposort = new SupplierLazyValue<>();
@@ -183,42 +199,32 @@ public final class Plan
 
     public Map<PNode, Integer> getToposortIndicesByNode()
     {
-        return toposortIndicesByNode.get(() ->
-                Streams.zip(
-                        IntStream.range(0, nodes.size()).boxed(),
-                        getToposortedNodes().stream(),
-                        (i, n) -> new Pair.Immutable<>(n, i))
-                        .collect(toImmutableMap()));
+        return toposortIndicesByNode.get(() -> buildListIndexMap(getToposortedNodes()));
     }
 
     private final SupplierLazyValue<Map<PNode, Integer>> reverseToposortIndicesByNode = new SupplierLazyValue<>();
 
     public Map<PNode, Integer> getReverseToposortIndicesByNode()
     {
-        return reverseToposortIndicesByNode.get(() ->
-                Streams.zip(
-                        IntStream.range(0, nodes.size()).boxed(),
-                        getReverseToposortedNodes().stream(),
-                        (i, n) -> new Pair.Immutable<>(n, i))
-                        .collect(toImmutableMap()));
+        return reverseToposortIndicesByNode.get(() -> buildListIndexMap(getReverseToposortedNodes()));
     }
 
-    public Map<PNode, Set<PNode>> getStatefulSourceSetsByNode()
+    public Map<PNode, Set<PState>> getStateSourceSetsByNode()
     {
         throw new IllegalStateException();
     }
 
-    public Map<PNode, Set<PNode>> getStatefulSinkSetsByNode()
+    public Map<PNode, Set<PState>> getStateSinkSetsByNode()
     {
         throw new IllegalStateException();
     }
 
-    public Map<PNode, Set<PNode>> getDeepStatefulSourceSetsByNode()
+    public Map<PNode, Set<PState>> getDeepStateSourceSetsByNode()
     {
         throw new IllegalStateException();
     }
 
-    public Map<PNode, Set<PNode>> getDeepStatefulSinkSetsByNode()
+    public Map<PNode, Set<PState>> getDeepStateSinkSetsByNode()
     {
         throw new IllegalStateException();
     }

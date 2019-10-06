@@ -14,6 +14,7 @@
 package com.wrmsr.tokamak.core.plan.analysis;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.core.plan.Plan;
 import com.wrmsr.tokamak.core.plan.node.PCache;
 import com.wrmsr.tokamak.core.plan.node.PCrossJoin;
@@ -266,6 +267,7 @@ public final class FieldOriginAnalysis
     }
 
     private final List<Origination> originations;
+    private final Map<PNode, Integer> toposortIndicesByNode;
 
     private final Map<NodeField, Set<Origination>> originationSetsBySink;
     private final Map<NodeField, Set<Origination>> originationSetsBySource;
@@ -273,9 +275,10 @@ public final class FieldOriginAnalysis
     private final Map<PNode, Set<Origination>> sinkOriginationSetsByNode;
     private final Map<PNode, Set<Origination>> sourceOriginationSetsByNode;
 
-    private FieldOriginAnalysis(List<Origination> originations)
+    private FieldOriginAnalysis(List<Origination> originations, Map<PNode, Integer> toposortIndicesByNode)
     {
         this.originations = ImmutableList.copyOf(originations);
+        this.toposortIndicesByNode = ImmutableMap.copyOf(toposortIndicesByNode);
 
         Map<NodeField, Set<Origination>> originationSetsBySink = new LinkedHashMap<>();
         Map<NodeField, Set<Origination>> originationSetsBySource = new LinkedHashMap<>();
@@ -284,9 +287,11 @@ public final class FieldOriginAnalysis
         Map<PNode, Set<Origination>> sourceOriginationSetsByNode = new LinkedHashMap<>();
 
         this.originations.forEach(o -> {
+            checkState(toposortIndicesByNode.containsKey(o.sink.node));
             originationSetsBySink.computeIfAbsent(o.sink, nf -> new LinkedHashSet<>()).add(o);
             sinkOriginationSetsByNode.computeIfAbsent(o.sink.node, n -> new LinkedHashSet<>()).add(o);
             o.source.ifPresent(src -> {
+                checkState(toposortIndicesByNode.containsKey(src.node));
                 originationSetsBySource.computeIfAbsent(src, nf -> new LinkedHashSet<>()).add(o);
                 sourceOriginationSetsByNode.computeIfAbsent(src.node, n -> new LinkedHashSet<>()).add(o);
             });
@@ -489,6 +494,6 @@ public final class FieldOriginAnalysis
             }
         }, null);
 
-        return new FieldOriginAnalysis(originations);
+        return new FieldOriginAnalysis(originations, plan.getToposortIndicesByNode());
     }
 }

@@ -17,6 +17,7 @@ import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
+import com.google.common.collect.Streams;
 import com.wrmsr.tokamak.util.collect.Ordered;
 
 import java.lang.reflect.Array;
@@ -250,6 +251,13 @@ public final class MoreCollections
     public static <T> Stream<EnumeratedElement<T>> enumerate(Stream<T> stream)
     {
         return StreamSupport.stream(enumerate(stream.spliterator()), false);
+    }
+
+    public static <T> Map<T, Integer> buildListIndexMap(List<T> list)
+    {
+        return Streams.zip(
+                IntStream.range(0, list.size()).boxed(), list.stream(), (i, n) -> new Pair.Immutable<>(n, i)
+        ).collect(toImmutableMap());
     }
 
     public static <T extends Comparable<S>, S> int compareIterators(Iterator<T> a, Iterator<S> b)
