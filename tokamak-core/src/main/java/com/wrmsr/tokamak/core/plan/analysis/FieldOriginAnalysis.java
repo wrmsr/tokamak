@@ -25,6 +25,7 @@ import com.wrmsr.tokamak.core.plan.node.PGenerator;
 import com.wrmsr.tokamak.core.plan.node.PGroupBy;
 import com.wrmsr.tokamak.core.plan.node.PLookupJoin;
 import com.wrmsr.tokamak.core.plan.node.PNode;
+import com.wrmsr.tokamak.core.plan.node.PNodeField;
 import com.wrmsr.tokamak.core.plan.node.PProject;
 import com.wrmsr.tokamak.core.plan.node.PProjection;
 import com.wrmsr.tokamak.core.plan.node.PScan;
@@ -48,7 +49,6 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -70,60 +70,6 @@ public final class FieldOriginAnalysis
      - SUBFIELD TRACKING. INTO STRUCTS.
       - groupBy List<Struct<...>> ele origins?
     */
-
-    @Immutable
-    public static final class NodeField
-    {
-        private final PNode node;
-        private final String field;
-
-        public NodeField(PNode node, String field)
-        {
-            this.node = checkNotNull(node);
-            this.field = checkNotNull(field);
-            checkState(node.getFields().contains(field));
-        }
-
-        @Override
-        public String toString()
-        {
-            return "NodeField{" +
-                    "node=" + node +
-                    ", field='" + field + '\'' +
-                    '}';
-        }
-
-        @Override
-        public boolean equals(Object o)
-        {
-            if (this == o) { return true; }
-            if (o == null || getClass() != o.getClass()) { return false; }
-            NodeField nodeField = (NodeField) o;
-            return Objects.equals(node, nodeField.node) &&
-                    Objects.equals(field, nodeField.field);
-        }
-
-        @Override
-        public int hashCode()
-        {
-            return Objects.hash(node, field);
-        }
-
-        public PNode getNode()
-        {
-            return node;
-        }
-
-        public String getField()
-        {
-            return field;
-        }
-
-        public static NodeField of(PNode node, String field)
-        {
-            return new NodeField(node, field);
-        }
-    }
 
     public enum Strength
     {
@@ -217,18 +163,18 @@ public final class FieldOriginAnalysis
     @Immutable
     public static final class Origination
     {
-        private final NodeField sink;
-        private final Optional<NodeField> source;
+        private final PNodeField sink;
+        private final Optional<PNodeField> source;
         private final Strength strength;
         private final Nesting nesting;
 
-        private Origination(NodeField sink, Optional<NodeField> source, Strength strength, Nesting nesting)
+        private Origination(PNodeField sink, Optional<PNodeField> source, Strength strength, Nesting nesting)
         {
             this.sink = checkNotNull(sink);
             this.source = checkNotNull(source);
             this.strength = checkNotNull(strength);
             this.nesting = checkNotNull(nesting);
-            source.ifPresent(s -> checkState(sink.node.getSources().contains(s.node)));
+            source.ifPresent(s -> checkState(sink.getNode().getSources().contains(s.getNode())));
             if (!source.isPresent()) {
                 checkArgument(strength == Strength.GENERATED);
                 checkArgument(nesting instanceof Nesting.None);
@@ -238,12 +184,12 @@ public final class FieldOriginAnalysis
             }
         }
 
-        private Origination(NodeField sink, NodeField source, Strength strength, Nesting nesting)
+        private Origination(PNodeField sink, PNodeField source, Strength strength, Nesting nesting)
         {
             this(sink, Optional.of(source), strength, nesting);
         }
 
-        private Origination(NodeField sink)
+        private Origination(PNodeField sink)
         {
             this(sink, Optional.empty(), Strength.GENERATED, Nesting.none());
         }
@@ -259,12 +205,12 @@ public final class FieldOriginAnalysis
                     '}';
         }
 
-        public NodeField getSink()
+        public PNodeField getSink()
         {
             return sink;
         }
 
-        public Optional<NodeField> getSource()
+        public Optional<PNodeField> getSource()
         {
             return source;
         }
@@ -278,8 +224,8 @@ public final class FieldOriginAnalysis
     private final List<Origination> originations;
     private final Map<PNode, Integer> toposortIndicesByNode;
 
-    private final Map<NodeField, Set<Origination>> originationSetsBySink;
-    private final Map<NodeField, Set<Origination>> originationSetsBySource;
+    private final Map<PNodeField, Set<Origination>> originationSetsBySink;
+    private final Map<PNodeField, Set<Origination>> originationSetsBySource;
 
     private final Map<PNode, Map<String, Set<Origination>>> sinkOriginationSetsByNodeByField;
     private final Map<PNode, Map<String, Set<Origination>>> sourceOriginationSetsByNodeByField;
@@ -289,30 +235,30 @@ public final class FieldOriginAnalysis
         this.originations = ImmutableList.copyOf(originations);
         this.toposortIndicesByNode = ImmutableMap.copyOf(toposortIndicesByNode);
 
-        Map<NodeField, Set<Origination>> originationSetsBySink = new LinkedHashMap<>();
-        Map<NodeField, Set<Origination>> originationSetsBySource = new LinkedHashMap<>();
+        Map<PNodeField, Set<Origination>> originationSetsBySink = new LinkedHashMap<>();
+        Map<PNodeField, Set<Origination>> originationSetsBySource = new LinkedHashMap<>();
 
         Map<PNode, Map<String, Set<Origination>>> sinkOriginationSetsByNodeByField = new LinkedHashMap<>();
         Map<PNode, Map<String, Set<Origination>>> sourceOriginationSetsByNodeByField = new LinkedHashMap<>();
 
         this.originations.forEach(o -> {
-            checkState(toposortIndicesByNode.containsKey(o.sink.node));
+            checkState(toposortIndicesByNode.containsKey(o.sink.getNode()));
             originationSetsBySink
                     .computeIfAbsent(o.sink, nf -> new LinkedHashSet<>())
                     .add(o);
             sinkOriginationSetsByNodeByField
-                    .computeIfAbsent(o.sink.node, n -> new LinkedHashMap<>())
-                    .computeIfAbsent(o.sink.field, f -> new LinkedHashSet<>())
+                    .computeIfAbsent(o.sink.getNode(), n -> new LinkedHashMap<>())
+                    .computeIfAbsent(o.sink.getField(), f -> new LinkedHashSet<>())
                     .add(o);
             o.source.ifPresent(src -> {
-                checkState(toposortIndicesByNode.containsKey(src.node));
-                checkState(toposortIndicesByNode.get(src.node) < toposortIndicesByNode.get(o.sink.node));
+                checkState(toposortIndicesByNode.containsKey(src.getNode()));
+                checkState(toposortIndicesByNode.get(src.getNode()) < toposortIndicesByNode.get(o.sink.getNode()));
                 originationSetsBySource
                         .computeIfAbsent(src, nf -> new LinkedHashSet<>())
                         .add(o);
                 sourceOriginationSetsByNodeByField
-                        .computeIfAbsent(src.node, n -> new LinkedHashMap<>())
-                        .computeIfAbsent(src.field, f -> new LinkedHashSet<>())
+                        .computeIfAbsent(src.getNode(), n -> new LinkedHashMap<>())
+                        .computeIfAbsent(src.getField(), f -> new LinkedHashSet<>())
                         .add(o);
             });
         });
@@ -329,12 +275,12 @@ public final class FieldOriginAnalysis
         return originations;
     }
 
-    public Map<NodeField, Set<Origination>> getOriginationSetsBySink()
+    public Map<PNodeField, Set<Origination>> getOriginationSetsBySink()
     {
         return originationSetsBySink;
     }
 
-    public Map<NodeField, Set<Origination>> getOriginationSetsBySource()
+    public Map<PNodeField, Set<Origination>> getOriginationSetsBySource()
     {
         return originationSetsBySource;
     }
@@ -349,12 +295,12 @@ public final class FieldOriginAnalysis
         return sourceOriginationSetsByNodeByField;
     }
 
-    private final SupplierLazyValue<Map<NodeField, Set<Origination>>> leafOriginationSetsBySink = new SupplierLazyValue<>();
+    private final SupplierLazyValue<Map<PNodeField, Set<Origination>>> leafOriginationSetsBySink = new SupplierLazyValue<>();
 
-    public Map<NodeField, Set<Origination>> getLeafOriginationSetsBySink()
+    public Map<PNodeField, Set<Origination>> getLeafOriginationSetsBySink()
     {
         return leafOriginationSetsBySink.get(() -> {
-            Map<NodeField, Set<Origination>> leafOriginationSetsBySink = new LinkedHashMap<>();
+            Map<PNodeField, Set<Origination>> leafOriginationSetsBySink = new LinkedHashMap<>();
 
             sorted(sinkOriginationSetsByNodeByField.keySet(), Comparator.comparing(toposortIndicesByNode::get)).forEach(snkNode -> {
                 sinkOriginationSetsByNodeByField.get(snkNode).forEach((snkField, snkOris) -> {
@@ -367,7 +313,7 @@ public final class FieldOriginAnalysis
                         snkLeafOriginationSet = new LinkedHashSet<>();
                         snkOris.forEach(snkOri -> {
                             if (snkOri.source.isPresent()) {
-                                NodeField srcNf = snkOri.source.get();
+                                PNodeField srcNf = snkOri.source.get();
                                 Set<Origination> srcLeafOriginationSet = checkNotNull(leafOriginationSetsBySink.get(srcNf));
                                 snkLeafOriginationSet.addAll(checkNotEmpty(srcLeafOriginationSet));
                             }
@@ -376,7 +322,7 @@ public final class FieldOriginAnalysis
                             }
                         });
                     }
-                    NodeField snkNf = NodeField.of(snkNode, snkField);
+                    PNodeField snkNf = PNodeField.of(snkNode, snkField);
                     checkState(!leafOriginationSetsBySink.containsKey(snkNf));
                     leafOriginationSetsBySink.put(snkNf, checkNotEmpty(ImmutableSet.copyOf(snkLeafOriginationSet)));
                 });
@@ -401,13 +347,13 @@ public final class FieldOriginAnalysis
             private void addGenerator(PGenerator node)
             {
                 node.getFields().getNames().forEach(f ->
-                        originations.add(new Origination(NodeField.of(node, f))));
+                        originations.add(new Origination(PNodeField.of(node, f))));
             }
 
             private void addSimpleSingleSource(PSingleSource node)
             {
                 node.getFields().getNames().forEach(f ->
-                        originations.add(new Origination(NodeField.of(node, f), NodeField.of(node.getSource(), f), Strength.STRONG, Nesting.none())));
+                        originations.add(new Origination(PNodeField.of(node, f), PNodeField.of(node.getSource(), f), Strength.STRONG, Nesting.none())));
             }
 
             private void visitSources(PNode node, Void context)
@@ -429,7 +375,7 @@ public final class FieldOriginAnalysis
                 Strength str = node.getMode() == PCrossJoin.Mode.FULL ? Strength.STRONG : Strength.WEAK;
                 node.getSources().forEach(s ->
                         s.getFields().getNames().forEach(f -> originations.add(new Origination(
-                                NodeField.of(node, f), NodeField.of(s, f), str, Nesting.none()))));
+                                PNodeField.of(node, f), PNodeField.of(s, f), str, Nesting.none()))));
 
                 return null;
             }
@@ -442,7 +388,7 @@ public final class FieldOriginAnalysis
                             ((node.getMode() == PEquiJoin.Mode.LEFT && b == node.getBranches().get(0)) || node.getMode() == PEquiJoin.Mode.FULL) ?
                                     Strength.STRONG : Strength.WEAK;
                     b.getNode().getFields().getNames().forEach(f -> {
-                        originations.add(new Origination(NodeField.of(node, f), NodeField.of(b.getNode(), f), str, Nesting.none()));
+                        originations.add(new Origination(PNodeField.of(node, f), PNodeField.of(b.getNode(), f), str, Nesting.none()));
                     });
                 });
 
@@ -461,9 +407,9 @@ public final class FieldOriginAnalysis
             public Void visitGroupBy(PGroupBy node, Void context)
             {
                 originations.add(new Origination(
-                        NodeField.of(node, node.getListField())));
+                        PNodeField.of(node, node.getListField())));
                 node.getGroupFields().forEach(gf -> originations.add(new Origination(
-                        NodeField.of(node, gf), NodeField.of(node.getSource(), gf), Strength.STRONG, Nesting.none())));
+                        PNodeField.of(node, gf), PNodeField.of(node.getSource(), gf), Strength.STRONG, Nesting.none())));
 
                 return null;
             }
@@ -472,9 +418,9 @@ public final class FieldOriginAnalysis
             public Void visitLookupJoin(PLookupJoin node, Void context)
             {
                 node.getSource().getFields().getNames().forEach(f -> originations.add(new Origination(
-                        NodeField.of(node, f), NodeField.of(node.getSource(), f), Strength.STRONG, Nesting.none())));
+                        PNodeField.of(node, f), PNodeField.of(node.getSource(), f), Strength.STRONG, Nesting.none())));
                 node.getBranches().forEach(b -> b.getFields().forEach(f -> originations.add(new Origination(
-                        NodeField.of(node, f), NodeField.of(b.getNode(), f), Strength.WEAK, Nesting.none()))));
+                        PNodeField.of(node, f), PNodeField.of(b.getNode(), f), Strength.WEAK, Nesting.none()))));
 
                 return null;
             }
@@ -485,7 +431,7 @@ public final class FieldOriginAnalysis
                 node.getProjection().getInputsByOutput().forEach((o, i) -> {
                     if (i instanceof PProjection.FieldInput) {
                         PProjection.FieldInput fi = (PProjection.FieldInput) i;
-                        originations.add(new Origination(NodeField.of(node, o), NodeField.of(node.getSource(), fi.getField()), Strength.STRONG, Nesting.none()));
+                        originations.add(new Origination(PNodeField.of(node, o), PNodeField.of(node.getSource(), fi.getField()), Strength.STRONG, Nesting.none()));
                     }
                 });
 
