@@ -38,7 +38,7 @@ public final class PGroupBy
         implements PAggregate, PSingleSource
 {
     private final PNode source;
-    private final List<String> groupFields;
+    private final List<String> keyFields;
     private final String listField;
 
     private final StructType structType;
@@ -49,21 +49,21 @@ public final class PGroupBy
             @JsonProperty("name") String name,
             @JsonProperty("annotations") PNodeAnnotations annotations,
             @JsonProperty("source") PNode source,
-            @JsonProperty("groupFields") List<String> groupFields,
+            @JsonProperty("keyFields") List<String> keyFields,
             @JsonProperty("listField") String listField)
     {
         super(name, annotations);
 
         this.source = checkNotNull(source);
-        this.groupFields = ImmutableList.copyOf(groupFields);
+        this.keyFields = ImmutableList.copyOf(keyFields);
         this.listField = checkNotNull(listField);
 
-        checkArgument(!groupFields.contains(listField));
-        checkArgument(source.getFields().containsAll(groupFields));
+        checkArgument(!keyFields.contains(listField));
+        checkArgument(source.getFields().containsAll(keyFields));
 
         structType = new StructType(ImmutableMap.copyOf(source.getFields().getTypesByName()));
         fields = FieldCollection.builder()
-                .addAll(groupFields.stream()
+                .addAll(keyFields.stream()
                         .map(f -> new Field(f, source.getFields().getType(f), new FieldAnnotations(ImmutableList.of(FieldAnnotation.id())))))
                 .add(listField, new ListType(structType))
                 .build();
@@ -81,10 +81,10 @@ public final class PGroupBy
         return source;
     }
 
-    @JsonProperty("groupFields")
-    public List<String> getGroupFields()
+    @JsonProperty("keyFields")
+    public List<String> getKeyFields()
     {
-        return groupFields;
+        return keyFields;
     }
 
     @JsonProperty("listField")

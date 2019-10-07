@@ -94,7 +94,7 @@ public abstract class PNodeRewriter<C>
                 visitNodeName(node.getName(), context),
                 node.getAnnotations(),
                 process(node.getSource(), context),
-                node.getGroupFields(),
+                node.getKeyFields(),
                 node.getListField());
     }
 

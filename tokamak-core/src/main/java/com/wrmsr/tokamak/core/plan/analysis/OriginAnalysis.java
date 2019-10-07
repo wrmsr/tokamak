@@ -73,12 +73,14 @@ public final class OriginAnalysis
 
     public enum Genesis
     {
+        DIRECT(false),
         OUTER_JOIN(false),
         INNER_JOIN(false),
 
         SCAN(true),
         VALUES(true),
-        GROUP(true),
+        GROUP_KEY(true),
+        GROUP_LIST(true),
 
         OPAQUE(true);
 
@@ -452,11 +454,11 @@ public final class OriginAnalysis
 
         PNodeVisitors.postWalk(plan.getRoot(), new CachingPNodeVisitor<Void, Void>()
         {
-            private void addSimpleSingleSource(PSingleSource node)
+            private void addDirectSingleSource(PSingleSource node)
             {
                 node.getFields().getNames().forEach(f ->
                         originations.add(new Origination(
-                                PNodeField.of(node, f), PNodeField.of(node.getSource(), f), Genesis.INNER_JOIN, Nesting.none())));
+                                PNodeField.of(node, f), PNodeField.of(node.getSource(), f), Genesis.DIRECT, Nesting.none())));
             }
 
             private void visitSources(PNode node, Void context)
@@ -467,7 +469,7 @@ public final class OriginAnalysis
             @Override
             public Void visitCache(PCache node, Void context)
             {
-                addSimpleSingleSource(node);
+                addDirectSingleSource(node);
 
                 return null;
             }
@@ -475,7 +477,7 @@ public final class OriginAnalysis
             @Override
             public Void visitCrossJoin(PCrossJoin node, Void context)
             {
-                Genesis gen = node.getMode() == PCrossJoin.Mode.FULL ? Genesis.INNER_JOIN : Genesis.OUTER_JOIN;
+                Genesis gen = node.getMode() == PCrossJoin.Mode.FULL ? Genesis.OUTER_JOIN : Genesis.INNER_JOIN;
                 node.getSources().forEach(s ->
                         s.getFields().getNames().forEach(f -> originations.add(new Origination(
                                 PNodeField.of(node, f), PNodeField.of(s, f), gen, Nesting.none()))));
@@ -509,7 +511,7 @@ public final class OriginAnalysis
             @Override
             public Void visitFilter(PFilter node, Void context)
             {
-                addSimpleSingleSource(node);
+                addDirectSingleSource(node);
 
                 return null;
             }
@@ -518,9 +520,9 @@ public final class OriginAnalysis
             public Void visitGroupBy(PGroupBy node, Void context)
             {
                 originations.add(new Origination(
-                        PNodeField.of(node, node.getListField()), Genesis.GROUP));
-                node.getGroupFields().forEach(gf -> originations.add(new Origination(
-                        PNodeField.of(node, gf), PNodeField.of(node.getSource(), gf), Genesis.INNER_JOIN, Nesting.none())));
+                        PNodeField.of(node, node.getListField()), Genesis.GROUP_LIST));
+                node.getKeyFields().forEach(gf -> originations.add(new Origination(
+                        PNodeField.of(node, gf), PNodeField.of(node.getSource(), gf), Genesis.GROUP_KEY, Nesting.none())));
 
                 return null;
             }
@@ -543,7 +545,7 @@ public final class OriginAnalysis
                     if (i instanceof PProjection.FieldInput) {
                         PProjection.FieldInput fi = (PProjection.FieldInput) i;
                         originations.add(new Origination(
-                                PNodeField.of(node, o), PNodeField.of(node.getSource(), fi.getField()), Genesis.INNER_JOIN, Nesting.none()));
+                                PNodeField.of(node, o), PNodeField.of(node.getSource(), fi.getField()), Genesis.DIRECT, Nesting.none()));
                     }
                     else {
                         originations.add(new Origination(
@@ -566,7 +568,7 @@ public final class OriginAnalysis
             @Override
             public Void visitState(PState node, Void context)
             {
-                addSimpleSingleSource(node);
+                addDirectSingleSource(node);
 
                 return null;
             }
