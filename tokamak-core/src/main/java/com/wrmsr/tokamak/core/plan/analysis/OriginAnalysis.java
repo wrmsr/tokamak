@@ -374,14 +374,17 @@ public final class OriginAnalysis
     private final class RecursiveAnalysis
     {
         private final Map<PNodeField, Set<Origination>> leafOriginationSetsBySink;
+        private final Map<PNodeField, Set<Origination>> leafOriginationSetsBySource;
 
         private RecursiveAnalysis()
         {
             Map<PNodeField, Set<Origination>> leafOriginationSetsBySink = new LinkedHashMap<>();
+            Map<PNodeField, Set<Origination>> leafOriginationSetsBySource = new LinkedHashMap<>();
 
             sorted(originationSetsBySinkNodeBySinkField.keySet(), Comparator.comparing(toposortIndicesByNode::get)).forEach(snkNode -> {
                 originationSetsBySinkNodeBySinkField.get(snkNode).forEach((snkField, snkOris) -> {
                     checkNotEmpty(snkOris);
+
                     Set<Origination> snkLeafOriginationSet;
                     if (snkOris.stream().anyMatch(o -> o.strength.generated)) {
                         snkLeafOriginationSet = ImmutableSet.of(checkSingle(snkOris));
@@ -392,10 +395,11 @@ public final class OriginAnalysis
                             checkState(snkOri.source.isPresent());
                             PNodeField srcNf = snkOri.source.get();
                             // FIXME: keep these intermediates, aggregate max strength
-                            Set<Origination> srcLeafOriginationSet = checkNotNull(leafOriginationSetsBySink.get(srcNf));
-                            snkLeafOriginationSet.addAll(checkNotEmpty(srcLeafOriginationSet));
+                            snkLeafOriginationSet.addAll(checkNotEmpty(leafOriginationSetsBySink.get(srcNf)));
+                            srcNf.
                         });
                     }
+
                     PNodeField snkNf = PNodeField.of(snkNode, snkField);
                     checkState(!leafOriginationSetsBySink.containsKey(snkNf));
                     leafOriginationSetsBySink.put(snkNf, checkNotEmpty(ImmutableSet.copyOf(snkLeafOriginationSet)));
@@ -403,6 +407,7 @@ public final class OriginAnalysis
             });
 
             this.leafOriginationSetsBySink = newImmutableSetMap(leafOriginationSetsBySink);
+            this.leafOriginationSetsBySource = newImmutableSetMap(leafOriginationSetsBySource);
         }
     }
 
@@ -449,7 +454,8 @@ public final class OriginAnalysis
             private void addSimpleSingleSource(PSingleSource node)
             {
                 node.getFields().getNames().forEach(f ->
-                        originations.add(new Origination(PNodeField.of(node, f), PNodeField.of(node.getSource(), f), Strength.INNER, Nesting.none())));
+                        originations.add(new Origination(
+                                PNodeField.of(node, f), PNodeField.of(node.getSource(), f), Strength.INNER, Nesting.none())));
             }
 
             private void visitSources(PNode node, Void context)
@@ -535,10 +541,12 @@ public final class OriginAnalysis
                 node.getProjection().getInputsByOutput().forEach((o, i) -> {
                     if (i instanceof PProjection.FieldInput) {
                         PProjection.FieldInput fi = (PProjection.FieldInput) i;
-                        originations.add(new Origination(PNodeField.of(node, o), PNodeField.of(node.getSource(), fi.getField()), Strength.INNER, Nesting.none()));
+                        originations.add(new Origination(
+                                PNodeField.of(node, o), PNodeField.of(node.getSource(), fi.getField()), Strength.INNER, Nesting.none()));
                     }
                     else {
-                        originations.add(new Origination(PNodeField.of(node, o), Strength.OPAQUE));
+                        originations.add(new Origination(
+                                PNodeField.of(node, o), Strength.OPAQUE));
                     }
                 });
 
