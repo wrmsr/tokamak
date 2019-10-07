@@ -49,6 +49,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -74,11 +75,16 @@ public final class OriginAnalysis
     public enum Genesis
     {
         DIRECT(false),
-        OUTER_JOIN(false),
+
         INNER_JOIN(false),
+        LEFT_JOIN_PRIMARY(false),
+        LEFT_JOIN_SECONDARY(false),
+        FULL_JOIN(false),
+        LOOKUP_JOIN(false),
 
         SCAN(true),
         VALUES(true),
+
         GROUP(true),
 
         OPAQUE(true);
@@ -480,7 +486,7 @@ public final class OriginAnalysis
             @Override
             public Void visitCrossJoin(PCrossJoin node, Void context)
             {
-                Genesis gen = node.getMode() == PCrossJoin.Mode.FULL ? Genesis.OUTER_JOIN : Genesis.INNER_JOIN;
+                Genesis gen = node.getMode() == PCrossJoin.Mode.FULL ? Genesis.FULL_JOIN : Genesis.INNER_JOIN;
                 node.getSources().forEach(s ->
                         s.getFields().getNames().forEach(f -> originations.add(new Origination(
                                 PNodeField.of(node, f), PNodeField.of(s, f), gen, Nesting.none()))));
@@ -492,12 +498,25 @@ public final class OriginAnalysis
             public Void visitEquiJoin(PEquiJoin node, Void context)
             {
                 node.getBranches().forEach(b -> {
-                    Genesis gen =
-                            (node.getMode() == PEquiJoin.Mode.INNER || (node.getMode() == PEquiJoin.Mode.LEFT && b == node.getBranches().get(0))) ?
-                                    Genesis.INNER_JOIN : Genesis.OUTER_JOIN;
+                    Genesis gen;
+                    switch (node.getMode()) {
+                        case INNER:
+                            gen = Genesis.INNER_JOIN;
+                            break;
+                        case LEFT:
+                            gen = b == node.getBranches().get(0) ? Genesis.LEFT_JOIN_PRIMARY : Genesis.LEFT_JOIN_SECONDARY;
+                            break;
+                        case FULL:
+                            gen = Genesis.FULL_JOIN;
+                            break;
+                        default:
+                            throw new IllegalStateException(Objects.toString(node.getMode()));
+                    }
+
                     b.getNode().getFields().getNames().forEach(f -> {
                         originations.add(new Origination(PNodeField.of(node, f), PNodeField.of(b.getNode(), f), gen, Nesting.none()));
                     });
+
                     node.getBranches().forEach(ob -> {
                         checkState(ob.getFields().size() == b.getFields().size());
                         for (int i = 0; i < b.getFields().size(); ++i) {
@@ -534,9 +553,9 @@ public final class OriginAnalysis
             public Void visitLookupJoin(PLookupJoin node, Void context)
             {
                 node.getSource().getFields().getNames().forEach(f -> originations.add(new Origination(
-                        PNodeField.of(node, f), PNodeField.of(node.getSource(), f), Genesis.INNER_JOIN, Nesting.none())));
+                        PNodeField.of(node, f), PNodeField.of(node.getSource(), f), Genesis.DIRECT, Nesting.none())));
                 node.getBranches().forEach(b -> b.getFields().forEach(f -> originations.add(new Origination(
-                        PNodeField.of(node, f), PNodeField.of(b.getNode(), f), Genesis.OUTER_JOIN, Nesting.none()))));
+                        PNodeField.of(node, f), PNodeField.of(b.getNode(), f), Genesis.LOOKUP_JOIN, Nesting.none()))));
 
                 return null;
             }
