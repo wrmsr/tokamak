@@ -17,6 +17,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
+import com.google.inject.internal.cglib.proxy.$Dispatcher;
 import com.wrmsr.tokamak.core.plan.Plan;
 import com.wrmsr.tokamak.core.plan.node.PCache;
 import com.wrmsr.tokamak.core.plan.node.PCrossJoin;
@@ -62,8 +63,8 @@ import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkSingle;
 
 @Immutable
-public final class FieldOriginAnalysis
-        implements StreamableIterable<FieldOriginAnalysis.Origination>
+public final class OriginAnalysis
+        implements StreamableIterable<OriginAnalysis.Origination>
 {
     /*
     TODO:
@@ -192,7 +193,9 @@ public final class FieldOriginAnalysis
             this.strength = checkNotNull(strength);
             this.nesting = checkNotNull(nesting);
             if (source.isPresent()) {
-                checkState(sink.getNode().getSources().contains(source.get().getNode()));
+                PNodeField src = source.get();
+                checkState(src != sink);
+                checkState(sink.getNode().getSources().contains(src.getNode()));
                 checkArgument(!strength.generated);
             }
             else {
@@ -289,7 +292,7 @@ public final class FieldOriginAnalysis
     private final Map<PNode, Map<String, Set<Origination>>> sinkOriginationSetsByNodeByField;
     private final Map<PNode, Map<String, Set<Origination>>> sourceOriginationSetsByNodeByField;
 
-    private FieldOriginAnalysis(List<Origination> originations, Map<PNode, Integer> toposortIndicesByNode)
+    private OriginAnalysis(List<Origination> originations, Map<PNode, Integer> toposortIndicesByNode)
     {
         this.originations = ImmutableList.copyOf(originations);
         this.toposortIndicesByNode = ImmutableMap.copyOf(toposortIndicesByNode);
@@ -405,13 +408,29 @@ public final class FieldOriginAnalysis
         });
     }
 
+    private final SupplierLazyValue<Map<PNodeField, Set<PNodeField>>> sinkSetsByLeafSource = new SupplierLazyValue<>();
+
+    public Map<PNodeField, Set<PNodeField>> getSinkSetsByLeafSource()
+    {
+        return sinkSetsByLeafSource.get(() -> {
+            Map<PNodeField, Set<PNodeField>> ret = new LinkedHashMap<>();
+            getLeafOriginationSetsBySink().forEach((k, vs) -> {
+                vs.forEach(v -> {
+                    checkState(!v.source.isPresent());
+                    ret.computeIfAbsent(v.sink, v_ -> new LinkedHashSet<>()).add(k);
+                });
+            });
+            return newImmutableSetMap(ret);
+        });
+    }
+
     @Override
     public Iterator<Origination> iterator()
     {
         return originations.iterator();
     }
 
-    public static FieldOriginAnalysis analyze(Plan plan)
+    public static OriginAnalysis analyze(Plan plan)
     {
         List<Origination> originations = new ArrayList<>();
 
@@ -450,7 +469,6 @@ public final class FieldOriginAnalysis
             @Override
             public Void visitEquiJoin(PEquiJoin node, Void context)
             {
-                // FIXME: cross-branch field equivalence through leaf squashing discards inner/outerness
                 node.getBranches().forEach(b -> {
                     Strength str =
                             ((node.getMode() == PEquiJoin.Mode.LEFT && b == node.getBranches().get(0)) || node.getMode() == PEquiJoin.Mode.FULL) ?
@@ -571,6 +589,6 @@ public final class FieldOriginAnalysis
             }
         }, null);
 
-        return new FieldOriginAnalysis(originations, plan.getToposortIndicesByNode());
+        return new OriginAnalysis(originations, plan.getToposortIndicesByNode());
     }
 }

@@ -109,6 +109,17 @@ public final class MoreCollections
         return map.entrySet().stream().collect(toImmutableMap(Map.Entry::getValue, Map.Entry::getKey));
     }
 
+    public static <K, V> Map<V, Set<K>> invertSetMap(Map<K, Set<V>> map)
+    {
+        Map<V, Set<K>> ret = new LinkedHashMap<>();
+        map.forEach((k, vs) -> {
+            vs.forEach(v -> {
+                ret.computeIfAbsent(v, v_ -> new LinkedHashSet<>()).add(k);
+            });
+        });
+        return newImmutableSetMap(ret);
+    }
+
     public static <T> Set<T> newIdentityHashSetOf(Iterable<T> src)
     {
         Set<T> set = newIdentityHashSet();

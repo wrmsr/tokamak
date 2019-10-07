@@ -32,7 +32,7 @@ import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 
 @Immutable
-public final class IdFieldAnalysis
+public final class IdAnalysis
 {
     @Immutable
     public static final class Entry
@@ -81,13 +81,13 @@ public final class IdFieldAnalysis
 
     private final Map<PNode, Entry> entriesByNode;
 
-    private IdFieldAnalysis(Map<PNode, Entry> entriesByNode)
+    private IdAnalysis(Map<PNode, Entry> entriesByNode)
     {
         this.entriesByNode = ImmutableMap.copyOf(entriesByNode);
         this.entriesByNode.forEach((k, v) -> checkState(k == v.getNode()));
     }
 
-    public static IdFieldAnalysis analyze(Plan plan)
+    public static IdAnalysis analyze(Plan plan)
     {
         Map<PNode, Entry> entriesByNode = new HashMap<>();
 
