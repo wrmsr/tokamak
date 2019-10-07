@@ -370,6 +370,7 @@ public final class OriginAnalysis
         return originationSetsBySourceNodeBySourceField;
     }
 
+    @Immutable
     private final class RecursiveAnalysis
     {
         private final Map<PNodeField, Set<Origination>> leafOriginationSetsBySink;
