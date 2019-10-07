@@ -220,7 +220,7 @@ public final class OriginAnalysis
             return "Origination{" +
                     "sink=" + sink +
                     ", source=" + source +
-                    ", origin=" + genesis +
+                    ", genesis=" + genesis +
                     ", nesting=" + nesting +
                     '}';
         }
@@ -395,10 +395,9 @@ public final class OriginAnalysis
                         snkOris.forEach(snkOri -> {
                             checkState(snkOri.source.isPresent());
                             checkState(!leafOriginationSetsByOrigination.containsKey(snkOri));
-                            PNodeField srcNf = snkOri.source.get();
-                            Set<Origination> leafOriginations = checkNotEmpty(leafOriginationSetsBySink.get(srcNf));
-                            snkLeafOriginationSet.addAll(leafOriginations);
-                            leafOriginationSetsByOrigination.put(snkOri, leafOriginations);
+                            Set<Origination> srcLeafOriginations = checkNotEmpty(leafOriginationSetsBySink.get(snkOri.source.get()));
+                            snkLeafOriginationSet.addAll(srcLeafOriginations);
+                            leafOriginationSetsByOrigination.put(snkOri, srcLeafOriginations);
                         });
                     }
 
