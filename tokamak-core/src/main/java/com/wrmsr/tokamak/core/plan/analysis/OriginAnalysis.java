@@ -372,12 +372,12 @@ public final class OriginAnalysis
     }
 
     @Immutable
-    private final class RecursiveAnalysis
+    private final class LeafAnalysis
     {
         private final Map<PNodeField, Set<Origination>> leafOriginationSetsBySink;
         private final Map<Origination, Set<Origination>> leafOriginationSetsByOrigination;
 
-        private RecursiveAnalysis()
+        private LeafAnalysis()
         {
             Map<PNodeField, Set<Origination>> leafOriginationSetsBySink = new LinkedHashMap<>();
             Map<Origination, Set<Origination>> leafOriginationSetsByOrigination = new LinkedHashMap<>();
@@ -413,16 +413,21 @@ public final class OriginAnalysis
         }
     }
 
-    private final SupplierLazyValue<RecursiveAnalysis> recursiveAnalysis = new SupplierLazyValue<>();
+    private final SupplierLazyValue<LeafAnalysis> leafAnalysis = new SupplierLazyValue<>();
 
-    private RecursiveAnalysis getRecursiveAnalysis()
+    private LeafAnalysis getLeafAnalysis()
     {
-        return recursiveAnalysis.get(RecursiveAnalysis::new);
+        return leafAnalysis.get(LeafAnalysis::new);
     }
 
     public Map<PNodeField, Set<Origination>> getLeafOriginationSetsBySink()
     {
-        return getRecursiveAnalysis().leafOriginationSetsBySink;
+        return getLeafAnalysis().leafOriginationSetsBySink;
+    }
+
+    public Map<Origination, Set<Origination>> getLeafOriginationSetsOrigination()
+    {
+        return getLeafAnalysis().leafOriginationSetsByOrigination;
     }
 
     private final SupplierLazyValue<Map<PNodeField, Set<PNodeField>>> sinkSetsByLeafSource = new SupplierLazyValue<>();
