@@ -71,10 +71,10 @@ public final class OriginAnalysis
       - groupBy List<Struct<...>> ele origins?
     */
 
-    public enum Strength
+    public enum Genesis
     {
-        OUTER(false),
-        INNER(false),
+        OUTER_JOIN(false),
+        INNER_JOIN(false),
 
         SCAN(true),
         VALUES(true),
@@ -82,16 +82,16 @@ public final class OriginAnalysis
 
         OPAQUE(true);
 
-        private final boolean generated;
+        private final boolean leaf;
 
-        Strength(boolean generated)
+        Genesis(boolean leaf)
         {
-            this.generated = generated;
+            this.leaf = leaf;
         }
 
-        public boolean isGenerated()
+        public boolean isLeaf()
         {
-            return generated;
+            return leaf;
         }
     }
 
@@ -182,35 +182,35 @@ public final class OriginAnalysis
     {
         private final PNodeField sink;
         private final Optional<PNodeField> source;
-        private final Strength strength;
+        private final Genesis genesis;
         private final Nesting nesting;
 
-        private Origination(PNodeField sink, Optional<PNodeField> source, Strength strength, Nesting nesting)
+        private Origination(PNodeField sink, Optional<PNodeField> source, Genesis genesis, Nesting nesting)
         {
             this.sink = checkNotNull(sink);
             this.source = checkNotNull(source);
-            this.strength = checkNotNull(strength);
+            this.genesis = checkNotNull(genesis);
             this.nesting = checkNotNull(nesting);
             if (source.isPresent()) {
                 PNodeField src = source.get();
                 checkState(src != sink);
                 checkState(sink.getNode().getSources().contains(src.getNode()));
-                checkArgument(!strength.generated);
+                checkArgument(!genesis.leaf);
             }
             else {
-                checkArgument(strength.generated);
+                checkArgument(genesis.leaf);
                 checkArgument(nesting instanceof Nesting.None);
             }
         }
 
-        private Origination(PNodeField sink, PNodeField source, Strength strength, Nesting nesting)
+        private Origination(PNodeField sink, PNodeField source, Genesis genesis, Nesting nesting)
         {
-            this(sink, Optional.of(source), strength, nesting);
+            this(sink, Optional.of(source), genesis, nesting);
         }
 
-        private Origination(PNodeField sink, Strength strength)
+        private Origination(PNodeField sink, Genesis genesis)
         {
-            this(sink, Optional.empty(), strength, Nesting.none());
+            this(sink, Optional.empty(), genesis, Nesting.none());
         }
 
         @Override
@@ -219,7 +219,7 @@ public final class OriginAnalysis
             return "Origination{" +
                     "sink=" + sink +
                     ", source=" + source +
-                    ", strength=" + strength +
+                    ", origin=" + genesis +
                     ", nesting=" + nesting +
                     '}';
         }
@@ -234,9 +234,9 @@ public final class OriginAnalysis
             return source;
         }
 
-        public Strength getStrength()
+        public Genesis getGenesis()
         {
-            return strength;
+            return genesis;
         }
     }
 
@@ -338,7 +338,7 @@ public final class OriginAnalysis
 
             snkOrisByField.forEach((snkField, snkOris) -> {
                 checkNotEmpty(snkOris);
-                if (snkOris.stream().anyMatch(o -> o.strength.generated)) {
+                if (snkOris.stream().anyMatch(o -> o.genesis.leaf)) {
                     checkSingle(snkOris);
                 }
             });
@@ -386,7 +386,7 @@ public final class OriginAnalysis
                     checkNotEmpty(snkOris);
 
                     Set<Origination> snkLeafOriginationSet;
-                    if (snkOris.stream().anyMatch(o -> o.strength.generated)) {
+                    if (snkOris.stream().anyMatch(o -> o.genesis.leaf)) {
                         snkLeafOriginationSet = ImmutableSet.of(checkSingle(snkOris));
                     }
                     else {
@@ -456,7 +456,7 @@ public final class OriginAnalysis
             {
                 node.getFields().getNames().forEach(f ->
                         originations.add(new Origination(
-                                PNodeField.of(node, f), PNodeField.of(node.getSource(), f), Strength.INNER, Nesting.none())));
+                                PNodeField.of(node, f), PNodeField.of(node.getSource(), f), Genesis.INNER_JOIN, Nesting.none())));
             }
 
             private void visitSources(PNode node, Void context)
@@ -475,10 +475,10 @@ public final class OriginAnalysis
             @Override
             public Void visitCrossJoin(PCrossJoin node, Void context)
             {
-                Strength str = node.getMode() == PCrossJoin.Mode.FULL ? Strength.INNER : Strength.OUTER;
+                Genesis gen = node.getMode() == PCrossJoin.Mode.FULL ? Genesis.INNER_JOIN : Genesis.OUTER_JOIN;
                 node.getSources().forEach(s ->
                         s.getFields().getNames().forEach(f -> originations.add(new Origination(
-                                PNodeField.of(node, f), PNodeField.of(s, f), str, Nesting.none()))));
+                                PNodeField.of(node, f), PNodeField.of(s, f), gen, Nesting.none()))));
 
                 return null;
             }
@@ -487,18 +487,18 @@ public final class OriginAnalysis
             public Void visitEquiJoin(PEquiJoin node, Void context)
             {
                 node.getBranches().forEach(b -> {
-                    Strength str =
+                    Genesis gen =
                             (node.getMode() == PEquiJoin.Mode.INNER || (node.getMode() == PEquiJoin.Mode.LEFT && b == node.getBranches().get(0))) ?
-                                    Strength.INNER : Strength.OUTER;
+                                    Genesis.INNER_JOIN : Genesis.OUTER_JOIN;
                     b.getNode().getFields().getNames().forEach(f -> {
-                        originations.add(new Origination(PNodeField.of(node, f), PNodeField.of(b.getNode(), f), str, Nesting.none()));
+                        originations.add(new Origination(PNodeField.of(node, f), PNodeField.of(b.getNode(), f), gen, Nesting.none()));
                     });
                     node.getBranches().forEach(ob -> {
                         checkState(ob.getFields().size() == b.getFields().size());
                         for (int i = 0; i < b.getFields().size(); ++i) {
                             String kf = b.getFields().get(i);
                             String okf = ob.getFields().get(i);
-                            originations.add(new Origination(PNodeField.of(node, kf), PNodeField.of(ob.getNode(), okf), str, Nesting.none()));
+                            originations.add(new Origination(PNodeField.of(node, kf), PNodeField.of(ob.getNode(), okf), gen, Nesting.none()));
                         }
                     });
                 });
@@ -518,9 +518,9 @@ public final class OriginAnalysis
             public Void visitGroupBy(PGroupBy node, Void context)
             {
                 originations.add(new Origination(
-                        PNodeField.of(node, node.getListField()), Strength.GROUP));
+                        PNodeField.of(node, node.getListField()), Genesis.GROUP));
                 node.getGroupFields().forEach(gf -> originations.add(new Origination(
-                        PNodeField.of(node, gf), PNodeField.of(node.getSource(), gf), Strength.INNER, Nesting.none())));
+                        PNodeField.of(node, gf), PNodeField.of(node.getSource(), gf), Genesis.INNER_JOIN, Nesting.none())));
 
                 return null;
             }
@@ -529,9 +529,9 @@ public final class OriginAnalysis
             public Void visitLookupJoin(PLookupJoin node, Void context)
             {
                 node.getSource().getFields().getNames().forEach(f -> originations.add(new Origination(
-                        PNodeField.of(node, f), PNodeField.of(node.getSource(), f), Strength.INNER, Nesting.none())));
+                        PNodeField.of(node, f), PNodeField.of(node.getSource(), f), Genesis.INNER_JOIN, Nesting.none())));
                 node.getBranches().forEach(b -> b.getFields().forEach(f -> originations.add(new Origination(
-                        PNodeField.of(node, f), PNodeField.of(b.getNode(), f), Strength.OUTER, Nesting.none()))));
+                        PNodeField.of(node, f), PNodeField.of(b.getNode(), f), Genesis.OUTER_JOIN, Nesting.none()))));
 
                 return null;
             }
@@ -543,11 +543,11 @@ public final class OriginAnalysis
                     if (i instanceof PProjection.FieldInput) {
                         PProjection.FieldInput fi = (PProjection.FieldInput) i;
                         originations.add(new Origination(
-                                PNodeField.of(node, o), PNodeField.of(node.getSource(), fi.getField()), Strength.INNER, Nesting.none()));
+                                PNodeField.of(node, o), PNodeField.of(node.getSource(), fi.getField()), Genesis.INNER_JOIN, Nesting.none()));
                     }
                     else {
                         originations.add(new Origination(
-                                PNodeField.of(node, o), Strength.OPAQUE));
+                                PNodeField.of(node, o), Genesis.OPAQUE));
                     }
                 });
 
@@ -558,7 +558,7 @@ public final class OriginAnalysis
             public Void visitScan(PScan node, Void context)
             {
                 node.getFields().getNames().forEach(f ->
-                        originations.add(new Origination(PNodeField.of(node, f), Strength.SCAN)));
+                        originations.add(new Origination(PNodeField.of(node, f), Genesis.SCAN)));
 
                 return null;
             }
@@ -602,7 +602,7 @@ public final class OriginAnalysis
             public Void visitValues(PValues node, Void context)
             {
                 node.getFields().getNames().forEach(f ->
-                        originations.add(new Origination(PNodeField.of(node, f), Strength.VALUES)));
+                        originations.add(new Origination(PNodeField.of(node, f), Genesis.VALUES)));
 
                 return null;
             }
