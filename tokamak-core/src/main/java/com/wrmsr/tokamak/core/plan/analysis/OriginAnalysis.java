@@ -370,11 +370,12 @@ public final class OriginAnalysis
         return originationSetsBySourceNodeBySourceField;
     }
 
-    private final SupplierLazyValue<Map<PNodeField, Set<Origination>>> leafOriginationSetsBySink = new SupplierLazyValue<>();
-
-    public Map<PNodeField, Set<Origination>> getLeafOriginationSetsBySink()
+    private final class RecursiveAnalysis
     {
-        return leafOriginationSetsBySink.get(() -> {
+        private final Map<PNodeField, Set<Origination>> leafOriginationSetsBySink;
+
+        private RecursiveAnalysis()
+        {
             Map<PNodeField, Set<Origination>> leafOriginationSetsBySink = new LinkedHashMap<>();
 
             sorted(originationSetsBySinkNodeBySinkField.keySet(), Comparator.comparing(toposortIndicesByNode::get)).forEach(snkNode -> {
@@ -387,14 +388,11 @@ public final class OriginAnalysis
                     else {
                         snkLeafOriginationSet = new LinkedHashSet<>();
                         snkOris.forEach(snkOri -> {
-                            if (snkOri.source.isPresent()) {
-                                PNodeField srcNf = snkOri.source.get();
-                                Set<Origination> srcLeafOriginationSet = checkNotNull(leafOriginationSetsBySink.get(srcNf));
-                                snkLeafOriginationSet.addAll(checkNotEmpty(srcLeafOriginationSet));
-                            }
-                            else {
-                                snkLeafOriginationSet.add(snkOri);
-                            }
+                            checkState(snkOri.source.isPresent());
+                            PNodeField srcNf = snkOri.source.get();
+                            // FIXME: keep these intermediates, aggregate max strength
+                            Set<Origination> srcLeafOriginationSet = checkNotNull(leafOriginationSetsBySink.get(srcNf));
+                            snkLeafOriginationSet.addAll(checkNotEmpty(srcLeafOriginationSet));
                         });
                     }
                     PNodeField snkNf = PNodeField.of(snkNode, snkField);
@@ -403,8 +401,20 @@ public final class OriginAnalysis
                 });
             });
 
-            return newImmutableSetMap(leafOriginationSetsBySink);
-        });
+            this.leafOriginationSetsBySink = newImmutableSetMap(leafOriginationSetsBySink);
+        }
+    }
+
+    private final SupplierLazyValue<RecursiveAnalysis> recursiveAnalysis = new SupplierLazyValue<>();
+
+    private RecursiveAnalysis getRecursiveAnalysis()
+    {
+        return recursiveAnalysis.get(RecursiveAnalysis::new);
+    }
+
+    public Map<PNodeField, Set<Origination>> getLeafOriginationSetsBySink()
+    {
+        return getRecursiveAnalysis().leafOriginationSetsBySink;
     }
 
     private final SupplierLazyValue<Map<PNodeField, Set<PNodeField>>> sinkSetsByLeafSource = new SupplierLazyValue<>();
