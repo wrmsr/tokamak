@@ -17,7 +17,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
-import com.google.inject.internal.cglib.proxy.$Dispatcher;
 import com.wrmsr.tokamak.core.plan.Plan;
 import com.wrmsr.tokamak.core.plan.node.PCache;
 import com.wrmsr.tokamak.core.plan.node.PCrossJoin;
@@ -289,8 +288,8 @@ public final class OriginAnalysis
     private final Map<PNodeField, Set<Origination>> originationSetsBySink;
     private final Map<PNodeField, Set<Origination>> originationSetsBySource;
 
-    private final Map<PNode, Map<String, Set<Origination>>> sinkOriginationSetsByNodeByField;
-    private final Map<PNode, Map<String, Set<Origination>>> sourceOriginationSetsByNodeByField;
+    private final Map<PNode, Map<String, Set<Origination>>> originationSetsBySinkNodeBySinkField;
+    private final Map<PNode, Map<String, Set<Origination>>> originationSetsBySourceNodeBySourceField;
 
     private OriginAnalysis(List<Origination> originations, Map<PNode, Integer> toposortIndicesByNode)
     {
@@ -300,15 +299,15 @@ public final class OriginAnalysis
         Map<PNodeField, Set<Origination>> originationSetsBySink = new LinkedHashMap<>();
         Map<PNodeField, Set<Origination>> originationSetsBySource = new LinkedHashMap<>();
 
-        Map<PNode, Map<String, Set<Origination>>> sinkOriginationSetsByNodeByField = new LinkedHashMap<>();
-        Map<PNode, Map<String, Set<Origination>>> sourceOriginationSetsByNodeByField = new LinkedHashMap<>();
+        Map<PNode, Map<String, Set<Origination>>> originationSetsBySinkNodeBySinkField = new LinkedHashMap<>();
+        Map<PNode, Map<String, Set<Origination>>> originationSetsBySourceNodeBySourceField = new LinkedHashMap<>();
 
         this.originations.forEach(o -> {
             checkState(toposortIndicesByNode.containsKey(o.sink.getNode()));
             originationSetsBySink
                     .computeIfAbsent(o.sink, nf -> new LinkedHashSet<>())
                     .add(o);
-            sinkOriginationSetsByNodeByField
+            originationSetsBySinkNodeBySinkField
                     .computeIfAbsent(o.sink.getNode(), n -> new LinkedHashMap<>())
                     .computeIfAbsent(o.sink.getField(), f -> new LinkedHashSet<>())
                     .add(o);
@@ -318,7 +317,7 @@ public final class OriginAnalysis
                 originationSetsBySource
                         .computeIfAbsent(src, nf -> new LinkedHashSet<>())
                         .add(o);
-                sourceOriginationSetsByNodeByField
+                originationSetsBySourceNodeBySourceField
                         .computeIfAbsent(src.getNode(), n -> new LinkedHashMap<>())
                         .computeIfAbsent(src.getField(), f -> new LinkedHashSet<>())
                         .add(o);
@@ -328,10 +327,10 @@ public final class OriginAnalysis
         this.originationSetsBySink = newImmutableSetMap(originationSetsBySink);
         this.originationSetsBySource = newImmutableSetMap(originationSetsBySource);
 
-        this.sinkOriginationSetsByNodeByField = newImmutableSetMapMap(sinkOriginationSetsByNodeByField);
-        this.sourceOriginationSetsByNodeByField = newImmutableSetMapMap(sourceOriginationSetsByNodeByField);
+        this.originationSetsBySinkNodeBySinkField = newImmutableSetMapMap(originationSetsBySinkNodeBySinkField);
+        this.originationSetsBySourceNodeBySourceField = newImmutableSetMapMap(originationSetsBySourceNodeBySourceField);
 
-        sinkOriginationSetsByNodeByField.forEach((snkNode, snkOrisByField) -> {
+        originationSetsBySinkNodeBySinkField.forEach((snkNode, snkOrisByField) -> {
             Set<String> missingFields = Sets.difference(snkNode.getFields().getNames(), snkOrisByField.keySet());
             if (!missingFields.isEmpty()) {
                 throw new MissingOriginationsException(snkNode, snkOrisByField.keySet());
@@ -361,14 +360,14 @@ public final class OriginAnalysis
         return originationSetsBySource;
     }
 
-    public Map<PNode, Map<String, Set<Origination>>> getSinkOriginationSetsByNodeByField()
+    public Map<PNode, Map<String, Set<Origination>>> getOriginationSetsBySinkNodeBySinkField()
     {
-        return sinkOriginationSetsByNodeByField;
+        return originationSetsBySinkNodeBySinkField;
     }
 
-    public Map<PNode, Map<String, Set<Origination>>> getSourceOriginationSetsByNodeByField()
+    public Map<PNode, Map<String, Set<Origination>>> getOriginationSetsBySourceNodeBySourceField()
     {
-        return sourceOriginationSetsByNodeByField;
+        return originationSetsBySourceNodeBySourceField;
     }
 
     private final SupplierLazyValue<Map<PNodeField, Set<Origination>>> leafOriginationSetsBySink = new SupplierLazyValue<>();
@@ -378,8 +377,8 @@ public final class OriginAnalysis
         return leafOriginationSetsBySink.get(() -> {
             Map<PNodeField, Set<Origination>> leafOriginationSetsBySink = new LinkedHashMap<>();
 
-            sorted(sinkOriginationSetsByNodeByField.keySet(), Comparator.comparing(toposortIndicesByNode::get)).forEach(snkNode -> {
-                sinkOriginationSetsByNodeByField.get(snkNode).forEach((snkField, snkOris) -> {
+            sorted(originationSetsBySinkNodeBySinkField.keySet(), Comparator.comparing(toposortIndicesByNode::get)).forEach(snkNode -> {
+                originationSetsBySinkNodeBySinkField.get(snkNode).forEach((snkField, snkOris) -> {
                     checkNotEmpty(snkOris);
                     Set<Origination> snkLeafOriginationSet;
                     if (snkOris.stream().anyMatch(o -> o.strength.generated)) {
