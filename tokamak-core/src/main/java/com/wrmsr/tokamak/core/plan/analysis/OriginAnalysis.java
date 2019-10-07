@@ -318,6 +318,7 @@ public final class OriginAnalysis
                     .computeIfAbsent(o.sink.getNode(), n -> new LinkedHashMap<>())
                     .computeIfAbsent(o.sink.getField(), f -> new LinkedHashSet<>())
                     .add(o);
+
             o.source.ifPresent(src -> {
                 checkState(toposortIndicesByNode.containsKey(src.getNode()));
                 checkState(toposortIndicesByNode.get(src.getNode()) < toposortIndicesByNode.get(o.sink.getNode()));
