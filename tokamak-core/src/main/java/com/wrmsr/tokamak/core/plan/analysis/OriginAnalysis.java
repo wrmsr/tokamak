@@ -79,8 +79,7 @@ public final class OriginAnalysis
 
         SCAN(true),
         VALUES(true),
-        GROUP_KEY(true),
-        GROUP_LIST(true),
+        GROUP(true),
 
         OPAQUE(true);
 
@@ -520,9 +519,9 @@ public final class OriginAnalysis
             public Void visitGroupBy(PGroupBy node, Void context)
             {
                 originations.add(new Origination(
-                        PNodeField.of(node, node.getListField()), Genesis.GROUP_LIST));
+                        PNodeField.of(node, node.getListField()), Genesis.GROUP));
                 node.getKeyFields().forEach(gf -> originations.add(new Origination(
-                        PNodeField.of(node, gf), PNodeField.of(node.getSource(), gf), Genesis.GROUP_KEY, Nesting.none())));
+                        PNodeField.of(node, gf), PNodeField.of(node.getSource(), gf), Genesis.DIRECT, Nesting.none())));
 
                 return null;
             }
