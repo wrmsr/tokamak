@@ -15,6 +15,7 @@ package com.wrmsr.tokamak.main.boot;
 
 import com.wrmsr.tokamak.main.boot.ops.ConfigureLoggingOp;
 import com.wrmsr.tokamak.main.boot.ops.FixDnsOp;
+import com.wrmsr.tokamak.main.boot.ops.NoProxyOp;
 import com.wrmsr.tokamak.main.boot.ops.PauseOp;
 import com.wrmsr.tokamak.main.boot.ops.ReexecOp;
 import com.wrmsr.tokamak.main.boot.ops.SetHeadlessOp;
@@ -71,6 +72,7 @@ public final class Bootstrap
         for (Op op : new Op[] {
                 new PauseOp(),
                 new SetHeadlessOp(),
+                new NoProxyOp(),
                 new FixDnsOp(),
                 new ConfigureLoggingOp(),
                 new ReexecOp(mainCls.getCanonicalName(), args),

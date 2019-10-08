@@ -57,7 +57,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.wrmsr.tokamak.util.MoreCollections.newImmutableSetMap;
-import static com.wrmsr.tokamak.util.MoreCollections.newImmutableSetMapMap;
 import static com.wrmsr.tokamak.util.MoreCollections.sorted;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkSingle;
@@ -306,17 +305,10 @@ public final class OriginAnalysis
         Map<PNodeField, Set<Origination>> originationSetsBySink = new LinkedHashMap<>();
         Map<PNodeField, Set<Origination>> originationSetsBySource = new LinkedHashMap<>();
 
-        Map<PNode, Map<String, Set<Origination>>> originationSetsBySinkNodeBySinkField = new LinkedHashMap<>();
-        Map<PNode, Map<String, Set<Origination>>> originationSetsBySourceNodeBySourceField = new LinkedHashMap<>();
-
         this.originations.forEach(o -> {
             checkState(toposortIndicesByNode.containsKey(o.sink.getNode()));
             originationSetsBySink
                     .computeIfAbsent(o.sink, nf -> new LinkedHashSet<>())
-                    .add(o);
-            originationSetsBySinkNodeBySinkField
-                    .computeIfAbsent(o.sink.getNode(), n -> new LinkedHashMap<>())
-                    .computeIfAbsent(o.sink.getField(), f -> new LinkedHashSet<>())
                     .add(o);
 
             o.source.ifPresent(src -> {
@@ -325,18 +317,14 @@ public final class OriginAnalysis
                 originationSetsBySource
                         .computeIfAbsent(src, nf -> new LinkedHashSet<>())
                         .add(o);
-                originationSetsBySourceNodeBySourceField
-                        .computeIfAbsent(src.getNode(), n -> new LinkedHashMap<>())
-                        .computeIfAbsent(src.getField(), f -> new LinkedHashSet<>())
-                        .add(o);
             });
         });
 
         this.originationSetsBySink = newImmutableSetMap(originationSetsBySink);
         this.originationSetsBySource = newImmutableSetMap(originationSetsBySource);
 
-        this.originationSetsBySinkNodeBySinkField = newImmutableSetMapMap(originationSetsBySinkNodeBySinkField);
-        this.originationSetsBySourceNodeBySourceField = newImmutableSetMapMap(originationSetsBySourceNodeBySourceField);
+        this.originationSetsBySinkNodeBySinkField = PNodeField.convertNodeFieldMap(originationSetsBySink);
+        this.originationSetsBySourceNodeBySourceField = PNodeField.convertNodeFieldMap(originationSetsBySource);
 
         originationSetsBySinkNodeBySinkField.forEach((snkNode, snkOrisByField) -> {
             Set<String> missingFields = Sets.difference(snkNode.getFields().getNames(), snkOrisByField.keySet());
