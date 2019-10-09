@@ -254,7 +254,7 @@ public final class State
         ImmutableSet.Builder<String> builder = ImmutableSet.builder();
         for (int i = 0; i < 64; ++i) {
             if ((updatedFieldsMask & (1L << i)) != 0) {
-                builder.add(node.getRowLayout().getFieldNames().get(i));
+                builder.add(node.getRowLayout().getFields().getNameList().get(i));
             }
         }
         return builder.build();
@@ -305,7 +305,7 @@ public final class State
             }
         }
         else {
-            updatedFieldsMask = (1L << node.getRowLayout().getFieldNames().size()) - 1;
+            updatedFieldsMask = (1L << node.getRowLayout().getFields().size()) - 1;
         }
 
         if (mode != Mode.INVALID && updatedFieldsMask != 0) {

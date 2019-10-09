@@ -23,16 +23,16 @@ import static com.wrmsr.tokamak.util.MoreCollections.checkOrdered;
 public final class SCreateObject
         extends SNode
 {
-    private final Map<String, SNode> items;
+    private final Map<String, SNode> fields;
 
-    public SCreateObject(Map<String, SNode> items)
+    public SCreateObject(Map<String, SNode> fields)
     {
-        this.items = ImmutableMap.copyOf(checkOrdered(items));
+        this.fields = ImmutableMap.copyOf(checkOrdered(fields));
     }
 
-    public Map<String, SNode> getItems()
+    public Map<String, SNode> getFields()
     {
-        return items;
+        return fields;
     }
 
     @Override

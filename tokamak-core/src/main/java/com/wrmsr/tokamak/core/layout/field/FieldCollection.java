@@ -16,6 +16,7 @@ package com.wrmsr.tokamak.core.layout.field;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.core.layout.field.annotation.FieldAnnotation;
 import com.wrmsr.tokamak.core.type.Type;
@@ -36,6 +37,7 @@ import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -54,6 +56,9 @@ public final class FieldCollection
     private final Map<String, Field> fieldsByName;
     private final Map<String, Type> typesByName;
 
+    private final List<String> nameList;
+    private final Map<String, Integer> positionsByName;
+
     @JsonCreator
     public FieldCollection(
             @JsonProperty("fields") List<Field> fields)
@@ -63,6 +68,9 @@ public final class FieldCollection
 
         fieldsByName = this.fields.stream().collect(toImmutableMap(Field::getName, identity()));
         typesByName = this.fields.stream().collect(toImmutableMap(Field::getName, Field::getType));
+
+        nameList = ImmutableList.copyOf(fieldsByName.keySet());
+        positionsByName = IntStream.range(0, this.fields.size()).boxed().collect(ImmutableMap.toImmutableMap(nameList::get, identity()));
     }
 
     public boolean contains(String name)
@@ -105,6 +113,21 @@ public final class FieldCollection
     public Map<String, Type> getTypesByName()
     {
         return typesByName;
+    }
+
+    public List<String> getNameList()
+    {
+        return nameList;
+    }
+
+    public Map<String, Integer> getPositionsByName()
+    {
+        return positionsByName;
+    }
+
+    public int getPosition(String name)
+    {
+        return positionsByName.get(name);
     }
 
     public Field get(String name)

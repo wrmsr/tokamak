@@ -37,6 +37,7 @@ import com.wrmsr.tokamak.core.plan.node.PUnnest;
 import com.wrmsr.tokamak.core.plan.node.PValues;
 import com.wrmsr.tokamak.core.plan.node.visitor.CachingPNodeVisitor;
 import com.wrmsr.tokamak.core.plan.node.visitor.PNodeVisitors;
+import com.wrmsr.tokamak.util.Pair;
 import com.wrmsr.tokamak.util.collect.StreamableIterable;
 import com.wrmsr.tokamak.util.lazy.SupplierLazyValue;
 
@@ -52,6 +53,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -305,8 +307,13 @@ public final class OriginAnalysis
 
         Map<PNodeField, Set<Origination>> originationSetsBySink = new LinkedHashMap<>();
         Map<PNodeField, Set<Origination>> originationSetsBySource = new LinkedHashMap<>();
+        Set<Pair<PNodeField, Optional<PNodeField>>> seenPairs = new LinkedHashSet<>();
 
         this.originations.forEach(o -> {
+            Pair<PNodeField, Optional<PNodeField>> pair = Pair.immutable(o.sink, o.source);
+            checkState(!seenPairs.contains(pair));
+            seenPairs.add(pair);
+
             checkState(toposortIndicesByNode.containsKey(o.sink.getNode()));
             originationSetsBySink
                     .computeIfAbsent(o.sink, nf -> new LinkedHashSet<>())
@@ -368,83 +375,157 @@ public final class OriginAnalysis
     }
 
     @Immutable
-    private final class RecursiveAnalysis
+    public static final class OriginationLink
     {
-        private final Map<PNodeField, Set<Origination>> predecessorOriginationSetsBySink;
-        private final Map<Origination, Set<Origination>> predecessorOriginationSetsByOrigination;
+        private final Origination sink;
+        private final Set<OriginationLink> next;
 
-        private RecursiveAnalysis(Predicate<Origination> cutoffPredicate)
+        private OriginationLink(Origination sink, Set<OriginationLink> next)
         {
-            Map<PNodeField, Set<Origination>> predecessorOriginationSetsBySink = new LinkedHashMap<>();
-            Map<Origination, Set<Origination>> predecessorOriginationSetsByOrigination = new LinkedHashMap<>();
+            this.sink = checkNotNull(sink);
+            checkArgument(next instanceof ImmutableSet);
+            this.next = next;
+        }
+
+        @Override
+        public String toString()
+        {
+            return "OriginationLink{" +
+                    "sink=" + sink +
+                    '}';
+        }
+
+        public Origination getSink()
+        {
+            return sink;
+        }
+
+        public Set<OriginationLink> getNext()
+        {
+            return next;
+        }
+
+        public void traverse(Consumer<Origination> consumer)
+        {
+            consumer.accept(sink);
+            next.forEach(l -> l.traverse(consumer));
+        }
+    }
+
+    @Immutable
+    public final class ChainAnalysis
+    {
+        private final Predicate<Origination> splitPredicate;
+
+        private final Map<PNodeField, Set<Origination>> firstOriginationSetsBySink;
+        private final Map<Origination, Set<Origination>> firstOriginationSetsByOrigination;
+        private final Map<PNodeField, Set<OriginationLink>> originationLinkSetsBySink;
+
+        private ChainAnalysis(Predicate<Origination> splitPredicate)
+        {
+            this.splitPredicate = checkNotNull(splitPredicate);
+
+            Map<PNodeField, Set<Origination>> firstOriginationSetsBySink = new LinkedHashMap<>();
+            Map<Origination, Set<Origination>> firstOriginationSetsByOrigination = new LinkedHashMap<>();
+            Map<PNodeField, Set<OriginationLink>> originationLinkSetsBySink = new LinkedHashMap<>();
 
             sorted(originationSetsBySinkNodeBySinkField.keySet(), Comparator.comparing(toposortIndicesByNode::get)).forEach(snkNode -> {
                 originationSetsBySinkNodeBySinkField.get(snkNode).forEach((snkField, snkOris) -> {
                     checkNotEmpty(snkOris);
 
-                    Set<Origination> snkPredecessorOriginationSet;
+                    Set<Origination> snkFirstOriginationSet;
+                    Set<OriginationLink> originationLinkSet;
                     if (snkOris.stream().anyMatch(o -> o.genesis.leaf)) {
-                        snkPredecessorOriginationSet = ImmutableSet.of(checkSingle(snkOris));
+                        Origination snkOri = checkSingle(snkOris);
+                        snkFirstOriginationSet = ImmutableSet.of(snkOri);
+                        originationLinkSet = ImmutableSet.of(new OriginationLink(snkOri, ImmutableSet.of()));
                     }
                     else {
-                        snkPredecessorOriginationSet = new LinkedHashSet<>();
+                        snkFirstOriginationSet = new LinkedHashSet<>();
+                        originationLinkSet = new LinkedHashSet<>();
                         snkOris.forEach(snkOri -> {
                             checkState(snkOri.source.isPresent());
-                            checkState(!predecessorOriginationSetsByOrigination.containsKey(snkOri));
-                            Set<Origination> predecessorOriginations;
-                            if (cutoffPredicate.test(snkOri)) {
-                                predecessorOriginations = ImmutableSet.of(snkOri);
+                            checkState(!firstOriginationSetsByOrigination.containsKey(snkOri));
+                            Set<Origination> firstOriginations;
+                            if (splitPredicate.test(snkOri)) {
+                                firstOriginations = ImmutableSet.of(snkOri);
+                                originationLinkSet.add(new OriginationLink(snkOri, ImmutableSet.of()));
                             }
                             else {
-                                predecessorOriginations = checkNotEmpty(predecessorOriginationSetsBySink.get(snkOri.source.get()));
+                                firstOriginations = checkNotEmpty(firstOriginationSetsBySink.get(snkOri.source.get()));
+                                originationLinkSet.add(new OriginationLink(snkOri, checkNotEmpty(originationLinkSetsBySink.get(snkOri.source.get()))));
                             }
-                            snkPredecessorOriginationSet.addAll(predecessorOriginations);
-                            predecessorOriginationSetsByOrigination.put(snkOri, predecessorOriginations);
+                            snkFirstOriginationSet.addAll(firstOriginations);
+                            firstOriginationSetsByOrigination.put(snkOri, firstOriginations);
                         });
                     }
 
                     PNodeField snkNf = PNodeField.of(snkNode, snkField);
-                    checkState(!predecessorOriginationSetsBySink.containsKey(snkNf));
-                    predecessorOriginationSetsBySink.put(snkNf, checkNotEmpty(ImmutableSet.copyOf(snkPredecessorOriginationSet)));
+                    checkState(!firstOriginationSetsBySink.containsKey(snkNf));
+                    firstOriginationSetsBySink.put(snkNf, checkNotEmpty(ImmutableSet.copyOf(snkFirstOriginationSet)));
+                    originationLinkSetsBySink.put(snkNf, ImmutableSet.copyOf(originationLinkSet));
                 });
             });
 
-            this.predecessorOriginationSetsBySink = newImmutableSetMap(predecessorOriginationSetsBySink);
-            this.predecessorOriginationSetsByOrigination = newImmutableSetMap(predecessorOriginationSetsByOrigination);
+            this.firstOriginationSetsBySink = newImmutableSetMap(firstOriginationSetsBySink);
+            this.firstOriginationSetsByOrigination = newImmutableSetMap(firstOriginationSetsByOrigination);
+            this.originationLinkSetsBySink = ImmutableMap.copyOf(originationLinkSetsBySink);
+        }
+
+        public boolean shouldSplit(Origination ori)
+        {
+            return splitPredicate.test(checkNotNull(ori));
+        }
+
+        public Map<PNodeField, Set<Origination>> getFirstOriginationSetsBySink()
+        {
+            return firstOriginationSetsBySink;
+        }
+
+        public Map<Origination, Set<Origination>> getFirstOriginationSetsByOrigination()
+        {
+            return firstOriginationSetsByOrigination;
+        }
+
+        public Map<PNodeField, Set<OriginationLink>> getOriginationLinkSetsBySink()
+        {
+            return originationLinkSetsBySink;
+        }
+
+        private final SupplierLazyValue<Map<PNodeField, Set<PNodeField>>> sinkSetsByFirstSource = new SupplierLazyValue<>();
+
+        public Map<PNodeField, Set<PNodeField>> getSinkSetsByFirstSource()
+        {
+            return sinkSetsByFirstSource.get(() -> {
+                Map<PNodeField, Set<PNodeField>> ret = new LinkedHashMap<>();
+                firstOriginationSetsBySink.forEach((k, vs) -> {
+                    vs.forEach(v -> {
+                        checkState(!v.source.isPresent());
+                        ret.computeIfAbsent(v.sink, v_ -> new LinkedHashSet<>()).add(k);
+                    });
+                });
+                return newImmutableSetMap(ret);
+            });
         }
     }
 
-    private final SupplierLazyValue<RecursiveAnalysis> leafAnalysis = new SupplierLazyValue<>();
-
-    private RecursiveAnalysis getLeafAnalysis()
+    public ChainAnalysis buildChainAnalysis(Predicate<Origination> splitPredicate)
     {
-        return leafAnalysis.get(() -> new RecursiveAnalysis(o -> false));
+        return new ChainAnalysis(splitPredicate);
     }
 
-    public Map<PNodeField, Set<Origination>> getLeafOriginationSetsBySink()
+    private final SupplierLazyValue<ChainAnalysis> leafChainAnalysis = new SupplierLazyValue<>();
+
+    public ChainAnalysis getLeafChainAnalysis()
     {
-        return getLeafAnalysis().predecessorOriginationSetsBySink;
+        return leafChainAnalysis.get(() -> buildChainAnalysis(o -> false));
     }
 
-    public Map<Origination, Set<Origination>> getLeafOriginationSetsOrigination()
-    {
-        return getLeafAnalysis().predecessorOriginationSetsByOrigination;
-    }
+    private final SupplierLazyValue<ChainAnalysis> stateChainAnalysis = new SupplierLazyValue<>();
 
-    private final SupplierLazyValue<Map<PNodeField, Set<PNodeField>>> sinkSetsByLeafSource = new SupplierLazyValue<>();
-
-    public Map<PNodeField, Set<PNodeField>> getSinkSetsByLeafSource()
+    public ChainAnalysis getStateChainAnalysis()
     {
-        return sinkSetsByLeafSource.get(() -> {
-            Map<PNodeField, Set<PNodeField>> ret = new LinkedHashMap<>();
-            getLeafOriginationSetsBySink().forEach((k, vs) -> {
-                vs.forEach(v -> {
-                    checkState(!v.source.isPresent());
-                    ret.computeIfAbsent(v.sink, v_ -> new LinkedHashSet<>()).add(k);
-                });
-            });
-            return newImmutableSetMap(ret);
-        });
+        return stateChainAnalysis.get(() -> buildChainAnalysis(o -> o.sink.getNode() instanceof PState));
     }
 
     @Override
@@ -509,11 +590,13 @@ public final class OriginAnalysis
                     });
 
                     node.getBranches().forEach(ob -> {
-                        checkState(ob.getFields().size() == b.getFields().size());
-                        for (int i = 0; i < b.getFields().size(); ++i) {
-                            String kf = b.getFields().get(i);
-                            String okf = ob.getFields().get(i);
-                            originations.add(new Origination(PNodeField.of(node, kf), PNodeField.of(ob.getNode(), okf), gen, Nesting.none()));
+                        if (ob != b) {
+                            checkState(ob.getFields().size() == b.getFields().size());
+                            for (int i = 0; i < b.getFields().size(); ++i) {
+                                String kf = b.getFields().get(i);
+                                String okf = ob.getFields().get(i);
+                                originations.add(new Origination(PNodeField.of(node, kf), PNodeField.of(ob.getNode(), okf), gen, Nesting.none()));
+                            }
                         }
                     });
                 });

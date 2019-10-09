@@ -135,6 +135,11 @@ public final class MoreCollections
         return map.entrySet().stream().collect(toImmutableMap(Map.Entry::getKey, e -> fn.apply(e.getValue())));
     }
 
+    public static <K, V> Map<K, List<V>> newImmutableListMap(Map<K, List<V>> map)
+    {
+        return immutableMapValues(map, ImmutableList::copyOf);
+    }
+
     public static <K, V> Map<K, Set<V>> newImmutableSetMap(Map<K, Set<V>> map)
     {
         return immutableMapValues(map, ImmutableSet::copyOf);

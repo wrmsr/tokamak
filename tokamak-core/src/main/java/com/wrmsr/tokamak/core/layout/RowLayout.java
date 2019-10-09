@@ -15,7 +15,6 @@ package com.wrmsr.tokamak.core.layout;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.core.layout.field.FieldCollection;
 import com.wrmsr.tokamak.core.type.impl.StructType;
@@ -23,22 +22,15 @@ import com.wrmsr.tokamak.util.collect.ObjectArrayBackedMap;
 
 import javax.annotation.concurrent.Immutable;
 
-import java.util.List;
 import java.util.Map;
-import java.util.stream.IntStream;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.collect.ImmutableMap.toImmutableMap;
-import static java.util.function.Function.identity;
 
 @Immutable
 public final class RowLayout
 {
     private final FieldCollection fields;
-
-    private final List<String> fieldNames;
-    private final Map<String, Integer> positionsByField;
 
     private final StructType structType;
     private final ObjectArrayBackedMap.Shape<String> shape;
@@ -49,11 +41,8 @@ public final class RowLayout
     {
         this.fields = checkNotNull(fields);
 
-        fieldNames = ImmutableList.copyOf(this.fields.getNames());
-        positionsByField = IntStream.range(0, fields.size()).boxed().collect(toImmutableMap(fieldNames::get, identity()));
-
-        structType = new StructType(ImmutableMap.copyOf(this.fields.getTypesByName()));
-        shape = ObjectArrayBackedMap.Shape.of(fieldNames);
+        structType = new StructType(ImmutableMap.copyOf(fields.getTypesByName()));
+        shape = ObjectArrayBackedMap.Shape.of(fields.getNameList());
     }
 
     @Override
@@ -68,16 +57,6 @@ public final class RowLayout
     public FieldCollection getFields()
     {
         return fields;
-    }
-
-    public List<String> getFieldNames()
-    {
-        return fieldNames;
-    }
-
-    public Map<String, Integer> getPositionsByField()
-    {
-        return positionsByField;
     }
 
     public StructType getStructType()
@@ -96,7 +75,7 @@ public final class RowLayout
         checkArgument(array.length == fields.size());
         ImmutableMap.Builder<String, Object> builder = ImmutableMap.builderWithExpectedSize(fields.size());
         for (int i = 0; i < array.length; ++i) {
-            builder.put(fieldNames.get(i), array[i]);
+            builder.put(fields.getNameList().get(i), array[i]);
         }
         return builder.build();
     }
@@ -106,7 +85,7 @@ public final class RowLayout
         checkNotNull(map);
         Object[] arr = new Object[fields.size()];
         map.forEach((k, v) -> {
-            Integer pos = positionsByField.get(k);
+            Integer pos = fields.getPositionsByName().get(k);
             if (pos != null) {
                 arr[pos] = v;
             }

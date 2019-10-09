@@ -31,6 +31,21 @@ public final class SComparison
         this.right = checkNotNull(right);
     }
 
+    public SCmp getOp()
+    {
+        return op;
+    }
+
+    public SNode getLeft()
+    {
+        return left;
+    }
+
+    public SNode getRight()
+    {
+        return right;
+    }
+
     @Override
     public <R, C> R accept(SNodeVisitor<R, C> visitor, C context)
     {

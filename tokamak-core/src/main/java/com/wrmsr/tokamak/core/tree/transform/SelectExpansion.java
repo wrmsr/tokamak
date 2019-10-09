@@ -223,7 +223,7 @@ public final class SelectExpansion
                 TTableName ret = (TTableName) super.visitTableName(treeNode, context);
                 SchemaTable schemaTable = treeNode.getQualifiedName().toSchemaTable(defaultSchema);
                 Table table = catalog.getSchemaTable(schemaTable);
-                fieldSetsByNode.put(ret, ImmutableSet.copyOf(table.getRowLayout().getFieldNames()));
+                fieldSetsByNode.put(ret, table.getRowLayout().getFields().getNames());
                 return ret;
             }
         }, null);

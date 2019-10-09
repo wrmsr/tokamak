@@ -244,7 +244,7 @@ public final class EquijoinBuilder
         else {
             Object[] attributes = new Object[node.getRowLayout().getFields().size()];
             for (Map.Entry<String, Object> e : proto.entrySet()) {
-                attributes[node.getRowLayout().getPositionsByField().get(e.getKey())] = e.getValue();
+                attributes[node.getRowLayout().getFields().getPosition(e.getKey())] = e.getValue();
             }
 
             Serde<Object[]> idSerde = new TupleSerde(

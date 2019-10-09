@@ -13,7 +13,9 @@
  */
 package com.wrmsr.tokamak.core.search;
 
+import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.core.search.node.SAnd;
+import com.wrmsr.tokamak.core.search.node.SCmp;
 import com.wrmsr.tokamak.core.search.node.SComparison;
 import com.wrmsr.tokamak.core.search.node.SCreateArray;
 import com.wrmsr.tokamak.core.search.node.SCreateObject;
@@ -35,128 +37,310 @@ import com.wrmsr.tokamak.core.search.node.SSlice;
 import com.wrmsr.tokamak.core.search.node.SString;
 import com.wrmsr.tokamak.core.search.node.visitor.SNodeVisitor;
 
+import java.util.List;
+import java.util.Map;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.ImmutableList.toImmutableList;
+import static com.wrmsr.tokamak.util.MoreCollections.immutableMapValues;
+import static com.wrmsr.tokamak.util.MoreCollections.streamIterator;
+
 public final class Evaluation
 {
     private Evaluation()
     {
     }
 
-    public static void evaluate(SNode search, Object object)
+    public enum ValueType
     {
-        search.accept(new SNodeVisitor<Object, Object>()
+        NUMBER,
+        STRING,
+        BOOLEAN,
+        ARRAY,
+        OBJECT,
+        NULL,
+    }
+
+    public interface Arg<T>
+    {
+        T getValue();
+    }
+
+    public static final class ValueArg<T>
+            implements Arg<T>
+    {
+        private final T value;
+
+        public ValueArg(T value)
+        {
+            this.value = value;
+        }
+
+        @Override
+        public T getValue()
+        {
+            return value;
+        }
+    }
+
+    public static final class NodeArg
+            implements Arg<SNode>
+    {
+        private final SNode node;
+
+        public NodeArg(SNode node)
+        {
+            this.node = checkNotNull(node);
+        }
+
+        @Override
+        public SNode getValue()
+        {
+            return node;
+        }
+    }
+
+    public interface Runtime<T>
+    {
+        boolean isTruthy(T object);
+
+        ValueType getType(T object);
+
+        default boolean isNull(T object)
+        {
+            return getType(object) == ValueType.NULL;
+        }
+
+        T createNull();
+
+        T compare(SCmp op, T left, T right);
+
+        T createArray(List<T> items);
+
+        T createObject(Map<String, T> fields);
+
+        Iterable<T> toIterable(T object);
+
+        T invokeFunction(String name, List<Arg> args);
+
+        T createBoolean(boolean value);
+
+        T getProperty(T object, String field);
+    }
+
+    public static <T> void evaluate(SNode search, Runtime<T> runtime, T object)
+    {
+        search.accept(new SNodeVisitor<T, T>()
         {
             @Override
-            public Object visitAnd(SAnd node, Object context)
+            public T visitAnd(SAnd node, T context)
             {
-                return super.visitAnd(node, context);
+                T left = node.getLeft().accept(this, context);
+                if (runtime.isTruthy(left)) {
+                    return node.getRight().accept(this, context);
+                }
+                else {
+                    return left;
+                }
             }
 
             @Override
-            public Object visitComparison(SComparison node, Object context)
+            public T visitComparison(SComparison node, T context)
             {
-                return super.visitComparison(node, context);
+                T left = node.getLeft().accept(this, context);
+                T right = node.getRight().accept(this, context);
+                return runtime.compare(node.getOp(), left, right);
             }
 
             @Override
-            public Object visitCreateArray(SCreateArray node, Object context)
+            public T visitCreateArray(SCreateArray node, T context)
             {
-                return super.visitCreateArray(node, context);
+                if (runtime.isNull(context)) {
+                    return context;
+                }
+                else {
+                    return runtime.createArray(node.getItems().stream().map(n -> n.accept(this, context)).collect(toImmutableList()));
+                }
             }
 
             @Override
-            public Object visitCreateObject(SCreateObject node, Object context)
+            public T visitCreateObject(SCreateObject node, T context)
             {
-                return super.visitCreateObject(node, context);
+                if (runtime.isNull(context)) {
+                    return context;
+                }
+                else {
+                    return runtime.createObject(immutableMapValues(node.getFields(), n -> n.accept(this, context)));
+                }
             }
 
             @Override
-            public Object visitCurrent(SCurrent node, Object context)
+            public T visitCurrent(SCurrent node, T context)
             {
-                return super.visitCurrent(node, context);
+                return context;
             }
 
             @Override
-            public Object visitExpressionRef(SExpressionRef node, Object context)
+            public T visitExpressionRef(SExpressionRef node, T context)
             {
-                return super.visitExpressionRef(node, context);
+                return node.getExpression().accept(this, context);
             }
 
             @Override
-            public Object visitFlattenArray(SFlattenArray node, Object context)
+            public T visitFlattenArray(SFlattenArray node, T context)
             {
-                return super.visitFlattenArray(node, context);
+                if (runtime.getType(context) == ValueType.ARRAY) {
+                    ImmutableList.Builder<T> builder = ImmutableList.builder();
+                    for (T item : runtime.toIterable(context)) {
+                        if (runtime.getType(item) == ValueType.ARRAY) {
+                            builder.addAll(runtime.toIterable(item));
+                        }
+                        else {
+                            builder.add(item);
+                        }
+                    }
+                    return runtime.createArray(builder.build());
+                }
+                else {
+                    return runtime.createNull();
+                }
             }
 
             @Override
-            public Object visitFlattenObject(SFlattenObject node, Object context)
+            public T visitFlattenObject(SFlattenObject node, T context)
             {
-                return super.visitFlattenObject(node, context);
+                if (runtime.getType(context) == ValueType.OBJECT) {
+                    return runtime.createArray(ImmutableList.copyOf(runtime.toIterable(context)));
+                }
+                else {
+                    return runtime.createNull();
+                }
             }
 
             @Override
-            public Object visitFunctionCall(SFunctionCall node, Object context)
+            public T visitFunctionCall(SFunctionCall node, T context)
             {
-                return super.visitFunctionCall(node, context);
+                @SuppressWarnings({"unchecked"})
+                List<Arg> args = node.getArgs().stream()
+                        .map(arg -> {
+                            if (arg instanceof SExpressionRef) {
+                                return new NodeArg(arg);
+                            }
+                            else {
+                                return new ValueArg(arg.accept(this, context));
+                            }
+                        })
+                        .collect(toImmutableList());
+                return runtime.invokeFunction(node.getName(), args);
             }
 
             @Override
-            public Object visitIndex(SIndex node, Object context)
+            public T visitIndex(SIndex node, T context)
             {
-                return super.visitIndex(node, context);
+                if (runtime.getType(context) == ValueType.ARRAY) {
+                    List<T> items = ImmutableList.copyOf(runtime.toIterable(context));
+                    int i = node.getValue();
+                    if (i < 0) {
+                        i = items.size() + i;
+                    }
+                    if (i >= 0 && i < items.size()) {
+                        return items.get(i);
+                    }
+                }
+                return runtime.createNull();
             }
 
             @Override
-            public Object visitJsonLiteral(SJsonLiteral node, Object context)
+            public T visitJsonLiteral(SJsonLiteral node, T context)
             {
-                return super.visitJsonLiteral(node, context);
+                throw new IllegalStateException();
             }
 
             @Override
-            public Object visitNegate(SNegate node, Object context)
+            public T visitNegate(SNegate node, T context)
             {
-                return super.visitNegate(node, context);
+                return runtime.createBoolean(runtime.isTruthy(node.getItem().accept(this, context)));
             }
 
             @Override
-            public Object visitOr(SOr node, Object context)
+            public T visitOr(SOr node, T context)
             {
-                return super.visitOr(node, context);
+                T left = node.getLeft().accept(this, context);
+                if (runtime.isTruthy(left)) {
+                    return left;
+                }
+                else {
+                    return node.getRight().accept(this, context);
+                }
             }
 
             @Override
-            public Object visitProject(SProject node, Object context)
+            public T visitProject(SProject node, T context)
             {
-                return super.visitProject(node, context);
+                if (runtime.getType(context) == ValueType.ARRAY) {
+                    List<T> items = streamIterator(runtime.toIterable(context).iterator())
+                            .map(v -> node.getChild().accept(this, v))
+                            .filter(v -> !runtime.isNull(v))
+                            .collect(toImmutableList());
+                    return runtime.createArray(items);
+                }
+                else {
+                    return runtime.createNull();
+                }
             }
 
             @Override
-            public Object visitProperty(SProperty node, Object context)
+            public T visitProperty(SProperty node, T context)
             {
-                return super.visitProperty(node, context);
+                return runtime.getProperty(context, node.getName());
             }
 
             @Override
-            public Object visitSelection(SSelection node, Object context)
+            public T visitSelection(SSelection node, T context)
             {
-                return super.visitSelection(node, context);
+                if (runtime.getType(context) == ValueType.ARRAY) {
+                    List<T> items = streamIterator(runtime.toIterable(context).iterator())
+                            .filter(v -> runtime.isTruthy(node.getChild().accept(this, v)))
+                            .collect(toImmutableList());
+                    return runtime.createArray(items);
+                }
+                else {
+                    return runtime.createNull();
+                }
             }
 
             @Override
-            public Object visitSequence(SSequence node, Object context)
+            public T visitSequence(SSequence node, T context)
             {
-                return super.visitSequence(node, context);
+                for (SNode child : node.getItems()) {
+                    context = child.accept(this, context);
+                }
+                return context;
             }
 
             @Override
-            public Object visitSlice(SSlice node, Object context)
+            public T visitSlice(SSlice node, T context)
             {
-                return super.visitSlice(node, context);
+                List<T> items = ImmutableList.copyOf(runtime.toIterable(context));
+                int step = node.getStep().orElse(1);
+                int rounding = (step < 0) ? (step + 1) : (step - 1);
+                int limit = (step < 0) ? -1 : 0;
+                int start = node.getStart().orElse(limit);
+                int stop = node.getStop().orElse(step < 0 ? Integer.MIN_VALUE : Integer.MAX_VALUE);
+                int begin = (start < 0) ? Math.max(items.size() + start, 0) : Math.min(start, items.size() + limit);
+                int end = (stop < 0) ? Math.max(items.size() + stop, limit) : Math.min(stop, items.size());
+                int steps = Math.max(0, (end - begin + rounding) / step);
+                ImmutableList.Builder<T> builder = ImmutableList.builder();
+                for (int i = 0, offset = begin; i < steps; i++, offset += step) {
+                    builder.add(items.get(offset));
+                }
+                return runtime.createArray(builder.build());
             }
 
             @Override
-            public Object visitString(SString node, Object context)
+            public T visitString(SString node, T context)
             {
-                return super.visitString(node, context);
+                throw new IllegalStateException();
             }
         }, object);
     }

@@ -117,7 +117,7 @@ public class ListHeapTable
         rowLoop:
         for (Object[] row : rows) {
             for (Map.Entry<String, Object> keyEntry : key.getValuesByField().entrySet()) {
-                if (!Objects.equals(row[tableLayout.getRowLayout().getPositionsByField().get(keyEntry.getKey())], key.get(keyEntry.getKey()))) {
+                if (!Objects.equals(row[tableLayout.getRowLayout().getFields().getPositionsByName().get(keyEntry.getKey())], key.get(keyEntry.getKey()))) {
                     continue rowLoop;
                 }
             }

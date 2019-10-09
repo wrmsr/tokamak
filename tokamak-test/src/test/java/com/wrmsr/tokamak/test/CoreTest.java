@@ -157,7 +157,7 @@ public class CoreTest
         PNode stateNode0 = new PState(
                 "state0",
                 PNodeAnnotations.empty(),
-                scanNode0,
+            scanNode0,
                 ImmutableList.of(),
                 PState.Denormalization.NONE,
                 ImmutableMap.of(),
@@ -246,8 +246,10 @@ public class CoreTest
         Plan plan = buildPlan(catalog);
 
         OriginAnalysis oa = OriginAnalysis.analyze(plan);
-        Map<PNodeField, Set<OriginAnalysis.Origination>> losbs = oa.getLeafOriginationSetsBySink();
-        Map<PNodeField, Set<PNodeField>> ssbls = oa.getSinkSetsByLeafSource();
+        Map<PNodeField, Set<OriginAnalysis.Origination>> losbs = oa.getLeafChainAnalysis().getFirstOriginationSetsBySink();
+
+        oa.getLeafChainAnalysis();
+        oa.getStateChainAnalysis();
 
         // IdFieldAnalysis ifa = IdFieldAnalysis.analyze(plan);
         // System.out.println(ifa);
