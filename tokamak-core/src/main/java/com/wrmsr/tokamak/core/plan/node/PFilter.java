@@ -32,10 +32,16 @@ public final class PFilter
         extends PAbstractNode
         implements PSingleSource
 {
+    public enum Linkage
+    {
+        LINKED,
+        UNLINKED,
+    }
+
     private final PNode source;
     private final PFunction function;
     private final List<String> args;
-    private final boolean unlinked;
+    private final Linkage linkage;
 
     @JsonCreator
     public PFilter(
@@ -44,14 +50,14 @@ public final class PFilter
             @JsonProperty("source") PNode source,
             @JsonProperty("function") PFunction function,
             @JsonProperty("args") List<String> args,
-            @JsonProperty("unlinked") boolean unlinked)
+            @JsonProperty("linkage") Linkage linkage)
     {
         super(name, annotations);
 
         this.source = checkNotNull(source);
         this.function = checkNotNull(function);
         this.args = ImmutableList.copyOf(args);
-        this.unlinked = unlinked;
+        this.linkage = checkNotNull(linkage);
 
         checkArgument(function.getType().getReturnType() == Types.BOOLEAN);
         checkArgument(function.getType().getParamTypes().size() == this.args.size());
@@ -85,10 +91,10 @@ public final class PFilter
         return args;
     }
 
-    @JsonProperty("unlinked")
-    public boolean isUnlinked()
+    @JsonProperty("linkage")
+    public Linkage getLinkage()
     {
-        return unlinked;
+        return linkage;
     }
 
     @Override

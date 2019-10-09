@@ -159,7 +159,7 @@ public class CoreTest
                 PNodeAnnotations.empty(),
                 scanNode0,
                 ImmutableList.of(),
-                false,
+                PState.Denormalization.NONE,
                 ImmutableMap.of(),
                 ImmutableMap.of(),
                 Optional.empty());
@@ -170,7 +170,7 @@ public class CoreTest
                 stateNode0,
                 catalog.addFunction(be.register(Reflection.reflect(getClass().getDeclaredMethod("isStringNotNull", String.class))).getName(), be).asNodeFunction(),
                 ImmutableList.of("N_NAME"),
-                false);
+                PFilter.Linkage.LINKED);
 
         PNode projectNode0 = new PProject(
                 "project0",
@@ -198,7 +198,7 @@ public class CoreTest
                 PNodeAnnotations.empty(),
                 scanNode1,
                 ImmutableList.of(),
-                false,
+                PState.Denormalization.NONE,
                 ImmutableMap.of(),
                 ImmutableMap.of(),
                 Optional.empty());
@@ -217,7 +217,7 @@ public class CoreTest
                 PNodeAnnotations.empty(),
                 equiJoinNode0,
                 ImmutableList.of(),
-                false,
+                PState.Denormalization.NONE,
                 ImmutableMap.of(),
                 ImmutableMap.of(),
                 Optional.empty());

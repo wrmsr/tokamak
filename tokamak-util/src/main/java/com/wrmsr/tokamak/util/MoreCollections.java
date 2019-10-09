@@ -17,6 +17,7 @@ import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.collect.Streams;
 import com.wrmsr.tokamak.util.collect.Ordered;
@@ -142,6 +143,16 @@ public final class MoreCollections
     public static <K0, K1, V> Map<K0, Map<K1, Set<V>>> newImmutableSetMapMap(Map<K0, Map<K1, Set<V>>> map)
     {
         return immutableMapValues(map, m -> immutableMapValues(m, ImmutableSet::copyOf));
+    }
+
+    public static <T> List<T> reversedImmutableListOf(Iterator<T> iterator)
+    {
+        return ImmutableList.copyOf(Lists.reverse(newArrayList(iterator)));
+    }
+
+    public static <T> List<T> reversedImmutableListOf(Iterable<T> iterable)
+    {
+        return reversedImmutableListOf(iterable.iterator());
     }
 
     public static <T> List<T> listOf(int size, T value)

@@ -48,7 +48,7 @@ public class StateStorageTest
                 PNodeAnnotations.empty(),
                 scanNode,
                 ImmutableList.of(),
-                false,
+                PState.Denormalization.NONE,
                 ImmutableMap.of(),
                 ImmutableMap.of(),
                 Optional.empty());

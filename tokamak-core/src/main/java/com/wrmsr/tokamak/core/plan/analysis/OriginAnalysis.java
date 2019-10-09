@@ -52,6 +52,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Predicate;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -323,8 +324,8 @@ public final class OriginAnalysis
         this.originationSetsBySink = newImmutableSetMap(originationSetsBySink);
         this.originationSetsBySource = newImmutableSetMap(originationSetsBySource);
 
-        this.originationSetsBySinkNodeBySinkField = PNodeField.convertNodeFieldMap(originationSetsBySink);
-        this.originationSetsBySourceNodeBySourceField = PNodeField.convertNodeFieldMap(originationSetsBySource);
+        this.originationSetsBySinkNodeBySinkField = PNodeField.expandNodeFieldMap(originationSetsBySink);
+        this.originationSetsBySourceNodeBySourceField = PNodeField.expandNodeFieldMap(originationSetsBySource);
 
         originationSetsBySinkNodeBySinkField.forEach((snkNode, snkOrisByField) -> {
             Set<String> missingFields = Sets.difference(snkNode.getFields().getNames(), snkOrisByField.keySet());
@@ -367,61 +368,67 @@ public final class OriginAnalysis
     }
 
     @Immutable
-    private final class LeafAnalysis
+    private final class RecursiveAnalysis
     {
-        private final Map<PNodeField, Set<Origination>> leafOriginationSetsBySink;
-        private final Map<Origination, Set<Origination>> leafOriginationSetsByOrigination;
+        private final Map<PNodeField, Set<Origination>> predecessorOriginationSetsBySink;
+        private final Map<Origination, Set<Origination>> predecessorOriginationSetsByOrigination;
 
-        private LeafAnalysis()
+        private RecursiveAnalysis(Predicate<Origination> cutoffPredicate)
         {
-            Map<PNodeField, Set<Origination>> leafOriginationSetsBySink = new LinkedHashMap<>();
-            Map<Origination, Set<Origination>> leafOriginationSetsByOrigination = new LinkedHashMap<>();
+            Map<PNodeField, Set<Origination>> predecessorOriginationSetsBySink = new LinkedHashMap<>();
+            Map<Origination, Set<Origination>> predecessorOriginationSetsByOrigination = new LinkedHashMap<>();
 
             sorted(originationSetsBySinkNodeBySinkField.keySet(), Comparator.comparing(toposortIndicesByNode::get)).forEach(snkNode -> {
                 originationSetsBySinkNodeBySinkField.get(snkNode).forEach((snkField, snkOris) -> {
                     checkNotEmpty(snkOris);
 
-                    Set<Origination> snkLeafOriginationSet;
+                    Set<Origination> snkPredecessorOriginationSet;
                     if (snkOris.stream().anyMatch(o -> o.genesis.leaf)) {
-                        snkLeafOriginationSet = ImmutableSet.of(checkSingle(snkOris));
+                        snkPredecessorOriginationSet = ImmutableSet.of(checkSingle(snkOris));
                     }
                     else {
-                        snkLeafOriginationSet = new LinkedHashSet<>();
+                        snkPredecessorOriginationSet = new LinkedHashSet<>();
                         snkOris.forEach(snkOri -> {
                             checkState(snkOri.source.isPresent());
-                            checkState(!leafOriginationSetsByOrigination.containsKey(snkOri));
-                            Set<Origination> srcLeafOriginations = checkNotEmpty(leafOriginationSetsBySink.get(snkOri.source.get()));
-                            snkLeafOriginationSet.addAll(srcLeafOriginations);
-                            leafOriginationSetsByOrigination.put(snkOri, srcLeafOriginations);
+                            checkState(!predecessorOriginationSetsByOrigination.containsKey(snkOri));
+                            Set<Origination> predecessorOriginations;
+                            if (cutoffPredicate.test(snkOri)) {
+                                predecessorOriginations = ImmutableSet.of(snkOri);
+                            }
+                            else {
+                                predecessorOriginations = checkNotEmpty(predecessorOriginationSetsBySink.get(snkOri.source.get()));
+                            }
+                            snkPredecessorOriginationSet.addAll(predecessorOriginations);
+                            predecessorOriginationSetsByOrigination.put(snkOri, predecessorOriginations);
                         });
                     }
 
                     PNodeField snkNf = PNodeField.of(snkNode, snkField);
-                    checkState(!leafOriginationSetsBySink.containsKey(snkNf));
-                    leafOriginationSetsBySink.put(snkNf, checkNotEmpty(ImmutableSet.copyOf(snkLeafOriginationSet)));
+                    checkState(!predecessorOriginationSetsBySink.containsKey(snkNf));
+                    predecessorOriginationSetsBySink.put(snkNf, checkNotEmpty(ImmutableSet.copyOf(snkPredecessorOriginationSet)));
                 });
             });
 
-            this.leafOriginationSetsBySink = newImmutableSetMap(leafOriginationSetsBySink);
-            this.leafOriginationSetsByOrigination = newImmutableSetMap(leafOriginationSetsByOrigination);
+            this.predecessorOriginationSetsBySink = newImmutableSetMap(predecessorOriginationSetsBySink);
+            this.predecessorOriginationSetsByOrigination = newImmutableSetMap(predecessorOriginationSetsByOrigination);
         }
     }
 
-    private final SupplierLazyValue<LeafAnalysis> leafAnalysis = new SupplierLazyValue<>();
+    private final SupplierLazyValue<RecursiveAnalysis> leafAnalysis = new SupplierLazyValue<>();
 
-    private LeafAnalysis getLeafAnalysis()
+    private RecursiveAnalysis getLeafAnalysis()
     {
-        return leafAnalysis.get(LeafAnalysis::new);
+        return leafAnalysis.get(() -> new RecursiveAnalysis(o -> false));
     }
 
     public Map<PNodeField, Set<Origination>> getLeafOriginationSetsBySink()
     {
-        return getLeafAnalysis().leafOriginationSetsBySink;
+        return getLeafAnalysis().predecessorOriginationSetsBySink;
     }
 
     public Map<Origination, Set<Origination>> getLeafOriginationSetsOrigination()
     {
-        return getLeafAnalysis().leafOriginationSetsByOrigination;
+        return getLeafAnalysis().predecessorOriginationSetsByOrigination;
     }
 
     private final SupplierLazyValue<Map<PNodeField, Set<PNodeField>>> sinkSetsByLeafSource = new SupplierLazyValue<>();
@@ -457,11 +464,6 @@ public final class OriginAnalysis
                 node.getFields().getNames().forEach(f ->
                         originations.add(new Origination(
                                 PNodeField.of(node, f), PNodeField.of(node.getSource(), f), Genesis.DIRECT, Nesting.none())));
-            }
-
-            private void visitSources(PNode node, Void context)
-            {
-                node.getSources().forEach(s -> process(s, context));
             }
 
             @Override

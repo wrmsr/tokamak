@@ -23,11 +23,14 @@ import com.wrmsr.tokamak.core.driver.build.ops.BuildOp;
 import com.wrmsr.tokamak.core.driver.build.ops.RequestBuildOp;
 import com.wrmsr.tokamak.core.driver.build.ops.ResponseBuildOp;
 import com.wrmsr.tokamak.core.driver.context.DriverContextImpl;
+import com.wrmsr.tokamak.core.driver.context.lineage.LineageEntry;
 import com.wrmsr.tokamak.core.exec.Executable;
 import com.wrmsr.tokamak.core.plan.node.PFilter;
 import com.wrmsr.tokamak.core.plan.node.PNode;
 
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.function.Consumer;
 
 public final class FilterBuilder
@@ -55,6 +58,7 @@ public final class FilterBuilder
                     args[i] = row.getMap().get(node.getArgs().get(i));
                 }
                 Object res = executable.invoke(args);
+
                 Object[] attributes;
                 if ((boolean) res) {
                     attributes = row.getAttributes();
@@ -62,10 +66,23 @@ public final class FilterBuilder
                 else {
                     attributes = null;
                 }
+
+                Set<LineageEntry> lineage;
+                switch (node.getLinkage()) {
+                    case LINKED:
+                        lineage = context.getDriver().getLineagePolicy().build(row);
+                        break;
+                    case UNLINKED:
+                        lineage = context.getDriver().getLineagePolicy().build();
+                        break;
+                    default:
+                        throw new IllegalStateException(Objects.toString(node.getLinkage()));
+                }
+
                 ret.add(
                         new DriverRow(
                                 node,
-                                context.getDriver().getLineagePolicy().build(row),
+                                lineage,
                                 row.getId(),
                                 attributes));
             }

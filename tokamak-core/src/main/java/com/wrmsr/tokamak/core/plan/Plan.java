@@ -20,7 +20,6 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Lists;
 import com.wrmsr.tokamak.core.plan.node.PNode;
 import com.wrmsr.tokamak.core.plan.node.PNodeId;
 import com.wrmsr.tokamak.core.plan.node.PState;
@@ -42,6 +41,7 @@ import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static com.wrmsr.tokamak.util.MoreCollections.buildListIndexMap;
+import static com.wrmsr.tokamak.util.MoreCollections.reversedImmutableListOf;
 import static com.wrmsr.tokamak.util.MoreCollections.sorted;
 import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 import static java.util.function.Function.identity;
@@ -170,7 +170,8 @@ public final class Plan
 
     public List<Set<PNode>> getNodeReverseToposort()
     {
-        return nodeReverseToposort.get(() -> ImmutableList.copyOf(Lists.reverse(getNodeToposort())));
+        return nodeReverseToposort.get(() -> reversedImmutableListOf(getNodeToposort().stream()
+                .map(step -> ImmutableSet.copyOf(reversedImmutableListOf(step))).collect(toImmutableList())));
     }
 
     private final SupplierLazyValue<List<PNode>> toposortedNodes = new SupplierLazyValue<>();

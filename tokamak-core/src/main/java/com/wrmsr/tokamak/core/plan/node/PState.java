@@ -33,9 +33,15 @@ public final class PState
         extends PAbstractNode
         implements PSingleSource
 {
+    public enum Denormalization
+    {
+        NONE,
+        INPUT,
+    }
+
     private final PNode source;
     private final List<PWriterTarget> writerTargets;
-    private final boolean denormalized;
+    private final Denormalization denormalization;
     private final Map<String, PInvalidation> invalidations;
     private final Map<String, PLinkageMask> linkageMasks;
     private final Optional<PLockOverride> lockOverride;
@@ -46,7 +52,7 @@ public final class PState
             @JsonProperty("annotations") PNodeAnnotations annotations,
             @JsonProperty("source") PNode source,
             @JsonProperty("writerTargets") List<PWriterTarget> writerTargets,
-            @JsonProperty("denormalized") boolean denormalized,
+            @JsonProperty("denormalization") Denormalization denormalization,
             @JsonProperty("invalidations") Map<String, PInvalidation> invalidations,
             @JsonProperty("linkageMasks") Map<String, PLinkageMask> linkageMasks,
             @JsonProperty("lockOverride") Optional<PLockOverride> lockOverride)
@@ -55,7 +61,7 @@ public final class PState
 
         this.source = checkNotNull(source);
         this.writerTargets = ImmutableList.copyOf(writerTargets);
-        this.denormalized = denormalized;
+        this.denormalization = checkNotNull(denormalization);
         this.invalidations = ImmutableMap.copyOf(invalidations);
         this.linkageMasks = ImmutableMap.copyOf(linkageMasks);
         this.lockOverride = checkNotNull(lockOverride);
@@ -76,10 +82,10 @@ public final class PState
         return writerTargets;
     }
 
-    @JsonProperty("denormalized")
-    public boolean isDenormalized()
+    @JsonProperty("denormalization")
+    public Denormalization getDenormalization()
     {
-        return denormalized;
+        return denormalization;
     }
 
     @JsonProperty("invalidations")

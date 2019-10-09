@@ -78,14 +78,14 @@ public final class PNodeField
         return new PNodeField(node, field);
     }
 
-    public static <V> Map<PNode, Map<String, V>> convertNodeFieldMap(Map<PNodeField, V> in)
+    public static <V> Map<PNode, Map<String, V>> expandNodeFieldMap(Map<PNodeField, V> in)
     {
         Map<PNode, ImmutableMap.Builder<String, V>> out = new LinkedHashMap<>();
         in.forEach((k, v) -> out.computeIfAbsent(k.node, n -> ImmutableMap.builder()).put(k.field, v));
         return out.entrySet().stream().collect(toImmutableMap(Map.Entry::getKey, e -> e.getValue().build()));
     }
 
-    public static <V> Map<PNodeField, V> convertNodeMapFieldMap(Map<PNode, Map<String, V>> in)
+    public static <V> Map<PNodeField, V> flattenNodeFieldMap(Map<PNode, Map<String, V>> in)
     {
         ImmutableMap.Builder<PNodeField, V> out = ImmutableMap.builder();
         in.forEach((k0, m) -> m.forEach((k1, v) -> out.put(of(k0, k1), v)));

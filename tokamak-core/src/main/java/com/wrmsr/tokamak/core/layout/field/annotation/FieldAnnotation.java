@@ -30,6 +30,13 @@ import javax.annotation.concurrent.Immutable;
 public interface FieldAnnotation
         extends Annotation
 {
+    /*
+    TODO:
+     - unique
+     - monotonic
+     - immutable
+    */
+
     static IdField id()
     {
         return IdField.INSTANCE;

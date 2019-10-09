@@ -14,7 +14,6 @@
 package com.wrmsr.tokamak.core.plan.node.visitor;
 
 import com.google.common.collect.ImmutableMap;
-import com.wrmsr.tokamak.core.plan.node.PStruct;
 import com.wrmsr.tokamak.core.plan.node.PCache;
 import com.wrmsr.tokamak.core.plan.node.PCrossJoin;
 import com.wrmsr.tokamak.core.plan.node.PEquiJoin;
@@ -26,6 +25,7 @@ import com.wrmsr.tokamak.core.plan.node.PNode;
 import com.wrmsr.tokamak.core.plan.node.PProject;
 import com.wrmsr.tokamak.core.plan.node.PScan;
 import com.wrmsr.tokamak.core.plan.node.PState;
+import com.wrmsr.tokamak.core.plan.node.PStruct;
 import com.wrmsr.tokamak.core.plan.node.PUnion;
 import com.wrmsr.tokamak.core.plan.node.PUnnest;
 import com.wrmsr.tokamak.core.plan.node.PValues;
@@ -84,7 +84,7 @@ public abstract class PNodeRewriter<C>
                 process(node.getSource(), context),
                 node.getFunction(),
                 node.getArgs(),
-                node.isUnlinked());
+                node.getLinkage());
     }
 
     @Override
@@ -121,7 +121,7 @@ public abstract class PNodeRewriter<C>
                 node.getAnnotations(),
                 process(node.getSource(), context),
                 node.getWriterTargets(),
-                node.isDenormalized(),
+                node.getDenormalization(),
                 node.getInvalidations().entrySet().stream()
                         .collect(ImmutableMap.toImmutableMap(e -> visitNodeName(e.getKey(), context), Map.Entry::getValue)),
                 node.getLinkageMasks().entrySet().stream()
