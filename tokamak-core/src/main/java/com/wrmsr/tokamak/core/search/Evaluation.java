@@ -47,6 +47,35 @@ import static com.wrmsr.tokamak.util.MoreCollections.streamIterator;
 
 public final class Evaluation
 {
+    /*
+    Abs
+    Avg
+    Contains
+    Ceil
+    EndsWith
+    Floor
+    Join
+    Keys
+    Length
+    Map
+    Max
+    MaxBy
+    Merge
+    Min
+    MinBy
+    NotNull
+    Reverse
+    Sort
+    SortBy
+    StartsWith
+    Sum
+    ToArray
+    ToString
+    ToNumber
+    Type
+    Values
+    */
+
     private Evaluation()
     {
     }
@@ -126,6 +155,10 @@ public final class Evaluation
         T createBoolean(boolean value);
 
         T getProperty(T object, String field);
+
+        T parseString(String string);
+
+        T createString(String value);
     }
 
     public static <T> void evaluate(SNode search, Runtime<T> runtime, T object)
@@ -253,7 +286,7 @@ public final class Evaluation
             @Override
             public T visitJsonLiteral(SJsonLiteral node, T context)
             {
-                throw new IllegalStateException();
+                return runtime.parseString(node.getText());
             }
 
             @Override
@@ -340,7 +373,7 @@ public final class Evaluation
             @Override
             public T visitString(SString node, T context)
             {
-                throw new IllegalStateException();
+                return runtime.createString(node.getValue());
             }
         }, object);
     }
