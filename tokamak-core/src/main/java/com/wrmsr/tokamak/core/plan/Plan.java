@@ -21,8 +21,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.core.plan.node.PNode;
+import com.wrmsr.tokamak.core.plan.node.PNodeField;
 import com.wrmsr.tokamak.core.plan.node.PNodeId;
-import com.wrmsr.tokamak.core.plan.node.PState;
 import com.wrmsr.tokamak.util.collect.Toposort;
 import com.wrmsr.tokamak.util.lazy.SupplierLazyValue;
 
@@ -206,23 +206,19 @@ public final class Plan
         return reverseToposortIndicesByNode.get(() -> buildListIndexMap(getReverseToposortedNodes()));
     }
 
-    public Map<PNode, Set<PState>> getStateSourceSetsByNode()
+    private final SupplierLazyValue<List<PNodeField>> toposortedNodeFields = new SupplierLazyValue<>();
+
+    public List<PNodeField> getToposortedNodeFields()
     {
-        throw new IllegalStateException();
+        return toposortedNodeFields.get(() -> getToposortedNodes().stream()
+                .flatMap(n -> n.getFields().getNameList().stream().map(f -> PNodeField.of(n, f)))
+                .collect(toImmutableList()));
     }
 
-    public Map<PNode, Set<PState>> getStateSinkSetsByNode()
-    {
-        throw new IllegalStateException();
-    }
+    private final SupplierLazyValue<Map<PNodeField, Integer>> toposortIndicesByNodeField = new SupplierLazyValue<>();
 
-    public Map<PNode, Set<PState>> getDeepStateSourceSetsByNode()
+    public Map<PNodeField, Integer> getToposortIndicesByNodeField()
     {
-        throw new IllegalStateException();
-    }
-
-    public Map<PNode, Set<PState>> getDeepStateSinkSetsByNode()
-    {
-        throw new IllegalStateException();
+        return toposortIndicesByNodeField.get(() -> buildListIndexMap(getToposortedNodeFields()));
     }
 }

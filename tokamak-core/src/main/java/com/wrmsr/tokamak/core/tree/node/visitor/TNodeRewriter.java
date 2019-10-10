@@ -111,8 +111,7 @@ public class TNodeRewriter<C>
     public TNode visitSearch(TSearch node, C context)
     {
         return new TSearch(
-                node.getSearch(),
-                node.getArgs().stream().map(a -> (TExpression) process(a, context)).collect(toImmutableList()));
+                node.getSearch());
     }
 
     @Override

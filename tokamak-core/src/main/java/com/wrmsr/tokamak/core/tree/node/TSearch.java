@@ -13,11 +13,8 @@
  */
 package com.wrmsr.tokamak.core.tree.node;
 
-import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.core.search.node.SNode;
 import com.wrmsr.tokamak.core.tree.node.visitor.TNodeVisitor;
-
-import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -25,22 +22,15 @@ public final class TSearch
         extends TExpression
 {
     private final SNode search;
-    private final List<TExpression> args;
 
-    public TSearch(SNode search, List<TExpression> args)
+    public TSearch(SNode search)
     {
         this.search = checkNotNull(search);
-        this.args = ImmutableList.copyOf(args);
     }
 
     public SNode getSearch()
     {
         return search;
-    }
-
-    public List<TExpression> getArgs()
-    {
-        return args;
     }
 
     @Override

@@ -18,6 +18,7 @@ import com.wrmsr.tokamak.core.tree.node.TExpressionSelectItem;
 import com.wrmsr.tokamak.core.tree.node.TNode;
 import com.wrmsr.tokamak.core.tree.node.TSelect;
 import com.wrmsr.tokamak.core.tree.node.TStringLiteral;
+import com.wrmsr.tokamak.core.tree.transform.SearchFunctionParsing;
 import junit.framework.TestCase;
 
 public class ParserTest
@@ -54,6 +55,32 @@ public class ParserTest
             System.out.println(parser);
             TNode node = TreeParsing.build(parser.statement());
             System.out.println(getSelectItemText(node));
+        }
+    }
+
+    public void testParseSearch()
+            throws Throwable
+    {
+        for (String str : new String[] {
+                // "select *",
+                // "select 420",
+                // "select /*+ hint */ 1",
+                // "select 'hu'",
+                // "select a",
+                // "select a from a",
+                // "select a() as c, d from e",
+                // "select a(b) as c, d from e",
+                // "select a(b, x) as c, d from e",
+                // "select a // comment",
+                // "select a -- comment",
+                "select search('hi') ",
+        }) {
+            System.out.println(str);
+            SqlParser parser = TreeParsing.parse(str);
+            System.out.println(parser);
+            TNode node = TreeParsing.build(parser.statement());
+            node = SearchFunctionParsing.parseSearches(node);
+            System.out.println(node);
         }
     }
 

@@ -19,15 +19,16 @@ import com.wrmsr.tokamak.core.tree.node.TAllSelectItem;
 import com.wrmsr.tokamak.core.tree.node.TExpressionSelectItem;
 import com.wrmsr.tokamak.core.tree.node.TFunctionCallExpression;
 import com.wrmsr.tokamak.core.tree.node.TIdentifier;
+import com.wrmsr.tokamak.core.tree.node.TNode;
 import com.wrmsr.tokamak.core.tree.node.TNullLiteral;
 import com.wrmsr.tokamak.core.tree.node.TNumberLiteral;
 import com.wrmsr.tokamak.core.tree.node.TQualifiedName;
 import com.wrmsr.tokamak.core.tree.node.TQualifiedNameExpression;
+import com.wrmsr.tokamak.core.tree.node.TSearch;
 import com.wrmsr.tokamak.core.tree.node.TSelect;
 import com.wrmsr.tokamak.core.tree.node.TStringLiteral;
 import com.wrmsr.tokamak.core.tree.node.TSubqueryRelation;
 import com.wrmsr.tokamak.core.tree.node.TTableName;
-import com.wrmsr.tokamak.core.tree.node.TNode;
 import com.wrmsr.tokamak.core.tree.node.visitor.TNodeVisitor;
 
 import java.util.function.Consumer;
@@ -124,6 +125,13 @@ public final class TreeRendering
             {
                 treeNode.getQualifiedName().accept(this, context);
                 return null;
+            }
+
+            @Override
+            public Void visitSearch(TSearch node, Void context)
+            {
+                // TODO: SearchRendering
+                throw new IllegalStateException();
             }
 
             @Override
