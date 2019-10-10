@@ -31,7 +31,7 @@ import com.wrmsr.tokamak.core.plan.node.PProjection;
 import com.wrmsr.tokamak.core.plan.node.PScan;
 import com.wrmsr.tokamak.core.plan.node.PSingleSource;
 import com.wrmsr.tokamak.core.plan.node.PState;
-import com.wrmsr.tokamak.core.plan.node.PStruct;
+import com.wrmsr.tokamak.core.plan.node.PSearch;
 import com.wrmsr.tokamak.core.plan.node.PUnion;
 import com.wrmsr.tokamak.core.plan.node.PUnnest;
 import com.wrmsr.tokamak.core.plan.node.PValues;
@@ -662,18 +662,18 @@ public final class OriginAnalysis
             }
 
             @Override
-            public Void visitState(PState node, Void context)
+            public Void visitSearch(PSearch node, Void context)
             {
-                addDirectSingleSource(node);
+                // FIXME:
+                checkState(false);
 
                 return null;
             }
 
             @Override
-            public Void visitStruct(PStruct node, Void context)
+            public Void visitState(PState node, Void context)
             {
-                // FIXME:
-                checkState(false);
+                addDirectSingleSource(node);
 
                 return null;
             }

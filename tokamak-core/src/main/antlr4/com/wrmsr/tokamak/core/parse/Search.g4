@@ -22,6 +22,7 @@ expression
     | expression '|' expression         #pipeExpression
     | RAW_STRING                        #rawStringExpression
     | currentNode                       #currentNodeExpression
+    | variableNode                      #variableExpression
     ;
 
 chainedExpression
@@ -36,6 +37,14 @@ wildcard
     : '*'
     ;
 
+bracketSpecifier
+    : '[' SIGNED_INT ']'   #bracketIndex
+    | '[' '*' ']'          #bracketStar
+    | '[' slice ']'        #bracketSlice
+    | '[' ']'              #bracketFlatten
+    | '[?' expression ']'  #select
+    ;
+
 multiSelectList
     : '[' expression (',' expression)* ']'
     ;
@@ -48,25 +57,13 @@ keyvalExpr
     : identifier ':' expression
     ;
 
-bracketSpecifier
-    : '[' SIGNED_INT ']'   #bracketIndex
-    | '[' '*' ']'          #bracketStar
-    | '[' slice ']'        #bracketSlice
-    | '[' ']'              #bracketFlatten
-    | '[?' expression ']'  #select
-    ;
-
 slice
     : start=SIGNED_INT? ':' stop=SIGNED_INT? (':' step=SIGNED_INT?)?
     ;
 
-COMPARATOR
-    : '<'
-    | '<='
-    | '=='
-    | '>='
-    | '>'
-    | '!='
+variableNode
+    : '$' NAME  #nameVariable
+    | '$' INT   #numberVariable
     ;
 
 functionExpression
@@ -87,14 +84,6 @@ expressionType
     : '&' expression
     ;
 
-RAW_STRING:
-    '\'' (RAW_ESC | ~['\\])* '\''
-    ;
-
-fragment RAW_ESC
-    : '\\' .
-    ;
-
 literal
     : '`' jsonValue '`'
     ;
@@ -103,16 +92,6 @@ identifier
     : NAME
     | STRING
     | JSON_CONSTANT
-    ;
-
-JSON_CONSTANT
-    : 'true'
-    | 'false'
-    | 'null'
-    ;
-
-NAME
-    : [a-zA-Z_] [a-zA-Z0-9_]*
     ;
 
 jsonObject
@@ -135,6 +114,33 @@ jsonValue
     | jsonObject                              #jsonObjectValue
     | jsonArray                               #jsonArrayValue
     | JSON_CONSTANT                           #jsonConstantValue
+    ;
+
+COMPARATOR
+    : '<'
+    | '<='
+    | '=='
+    | '>='
+    | '>'
+    | '!='
+    ;
+
+RAW_STRING:
+    '\'' (RAW_ESC | ~['\\])* '\''
+    ;
+
+fragment RAW_ESC
+    : '\\' .
+    ;
+
+JSON_CONSTANT
+    : 'true'
+    | 'false'
+    | 'null'
+    ;
+
+NAME
+    : [a-zA-Z_] [a-zA-Z0-9_]*
     ;
 
 STRING
@@ -162,7 +168,7 @@ SIGNED_INT
     : '-'? INT
     ;
 
-fragment INT
+INT
     : '0'
     | [1-9] [0-9]*
     ;

@@ -35,10 +35,12 @@ import com.wrmsr.tokamak.core.search.node.SSelection;
 import com.wrmsr.tokamak.core.search.node.SSequence;
 import com.wrmsr.tokamak.core.search.node.SSlice;
 import com.wrmsr.tokamak.core.search.node.SString;
+import com.wrmsr.tokamak.core.search.node.SVariable;
 import com.wrmsr.tokamak.core.search.node.visitor.SNodeVisitor;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableList.toImmutableList;
@@ -159,6 +161,10 @@ public final class Evaluation
         T parseString(String string);
 
         T createString(String value);
+
+        T getVariable(int number);
+
+        T getVariable(String name);
     }
 
     public static <T> void evaluate(SNode search, Runtime<T> runtime, T object)
@@ -374,6 +380,20 @@ public final class Evaluation
             public T visitString(SString node, T context)
             {
                 return runtime.createString(node.getValue());
+            }
+
+            @Override
+            public T visitVariable(SVariable node, T context)
+            {
+                if (node.getTarget() instanceof SVariable.NameTarget) {
+                    return runtime.getVariable(((SVariable.NameTarget) node.getTarget()).getValue());
+                }
+                else if (node.getTarget() instanceof SVariable.NumberTarget) {
+                    return runtime.getVariable(((SVariable.NumberTarget) node.getTarget()).getValue());
+                }
+                else {
+                    throw new IllegalStateException(Objects.toString(node.getTarget()));
+                }
             }
         }, object);
     }

@@ -35,7 +35,7 @@ import com.wrmsr.tokamak.core.tree.node.TTableName;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 
 public class TNodeRewriter<C>
-        extends TNodeVisitor<TNode, C>
+        extends CachingTNodeVisitor<TNode, C>
 {
     @Override
     protected TNode visitTreeNode(TNode node, C context)
@@ -47,7 +47,7 @@ public class TNodeRewriter<C>
     public TNode visitAliasedRelation(TAliasedRelation node, C context)
     {
         return new TAliasedRelation(
-                (TRelation) node.getRelation().accept(this, context),
+                (TRelation) process(node.getRelation(), context),
                 node.getAlias());
     }
 
@@ -61,7 +61,7 @@ public class TNodeRewriter<C>
     public TNode visitExpressionSelectItem(TExpressionSelectItem node, C context)
     {
         return new TExpressionSelectItem(
-                (TExpression) node.getExpression().accept(this, context),
+                (TExpression) process(node.getExpression(), context),
                 node.getLabel());
     }
 
@@ -70,7 +70,7 @@ public class TNodeRewriter<C>
     {
         return new TFunctionCallExpression(
                 node.getName(),
-                node.getArgs().stream().map(a -> (TExpression) a.accept(this, context)).collect(toImmutableList()));
+                node.getArgs().stream().map(a -> (TExpression) process(a, context)).collect(toImmutableList()));
     }
 
     @Override
@@ -104,7 +104,7 @@ public class TNodeRewriter<C>
     public TNode visitQualifiedNameExpression(TQualifiedNameExpression node, C context)
     {
         return new TQualifiedNameExpression(
-                (TQualifiedName) node.getQualifiedName().accept(this, context));
+                (TQualifiedName) process(node.getQualifiedName(), context));
     }
 
     @Override
@@ -112,16 +112,16 @@ public class TNodeRewriter<C>
     {
         return new TSearch(
                 node.getSearch(),
-                node.getArgs().stream().map(a -> (TExpression) a.accept(this, context)).collect(toImmutableList()));
+                node.getArgs().stream().map(a -> (TExpression) process(a, context)).collect(toImmutableList()));
     }
 
     @Override
     public TNode visitSelect(TSelect node, C context)
     {
         return new TSelect(
-                node.getItems().stream().map(i -> (TSelectItem) i.accept(this, context)).collect(toImmutableList()),
-                node.getRelations().stream().map(r -> (TAliasedRelation) r.accept(this, context)).collect(toImmutableList()),
-                node.getWhere().map(w -> (TExpression) w.accept(this, context)));
+                node.getItems().stream().map(i -> (TSelectItem) process(i, context)).collect(toImmutableList()),
+                node.getRelations().stream().map(r -> (TAliasedRelation) process(r, context)).collect(toImmutableList()),
+                node.getWhere().map(w -> (TExpression) process(w, context)));
     }
 
     @Override
@@ -135,13 +135,13 @@ public class TNodeRewriter<C>
     public TNode visitSubqueryRelation(TSubqueryRelation node, C context)
     {
         return new TSubqueryRelation(
-                (TSelect) node.getSelect().accept(this, context));
+                (TSelect) process(node.getSelect(), context));
     }
 
     @Override
     public TNode visitTableName(TTableName node, C context)
     {
         return new TTableName(
-                (TQualifiedName) node.getQualifiedName().accept(this, context));
+                (TQualifiedName) process(node.getQualifiedName(), context));
     }
 }

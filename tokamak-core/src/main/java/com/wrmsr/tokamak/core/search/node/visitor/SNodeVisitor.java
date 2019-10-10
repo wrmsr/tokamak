@@ -34,11 +34,17 @@ import com.wrmsr.tokamak.core.search.node.SSelection;
 import com.wrmsr.tokamak.core.search.node.SSequence;
 import com.wrmsr.tokamak.core.search.node.SSlice;
 import com.wrmsr.tokamak.core.search.node.SString;
+import com.wrmsr.tokamak.core.search.node.SVariable;
 
 import java.util.Objects;
 
 public abstract class SNodeVisitor<R, C>
 {
+    public R process(SNode node, C context)
+    {
+        return node.accept(this, context);
+    }
+
     protected R visitNode(SNode node, C context)
     {
         throw new IllegalArgumentException(Objects.toString(node));
@@ -140,6 +146,11 @@ public abstract class SNodeVisitor<R, C>
     }
 
     public R visitString(SString node, C context)
+    {
+        return visitNode(node, context);
+    }
+
+    public R visitVariable(SVariable node, C context)
     {
         return visitNode(node, context);
     }

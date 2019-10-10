@@ -22,12 +22,12 @@ import javax.annotation.concurrent.Immutable;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
-public final class NotNull
+public final class NotNullType
         extends AbstractType
 {
     private final Type item;
 
-    public NotNull(Type item)
+    public NotNullType(Type item)
     {
         super("NotNull");
         this.item = checkNotNull(item);

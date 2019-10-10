@@ -15,42 +15,42 @@ package com.wrmsr.tokamak.core.plan.node;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.core.layout.field.FieldCollection;
 import com.wrmsr.tokamak.core.plan.node.visitor.PNodeVisitor;
+import com.wrmsr.tokamak.core.search.node.SNode;
+import com.wrmsr.tokamak.core.type.Type;
 
 import javax.annotation.concurrent.Immutable;
 
-import java.util.Set;
-
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.wrmsr.tokamak.util.MoreCollections.checkOrdered;
+import static com.google.common.base.Preconditions.checkState;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
-import static com.wrmsr.tokamak.util.MorePreconditions.checkUnique;
 
 @Immutable
-public final class PStruct
+public final class PSearch
         extends PAbstractNode
         implements PSingleSource
 {
     private final PNode source;
-    private final Set<String> structFields;
-    private final String structField;
+    private final SNode search;
+    private final String outputField;
+    private final Type outputType;
 
     @JsonCreator
-    public PStruct(
+    public PSearch(
             @JsonProperty("name") String name,
             @JsonProperty("annotations") PNodeAnnotations annotations,
             @JsonProperty("source") PNode source,
-            @JsonProperty("structFields") Iterable<String> structFields,
-            @JsonProperty("structFields") String structField)
+            @JsonProperty("search") SNode search,
+            @JsonProperty("outputField") String outputField,
+            @JsonProperty("outputType") Type outputType)
     {
         super(name, annotations);
         this.source = checkNotNull(source);
-        this.structFields = ImmutableSet.copyOf(checkUnique(ImmutableList.copyOf(checkOrdered(structFields))));
-        this.structField = checkNotEmpty(structField);
-        this.structFields.forEach(f -> checkNotEmpty(f));
+        this.search = checkNotNull(search);
+        this.outputField = checkNotEmpty(outputField);
+        this.outputType = checkNotNull(outputType);
+        checkState(!source.getFields().contains(outputField));
     }
 
     @JsonProperty("source")
@@ -60,16 +60,22 @@ public final class PStruct
         return source;
     }
 
-    @JsonProperty("structFields")
-    public Set<String> getStructFields()
+    @JsonProperty("search")
+    public SNode getSearch()
     {
-        return structFields;
+        return search;
     }
 
-    @JsonProperty("structField")
-    public String getStructField()
+    @JsonProperty("outputField")
+    public String getOutputField()
     {
-        return structField;
+        return outputField;
+    }
+
+    @JsonProperty("outputType")
+    public Type getOutputType()
+    {
+        return outputType;
     }
 
     @Override
@@ -81,6 +87,6 @@ public final class PStruct
     @Override
     public <R, C> R accept(PNodeVisitor<R, C> visitor, C context)
     {
-        return visitor.visitStruct(this, context);
+        return visitor.visitSearch(this, context);
     }
 }

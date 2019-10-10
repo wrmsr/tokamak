@@ -23,7 +23,7 @@ import com.wrmsr.tokamak.core.plan.node.PNode;
 import com.wrmsr.tokamak.core.plan.node.PProject;
 import com.wrmsr.tokamak.core.plan.node.PScan;
 import com.wrmsr.tokamak.core.plan.node.PState;
-import com.wrmsr.tokamak.core.plan.node.PStruct;
+import com.wrmsr.tokamak.core.plan.node.PSearch;
 import com.wrmsr.tokamak.core.plan.node.PUnion;
 import com.wrmsr.tokamak.core.plan.node.PUnnest;
 import com.wrmsr.tokamak.core.plan.node.PValues;
@@ -72,11 +72,6 @@ public abstract class PNodeVisitor<R, C>
         return visitNode(node, context);
     }
 
-    public R visitState(PState node, C context)
-    {
-        return visitNode(node, context);
-    }
-
     public R visitProject(PProject node, C context)
     {
         return visitNode(node, context);
@@ -87,7 +82,12 @@ public abstract class PNodeVisitor<R, C>
         return visitNode(node, context);
     }
 
-    public R visitStruct(PStruct node, C context)
+    public R visitSearch(PSearch node, C context)
+    {
+        return visitNode(node, context);
+    }
+
+    public R visitState(PState node, C context)
     {
         return visitNode(node, context);
     }

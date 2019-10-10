@@ -13,6 +13,8 @@
  */
 package com.wrmsr.tokamak.core.search.node;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wrmsr.tokamak.core.search.node.visitor.SNodeVisitor;
 
 import java.util.OptionalInt;
@@ -26,23 +28,30 @@ public final class SSlice
     private final OptionalInt stop;
     private final OptionalInt step;
 
-    public SSlice(OptionalInt start, OptionalInt stop, OptionalInt step)
+    @JsonCreator
+    public SSlice(
+            @JsonProperty("start") OptionalInt start,
+            @JsonProperty("stop") OptionalInt stop,
+            @JsonProperty("step") OptionalInt step)
     {
         this.start = checkNotNull(start);
         this.stop = checkNotNull(stop);
         this.step = checkNotNull(step);
     }
 
+    @JsonProperty("start")
     public OptionalInt getStart()
     {
         return start;
     }
 
+    @JsonProperty("stop")
     public OptionalInt getStop()
     {
         return stop;
     }
 
+    @JsonProperty("step")
     public OptionalInt getStep()
     {
         return step;

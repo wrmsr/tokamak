@@ -13,11 +13,17 @@
  */
 package com.wrmsr.tokamak.core.search.node;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.wrmsr.tokamak.core.search.node.visitor.SNodeVisitor;
 
 public final class SFlattenObject
         extends SNode
 {
+    @JsonCreator
+    public SFlattenObject()
+    {
+    }
+
     @Override
     public <R, C> R accept(SNodeVisitor<R, C> visitor, C context)
     {

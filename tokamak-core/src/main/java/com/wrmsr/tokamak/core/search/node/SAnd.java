@@ -13,6 +13,8 @@
  */
 package com.wrmsr.tokamak.core.search.node;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wrmsr.tokamak.core.search.node.visitor.SNodeVisitor;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -23,17 +25,22 @@ public final class SAnd
     private final SNode left;
     private final SNode right;
 
-    public SAnd(SNode left, SNode right)
+    @JsonCreator
+    public SAnd(
+            @JsonProperty("left") SNode left,
+            @JsonProperty("right") SNode right)
     {
         this.left = checkNotNull(left);
         this.right = checkNotNull(right);
     }
 
+    @JsonProperty("left")
     public SNode getLeft()
     {
         return left;
     }
 
+    @JsonProperty("right")
     public SNode getRight()
     {
         return right;

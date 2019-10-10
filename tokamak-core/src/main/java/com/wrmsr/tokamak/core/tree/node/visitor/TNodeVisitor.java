@@ -38,6 +38,11 @@ import java.util.Objects;
 
 public abstract class TNodeVisitor<R, C>
 {
+    public R process(TNode node, C context)
+    {
+        return node.accept(this, context);
+    }
+
     protected R visitTreeNode(TNode node, C context)
     {
         throw new IllegalArgumentException(Objects.toString(node));

@@ -24,7 +24,7 @@ select
 
 selectItem
     : expression (AS? identifier)?  #selectExpression
-    | ASTERISK                      #selectAll
+    | '*'                           #selectAll
     ;
 
 aliasedRelation
@@ -45,8 +45,8 @@ expression
     ;
 
 variable
-    : DOLLAR IDENTIFIER  #nameVariable
-    | DOLLAR INTEGER     #numberVariable
+    : '$' IDENTIFIER  #nameVariable
+    | '$' INTEGER     #numberVariable
     ;
 
 literal
@@ -73,9 +73,6 @@ NULL: 'NULL';
 SELECT: 'SELECT';
 TRUE: 'TRUE';
 WHERE: 'WHERE';
-
-ASTERISK: '*';
-DOLLAR: '$';
 
 IDENTIFIER
     : (LETTER | '_') (LETTER | DIGIT | '_' | '@' | ':')*

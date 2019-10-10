@@ -13,6 +13,8 @@
  */
 package com.wrmsr.tokamak.core.search.node;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.core.search.node.visitor.SNodeVisitor;
 
@@ -25,11 +27,14 @@ public final class SCreateObject
 {
     private final Map<String, SNode> fields;
 
-    public SCreateObject(Map<String, SNode> fields)
+    @JsonCreator
+    public SCreateObject(
+            @JsonProperty("fields") Map<String, SNode> fields)
     {
         this.fields = ImmutableMap.copyOf(checkOrdered(fields));
     }
 
+    @JsonProperty("fields")
     public Map<String, SNode> getFields()
     {
         return fields;

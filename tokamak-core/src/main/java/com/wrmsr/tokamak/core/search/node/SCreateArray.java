@@ -13,6 +13,8 @@
  */
 package com.wrmsr.tokamak.core.search.node;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.core.search.node.visitor.SNodeVisitor;
 
@@ -23,11 +25,14 @@ public final class SCreateArray
 {
     private final List<SNode> items;
 
-    public SCreateArray(List<SNode> items)
+    @JsonCreator
+    public SCreateArray(
+            @JsonProperty("items") List<SNode> items)
     {
         this.items = ImmutableList.copyOf(items);
     }
 
+    @JsonProperty("items")
     public List<SNode> getItems()
     {
         return items;

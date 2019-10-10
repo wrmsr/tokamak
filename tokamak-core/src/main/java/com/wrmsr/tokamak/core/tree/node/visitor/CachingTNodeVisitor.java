@@ -11,33 +11,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.core.search.node;
+package com.wrmsr.tokamak.core.tree.node.visitor;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.wrmsr.tokamak.core.search.node.visitor.SNodeVisitor;
+import com.wrmsr.tokamak.core.tree.node.TNode;
 
-public final class SIndex
-        extends SNode
+import java.util.HashMap;
+import java.util.Map;
+
+public abstract class CachingTNodeVisitor<R, C>
+        extends TNodeVisitor<R, C>
 {
-    private final int value;
+    protected final Map<TNode, R> cache;
 
-    @JsonCreator
-    public SIndex(
-            @JsonProperty("value") int value)
+    public CachingTNodeVisitor()
     {
-        this.value = value;
+        cache = new HashMap<>();
     }
 
-    @JsonProperty("value")
-    public int getValue()
+    public CachingTNodeVisitor(Map<TNode, R> cache)
     {
-        return value;
+        this.cache = cache;
     }
 
     @Override
-    public <R, C> R accept(SNodeVisitor<R, C> visitor, C context)
+    public R process(TNode node, C context)
     {
-        return visitor.visitIndex(this, context);
+        return cache.computeIfAbsent(node, n -> super.process(node, context));
+    }
+
+    public Map<TNode, R> getCache()
+    {
+        return cache;
     }
 }

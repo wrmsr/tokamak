@@ -13,6 +13,8 @@
  */
 package com.wrmsr.tokamak.core.search.node;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wrmsr.tokamak.core.search.node.visitor.SNodeVisitor;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -22,11 +24,14 @@ public final class SJsonLiteral
 {
     private final String text;
 
-    public SJsonLiteral(String text)
+    @JsonCreator
+    public SJsonLiteral(
+            @JsonProperty("text") String text)
     {
         this.text = checkNotNull(text);
     }
 
+    @JsonProperty("text")
     public String getText()
     {
         return text;

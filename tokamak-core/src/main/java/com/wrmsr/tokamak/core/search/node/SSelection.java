@@ -13,6 +13,8 @@
  */
 package com.wrmsr.tokamak.core.search.node;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wrmsr.tokamak.core.search.node.visitor.SNodeVisitor;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -22,11 +24,14 @@ public final class SSelection
 {
     private final SNode child;
 
-    public SSelection(SNode child)
+    @JsonCreator
+    public SSelection(
+            @JsonProperty("child") SNode child)
     {
         this.child = checkNotNull(child);
     }
 
+    @JsonProperty("child")
     public SNode getChild()
     {
         return child;

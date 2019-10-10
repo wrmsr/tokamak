@@ -18,16 +18,16 @@ import com.wrmsr.tokamak.core.driver.DriverImpl;
 import com.wrmsr.tokamak.core.driver.build.Builder;
 import com.wrmsr.tokamak.core.driver.build.ops.BuildOp;
 import com.wrmsr.tokamak.core.driver.context.DriverContextImpl;
-import com.wrmsr.tokamak.core.plan.node.PStruct;
+import com.wrmsr.tokamak.core.plan.node.PSearch;
 import com.wrmsr.tokamak.core.plan.node.PNode;
 
 import java.util.Map;
 import java.util.function.Consumer;
 
-public final class StructBuilder
-        extends SingleSourceBuilder<PStruct>
+public final class SearchBuilder
+        extends SingleSourceBuilder<PSearch>
 {
-    public StructBuilder(DriverImpl driver, PStruct node, Map<PNode, Builder> sources)
+    public SearchBuilder(DriverImpl driver, PSearch node, Map<PNode, Builder> sources)
     {
         super(driver, node, sources);
     }

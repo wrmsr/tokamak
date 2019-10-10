@@ -13,6 +13,8 @@
  */
 package com.wrmsr.tokamak.core.search.node;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.core.search.node.visitor.SNodeVisitor;
 
@@ -26,17 +28,22 @@ public final class SFunctionCall
     private final String name;
     private final List<SNode> args;
 
-    public SFunctionCall(String name, List<SNode> args)
+    @JsonCreator
+    public SFunctionCall(
+            @JsonProperty("name") String name,
+            @JsonProperty("args") List<SNode> args)
     {
         this.name = checkNotEmpty(name);
         this.args = ImmutableList.copyOf(args);
     }
 
+    @JsonProperty("name")
     public String getName()
     {
         return name;
     }
 
+    @JsonProperty("args")
     public List<SNode> getArgs()
     {
         return args;

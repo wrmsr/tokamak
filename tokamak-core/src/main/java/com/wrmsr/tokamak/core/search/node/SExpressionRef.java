@@ -13,6 +13,8 @@
  */
 package com.wrmsr.tokamak.core.search.node;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wrmsr.tokamak.core.search.node.visitor.SNodeVisitor;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -22,11 +24,14 @@ public final class SExpressionRef
 {
     private final SNode expression;
 
-    public SExpressionRef(SNode expression)
+    @JsonCreator
+    public SExpressionRef(
+            @JsonProperty("expression") SNode expression)
     {
         this.expression = checkNotNull(expression);
     }
 
+    @JsonProperty("expression")
     public SNode getExpression()
     {
         return expression;

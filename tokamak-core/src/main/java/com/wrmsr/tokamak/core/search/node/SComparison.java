@@ -13,6 +13,8 @@
  */
 package com.wrmsr.tokamak.core.search.node;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wrmsr.tokamak.core.search.node.visitor.SNodeVisitor;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -24,23 +26,30 @@ public final class SComparison
     private final SNode left;
     private final SNode right;
 
-    public SComparison(SCmp op, SNode left, SNode right)
+    @JsonCreator
+    public SComparison(
+            @JsonProperty("op") SCmp op,
+            @JsonProperty("left") SNode left,
+            @JsonProperty("right") SNode right)
     {
         this.op = checkNotNull(op);
         this.left = checkNotNull(left);
         this.right = checkNotNull(right);
     }
 
+    @JsonProperty("op")
     public SCmp getOp()
     {
         return op;
     }
 
+    @JsonProperty("left")
     public SNode getLeft()
     {
         return left;
     }
 
+    @JsonProperty("right")
     public SNode getRight()
     {
         return right;

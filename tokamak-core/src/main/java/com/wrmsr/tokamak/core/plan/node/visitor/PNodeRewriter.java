@@ -24,8 +24,8 @@ import com.wrmsr.tokamak.core.plan.node.PLookupJoin;
 import com.wrmsr.tokamak.core.plan.node.PNode;
 import com.wrmsr.tokamak.core.plan.node.PProject;
 import com.wrmsr.tokamak.core.plan.node.PScan;
+import com.wrmsr.tokamak.core.plan.node.PSearch;
 import com.wrmsr.tokamak.core.plan.node.PState;
-import com.wrmsr.tokamak.core.plan.node.PStruct;
 import com.wrmsr.tokamak.core.plan.node.PUnion;
 import com.wrmsr.tokamak.core.plan.node.PUnnest;
 import com.wrmsr.tokamak.core.plan.node.PValues;
@@ -114,22 +114,6 @@ public abstract class PNodeRewriter<C>
     }
 
     @Override
-    public PNode visitState(PState node, C context)
-    {
-        return new PState(
-                visitNodeName(node.getName(), context),
-                node.getAnnotations(),
-                process(node.getSource(), context),
-                node.getWriterTargets(),
-                node.getDenormalization(),
-                node.getInvalidations().entrySet().stream()
-                        .collect(ImmutableMap.toImmutableMap(e -> visitNodeName(e.getKey(), context), Map.Entry::getValue)),
-                node.getLinkageMasks().entrySet().stream()
-                        .collect(ImmutableMap.toImmutableMap(e -> visitNodeName(e.getKey(), context), Map.Entry::getValue)),
-                node.getLockOverride().map(lo -> new PLockOverride(visitNodeName(lo.getNode(), context), lo.getField(), false)));
-    }
-
-    @Override
     public PNode visitProject(PProject node, C context)
     {
         return new PProject(
@@ -152,14 +136,31 @@ public abstract class PNodeRewriter<C>
     }
 
     @Override
-    public PNode visitStruct(PStruct node, C context)
+    public PNode visitSearch(PSearch node, C context)
     {
-        return new PStruct(
+        return new PSearch(
                 visitNodeName(node.getName(), context),
                 node.getAnnotations(),
                 process(node.getSource(), context),
-                node.getStructFields(),
-                node.getStructField());
+                node.getSearch(),
+                node.getOutputField(),
+                node.getOutputType());
+    }
+
+    @Override
+    public PNode visitState(PState node, C context)
+    {
+        return new PState(
+                visitNodeName(node.getName(), context),
+                node.getAnnotations(),
+                process(node.getSource(), context),
+                node.getWriterTargets(),
+                node.getDenormalization(),
+                node.getInvalidations().entrySet().stream()
+                        .collect(ImmutableMap.toImmutableMap(e -> visitNodeName(e.getKey(), context), Map.Entry::getValue)),
+                node.getLinkageMasks().entrySet().stream()
+                        .collect(ImmutableMap.toImmutableMap(e -> visitNodeName(e.getKey(), context), Map.Entry::getValue)),
+                node.getLockOverride().map(lo -> new PLockOverride(visitNodeName(lo.getNode(), context), lo.getField(), false)));
     }
 
     @Override

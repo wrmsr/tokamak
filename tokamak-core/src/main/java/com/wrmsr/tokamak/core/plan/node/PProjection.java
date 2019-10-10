@@ -15,14 +15,9 @@ package com.wrmsr.tokamak.core.plan.node;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonValue;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.core.ObjectCodec;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -33,7 +28,6 @@ import com.wrmsr.tokamak.util.collect.StreamableIterable;
 
 import javax.annotation.concurrent.Immutable;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -44,7 +38,6 @@ import java.util.stream.StreamSupport;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static com.wrmsr.tokamak.util.MoreCollections.checkOrdered;
 import static java.util.function.Function.identity;
@@ -53,47 +46,15 @@ import static java.util.function.Function.identity;
 public final class PProjection
         implements StreamableIterable<Map.Entry<String, PProjection.Input>>
 {
-    @JsonDeserialize(using = PProjection.Input.Deserializer.class)
+    @JsonTypeInfo(
+            use = JsonTypeInfo.Id.NAME,
+            include = JsonTypeInfo.As.WRAPPER_OBJECT)
+    @JsonSubTypes({
+            @JsonSubTypes.Type(value = FieldInput.class, name = "field"),
+            @JsonSubTypes.Type(value = FunctionInput.class, name = "function"),
+    })
     public interface Input
     {
-        final class Deserializer
-                extends JsonDeserializer<Input>
-        {
-            @Override
-            public Input deserialize(JsonParser parser, DeserializationContext ctx)
-                    throws IOException
-            {
-                if (parser.currentToken() == JsonToken.VALUE_STRING) {
-                    return new FieldInput(parser.getValueAsString());
-                }
-                else if (parser.currentToken() == JsonToken.START_OBJECT) {
-                    PFunction function = null;
-                    List<String> args = null;
-                    ObjectCodec codec = parser.getCodec();
-                    while (parser.nextToken() != JsonToken.END_OBJECT) {
-                        checkState(parser.currentToken() == JsonToken.FIELD_NAME);
-                        String name = parser.getValueAsString();
-                        switch (name) {
-                            case "function":
-                                checkState(function == null);
-                                function = codec.readValue(codec.treeAsTokens(parser.readValueAsTree()), PFunction.class);
-                                break;
-                            case "args":
-                                checkState(args == null);
-                                args = codec.readValue(codec.treeAsTokens(parser.readValueAsTree()), new TypeReference<List<String>>() {});
-                                break;
-                            default:
-                                throw new IllegalStateException(name);
-                        }
-                    }
-                    return new FunctionInput(function, args);
-                }
-                else {
-                    throw new IllegalStateException();
-                }
-            }
-        }
-
         static FieldInput of(String field)
         {
             return new FieldInput(field);
@@ -111,7 +72,9 @@ public final class PProjection
     {
         private final String field;
 
-        public FieldInput(String field)
+        @JsonCreator
+        public FieldInput(
+                @JsonProperty("field") String field)
         {
             this.field = checkNotNull(field);
         }
@@ -124,7 +87,7 @@ public final class PProjection
                     '}';
         }
 
-        @JsonValue
+        @JsonProperty("field")
         public String getField()
         {
             return field;
@@ -138,7 +101,10 @@ public final class PProjection
         private final PFunction function;
         private final List<String> args;
 
-        public FunctionInput(PFunction function, List<String> args)
+        @JsonCreator
+        public FunctionInput(
+                @JsonProperty("function") PFunction function,
+                @JsonProperty("args") List<String> args)
         {
             this.function = checkNotNull(function);
             this.args = ImmutableList.copyOf(args);
@@ -160,6 +126,7 @@ public final class PProjection
             return function;
         }
 
+        @JsonProperty("args")
         public List<String> getArgs()
         {
             return args;
