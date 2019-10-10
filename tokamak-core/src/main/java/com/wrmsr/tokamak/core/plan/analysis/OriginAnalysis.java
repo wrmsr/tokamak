@@ -417,6 +417,7 @@ public final class OriginAnalysis
     {
         private final Predicate<Origination> splitPredicate;
 
+        private final Set<Origination> firstOriginations;
         private final Map<PNodeField, Set<Origination>> firstOriginationSetsBySink;
         private final Map<Origination, Set<Origination>> firstOriginationSetsByOrigination;
         private final Map<PNodeField, Set<OriginationLink>> originationLinkSetsBySink;
@@ -425,6 +426,7 @@ public final class OriginAnalysis
         {
             this.splitPredicate = checkNotNull(splitPredicate);
 
+            Set<Origination> firstOriginations = new LinkedHashSet<>();
             Map<PNodeField, Set<Origination>> firstOriginationSetsBySink = new LinkedHashMap<>();
             Map<Origination, Set<Origination>> firstOriginationSetsByOrigination = new LinkedHashMap<>();
             Map<PNodeField, Set<OriginationLink>> originationLinkSetsBySink = new LinkedHashMap<>();
@@ -437,6 +439,7 @@ public final class OriginAnalysis
                     Set<OriginationLink> originationLinkSet;
                     if (snkOris.stream().anyMatch(o -> o.genesis.leaf)) {
                         Origination snkOri = checkSingle(snkOris);
+                        firstOriginations.add(snkOri);
                         snkFirstOriginationSet = ImmutableSet.of(snkOri);
                         originationLinkSet = ImmutableSet.of(new OriginationLink(snkOri, ImmutableSet.of()));
                     }
@@ -446,17 +449,18 @@ public final class OriginAnalysis
                         snkOris.forEach(snkOri -> {
                             checkState(snkOri.source.isPresent());
                             checkState(!firstOriginationSetsByOrigination.containsKey(snkOri));
-                            Set<Origination> firstOriginations;
+                            Set<Origination> snkFirstOriginations;
                             if (splitPredicate.test(snkOri)) {
-                                firstOriginations = ImmutableSet.of(snkOri);
+                                firstOriginations.add(snkOri);
+                                snkFirstOriginations = ImmutableSet.of(snkOri);
                                 originationLinkSet.add(new OriginationLink(snkOri, ImmutableSet.of()));
                             }
                             else {
-                                firstOriginations = checkNotEmpty(firstOriginationSetsBySink.get(snkOri.source.get()));
+                                snkFirstOriginations = checkNotEmpty(firstOriginationSetsBySink.get(snkOri.source.get()));
                                 originationLinkSet.add(new OriginationLink(snkOri, checkNotEmpty(originationLinkSetsBySink.get(snkOri.source.get()))));
                             }
-                            snkFirstOriginationSet.addAll(firstOriginations);
-                            firstOriginationSetsByOrigination.put(snkOri, firstOriginations);
+                            snkFirstOriginationSet.addAll(snkFirstOriginations);
+                            firstOriginationSetsByOrigination.put(snkOri, snkFirstOriginations);
                         });
                     }
 
@@ -467,6 +471,7 @@ public final class OriginAnalysis
                 });
             });
 
+            this.firstOriginations = ImmutableSet.copyOf(firstOriginations);
             this.firstOriginationSetsBySink = newImmutableSetMap(firstOriginationSetsBySink);
             this.firstOriginationSetsByOrigination = newImmutableSetMap(firstOriginationSetsByOrigination);
             this.originationLinkSetsBySink = ImmutableMap.copyOf(originationLinkSetsBySink);
@@ -475,6 +480,11 @@ public final class OriginAnalysis
         public boolean shouldSplit(Origination ori)
         {
             return splitPredicate.test(checkNotNull(ori));
+        }
+
+        public Set<Origination> getFirstOriginations()
+        {
+            return firstOriginations;
         }
 
         public Map<PNodeField, Set<Origination>> getFirstOriginationSetsBySink()
