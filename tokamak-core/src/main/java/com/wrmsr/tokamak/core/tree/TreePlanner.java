@@ -80,7 +80,7 @@ public class TreePlanner
             @Override
             public PNode visitAliasedRelation(TAliasedRelation treeNode, ScopeAnalysis.Scope context)
             {
-                PNode scanNode = treeNode.getRelation().accept(this, scopeAnalysis.getScope(treeNode).get());
+                PNode scanNode = process(treeNode.getRelation(), scopeAnalysis.getScope(treeNode).get());
                 return new PProject(
                         nameGenerator.get("aliasedRelationProject"),
                         PNodeAnnotations.empty(),
@@ -123,7 +123,7 @@ public class TreePlanner
                 }
 
                 List<PNode> sources = treeNode.getRelations().stream()
-                        .map(r -> r.accept(this, null))
+                        .map(r -> process(r, null))
                         .collect(toImmutableList());
                 PNode source;
                 if (sources.size() == 1) {

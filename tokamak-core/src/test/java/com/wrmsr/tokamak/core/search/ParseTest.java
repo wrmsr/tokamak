@@ -13,6 +13,7 @@
  */
 package com.wrmsr.tokamak.core.search;
 
+import com.wrmsr.tokamak.core.search.analysis.PropertyAccessAnalysis;
 import com.wrmsr.tokamak.core.search.node.SNode;
 import junit.framework.TestCase;
 
@@ -31,6 +32,9 @@ public class ParseTest
         }) {
             SNode node = SearchParsing.build(SearchParsing.parse(src).expression());
             System.out.println(node);
+
+            PropertyAccessAnalysis paa = PropertyAccessAnalysis.analyzePropertyAccess(node);
+            System.out.println(paa);
         }
     }
 }

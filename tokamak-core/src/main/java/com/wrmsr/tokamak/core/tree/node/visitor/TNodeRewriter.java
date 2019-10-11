@@ -38,7 +38,7 @@ public class TNodeRewriter<C>
         extends CachingTNodeVisitor<TNode, C>
 {
     @Override
-    protected TNode visitTreeNode(TNode node, C context)
+    protected TNode visitNode(TNode node, C context)
     {
         throw new IllegalStateException();
     }

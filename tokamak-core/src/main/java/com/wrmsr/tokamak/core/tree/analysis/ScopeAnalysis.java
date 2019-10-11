@@ -347,7 +347,7 @@ public final class ScopeAnalysis
         Scope scope = statement.accept(new TraversalTNodeVisitor<Scope, Scope>()
         {
             @Override
-            protected Scope visitTreeNode(TNode treeNode, Scope context)
+            protected Scope visitNode(TNode treeNode, Scope context)
             {
                 if (context != null) {
                     context.enclosedNodes.add(treeNode);
@@ -370,7 +370,7 @@ public final class ScopeAnalysis
             public Scope visitExpressionSelectItem(TExpressionSelectItem treeNode, Scope context)
             {
                 context.enclosedNodes.add(treeNode);
-                treeNode.getExpression().accept(this, context);
+                process(treeNode.getExpression(), context);
                 Optional<String> label = treeNode.getLabel();
                 if (!label.isPresent() && treeNode.getExpression() instanceof TQualifiedNameExpression) {
                     label = Optional.of(((TQualifiedNameExpression) treeNode.getExpression()).getQualifiedName().getLast());
@@ -394,11 +394,11 @@ public final class ScopeAnalysis
 
                 treeNode.getRelations().forEach(aliasedRelation -> {
                     Scope relationScope = new Scope(aliasedRelation, Optional.of(scope), aliasedRelation.getAlias());
-                    aliasedRelation.getRelation().accept(this, relationScope);
+                    process(aliasedRelation.getRelation(), relationScope);
                 });
 
-                treeNode.getWhere().ifPresent(where -> where.accept(this, scope));
-                treeNode.getItems().forEach(item -> item.accept(this, scope));
+                treeNode.getWhere().ifPresent(where -> process(where, scope));
+                treeNode.getItems().forEach(item -> process(item, scope));
 
                 return scope;
             }
@@ -407,7 +407,7 @@ public final class ScopeAnalysis
             public Scope visitSubqueryRelation(TSubqueryRelation treeNode, Scope context)
             {
                 context.enclosedNodes.add(treeNode);
-                return treeNode.getSelect().accept(this, context);
+                return process(treeNode.getSelect(), context);
             }
 
             @Override

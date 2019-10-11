@@ -187,7 +187,7 @@ public final class SelectExpansion
             {
                 List<TAliasedRelation> relations = addRelationAliases(
                         treeNode.getRelations().stream()
-                                .map(r -> (TAliasedRelation) r.accept(this, context))
+                                .map(r -> (TAliasedRelation) process(r, context))
                                 .collect(toImmutableList()));
 
                 List<TSelectItem> items = addItemLabels(
@@ -204,7 +204,7 @@ public final class SelectExpansion
                 TSelect ret = new TSelect(
                         items,
                         relations,
-                        treeNode.getWhere().map(w -> (TExpression) w.accept(this, context)));
+                        treeNode.getWhere().map(w -> (TExpression) process(w, context)));
 
                 fieldSetsByNode.put(ret, fields);
 

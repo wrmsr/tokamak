@@ -25,7 +25,7 @@ public class TraversalTNodeVisitor<R, C>
         extends TNodeVisitor<R, C>
 {
     @Override
-    protected R visitTreeNode(TNode node, C context)
+    protected R visitNode(TNode node, C context)
     {
         return null;
     }
@@ -33,50 +33,50 @@ public class TraversalTNodeVisitor<R, C>
     @Override
     public R visitAliasedRelation(TAliasedRelation node, C context)
     {
-        node.getRelation().accept(this, context);
+        process(node.getRelation(), context);
 
-        return null;
+        return super.visitAliasedRelation(node, context);
     }
 
     @Override
     public R visitExpressionSelectItem(TExpressionSelectItem node, C context)
     {
-        node.getExpression().accept(this, context);
+        process(node.getExpression(), context);
 
-        return null;
+        return super.visitExpressionSelectItem(node, context);
     }
 
     @Override
     public R visitFunctionCallExpression(TFunctionCallExpression node, C context)
     {
-        node.getArgs().forEach(a -> a.accept(this, context));
+        node.getArgs().forEach(a -> process(a, context));
 
-        return null;
+        return super.visitFunctionCallExpression(node, context);
     }
 
     @Override
     public R visitQualifiedNameExpression(TQualifiedNameExpression node, C context)
     {
-        node.getQualifiedName().accept(this, context);
+        process(node.getQualifiedName(), context);
 
-        return null;
+        return super.visitQualifiedNameExpression(node, context);
     }
 
     @Override
     public R visitSelect(TSelect node, C context)
     {
-        node.getRelations().forEach(r -> r.accept(this, context));
-        node.getItems().forEach(i -> i.accept(this, context));
-        node.getWhere().ifPresent(w -> w.accept(this, context));
+        node.getRelations().forEach(r -> process(r, context));
+        node.getItems().forEach(i -> process(i, context));
+        node.getWhere().ifPresent(w -> process(w, context));
 
-        return null;
+        return super.visitSelect(node, context);
     }
 
     @Override
     public R visitSubqueryRelation(TSubqueryRelation node, C context)
     {
-        node.getSelect().accept(this, context);
+        process(node.getSelect(), context);
 
-        return null;
+        return super.visitSubqueryRelation(node, context);
     }
 }

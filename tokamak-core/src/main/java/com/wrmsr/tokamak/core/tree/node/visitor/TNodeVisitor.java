@@ -43,14 +43,14 @@ public abstract class TNodeVisitor<R, C>
         return node.accept(this, context);
     }
 
-    protected R visitTreeNode(TNode node, C context)
+    protected R visitNode(TNode node, C context)
     {
         throw new IllegalArgumentException(Objects.toString(node));
     }
 
     public R visitAliasedRelation(TAliasedRelation node, C context)
     {
-        return visitTreeNode(node, context);
+        return visitNode(node, context);
     }
 
     public R visitAllSelectItem(TAllSelectItem node, C context)
@@ -60,7 +60,7 @@ public abstract class TNodeVisitor<R, C>
 
     public R visitExpression(TExpression node, C context)
     {
-        return visitTreeNode(node, context);
+        return visitNode(node, context);
     }
 
     public R visitExpressionSelectItem(TExpressionSelectItem node, C context)
@@ -75,7 +75,7 @@ public abstract class TNodeVisitor<R, C>
 
     public R visitIdentifier(TIdentifier node, C context)
     {
-        return visitTreeNode(node, context);
+        return visitNode(node, context);
     }
 
     public R visitLiteral(TLiteral node, C context)
@@ -95,7 +95,7 @@ public abstract class TNodeVisitor<R, C>
 
     public R visitQualifiedName(TQualifiedName node, C context)
     {
-        return visitTreeNode(node, context);
+        return visitNode(node, context);
     }
 
     public R visitQualifiedNameExpression(TQualifiedNameExpression node, C context)
@@ -105,7 +105,7 @@ public abstract class TNodeVisitor<R, C>
 
     public R visitRelation(TRelation node, C context)
     {
-        return visitTreeNode(node, context);
+        return visitNode(node, context);
     }
 
     public R visitSearch(TSearch node, C context)
@@ -120,12 +120,12 @@ public abstract class TNodeVisitor<R, C>
 
     public R visitSelectItem(TSelectItem node, C context)
     {
-        return visitTreeNode(node, context);
+        return visitNode(node, context);
     }
 
     public R visitStatement(TStatement node, C context)
     {
-        return visitTreeNode(node, context);
+        return visitNode(node, context);
     }
 
     public R visitStringLiteral(TStringLiteral node, C context)

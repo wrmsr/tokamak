@@ -45,7 +45,7 @@ public final class ViewInlining
                         View view = viewOpt.get();
                         SqlParser viewParser = TreeParsing.parse(view.getSql());
                         TSelect viewSelect = (TSelect) TreeParsing.build(viewParser.statement());
-                        TSelect processedSelect = (TSelect) viewSelect.accept(this, context);
+                        TSelect processedSelect = (TSelect) process(viewSelect, context);
                         return new TSubqueryRelation(processedSelect);
                     }
                 }

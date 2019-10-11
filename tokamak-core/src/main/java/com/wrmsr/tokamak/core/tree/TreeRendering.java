@@ -62,7 +62,7 @@ public final class TreeRendering
             @Override
             public Void visitAliasedRelation(TAliasedRelation treeNode, Void context)
             {
-                treeNode.getRelation().accept(this, context);
+                process(treeNode.getRelation(), context);
                 treeNode.getAlias().ifPresent(a -> sb.append(" as ").append(a));
                 return null;
             }
@@ -77,7 +77,7 @@ public final class TreeRendering
             @Override
             public Void visitExpressionSelectItem(TExpressionSelectItem treeNode, Void context)
             {
-                treeNode.getExpression().accept(this, context);
+                process(treeNode.getExpression(), context);
                 treeNode.getLabel().ifPresent(l -> sb.append(" as ").append(l));
                 return null;
             }
@@ -87,7 +87,7 @@ public final class TreeRendering
             {
                 sb.append(treeNode.getName());
                 sb.append("(");
-                delimitedForEach(treeNode.getArgs(), ", ", a -> a.accept(this, context));
+                delimitedForEach(treeNode.getArgs(), ", ", a -> process(a, context));
                 sb.append(")");
                 return null;
             }
@@ -123,7 +123,7 @@ public final class TreeRendering
             @Override
             public Void visitQualifiedNameExpression(TQualifiedNameExpression treeNode, Void context)
             {
-                treeNode.getQualifiedName().accept(this, context);
+                process(treeNode.getQualifiedName(), context);
                 return null;
             }
 
@@ -138,14 +138,14 @@ public final class TreeRendering
             public Void visitSelect(TSelect treeNode, Void context)
             {
                 sb.append("select ");
-                delimitedForEach(treeNode.getItems(), ", ", i -> i.accept(this, context));
+                delimitedForEach(treeNode.getItems(), ", ", i -> process(i, context));
                 if (!treeNode.getRelations().isEmpty()) {
                     sb.append(" from ");
-                    delimitedForEach(treeNode.getRelations(), ", ", r -> r.accept(this, context));
+                    delimitedForEach(treeNode.getRelations(), ", ", r -> process(r, context));
                 }
                 treeNode.getWhere().ifPresent(w -> {
                     sb.append(" where ");
-                    w.accept(this, context);
+                    process(w, context);
                 });
                 return null;
             }
@@ -161,7 +161,7 @@ public final class TreeRendering
             public Void visitSubqueryRelation(TSubqueryRelation treeNode, Void context)
             {
                 sb.append("(");
-                treeNode.getSelect().accept(this, context);
+                process(treeNode.getSelect(), context);
                 sb.append(")");
                 return null;
             }
@@ -169,7 +169,7 @@ public final class TreeRendering
             @Override
             public Void visitTableName(TTableName treeNode, Void context)
             {
-                treeNode.getQualifiedName().accept(this, context);
+                process(treeNode.getQualifiedName(), context);
                 return null;
             }
         }, null);

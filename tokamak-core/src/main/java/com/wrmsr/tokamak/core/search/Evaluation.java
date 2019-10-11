@@ -174,9 +174,9 @@ public final class Evaluation
             @Override
             public T visitAnd(SAnd node, T context)
             {
-                T left = node.getLeft().accept(this, context);
+                T left = process(node.getLeft(), context);
                 if (runtime.isTruthy(left)) {
-                    return node.getRight().accept(this, context);
+                    return process(node.getRight(), context);
                 }
                 else {
                     return left;
@@ -186,8 +186,8 @@ public final class Evaluation
             @Override
             public T visitComparison(SComparison node, T context)
             {
-                T left = node.getLeft().accept(this, context);
-                T right = node.getRight().accept(this, context);
+                T left = process(node.getLeft(), context);
+                T right = process(node.getRight(), context);
                 return runtime.compare(node.getOp(), left, right);
             }
 
@@ -198,7 +198,7 @@ public final class Evaluation
                     return context;
                 }
                 else {
-                    return runtime.createArray(node.getItems().stream().map(n -> n.accept(this, context)).collect(toImmutableList()));
+                    return runtime.createArray(node.getItems().stream().map(n -> process(n, context)).collect(toImmutableList()));
                 }
             }
 
@@ -209,7 +209,7 @@ public final class Evaluation
                     return context;
                 }
                 else {
-                    return runtime.createObject(immutableMapValues(node.getFields(), n -> n.accept(this, context)));
+                    return runtime.createObject(immutableMapValues(node.getFields(), n -> process(n, context)));
                 }
             }
 
@@ -222,7 +222,7 @@ public final class Evaluation
             @Override
             public T visitExpressionRef(SExpressionRef node, T context)
             {
-                return node.getExpression().accept(this, context);
+                return process(node.getExpression(), context);
             }
 
             @Override
@@ -266,7 +266,7 @@ public final class Evaluation
                                 return new NodeArg(arg);
                             }
                             else {
-                                return new ValueArg(arg.accept(this, context));
+                                return new ValueArg(process(arg, context));
                             }
                         })
                         .collect(toImmutableList());
@@ -298,18 +298,18 @@ public final class Evaluation
             @Override
             public T visitNegate(SNegate node, T context)
             {
-                return runtime.createBoolean(runtime.isTruthy(node.getItem().accept(this, context)));
+                return runtime.createBoolean(runtime.isTruthy(process(node.getItem(), context)));
             }
 
             @Override
             public T visitOr(SOr node, T context)
             {
-                T left = node.getLeft().accept(this, context);
+                T left = process(node.getLeft(), context);
                 if (runtime.isTruthy(left)) {
                     return left;
                 }
                 else {
-                    return node.getRight().accept(this, context);
+                    return process(node.getRight(), context);
                 }
             }
 
@@ -318,7 +318,7 @@ public final class Evaluation
             {
                 if (runtime.getType(context) == ValueType.ARRAY) {
                     List<T> items = streamIterator(runtime.toIterable(context).iterator())
-                            .map(v -> node.getChild().accept(this, v))
+                            .map(v -> proces(node.getChild(), v))
                             .filter(v -> !runtime.isNull(v))
                             .collect(toImmutableList());
                     return runtime.createArray(items);
@@ -339,7 +339,7 @@ public final class Evaluation
             {
                 if (runtime.getType(context) == ValueType.ARRAY) {
                     List<T> items = streamIterator(runtime.toIterable(context).iterator())
-                            .filter(v -> runtime.isTruthy(node.getChild().accept(this, v)))
+                            .filter(v -> runtime.isTruthy(process(node.getChild(), v)))
                             .collect(toImmutableList());
                     return runtime.createArray(items);
                 }
@@ -352,7 +352,7 @@ public final class Evaluation
             public T visitSequence(SSequence node, T context)
             {
                 for (SNode child : node.getItems()) {
-                    context = child.accept(this, context);
+                    context = process(child, context);
                 }
                 return context;
             }
