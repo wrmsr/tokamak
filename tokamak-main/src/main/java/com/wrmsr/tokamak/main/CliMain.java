@@ -69,7 +69,7 @@ public class CliMain
         }
     }
 
-    @Command(name = "groovy", mixinStandardHelpOptions = true)
+    @Command(name = "groovy")
     public static class GroovyCommand
             implements Callable<Void>
     {
