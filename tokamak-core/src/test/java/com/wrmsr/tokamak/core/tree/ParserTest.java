@@ -74,6 +74,7 @@ public class ParserTest
                 // "select a // comment",
                 // "select a -- comment",
                 "select search('hi') ",
+                "select search('{hi: there, my: dogg}') ",
                 "select search('a.b.c[]') ",
                 "select search('a.b.c.d.e.f[]') ",
                 "select search('''locations[?state == 'WA'].name | sort(@)[-2:] | {WashingtonCities: join(', ', @)}''') ",
