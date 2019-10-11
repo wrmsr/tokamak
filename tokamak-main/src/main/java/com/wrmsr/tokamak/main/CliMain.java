@@ -13,11 +13,13 @@
  */
 package com.wrmsr.tokamak.main;
 
+import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.main.boot.Bootstrap;
 import com.wrmsr.tokamak.main.server.ServerMain;
 import picocli.CommandLine;
-import picocli.CommandLine.*;
+import picocli.CommandLine.Command;
 
+import java.util.List;
 import java.util.concurrent.Callable;
 
 public class CliMain
@@ -67,11 +69,31 @@ public class CliMain
         }
     }
 
+    @Command(name = "groovy", mixinStandardHelpOptions = true)
+    public static class GroovyCommand
+            implements Callable<Void>
+    {
+        @CommandLine.Unmatched
+        List<String> allArgs;
+
+        @Override
+        public Void call()
+                throws Exception
+        {
+            Class.forName("org.codehaus.groovy.tools.shell.Main")
+                    .getDeclaredMethod("main", String[].class)
+                    .invoke(null, new Object[] {
+                            (allArgs != null ? allArgs : ImmutableList.<String>of()).toArray(new String[] {})});
+            return null;
+        }
+    }
+
     @Command(
             name = "main",
             mixinStandardHelpOptions = true,
             subcommands = {
                     ServeCommand.class,
+                    GroovyCommand.class,
             })
     public static class MainCommand
             implements Callable<Void>
