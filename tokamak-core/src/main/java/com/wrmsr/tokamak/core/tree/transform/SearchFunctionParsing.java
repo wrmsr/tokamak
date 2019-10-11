@@ -15,6 +15,7 @@ package com.wrmsr.tokamak.core.tree.transform;
 
 import com.wrmsr.tokamak.core.search.SearchParsing;
 import com.wrmsr.tokamak.core.search.node.SNode;
+import com.wrmsr.tokamak.core.search.transform.STransforms;
 import com.wrmsr.tokamak.core.tree.node.TFunctionCallExpression;
 import com.wrmsr.tokamak.core.tree.node.TNode;
 import com.wrmsr.tokamak.core.tree.node.TSearch;
@@ -38,11 +39,12 @@ public final class SearchFunctionParsing
             public TNode visitFunctionCallExpression(TFunctionCallExpression node, Void context)
             {
                 if (node.getName().equals("search")) {
-                    // FIXME: SVariables
+                    // FIXME: SParameters
                     TNode arg = checkSingle(node.getArgs());
                     checkState(arg instanceof TStringLiteral);
                     String src = ((TStringLiteral) arg).getValue().getValue();
                     SNode search = SearchParsing.build(SearchParsing.parse(src).expression());
+                    search = STransforms.inlineSequences(search);
                     return new TSearch(search);
                 }
                 else {
