@@ -34,7 +34,7 @@ import com.wrmsr.tokamak.core.search.node.SSelection;
 import com.wrmsr.tokamak.core.search.node.SSequence;
 import com.wrmsr.tokamak.core.search.node.SSlice;
 import com.wrmsr.tokamak.core.search.node.SString;
-import com.wrmsr.tokamak.core.search.node.SVariable;
+import com.wrmsr.tokamak.core.search.node.SParameter;
 
 import java.util.Objects;
 
@@ -120,6 +120,11 @@ public abstract class SNodeVisitor<R, C>
         return visitOperator(node, context);
     }
 
+    public R visitParameter(SParameter node, C context)
+    {
+        return visitNode(node, context);
+    }
+
     public R visitProject(SProject node, C context)
     {
         return visitNode(node, context);
@@ -146,11 +151,6 @@ public abstract class SNodeVisitor<R, C>
     }
 
     public R visitString(SString node, C context)
-    {
-        return visitNode(node, context);
-    }
-
-    public R visitVariable(SVariable node, C context)
     {
         return visitNode(node, context);
     }

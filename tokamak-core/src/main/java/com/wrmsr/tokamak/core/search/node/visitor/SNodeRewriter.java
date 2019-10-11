@@ -33,7 +33,7 @@ import com.wrmsr.tokamak.core.search.node.SSelection;
 import com.wrmsr.tokamak.core.search.node.SSequence;
 import com.wrmsr.tokamak.core.search.node.SSlice;
 import com.wrmsr.tokamak.core.search.node.SString;
-import com.wrmsr.tokamak.core.search.node.SVariable;
+import com.wrmsr.tokamak.core.search.node.SParameter;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.wrmsr.tokamak.util.MoreCollections.immutableMapValues;
@@ -135,6 +135,13 @@ public class SNodeRewriter<C>
     }
 
     @Override
+    public SNode visitParameter(SParameter node, C context)
+    {
+        return new SParameter(
+                node.getTarget());
+    }
+
+    @Override
     public SNode visitProject(SProject node, C context)
     {
         return new SProject(
@@ -176,12 +183,5 @@ public class SNodeRewriter<C>
     {
         return new SString(
                 node.getValue());
-    }
-
-    @Override
-    public SNode visitVariable(SVariable node, C context)
-    {
-        return new SVariable(
-                node.getTarget());
     }
 }

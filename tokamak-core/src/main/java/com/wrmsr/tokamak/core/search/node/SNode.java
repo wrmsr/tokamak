@@ -39,7 +39,7 @@ import com.wrmsr.tokamak.core.search.node.visitor.SNodeVisitor;
         @JsonSubTypes.Type(value = SSequence.class, name = "sequence"),
         @JsonSubTypes.Type(value = SSlice.class, name = "slice"),
         @JsonSubTypes.Type(value = SString.class, name = "string"),
-        @JsonSubTypes.Type(value = SVariable.class, name = "variable"),
+        @JsonSubTypes.Type(value = SParameter.class, name = "variable"),
 })
 public abstract class SNode
 {

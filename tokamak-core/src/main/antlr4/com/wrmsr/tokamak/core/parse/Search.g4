@@ -22,7 +22,7 @@ expression
     | expression '|' expression         #pipeExpression
     | RAW_STRING                        #rawStringExpression
     | currentNode                       #currentNodeExpression
-    | variableNode                      #variableExpression
+    | parameterNode                     #parameterExpression
     ;
 
 chainedExpression
@@ -61,9 +61,9 @@ slice
     : start=SIGNED_INT? ':' stop=SIGNED_INT? (':' step=SIGNED_INT?)?
     ;
 
-variableNode
-    : '$' NAME  #nameVariable
-    | '$' INT   #numberVariable
+parameterNode
+    : '$' NAME  #nameParameter
+    | '$' INT   #numberParameter
     ;
 
 functionExpression

@@ -35,7 +35,7 @@ import com.wrmsr.tokamak.core.search.node.SSelection;
 import com.wrmsr.tokamak.core.search.node.SSequence;
 import com.wrmsr.tokamak.core.search.node.SSlice;
 import com.wrmsr.tokamak.core.search.node.SString;
-import com.wrmsr.tokamak.core.search.node.SVariable;
+import com.wrmsr.tokamak.core.search.node.SParameter;
 import com.wrmsr.tokamak.core.search.node.visitor.SNodeVisitor;
 
 import java.util.List;
@@ -383,13 +383,13 @@ public final class Evaluation
             }
 
             @Override
-            public T visitVariable(SVariable node, T context)
+            public T visitParameter(SParameter node, T context)
             {
-                if (node.getTarget() instanceof SVariable.NameTarget) {
-                    return runtime.getVariable(((SVariable.NameTarget) node.getTarget()).getValue());
+                if (node.getTarget() instanceof SParameter.NameTarget) {
+                    return runtime.getVariable(((SParameter.NameTarget) node.getTarget()).getValue());
                 }
-                else if (node.getTarget() instanceof SVariable.NumberTarget) {
-                    return runtime.getVariable(((SVariable.NumberTarget) node.getTarget()).getValue());
+                else if (node.getTarget() instanceof SParameter.NumberTarget) {
+                    return runtime.getVariable(((SParameter.NumberTarget) node.getTarget()).getValue());
                 }
                 else {
                     throw new IllegalStateException(Objects.toString(node.getTarget()));

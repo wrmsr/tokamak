@@ -23,7 +23,7 @@ import com.wrmsr.tokamak.util.box.IntBox;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public final class SVariable
+public final class SParameter
         extends SNode
         implements SLeaf
 {
@@ -88,7 +88,7 @@ public final class SVariable
     private final Target target;
 
     @JsonCreator
-    public SVariable(
+    public SParameter(
             @JsonProperty("target") Target target)
     {
         this.target = checkNotNull(target);
@@ -103,6 +103,6 @@ public final class SVariable
     @Override
     public <R, C> R accept(SNodeVisitor<R, C> visitor, C context)
     {
-        return visitor.visitVariable(this, context);
+        return visitor.visitParameter(this, context);
     }
 }

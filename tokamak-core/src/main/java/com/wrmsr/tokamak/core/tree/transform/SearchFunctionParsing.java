@@ -38,6 +38,7 @@ public final class SearchFunctionParsing
             public TNode visitFunctionCallExpression(TFunctionCallExpression node, Void context)
             {
                 if (node.getName().equals("search")) {
+                    // FIXME: SVariables
                     TNode arg = checkSingle(node.getArgs());
                     checkState(arg instanceof TStringLiteral);
                     String src = ((TStringLiteral) arg).getValue().getValue();

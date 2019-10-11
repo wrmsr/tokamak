@@ -41,12 +41,12 @@ expression
     | qualifiedName                                       #qualifiedNameExpression
     | literal                                             #literalExpression
     | identifier '(' (expression (',' expression)*)? ')'  #functionCallExpression
-    | variable                                            #variableExpression
+    | parameter                                           #parameterExpression
     ;
 
-variable
-    : '$' IDENTIFIER  #nameVariable
-    | '$' INTEGER     #numberVariable
+parameter
+    : '$' IDENTIFIER  #nameParameter
+    | '$' INTEGER     #numberParameter
     ;
 
 literal

@@ -39,7 +39,7 @@ import com.wrmsr.tokamak.core.search.node.SSelection;
 import com.wrmsr.tokamak.core.search.node.SSequence;
 import com.wrmsr.tokamak.core.search.node.SSlice;
 import com.wrmsr.tokamak.core.search.node.SString;
-import com.wrmsr.tokamak.core.search.node.SVariable;
+import com.wrmsr.tokamak.core.search.node.SParameter;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -291,9 +291,9 @@ public final class SearchParsing
             }
 
             @Override
-            public SNode visitNameVariable(SearchParser.NameVariableContext ctx)
+            public SNode visitNameParameter(SearchParser.NameParameterContext ctx)
             {
-                return new SVariable(SVariable.Target.of(ctx.NAME().getText()));
+                return new SParameter(SParameter.Target.of(ctx.NAME().getText()));
             }
 
             @Override
@@ -303,9 +303,9 @@ public final class SearchParsing
             }
 
             @Override
-            public SNode visitNumberVariable(SearchParser.NumberVariableContext ctx)
+            public SNode visitNumberParameter(SearchParser.NumberParameterContext ctx)
             {
-                return new SVariable(SVariable.Target.of(Integer.parseInt(ctx.INT().getText())));
+                return new SParameter(SParameter.Target.of(Integer.parseInt(ctx.INT().getText())));
             }
 
             @Override
