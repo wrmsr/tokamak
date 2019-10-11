@@ -27,6 +27,7 @@ public class ParseTest
                 "[0]",
                 "[0].a",
                 "[]",
+                "locations[?state == 'WA'].name | sort(@)[-2:] | {WashingtonCities: join(', ', @)}",
         }) {
             SNode node = SearchParsing.build(SearchParsing.parse(src).expression());
             System.out.println(node);

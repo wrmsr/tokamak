@@ -23,7 +23,7 @@ import static java.util.function.UnaryOperator.identity;
 
 public enum SCmp
 {
-    EQ("="),
+    EQ("=="),
     NE("!="),
     GT(">"),
     GE(">="),
