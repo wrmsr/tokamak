@@ -17,13 +17,8 @@ import com.wrmsr.tokamak.core.search.node.SAnd;
 import com.wrmsr.tokamak.core.search.node.SComparison;
 import com.wrmsr.tokamak.core.search.node.SCreateArray;
 import com.wrmsr.tokamak.core.search.node.SCreateObject;
-import com.wrmsr.tokamak.core.search.node.SCurrent;
 import com.wrmsr.tokamak.core.search.node.SExpressionRef;
-import com.wrmsr.tokamak.core.search.node.SFlattenArray;
-import com.wrmsr.tokamak.core.search.node.SFlattenObject;
 import com.wrmsr.tokamak.core.search.node.SFunctionCall;
-import com.wrmsr.tokamak.core.search.node.SIndex;
-import com.wrmsr.tokamak.core.search.node.SJsonLiteral;
 import com.wrmsr.tokamak.core.search.node.SNegate;
 import com.wrmsr.tokamak.core.search.node.SNode;
 import com.wrmsr.tokamak.core.search.node.SOr;
@@ -34,17 +29,23 @@ import com.wrmsr.tokamak.core.search.node.SSequence;
 public class TraversalSNodeVisitor<R, C>
         extends SNodeVisitor<R, C>
 {
+    protected C traverseContext(SNode node, C context)
+    {
+        return context;
+    }
+
     @Override
     protected R visitNode(SNode node, C context)
     {
-        return super.visitNode(node, context);
+        return null;
     }
 
     @Override
     public R visitAnd(SAnd node, C context)
     {
-        process(node.getLeft(), context);
-        process(node.getRight(), context);
+        C traversedContext = traverseContext(node, context);
+        process(node.getLeft(), traversedContext);
+        process(node.getRight(), traversedContext);
 
         return super.visitAnd(node, context);
     }
@@ -52,8 +53,9 @@ public class TraversalSNodeVisitor<R, C>
     @Override
     public R visitComparison(SComparison node, C context)
     {
-        process(node.getLeft(), context);
-        process(node.getRight(), context);
+        C traversedContext = traverseContext(node, context);
+        process(node.getLeft(), traversedContext);
+        process(node.getRight(), traversedContext);
 
         return super.visitComparison(node, context);
     }
@@ -61,7 +63,8 @@ public class TraversalSNodeVisitor<R, C>
     @Override
     public R visitCreateArray(SCreateArray node, C context)
     {
-        node.getItems().forEach(n -> process(n, context));
+        C traversedContext = traverseContext(node, context);
+        node.getItems().forEach(n -> process(n, traversedContext));
 
         return super.visitCreateArray(node, context);
     }
@@ -69,7 +72,8 @@ public class TraversalSNodeVisitor<R, C>
     @Override
     public R visitCreateObject(SCreateObject node, C context)
     {
-        node.getFields().values().forEach(n -> process(n, context));
+        C traversedContext = traverseContext(node, context);
+        node.getFields().values().forEach(n -> process(n, traversedContext));
 
         return super.visitCreateObject(node, context);
     }
@@ -77,7 +81,8 @@ public class TraversalSNodeVisitor<R, C>
     @Override
     public R visitExpressionRef(SExpressionRef node, C context)
     {
-        process(node.getExpression(), context);
+        C traversedContext = traverseContext(node, context);
+        process(node.getExpression(), traversedContext);
 
         return super.visitExpressionRef(node, context);
     }
@@ -85,7 +90,8 @@ public class TraversalSNodeVisitor<R, C>
     @Override
     public R visitFunctionCall(SFunctionCall node, C context)
     {
-        node.getArgs().forEach(n -> process(n, context));
+        C traversedContext = traverseContext(node, context);
+        node.getArgs().forEach(n -> process(n, traversedContext));
 
         return super.visitFunctionCall(node, context);
     }
@@ -93,7 +99,8 @@ public class TraversalSNodeVisitor<R, C>
     @Override
     public R visitNegate(SNegate node, C context)
     {
-        process(node.getItem(), context);
+        C traversedContext = traverseContext(node, context);
+        process(node.getItem(), traversedContext);
 
         return super.visitNegate(node, context);
     }
@@ -101,8 +108,9 @@ public class TraversalSNodeVisitor<R, C>
     @Override
     public R visitOr(SOr node, C context)
     {
-        process(node.getLeft(), context);
-        process(node.getRight(), context);
+        C traversedContext = traverseContext(node, context);
+        process(node.getLeft(), traversedContext);
+        process(node.getRight(), traversedContext);
 
         return super.visitOr(node, context);
     }
@@ -110,7 +118,8 @@ public class TraversalSNodeVisitor<R, C>
     @Override
     public R visitProject(SProject node, C context)
     {
-        process(node.getChild(), context);
+        C traversedContext = traverseContext(node, context);
+        process(node.getChild(), traversedContext);
 
         return super.visitProject(node, context);
     }
@@ -118,7 +127,8 @@ public class TraversalSNodeVisitor<R, C>
     @Override
     public R visitSelection(SSelection node, C context)
     {
-        process(node.getChild(), context);
+        C traversedContext = traverseContext(node, context);
+        process(node.getChild(), traversedContext);
 
         return super.visitSelection(node, context);
     }
@@ -126,7 +136,8 @@ public class TraversalSNodeVisitor<R, C>
     @Override
     public R visitSequence(SSequence node, C context)
     {
-        node.getItems().forEach(n -> process(n, context));
+        C traversedContext = traverseContext(node, context);
+        node.getItems().forEach(n -> process(n, traversedContext));
 
         return super.visitSequence(node, context);
     }

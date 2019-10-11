@@ -24,6 +24,11 @@ import com.wrmsr.tokamak.core.tree.node.TSubqueryRelation;
 public class TraversalTNodeVisitor<R, C>
         extends TNodeVisitor<R, C>
 {
+    protected C traverseContext(TNode node, C context)
+    {
+        return context;
+    }
+
     @Override
     protected R visitNode(TNode node, C context)
     {
@@ -33,7 +38,8 @@ public class TraversalTNodeVisitor<R, C>
     @Override
     public R visitAliasedRelation(TAliasedRelation node, C context)
     {
-        process(node.getRelation(), context);
+        C traversedContext = traverseContext(node, context);
+        process(node.getRelation(), traversedContext);
 
         return super.visitAliasedRelation(node, context);
     }
@@ -41,7 +47,8 @@ public class TraversalTNodeVisitor<R, C>
     @Override
     public R visitExpressionSelectItem(TExpressionSelectItem node, C context)
     {
-        process(node.getExpression(), context);
+        C traversedContext = traverseContext(node, context);
+        process(node.getExpression(), traversedContext);
 
         return super.visitExpressionSelectItem(node, context);
     }
@@ -49,7 +56,8 @@ public class TraversalTNodeVisitor<R, C>
     @Override
     public R visitFunctionCallExpression(TFunctionCallExpression node, C context)
     {
-        node.getArgs().forEach(a -> process(a, context));
+        C traversedContext = traverseContext(node, context);
+        node.getArgs().forEach(a -> process(a, traversedContext));
 
         return super.visitFunctionCallExpression(node, context);
     }
@@ -57,7 +65,8 @@ public class TraversalTNodeVisitor<R, C>
     @Override
     public R visitQualifiedNameExpression(TQualifiedNameExpression node, C context)
     {
-        process(node.getQualifiedName(), context);
+        C traversedContext = traverseContext(node, context);
+        process(node.getQualifiedName(), traversedContext);
 
         return super.visitQualifiedNameExpression(node, context);
     }
@@ -65,9 +74,10 @@ public class TraversalTNodeVisitor<R, C>
     @Override
     public R visitSelect(TSelect node, C context)
     {
-        node.getRelations().forEach(r -> process(r, context));
-        node.getItems().forEach(i -> process(i, context));
-        node.getWhere().ifPresent(w -> process(w, context));
+        C traversedContext = traverseContext(node, context);
+        node.getRelations().forEach(r -> process(r, traversedContext));
+        node.getItems().forEach(i -> process(i, traversedContext));
+        node.getWhere().ifPresent(w -> process(w, traversedContext));
 
         return super.visitSelect(node, context);
     }
@@ -75,7 +85,8 @@ public class TraversalTNodeVisitor<R, C>
     @Override
     public R visitSubqueryRelation(TSubqueryRelation node, C context)
     {
-        process(node.getSelect(), context);
+        C traversedContext = traverseContext(node, context);
+        process(node.getSelect(), traversedContext);
 
         return super.visitSubqueryRelation(node, context);
     }
