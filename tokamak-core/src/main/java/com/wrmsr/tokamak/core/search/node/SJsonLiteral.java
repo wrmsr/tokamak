@@ -21,6 +21,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 public final class SJsonLiteral
         extends SNode
+        implements SLeaf
 {
     private final String text;
 

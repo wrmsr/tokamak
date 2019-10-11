@@ -23,6 +23,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 public final class SSlice
         extends SNode
+        implements SLeaf
 {
     private final OptionalInt start;
     private final OptionalInt stop;

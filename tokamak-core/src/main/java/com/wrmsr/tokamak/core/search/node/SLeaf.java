@@ -11,23 +11,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.wrmsr.tokamak.core.search.node;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.wrmsr.tokamak.core.search.node.visitor.SNodeVisitor;
-
-public final class SFlattenArray
-        extends SNode
-        implements SLeaf
+public interface SLeaf
 {
-    @JsonCreator
-    public SFlattenArray()
-    {
-    }
-
-    @Override
-    public <R, C> R accept(SNodeVisitor<R, C> visitor, C context)
-    {
-        return visitor.visitFlattenArray(this, context);
-    }
 }

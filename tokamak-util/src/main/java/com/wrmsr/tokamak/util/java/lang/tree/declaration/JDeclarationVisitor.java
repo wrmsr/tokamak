@@ -17,6 +17,11 @@ import java.util.Objects;
 
 public class JDeclarationVisitor<R, C>
 {
+    protected R process(JDeclaration jdeclaration, C context)
+    {
+        return jdeclaration.accept(this, context);
+    }
+
     protected R visitDeclaration(JDeclaration jdeclaration, C context)
     {
         throw new IllegalStateException(Objects.toString(jdeclaration));

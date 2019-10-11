@@ -17,6 +17,11 @@ import java.util.Objects;
 
 public class QExpressionVisitor<R, C>
 {
+    protected R process(QExpression qexpression, C context)
+    {
+        return qexpression.accept(this, context);
+    }
+
     protected R visitExpression(QExpression qexpression, C context)
     {
         throw new IllegalStateException(Objects.toString(qexpression));

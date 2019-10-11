@@ -17,6 +17,11 @@ import java.util.Objects;
 
 public class QRelationVisitor<R, C>
 {
+    protected R process(QRelation qrelation, C context)
+    {
+        return qrelation.accept(this, context);
+    }
+
     protected R visitRelation(QRelation qrelation, C context)
     {
         throw new IllegalStateException(Objects.toString(qrelation));

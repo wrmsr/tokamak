@@ -76,6 +76,7 @@ public class ParserTest
                 "select search('hi') ",
                 "select search('a.b.c[]') ",
                 "select search('a.b.c.d.e.f[]') ",
+                "select search('''locations[?state == 'WA'].name | sort(@)[-2:] | {WashingtonCities: join(', ', @)}''') ",
         }) {
             System.out.println(str);
             SqlParser parser = TreeParsing.parse(str);

@@ -19,6 +19,7 @@ import com.wrmsr.tokamak.core.search.node.visitor.SNodeVisitor;
 
 public final class SIndex
         extends SNode
+        implements SLeaf
 {
     private final int value;
 

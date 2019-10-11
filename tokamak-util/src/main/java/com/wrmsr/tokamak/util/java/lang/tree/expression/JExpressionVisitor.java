@@ -17,6 +17,11 @@ import java.util.Objects;
 
 public class JExpressionVisitor<R, C>
 {
+    protected R process(JExpression jexpression, C context)
+    {
+        return jexpression.accept(this, context);
+    }
+
     protected R visitExpression(JExpression expression, C context)
     {
         throw new IllegalStateException(Objects.toString(expression));

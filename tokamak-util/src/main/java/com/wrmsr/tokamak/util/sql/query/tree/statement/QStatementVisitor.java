@@ -17,6 +17,11 @@ import java.util.Objects;
 
 public class QStatementVisitor<R, C>
 {
+    protected R process(QStatement qstatement, C context)
+    {
+        return qstatement.accept(this, context);
+    }
+
     protected R visitStatement(QStatement qstatement, C context)
     {
         throw new IllegalStateException(Objects.toString(qstatement));

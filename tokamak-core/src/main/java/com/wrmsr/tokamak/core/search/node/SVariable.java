@@ -25,6 +25,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 public final class SVariable
         extends SNode
+        implements SLeaf
 {
     @JsonTypeInfo(
             use = JsonTypeInfo.Id.NAME,
