@@ -52,90 +52,82 @@ public class TraversalSNodeVisitor<R, C>
     @Override
     public R visitComparison(SComparison node, C context)
     {
+        process(node.getLeft(), context);
+        process(node.getRight(), context);
+
         return super.visitComparison(node, context);
     }
 
     @Override
     public R visitCreateArray(SCreateArray node, C context)
     {
+        node.getItems().forEach(n -> process(n, context));
+
         return super.visitCreateArray(node, context);
     }
 
     @Override
     public R visitCreateObject(SCreateObject node, C context)
     {
-        return super.visitCreateObject(node, context);
-    }
+        node.getFields().values().forEach(n -> process(n, context));
 
-    @Override
-    public R visitCurrent(SCurrent node, C context)
-    {
-        return super.visitCurrent(node, context);
+        return super.visitCreateObject(node, context);
     }
 
     @Override
     public R visitExpressionRef(SExpressionRef node, C context)
     {
+        process(node.getExpression(), context);
+
         return super.visitExpressionRef(node, context);
-    }
-
-    @Override
-    public R visitFlattenArray(SFlattenArray node, C context)
-    {
-        return super.visitFlattenArray(node, context);
-    }
-
-    @Override
-    public R visitFlattenObject(SFlattenObject node, C context)
-    {
-        return super.visitFlattenObject(node, context);
     }
 
     @Override
     public R visitFunctionCall(SFunctionCall node, C context)
     {
+        node.getArgs().forEach(n -> process(n, context));
+
         return super.visitFunctionCall(node, context);
-    }
-
-    @Override
-    public R visitIndex(SIndex node, C context)
-    {
-        return super.visitIndex(node, context);
-    }
-
-    @Override
-    public R visitJsonLiteral(SJsonLiteral node, C context)
-    {
-        return super.visitJsonLiteral(node, context);
     }
 
     @Override
     public R visitNegate(SNegate node, C context)
     {
+        process(node.getItem(), context);
+
         return super.visitNegate(node, context);
     }
 
     @Override
     public R visitOr(SOr node, C context)
     {
+        process(node.getLeft(), context);
+        process(node.getRight(), context);
+
         return super.visitOr(node, context);
     }
 
     @Override
     public R visitProject(SProject node, C context)
     {
+        process(node.getChild(), context);
+
         return super.visitProject(node, context);
     }
 
     @Override
     public R visitSelection(SSelection node, C context)
     {
+        process(node.getChild(), context);
+
         return super.visitSelection(node, context);
     }
 
     @Override
     public R visitSequence(SSequence node, C context)
     {
+        node.getItems().forEach(n -> process(n, context));
+
         return super.visitSequence(node, context);
     }
 }

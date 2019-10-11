@@ -318,7 +318,7 @@ public final class Evaluation
             {
                 if (runtime.getType(context) == ValueType.ARRAY) {
                     List<T> items = streamIterator(runtime.toIterable(context).iterator())
-                            .map(v -> proces(node.getChild(), v))
+                            .map(v -> process(node.getChild(), v))
                             .filter(v -> !runtime.isNull(v))
                             .collect(toImmutableList());
                     return runtime.createArray(items);
