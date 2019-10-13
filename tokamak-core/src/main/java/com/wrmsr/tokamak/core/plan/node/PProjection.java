@@ -132,16 +132,16 @@ public final class PProjection
         }
     }
 
-    private final Map<String, Input> inputsByOutput;
+    private final OrderPreservingImmutableMap<String, Input> inputsByOutput;
 
     private final Map<String, String> inputFieldsByOutput;
     private final Map<String, Set<String>> outputSetsByInputField;
 
     @JsonCreator
     public PProjection(
-            @JsonProperty("inputsByOutput") Map<String, Input> inputsByOutput)
+            @JsonProperty("inputsByOutput") OrderPreservingImmutableMap<String, Input> inputsByOutput)
     {
-        this.inputsByOutput = new OrderPreservingImmutableMap<>(ImmutableMap.copyOf(checkOrdered(inputsByOutput)));
+        this.inputsByOutput = checkNotNull(inputsByOutput);
 
         ImmutableMap.Builder<String, String> inputFieldsByOutput = ImmutableMap.builder();
         Map<String, ImmutableSet.Builder<String>> outputSetsByInputField = new HashMap<>();
@@ -159,6 +159,11 @@ public final class PProjection
                 .collect(toImmutableMap(Map.Entry::getKey, e -> e.getValue().build()));
     }
 
+    public PProjection(Map<String, Input> inputsByOutput)
+    {
+        this(new OrderPreservingImmutableMap<>(checkOrdered(inputsByOutput)));
+    }
+
     @Override
     public Iterator<Map.Entry<String, Input>> iterator()
     {
@@ -166,14 +171,9 @@ public final class PProjection
     }
 
     @JsonProperty("inputsByOutput")
-    public Map<String, Input> getInputsByOutput()
+    public OrderPreservingImmutableMap<String, Input> getInputsByOutput()
     {
         return inputsByOutput;
-    }
-
-    public static PProjection fromOrderPreservingImmutableMap(OrderPreservingImmutableMap<String, Input> map)
-    {
-        return new PProjection(map);
     }
 
     public Map<String, String> getInputFieldsByOutput()
