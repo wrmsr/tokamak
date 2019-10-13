@@ -20,14 +20,25 @@ import com.wrmsr.tokamak.core.layout.field.annotation.FieldAnnotation;
 import com.wrmsr.tokamak.core.plan.node.annotation.PNodeAnnotation;
 import com.wrmsr.tokamak.core.util.annotation.AnnotationCollection;
 import com.wrmsr.tokamak.core.util.annotation.AnnotationCollectionMap;
+import com.wrmsr.tokamak.util.Pair;
+import com.wrmsr.tokamak.util.json.Json;
+import com.wrmsr.tokamak.util.lazy.SupplierLazyValue;
 
 import javax.annotation.concurrent.Immutable;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
+import static com.wrmsr.tokamak.util.func.ThrowableThrowingSupplier.throwableRethrowingGet;
 
 @Immutable
 public final class PNodeAnnotations
@@ -160,5 +171,37 @@ public final class PNodeAnnotations
     public PNodeAnnotations mapFields(Function<Fields, Fields> fn)
     {
         return withFields(fn.apply(fields));
+    }
+
+    private static final SupplierLazyValue<Map<Class<? extends PNodeAnnotation>, Consumer<PNode>>> validatorsByAnnotationType = new SupplierLazyValue<>();
+
+    public static Map<Class<? extends PNodeAnnotation>, Consumer<PNode>> getValidatorsByAnnotationType()
+    {
+        return validatorsByAnnotationType.get(() ->
+                Json.getAnnotatedSubtypes(PNodeAnnotation.class).values().stream()
+                        .<Optional<Pair<Class<? extends PNodeAnnotation>, Consumer<PNode>>>>map(cls -> {
+                            try {
+                                Method method = cls.getDeclaredMethod("validate", PNode.class);
+                                MethodHandle handle = MethodHandles.lookup().unreflect(method);
+                                Consumer<PNode> validator = node -> throwableRethrowingGet(() -> handle.invoke(node));
+                                return Optional.of(Pair.immutable(cls, validator));
+                            }
+                            catch (NoSuchMethodException e) {
+                                return Optional.empty();
+                            }
+                            catch (Exception e) {
+                                throw new RuntimeException(e);
+                            }
+                        })
+                        .filter(Optional::isPresent)
+                        .map(Optional::get)
+                        .collect(toImmutableMap()));
+    }
+
+    public static void validate(PNode node)
+    {
+        node.getAnnotations().forEach(annotation ->
+                Optional.ofNullable(getValidatorsByAnnotationType().get(annotation.getClass()))
+                        .ifPresent(validator -> validator.accept(node)));
     }
 }

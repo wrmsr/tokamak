@@ -113,6 +113,7 @@ public final class IdAnalysis
             @Override
             public Entry visitEquijoinNode(PEquiJoin node, Void context)
             {
+                // FIXME: ordered concatenation of all branch id fields MERGING ANY IN THE KEY
                 // branchSetsByIdFieldSet = node.getBranches().stream()
                 //         .flatMap(b -> b.getNode().getIdFieldSets().stream().map(fs -> Pair.immutable(fs, b)))
                 //         .collect(groupingBySet(Pair::first)).entrySet().stream()

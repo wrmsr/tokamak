@@ -86,25 +86,31 @@ public final class FieldAnnotations
 
     public static Map<Class<? extends FieldAnnotation>, Consumer<Field>> getValidatorsByAnnotationType()
     {
-        return validatorsByAnnotationType.get(() -> {
-            return Json.getAnnotatedSubtypes(FieldAnnotation.class).values().stream()
-                    .map(cls -> {
-                        try {
-                            Method method = cls.getDeclaredMethod("validate", Field.class);
-                            MethodHandle handle = MethodHandles.lookup().unreflect(method);
-                            Consumer<Field> validator = field -> throwableRethrowingGet(() -> method.invoke(field));
-                            return Optional.of(Pair.immutable(cls, validator));
-                        }
-                        catch (NoSuchMethodException e) {
-                            return Optional.empty();
-                        }
-                        catch (Exception e) {
-                            throw new RuntimeException(e);
-                        }
-                    })
-                    .filter(Optional::isPresent)
-                    .map(Optional::get)
-                    .collect(toImmutableMap());
-        });
+        return validatorsByAnnotationType.get(() ->
+                Json.getAnnotatedSubtypes(FieldAnnotation.class).values().stream()
+                        .<Optional<Pair<Class<? extends FieldAnnotation>, Consumer<Field>>>>map(cls -> {
+                            try {
+                                Method method = cls.getDeclaredMethod("validate", Field.class);
+                                MethodHandle handle = MethodHandles.lookup().unreflect(method);
+                                Consumer<Field> validator = field -> throwableRethrowingGet(() -> handle.invoke(field));
+                                return Optional.of(Pair.immutable(cls, validator));
+                            }
+                            catch (NoSuchMethodException e) {
+                                return Optional.empty();
+                            }
+                            catch (Exception e) {
+                                throw new RuntimeException(e);
+                            }
+                        })
+                        .filter(Optional::isPresent)
+                        .map(Optional::get)
+                        .collect(toImmutableMap()));
+    }
+
+    public static void validate(Field field)
+    {
+        field.getAnnotations().forEach(annotation ->
+                Optional.ofNullable(getValidatorsByAnnotationType().get(annotation.getClass()))
+                        .ifPresent(validator -> validator.accept(field)));
     }
 }
