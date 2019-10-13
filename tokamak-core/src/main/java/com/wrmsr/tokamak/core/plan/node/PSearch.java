@@ -51,6 +51,8 @@ public final class PSearch
         this.outputField = checkNotEmpty(outputField);
         this.outputType = checkNotNull(outputType);
         checkState(!source.getFields().contains(outputField));
+
+        checkInvariants();
     }
 
     @JsonProperty("source")

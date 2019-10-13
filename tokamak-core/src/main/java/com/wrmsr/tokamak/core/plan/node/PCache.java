@@ -36,6 +36,8 @@ public final class PCache
         super(name, annotations);
 
         this.source = checkNotNull(source);
+
+        checkInvariants();
     }
 
     @JsonProperty("source")

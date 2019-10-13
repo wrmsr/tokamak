@@ -27,6 +27,7 @@ import junit.framework.TestCase;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 public class JsonTest
         extends TestCase
@@ -445,5 +446,33 @@ public class JsonTest
                 om.getSerializationConfig().introspect(om.getTypeFactory().constructType(IdThingImpl.class)).getClassInfo());
         String src = om.writeValueAsString(new IdThingImpl(420));
         System.out.println(src);
+    }
+
+    @JsonTypeInfo(
+            use = JsonTypeInfo.Id.NAME,
+            include = JsonTypeInfo.As.WRAPPER_OBJECT)
+    @JsonSubTypes({
+            @JsonSubTypes.Type(value = A.class, name = "a"),
+            @JsonSubTypes.Type(value = B.class, name = "b"),
+    })
+    public interface I
+    {
+    }
+
+    public static final class A
+            implements I
+    {
+    }
+
+    public static final class B
+            implements I
+    {
+    }
+
+    public void testGetAnnotatedSubtypes()
+            throws Throwable
+    {
+        Map<String, Class<? extends I>> map = Json.getAnnotatedSubtypes(I.class);
+        System.out.println(map);
     }
 }

@@ -13,8 +13,14 @@
  */
 package com.wrmsr.tokamak.core.plan.node.annotation;
 
+import com.wrmsr.tokamak.core.plan.node.PNode;
+
 public final class ExposedPNode
         implements PNodeAnnotation
 {
     static final ExposedPNode INSTANCE = new ExposedPNode();
+
+    static void validate(PNode node)
+    {
+    }
 }

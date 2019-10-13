@@ -14,6 +14,7 @@
 package com.wrmsr.tokamak.util.json;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.TreeNode;
@@ -30,6 +31,7 @@ import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.util.Logger;
 import com.wrmsr.tokamak.util.lazy.SupplierLazyValue;
@@ -38,6 +40,7 @@ import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -279,5 +282,19 @@ public final class Json
                 return cls;
             }
         };
+    }
+
+    @SuppressWarnings({"unchecked"})
+    public static <T> Map<String, Class<? extends T>> getAnnotatedSubtypes(Class<? extends T> cls)
+    {
+        JsonSubTypes ann = cls.getAnnotation(JsonSubTypes.class);
+        if (ann == null) {
+            return ImmutableMap.of();
+        }
+        ImmutableMap.Builder<String, Class<? extends T>> builder = ImmutableMap.builder();
+        for (JsonSubTypes.Type type : ann.value()) {
+            builder.put(type.name(), (Class<? extends T>) type.value());
+        }
+        return builder.build();
     }
 }
