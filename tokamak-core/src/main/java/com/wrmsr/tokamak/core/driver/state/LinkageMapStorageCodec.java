@@ -79,7 +79,7 @@ public final class LinkageMapStorageCodec
 
     private Linkage.IdLinks decodeIdLinks(PNodeId nodeId, Input input)
     {
-        int sz = (int) LONG_SERDE.read(input);
+        int sz = (int) (long) LONG_SERDE.read(input);
         ImmutableSet.Builder<Id> builder = ImmutableSet.builderWithExpectedSize(sz);
         for (int i = 0; i < sz; ++i) {
             builder.add(Id.of(varBytesSerde.read(input)));
@@ -100,7 +100,7 @@ public final class LinkageMapStorageCodec
     private Linkage.DenormalizedLinks decodeDenormalizedLinks(PNodeId nodeId, Input input)
     {
         Serde<Object[]> attributesSerde = checkNotNull(attributesSerdesByNodeId.get(nodeId));
-        int sz = (int) LONG_SERDE.read(input);
+        int sz = (int) (long) LONG_SERDE.read(input);
         ImmutableMap.Builder<Id, Object[]> builder = ImmutableMap.builderWithExpectedSize(sz);
         for (int i = 0; i < sz; ++i) {
             builder.put(
@@ -141,10 +141,10 @@ public final class LinkageMapStorageCodec
         ByteArrayInput input = new ByteArrayInput(data);
         byte prefix = input.get();
         checkState(prefix == PREFIX);
-        int sz = (int) LONG_SERDE.read(input);
+        int sz = (int) (long) LONG_SERDE.read(input);
         ImmutableMap.Builder<PNodeId, Linkage.Links> builder = ImmutableMap.builderWithExpectedSize(sz);
         for (int i = 0; i < sz; ++i) {
-            PNodeId nodeId = PNodeId.of((int) LONG_SERDE.read(input));
+            PNodeId nodeId = PNodeId.of((int) (long) LONG_SERDE.read(input));
             byte tag = input.get();
             Linkage.Links links;
             if (tag == (byte) 0) {

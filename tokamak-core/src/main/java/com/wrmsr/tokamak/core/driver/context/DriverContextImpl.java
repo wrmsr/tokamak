@@ -61,6 +61,8 @@ public class DriverContextImpl
 
     private final Map<ContextualBuilder, BuilderContext> builderContextMap;
 
+    private Driver.ContextState state;
+
     public DriverContextImpl(
             DriverImpl driver)
     {
@@ -80,6 +82,8 @@ public class DriverContextImpl
         journaling = false;
         journalEntries = null;
 
+        state = Driver.ContextState.ACTIVE;
+
         builderContextMap = driver.getContextualBuilders().stream().collect(toImmutableMap(identity(), cb -> cb.buildContext(this)));
     }
 
@@ -96,6 +100,12 @@ public class DriverContextImpl
     public DriverImpl getDriver()
     {
         return driver;
+    }
+
+    @Override
+    public Driver.ContextState getState()
+    {
+        return state;
     }
 
     public DefaultStateCache getStateCache()
@@ -123,6 +133,8 @@ public class DriverContextImpl
 
     protected void onStateAttributesSet(State state)
     {
+        checkState(this.state == Driver.ContextState.ACTIVE);
+
         if (state.getMode() == State.Mode.MODIFIED) {
             invalidationManager.invalidate(state);
         }
@@ -137,6 +149,8 @@ public class DriverContextImpl
     @SuppressWarnings({"unchecked"})
     public Collection<DriverRow> buildSync(Builder<?> builder, Key key)
     {
+        checkState(state == Driver.ContextState.ACTIVE);
+
         PNode node = builder.getNode();
         if (journaling) {
             addJournalEntry(new JournalEntry.BuildInput(node, key));
@@ -186,13 +200,33 @@ public class DriverContextImpl
     @Override
     public void commit()
     {
-        linkageManager.update();
-        stateCache.flush();
+        checkState(state == Driver.ContextState.ACTIVE);
+        try {
+            linkageManager.update();
+            stateCache.flush();
+            state = Driver.ContextState.COMMITTED;
+        }
+        catch (Exception e) {
+            abort();
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void abort()
+    {
+        checkState(state == Driver.ContextState.ACTIVE);
+
+        state = Driver.ContextState.ABORTED;
     }
 
     @Override
     public void close()
     {
+        if (state == Driver.ContextState.ACTIVE) {
+            abort();
+        }
+
         for (Connection connection : connectionsByConnection.values()) {
             connection.close();
         }

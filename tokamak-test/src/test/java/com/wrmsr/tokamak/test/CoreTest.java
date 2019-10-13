@@ -246,8 +246,6 @@ public class CoreTest
         Plan plan = buildPlan(catalog);
 
         OriginAnalysis oa = OriginAnalysis.analyze(plan);
-        Map<PNodeField, Set<OriginAnalysis.Origination>> losbs = oa.getLeafChainAnalysis().getFirstOriginationSetsBySink();
-
         oa.getLeafChainAnalysis();
         oa.getStateChainAnalysis();
 
@@ -269,6 +267,18 @@ public class CoreTest
         System.out.println(buildRows);
 
         // driver.sync(ctx, )
+
+        ctx.commit();
+
+        System.out.println(ctx);
+
+        ctx = driver.createContext();
+        buildRows = driver.build(
+                ctx,
+                plan.getRoot(),
+                Key.of("N_NATIONKEY", 10));
+
+        System.out.println(buildRows);
 
         ctx.commit();
 

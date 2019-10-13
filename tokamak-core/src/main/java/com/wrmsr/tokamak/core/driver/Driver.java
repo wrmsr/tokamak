@@ -34,12 +34,23 @@ public interface Driver
 
     Catalog getCatalog();
 
+    enum ContextState
+    {
+        ACTIVE,
+        COMMITTED,
+        ABORTED,
+    }
+
     interface Context
             extends NoExceptAutoCloseable
     {
         Driver getDriver();
 
         Connection getConnection(Connector connector);
+
+        ContextState getState();
+
+        void abort();
 
         void commit();
     }
