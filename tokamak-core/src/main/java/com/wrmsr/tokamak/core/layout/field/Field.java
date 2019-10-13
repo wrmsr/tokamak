@@ -15,6 +15,7 @@ package com.wrmsr.tokamak.core.layout.field;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.wrmsr.tokamak.core.layout.field.annotation.FieldAnnotation;
 import com.wrmsr.tokamak.core.type.Type;
 import com.wrmsr.tokamak.util.Pair;
 
@@ -45,6 +46,11 @@ public final class Field
         this.annotations = checkNotNull(annotations);
 
         nameTypePair = Pair.immutable(name, type);
+    }
+
+    public Field(String name, Type type, Iterable<FieldAnnotation> annotations)
+    {
+        this(name, type, new FieldAnnotations(annotations));
     }
 
     public Field(String name, Type type)

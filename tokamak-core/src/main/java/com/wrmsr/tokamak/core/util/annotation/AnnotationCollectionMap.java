@@ -17,11 +17,14 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.wrmsr.tokamak.util.collect.StreamableIterable;
+import com.wrmsr.tokamak.util.lazy.SupplierLazyValue;
 
 import javax.annotation.concurrent.Immutable;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -29,6 +32,7 @@ import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableList.toImmutableList;
+import static com.wrmsr.tokamak.util.MoreCollections.newImmutableListMap;
 import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 import static java.util.function.Function.identity;
 
@@ -102,6 +106,22 @@ public abstract class AnnotationCollectionMap<
     public Optional<E> getEntry(K key)
     {
         return Optional.ofNullable(entriesByKey.get(key));
+    }
+
+    private final SupplierLazyValue<Map<Class<? extends T>, List<E>>> entryListsByAnnotationCls = new SupplierLazyValue<>();
+
+    public Map<Class<? extends T>, List<E>> getEntryListsByAnnotationCls()
+    {
+        return entryListsByAnnotationCls.get(() -> {
+            Map<Class<? extends T>, List<E>> listsByCls = new LinkedHashMap<>();
+            entries.forEach(e -> e.getByCls().keySet().forEach(ac -> listsByCls.computeIfAbsent(ac, ac_ -> new ArrayList<>()).add(e)));
+            return newImmutableListMap(listsByCls);
+        });
+    }
+
+    public E getEntryOrEmpty(K key)
+    {
+        return getEntry(key).orElseGet(() -> newEntry(key, ImmutableList.of()));
     }
 
     @SafeVarargs

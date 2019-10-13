@@ -19,22 +19,28 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.core.layout.field.Field;
-import com.wrmsr.tokamak.core.layout.field.FieldAnnotations;
-import com.wrmsr.tokamak.core.layout.field.annotation.FieldAnnotation;
 import com.wrmsr.tokamak.core.layout.field.FieldCollection;
+import com.wrmsr.tokamak.core.layout.field.annotation.FieldAnnotation;
+import com.wrmsr.tokamak.core.layout.field.annotation.IdField;
 import com.wrmsr.tokamak.core.plan.node.visitor.PNodeVisitor;
 import com.wrmsr.tokamak.core.type.Type;
 import com.wrmsr.tokamak.util.collect.OrderPreservingImmutableMap;
 
 import javax.annotation.concurrent.Immutable;
 
+import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.wrmsr.tokamak.core.layout.field.FieldCollection.toFieldCollection;
+import static com.wrmsr.tokamak.util.MoreCollections.buildListIndexMap;
 import static com.wrmsr.tokamak.util.MoreCollections.checkOrdered;
+import static com.wrmsr.tokamak.util.MoreCollections.sorted;
+import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 
 @Immutable
 public final class PScan
@@ -57,14 +63,29 @@ public final class PScan
     {
         super(name, annotations);
 
+        checkNotNull(fields);
+
         this.schemaTable = checkNotNull(schemaTable);
-        this.fields = checkNotNull(fields).entrySet().stream()
-                .map(e -> new Field(e.getKey(), e.getValue(), new FieldAnnotations(ImmutableList.of(FieldAnnotation.id()))))
-                .collect(toFieldCollection());
-        this.idFields = ImmutableSet.copyOf(idFields);
         this.idNodes = ImmutableSet.copyOf(idNodes);
 
-        this.idFields.forEach(f -> checkState(this.fields.contains(f)));
+        idFields = ImmutableSet.copyOf(idFields);
+        idFields.forEach(f -> checkState(fields.containsKey(f)));
+        Map<String, Integer> indicesByField = buildListIndexMap(ImmutableList.copyOf(fields.keySet()));
+        idFields = ImmutableSet.copyOf(sorted(idFields, Comparator.comparing(f -> checkNotNull(indicesByField.get(f)))));
+        this.idFields = idFields;
+
+        List<PNodeAnnotations.Fields.Entry> idFieldAnnEntries = annotations.getFields().getEntryListsByAnnotationCls().get(IdField.class);
+        if (idFieldAnnEntries != null) {
+            checkNotEmpty(idFieldAnnEntries);
+            checkState(idFieldAnnEntries.stream().map(e -> e.getKey()).collect(toImmutableList()).equals(ImmutableList.copyOf(idFields)));
+        }
+
+        this.fields = checkNotNull(fields).entrySet().stream()
+                .map(e -> new Field(
+                        e.getKey(),
+                        e.getValue(),
+                        annotations.getFields().getEntryOrEmpty(e.getKey()).overwriting(FieldAnnotation.id())))
+                .collect(toFieldCollection());
 
         checkInvariants();
     }

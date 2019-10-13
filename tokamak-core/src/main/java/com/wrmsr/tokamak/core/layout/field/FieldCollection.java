@@ -43,6 +43,7 @@ import java.util.stream.Stream;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.wrmsr.tokamak.util.MoreCollections.checkOrdered;
+import static com.wrmsr.tokamak.util.MoreCollections.newImmutableListMap;
 import static com.wrmsr.tokamak.util.MoreCollections.streamIterator;
 import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
@@ -148,7 +149,7 @@ public final class FieldCollection
         return fieldListsByAnnotationCls.get(() -> {
             Map<Class<? extends FieldAnnotation>, List<Field>> listsByCls = new LinkedHashMap<>();
             fields.forEach(f -> f.getAnnotations().getByCls().keySet().forEach(ac -> listsByCls.computeIfAbsent(ac, ac_ -> new ArrayList<>()).add(f)));
-            return listsByCls.entrySet().stream().collect(toImmutableMap(Map.Entry::getKey, e -> ImmutableList.copyOf(e.getValue())));
+            return newImmutableListMap(listsByCls);
         });
     }
 

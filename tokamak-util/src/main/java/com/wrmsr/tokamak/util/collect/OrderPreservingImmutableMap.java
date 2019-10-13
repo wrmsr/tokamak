@@ -46,7 +46,7 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 public final class OrderPreservingImmutableMap<K, V>
         implements Map<K, V>, Ordered
 {
-    private final Map<K, V> map;
+    private final ImmutableMap<K, V> map;
 
     public OrderPreservingImmutableMap(Map<K, V> map)
     {

@@ -54,10 +54,7 @@ public interface PNode
 
     FieldCollection getFields();
 
-    default RowLayout getRowLayout()
-    {
-        return new RowLayout(getFields());
-    }
+    RowLayout getRowLayout();
 
     <R, C> R accept(PNodeVisitor<R, C> visitor, C context);
 }
