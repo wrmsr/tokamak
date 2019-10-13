@@ -18,10 +18,22 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.core.layout.field.annotation.FieldAnnotation;
 import com.wrmsr.tokamak.core.util.annotation.AnnotationCollection;
+import com.wrmsr.tokamak.util.Pair;
+import com.wrmsr.tokamak.util.json.Json;
+import com.wrmsr.tokamak.util.lazy.SupplierLazyValue;
 
 import javax.annotation.concurrent.Immutable;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Consumer;
+
+import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
+import static com.wrmsr.tokamak.util.func.ThrowableThrowingSupplier.throwableRethrowingGet;
 
 @Immutable
 public final class FieldAnnotations
@@ -68,5 +80,31 @@ public final class FieldAnnotations
     protected FieldAnnotations rebuildWith(Iterable<FieldAnnotation> annotations)
     {
         return new FieldAnnotations(annotations);
+    }
+
+    private static final SupplierLazyValue<Map<Class<? extends FieldAnnotation>, Consumer<Field>>> validatorsByAnnotationType = new SupplierLazyValue<>();
+
+    public static Map<Class<? extends FieldAnnotation>, Consumer<Field>> getValidatorsByAnnotationType()
+    {
+        return validatorsByAnnotationType.get(() -> {
+            return Json.getAnnotatedSubtypes(FieldAnnotation.class).values().stream()
+                    .map(cls -> {
+                        try {
+                            Method method = cls.getDeclaredMethod("validate", Field.class);
+                            MethodHandle handle = MethodHandles.lookup().unreflect(method);
+                            Consumer<Field> validator = field -> throwableRethrowingGet(() -> method.invoke(field));
+                            return Optional.of(Pair.immutable(cls, validator));
+                        }
+                        catch (NoSuchMethodException e) {
+                            return Optional.empty();
+                        }
+                        catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
+                    })
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .collect(toImmutableMap());
+        });
     }
 }

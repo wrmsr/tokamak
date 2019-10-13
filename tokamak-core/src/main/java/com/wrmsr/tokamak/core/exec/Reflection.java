@@ -24,6 +24,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
+import static com.wrmsr.tokamak.util.MoreFunctions.rethrowingGet;
+import static com.wrmsr.tokamak.util.MoreFunctions.throwableRethrowingGet;
 
 public final class Reflection
 {
@@ -45,14 +47,7 @@ public final class Reflection
                 new FunctionType(
                         Types.fromJavaType(method.getReturnType()),
                         Arrays.stream(method.getParameterTypes()).map(Types::fromJavaType).collect(toImmutableList())),
-                args -> {
-                    try {
-                        return method.invoke(args);
-                    }
-                    catch (Exception e) {
-                        throw new RuntimeException(e);
-                    }
-                });
+                args -> rethrowingGet(() -> method.invoke(args)));
     }
 
     public static Executable reflectWithHandle(Method method, String name)
@@ -64,18 +59,7 @@ public final class Reflection
                 new FunctionType(
                         Types.fromJavaType(method.getReturnType()),
                         Arrays.stream(method.getParameterTypes()).map(Types::fromJavaType).collect(toImmutableList())),
-                args -> {
-                    try {
-                        return handle.invokeWithArguments(args);
-                    }
-                    catch (Error e) {
-                        throw e;
-                    }
-                    catch (Throwable e) {
-                        Thread.currentThread().getUncaughtExceptionHandler().uncaughtException(Thread.currentThread(), e);
-                        throw new RuntimeException(e);
-                    }
-                });
+                args -> throwableRethrowingGet(() -> handle.invokeWithArguments(args)));
     }
 
     public static Executable reflect(Method method, String name)

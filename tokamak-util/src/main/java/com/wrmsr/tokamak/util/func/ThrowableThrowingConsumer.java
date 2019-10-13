@@ -11,17 +11,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.wrmsr.tokamak.util.func;
 
 import java.util.function.Consumer;
 
 @FunctionalInterface
-public interface ThrowingConsumer<T>
+public interface ThrowableThrowingConsumer<T>
 {
     void accept(T t)
-            throws Exception;
+            throws Throwable;
 
-    static <T> void rethrowingAccept(ThrowingConsumer<T> consumer, T t)
+    static <T> void throwableRethrowingAccept(ThrowableThrowingConsumer<T> consumer, T t)
     {
         try {
             consumer.accept(t);
@@ -29,10 +30,14 @@ public interface ThrowingConsumer<T>
         catch (Exception e) {
             throw new RuntimeException(e);
         }
+        catch (Throwable e) {
+            Thread.currentThread().getUncaughtExceptionHandler().uncaughtException(Thread.currentThread(), e);
+            throw new RuntimeException(e);
+        }
     }
 
-    static <T> Consumer<T> rethrowing(ThrowingConsumer<T> consumer)
+    static <T> Consumer<T> throwableRethrowing(ThrowableThrowingConsumer<T> consumer)
     {
-        return (t) -> rethrowingAccept(consumer, t);
+        return (t) -> throwableRethrowingAccept(consumer, t);
     }
 }

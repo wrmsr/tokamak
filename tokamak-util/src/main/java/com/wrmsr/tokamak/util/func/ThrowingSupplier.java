@@ -13,26 +13,26 @@
  */
 package com.wrmsr.tokamak.util.func;
 
-import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 @FunctionalInterface
-public interface ThrowingConsumer<T>
+public interface ThrowingSupplier<T>
 {
-    void accept(T t)
+    T get()
             throws Exception;
 
-    static <T> void rethrowingAccept(ThrowingConsumer<T> consumer, T t)
+    static <T> T rethrowingGet(ThrowingSupplier<T> supplier)
     {
         try {
-            consumer.accept(t);
+            return supplier.get();
         }
         catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    static <T> Consumer<T> rethrowing(ThrowingConsumer<T> consumer)
+    static <T> Supplier<T> rethrowing(ThrowingSupplier<T> supplier)
     {
-        return (t) -> rethrowingAccept(consumer, t);
+        return () -> rethrowingGet(supplier);
     }
 }
