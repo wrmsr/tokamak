@@ -271,6 +271,8 @@ public class CoreTest
         // driver.sync(ctx, )
 
         ctx.commit();
+
+        System.out.println(ctx);
     }
 
     public void testDot()
