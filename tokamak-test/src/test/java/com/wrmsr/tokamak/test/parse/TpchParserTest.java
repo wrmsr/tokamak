@@ -110,7 +110,10 @@ public class TpchParserTest
                 "select N_NAME as name, N_COMMENT as comment from NATION",
                 "select N_NAME, N_COMMENT from NATION as n",
                 "select N_COMMENT, exclaim(N_NAME) from NATION",
-                // "select java('_0 + \"!\"', N_NAME) from NATION",
+                "select N_NATIONKEY, R_REGIONKEY from NATION, REGION",
+                "select N_NATIONKEY, R_REGIONKEY, NATION.N_COMMENT from NATION, REGION",
+                "select N2.N_NATIONKEY, R_REGIONKEY, NATION.N_COMMENT from NATION, REGION, NATION as N2",
+                // "select java('String', '_0 + \"!\"', N_NAME) from NATION",
                 // "select N_COMMENT, exclaim(exclaim(N_NAME)) from NATION",
         }) {
             Catalog catalog = new Catalog(ImmutableList.of(rootCatalog));
@@ -192,7 +195,7 @@ public class TpchParserTest
             throws Throwable
     {
         String src = "_0 + \"!\"";
-        String stmt = "select java('" + src + "', N_NAME) from NATION";
+        String stmt = "select java('String', '" + src + "', N_NAME) from NATION";
 
         Method method = jitJavaExpr(src, Types.STRING, ImmutableList.of(Types.STRING));
 

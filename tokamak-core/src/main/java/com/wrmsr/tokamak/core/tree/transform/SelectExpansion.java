@@ -13,6 +13,7 @@
  */
 package com.wrmsr.tokamak.core.tree.transform;
 
+import com.google.common.base.Predicates;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.api.SchemaTable;
@@ -59,6 +60,7 @@ public final class SelectExpansion
         int numAnon = 0;
 
         Map<String, Long> tableNameCounts = histogram(aliasedRelations.stream()
+                .filter(r -> !r.getAlias().isPresent())
                 .map(TAliasedRelation::getRelation)
                 .filter(TTableName.class::isInstance)
                 .map(TTableName.class::cast)

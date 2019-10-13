@@ -169,6 +169,7 @@ public final class ScopeAnalysis
         {
             return "Scope{" +
                     "node=" + node +
+                    ", name=" + name +
                     '}';
         }
 
