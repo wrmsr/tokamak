@@ -72,7 +72,7 @@ public final class Reflection
                         throw e;
                     }
                     catch (Throwable e) {
-                        // FIXME: yeesh
+                        Thread.currentThread().getUncaughtExceptionHandler().uncaughtException(Thread.currentThread(), e);
                         throw new RuntimeException(e);
                     }
                 });
