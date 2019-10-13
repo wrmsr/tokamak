@@ -17,7 +17,6 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.annotation.JsonValue;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -138,7 +137,9 @@ public final class PProjection
     private final Map<String, String> inputFieldsByOutput;
     private final Map<String, Set<String>> outputSetsByInputField;
 
-    public PProjection(Map<String, Input> inputsByOutput)
+    @JsonCreator
+    public PProjection(
+            @JsonProperty("inputsByOutput") Map<String, Input> inputsByOutput)
     {
         this.inputsByOutput = new OrderPreservingImmutableMap<>(ImmutableMap.copyOf(checkOrdered(inputsByOutput)));
 
@@ -164,13 +165,12 @@ public final class PProjection
         return inputsByOutput.entrySet().iterator();
     }
 
-    @JsonValue
+    @JsonProperty("inputsByOutput")
     public Map<String, Input> getInputsByOutput()
     {
         return inputsByOutput;
     }
 
-    @JsonCreator
     public static PProjection fromOrderPreservingImmutableMap(OrderPreservingImmutableMap<String, Input> map)
     {
         return new PProjection(map);
