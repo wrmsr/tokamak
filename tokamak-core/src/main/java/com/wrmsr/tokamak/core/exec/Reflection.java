@@ -24,8 +24,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
-import static com.wrmsr.tokamak.util.MoreFunctions.rethrowingGet;
-import static com.wrmsr.tokamak.util.MoreFunctions.throwableRethrowingGet;
+import static com.wrmsr.tokamak.util.func.ThrowableThrowingSupplier.throwableRethrowingGet;
+import static com.wrmsr.tokamak.util.func.ThrowingSupplier.rethrowingGet;
 
 public final class Reflection
 {

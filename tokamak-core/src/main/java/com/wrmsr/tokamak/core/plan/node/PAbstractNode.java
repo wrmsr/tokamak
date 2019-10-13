@@ -15,6 +15,7 @@ package com.wrmsr.tokamak.core.plan.node;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wrmsr.tokamak.core.layout.RowLayout;
+import com.wrmsr.tokamak.core.layout.field.FieldAnnotations;
 import com.wrmsr.tokamak.util.lazy.SupplierLazyValue;
 
 import javax.annotation.concurrent.Immutable;
@@ -43,7 +44,9 @@ public abstract class PAbstractNode
     {
         checkUnique(getSources());
         checkState(getSources().isEmpty() == (this instanceof PGenerator));
+        PNodeAnnotations.validate(this);
         annotations.getFields().forEach(field -> checkState(getFields().getNames().contains(field.getKey())));
+        getFields().forEach(FieldAnnotations::validate);
     }
 
     @Override

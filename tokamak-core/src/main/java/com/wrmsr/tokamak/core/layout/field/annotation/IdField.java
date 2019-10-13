@@ -23,7 +23,8 @@ public final class IdField
 {
     static final IdField INSTANCE = new IdField();
 
-    static void validate(Field field)
+    public static void validate(Field field)
     {
+        System.out.println(field);
     }
 }
