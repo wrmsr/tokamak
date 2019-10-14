@@ -21,6 +21,7 @@ import com.wrmsr.tokamak.util.Pair;
 
 import javax.annotation.concurrent.Immutable;
 
+import java.util.Optional;
 import java.util.function.Function;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -46,6 +47,10 @@ public final class Field
         this.annotations = checkNotNull(annotations);
 
         nameTypePair = Pair.immutable(name, type);
+
+        annotations.forEach(annotation ->
+                Optional.ofNullable(FieldAnnotations.getValidatorsByAnnotationType().get(annotation.getClass()))
+                        .ifPresent(validator -> validator.accept(this)));
     }
 
     public Field(String name, Type type, Iterable<FieldAnnotation> annotations)

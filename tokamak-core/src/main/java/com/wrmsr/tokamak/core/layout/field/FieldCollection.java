@@ -32,7 +32,6 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.BinaryOperator;
@@ -258,12 +257,6 @@ public final class FieldCollection
         return builder.build();
     }
 
-    @SafeVarargs
-    public final FieldCollection withoutAnnotation(Class<? extends FieldAnnotation>... annotationCls)
-    {
-        return builder().addAll(fields.stream().map(f -> f.mapAnnotations(a -> a.without(annotationCls)))).build();
-    }
-
     public static Collector<Field, ?, FieldCollection> toFieldCollection()
     {
         return new Collector<Field, Builder, FieldCollection>()
@@ -298,12 +291,5 @@ public final class FieldCollection
                 return ImmutableSet.of();
             }
         };
-    }
-
-    public void validateAnnotations()
-    {
-        forEach(field -> Optional.ofNullable(FieldAnnotations.getValidatorsByAnnotationType()
-                .get(field.getClass()))
-                .ifPresent(validator -> validator.accept(field)));
     }
 }

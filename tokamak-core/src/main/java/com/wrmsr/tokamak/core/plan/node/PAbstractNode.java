@@ -15,10 +15,11 @@ package com.wrmsr.tokamak.core.plan.node;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wrmsr.tokamak.core.layout.RowLayout;
-import com.wrmsr.tokamak.core.layout.field.FieldAnnotations;
 import com.wrmsr.tokamak.util.lazy.SupplierLazyValue;
 
 import javax.annotation.concurrent.Immutable;
+
+import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
@@ -42,11 +43,13 @@ public abstract class PAbstractNode
 
     protected void checkInvariants()
     {
+        checkNotNull(getFields());
         checkUnique(getSources());
         checkState(getSources().isEmpty() == (this instanceof PGenerator));
-        PNodeAnnotations.validate(this);
+        annotations.forEach(annotation ->
+                Optional.ofNullable(PNodeAnnotations.getValidatorsByAnnotationType().get(annotation.getClass()))
+                        .ifPresent(validator -> validator.accept(this)));
         annotations.getFields().forEach(field -> checkState(getFields().getNames().contains(field.getKey())));
-        getFields().forEach(FieldAnnotations::validate);
     }
 
     @Override

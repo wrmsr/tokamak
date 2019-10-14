@@ -106,11 +106,4 @@ public final class FieldAnnotations
                         .map(Optional::get)
                         .collect(toImmutableMap()));
     }
-
-    public static void validate(Field field)
-    {
-        field.getAnnotations().forEach(annotation ->
-                Optional.ofNullable(getValidatorsByAnnotationType().get(annotation.getClass()))
-                        .ifPresent(validator -> validator.accept(field)));
-    }
 }

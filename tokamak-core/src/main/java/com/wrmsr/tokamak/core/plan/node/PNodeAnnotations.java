@@ -197,11 +197,4 @@ public final class PNodeAnnotations
                         .map(Optional::get)
                         .collect(toImmutableMap()));
     }
-
-    public static void validate(PNode node)
-    {
-        node.getAnnotations().forEach(annotation ->
-                Optional.ofNullable(getValidatorsByAnnotationType().get(annotation.getClass()))
-                        .ifPresent(validator -> validator.accept(node)));
-    }
 }
