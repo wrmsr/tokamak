@@ -28,6 +28,7 @@ import com.google.inject.PrivateModule;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
 import com.wrmsr.tokamak.api.SchemaTable;
+import com.wrmsr.tokamak.core.layout.field.annotation.FieldAnnotation;
 import com.wrmsr.tokamak.core.plan.node.PNodeAnnotations;
 import com.wrmsr.tokamak.core.plan.node.PScan;
 import com.wrmsr.tokamak.core.type.Types;
@@ -180,10 +181,9 @@ public class AppTest
     {
         PScan scanNode = new PScan(
                 "scan0",
-                PNodeAnnotations.empty(),
+                PNodeAnnotations.empty().mapFields(fields -> fields.overwriting("id", FieldAnnotation.id())),
                 SchemaTable.of("a", "b"),
                 ImmutableMap.of("id", Types.LONG),
-                ImmutableSet.of("id"),
                 ImmutableSet.of());
     }
 }

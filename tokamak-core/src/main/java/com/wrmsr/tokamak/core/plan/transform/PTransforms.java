@@ -16,6 +16,9 @@ package com.wrmsr.tokamak.core.plan.transform;
 import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.core.catalog.Catalog;
 import com.wrmsr.tokamak.core.catalog.Table;
+import com.wrmsr.tokamak.core.layout.field.Field;
+import com.wrmsr.tokamak.core.layout.field.annotation.FieldAnnotation;
+import com.wrmsr.tokamak.core.layout.field.annotation.IdField;
 import com.wrmsr.tokamak.core.plan.Plan;
 import com.wrmsr.tokamak.core.plan.node.PNode;
 import com.wrmsr.tokamak.core.plan.node.PProject;
@@ -25,7 +28,10 @@ import com.wrmsr.tokamak.core.plan.node.visitor.PNodeRewriter;
 import com.wrmsr.tokamak.core.type.Type;
 import com.wrmsr.tokamak.util.NameGenerator;
 
+import java.util.List;
+
 import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.collect.ImmutableSet.toImmutableSet;
 
 public final class PTransforms
 {
@@ -42,17 +48,17 @@ public final class PTransforms
             public PNode visitScan(PScan node, Void context)
             {
                 Table table = catalog.getSchemaTable(node.getSchemaTable());
-                if (!node.getIdFields().isEmpty()) {
-                    checkState(table.getLayout().getPrimaryKeyFields().equals(node.getIdFields()));
+                List<Field> existing = node.getFields().getFieldListsByAnnotationCls().get(IdField.class);
+                if (existing != null) {
+                    checkState(table.getLayout().getPrimaryKeyFields().equals(existing.stream().map(Field::getName).collect(toImmutableSet())));
                     return super.visitScan(node, context);
                 }
                 else if (node.getFields().getNames().containsAll(table.getLayout().getPrimaryKeyFields())) {
                     return new PScan(
                             node.getName(),
-                            node.getAnnotations(),
+                            node.getAnnotations().mapFields(fields -> fields.overwriting(table.getLayout().getPrimaryKeyFields(), FieldAnnotation.id())),
                             node.getSchemaTable(),
                             node.getFields().getTypesByName(),
-                            table.getLayout().getPrimaryKeyFields(),
                             node.getIdNodes());
                 }
                 else {
@@ -66,10 +72,9 @@ public final class PTransforms
 
                     PNode newScan = new PScan(
                             node.getName(),
-                            node.getAnnotations(),
+                            node.getAnnotations().mapFields(fields -> fields.overwriting(table.getLayout().getPrimaryKeyFields(), FieldAnnotation.id())),
                             node.getSchemaTable(),
                             newFields.build(),
-                            table.getLayout().getPrimaryKeyFields(),
                             node.getIdNodes());
 
                     return new PProject(

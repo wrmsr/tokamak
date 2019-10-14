@@ -166,7 +166,6 @@ public class TreePlanner
                         PNodeAnnotations.empty(),
                         schemaTable,
                         columns.stream().collect(toImmutableMap(identity(), table.getRowLayout().getFields()::getType)),
-                        ImmutableSet.of(),
                         ImmutableSet.of());
             }
         }, null);

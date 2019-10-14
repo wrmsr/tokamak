@@ -24,6 +24,8 @@ import com.wrmsr.tokamak.core.driver.build.ops.BuildOp;
 import com.wrmsr.tokamak.core.driver.build.ops.ResponseBuildOp;
 import com.wrmsr.tokamak.core.driver.build.ops.ScanBuildOp;
 import com.wrmsr.tokamak.core.driver.context.DriverContextImpl;
+import com.wrmsr.tokamak.core.layout.field.Field;
+import com.wrmsr.tokamak.core.layout.field.annotation.IdField;
 import com.wrmsr.tokamak.core.plan.node.PNode;
 import com.wrmsr.tokamak.core.plan.node.PScan;
 import com.wrmsr.tokamak.core.serde.Serde;
@@ -36,7 +38,6 @@ import java.util.function.Consumer;
 
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
-import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 
 public final class ScanBuilder
         extends AbstractBuilder<PScan>
@@ -48,11 +49,7 @@ public final class ScanBuilder
     {
         super(driver, node, sources);
 
-        checkNotEmpty(node.getIdFields());
-
-        orderedIdFields = node.getFields().getNames().stream()
-                .filter(node.getIdFields()::contains)
-                .collect(toImmutableList());
+        orderedIdFields = node.getFields().getFieldListsByAnnotationCls().get(IdField.class).stream().map(Field::getName).collect(toImmutableList());
 
         idSerde = new TupleSerde(
                 orderedIdFields.stream()

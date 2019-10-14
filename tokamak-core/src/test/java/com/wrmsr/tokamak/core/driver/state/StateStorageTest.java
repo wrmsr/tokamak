@@ -41,7 +41,6 @@ public class StateStorageTest
                 PNodeAnnotations.empty().mapFields(fields -> fields.with("id", FieldAnnotation.id())),
                 SchemaTable.of("s", "t"),
                 ImmutableMap.of("id", Types.LONG),
-                ImmutableSet.of("id"),
                 ImmutableSet.of());
 
         PState stateNode = new PState(

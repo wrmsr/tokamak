@@ -18,6 +18,7 @@ import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.core.exec.Reflection;
+import com.wrmsr.tokamak.core.layout.field.annotation.FieldAnnotation;
 import com.wrmsr.tokamak.core.type.Types;
 import com.wrmsr.tokamak.core.util.ApiJson;
 import com.wrmsr.tokamak.util.json.Json;
@@ -61,10 +62,9 @@ public class NodesTest
     {
         PNode scanNode = new PScan(
                 "scan0",
-                PNodeAnnotations.empty(),
+                PNodeAnnotations.empty().mapFields(fields -> fields.overwriting("id", FieldAnnotation.id())),
                 SchemaTable.of("public", "hi"),
                 ImmutableMap.of("id", Types.LONG, "thing", Types.STRING),
-                ImmutableSet.of("id"),
                 ImmutableSet.of());
 
         String json = Json.writeValuePretty(scanNode);
