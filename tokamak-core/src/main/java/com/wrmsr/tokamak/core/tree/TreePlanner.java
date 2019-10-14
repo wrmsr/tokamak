@@ -14,7 +14,6 @@
 package com.wrmsr.tokamak.core.tree;
 
 import com.google.common.base.Joiner;
-import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.core.catalog.Catalog;
 import com.wrmsr.tokamak.core.catalog.Function;
@@ -165,8 +164,7 @@ public class TreePlanner
                         nameGenerator.get("scan"),
                         PNodeAnnotations.empty(),
                         schemaTable,
-                        columns.stream().collect(toImmutableMap(identity(), table.getRowLayout().getFields()::getType)),
-                        ImmutableSet.of());
+                        columns.stream().collect(toImmutableMap(identity(), table.getRowLayout().getFields()::getType)));
             }
         }, null);
     }

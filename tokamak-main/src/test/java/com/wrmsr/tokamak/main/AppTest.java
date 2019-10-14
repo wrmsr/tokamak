@@ -19,7 +19,6 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
@@ -183,7 +182,6 @@ public class AppTest
                 "scan0",
                 PNodeAnnotations.empty().mapFields(fields -> fields.overwriting("id", FieldAnnotation.id())),
                 SchemaTable.of("a", "b"),
-                ImmutableMap.of("id", Types.LONG),
-                ImmutableSet.of());
+                ImmutableMap.of("id", Types.LONG));
     }
 }

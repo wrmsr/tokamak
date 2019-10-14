@@ -58,8 +58,7 @@ public final class PTransforms
                             node.getName(),
                             node.getAnnotations().mapFields(fields -> fields.overwriting(table.getLayout().getPrimaryKeyFields(), FieldAnnotation.id())),
                             node.getSchemaTable(),
-                            node.getFields().getTypesByName(),
-                            node.getIdNodes());
+                            node.getFields().getTypesByName());
                 }
                 else {
                     ImmutableMap.Builder<String, Type> newFields = ImmutableMap.builder();
@@ -74,8 +73,7 @@ public final class PTransforms
                             node.getName(),
                             node.getAnnotations().mapFields(fields -> fields.overwriting(table.getLayout().getPrimaryKeyFields(), FieldAnnotation.id())),
                             node.getSchemaTable(),
-                            newFields.build(),
-                            node.getIdNodes());
+                            newFields.build());
 
                     return new PProject(
                             nameGenerator.get(),

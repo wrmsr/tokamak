@@ -16,7 +16,6 @@ package com.wrmsr.tokamak.test;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.api.Row;
 import com.wrmsr.tokamak.api.SchemaTable;
@@ -42,7 +41,6 @@ import com.wrmsr.tokamak.core.plan.node.PEquiJoin;
 import com.wrmsr.tokamak.core.plan.node.PFilter;
 import com.wrmsr.tokamak.core.plan.node.PNode;
 import com.wrmsr.tokamak.core.plan.node.PNodeAnnotations;
-import com.wrmsr.tokamak.core.plan.node.PNodeField;
 import com.wrmsr.tokamak.core.plan.node.PProject;
 import com.wrmsr.tokamak.core.plan.node.PProjection;
 import com.wrmsr.tokamak.core.plan.node.PScan;
@@ -59,9 +57,7 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.Collection;
-import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
 import static com.wrmsr.tokamak.util.MoreFiles.createTempDirectory;
 
@@ -151,13 +147,12 @@ public class CoreTest
                         "N_NATIONKEY", Types.LONG,
                         "N_NAME", Types.STRING,
                         "N_REGIONKEY", Types.LONG
-                ),
-                ImmutableSet.of());
+                ));
 
         PNode stateNode0 = new PState(
                 "state0",
                 PNodeAnnotations.empty(),
-            scanNode0,
+                scanNode0,
                 ImmutableList.of(),
                 PState.Denormalization.NONE,
                 ImmutableMap.of(),
@@ -189,8 +184,7 @@ public class CoreTest
                 ImmutableMap.of(
                         "R_REGIONKEY", Types.LONG,
                         "R_NAME", Types.STRING
-                ),
-                ImmutableSet.of());
+                ));
 
         PNode stateNode1 = new PState(
                 "state1",
@@ -339,8 +333,7 @@ public class CoreTest
                 ImmutableMap.of(
                         "id", Types.LONG,
                         "str", Types.STRING
-                ),
-                ImmutableSet.of());
+                ));
 
         Plan plan = new Plan(scan0);
 
