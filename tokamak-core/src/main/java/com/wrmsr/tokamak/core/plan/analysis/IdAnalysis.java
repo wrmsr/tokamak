@@ -15,19 +15,37 @@ package com.wrmsr.tokamak.core.plan.analysis;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
+import com.wrmsr.tokamak.core.layout.field.annotation.IdField;
 import com.wrmsr.tokamak.core.plan.Plan;
+import com.wrmsr.tokamak.core.plan.node.PCache;
+import com.wrmsr.tokamak.core.plan.node.PCrossJoin;
+import com.wrmsr.tokamak.core.plan.node.PEquiJoin;
+import com.wrmsr.tokamak.core.plan.node.PFilter;
+import com.wrmsr.tokamak.core.plan.node.PGroupBy;
+import com.wrmsr.tokamak.core.plan.node.PLookupJoin;
 import com.wrmsr.tokamak.core.plan.node.PNode;
+import com.wrmsr.tokamak.core.plan.node.PProject;
+import com.wrmsr.tokamak.core.plan.node.PScan;
+import com.wrmsr.tokamak.core.plan.node.PState;
+import com.wrmsr.tokamak.core.plan.node.PUnion;
+import com.wrmsr.tokamak.core.plan.node.PUnnest;
+import com.wrmsr.tokamak.core.plan.node.PValues;
+import com.wrmsr.tokamak.core.plan.node.visitor.CachingPNodeVisitor;
+import com.wrmsr.tokamak.core.plan.node.visitor.PNodeVisitors;
 import com.wrmsr.tokamak.util.collect.StreamableIterable;
 
 import javax.annotation.concurrent.Immutable;
 
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 
@@ -91,17 +109,16 @@ public final class IdAnalysis
     {
         Map<PNode, Entry> entriesByNode = new HashMap<>();
 
-        /*
-        PNodeVisitors.cacheAll(plan.getRoot(), new PNodeVisitor<Entry, Void>()
+        PNodeVisitors.cacheAll(plan.getRoot(), new CachingPNodeVisitor<Entry, Void>()
         {
             @Override
-            public Entry visitCacheNode(PCache node, Void context)
+            public Entry visitCache(PCache node, Void context)
             {
                 throw new IllegalStateException();
             }
 
             @Override
-            public Entry visitCrossJoinNode(PCrossJoin node, Void context)
+            public Entry visitCrossJoin(PCrossJoin node, Void context)
             {
                 // checkSingle(this.sources.stream().map(Node::getIdFieldSets).map(Set::size).collect(toImmutableSet()));
                 // this.idFieldSets = Sets.cartesianProduct(this.sources.stream().map(Node::getIdFieldSets).collect(toImmutableList())).stream()
@@ -111,7 +128,7 @@ public final class IdAnalysis
             }
 
             @Override
-            public Entry visitEquijoinNode(PEquiJoin node, Void context)
+            public Entry visitEquiJoin(PEquiJoin node, Void context)
             {
                 // FIXME: ordered concatenation of all branch id fields MERGING ANY IN THE KEY
                 // branchSetsByIdFieldSet = node.getBranches().stream()
@@ -124,33 +141,27 @@ public final class IdAnalysis
             }
 
             @Override
-            public Entry visitFilterNode(PFilter node, Void context)
+            public Entry visitFilter(PFilter node, Void context)
             {
-                return new Entry(node, get(node.getSource(), context));
+                return new Entry(node, process(node.getSource(), context));
             }
 
             @Override
-            public Entry visitGroupByNode(PGroupBy node, Void context)
+            public Entry visitGroupBy(PGroupBy node, Void context)
             {
-                return new Entry(node, ImmutableSet.of(ImmutableSet.of(node.getGroupField())));
+                return new Entry(node, ImmutableSet.of(ImmutableSet.copyOf(node.getKeyFields())));
             }
 
             @Override
-            public Entry visitLookupJoinNode(PLookupJoin node, Void context)
+            public Entry visitLookupJoin(PLookupJoin node, Void context)
             {
-                return new Entry(node, get(node.getSource(), context));
+                return new Entry(node, process(node.getSource(), context));
             }
 
             @Override
-            public Entry visitPersistNode(PState node, Void context)
+            public Entry visitProject(PProject node, Void context)
             {
-                return new Entry(node, get(node.getSource(), context));
-            }
-
-            @Override
-            public Entry visitProjectNode(PProject node, Void context)
-            {
-                Entry source = get(node.getSource(), context);
+                Entry source = process(node.getSource(), context);
 
                 ImmutableSet.Builder<Set<String>> builder = ImmutableSet.builder();
                 for (Set<String> set : source.getSets()) {
@@ -169,17 +180,26 @@ public final class IdAnalysis
             }
 
             @Override
-            public Entry visitScanNode(PScan node, Void context)
+            public Entry visitScan(PScan node, Void context)
             {
-                return new Entry(node, ImmutableSet.of(node.getIdFields()));
+                return new Entry(node, ImmutableSet.of(
+                        node.getAnnotations().getFields().getEntryListsByAnnotationCls().get(IdField.class).stream()
+                                .map(e -> e.getKey())
+                                .collect(toImmutableSet())));
             }
 
             @Override
-            public Entry visitUnionNode(PUnion node, Void context)
+            public Entry visitState(PState node, Void context)
             {
-                if (node.getIndexField().isPresent() && node.getSources().stream().noneMatch(s -> get(s, context).isEmpty())) {
+                return new Entry(node, process(node.getSource(), context));
+            }
+
+            @Override
+            public Entry visitUnion(PUnion node, Void context)
+            {
+                if (node.getIndexField().isPresent() && node.getSources().stream().noneMatch(s -> process(s, context).isEmpty())) {
                     List<Set<Set<String>>> sourceSets = node.getSources().stream()
-                            .map(s -> get(s, context).getSets())
+                            .map(s -> process(s, context).getSets())
                             .collect(toImmutableList());
                     Set<Set<String>> sets = Sets.cartesianProduct(sourceSets).stream()
                             .map(ss -> ImmutableSet.<String>builder()
@@ -195,10 +215,10 @@ public final class IdAnalysis
             }
 
             @Override
-            public Entry visitUnnestNode(PUnnest node, Void context)
+            public Entry visitUnnest(PUnnest node, Void context)
             {
                 if (node.getIndexField().isPresent()) {
-                    Set<Set<String>> sets = get(node.getSource(), context).getSets().stream()
+                    Set<Set<String>> sets = process(node.getSource(), context).getSets().stream()
                             .map(s -> ImmutableSet.<String>builder().addAll(s).add(node.getIndexField().get()).build())
                             .collect(toImmutableSet());
                     return new Entry(node, sets);
@@ -209,7 +229,7 @@ public final class IdAnalysis
             }
 
             @Override
-            public Entry visitValuesNode(PValues node, Void context)
+            public Entry visitValues(PValues node, Void context)
             {
                 if (node.getIndexField().isPresent()) {
                     return new Entry(node, ImmutableSet.of(ImmutableSet.of(node.getIndexField().get())));
@@ -220,9 +240,6 @@ public final class IdAnalysis
             }
         }, null);
 
-        return new IdFieldAnalysis(entriesByNode);
-        */
-
-        throw new IllegalStateException();
+        return new IdAnalysis(entriesByNode);
     }
 }
