@@ -19,6 +19,7 @@ import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.core.conn.heap.MapHeapStateStorage;
+import com.wrmsr.tokamak.core.layout.field.annotation.FieldAnnotation;
 import com.wrmsr.tokamak.core.plan.node.PNodeAnnotations;
 import com.wrmsr.tokamak.core.plan.node.PScan;
 import com.wrmsr.tokamak.core.plan.node.PState;
@@ -37,7 +38,7 @@ public class StateStorageTest
     {
         PScan scanNode = new PScan(
                 "scan",
-                PNodeAnnotations.empty(),
+                PNodeAnnotations.empty().mapFields(fields -> fields.with("id", FieldAnnotation.id())),
                 SchemaTable.of("s", "t"),
                 ImmutableMap.of("id", Types.LONG),
                 ImmutableSet.of("id"),

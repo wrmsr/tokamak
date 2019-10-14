@@ -15,32 +15,20 @@ package com.wrmsr.tokamak.core.plan.node;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.api.SchemaTable;
-import com.wrmsr.tokamak.core.layout.field.Field;
 import com.wrmsr.tokamak.core.layout.field.FieldCollection;
-import com.wrmsr.tokamak.core.layout.field.annotation.FieldAnnotation;
-import com.wrmsr.tokamak.core.layout.field.annotation.IdField;
 import com.wrmsr.tokamak.core.plan.node.visitor.PNodeVisitor;
 import com.wrmsr.tokamak.core.type.Type;
 import com.wrmsr.tokamak.util.collect.OrderPreservingImmutableMap;
 
 import javax.annotation.concurrent.Immutable;
 
-import java.util.Comparator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.collect.ImmutableList.toImmutableList;
-import static com.wrmsr.tokamak.core.layout.field.FieldCollection.toFieldCollection;
-import static com.wrmsr.tokamak.util.MoreCollections.buildListIndexMap;
 import static com.wrmsr.tokamak.util.MoreCollections.checkOrdered;
-import static com.wrmsr.tokamak.util.MoreCollections.sorted;
-import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 
 @Immutable
 public final class PScan
@@ -49,7 +37,6 @@ public final class PScan
 {
     private final SchemaTable schemaTable;
     private final FieldCollection fields;
-    private final Set<String> idFields;
     private final Set<String> idNodes;
 
     @JsonCreator
@@ -58,7 +45,6 @@ public final class PScan
             @JsonProperty("annotations") PNodeAnnotations annotations,
             @JsonProperty("schemaTable") SchemaTable schemaTable,
             @JsonProperty("fields") OrderPreservingImmutableMap<String, Type> fields,
-            @JsonProperty("idFields") Set<String> idFields,
             @JsonProperty("idNodes") Set<String> idNodes)
     {
         super(name, annotations);
@@ -67,25 +53,7 @@ public final class PScan
 
         this.schemaTable = checkNotNull(schemaTable);
         this.idNodes = ImmutableSet.copyOf(idNodes);
-
-        idFields = ImmutableSet.copyOf(idFields);
-        idFields.forEach(f -> checkState(fields.containsKey(f)));
-        Map<String, Integer> indicesByField = buildListIndexMap(ImmutableList.copyOf(fields.keySet()));
-        idFields = ImmutableSet.copyOf(sorted(idFields, Comparator.comparing(f -> checkNotNull(indicesByField.get(f)))));
-        this.idFields = idFields;
-
-        List<PNodeAnnotations.Fields.Entry> idFieldAnnEntries = annotations.getFields().getEntryListsByAnnotationCls().get(IdField.class);
-        if (idFieldAnnEntries != null) {
-            checkNotEmpty(idFieldAnnEntries);
-            checkState(idFieldAnnEntries.stream().map(e -> e.getKey()).collect(toImmutableList()).equals(ImmutableList.copyOf(idFields)));
-        }
-
-        this.fields = checkNotNull(fields).entrySet().stream()
-                .map(e -> new Field(
-                        e.getKey(),
-                        e.getValue(),
-                        annotations.getFields().getEntryOrEmpty(e.getKey()).overwriting(FieldAnnotation.id())))
-                .collect(toFieldCollection());
+        this.fields = FieldCollection.of(checkNotNull(fields), annotations.getFields());
 
         checkInvariants();
     }
@@ -96,7 +64,6 @@ public final class PScan
             PNodeAnnotations annotations,
             SchemaTable schemaTable,
             Map<String, Type> fields,
-            Set<String> idFields,
             Set<String> idNodes)
     {
         this(
@@ -104,7 +71,6 @@ public final class PScan
                 annotations,
                 schemaTable,
                 new OrderPreservingImmutableMap<>(checkOrdered(fields)),
-                idFields,
                 idNodes);
     }
 
@@ -124,12 +90,6 @@ public final class PScan
     private OrderPreservingImmutableMap<String, Type> getJsonFields()
     {
         return new OrderPreservingImmutableMap<>(fields.getTypesByName());
-    }
-
-    @JsonProperty("idFields")
-    public Set<String> getIdFields()
-    {
-        return idFields;
     }
 
     @JsonProperty("idNodes")

@@ -131,7 +131,6 @@ public abstract class PNodeRewriter<C>
                 node.getAnnotations(),
                 node.getSchemaTable(),
                 node.getFields().getTypesByName(),
-                node.getIdFields(),
                 node.getIdNodes());
     }
 

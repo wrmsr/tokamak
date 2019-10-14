@@ -21,6 +21,7 @@ import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.core.layout.field.annotation.FieldAnnotation;
 import com.wrmsr.tokamak.core.type.Type;
 import com.wrmsr.tokamak.core.type.Types;
+import com.wrmsr.tokamak.core.util.annotation.AnnotationCollectionMap;
 import com.wrmsr.tokamak.util.collect.StreamableIterable;
 import com.wrmsr.tokamak.util.lazy.SupplierLazyValue;
 
@@ -42,6 +43,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 import static com.wrmsr.tokamak.util.MoreCollections.checkOrdered;
 import static com.wrmsr.tokamak.util.MoreCollections.newImmutableListMap;
 import static com.wrmsr.tokamak.util.MoreCollections.streamIterator;
@@ -243,6 +245,17 @@ public final class FieldCollection
     public static FieldCollection of(Map<String, Type> typesByName)
     {
         return builder().addAll(typesByName).build();
+    }
+
+    public static FieldCollection of(
+            Map<String, Type> typesByName,
+            AnnotationCollectionMap<String, FieldAnnotation, ? extends AnnotationCollectionMap.Entry<String, FieldAnnotation, ?>, ?> annotations)
+    {
+        checkOrdered(typesByName);
+        Builder builder = builder();
+        annotations.forEach(e -> checkState(typesByName.containsKey(e.getKey())));
+        typesByName.forEach((n, t) -> builder.add(new Field(n, t, annotations.getEntryOrEmpty(n))));
+        return builder.build();
     }
 
     @SafeVarargs
