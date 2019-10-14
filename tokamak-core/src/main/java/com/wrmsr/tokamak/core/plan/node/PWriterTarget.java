@@ -13,6 +13,8 @@
  */
 package com.wrmsr.tokamak.core.plan.node;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
 
 import javax.annotation.concurrent.Immutable;
@@ -27,17 +29,22 @@ public final class PWriterTarget
     private final String name;
     private final Map<String, Object> options;
 
-    public PWriterTarget(String name, Map<String, Object> options)
+    @JsonCreator
+    public PWriterTarget(
+            @JsonProperty("name") String name,
+            @JsonProperty("options") Map<String, Object> options)
     {
         this.name = checkNotNull(name);
         this.options = ImmutableMap.copyOf(options);
     }
 
+    @JsonProperty("name")
     public String getName()
     {
         return name;
     }
 
+    @JsonProperty("options")
     public Map<String, Object> getOptions()
     {
         return options;

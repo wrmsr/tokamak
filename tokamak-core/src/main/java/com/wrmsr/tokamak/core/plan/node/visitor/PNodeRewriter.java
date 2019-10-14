@@ -19,7 +19,6 @@ import com.wrmsr.tokamak.core.plan.node.PCrossJoin;
 import com.wrmsr.tokamak.core.plan.node.PEquiJoin;
 import com.wrmsr.tokamak.core.plan.node.PFilter;
 import com.wrmsr.tokamak.core.plan.node.PGroupBy;
-import com.wrmsr.tokamak.core.plan.node.PLockOverride;
 import com.wrmsr.tokamak.core.plan.node.PLookupJoin;
 import com.wrmsr.tokamak.core.plan.node.PNode;
 import com.wrmsr.tokamak.core.plan.node.PProject;
@@ -158,7 +157,7 @@ public abstract class PNodeRewriter<C>
                         .collect(ImmutableMap.toImmutableMap(e -> visitNodeName(e.getKey(), context), Map.Entry::getValue)),
                 node.getLinkageMasks().entrySet().stream()
                         .collect(ImmutableMap.toImmutableMap(e -> visitNodeName(e.getKey(), context), Map.Entry::getValue)),
-                node.getLockOverride().map(lo -> new PLockOverride(visitNodeName(lo.getNode(), context), lo.getField(), false)));
+                node.getLockOverride().map(lo -> new PState.LockOverride(visitNodeName(lo.getNode(), context), lo.getField(), false)));
     }
 
     @Override
