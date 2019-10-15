@@ -38,7 +38,7 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 @Immutable
 public final class PValues
         extends PAbstractNode
-        implements PGenerator
+        implements PLeaf
 {
     private final Map<String, Type> declaredFields;
     private final List<List<Object>> values;

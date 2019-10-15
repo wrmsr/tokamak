@@ -13,8 +13,10 @@
  */
 package com.wrmsr.tokamak.core.plan.analysis;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterators;
 import com.google.common.collect.Sets;
 import com.wrmsr.tokamak.core.layout.field.annotation.IdField;
 import com.wrmsr.tokamak.core.plan.Plan;
@@ -22,11 +24,12 @@ import com.wrmsr.tokamak.core.plan.node.PCache;
 import com.wrmsr.tokamak.core.plan.node.PCrossJoin;
 import com.wrmsr.tokamak.core.plan.node.PEquiJoin;
 import com.wrmsr.tokamak.core.plan.node.PFilter;
-import com.wrmsr.tokamak.core.plan.node.PGroupBy;
+import com.wrmsr.tokamak.core.plan.node.PGroup;
 import com.wrmsr.tokamak.core.plan.node.PLookupJoin;
 import com.wrmsr.tokamak.core.plan.node.PNode;
 import com.wrmsr.tokamak.core.plan.node.PProject;
 import com.wrmsr.tokamak.core.plan.node.PScan;
+import com.wrmsr.tokamak.core.plan.node.PSingleSource;
 import com.wrmsr.tokamak.core.plan.node.PState;
 import com.wrmsr.tokamak.core.plan.node.PUnion;
 import com.wrmsr.tokamak.core.plan.node.PUnnest;
@@ -37,42 +40,157 @@ import com.wrmsr.tokamak.util.collect.StreamableIterable;
 
 import javax.annotation.concurrent.Immutable;
 
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
+import static com.wrmsr.tokamak.util.MorePreconditions.checkSingle;
 
 @Immutable
 public final class IdAnalysis
 {
-    @Immutable
-    public static final class Entry
-            implements StreamableIterable<Set<String>>
-    {
-        private final PNode node;
-        private final Set<Set<String>> sets;
+    /*
+    TODO:
+     - unify sets
+     - 'unify' intrinsic - coalesce + assert all non-null equal, internal panic if not, idanalysis visible
+    */
 
-        public Entry(PNode node, Set<Set<String>> sets)
+    @Immutable
+    public static abstract class Part
+            implements StreamableIterable<String>
+    {
+        public static Part of(Iterable<String> fields)
         {
-            this.node = checkNotNull(node);
-            this.sets = sets.stream().map(ImmutableSet::copyOf).collect(toImmutableSet());
-            this.sets.forEach(s -> {
-                checkNotEmpty(s);
-                s.forEach(f -> checkState(node.getFields().contains(f)));
-            });
+            Set<String> set = ImmutableSet.copyOf(fields);
+            if (set.size() == 1) {
+                return new FieldPart(checkSingle(set));
+            }
+            else if (set.size() > 1) {
+                return new SetPart(ImmutableSet.copyOf(set));
+            }
+            else {
+                throw new IllegalArgumentException(Objects.toString(set));
+            }
         }
 
-        public Entry(PNode node, Entry source)
+        public static Part of(String... fields)
+        {
+            return of(ImmutableList.copyOf(fields));
+        }
+    }
+
+    @Immutable
+    public static final class FieldPart
+            extends Part
+    {
+        private final String field;
+
+        private FieldPart(String field)
+        {
+            this.field = checkNotEmpty(field);
+        }
+
+        @Override
+        public String toString()
+        {
+            return "FieldPart{" +
+                    "field='" + field + '\'' +
+                    '}';
+        }
+
+        @Override
+        public boolean equals(Object o)
+        {
+            if (this == o) { return true; }
+            if (o == null || getClass() != o.getClass()) { return false; }
+            FieldPart fieldPart = (FieldPart) o;
+            return Objects.equals(field, fieldPart.field);
+        }
+
+        @Override
+        public int hashCode()
+        {
+            return Objects.hash(field);
+        }
+
+        public String getField()
+        {
+            return field;
+        }
+
+        @Override
+        public Iterator<String> iterator()
+        {
+            return Iterators.singletonIterator(field);
+        }
+    }
+
+    @Immutable
+    public static final class SetPart
+            extends Part
+            implements StreamableIterable<String>
+    {
+        private final Set<String> fields;
+
+        private SetPart(Set<String> fields)
+        {
+            this.fields = ImmutableSet.copyOf(fields);
+            checkArgument(this.fields.size() > 1);
+        }
+
+        @Override
+        public String toString()
+        {
+            return "SetPart{" +
+                    "fields=" + fields +
+                    '}';
+        }
+
+        @Override
+        public boolean equals(Object o)
+        {
+            if (this == o) { return true; }
+            if (o == null || getClass() != o.getClass()) { return false; }
+            SetPart strings = (SetPart) o;
+            return Objects.equals(fields, strings.fields);
+        }
+
+        @Override
+        public int hashCode()
+        {
+            return Objects.hash(fields);
+        }
+
+        public Set<String> getFields()
+        {
+            return fields;
+        }
+
+        @Override
+        public Iterator<String> iterator()
+        {
+            return fields.iterator();
+        }
+    }
+
+    @Immutable
+    public static abstract class Entry
+            implements StreamableIterable<Part>
+    {
+        protected final PNode node;
+
+        protected Entry(PNode node)
         {
             this.node = checkNotNull(node);
-            sets = source.getSets();
         }
 
         public PNode getNode()
@@ -80,20 +198,103 @@ public final class IdAnalysis
             return node;
         }
 
-        public Set<Set<String>> getSets()
+        protected void checkInvariants()
         {
-            return sets;
+            getParts().forEach(p -> p.forEach(f -> checkArgument(node.getFields().contains(f))));
         }
 
-        public boolean isEmpty()
+        public abstract List<Part> getParts();
+
+        @Override
+        public Iterator<Part> iterator()
         {
-            return sets.isEmpty();
+            return getParts().iterator();
+        }
+
+        public static Entry inherit(PSingleSource node, Entry source)
+        {
+            return new InheritedEntry(node, source);
+        }
+
+        public static Entry of(PNode node, Iterable<Part> parts)
+        {
+            List<Part> list = ImmutableList.copyOf(parts);
+            if (list.isEmpty()) {
+                return new AnonEntry(node);
+            }
+            else {
+                return new StandardEntry(node, list);
+            }
+        }
+
+        public static Entry fromAnnotations(PNode node)
+        {
+            return of(
+                    node,
+                    node.getAnnotations().getFields().getEntryListsByAnnotationCls().get(IdField.class).stream()
+                            .map(e -> Part.of(e.getKey()))
+                            .collect(toImmutableList()));
+        }
+    }
+
+    @Immutable
+    public static final class AnonEntry
+            extends Entry
+    {
+        private AnonEntry(PNode node)
+        {
+            super(node);
         }
 
         @Override
-        public Iterator<Set<String>> iterator()
+        public List<Part> getParts()
         {
-            return sets.iterator();
+            return ImmutableList.of();
+        }
+    }
+
+    @Immutable
+    public static final class InheritedEntry
+            extends Entry
+    {
+        private final Entry sourceEntry;
+        private final List<Part> parts;
+
+        private InheritedEntry(PNode node, Entry sourceEntry)
+        {
+            super(node);
+            this.sourceEntry = checkNotNull(sourceEntry);
+            parts = checkNotNull(sourceEntry.getParts());
+        }
+
+        public Entry getSourceEntry()
+        {
+            return sourceEntry;
+        }
+
+        @Override
+        public List<Part> getParts()
+        {
+            return parts;
+        }
+    }
+
+    @Immutable
+    public static final class StandardEntry
+            extends Entry
+    {
+        private final List<Part> parts;
+
+        private StandardEntry(PNode node, List<Part> parts)
+        {
+            super(node);
+            this.parts = checkNotEmpty(ImmutableList.copyOf(parts));
+        }
+
+        @Override
+        public List<Part> getParts()
+        {
+            return parts;
         }
     }
 
@@ -107,14 +308,19 @@ public final class IdAnalysis
 
     public static IdAnalysis analyze(Plan plan)
     {
-        Map<PNode, Entry> entriesByNode = new HashMap<>();
+        Map<PNode, Entry> entriesByNode = new LinkedHashMap<>();
 
-        PNodeVisitors.cacheAll(plan.getRoot(), new CachingPNodeVisitor<Entry, Void>()
+        PNodeVisitors.postWalk(plan.getRoot(), new CachingPNodeVisitor<Entry, Void>(entriesByNode)
         {
+            private Entry inherit(PSingleSource node, Void context)
+            {
+                return Entry.inherit(node, process(node.getSource(), context));
+            }
+
             @Override
             public Entry visitCache(PCache node, Void context)
             {
-                throw new IllegalStateException();
+                return inherit(node, context);
             }
 
             @Override
@@ -143,19 +349,19 @@ public final class IdAnalysis
             @Override
             public Entry visitFilter(PFilter node, Void context)
             {
-                return new Entry(node, process(node.getSource(), context));
+                return inherit(node, context);
             }
 
             @Override
-            public Entry visitGroupBy(PGroupBy node, Void context)
+            public Entry visitGroup(PGroup node, Void context)
             {
-                return new Entry(node, ImmutableSet.of(ImmutableSet.copyOf(node.getKeyFields())));
+                return new StandardEntry(node, node.getKeyFields().stream().map(Part::of).collect(toImmutableList()));
             }
 
             @Override
             public Entry visitLookupJoin(PLookupJoin node, Void context)
             {
-                return new Entry(node, process(node.getSource(), context));
+                return new InheritedEntry(node, process(node.getSource(), context));
             }
 
             @Override
@@ -182,16 +388,14 @@ public final class IdAnalysis
             @Override
             public Entry visitScan(PScan node, Void context)
             {
-                return new Entry(node, ImmutableSet.of(
-                        node.getAnnotations().getFields().getEntryListsByAnnotationCls().get(IdField.class).stream()
-                                .map(e -> e.getKey())
-                                .collect(toImmutableSet())));
+                return Entry.fromAnnotations(node);
             }
 
             @Override
             public Entry visitState(PState node, Void context)
             {
-                return new Entry(node, process(node.getSource(), context));
+                // FIXME: WRONG? this is for calculating actual ids not just regurgitating what's annotated (which is originally nothing)
+                return Entry.fromAnnotations(node);
             }
 
             @Override

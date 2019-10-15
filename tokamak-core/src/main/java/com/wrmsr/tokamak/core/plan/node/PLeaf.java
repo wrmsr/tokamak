@@ -17,7 +17,7 @@ import com.google.common.collect.ImmutableList;
 
 import java.util.List;
 
-public interface PGenerator
+public interface PLeaf
         extends PNode
 {
     @Override

@@ -31,7 +31,7 @@ import static com.wrmsr.tokamak.util.MoreCollections.checkOrdered;
 @Immutable
 public final class PScan
         extends PAbstractNode
-        implements PGenerator
+        implements PLeaf
 {
     private final SchemaTable schemaTable;
     private final FieldCollection fields;

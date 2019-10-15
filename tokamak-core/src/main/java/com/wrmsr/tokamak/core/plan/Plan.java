@@ -37,6 +37,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
@@ -110,6 +111,16 @@ public final class Plan
     public Map<PNodeId, PNode> getNodesById()
     {
         return nodesByNodeId;
+    }
+
+    public PNode getNode(String name)
+    {
+        return checkNotNull(nodesByName.get(name));
+    }
+
+    public PNode getNode(PNodeId id)
+    {
+        return checkNotNull(nodesByNodeId.get(id));
     }
 
     private final SupplierLazyValue<List<PNode>> nameSortedNodes = new SupplierLazyValue<>();

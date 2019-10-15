@@ -31,7 +31,7 @@ import java.util.List;
         @JsonSubTypes.Type(value = PCrossJoin.class, name = "crossJoin"),
         @JsonSubTypes.Type(value = PEquiJoin.class, name = "equiJoin"),
         @JsonSubTypes.Type(value = PFilter.class, name = "filter"),
-        @JsonSubTypes.Type(value = PGroupBy.class, name = "groupBy"),
+        @JsonSubTypes.Type(value = PGroup.class, name = "group"),
         @JsonSubTypes.Type(value = PLookupJoin.class, name = "lookupJoin"),
         @JsonSubTypes.Type(value = PProject.class, name = "project"),
         @JsonSubTypes.Type(value = PScan.class, name = "scan"),

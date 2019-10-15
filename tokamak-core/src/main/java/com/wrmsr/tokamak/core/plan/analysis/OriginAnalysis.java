@@ -22,7 +22,7 @@ import com.wrmsr.tokamak.core.plan.node.PCache;
 import com.wrmsr.tokamak.core.plan.node.PCrossJoin;
 import com.wrmsr.tokamak.core.plan.node.PEquiJoin;
 import com.wrmsr.tokamak.core.plan.node.PFilter;
-import com.wrmsr.tokamak.core.plan.node.PGroupBy;
+import com.wrmsr.tokamak.core.plan.node.PGroup;
 import com.wrmsr.tokamak.core.plan.node.PLookupJoin;
 import com.wrmsr.tokamak.core.plan.node.PNode;
 import com.wrmsr.tokamak.core.plan.node.PNodeField;
@@ -623,7 +623,7 @@ public final class OriginAnalysis
             }
 
             @Override
-            public Void visitGroupBy(PGroupBy node, Void context)
+            public Void visitGroup(PGroup node, Void context)
             {
                 originations.add(new Origination(
                         PNodeField.of(node, node.getListField()), Genesis.GROUP));

@@ -35,6 +35,7 @@ import com.wrmsr.tokamak.core.layout.TableLayout;
 import com.wrmsr.tokamak.core.layout.field.FieldCollection;
 import com.wrmsr.tokamak.core.layout.field.annotation.FieldAnnotation;
 import com.wrmsr.tokamak.core.plan.Plan;
+import com.wrmsr.tokamak.core.plan.analysis.IdAnalysis;
 import com.wrmsr.tokamak.core.plan.analysis.OriginAnalysis;
 import com.wrmsr.tokamak.core.plan.dot.Dot;
 import com.wrmsr.tokamak.core.plan.node.PEquiJoin;
@@ -242,8 +243,8 @@ public class CoreTest
         oa.getLeafChainAnalysis();
         oa.getStateChainAnalysis();
 
-        // IdFieldAnalysis ifa = IdFieldAnalysis.analyze(plan);
-        // System.out.println(ifa);
+        IdAnalysis ifa = IdAnalysis.analyze(plan);
+        System.out.println(ifa);
 
         src = om.writerWithDefaultPrettyPrinter().writeValueAsString(plan);
         System.out.println(src);

@@ -18,7 +18,7 @@ import com.wrmsr.tokamak.core.driver.DriverImpl;
 import com.wrmsr.tokamak.core.driver.build.Builder;
 import com.wrmsr.tokamak.core.driver.build.ops.BuildOp;
 import com.wrmsr.tokamak.core.driver.context.DriverContextImpl;
-import com.wrmsr.tokamak.core.plan.node.PGroupBy;
+import com.wrmsr.tokamak.core.plan.node.PGroup;
 import com.wrmsr.tokamak.core.plan.node.PNode;
 
 import java.util.Map;
@@ -26,10 +26,10 @@ import java.util.function.Consumer;
 
 import static com.wrmsr.tokamak.util.MorePreconditions.checkSingle;
 
-public final class GroupByBuilder
-        extends SingleSourceBuilder<PGroupBy>
+public final class GroupBuilder
+        extends SingleSourceBuilder<PGroup>
 {
-    public GroupByBuilder(DriverImpl driver, PGroupBy node, Map<PNode, Builder> sources)
+    public GroupBuilder(DriverImpl driver, PGroup node, Map<PNode, Builder> sources)
     {
         super(driver, node, sources);
     }

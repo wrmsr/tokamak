@@ -17,7 +17,7 @@ import com.wrmsr.tokamak.core.plan.node.PCache;
 import com.wrmsr.tokamak.core.plan.node.PCrossJoin;
 import com.wrmsr.tokamak.core.plan.node.PEquiJoin;
 import com.wrmsr.tokamak.core.plan.node.PFilter;
-import com.wrmsr.tokamak.core.plan.node.PGroupBy;
+import com.wrmsr.tokamak.core.plan.node.PGroup;
 import com.wrmsr.tokamak.core.plan.node.PLookupJoin;
 import com.wrmsr.tokamak.core.plan.node.PNode;
 import com.wrmsr.tokamak.core.plan.node.PProject;
@@ -62,7 +62,7 @@ public abstract class PNodeVisitor<R, C>
         return visitNode(node, context);
     }
 
-    public R visitGroupBy(PGroupBy node, C context)
+    public R visitGroup(PGroup node, C context)
     {
         return visitNode(node, context);
     }

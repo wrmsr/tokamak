@@ -32,7 +32,7 @@ public final class PNodeVisitors
 
     public static <C, R> void preWalk(PNode node, PNodeVisitor<R, C> visitor, C context)
     {
-        node.accept(visitor, context);
+        visitor.process(node, context);
         for (PNode child : node.getSources()) {
             preWalk(child, visitor, context);
         }
@@ -43,7 +43,7 @@ public final class PNodeVisitors
         for (PNode child : node.getSources()) {
             postWalk(child, visitor, context);
         }
-        node.accept(visitor, context);
+        visitor.process(node, context);
     }
 
     public static List<PNode> linearize(PNode node)
@@ -67,11 +67,6 @@ public final class PNodeVisitors
     }
 
     public static <C, R> void acceptAll(PNode root, PNodeVisitor<R, C> visitor, C context)
-    {
-        linearize(root).forEach(n -> n.accept(visitor, context));
-    }
-
-    public static <C, R> void cacheAll(PNode root, CachingPNodeVisitor<R, C> visitor, C context)
     {
         linearize(root).forEach(n -> visitor.process(n, context));
     }

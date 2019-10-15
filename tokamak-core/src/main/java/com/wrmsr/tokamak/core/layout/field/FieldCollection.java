@@ -54,6 +54,12 @@ import static java.util.function.Function.identity;
 public final class FieldCollection
         implements StreamableIterable<Field>
 {
+    /*
+    NOTEs:
+     - 'terminal' - not to be rewritten from - modify PNodeAttributes collections for rewriting plans
+     - would still be nice to further unify with other atts colls
+    */
+
     private final List<Field> fields;
 
     private final Map<String, Field> fieldsByName;

@@ -33,7 +33,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
-public final class PGroupBy
+public final class PGroup
         extends PAbstractNode
         implements PAggregate, PSingleSource
 {
@@ -45,7 +45,7 @@ public final class PGroupBy
     private final FieldCollection fields;
 
     @JsonCreator
-    public PGroupBy(
+    public PGroup(
             @JsonProperty("name") String name,
             @JsonProperty("annotations") PNodeAnnotations annotations,
             @JsonProperty("source") PNode source,
@@ -102,6 +102,6 @@ public final class PGroupBy
     @Override
     public <R, C> R accept(PNodeVisitor<R, C> visitor, C context)
     {
-        return visitor.visitGroupBy(this, context);
+        return visitor.visitGroup(this, context);
     }
 }

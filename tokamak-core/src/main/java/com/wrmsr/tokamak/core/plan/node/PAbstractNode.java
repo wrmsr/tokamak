@@ -45,7 +45,7 @@ public abstract class PAbstractNode
     {
         checkNotNull(getFields());
         checkUnique(getSources());
-        checkState(getSources().isEmpty() == (this instanceof PGenerator));
+        checkState(getSources().isEmpty() == (this instanceof PLeaf));
         annotations.forEach(annotation ->
                 Optional.ofNullable(PNodeAnnotations.getValidatorsByAnnotationType().get(annotation.getClass()))
                         .ifPresent(validator -> validator.accept(this)));
