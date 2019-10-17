@@ -166,7 +166,7 @@ public class CoreTest
                 stateNode0,
                 catalog.addFunction(be.register(Reflection.reflect(getClass().getDeclaredMethod("isStringNotNull", String.class))).getName(), be).asNodeFunction(),
                 ImmutableList.of("N_NAME"),
-                PFilter.Linkage.LINKED);
+                PFilter.Linking.LINKED);
 
         PNode projectNode0 = new PProject(
                 "project0",

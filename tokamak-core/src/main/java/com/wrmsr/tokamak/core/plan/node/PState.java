@@ -45,16 +45,22 @@ public final class PState
     @Immutable
     public static final class Invalidation
     {
+        public enum Strength
+        {
+            STRONG,
+            WEAK,
+        }
+
         private final String field;
-        private final boolean soft;
+        private final Strength strength;
 
         @JsonCreator
         public Invalidation(
                 @JsonProperty("field") String field,
-                @JsonProperty("soft") boolean soft)
+                @JsonProperty("strength") Strength strength)
         {
             this.field = checkNotEmpty(field);
-            this.soft = soft;
+            this.strength = checkNotNull(strength);
         }
 
         @Override
@@ -62,7 +68,7 @@ public final class PState
         {
             return "Invalidation{" +
                     "field=" + field +
-                    ", soft=" + soft +
+                    ", strength=" + strength +
                     '}';
         }
 
@@ -72,10 +78,10 @@ public final class PState
             return field;
         }
 
-        @JsonProperty("soft")
-        public boolean isSoft()
+        @JsonProperty("strength")
+        public Strength getStrength()
         {
-            return soft;
+            return strength;
         }
     }
 
@@ -109,19 +115,25 @@ public final class PState
     @Immutable
     public static final class LockOverride
     {
+        public enum Spilling
+        {
+            NONE,
+            SPILL,
+        }
+
         private final String node;
         private final String field;  // FIXME: ordered set
-        private final boolean spill;
+        private final Spilling spilling;
 
         @JsonCreator
         public LockOverride(
                 @JsonProperty("node") String node,
                 @JsonProperty("field") String field,
-                @JsonProperty("spill") boolean spill)
+                @JsonProperty("spilling") Spilling spilling)
         {
             this.node = checkNotNull(node);
             this.field = checkNotNull(field);
-            this.spill = spill;
+            this.spilling = checkNotNull(spilling);
         }
 
         @Override
@@ -130,7 +142,7 @@ public final class PState
             return "LockOverride{" +
                     "node='" + node + '\'' +
                     ", field='" + field + '\'' +
-                    ", spill=" + field + +
+                    ", spilling=" + spilling + +
                     '}';
         }
 
@@ -146,10 +158,10 @@ public final class PState
             return field;
         }
 
-        @JsonProperty("spill")
-        public boolean isSpill()
+        @JsonProperty("spilling")
+        public Spilling getSpilling()
         {
-            return spill;
+            return spilling;
         }
     }
 

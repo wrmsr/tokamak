@@ -11,13 +11,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.wrmsr.tokamak.core.layout.field.annotation;
 
 import javax.annotation.concurrent.Immutable;
 
 @Immutable
-public final class EphemeralField
+public final class MonotonicField
         implements FieldAnnotation
 {
-    static final EphemeralField INSTANCE = new EphemeralField();
+    static final MonotonicField INSTANCE = new MonotonicField();
 }

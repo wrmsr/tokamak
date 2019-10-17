@@ -40,10 +40,16 @@ public final class PValues
         extends PAbstractNode
         implements PLeaf
 {
+    public enum Strength
+    {
+        STRONG,
+        WEAK,
+    }
+
     private final Map<String, Type> declaredFields;
     private final List<List<Object>> values;
     private final Optional<String> indexField;
-    private final boolean weak;
+    private final Strength strength;
 
     private final FieldCollection fields;
 
@@ -54,14 +60,14 @@ public final class PValues
             @JsonProperty("fields") Map<String, Type> fields,
             @JsonProperty("values") List<List<Object>> values,
             @JsonProperty("indexField") Optional<String> indexField,
-            @JsonProperty("weak") boolean weak)
+            @JsonProperty("strength") Strength strength)
     {
         super(name, annotations);
 
         this.declaredFields = ImmutableMap.copyOf(fields);
         this.values = checkNotNull(values).stream().map(ImmutableList::copyOf).collect(toImmutableList());
-        this.indexField = indexField;
-        this.weak = weak;
+        this.indexField = checkNotNull(indexField);
+        this.strength = checkNotNull(strength);
 
         ImmutableMap.Builder<String, Type> fieldsBuilder = ImmutableMap.builder();
         fieldsBuilder.putAll(this.declaredFields);
@@ -98,10 +104,10 @@ public final class PValues
         return indexField;
     }
 
-    @JsonProperty("weak")
-    public boolean isWeak()
+    @JsonProperty("strength")
+    public Strength getStrength()
     {
-        return weak;
+        return strength;
     }
 
     @Override

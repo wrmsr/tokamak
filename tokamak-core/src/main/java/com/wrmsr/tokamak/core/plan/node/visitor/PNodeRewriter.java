@@ -83,7 +83,7 @@ public abstract class PNodeRewriter<C>
                 process(node.getSource(), context),
                 node.getFunction(),
                 node.getArgs(),
-                node.getLinkage());
+                node.getLinking());
     }
 
     @Override
@@ -191,6 +191,6 @@ public abstract class PNodeRewriter<C>
                 node.getFields().getTypesByName(),
                 node.getValues(),
                 node.getIndexField(),
-                node.isWeak());
+                node.getStrength());
     }
 }

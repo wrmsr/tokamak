@@ -68,7 +68,7 @@ public final class FilterBuilder
                 }
 
                 Set<LineageEntry> lineage;
-                switch (node.getLinkage()) {
+                switch (node.getLinking()) {
                     case LINKED:
                         lineage = context.getDriver().getLineagePolicy().build(row);
                         break;
@@ -76,7 +76,7 @@ public final class FilterBuilder
                         lineage = context.getDriver().getLineagePolicy().build();
                         break;
                     default:
-                        throw new IllegalStateException(Objects.toString(node.getLinkage()));
+                        throw new IllegalStateException(Objects.toString(node.getLinking()));
                 }
 
                 ret.add(
