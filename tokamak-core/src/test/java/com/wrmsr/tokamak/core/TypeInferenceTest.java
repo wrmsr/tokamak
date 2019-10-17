@@ -23,13 +23,14 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.IntStream;
-import java.util.stream.StreamSupport;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
+import static com.google.common.collect.Lists.newArrayList;
 import static com.wrmsr.tokamak.util.MoreCollections.immutableMapValues;
+import static com.wrmsr.tokamak.util.MoreCollectors.toArrayList;
 import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 
 public class TypeInferenceTest
@@ -170,13 +171,6 @@ public class TypeInferenceTest
         }
     }
 
-    public static List<Term> apply(Map<Var, Term> s, Iterable<Term> ts)
-    {
-        return StreamSupport.stream(ts.spliterator(), false)
-                .map(t -> apply(s, t))
-                .collect(toImmutableList());
-    }
-
     public static final class UnificationError
             extends RuntimeException
     {
@@ -230,7 +224,15 @@ public class TypeInferenceTest
 
     public static Map<Var, Term> solve(Iterable<Constraint> xs)
     {
-        throw new IllegalStateException();
+        Map<Var, Term> mgu = empty();
+        List<Constraint> cs = newArrayList(xs);
+        while (!cs.isEmpty()) {
+            Constraint c = cs.remove(cs.size() - 1);
+            Map<Var, Term> s = unify(c.left, c.right);
+            mgu = compose(s, mgu);
+            cs = cs.stream().map(nc -> new Constraint(apply(s, nc.left), apply(s, nc.right))).collect(toArrayList());
+        }
+        return mgu;
     }
 
     public static Map<Var, Term> bind(Var n, Term x)
