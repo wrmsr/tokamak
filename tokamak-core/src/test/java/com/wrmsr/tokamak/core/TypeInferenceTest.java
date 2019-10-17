@@ -51,6 +51,14 @@ public class TypeInferenceTest
         {
             this.num = count.getAndIncrement();
         }
+
+        @Override
+        public String toString()
+        {
+            return "Var{" +
+                    "num=" + num +
+                    '}';
+        }
     }
 
     public static final class Con<T>
@@ -76,6 +84,14 @@ public class TypeInferenceTest
         public int hashCode()
         {
             return Objects.hash(value);
+        }
+
+        @Override
+        public String toString()
+        {
+            return "Con{" +
+                    "value=" + value +
+                    '}';
         }
     }
 
@@ -105,6 +121,15 @@ public class TypeInferenceTest
         public int hashCode()
         {
             return Objects.hash(left, right);
+        }
+
+        @Override
+        public String toString()
+        {
+            return "App{" +
+                    "left=" + left +
+                    ", right=" + right +
+                    '}';
         }
     }
 
@@ -136,6 +161,15 @@ public class TypeInferenceTest
         {
             return Objects.hash(args, ret);
         }
+
+        @Override
+        public String toString()
+        {
+            return "Fun{" +
+                    "args=" + args +
+                    ", ret=" + ret +
+                    '}';
+        }
     }
 
     public static final class Constraint
@@ -147,6 +181,15 @@ public class TypeInferenceTest
         {
             this.left = checkNotNull(left);
             this.right = checkNotNull(right);
+        }
+
+        @Override
+        public String toString()
+        {
+            return "Constraint{" +
+                    "left=" + left +
+                    ", right=" + right +
+                    '}';
         }
     }
 
@@ -290,5 +333,93 @@ public class TypeInferenceTest
                 .putAll(s3)
                 .putAll(s1.entrySet().stream().filter(e -> !s3.containsKey(e.getKey())).collect(toImmutableMap()))
                 .build();
+    }
+
+    public static Var var()
+    {
+        return new Var();
+    }
+
+    public static <T> Con con(T value)
+    {
+        return new Con<>(value);
+    }
+
+    public static App app(Term left, Term right)
+    {
+        return new App(left, right);
+    }
+
+    public static Fun fun(List<Term> args, Term ret)
+    {
+        return new Fun(args, ret);
+    }
+
+    public static Constraint constraint(Term left, Term right)
+    {
+        return new Constraint(left, right);
+    }
+
+    public void testInference()
+            throws Throwable
+    {
+        Var a = var();
+        Var b = var();
+        Var c = var();
+        Var d = var();
+        Var e = var();
+        Var f = var();
+        Var g = var();
+        Var h = var();
+        Var retty = var();
+
+        Term ty = fun(ImmutableList.of(a, b), retty);
+
+        List<Constraint> constraints = ImmutableList.copyOf(new Constraint[] {
+                // (TApp(a=TCon(s='Array'), b=TCon(s='Int32')), TApp(a=TCon(s='Array'), b=TVar(s='$d')))
+                constraint(app(con("Array"), con("Int32")), app(con("Array"), d)),
+
+                // (TVar(s='$e'), TCon(s='Int32')),
+                constraint(e, con("Int32")),
+
+                // (TCon(s='Int32'), TCon(s='Int32')),
+                constraint(con("Int32"), con("Int32")),
+
+                // (TVar(s='$f'), TCon(s='Int64')),
+                constraint(f, con("Int64")),
+
+                // (TVar(s='$d'), TCon(s='Int32')),
+                constraint(d, con("Int32")),
+
+                // (TVar(s='$a'), TApp(s='Array'), b=TVar(s='$g'))),
+                constraint(a, app(con("Array"), g)),
+
+                // (TCon(s='Int32'), TCon(s='Int32')),
+                constraint(con("Int32"), con("Int32")),
+
+                // (TVar(s='$b'), TApp(s='Array'), b=TVar(s='$h'))),
+                constraint(b, app(con("Array"), h)),
+
+                // (TCon(s='Int32'), TCon(s='Int32')),
+                constraint(con("Int32"), con("Int32")),
+
+                // (TVar(s='$g'), TVar(s='$h')),
+                constraint(g, h),
+
+                // (TVar(s='$c'), TVar(s='$h')),
+                constraint(c, h),
+
+                // (TVar(s='$h'), TVar(s='$c')),
+                constraint(h, c),
+
+                // (TVar(s='$h'), TVar(s='$retty'))
+                constraint(h, retty),
+        });
+
+        Map<Var, Term> mgu = solve(constraints);
+
+        Term inferTy = apply(mgu, ty);
+
+        System.out.println(inferTy);
     }
 }
