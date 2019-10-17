@@ -29,6 +29,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
+import static com.wrmsr.tokamak.util.MoreCollections.immutableMapValues;
+import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 
 public class TypeInferenceTest
         extends TestCase
@@ -281,6 +283,10 @@ public class TypeInferenceTest
 
     public static Map<Var, Term> compose(Map<Var, Term> s1, Map<Var, Term> s2)
     {
-
+        Map<Var, Term> s3 = immutableMapValues(s2, u -> apply(s1, u));
+        return ImmutableMap.<Var, Term>builder()
+                .putAll(s3)
+                .putAll(s1.entrySet().stream().filter(e -> !s3.containsKey(e.getKey())).collect(toImmutableMap()))
+                .build();
     }
 }
