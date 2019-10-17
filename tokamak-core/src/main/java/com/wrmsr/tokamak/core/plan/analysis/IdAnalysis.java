@@ -395,13 +395,13 @@ public final class IdAnalysis
             @Override
             public Entry visitState(PState node, Void context)
             {
-                // FIXME: WRONG? this is for calculating actual ids not just regurgitating what's annotated (which is originally nothing)
-                return Entry.fromAnnotations(node);
+                return inherit(node, context);
             }
 
             @Override
             public Entry visitUnion(PUnion node, Void context)
             {
+                // FIXME: 'none but available'? just turn on for everything?
                 // if (node.getIndexField().isPresent() && node.getSources().stream().noneMatch(s -> process(s, context).isEmpty())) {
                 //     List<Set<Set<String>>> sourceSets = node.getSources().stream()
                 //             .map(s -> process(s, context).getSets())

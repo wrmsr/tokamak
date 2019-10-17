@@ -24,6 +24,7 @@ import javax.annotation.concurrent.Immutable;
         include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonSubTypes({
         @JsonSubTypes.Type(value = IdField.class, name = "id"),
+        @JsonSubTypes.Type(value = EphemeralField.class, name = "ephemeral"),
         @JsonSubTypes.Type(value = InternalField.class, name = "internal"),
 })
 @Immutable
@@ -36,6 +37,11 @@ public interface FieldAnnotation
      - monotonic
      - immutable
     */
+
+    static EphemeralField ephemeral()
+    {
+        return EphemeralField.INSTANCE;
+    }
 
     static IdField id()
     {

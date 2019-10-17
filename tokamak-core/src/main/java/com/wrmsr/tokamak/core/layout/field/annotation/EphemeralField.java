@@ -13,17 +13,10 @@
  */
 package com.wrmsr.tokamak.core.layout.field.annotation;
 
-import com.wrmsr.tokamak.core.layout.field.Field;
-
 import javax.annotation.concurrent.Immutable;
 
 @Immutable
-public final class IdField
-        implements FieldAnnotation
+public final class EphemeralField
 {
-    static final IdField INSTANCE = new IdField();
-
-    public static void validate(Field field)
-    {
-    }
+    static final EphemeralField INSTANCE = new EphemeralField();
 }
