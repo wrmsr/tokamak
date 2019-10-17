@@ -369,20 +369,21 @@ public final class IdAnalysis
             {
                 Entry source = process(node.getSource(), context);
 
-                ImmutableSet.Builder<Set<String>> builder = ImmutableSet.builder();
-                for (Set<String> set : source.getSets()) {
-                    List<Set<String>> outputSets = set.stream()
-                            .map(f -> node.getProjection().getOutputSetsByInputField().getOrDefault(f, ImmutableSet.of()))
-                            .collect(toImmutableList());
-                    if (outputSets.stream().anyMatch(Set::isEmpty)) {
-                        continue;
-                    }
-                    builder.addAll(Sets.cartesianProduct(outputSets).stream()
-                            .map(ImmutableSet::copyOf)
-                            .collect(toImmutableList()));
-                }
-
-                return new Entry(node, builder.build());
+                // ImmutableSet.Builder<Set<String>> builder = ImmutableSet.builder();
+                // for (Set<String> set : source.getSets()) {
+                //     List<Set<String>> outputSets = set.stream()
+                //             .map(f -> node.getProjection().getOutputSetsByInputField().getOrDefault(f, ImmutableSet.of()))
+                //             .collect(toImmutableList());
+                //     if (outputSets.stream().anyMatch(Set::isEmpty)) {
+                //         continue;
+                //     }
+                //     builder.addAll(Sets.cartesianProduct(outputSets).stream()
+                //             .map(ImmutableSet::copyOf)
+                //             .collect(toImmutableList()));
+                // }
+                //
+                // return new Entry(node, builder.build());
+                throw new IllegalStateException();
             }
 
             @Override
@@ -401,46 +402,49 @@ public final class IdAnalysis
             @Override
             public Entry visitUnion(PUnion node, Void context)
             {
-                if (node.getIndexField().isPresent() && node.getSources().stream().noneMatch(s -> process(s, context).isEmpty())) {
-                    List<Set<Set<String>>> sourceSets = node.getSources().stream()
-                            .map(s -> process(s, context).getSets())
-                            .collect(toImmutableList());
-                    Set<Set<String>> sets = Sets.cartesianProduct(sourceSets).stream()
-                            .map(ss -> ImmutableSet.<String>builder()
-                                    .addAll(ss.stream().flatMap(Set::stream).collect(toImmutableSet()))
-                                    .add(node.getIndexField().get())
-                                    .build())
-                            .collect(toImmutableSet());
-                    return new Entry(node, sets);
-                }
-                else {
-                    return new Entry(node, ImmutableSet.of());
-                }
+                // if (node.getIndexField().isPresent() && node.getSources().stream().noneMatch(s -> process(s, context).isEmpty())) {
+                //     List<Set<Set<String>>> sourceSets = node.getSources().stream()
+                //             .map(s -> process(s, context).getSets())
+                //             .collect(toImmutableList());
+                //     Set<Set<String>> sets = Sets.cartesianProduct(sourceSets).stream()
+                //             .map(ss -> ImmutableSet.<String>builder()
+                //                     .addAll(ss.stream().flatMap(Set::stream).collect(toImmutableSet()))
+                //                     .add(node.getIndexField().get())
+                //                     .build())
+                //             .collect(toImmutableSet());
+                //     return new Entry(node, sets);
+                // }
+                // else {
+                //     return new Entry(node, ImmutableSet.of());
+                // }
+                throw new IllegalStateException();
             }
 
             @Override
             public Entry visitUnnest(PUnnest node, Void context)
             {
-                if (node.getIndexField().isPresent()) {
-                    Set<Set<String>> sets = process(node.getSource(), context).getSets().stream()
-                            .map(s -> ImmutableSet.<String>builder().addAll(s).add(node.getIndexField().get()).build())
-                            .collect(toImmutableSet());
-                    return new Entry(node, sets);
-                }
-                else {
-                    return new Entry(node, ImmutableSet.of());
-                }
+                // if (node.getIndexField().isPresent()) {
+                //     Set<Set<String>> sets = process(node.getSource(), context).getSets().stream()
+                //             .map(s -> ImmutableSet.<String>builder().addAll(s).add(node.getIndexField().get()).build())
+                //             .collect(toImmutableSet());
+                //     return new Entry(node, sets);
+                // }
+                // else {
+                //     return new Entry(node, ImmutableSet.of());
+                // }
+                throw new IllegalStateException();
             }
 
             @Override
             public Entry visitValues(PValues node, Void context)
             {
-                if (node.getIndexField().isPresent()) {
-                    return new Entry(node, ImmutableSet.of(ImmutableSet.of(node.getIndexField().get())));
-                }
-                else {
-                    return new Entry(node, ImmutableSet.of(ImmutableSet.of()));
-                }
+                // if (node.getIndexField().isPresent()) {
+                //     return new Entry(node, ImmutableSet.of(ImmutableSet.of(node.getIndexField().get())));
+                // }
+                // else {
+                //     return new Entry(node, ImmutableSet.of(ImmutableSet.of()));
+                // }
+                throw new IllegalStateException();
             }
         }, null);
 
