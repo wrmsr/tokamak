@@ -17,10 +17,13 @@ import com.google.common.collect.ImmutableList;
 import junit.framework.TestCase;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.StreamSupport;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.ImmutableList.toImmutableList;
 
 public class TypeInferenceTest
         extends TestCase
@@ -139,8 +142,42 @@ public class TypeInferenceTest
         }
     }
 
-    public static Term apply(Term l, Term r)
+    public static Term apply(Map<Var, Term> s, Term t)
     {
+        if (t instanceof Con) {
+            return t;
+        }
+        else if (t instanceof App) {
+            return new App(apply(s, ((App) t).left), apply(s, ((App) t).right));
+        }
+        else if (t instanceof Fun) {
+            return new Fun(
+                    ((Fun) t).args.stream().map(a -> apply(s, a)).collect(toImmutableList()),
+                    apply(s, ((Fun) t).ret));
+        }
+        else if (t instanceof Var) {
+            return s.getOrDefault(t, t);
+        }
+        else {
+            throw new IllegalArgumentException(Objects.toString(t));
+        }
+    }
+
+    public static List<Term> apply(Map<Var, Term> s, Iterable<Term> ts)
+    {
+        return StreamSupport.stream(ts.spliterator(), false)
+                .map(t -> apply(s, t))
+                .collect(toImmutableList());
+    }
+
+    public static Term unify(Term x, Term y)
+    {
+        if (x instanceof App && y instanceof App) {
+            Term s1 = unify(((App) x).left, ((App) y).left);
+            Term s2 = unify(
+                    apply(s1, ((App) x).right),
+                    apply(s1, ((App) y).right));
+        }
 
     }
 }
