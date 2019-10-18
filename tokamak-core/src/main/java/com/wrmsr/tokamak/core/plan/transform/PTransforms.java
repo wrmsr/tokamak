@@ -24,13 +24,18 @@ import com.wrmsr.tokamak.core.plan.node.PNode;
 import com.wrmsr.tokamak.core.plan.node.PProject;
 import com.wrmsr.tokamak.core.plan.node.PProjection;
 import com.wrmsr.tokamak.core.plan.node.PScan;
+import com.wrmsr.tokamak.core.plan.node.PUnion;
+import com.wrmsr.tokamak.core.plan.node.PUnnest;
+import com.wrmsr.tokamak.core.plan.node.PValues;
 import com.wrmsr.tokamak.core.plan.node.visitor.PNodeRewriter;
 import com.wrmsr.tokamak.core.type.Type;
 import com.wrmsr.tokamak.util.NameGenerator;
 
 import java.util.List;
+import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 
 public final class PTransforms
@@ -83,5 +88,63 @@ public final class PTransforms
                 }
             }
         }, null));
+    }
+
+    public static PNode addIdDistinguishingFields(Plan plan)
+    {
+        return plan.getRoot().accept(new PNodeRewriter<Void>()
+        {
+            @Override
+            public PNode visitUnion(PUnion node, Void context)
+            {
+                String indexField = plan.getFieldNameGenerator().get("index");
+                if (!node.getIndexField().isPresent()) {
+                    return new PUnion(
+                            visitNodeName(node.getName(), context),
+                            node.getAnnotations().mapFields(f -> f.with(indexField, FieldAnnotation.internal())),
+                            node.getSources().stream().map(n -> process(n, context)).collect(toImmutableList()),
+                            Optional.of(indexField));
+                }
+                else {
+                    return super.visitUnion(node, context);
+                }
+            }
+
+            @Override
+            public PNode visitUnnest(PUnnest node, Void context)
+            {
+                if (!node.getIndexField().isPresent()) {
+                    String indexField = plan.getFieldNameGenerator().get("index");
+                    return new PUnnest(
+                            visitNodeName(node.getName(), context),
+                            node.getAnnotations().mapFields(f -> f.with(indexField, FieldAnnotation.internal())),
+                            process(node.getSource(), context),
+                            node.getListField(),
+                            node.getUnnestedFields(),
+                            Optional.of(indexField));
+                }
+                else {
+                    return super.visitUnnest(node, context);
+                }
+            }
+
+            @Override
+            public PNode visitValues(PValues node, Void context)
+            {
+                if (!node.getIndexField().isPresent()) {
+                    String indexField = plan.getFieldNameGenerator().get("index");
+                    return new PValues(
+                            visitNodeName(node.getName(), context),
+                            node.getAnnotations().mapFields(f -> f.with(indexField, FieldAnnotation.internal())),
+                            node.getFields().getTypesByName(),
+                            node.getValues(),
+                            Optional.of(indexField),
+                            node.getStrength());
+                }
+                else {
+                    return super.visitValues(node, context);
+                }
+            }
+        }, null);
     }
 }

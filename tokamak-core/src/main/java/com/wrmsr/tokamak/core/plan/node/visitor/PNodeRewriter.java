@@ -157,7 +157,7 @@ public abstract class PNodeRewriter<C>
                         .collect(ImmutableMap.toImmutableMap(e -> visitNodeName(e.getKey(), context), Map.Entry::getValue)),
                 node.getLinkageMasks().entrySet().stream()
                         .collect(ImmutableMap.toImmutableMap(e -> visitNodeName(e.getKey(), context), Map.Entry::getValue)),
-                node.getLockOverride().map(lo -> new PState.LockOverride(visitNodeName(lo.getNode(), context), lo.getField(), false)));
+                node.getLockOverride().map(lo -> new PState.LockOverride(visitNodeName(lo.getNode(), context), lo.getField(), lo.getSpilling())));
     }
 
     @Override

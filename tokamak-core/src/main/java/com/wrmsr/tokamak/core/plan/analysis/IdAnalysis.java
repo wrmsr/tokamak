@@ -401,7 +401,9 @@ public final class IdAnalysis
             @Override
             public Entry visitUnion(PUnion node, Void context)
             {
-                // FIXME: 'none but available'? just turn on for everything?
+                if (node.getIndexField().isPresent()) {
+                    return
+                }
                 // if (node.getIndexField().isPresent() && node.getSources().stream().noneMatch(s -> process(s, context).isEmpty())) {
                 //     List<Set<Set<String>>> sourceSets = node.getSources().stream()
                 //             .map(s -> process(s, context).getSets())

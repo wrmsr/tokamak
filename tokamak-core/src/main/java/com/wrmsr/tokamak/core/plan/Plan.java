@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.core.plan.node.PNode;
 import com.wrmsr.tokamak.core.plan.node.PNodeField;
 import com.wrmsr.tokamak.core.plan.node.PNodeId;
+import com.wrmsr.tokamak.util.NameGenerator;
 import com.wrmsr.tokamak.util.collect.Toposort;
 import com.wrmsr.tokamak.util.lazy.SupplierLazyValue;
 
@@ -231,5 +232,20 @@ public final class Plan
     public Map<PNodeField, Integer> getToposortIndicesByNodeField()
     {
         return toposortIndicesByNodeField.get(() -> buildListIndexMap(getToposortedNodeFields()));
+    }
+
+    private final SupplierLazyValue<NameGenerator> nodeNameGenerator = new SupplierLazyValue<>();
+
+    public NameGenerator getNodeNameGenerator()
+    {
+        return nodeNameGenerator.get(() -> new NameGenerator(nodesByName.keySet()));
+    }
+
+    private final SupplierLazyValue<NameGenerator> fieldNameGenerator = new SupplierLazyValue<>();
+
+    public NameGenerator getFieldNameGenerator()
+    {
+        return fieldNameGenerator.get(() ->
+                new NameGenerator(nodes.stream().flatMap(n -> n.getFields().getNames().stream()).collect(toImmutableSet())));
     }
 }
