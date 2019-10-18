@@ -55,7 +55,7 @@ public final class PUnion
 
         Map<String, Type> firstFields = this.sources.get(0).getFields().getTypesByName();
         for (int i = 1; i < this.sources.size(); ++i) {
-            checkArgument(firstFields.equals(this.sources.get(i).getFields()));
+            checkArgument(firstFields.equals(this.sources.get(i).getFields().getTypesByName()));
         }
 
         ImmutableMap.Builder<String, Type> fields = ImmutableMap.builder();

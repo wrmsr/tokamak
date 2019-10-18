@@ -17,7 +17,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterators;
-import com.google.common.collect.Sets;
 import com.wrmsr.tokamak.core.layout.field.annotation.IdField;
 import com.wrmsr.tokamak.core.plan.Plan;
 import com.wrmsr.tokamak.core.plan.node.PCache;
@@ -42,6 +41,7 @@ import javax.annotation.concurrent.Immutable;
 
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -51,7 +51,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
-import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkSingle;
 
@@ -209,6 +208,11 @@ public final class IdAnalysis
         public Iterator<Part> iterator()
         {
             return getParts().iterator();
+        }
+
+        public static Entry anon(PNode node)
+        {
+            return new AnonEntry(node);
         }
 
         public static Entry inherit(PSingleSource node, Entry source)
@@ -402,8 +406,23 @@ public final class IdAnalysis
             public Entry visitUnion(PUnion node, Void context)
             {
                 if (node.getIndexField().isPresent()) {
-                    return
+                    Set<String> idFields = new LinkedHashSet<>();
+                    for (PNode source : node.getSources()) {
+                        Entry sourceEntry = process(source, context);
+                        if (sourceEntry instanceof AnonEntry) {
+                            idFields = null;
+                            break;
+                        }
+                        else {
+                            idFields.addAll(sourceEntry);
+                        }
+                    }
+
+                    if (idFields != null) {
+                        return new StandardEntry()
+                    }
                 }
+                return Entry.anon(node);
                 // if (node.getIndexField().isPresent() && node.getSources().stream().noneMatch(s -> process(s, context).isEmpty())) {
                 //     List<Set<Set<String>>> sourceSets = node.getSources().stream()
                 //             .map(s -> process(s, context).getSets())
