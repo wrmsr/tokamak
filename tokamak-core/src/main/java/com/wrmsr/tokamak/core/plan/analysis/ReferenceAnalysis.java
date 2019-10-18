@@ -27,14 +27,14 @@ import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public final class FieldReferenceAnalysis
+public final class ReferenceAnalysis
 {
     /*
     TODO:
      - include OriginAnalysis or not?
     */
 
-    private FieldReferenceAnalysis()
+    private ReferenceAnalysis()
     {
     }
 
@@ -79,7 +79,7 @@ public final class FieldReferenceAnalysis
         }
     }
 
-    public static FieldReferenceAnalysis analyze(Plan plan)
+    public static ReferenceAnalysis analyze(Plan plan)
     {
         List<Entry> entries = new ArrayList<>();
 
