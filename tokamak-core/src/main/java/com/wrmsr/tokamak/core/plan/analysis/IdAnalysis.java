@@ -11,6 +11,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.wrmsr.tokamak.core.plan.analysis;
 
 import com.google.common.collect.ImmutableList;
@@ -35,10 +49,12 @@ import com.wrmsr.tokamak.core.plan.node.PUnnest;
 import com.wrmsr.tokamak.core.plan.node.PValues;
 import com.wrmsr.tokamak.core.plan.node.visitor.CachingPNodeVisitor;
 import com.wrmsr.tokamak.core.plan.node.visitor.PNodeVisitors;
+import com.wrmsr.tokamak.util.MoreCollections;
 import com.wrmsr.tokamak.util.collect.StreamableIterable;
 
 import javax.annotation.concurrent.Immutable;
 
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -46,6 +62,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.StreamSupport;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -84,6 +101,14 @@ public final class IdAnalysis
         public static Part of(String... fields)
         {
             return of(ImmutableList.copyOf(fields));
+        }
+
+        public static List<Part> unify(Iterable<Part> parts)
+        {
+            List<Set<String>> unified = MoreCollections.unify(StreamSupport.stream(parts.spliterator(), false)
+                    .map(ImmutableSet::copyOf)
+                    .collect(toImmutableList()));
+            return unified.stream().map(Part::of).collect(toImmutableList());
         }
     }
 
@@ -288,17 +313,40 @@ public final class IdAnalysis
             extends Entry
     {
         private final List<Part> parts;
+        private final Map<String, Integer> positionsByField;
 
         private StandardEntry(PNode node, List<Part> parts)
         {
             super(node);
             this.parts = checkNotEmpty(ImmutableList.copyOf(parts));
+
+            Set<String> seen = new HashSet<>();
+            ImmutableMap.Builder<String, Integer> positionsByField = ImmutableMap.builder();
+            for (int i = 0; i < this.parts.size(); ++i) {
+                for (String field : this.parts.get(i)) {
+                    checkState(!seen.contains(field));
+                    seen.add(field);
+                    positionsByField.put(field, i);
+                }
+                ;
+            }
+            this.positionsByField = positionsByField.build();
         }
 
         @Override
         public List<Part> getParts()
         {
             return parts;
+        }
+
+        public Map<String, Integer> getPositionsByField()
+        {
+            return positionsByField;
+        }
+
+        public int getPosition(String field)
+        {
+            return positionsByField.get(checkNotEmpty(field));
         }
     }
 

@@ -18,7 +18,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import com.google.common.collect.Streams;
 import com.wrmsr.tokamak.util.collect.Ordered;
 
@@ -26,7 +25,6 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -45,6 +43,7 @@ import java.util.stream.StreamSupport;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
+import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newIdentityHashSet;
 import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
@@ -165,17 +164,17 @@ public final class MoreCollections
         return IntStream.range(0, size).boxed().map(i -> value).collect(toImmutableList());
     }
 
-    public static <T> Set<Set<T>> unify(Collection<Set<T>> sets)
+    public static <T> List<Set<T>> unify(Iterable<Set<T>> sets)
     {
-        List<Set<T>> rem = new ArrayList<>(sets);
-        Set<Set<T>> ret = new HashSet<>();
+        List<Set<T>> rem = newArrayList(sets);
+        List<Set<T>> ret = new ArrayList<>();
         while (!rem.isEmpty()) {
             Set<T> cur = rem.remove(rem.size() - 1);
             boolean moved;
             do {
                 moved = false;
                 for (int i = rem.size() - 1; i >= 0; --i) {
-                    if (!Sets.intersection(cur, rem.get(i)).isEmpty()) {
+                    if (rem.get(i).stream().anyMatch(cur::contains)) {
                         cur.addAll(rem.remove(i));
                         moved = true;
                     }
@@ -183,6 +182,11 @@ public final class MoreCollections
             }
             while (moved);
             ret.add(cur);
+        }
+        if (!ret.isEmpty()) {
+            Set<T> all = ret.stream().flatMap(Set::stream).collect(toImmutableSet());
+            int num = ret.stream().map(Set::size).reduce(Integer::sum).get();
+            checkState(all.size() == num);
         }
         return ret;
     }

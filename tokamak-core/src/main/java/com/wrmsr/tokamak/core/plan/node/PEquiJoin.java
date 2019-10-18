@@ -240,9 +240,9 @@ public final class PEquiJoin
     {
         return guaranteedEqualFieldSets.get(() -> {
             if (mode == Mode.INNER) {
-                return MoreCollections.unify(IntStream.range(0, keyLength)
+                return ImmutableSet.copyOf(MoreCollections.unify(IntStream.range(0, keyLength)
                         .mapToObj(i -> branches.stream().map(b -> b.getFields().get(i)).collect(toImmutableSet()))
-                        .collect(toImmutableSet()));
+                        .collect(toImmutableSet())));
             }
             else {
                 return ImmutableSet.of();
