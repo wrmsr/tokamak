@@ -36,7 +36,7 @@ import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 @Immutable
 public final class PLookupJoin
         extends PAbstractNode
-        implements PInternal, PJoin
+        implements PInternal, PJoinLike
 {
     @Immutable
     public static final class Branch

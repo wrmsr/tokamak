@@ -28,10 +28,9 @@ import java.util.List;
         include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonSubTypes({
         @JsonSubTypes.Type(value = PCache.class, name = "cache"),
-        @JsonSubTypes.Type(value = PCrossJoin.class, name = "crossJoin"),
-        @JsonSubTypes.Type(value = PEquiJoin.class, name = "equiJoin"),
         @JsonSubTypes.Type(value = PFilter.class, name = "filter"),
         @JsonSubTypes.Type(value = PGroup.class, name = "group"),
+        @JsonSubTypes.Type(value = PJoin.class, name = "join"),
         @JsonSubTypes.Type(value = PLookupJoin.class, name = "lookupJoin"),
         @JsonSubTypes.Type(value = PProject.class, name = "project"),
         @JsonSubTypes.Type(value = PScan.class, name = "scan"),

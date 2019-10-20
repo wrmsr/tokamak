@@ -20,10 +20,9 @@ import com.google.common.collect.Iterators;
 import com.wrmsr.tokamak.core.layout.field.annotation.IdField;
 import com.wrmsr.tokamak.core.plan.Plan;
 import com.wrmsr.tokamak.core.plan.node.PCache;
-import com.wrmsr.tokamak.core.plan.node.PCrossJoin;
-import com.wrmsr.tokamak.core.plan.node.PEquiJoin;
 import com.wrmsr.tokamak.core.plan.node.PFilter;
 import com.wrmsr.tokamak.core.plan.node.PGroup;
+import com.wrmsr.tokamak.core.plan.node.PJoin;
 import com.wrmsr.tokamak.core.plan.node.PLookupJoin;
 import com.wrmsr.tokamak.core.plan.node.PNode;
 import com.wrmsr.tokamak.core.plan.node.PProject;
@@ -374,29 +373,6 @@ public final class IdAnalysis
             }
 
             @Override
-            public Entry visitCrossJoin(PCrossJoin node, Void context)
-            {
-                return Entry.unify(
-                        node,
-                        node.getSources().stream()
-                                .map(s -> process(s, context))
-                                .collect(toImmutableList()),
-                        ImmutableList.of());
-            }
-
-            @Override
-            public Entry visitEquiJoin(PEquiJoin node, Void context)
-            {
-                // FIXME: left joins have nullable rest ids :|
-                return Entry.unify(
-                        node,
-                        node.getBranches().stream()
-                                .map(b -> process(b.getNode(), context))
-                                .collect(toImmutableList()),
-                        ImmutableList.of());
-            }
-
-            @Override
             public Entry visitFilter(PFilter node, Void context)
             {
                 return inherit(node, context);
@@ -408,6 +384,18 @@ public final class IdAnalysis
                 return new StandardEntry(
                         node,
                         node.getKeyFields().stream().map(Part::of).collect(toImmutableList()));
+            }
+
+            @Override
+            public Entry visitJoin(PJoin node, Void context)
+            {
+                // FIXME: left joins have nullable rest ids :|
+                return Entry.unify(
+                        node,
+                        node.getBranches().stream()
+                                .map(b -> process(b.getNode(), context))
+                                .collect(toImmutableList()),
+                        ImmutableList.of());
             }
 
             @Override

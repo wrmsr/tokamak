@@ -19,19 +19,18 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.wrmsr.tokamak.core.plan.Plan;
 import com.wrmsr.tokamak.core.plan.node.PCache;
-import com.wrmsr.tokamak.core.plan.node.PCrossJoin;
-import com.wrmsr.tokamak.core.plan.node.PEquiJoin;
 import com.wrmsr.tokamak.core.plan.node.PFilter;
 import com.wrmsr.tokamak.core.plan.node.PGroup;
+import com.wrmsr.tokamak.core.plan.node.PJoin;
 import com.wrmsr.tokamak.core.plan.node.PLookupJoin;
 import com.wrmsr.tokamak.core.plan.node.PNode;
 import com.wrmsr.tokamak.core.plan.node.PNodeField;
 import com.wrmsr.tokamak.core.plan.node.PProject;
 import com.wrmsr.tokamak.core.plan.node.PProjection;
 import com.wrmsr.tokamak.core.plan.node.PScan;
+import com.wrmsr.tokamak.core.plan.node.PSearch;
 import com.wrmsr.tokamak.core.plan.node.PSingleSource;
 import com.wrmsr.tokamak.core.plan.node.PState;
-import com.wrmsr.tokamak.core.plan.node.PSearch;
 import com.wrmsr.tokamak.core.plan.node.PUnion;
 import com.wrmsr.tokamak.core.plan.node.PUnnest;
 import com.wrmsr.tokamak.core.plan.node.PValues;
@@ -566,18 +565,7 @@ public final class OriginAnalysis
             }
 
             @Override
-            public Void visitCrossJoin(PCrossJoin node, Void context)
-            {
-                Genesis gen = node.getMode() == PCrossJoin.Mode.FULL ? Genesis.FULL_JOIN : Genesis.INNER_JOIN;
-                node.getSources().forEach(s ->
-                        s.getFields().getNames().forEach(f -> originations.add(new Origination(
-                                PNodeField.of(node, f), PNodeField.of(s, f), gen, Nesting.none()))));
-
-                return null;
-            }
-
-            @Override
-            public Void visitEquiJoin(PEquiJoin node, Void context)
+            public Void visitJoin(PJoin node, Void context)
             {
                 node.getBranches().forEach(b -> {
                     Genesis gen;
@@ -716,6 +704,8 @@ public final class OriginAnalysis
             }
         }, null);
 
-        return new OriginAnalysis(originations, plan.getToposortIndicesByNode());
+        return new
+
+                OriginAnalysis(originations, plan.getToposortIndicesByNode());
     }
 }

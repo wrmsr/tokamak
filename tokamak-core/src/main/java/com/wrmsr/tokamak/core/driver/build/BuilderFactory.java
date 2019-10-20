@@ -17,8 +17,7 @@ import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.core.driver.DriverImpl;
 import com.wrmsr.tokamak.core.driver.build.impl.SearchBuilder;
 import com.wrmsr.tokamak.core.driver.build.impl.CacheBuilder;
-import com.wrmsr.tokamak.core.driver.build.impl.CrossJoinBuilder;
-import com.wrmsr.tokamak.core.driver.build.impl.EquijoinBuilder;
+import com.wrmsr.tokamak.core.driver.build.impl.JoinBuilder;
 import com.wrmsr.tokamak.core.driver.build.impl.FilterBuilder;
 import com.wrmsr.tokamak.core.driver.build.impl.GroupBuilder;
 import com.wrmsr.tokamak.core.driver.build.impl.LookupJoinBuilder;
@@ -30,8 +29,7 @@ import com.wrmsr.tokamak.core.driver.build.impl.UnnestBuilder;
 import com.wrmsr.tokamak.core.driver.build.impl.ValuesBuilder;
 import com.wrmsr.tokamak.core.plan.node.PSearch;
 import com.wrmsr.tokamak.core.plan.node.PCache;
-import com.wrmsr.tokamak.core.plan.node.PCrossJoin;
-import com.wrmsr.tokamak.core.plan.node.PEquiJoin;
+import com.wrmsr.tokamak.core.plan.node.PJoin;
 import com.wrmsr.tokamak.core.plan.node.PFilter;
 import com.wrmsr.tokamak.core.plan.node.PGroup;
 import com.wrmsr.tokamak.core.plan.node.PLookupJoin;
@@ -71,8 +69,7 @@ public class BuilderFactory
     private final Map<Class<? extends PNode>, BuilderConstructor> BUILDER_CONSTRUCTORS_BY_NODE_TYPE =
             ImmutableMap.<Class<? extends PNode>, BuilderConstructor>builder()
                     .put(PCache.class, (d, n, s) -> new CacheBuilder(d, (PCache) n, s))
-                    .put(PCrossJoin.class, (d, n, s) -> new CrossJoinBuilder(d, (PCrossJoin) n, s))
-                    .put(PEquiJoin.class, (d, n, s) -> new EquijoinBuilder(d, (PEquiJoin) n, s))
+                    .put(PJoin.class, (d, n, s) -> new JoinBuilder(d, (PJoin) n, s))
                     .put(PFilter.class, (d, n, s) -> new FilterBuilder(d, (PFilter) n, s))
                     .put(PGroup.class, (d, n, s) -> new GroupBuilder(d, (PGroup) n, s))
                     .put(PLookupJoin.class, (d, n, s) -> new LookupJoinBuilder(d, (PLookupJoin) n, s))

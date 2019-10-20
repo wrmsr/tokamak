@@ -14,11 +14,12 @@
 package com.wrmsr.tokamak.core.tree;
 
 import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.core.catalog.Catalog;
 import com.wrmsr.tokamak.core.catalog.Function;
 import com.wrmsr.tokamak.core.catalog.Table;
-import com.wrmsr.tokamak.core.plan.node.PCrossJoin;
+import com.wrmsr.tokamak.core.plan.node.PJoin;
 import com.wrmsr.tokamak.core.plan.node.PNode;
 import com.wrmsr.tokamak.core.plan.node.PNodeAnnotations;
 import com.wrmsr.tokamak.core.plan.node.PProject;
@@ -129,11 +130,11 @@ public class TreePlanner
                     source = checkSingle(sources);
                 }
                 else {
-                    source = new PCrossJoin(
-                            nameGenerator.get("projectCrossJoin"),
+                    source = new PJoin(
+                            nameGenerator.get("projectJoin"),
                             PNodeAnnotations.empty(),
-                            sources,
-                            PCrossJoin.Mode.INNER);
+                            sources.stream().map(s -> new PJoin.Branch(s, ImmutableList.of())).collect(toImmutableList()),
+                            PJoin.Mode.FULL);
                 }
 
                 return new PProject(

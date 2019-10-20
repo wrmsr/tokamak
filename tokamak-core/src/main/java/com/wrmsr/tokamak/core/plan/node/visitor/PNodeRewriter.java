@@ -15,10 +15,9 @@ package com.wrmsr.tokamak.core.plan.node.visitor;
 
 import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.core.plan.node.PCache;
-import com.wrmsr.tokamak.core.plan.node.PCrossJoin;
-import com.wrmsr.tokamak.core.plan.node.PEquiJoin;
 import com.wrmsr.tokamak.core.plan.node.PFilter;
 import com.wrmsr.tokamak.core.plan.node.PGroup;
+import com.wrmsr.tokamak.core.plan.node.PJoin;
 import com.wrmsr.tokamak.core.plan.node.PLookupJoin;
 import com.wrmsr.tokamak.core.plan.node.PNode;
 import com.wrmsr.tokamak.core.plan.node.PProject;
@@ -51,30 +50,6 @@ public abstract class PNodeRewriter<C>
     }
 
     @Override
-    public PNode visitCrossJoin(PCrossJoin node, C context)
-    {
-        return new PCrossJoin(
-                visitNodeName(node.getName(), context),
-                node.getAnnotations(),
-                node.getSources().stream().map(n -> process(n, context)).collect(toImmutableList()),
-                node.getMode());
-    }
-
-    @Override
-    public PNode visitEquiJoin(PEquiJoin node, C context)
-    {
-        return new PEquiJoin(
-                visitNodeName(node.getName(), context),
-                node.getAnnotations(),
-                node.getBranches().stream()
-                        .map(b -> new PEquiJoin.Branch(
-                                process(b.getNode(), context),
-                                b.getFields()))
-                        .collect(toImmutableList()),
-                node.getMode());
-    }
-
-    @Override
     public PNode visitFilter(PFilter node, C context)
     {
         return new PFilter(
@@ -95,6 +70,20 @@ public abstract class PNodeRewriter<C>
                 process(node.getSource(), context),
                 node.getKeyFields(),
                 node.getListField());
+    }
+
+    @Override
+    public PNode visitJoin(PJoin node, C context)
+    {
+        return new PJoin(
+                visitNodeName(node.getName(), context),
+                node.getAnnotations(),
+                node.getBranches().stream()
+                        .map(b -> new PJoin.Branch(
+                                process(b.getNode(), context),
+                                b.getFields()))
+                        .collect(toImmutableList()),
+                node.getMode());
     }
 
     @Override

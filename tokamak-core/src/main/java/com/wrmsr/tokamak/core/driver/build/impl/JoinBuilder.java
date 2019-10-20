@@ -25,7 +25,7 @@ import com.wrmsr.tokamak.core.driver.build.ops.BuildOp;
 import com.wrmsr.tokamak.core.driver.build.ops.RequestBuildOp;
 import com.wrmsr.tokamak.core.driver.build.ops.ResponseBuildOp;
 import com.wrmsr.tokamak.core.driver.context.DriverContextImpl;
-import com.wrmsr.tokamak.core.plan.node.PEquiJoin;
+import com.wrmsr.tokamak.core.plan.node.PJoin;
 import com.wrmsr.tokamak.core.plan.node.PNode;
 import com.wrmsr.tokamak.core.serde.impl.NullableSerde;
 import com.wrmsr.tokamak.core.serde.impl.TupleSerde;
@@ -47,8 +47,8 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 
-public final class EquijoinBuilder
-        extends AbstractBuilder<PEquiJoin>
+public final class JoinBuilder
+        extends AbstractBuilder<PJoin>
 {
     /*
     TODO:
@@ -61,7 +61,7 @@ public final class EquijoinBuilder
                     new VariableLengthSerde<>(
                             Serdes.BYTES_VALUE_SERDE));
 
-    public EquijoinBuilder(DriverImpl driver, PEquiJoin node, Map<PNode, Builder> sources)
+    public JoinBuilder(DriverImpl driver, PJoin node, Map<PNode, Builder> sources)
     {
         super(driver, node, sources);
     }
@@ -71,16 +71,16 @@ public final class EquijoinBuilder
     {
         checkArgument(context.getDriver() == driver);
 
-        List<Pair<PEquiJoin.Branch, Map<String, Object>>> lookups;
+        List<Pair<PJoin.Branch, Map<String, Object>>> lookups;
 
-        Set<PEquiJoin.Branch> idBranches = node.getBranchSetsByKeyFieldSet().get(key.getValuesByField().keySet());
+        Set<PJoin.Branch> idBranches = node.getBranchSetsByKeyFieldSet().get(key.getValuesByField().keySet());
         if (idBranches != null) {
-            PEquiJoin.Branch idBranch = checkNotNull(idBranches.iterator().next());
+            PJoin.Branch idBranch = checkNotNull(idBranches.iterator().next());
             // branchFieldKeyPair = Pair.immutable(idBranch, Key.of())
             throw new IllegalStateException();
         }
         else {
-            Map<PEquiJoin.Branch, List<Map.Entry<String, Object>>> m = key.getValuesByField().entrySet().stream()
+            Map<PJoin.Branch, List<Map.Entry<String, Object>>> m = key.getValuesByField().entrySet().stream()
                     .collect(Collectors.groupingBy(e -> checkNotNull(node.getBranchesByUniqueField().get(e.getKey()))));
             lookups = m.entrySet().stream()
                     .map(e -> Pair.immutable(e.getKey(), (Map<String, Object>) e.getValue().stream().collect(toImmutableMap())))
@@ -103,7 +103,7 @@ public final class EquijoinBuilder
 
     protected void buildLookups(
             DriverContextImpl context,
-            List<Pair<PEquiJoin.Branch, Map<String, Object>>> lookups,
+            List<Pair<PJoin.Branch, Map<String, Object>>> lookups,
             ImmutableList.Builder<DriverRow> builder,
             byte[][] idProto,
             Map<String, Object> proto,
@@ -113,7 +113,7 @@ public final class EquijoinBuilder
             Consumer<BuildOp> opConsumer)
     {
         if (pos < lookups.size()) {
-            Pair<PEquiJoin.Branch, Map<String, Object>> lookup = lookups.get(pos);
+            Pair<PJoin.Branch, Map<String, Object>> lookup = lookups.get(pos);
 
             ImmutableMap.Builder<String, Object> keyBuilder = ImmutableMap.<String, Object>builder()
                     .putAll(lookup.second());
@@ -161,8 +161,8 @@ public final class EquijoinBuilder
             }));
         }
         else {
-            Set<PEquiJoin.Branch> lookupBranches = lookups.stream().map(Pair::first).collect(toImmutableSet());
-            List<PEquiJoin.Branch> restBranches = node.getBranches().stream()
+            Set<PJoin.Branch> lookupBranches = lookups.stream().map(Pair::first).collect(toImmutableSet());
+            List<PJoin.Branch> restBranches = node.getBranches().stream()
                     .filter(b -> !lookupBranches.contains(b))
                     .collect(toImmutableList());
 
@@ -186,7 +186,7 @@ public final class EquijoinBuilder
 
     protected void buildNonLookups(
             DriverContextImpl context,
-            List<PEquiJoin.Branch> branches,
+            List<PJoin.Branch> branches,
             ImmutableList.Builder<DriverRow> builder,
             byte[][] idProto,
             Map<String, Object> proto,
@@ -197,7 +197,7 @@ public final class EquijoinBuilder
             Consumer<BuildOp> opConsumer)
     {
         if (pos < branches.size()) {
-            PEquiJoin.Branch branch = branches.get(pos);
+            PJoin.Branch branch = branches.get(pos);
 
             ImmutableMap.Builder<String, Object> keyBuilder = ImmutableMap.builder();
             for (int i = 0; i < node.getKeyLength(); ++i) {

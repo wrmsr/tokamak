@@ -14,16 +14,15 @@
 package com.wrmsr.tokamak.core.plan.node.visitor;
 
 import com.wrmsr.tokamak.core.plan.node.PCache;
-import com.wrmsr.tokamak.core.plan.node.PCrossJoin;
-import com.wrmsr.tokamak.core.plan.node.PEquiJoin;
 import com.wrmsr.tokamak.core.plan.node.PFilter;
 import com.wrmsr.tokamak.core.plan.node.PGroup;
+import com.wrmsr.tokamak.core.plan.node.PJoin;
 import com.wrmsr.tokamak.core.plan.node.PLookupJoin;
 import com.wrmsr.tokamak.core.plan.node.PNode;
 import com.wrmsr.tokamak.core.plan.node.PProject;
 import com.wrmsr.tokamak.core.plan.node.PScan;
-import com.wrmsr.tokamak.core.plan.node.PState;
 import com.wrmsr.tokamak.core.plan.node.PSearch;
+import com.wrmsr.tokamak.core.plan.node.PState;
 import com.wrmsr.tokamak.core.plan.node.PUnion;
 import com.wrmsr.tokamak.core.plan.node.PUnnest;
 import com.wrmsr.tokamak.core.plan.node.PValues;
@@ -47,22 +46,17 @@ public abstract class PNodeVisitor<R, C>
         return visitNode(node, context);
     }
 
-    public R visitCrossJoin(PCrossJoin node, C context)
-    {
-        return visitNode(node, context);
-    }
-
-    public R visitEquiJoin(PEquiJoin node, C context)
-    {
-        return visitNode(node, context);
-    }
-
     public R visitFilter(PFilter node, C context)
     {
         return visitNode(node, context);
     }
 
     public R visitGroup(PGroup node, C context)
+    {
+        return visitNode(node, context);
+    }
+
+    public R visitJoin(PJoin node, C context)
     {
         return visitNode(node, context);
     }

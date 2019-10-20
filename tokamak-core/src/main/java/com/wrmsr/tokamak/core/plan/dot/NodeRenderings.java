@@ -15,8 +15,7 @@ package com.wrmsr.tokamak.core.plan.dot;
 
 import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.core.plan.node.PCache;
-import com.wrmsr.tokamak.core.plan.node.PCrossJoin;
-import com.wrmsr.tokamak.core.plan.node.PEquiJoin;
+import com.wrmsr.tokamak.core.plan.node.PJoin;
 import com.wrmsr.tokamak.core.plan.node.PFilter;
 import com.wrmsr.tokamak.core.plan.node.PGroup;
 import com.wrmsr.tokamak.core.plan.node.PLookupJoin;
@@ -45,8 +44,7 @@ public final class NodeRenderings
     public static final CtorLazyValue<List<NodeRendering>> RAW_NODE_RENDERINGS = new CtorLazyValue<>(() ->
             ImmutableList.<NodeRendering>builder()
                     .add(new NodeRendering<>(PCache.class))
-                    .add(new NodeRendering<>(PCrossJoin.class))
-                    .add(new NodeRendering<>(PEquiJoin.class))
+                    .add(new NodeRendering<>(PJoin.class))
                     .add(new NodeRendering<>(PFilter.class))
                     .add(new NodeRendering<>(PGroup.class))
                     .add(new NodeRendering<>(PLookupJoin.class))

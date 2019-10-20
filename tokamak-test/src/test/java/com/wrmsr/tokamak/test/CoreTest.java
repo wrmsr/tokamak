@@ -38,7 +38,7 @@ import com.wrmsr.tokamak.core.plan.Plan;
 import com.wrmsr.tokamak.core.plan.analysis.IdAnalysis;
 import com.wrmsr.tokamak.core.plan.analysis.OriginAnalysis;
 import com.wrmsr.tokamak.core.plan.dot.Dot;
-import com.wrmsr.tokamak.core.plan.node.PEquiJoin;
+import com.wrmsr.tokamak.core.plan.node.PJoin;
 import com.wrmsr.tokamak.core.plan.node.PFilter;
 import com.wrmsr.tokamak.core.plan.node.PNode;
 import com.wrmsr.tokamak.core.plan.node.PNodeAnnotations;
@@ -197,14 +197,14 @@ public class CoreTest
                 ImmutableMap.of(),
                 Optional.empty());
 
-        PNode equiJoinNode0 = new PEquiJoin(
+        PNode equiJoinNode0 = new PJoin(
                 "equiJoin0",
                 PNodeAnnotations.empty(),
                 ImmutableList.of(
-                        new PEquiJoin.Branch(projectNode0, ImmutableList.of("N_REGIONKEY")),
-                        new PEquiJoin.Branch(stateNode1, ImmutableList.of("R_REGIONKEY"))
+                        new PJoin.Branch(projectNode0, ImmutableList.of("N_REGIONKEY")),
+                        new PJoin.Branch(stateNode1, ImmutableList.of("R_REGIONKEY"))
                 ),
-                PEquiJoin.Mode.INNER);
+                PJoin.Mode.INNER);
 
         PNode persistNode0 = new PState(
                 "state2",
