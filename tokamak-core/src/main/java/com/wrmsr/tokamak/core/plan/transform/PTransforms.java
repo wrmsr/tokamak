@@ -139,7 +139,7 @@ public final class PTransforms
                             node.getFields().getTypesByName(),
                             node.getValues(),
                             Optional.of(indexField),
-                            node.getStrength());
+                            node.getStrictness());
                 }
                 else {
                     return super.visitValues(node, context);

@@ -191,6 +191,6 @@ public abstract class PNodeRewriter<C>
                 node.getFields().getTypesByName(),
                 node.getValues(),
                 node.getIndexField(),
-                node.getStrength());
+                node.getStrictness());
     }
 }

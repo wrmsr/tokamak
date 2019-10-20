@@ -44,7 +44,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -247,7 +246,7 @@ public final class IdAnalysis
         {
             return of(
                     node,
-                    node.getAnnotations().getFields().getEntryListsByAnnotationCls().get(IdField.class).stream()
+                    node.getAnnotations().getFields().getEntryListsByAnnotationCls().getOrDefault(IdField.class, ImmutableList.of()).stream()
                             .map(e -> Part.of(e.getKey()))
                             .collect(toImmutableList()));
         }
@@ -377,24 +376,24 @@ public final class IdAnalysis
             @Override
             public Entry visitCrossJoin(PCrossJoin node, Void context)
             {
-                // checkSingle(this.sources.stream().map(Node::getIdFieldSets).map(Set::size).collect(toImmutableSet()));
-                // this.idFieldSets = Sets.cartesianProduct(this.sources.stream().map(Node::getIdFieldSets).collect(toImmutableList())).stream()
-                //         .map(l -> l.stream().flatMap(Collection::stream).collect(toImmutableSet()))
-                //         .collect(toImmutableSet());
-                throw new IllegalStateException();
+                return Entry.unify(
+                        node,
+                        node.getSources().stream()
+                                .map(s -> process(s, context))
+                                .collect(toImmutableList()),
+                        ImmutableList.of());
             }
 
             @Override
             public Entry visitEquiJoin(PEquiJoin node, Void context)
             {
-                // FIXME: ordered concatenation of all branch id fields MERGING ANY IN THE KEY
-                // branchSetsByIdFieldSet = node.getBranches().stream()
-                //         .flatMap(b -> b.getNode().getIdFieldSets().stream().map(fs -> Pair.immutable(fs, b)))
-                //         .collect(groupingBySet(Pair::first)).entrySet().stream()
-                //         .collect(toImmutableMap(Map.Entry::getKey, e -> e.getValue().stream().map(Pair::second).collect(toImmutableSet())));
-                // idFieldSets = Sets.cartesianProduct(ImmutableList.copyOf(branchSetsByIdFieldSet.keySet())).stream()
-                //         .map(l -> ImmutableSet.<String>builder().addAll(l).build()).collect(toImmutableSet());
-                throw new IllegalStateException();
+                // FIXME: left joins have nullable rest ids :|
+                return Entry.unify(
+                        node,
+                        node.getBranches().stream()
+                                .map(b -> process(b.getNode(), context))
+                                .collect(toImmutableList()),
+                        ImmutableList.of());
             }
 
             @Override
@@ -406,7 +405,9 @@ public final class IdAnalysis
             @Override
             public Entry visitGroup(PGroup node, Void context)
             {
-                return new StandardEntry(node, node.getKeyFields().stream().map(Part::of).collect(toImmutableList()));
+                return new StandardEntry(
+                        node,
+                        node.getKeyFields().stream().map(Part::of).collect(toImmutableList()));
             }
 
             @Override

@@ -100,7 +100,7 @@ public class SparkTest
                             ImmutableMap.of("x", Types.LONG),
                             ImmutableList.of(ImmutableList.of(420L)),
                             java.util.Optional.empty(),
-                            PValues.Strength.WEAK));
+                            PValues.Strictness.NON_STRICT));
 
             JavaSparkContext sc = new JavaSparkContext(new SparkConf().setAppName("SparkJoins").setMaster("local"));
             ExampleJob job = new ExampleJob(sc);
