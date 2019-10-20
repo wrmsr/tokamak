@@ -54,6 +54,7 @@ import com.wrmsr.tokamak.util.collect.StreamableIterable;
 
 import javax.annotation.concurrent.Immutable;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -264,6 +265,19 @@ public final class IdAnalysis
                             .map(e -> Part.of(e.getKey()))
                             .collect(toImmutableList()));
         }
+
+        public static Entry unify(PNode node, Iterable<Entry> entries, Iterable<Part> extras)
+        {
+            List<Part> parts = new ArrayList<>();
+            for (Entry entry : entries) {
+                if (entry instanceof AnonEntry) {
+                    return Entry.anon(node);
+                }
+                parts.addAll(entry.getParts());
+            }
+            extras.forEach(parts::add);
+            return of(node, Part.unify(parts));
+        }
     }
 
     @Immutable
@@ -328,7 +342,6 @@ public final class IdAnalysis
                     seen.add(field);
                     positionsByField.put(field, i);
                 }
-                ;
             }
             this.positionsByField = positionsByField.build();
         }
@@ -453,24 +466,25 @@ public final class IdAnalysis
             @Override
             public Entry visitUnion(PUnion node, Void context)
             {
-                if (node.getIndexField().isPresent()) {
-                    Set<String> idFields = new LinkedHashSet<>();
-                    for (PNode source : node.getSources()) {
-                        Entry sourceEntry = process(source, context);
-                        if (sourceEntry instanceof AnonEntry) {
-                            idFields = null;
-                            break;
-                        }
-                        else {
-                            idFields.addAll(sourceEntry);
-                        }
-                    }
+                // if (node.getIndexField().isPresent()) {
+                //     Set<String> idFields = new LinkedHashSet<>();
+                //     for (PNode source : node.getSources()) {
+                //         Entry sourceEntry = process(source, context);
+                //         if (sourceEntry instanceof AnonEntry) {
+                //             idFields = null;
+                //             break;
+                //         }
+                //         else {
+                //             idFields.addAll(sourceEntry);
+                //         }
+                //     }
+                //
+                //     if (idFields != null) {
+                //         return new StandardEntry()
+                //     }
+                // }
+                // return Entry.anon(node);
 
-                    if (idFields != null) {
-                        return new StandardEntry()
-                    }
-                }
-                return Entry.anon(node);
                 // if (node.getIndexField().isPresent() && node.getSources().stream().noneMatch(s -> process(s, context).isEmpty())) {
                 //     List<Set<Set<String>>> sourceSets = node.getSources().stream()
                 //             .map(s -> process(s, context).getSets())
@@ -486,6 +500,7 @@ public final class IdAnalysis
                 // else {
                 //     return new Entry(node, ImmutableSet.of());
                 // }
+
                 throw new IllegalStateException();
             }
 
