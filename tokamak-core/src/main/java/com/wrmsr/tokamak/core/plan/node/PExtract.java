@@ -15,9 +15,22 @@ package com.wrmsr.tokamak.core.plan.node;
 
 import javax.annotation.concurrent.Immutable;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 @Immutable
 public final class PExtract
         extends PAbstractNode
         implements PSingleSource
 {
+    private final PNode source;
+
+    public PExtract(
+            String name,
+            PNodeAnnotations annotations,
+            PNode source)
+    {
+        super(name, annotations);
+
+        this.source = checkNotNull(source);
+    }
 }

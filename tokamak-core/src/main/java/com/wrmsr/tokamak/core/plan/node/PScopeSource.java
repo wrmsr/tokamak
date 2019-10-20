@@ -16,9 +16,22 @@ package com.wrmsr.tokamak.core.plan.node;
 import javax.annotation.concurrent.Immutable;
 import javax.crypto.spec.PSource;
 
+import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
+
 @Immutable
 public final class PScopeSource
         extends PAbstractNode
         implements PSource
 {
+    private final String sourceName;
+
+    public PScopeSource(
+            String name,
+            PNodeAnnotations annotations,
+            String sourceName)
+    {
+        super(name, annotations);
+
+        this.sourceName = checkNotEmpty(sourceName);
+    }
 }
