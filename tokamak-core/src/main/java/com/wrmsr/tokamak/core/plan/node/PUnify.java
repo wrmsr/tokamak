@@ -32,5 +32,7 @@ public final class PUnify
         super(name, annotations);
 
         this.source = checkNotNull(source);
+
+        checkInvariants();
     }
 }

@@ -14,15 +14,21 @@
 package com.wrmsr.tokamak.core.plan.node.visitor;
 
 import com.wrmsr.tokamak.core.plan.node.PCache;
+import com.wrmsr.tokamak.core.plan.node.PExtract;
 import com.wrmsr.tokamak.core.plan.node.PFilter;
 import com.wrmsr.tokamak.core.plan.node.PGroup;
 import com.wrmsr.tokamak.core.plan.node.PJoin;
 import com.wrmsr.tokamak.core.plan.node.PLookupJoin;
 import com.wrmsr.tokamak.core.plan.node.PNode;
+import com.wrmsr.tokamak.core.plan.node.POutput;
 import com.wrmsr.tokamak.core.plan.node.PProject;
 import com.wrmsr.tokamak.core.plan.node.PScan;
+import com.wrmsr.tokamak.core.plan.node.PScope;
+import com.wrmsr.tokamak.core.plan.node.PScopeSource;
 import com.wrmsr.tokamak.core.plan.node.PSearch;
 import com.wrmsr.tokamak.core.plan.node.PState;
+import com.wrmsr.tokamak.core.plan.node.PStruct;
+import com.wrmsr.tokamak.core.plan.node.PUnify;
 import com.wrmsr.tokamak.core.plan.node.PUnion;
 import com.wrmsr.tokamak.core.plan.node.PUnnest;
 import com.wrmsr.tokamak.core.plan.node.PValues;
@@ -42,6 +48,11 @@ public abstract class PNodeVisitor<R, C>
     }
 
     public R visitCache(PCache node, C context)
+    {
+        return visitNode(node, context);
+    }
+
+    public R visitExtract(PExtract node, C context)
     {
         return visitNode(node, context);
     }
@@ -66,6 +77,11 @@ public abstract class PNodeVisitor<R, C>
         return visitNode(node, context);
     }
 
+    public R visitOutput(POutput node, C context)
+    {
+        return visitNode(node, context);
+    }
+
     public R visitProject(PProject node, C context)
     {
         return visitNode(node, context);
@@ -76,12 +92,32 @@ public abstract class PNodeVisitor<R, C>
         return visitNode(node, context);
     }
 
+    public R visitScope(PScope node, C context)
+    {
+        return visitNode(node, context);
+    }
+
+    public R visitScopeSource(PScopeSource node, C context)
+    {
+        return visitNode(node, context);
+    }
+
     public R visitSearch(PSearch node, C context)
     {
         return visitNode(node, context);
     }
 
     public R visitState(PState node, C context)
+    {
+        return visitNode(node, context);
+    }
+
+    public R visitStruct(PStruct node, C context)
+    {
+        return visitNode(node, context);
+    }
+
+    public R visitUnify(PUnify node, C context)
     {
         return visitNode(node, context);
     }

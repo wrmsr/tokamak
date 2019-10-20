@@ -19,7 +19,9 @@ import javax.annotation.concurrent.Immutable;
 
 import java.util.Map;
 
-import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.wrmsr.tokamak.util.MoreCollections.immutableMapValues;
+import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 
 @Immutable
 public final class StructType
@@ -30,9 +32,21 @@ public final class StructType
      - not 'record' to not clash with upcoming java keyword
     */
 
+    private final Map<String, Type> members;
+
     public StructType(Map<String, Object> kwargs)
     {
         super("Struct", kwargs);
-        this.kwargs.forEach((k, v) -> checkArgument(v instanceof Type));
+        members = immutableMapValues(this.kwargs, Type.class::cast);
+    }
+
+    public Map<String, Type> getMembers()
+    {
+        return members;
+    }
+
+    public Type getMember(String name)
+    {
+        return checkNotNull(members.get(checkNotEmpty(name)));
     }
 }

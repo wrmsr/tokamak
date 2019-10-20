@@ -33,5 +33,7 @@ public final class PScopeSource
         super(name, annotations);
 
         this.sourceName = checkNotEmpty(sourceName);
+
+        checkInvariants();
     }
 }

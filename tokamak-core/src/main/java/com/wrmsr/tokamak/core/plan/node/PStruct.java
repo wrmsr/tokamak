@@ -32,5 +32,7 @@ public final class PStruct
         super(name, annotations);
 
         this.source = checkNotNull(source);
+
+        checkInvariants();
     }
 }

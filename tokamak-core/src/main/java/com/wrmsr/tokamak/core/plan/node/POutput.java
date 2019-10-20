@@ -13,7 +13,15 @@
  */
 package com.wrmsr.tokamak.core.plan.node;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.collect.ImmutableList;
+import com.wrmsr.tokamak.core.layout.field.FieldCollection;
+import com.wrmsr.tokamak.core.plan.node.visitor.PNodeVisitor;
+
 import javax.annotation.concurrent.Immutable;
+
+import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -24,13 +32,40 @@ public final class POutput
 {
     private final PNode source;
 
+    private final List<String> targets;
+
+    @JsonCreator
     public POutput(
-            String name,
-            PNodeAnnotations annotations,
-            PNode source)
+            @JsonProperty("name") String name,
+            @JsonProperty("annotations") PNodeAnnotations annotations,
+            @JsonProperty("source") PNode source,
+            @JsonProperty("targets") List<String> targets)
     {
         super(name, annotations);
 
         this.source = checkNotNull(source);
+        this.targets = ImmutableList.copyOf(targets);
+
+        checkInvariants();
+    }
+
+    @JsonProperty("source")
+    @Override
+    public PNode getSource()
+    {
+        return source;
+    }
+
+    @JsonProperty("fields")
+    @Override
+    public FieldCollection getFields()
+    {
+        return source.getFields();
+    }
+
+    @Override
+    public <R, C> R accept(PNodeVisitor<R, C> visitor, C context)
+    {
+        return visitor.visitOutput(this, context);
     }
 }
