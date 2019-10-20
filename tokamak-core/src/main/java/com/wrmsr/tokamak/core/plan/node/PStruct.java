@@ -15,8 +15,11 @@ package com.wrmsr.tokamak.core.plan.node;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.wrmsr.tokamak.core.type.impl.StructType;
 
 import javax.annotation.concurrent.Immutable;
+
+import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -30,8 +33,11 @@ public final class PStruct
     @JsonCreator
     public PStruct(
             @JsonProperty("name") String name,
-            PNodeAnnotations annotations,
-            PNode source)
+            @JsonProperty("name") PNodeAnnotations annotations,
+            @JsonProperty("name") PNode source,
+            @JsonProperty("name") StructType type,
+            @JsonProperty("name") List<String> inputFields,
+            @JsonProperty("name") String outputField)
     {
         super(name, annotations);
 

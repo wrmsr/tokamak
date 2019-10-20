@@ -58,6 +58,12 @@ public final class PUnify
             checkNotEmpty(uf);
             checkState(source.getFields().getType(uf).equals(unifiedType));
         });
+        checkState(!source.getFields().contains(outputField) || this.unifiedFields.contains(outputField));
+
+        fields = FieldCollection.builder()
+                .addAll(source.getFields().stream().filter(f -> !unifiedFields.contains(f.getName())))
+                .add(outputField, unifiedType)
+                .build();
 
         checkInvariants();
     }
