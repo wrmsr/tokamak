@@ -73,7 +73,7 @@ public final class DriverRow
 
     public Map<String, Object> getMap()
     {
-        checkState(!isNull());
+        checkState(!isEmpty());
         return Collections.unmodifiableMap(new ObjectArrayBackedMap<>(node.getRowLayout().getShape(), attributes));
     }
 

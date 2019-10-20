@@ -73,7 +73,7 @@ public final class StateBuilder
 
             for (DriverRow row : srows) {
                 if (row.getId() == null) {
-                    checkState(row.isNull());
+                    checkState(row.isEmpty());
                     continue;
                 }
 

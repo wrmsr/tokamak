@@ -229,7 +229,7 @@ public final class State
         return linkageVersion;
     }
 
-    public boolean isNull()
+    public boolean isEmpty()
     {
         checkMode(mode != Mode.INVALID);
         return attributes == null;
