@@ -140,7 +140,7 @@ public abstract class PNodeRewriter<C>
                 visitNodeName(node.getName(), context),
                 node.getAnnotations(),
                 process(node.getSource(), context),
-                node.getWriterTargets(),
+                node.getOutputTargets(),
                 node.getDenormalization(),
                 node.getInvalidations().entrySet().stream()
                         .collect(ImmutableMap.toImmutableMap(e -> visitNodeName(e.getKey(), context), Map.Entry::getValue)),

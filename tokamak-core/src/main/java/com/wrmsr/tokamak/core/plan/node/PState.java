@@ -166,7 +166,7 @@ public final class PState
     }
 
     private final PNode source;
-    private final List<PWriterTarget> writerTargets;
+    private final List<String> outputTargets;
     private final Denormalization denormalization;
     private final Map<String, Invalidation> invalidations;
     private final Map<String, LinkageMask> linkageMasks;
@@ -177,7 +177,7 @@ public final class PState
             @JsonProperty("name") String name,
             @JsonProperty("annotations") PNodeAnnotations annotations,
             @JsonProperty("source") PNode source,
-            @JsonProperty("writerTargets") List<PWriterTarget> writerTargets,
+            @JsonProperty("outputTargets") List<String> outputTargets,
             @JsonProperty("denormalization") Denormalization denormalization,
             @JsonProperty("invalidations") Map<String, Invalidation> invalidations,
             @JsonProperty("linkageMasks") Map<String, LinkageMask> linkageMasks,
@@ -186,7 +186,7 @@ public final class PState
         super(name, annotations);
 
         this.source = checkNotNull(source);
-        this.writerTargets = ImmutableList.copyOf(writerTargets);
+        this.outputTargets = ImmutableList.copyOf(outputTargets);
         this.denormalization = checkNotNull(denormalization);
         this.invalidations = ImmutableMap.copyOf(invalidations);
         this.linkageMasks = ImmutableMap.copyOf(linkageMasks);
@@ -202,10 +202,10 @@ public final class PState
         return source;
     }
 
-    @JsonProperty("writerTargets")
-    public List<PWriterTarget> getWriterTargets()
+    @JsonProperty("outputTargets")
+    public List<String> getOutputTargets()
     {
-        return writerTargets;
+        return outputTargets;
     }
 
     @JsonProperty("denormalization")
