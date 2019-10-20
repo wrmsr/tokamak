@@ -13,10 +13,20 @@
  */
 package com.wrmsr.tokamak.core.plan.node;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import javax.annotation.concurrent.Immutable;
 
 @Immutable
 public final class PScope
         extends PAbstractNode
 {
+    @JsonCreator
+    public PScope(
+            @JsonProperty("name") String name,
+            PNodeAnnotations annotations)
+    {
+        super(name, annotations);
+    }
 }

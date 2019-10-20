@@ -13,6 +13,9 @@
  */
 package com.wrmsr.tokamak.core.plan.node;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import javax.annotation.concurrent.Immutable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -24,8 +27,9 @@ public final class PStruct
 {
     private final PNode source;
 
+    @JsonCreator
     public PStruct(
-            String name,
+            @JsonProperty("name") String name,
             PNodeAnnotations annotations,
             PNode source)
     {

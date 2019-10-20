@@ -13,6 +13,9 @@
  */
 package com.wrmsr.tokamak.core.plan.node;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import javax.annotation.concurrent.Immutable;
 import javax.crypto.spec.PSource;
 
@@ -25,8 +28,9 @@ public final class PScopeSource
 {
     private final String sourceName;
 
+    @JsonCreator
     public PScopeSource(
-            String name,
+            @JsonProperty("name") String name,
             PNodeAnnotations annotations,
             String sourceName)
     {

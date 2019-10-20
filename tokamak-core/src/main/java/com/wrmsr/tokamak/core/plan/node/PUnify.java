@@ -13,7 +13,12 @@
  */
 package com.wrmsr.tokamak.core.plan.node;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import javax.annotation.concurrent.Immutable;
+
+import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -24,10 +29,13 @@ public final class PUnify
 {
     private final PNode source;
 
+    @JsonCreator
     public PUnify(
-            String name,
+            @JsonProperty("name") String name,
             PNodeAnnotations annotations,
-            PNode source)
+            PNode source,
+            Set<String> unifiedFields,
+            String outputField)
     {
         super(name, annotations);
 
