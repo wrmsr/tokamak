@@ -55,7 +55,7 @@ public final class FieldCollection
         implements StreamableIterable<Field>
 {
     /*
-    NOTEs:
+    NOTES:
      - 'terminal' - not to be rewritten from - modify PNodeAttributes collections for rewriting plans
      - would still be nice to further unify with other atts colls
     */

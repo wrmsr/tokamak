@@ -243,8 +243,8 @@ public class CoreTest
         oa.getLeafChainAnalysis();
         oa.getStateChainAnalysis();
 
-        IdAnalysis ifa = IdAnalysis.analyze(plan);
-        System.out.println(ifa);
+        // IdAnalysis ifa = IdAnalysis.analyze(plan);
+        // System.out.println(ifa);
 
         src = om.writerWithDefaultPrettyPrinter().writeValueAsString(plan);
         System.out.println(src);
