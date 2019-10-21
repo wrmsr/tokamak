@@ -15,6 +15,7 @@ package com.wrmsr.tokamak.core.plan.dot;
 
 import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.core.plan.node.PCache;
+import com.wrmsr.tokamak.core.plan.node.PExtract;
 import com.wrmsr.tokamak.core.plan.node.PJoin;
 import com.wrmsr.tokamak.core.plan.node.PFilter;
 import com.wrmsr.tokamak.core.plan.node.PGroup;
@@ -22,7 +23,11 @@ import com.wrmsr.tokamak.core.plan.node.PLookupJoin;
 import com.wrmsr.tokamak.core.plan.node.PNode;
 import com.wrmsr.tokamak.core.plan.node.PProject;
 import com.wrmsr.tokamak.core.plan.node.PScan;
+import com.wrmsr.tokamak.core.plan.node.PScope;
+import com.wrmsr.tokamak.core.plan.node.PScopeExit;
 import com.wrmsr.tokamak.core.plan.node.PState;
+import com.wrmsr.tokamak.core.plan.node.PStruct;
+import com.wrmsr.tokamak.core.plan.node.PUnify;
 import com.wrmsr.tokamak.core.plan.node.PUnion;
 import com.wrmsr.tokamak.core.plan.node.PUnnest;
 import com.wrmsr.tokamak.core.plan.node.PValues;
@@ -44,13 +49,19 @@ public final class NodeRenderings
     public static final CtorLazyValue<List<NodeRendering>> RAW_NODE_RENDERINGS = new CtorLazyValue<>(() ->
             ImmutableList.<NodeRendering>builder()
                     .add(new NodeRendering<>(PCache.class))
-                    .add(new NodeRendering<>(PJoin.class))
+                    .add(new NodeRendering<>(PExtract.class))
                     .add(new NodeRendering<>(PFilter.class))
                     .add(new NodeRendering<>(PGroup.class))
+                    .add(new NodeRendering<>(PJoin.class))
                     .add(new NodeRendering<>(PLookupJoin.class))
                     .add(new NodeRendering<>(PProject.class))
                     .add(new NodeRendering<>(PScan.class))
+                    .add(new NodeRendering<>(PScope.class))
+                    .add(new NodeRendering<>(PScopeExit.class))
                     .add(new NodeRendering<>(PState.class))
+                    .add(new NodeRendering<>(PStruct.class))
+                    .add(new NodeRendering<>(PStruct.class))
+                    .add(new NodeRendering<>(PUnify.class))
                     .add(new NodeRendering<>(PUnion.class))
                     .add(new NodeRendering<>(PUnnest.class))
                     .add(new NodeRendering<>(PValues.class))
