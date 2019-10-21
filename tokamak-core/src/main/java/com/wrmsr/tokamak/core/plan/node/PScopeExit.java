@@ -21,23 +21,27 @@ import com.wrmsr.tokamak.core.plan.node.visitor.PNodeVisitor;
 import javax.annotation.concurrent.Immutable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 
 @Immutable
-public final class PScope
+public final class PScopeExit
         extends PAbstractNode
         implements PSingleSource
 {
     private final PNode source;
+    private final String scopeName;
 
     @JsonCreator
-    public PScope(
+    public PScopeExit(
             @JsonProperty("name") String name,
             @JsonProperty("annotations") PNodeAnnotations annotations,
-            @JsonProperty("source") PNode source)
+            @JsonProperty("source") PNode source,
+            @JsonProperty("scopeName") String scopeName)
     {
         super(name, annotations);
 
         this.source = checkNotNull(source);
+        this.scopeName = checkNotEmpty(scopeName);
 
         checkInvariants();
     }
@@ -46,18 +50,24 @@ public final class PScope
     @Override
     public PNode getSource()
     {
-        return null;
+        return source;
+    }
+
+    @JsonProperty("scopeName")
+    public String getScopeName()
+    {
+        return scopeName;
     }
 
     @Override
     public FieldCollection getFields()
     {
-        return null;
+        return source.getFields();
     }
 
     @Override
     public <R, C> R accept(PNodeVisitor<R, C> visitor, C context)
     {
-        return visitor.visitScope(this, context);
+        return visitor.visitScopeExit(this, context);
     }
 }

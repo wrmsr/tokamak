@@ -24,7 +24,7 @@ import com.wrmsr.tokamak.core.plan.node.POutput;
 import com.wrmsr.tokamak.core.plan.node.PProject;
 import com.wrmsr.tokamak.core.plan.node.PScan;
 import com.wrmsr.tokamak.core.plan.node.PScope;
-import com.wrmsr.tokamak.core.plan.node.PScopeSource;
+import com.wrmsr.tokamak.core.plan.node.PScopeExit;
 import com.wrmsr.tokamak.core.plan.node.PSearch;
 import com.wrmsr.tokamak.core.plan.node.PState;
 import com.wrmsr.tokamak.core.plan.node.PStruct;
@@ -97,7 +97,7 @@ public abstract class PNodeVisitor<R, C>
         return visitNode(node, context);
     }
 
-    public R visitScopeSource(PScopeSource node, C context)
+    public R visitScopeExit(PScopeExit node, C context)
     {
         return visitNode(node, context);
     }

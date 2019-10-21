@@ -57,7 +57,7 @@ public final class PExtract
 
         Field sourceFieldObj = checkNotNull(source.getFields().get(sourceField));
         StructType structType = (StructType) checkNotNull(sourceFieldObj.getType());
-        Type structMemberType = structType.getMember(structMember);
+        Type structMemberType = structType.getMember(structMember).getType();
         checkState(!source.getFields().contains(outputField));
 
         fields = FieldCollection.builder()

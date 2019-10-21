@@ -37,7 +37,7 @@ import java.util.List;
         @JsonSubTypes.Type(value = PProject.class, name = "project"),
         @JsonSubTypes.Type(value = PScan.class, name = "scan"),
         @JsonSubTypes.Type(value = PScope.class, name = "scope"),
-        @JsonSubTypes.Type(value = PScopeSource.class, name = "scopeSource"),
+        @JsonSubTypes.Type(value = PScopeExit.class, name = "scopeExit"),
         @JsonSubTypes.Type(value = PSearch.class, name = "search"),
         @JsonSubTypes.Type(value = PState.class, name = "state"),
         @JsonSubTypes.Type(value = PStruct.class, name = "struct"),
