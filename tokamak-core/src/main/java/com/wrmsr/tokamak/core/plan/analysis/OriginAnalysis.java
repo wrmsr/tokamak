@@ -111,6 +111,8 @@ public final class OriginAnalysis
 
     public interface Nesting
     {
+        // Group, Unnest, Struct, Extract
+
         final class Nested
                 implements Nesting
         {
