@@ -19,18 +19,24 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.wrmsr.tokamak.core.plan.Plan;
 import com.wrmsr.tokamak.core.plan.node.PCache;
+import com.wrmsr.tokamak.core.plan.node.PExtract;
 import com.wrmsr.tokamak.core.plan.node.PFilter;
 import com.wrmsr.tokamak.core.plan.node.PGroup;
 import com.wrmsr.tokamak.core.plan.node.PJoin;
 import com.wrmsr.tokamak.core.plan.node.PLookupJoin;
 import com.wrmsr.tokamak.core.plan.node.PNode;
 import com.wrmsr.tokamak.core.plan.node.PNodeField;
+import com.wrmsr.tokamak.core.plan.node.POutput;
 import com.wrmsr.tokamak.core.plan.node.PProject;
 import com.wrmsr.tokamak.core.plan.node.PProjection;
 import com.wrmsr.tokamak.core.plan.node.PScan;
+import com.wrmsr.tokamak.core.plan.node.PScope;
+import com.wrmsr.tokamak.core.plan.node.PScopeExit;
 import com.wrmsr.tokamak.core.plan.node.PSearch;
 import com.wrmsr.tokamak.core.plan.node.PSingleSource;
 import com.wrmsr.tokamak.core.plan.node.PState;
+import com.wrmsr.tokamak.core.plan.node.PStruct;
+import com.wrmsr.tokamak.core.plan.node.PUnify;
 import com.wrmsr.tokamak.core.plan.node.PUnion;
 import com.wrmsr.tokamak.core.plan.node.PUnnest;
 import com.wrmsr.tokamak.core.plan.node.PValues;
@@ -565,6 +571,34 @@ public final class OriginAnalysis
             }
 
             @Override
+            public Void visitExtract(PExtract node, Void context)
+            {
+                // FIXME:
+                checkState(false);
+
+                return null;
+            }
+
+            @Override
+            public Void visitFilter(PFilter node, Void context)
+            {
+                addDirectSingleSource(node);
+
+                return null;
+            }
+
+            @Override
+            public Void visitGroup(PGroup node, Void context)
+            {
+                originations.add(new Origination(
+                        PNodeField.of(node, node.getListField()), Genesis.GROUP));
+                node.getKeyFields().forEach(gf -> originations.add(new Origination(
+                        PNodeField.of(node, gf), PNodeField.of(node.getSource(), gf), Genesis.DIRECT, Nesting.none())));
+
+                return null;
+            }
+
+            @Override
             public Void visitJoin(PJoin node, Void context)
             {
                 node.getBranches().forEach(b -> {
@@ -603,31 +637,20 @@ public final class OriginAnalysis
             }
 
             @Override
-            public Void visitFilter(PFilter node, Void context)
-            {
-                addDirectSingleSource(node);
-
-                return null;
-            }
-
-            @Override
-            public Void visitGroup(PGroup node, Void context)
-            {
-                originations.add(new Origination(
-                        PNodeField.of(node, node.getListField()), Genesis.GROUP));
-                node.getKeyFields().forEach(gf -> originations.add(new Origination(
-                        PNodeField.of(node, gf), PNodeField.of(node.getSource(), gf), Genesis.DIRECT, Nesting.none())));
-
-                return null;
-            }
-
-            @Override
             public Void visitLookupJoin(PLookupJoin node, Void context)
             {
                 node.getSource().getFields().getNames().forEach(f -> originations.add(new Origination(
                         PNodeField.of(node, f), PNodeField.of(node.getSource(), f), Genesis.DIRECT, Nesting.none())));
                 node.getBranches().forEach(b -> b.getFields().forEach(f -> originations.add(new Origination(
                         PNodeField.of(node, f), PNodeField.of(b.getNode(), f), Genesis.LOOKUP_JOIN, Nesting.none()))));
+
+                return null;
+            }
+
+            @Override
+            public Void visitOutput(POutput node, Void context)
+            {
+                addDirectSingleSource(node);
 
                 return null;
             }
@@ -660,6 +683,24 @@ public final class OriginAnalysis
             }
 
             @Override
+            public Void visitScope(PScope node, Void context)
+            {
+                // FIXME:
+                checkState(false);
+
+                return null;
+            }
+
+            @Override
+            public Void visitScopeExit(PScopeExit node, Void context)
+            {
+                // FIXME:
+                checkState(false);
+
+                return null;
+            }
+
+            @Override
             public Void visitSearch(PSearch node, Void context)
             {
                 // FIXME:
@@ -672,6 +713,24 @@ public final class OriginAnalysis
             public Void visitState(PState node, Void context)
             {
                 addDirectSingleSource(node);
+
+                return null;
+            }
+
+            @Override
+            public Void visitStruct(PStruct node, Void context)
+            {
+                // FIXME:
+                checkState(false);
+
+                return null;
+            }
+
+            @Override
+            public Void visitUnify(PUnify node, Void context)
+            {
+                // FIXME:
+                checkState(false);
 
                 return null;
             }
