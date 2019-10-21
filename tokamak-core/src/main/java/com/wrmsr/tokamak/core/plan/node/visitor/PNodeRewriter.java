@@ -15,15 +15,21 @@ package com.wrmsr.tokamak.core.plan.node.visitor;
 
 import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.core.plan.node.PCache;
+import com.wrmsr.tokamak.core.plan.node.PExtract;
 import com.wrmsr.tokamak.core.plan.node.PFilter;
 import com.wrmsr.tokamak.core.plan.node.PGroup;
 import com.wrmsr.tokamak.core.plan.node.PJoin;
 import com.wrmsr.tokamak.core.plan.node.PLookupJoin;
 import com.wrmsr.tokamak.core.plan.node.PNode;
+import com.wrmsr.tokamak.core.plan.node.POutput;
 import com.wrmsr.tokamak.core.plan.node.PProject;
 import com.wrmsr.tokamak.core.plan.node.PScan;
+import com.wrmsr.tokamak.core.plan.node.PScope;
+import com.wrmsr.tokamak.core.plan.node.PScopeExit;
 import com.wrmsr.tokamak.core.plan.node.PSearch;
 import com.wrmsr.tokamak.core.plan.node.PState;
+import com.wrmsr.tokamak.core.plan.node.PStruct;
+import com.wrmsr.tokamak.core.plan.node.PUnify;
 import com.wrmsr.tokamak.core.plan.node.PUnion;
 import com.wrmsr.tokamak.core.plan.node.PUnnest;
 import com.wrmsr.tokamak.core.plan.node.PValues;
@@ -46,7 +52,19 @@ public abstract class PNodeRewriter<C>
         return new PCache(
                 visitNodeName(node.getName(), context),
                 node.getAnnotations(),
-                node.getSource());
+                process(node.getSource(), context));
+    }
+
+    @Override
+    public PNode visitExtract(PExtract node, C context)
+    {
+        return new PExtract(
+                visitNodeName(node.getName(), context),
+                node.getAnnotations(),
+                process(node.getSource(), context),
+                node.getSourceField(),
+                node.getStructMember(),
+                node.getOutputField());
     }
 
     @Override
@@ -102,6 +120,16 @@ public abstract class PNodeRewriter<C>
     }
 
     @Override
+    public PNode visitOutput(POutput node, C context)
+    {
+        return new POutput(
+                visitNodeName(node.getName(), context),
+                node.getAnnotations(),
+                process(node.getSource(), context),
+                node.getTargets());
+    }
+
+    @Override
     public PNode visitProject(PProject node, C context)
     {
         return new PProject(
@@ -119,6 +147,25 @@ public abstract class PNodeRewriter<C>
                 node.getAnnotations(),
                 node.getSchemaTable(),
                 node.getFields().getTypesByName());
+    }
+
+    @Override
+    public PNode visitScope(PScope node, C context)
+    {
+        return new PScope(
+                visitNodeName(node.getName(), context),
+                node.getAnnotations(),
+                process(node.getSource(), context));
+    }
+
+    @Override
+    public PNode visitScopeExit(PScopeExit node, C context)
+    {
+        return new PScopeExit(
+                visitNodeName(node.getScopeName(), context),
+                node.getAnnotations(),
+                process(node.getSource(), context),
+                visitNodeName(node.getScopeName(), context));
     }
 
     @Override
@@ -147,6 +194,29 @@ public abstract class PNodeRewriter<C>
                 node.getLinkageMasks().entrySet().stream()
                         .collect(ImmutableMap.toImmutableMap(e -> visitNodeName(e.getKey(), context), Map.Entry::getValue)),
                 node.getLockOverride().map(lo -> new PState.LockOverride(visitNodeName(lo.getNode(), context), lo.getField(), lo.getSpilling())));
+    }
+
+    @Override
+    public PNode visitStruct(PStruct node, C context)
+    {
+        return new PStruct(
+                visitNodeName(node.getName(), context),
+                node.getAnnotations(),
+                process(node.getSource(), context),
+                node.getType(),
+                node.getInputFields(),
+                node.getOutputField());
+    }
+
+    @Override
+    public PNode visitUnify(PUnify node, C context)
+    {
+        return new PUnify(
+                visitNodeName(node.getName(), context),
+                node.getAnnotations(),
+                process(node.getSource(), context),
+                node.getUnifiedFields(),
+                node.getOutputField());
     }
 
     @Override

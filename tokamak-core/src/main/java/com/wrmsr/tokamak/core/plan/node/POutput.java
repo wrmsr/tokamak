@@ -24,6 +24,7 @@ import javax.annotation.concurrent.Immutable;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 
 @Immutable
 public final class POutput
@@ -45,6 +46,7 @@ public final class POutput
 
         this.source = checkNotNull(source);
         this.targets = ImmutableList.copyOf(targets);
+        this.targets.forEach(t -> checkNotEmpty(t));
 
         checkInvariants();
     }
@@ -56,7 +58,12 @@ public final class POutput
         return source;
     }
 
-    @JsonProperty("fields")
+    @JsonProperty("targets")
+    public List<String> getTargets()
+    {
+        return targets;
+    }
+
     @Override
     public FieldCollection getFields()
     {
