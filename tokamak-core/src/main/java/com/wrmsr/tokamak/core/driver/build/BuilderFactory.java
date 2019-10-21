@@ -15,6 +15,10 @@ package com.wrmsr.tokamak.core.driver.build;
 
 import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.core.driver.DriverImpl;
+import com.wrmsr.tokamak.core.driver.build.impl.ExtractBuilder;
+import com.wrmsr.tokamak.core.driver.build.impl.OutputBuilder;
+import com.wrmsr.tokamak.core.driver.build.impl.ScopeBuilder;
+import com.wrmsr.tokamak.core.driver.build.impl.ScopeExitBuilder;
 import com.wrmsr.tokamak.core.driver.build.impl.SearchBuilder;
 import com.wrmsr.tokamak.core.driver.build.impl.CacheBuilder;
 import com.wrmsr.tokamak.core.driver.build.impl.JoinBuilder;
@@ -24,9 +28,15 @@ import com.wrmsr.tokamak.core.driver.build.impl.LookupJoinBuilder;
 import com.wrmsr.tokamak.core.driver.build.impl.ProjectBuilder;
 import com.wrmsr.tokamak.core.driver.build.impl.ScanBuilder;
 import com.wrmsr.tokamak.core.driver.build.impl.StateBuilder;
+import com.wrmsr.tokamak.core.driver.build.impl.StructBuilder;
+import com.wrmsr.tokamak.core.driver.build.impl.UnifyBuilder;
 import com.wrmsr.tokamak.core.driver.build.impl.UnionBuilder;
 import com.wrmsr.tokamak.core.driver.build.impl.UnnestBuilder;
 import com.wrmsr.tokamak.core.driver.build.impl.ValuesBuilder;
+import com.wrmsr.tokamak.core.plan.node.PExtract;
+import com.wrmsr.tokamak.core.plan.node.POutput;
+import com.wrmsr.tokamak.core.plan.node.PScope;
+import com.wrmsr.tokamak.core.plan.node.PScopeExit;
 import com.wrmsr.tokamak.core.plan.node.PSearch;
 import com.wrmsr.tokamak.core.plan.node.PCache;
 import com.wrmsr.tokamak.core.plan.node.PJoin;
@@ -37,6 +47,8 @@ import com.wrmsr.tokamak.core.plan.node.PNode;
 import com.wrmsr.tokamak.core.plan.node.PProject;
 import com.wrmsr.tokamak.core.plan.node.PScan;
 import com.wrmsr.tokamak.core.plan.node.PState;
+import com.wrmsr.tokamak.core.plan.node.PStruct;
+import com.wrmsr.tokamak.core.plan.node.PUnify;
 import com.wrmsr.tokamak.core.plan.node.PUnion;
 import com.wrmsr.tokamak.core.plan.node.PUnnest;
 import com.wrmsr.tokamak.core.plan.node.PValues;
@@ -69,14 +81,20 @@ public class BuilderFactory
     private final Map<Class<? extends PNode>, BuilderConstructor> BUILDER_CONSTRUCTORS_BY_NODE_TYPE =
             ImmutableMap.<Class<? extends PNode>, BuilderConstructor>builder()
                     .put(PCache.class, (d, n, s) -> new CacheBuilder(d, (PCache) n, s))
-                    .put(PJoin.class, (d, n, s) -> new JoinBuilder(d, (PJoin) n, s))
+                    .put(PExtract.class, (d, n, s) -> new ExtractBuilder(d, (PExtract) n, s))
                     .put(PFilter.class, (d, n, s) -> new FilterBuilder(d, (PFilter) n, s))
                     .put(PGroup.class, (d, n, s) -> new GroupBuilder(d, (PGroup) n, s))
+                    .put(PJoin.class, (d, n, s) -> new JoinBuilder(d, (PJoin) n, s))
                     .put(PLookupJoin.class, (d, n, s) -> new LookupJoinBuilder(d, (PLookupJoin) n, s))
+                    .put(POutput.class, (d, n, s) -> new OutputBuilder(d, (POutput) n, s))
                     .put(PProject.class, (d, n, s) -> new ProjectBuilder(d, (PProject) n, s))
                     .put(PScan.class, (d, n, s) -> new ScanBuilder(d, (PScan) n, s))
-                    .put(PState.class, (d, n, s) -> new StateBuilder(d, (PState) n, s))
+                    .put(PScope.class, (d, n, s) -> new ScopeBuilder(d, (PScope) n, s))
+                    .put(PScopeExit.class, (d, n, s) -> new ScopeExitBuilder(d, (PScopeExit) n, s))
                     .put(PSearch.class, (d, n, s) -> new SearchBuilder(d, (PSearch) n, s))
+                    .put(PState.class, (d, n, s) -> new StateBuilder(d, (PState) n, s))
+                    .put(PStruct.class, (d, n, s) -> new StructBuilder(d, (PStruct) n, s))
+                    .put(PUnify.class, (d, n, s) -> new UnifyBuilder(d, (PUnify) n, s))
                     .put(PUnion.class, (d, n, s) -> new UnionBuilder(d, (PUnion) n, s))
                     .put(PUnnest.class, (d, n, s) -> new UnnestBuilder(d, (PUnnest) n, s))
                     .put(PValues.class, (d, n, s) -> new ValuesBuilder(d, (PValues) n, s))
