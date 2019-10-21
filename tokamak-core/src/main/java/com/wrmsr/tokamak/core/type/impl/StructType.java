@@ -13,15 +13,24 @@
  */
 package com.wrmsr.tokamak.core.type.impl;
 
+import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.core.type.Type;
+import com.wrmsr.tokamak.util.Pair;
 
 import javax.annotation.concurrent.Immutable;
 
+import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.ImmutableList.toImmutableList;
+import static com.wrmsr.tokamak.util.MoreCollections.checkOrdered;
+import static com.wrmsr.tokamak.util.MoreCollections.enumerate;
 import static com.wrmsr.tokamak.util.MoreCollections.immutableMapValues;
+import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
+import static java.util.function.UnaryOperator.identity;
 
 @Immutable
 public final class StructType
@@ -32,21 +41,62 @@ public final class StructType
      - not 'record' to not clash with upcoming java keyword
     */
 
-    private final Map<String, Type> members;
+    @Immutable
+    public static final class Member
+    {
+        private final String name;
+        private final Type type;
+        private final int position;
+
+        public Member(String name, Type type, int position)
+        {
+            this.name = checkNotEmpty(name);
+            this.type = checkNotNull(type);
+            this.position = position;
+        }
+
+        public String getName()
+        {
+            return name;
+        }
+
+        public Type getType()
+        {
+            return type;
+        }
+
+        public int getPosition()
+        {
+            return position;
+        }
+    }
+
+    private final List<Member> members;
+    private final Map<String, Member> membersByName;
 
     public StructType(Map<String, Object> kwargs)
     {
         super("Struct", kwargs);
-        members = immutableMapValues(this.kwargs, Type.class::cast);
+        List<Map.Entry<String, Type>> entryList = ImmutableList.copyOf(
+                immutableMapValues(checkOrdered(this.kwargs), Type.class::cast).entrySet());
+        members = enumerate(entryList.stream())
+                .map(i -> new Member(i.getItem().getKey(), i.getItem().getValue(), i.getIndex()))
+                .collect(toImmutableList());
+        membersByName = members.stream().collect(toImmutableMap(Member::getName, identity()));
     }
 
-    public Map<String, Type> getMembers()
+    public List<Member> getMembers()
     {
         return members;
     }
 
-    public Type getMember(String name)
+    public Map<String, Member> getMembersByName()
     {
-        return checkNotNull(members.get(checkNotEmpty(name)));
+        return membersByName;
+    }
+
+    public Member getMember(String name)
+    {
+        return checkNotNull(membersByName.get(checkNotEmpty(name)));
     }
 }

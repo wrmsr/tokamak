@@ -24,6 +24,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 @Immutable
 public final class NotNullType
         extends AbstractType
+        implements SigilType
 {
     private final Type item;
 
