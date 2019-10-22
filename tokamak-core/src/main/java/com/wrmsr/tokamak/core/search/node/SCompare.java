@@ -17,18 +17,53 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wrmsr.tokamak.core.search.node.visitor.SNodeVisitor;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import java.util.Arrays;
+import java.util.Map;
 
-public final class SComparison
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
+import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
+import static java.util.function.UnaryOperator.identity;
+
+public final class SCompare
         extends SOperator
 {
-    private final SCmp op;
+    public enum Op
+    {
+        EQ("=="),
+        NE("!="),
+        GT(">"),
+        GE(">="),
+        LT("<"),
+        LE("<=");
+
+        private final String string;
+
+        Op(String string)
+        {
+            this.string = checkNotEmpty(string);
+        }
+
+        public String getString()
+        {
+            return string;
+        }
+
+        public static final Map<String, Op> STRING_MAP = Arrays.stream(Op.values()).collect(toImmutableMap(Op::getString, identity()));
+
+        public static Op fromString(String str)
+        {
+            return checkNotNull(STRING_MAP.get(checkNotEmpty(str)));
+        }
+    }
+
+    private final Op op;
     private final SNode left;
     private final SNode right;
 
     @JsonCreator
-    public SComparison(
-            @JsonProperty("op") SCmp op,
+    public SCompare(
+            @JsonProperty("op") Op op,
             @JsonProperty("left") SNode left,
             @JsonProperty("right") SNode right)
     {
@@ -38,7 +73,7 @@ public final class SComparison
     }
 
     @JsonProperty("op")
-    public SCmp getOp()
+    public Op getOp()
     {
         return op;
     }
@@ -58,6 +93,6 @@ public final class SComparison
     @Override
     public <R, C> R accept(SNodeVisitor<R, C> visitor, C context)
     {
-        return visitor.visitComparison(this, context);
+        return visitor.visitCompare(this, context);
     }
 }

@@ -14,7 +14,7 @@
 package com.wrmsr.tokamak.core.search.node.visitor;
 
 import com.wrmsr.tokamak.core.search.node.SAnd;
-import com.wrmsr.tokamak.core.search.node.SComparison;
+import com.wrmsr.tokamak.core.search.node.SCompare;
 import com.wrmsr.tokamak.core.search.node.SCreateArray;
 import com.wrmsr.tokamak.core.search.node.SCreateObject;
 import com.wrmsr.tokamak.core.search.node.SCurrent;
@@ -55,7 +55,7 @@ public abstract class SNodeVisitor<R, C>
         return visitOperator(node, context);
     }
 
-    public R visitComparison(SComparison node, C context)
+    public R visitCompare(SCompare node, C context)
     {
         return visitOperator(node, context);
     }

@@ -25,7 +25,7 @@ import com.wrmsr.tokamak.core.plan.node.PNodeAnnotations;
 import com.wrmsr.tokamak.core.plan.node.PProject;
 import com.wrmsr.tokamak.core.plan.node.PProjection;
 import com.wrmsr.tokamak.core.plan.node.PScan;
-import com.wrmsr.tokamak.core.tree.analysis.ScopeAnalysis;
+import com.wrmsr.tokamak.core.tree.analysis.SymbolAnalysis;
 import com.wrmsr.tokamak.core.tree.node.TAliasedRelation;
 import com.wrmsr.tokamak.core.tree.node.TExpression;
 import com.wrmsr.tokamak.core.tree.node.TExpressionSelectItem;
@@ -73,14 +73,14 @@ public class TreePlanner
 
     public PNode plan(TNode treeNode)
     {
-        ScopeAnalysis scopeAnalysis = ScopeAnalysis.analyze(treeNode, catalog, defaultSchema);
+        SymbolAnalysis symbolAnalysis = SymbolAnalysis.analyze(treeNode, catalog, defaultSchema);
 
-        return treeNode.accept(new TNodeVisitor<PNode, ScopeAnalysis.Scope>()
+        return treeNode.accept(new TNodeVisitor<PNode, SymbolAnalysis.Scope>()
         {
             @Override
-            public PNode visitAliasedRelation(TAliasedRelation treeNode, ScopeAnalysis.Scope context)
+            public PNode visitAliasedRelation(TAliasedRelation treeNode, SymbolAnalysis.Scope context)
             {
-                PNode scanNode = process(treeNode.getRelation(), scopeAnalysis.getScope(treeNode).get());
+                PNode scanNode = process(treeNode.getRelation(), symbolAnalysis.getScope(treeNode).get());
                 return new PProject(
                         nameGenerator.get("aliasedRelationProject"),
                         PNodeAnnotations.empty(),
@@ -91,7 +91,7 @@ public class TreePlanner
             }
 
             @Override
-            public PNode visitSelect(TSelect treeNode, ScopeAnalysis.Scope context)
+            public PNode visitSelect(TSelect treeNode, SymbolAnalysis.Scope context)
             {
                 Map<String, PProjection.Input> projection = new LinkedHashMap<>();
 
@@ -145,7 +145,7 @@ public class TreePlanner
             }
 
             @Override
-            public PNode visitTableName(TTableName treeNode, ScopeAnalysis.Scope context)
+            public PNode visitTableName(TTableName treeNode, SymbolAnalysis.Scope context)
             {
                 SchemaTable schemaTable = treeNode.getQualifiedName().toSchemaTable(defaultSchema);
 
@@ -155,7 +155,7 @@ public class TreePlanner
 
                 context.getSymbols().forEach(s -> {
                     checkState(table.getRowLayout().getFields().contains(s.getName().get()));
-                    Set<ScopeAnalysis.SymbolRef> srs = scopeAnalysis.getResolutions().getSymbolRefs().get(s);
+                    Set<SymbolAnalysis.SymbolRef> srs = symbolAnalysis.getResolutions().getSymbolRefs().get(s);
                     if (srs != null) {
                         columns.add(s.getName().get());
                     }

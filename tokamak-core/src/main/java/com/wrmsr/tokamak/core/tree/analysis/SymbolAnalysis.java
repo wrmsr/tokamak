@@ -47,7 +47,7 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.wrmsr.tokamak.util.MoreCollections.newImmutableSetMap;
 import static com.wrmsr.tokamak.util.MoreOptionals.optionalTest;
 
-public final class ScopeAnalysis
+public final class SymbolAnalysis
 {
     public static final class Symbol
     {
@@ -238,7 +238,7 @@ public final class ScopeAnalysis
     private final Map<TNode, Set<Symbol>> symbolSetsByNode;
     private final Map<TNode, SymbolRef> symbolRefsByNode;
 
-    private ScopeAnalysis(Scope rootScope)
+    private SymbolAnalysis(Scope rootScope)
     {
         this.rootScope = checkNotNull(rootScope);
 
@@ -272,7 +272,7 @@ public final class ScopeAnalysis
     {
         checkArgument(symbolRef.nameParts.isPresent());
         return symbolRef.getScope().getChildren().stream()
-                .map(ScopeAnalysis.Scope::getSymbols)
+                .map(SymbolAnalysis.Scope::getSymbols)
                 .flatMap(Set::stream)
                 .filter(s -> optionalTest(s.getName(), symbolRef.nameParts.get().get(0)::equals))
                 .collect(toImmutableList());
@@ -283,7 +283,7 @@ public final class ScopeAnalysis
         checkArgument(optionalTest(symbolRef.nameParts, np -> np.size() > 1));
         return symbolRef.getScope().getChildren().stream()
                 .filter(s -> optionalTest(s.getName(), symbolRef.nameParts.get().get(0)::equals))
-                .map(ScopeAnalysis.Scope::getSymbols)
+                .map(SymbolAnalysis.Scope::getSymbols)
                 .flatMap(Set::stream)
                 .filter(s -> optionalTest(s.getName(), symbolRef.nameParts.get().get(1)::equals))
                 .collect(toImmutableList());
@@ -343,7 +343,7 @@ public final class ScopeAnalysis
         });
     }
 
-    public static ScopeAnalysis analyze(TNode statement, Optional<Catalog> catalog, Optional<String> defaultSchema)
+    public static SymbolAnalysis analyze(TNode statement, Optional<Catalog> catalog, Optional<String> defaultSchema)
     {
         Scope scope = statement.accept(new TraversalTNodeVisitor<Scope, Scope>()
         {
@@ -422,6 +422,6 @@ public final class ScopeAnalysis
             }
         }, null);
 
-        return new ScopeAnalysis(scope);
+        return new SymbolAnalysis(scope);
     }
 }

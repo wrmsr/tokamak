@@ -14,7 +14,7 @@
 package com.wrmsr.tokamak.core.search.node.visitor;
 
 import com.wrmsr.tokamak.core.search.node.SAnd;
-import com.wrmsr.tokamak.core.search.node.SComparison;
+import com.wrmsr.tokamak.core.search.node.SCompare;
 import com.wrmsr.tokamak.core.search.node.SCreateArray;
 import com.wrmsr.tokamak.core.search.node.SCreateObject;
 import com.wrmsr.tokamak.core.search.node.SCurrent;
@@ -50,9 +50,9 @@ public class SNodeRewriter<C>
     }
 
     @Override
-    public SNode visitComparison(SComparison node, C context)
+    public SNode visitCompare(SCompare node, C context)
     {
-        return new SComparison(
+        return new SCompare(
                 node.getOp(),
                 process(node.getLeft(), context),
                 process(node.getRight(), context));

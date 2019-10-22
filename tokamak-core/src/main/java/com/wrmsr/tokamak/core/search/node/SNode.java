@@ -22,7 +22,7 @@ import com.wrmsr.tokamak.core.search.node.visitor.SNodeVisitor;
         include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonSubTypes({
         @JsonSubTypes.Type(value = SAnd.class, name = "and"),
-        @JsonSubTypes.Type(value = SComparison.class, name = "comparison"),
+        @JsonSubTypes.Type(value = SCompare.class, name = "compare"),
         @JsonSubTypes.Type(value = SCreateArray.class, name = "createArray"),
         @JsonSubTypes.Type(value = SCreateObject.class, name = "createObject"),
         @JsonSubTypes.Type(value = SCurrent.class, name = "current"),

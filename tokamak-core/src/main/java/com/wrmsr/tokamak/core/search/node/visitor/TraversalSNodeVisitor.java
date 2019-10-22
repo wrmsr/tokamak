@@ -14,7 +14,7 @@
 package com.wrmsr.tokamak.core.search.node.visitor;
 
 import com.wrmsr.tokamak.core.search.node.SAnd;
-import com.wrmsr.tokamak.core.search.node.SComparison;
+import com.wrmsr.tokamak.core.search.node.SCompare;
 import com.wrmsr.tokamak.core.search.node.SCreateArray;
 import com.wrmsr.tokamak.core.search.node.SCreateObject;
 import com.wrmsr.tokamak.core.search.node.SExpressionRef;
@@ -51,13 +51,13 @@ public class TraversalSNodeVisitor<R, C>
     }
 
     @Override
-    public R visitComparison(SComparison node, C context)
+    public R visitCompare(SCompare node, C context)
     {
         C traversedContext = traverseContext(node, context);
         process(node.getLeft(), traversedContext);
         process(node.getRight(), traversedContext);
 
-        return super.visitComparison(node, context);
+        return super.visitCompare(node, context);
     }
 
     @Override

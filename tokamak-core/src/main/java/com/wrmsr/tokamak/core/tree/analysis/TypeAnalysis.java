@@ -47,10 +47,10 @@ public final class TypeAnalysis
 
     public static TypeAnalysis analyze(TNode root, Catalog catalog, Optional<String> defaultSchema)
     {
-        ScopeAnalysis scopeAnalysis = ScopeAnalysis.analyze(root, Optional.of(catalog), defaultSchema);
-        scopeAnalysis.getResolutions();
+        SymbolAnalysis symbolAnalysis = SymbolAnalysis.analyze(root, Optional.of(catalog), defaultSchema);
+        symbolAnalysis.getResolutions();
 
-        Map<ScopeAnalysis.Symbol, Type> typesBySymbol = new LinkedHashMap<>();
+        Map<SymbolAnalysis.Symbol, Type> typesBySymbol = new LinkedHashMap<>();
         Map<TNode, Type> typesByNode = new LinkedHashMap<>();
 
         root.accept(new TraversalTNodeVisitor<Void, Void>()
@@ -58,8 +58,8 @@ public final class TypeAnalysis
             @Override
             public Void visitQualifiedNameExpression(TQualifiedNameExpression treeNode, Void context)
             {
-                ScopeAnalysis.SymbolRef symbolRef = checkNotNull(scopeAnalysis.getSymbolRefsByNode().get(treeNode));
-                ScopeAnalysis.Symbol symbol = scopeAnalysis.getResolutions().getSymbols().get(symbolRef);
+                SymbolAnalysis.SymbolRef symbolRef = checkNotNull(symbolAnalysis.getSymbolRefsByNode().get(treeNode));
+                SymbolAnalysis.Symbol symbol = symbolAnalysis.getResolutions().getSymbols().get(symbolRef);
                 if (symbol != null) {
                     checkNotNull(symbol);
                     Type type = typesBySymbol.get(symbol);
@@ -75,7 +75,7 @@ public final class TypeAnalysis
             {
                 SchemaTable schemaTable = treeNode.getQualifiedName().toSchemaTable(defaultSchema);
                 Table table = catalog.getSchemaTable(schemaTable);
-                ScopeAnalysis.Scope scope = scopeAnalysis.getScope(treeNode).get();
+                SymbolAnalysis.Scope scope = symbolAnalysis.getScope(treeNode).get();
                 table.getRowLayout().getFields().getTypesByName().forEach((f, t) ->
                         scope.getSymbols().stream()
                                 .filter(s -> optionalTest(s.getName(), f::equals))

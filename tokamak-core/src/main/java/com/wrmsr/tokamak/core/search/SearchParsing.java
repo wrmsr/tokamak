@@ -19,8 +19,7 @@ import com.wrmsr.tokamak.core.parse.SearchBaseVisitor;
 import com.wrmsr.tokamak.core.parse.SearchLexer;
 import com.wrmsr.tokamak.core.parse.SearchParser;
 import com.wrmsr.tokamak.core.search.node.SAnd;
-import com.wrmsr.tokamak.core.search.node.SCmp;
-import com.wrmsr.tokamak.core.search.node.SComparison;
+import com.wrmsr.tokamak.core.search.node.SCompare;
 import com.wrmsr.tokamak.core.search.node.SCreateArray;
 import com.wrmsr.tokamak.core.search.node.SCreateObject;
 import com.wrmsr.tokamak.core.search.node.SCurrent;
@@ -205,10 +204,10 @@ public final class SearchParsing
             @Override
             public SNode visitComparisonExpression(SearchParser.ComparisonExpressionContext ctx)
             {
-                SCmp cmp = SCmp.fromString(ctx.COMPARATOR().getText());
+                SCompare.Op cmp = SCompare.Op.fromString(ctx.COMPARATOR().getText());
                 SNode right = nonChainingVisit(ctx.expression(1));
                 SNode left = nonChainingVisit(ctx.expression(0));
-                return new SComparison(cmp, left, right);
+                return new SCompare(cmp, left, right);
             }
 
             @Override

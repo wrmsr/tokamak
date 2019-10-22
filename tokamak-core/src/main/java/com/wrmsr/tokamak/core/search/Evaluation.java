@@ -15,8 +15,7 @@ package com.wrmsr.tokamak.core.search;
 
 import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.core.search.node.SAnd;
-import com.wrmsr.tokamak.core.search.node.SCmp;
-import com.wrmsr.tokamak.core.search.node.SComparison;
+import com.wrmsr.tokamak.core.search.node.SCompare;
 import com.wrmsr.tokamak.core.search.node.SCreateArray;
 import com.wrmsr.tokamak.core.search.node.SCreateObject;
 import com.wrmsr.tokamak.core.search.node.SCurrent;
@@ -144,7 +143,7 @@ public final class Evaluation
 
         T createNull();
 
-        T compare(SCmp op, T left, T right);
+        T compare(SCompare.Op op, T left, T right);
 
         T createArray(List<T> items);
 
@@ -184,7 +183,7 @@ public final class Evaluation
             }
 
             @Override
-            public T visitComparison(SComparison node, T context)
+            public T visitCompare(SCompare node, T context)
             {
                 T left = process(node.getLeft(), context);
                 T right = process(node.getRight(), context);

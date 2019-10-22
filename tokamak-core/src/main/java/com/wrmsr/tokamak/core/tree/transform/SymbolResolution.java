@@ -15,7 +15,7 @@ package com.wrmsr.tokamak.core.tree.transform;
 
 import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.core.catalog.Catalog;
-import com.wrmsr.tokamak.core.tree.analysis.ScopeAnalysis;
+import com.wrmsr.tokamak.core.tree.analysis.SymbolAnalysis;
 import com.wrmsr.tokamak.core.tree.node.TAllSelectItem;
 import com.wrmsr.tokamak.core.tree.node.TQualifiedName;
 import com.wrmsr.tokamak.core.tree.node.TQualifiedNameExpression;
@@ -36,7 +36,7 @@ public final class SymbolResolution
 
     public static TNode resolveSymbols(TNode node, Optional<Catalog> catalog, Optional<String> defaultSchema)
     {
-        ScopeAnalysis sa = ScopeAnalysis.analyze(node, catalog, defaultSchema);
+        SymbolAnalysis sa = SymbolAnalysis.analyze(node, catalog, defaultSchema);
 
         return node.accept(new TNodeRewriter<Void>()
         {
@@ -49,13 +49,13 @@ public final class SymbolResolution
             @Override
             public TNode visitQualifiedNameExpression(TQualifiedNameExpression treeNode, Void context)
             {
-                ScopeAnalysis.SymbolRef sr = checkNotNull(sa.getSymbolRefsByNode().get(treeNode));
+                SymbolAnalysis.SymbolRef sr = checkNotNull(sa.getSymbolRefsByNode().get(treeNode));
                 List<String> parts = treeNode.getQualifiedName().getParts();
 
-                List<ScopeAnalysis.Symbol> hits = new ArrayList<>();
-                hits.addAll(ScopeAnalysis.getScopeMatches(sr));
+                List<SymbolAnalysis.Symbol> hits = new ArrayList<>();
+                hits.addAll(SymbolAnalysis.getScopeMatches(sr));
                 if (parts.size() > 1) {
-                    hits.addAll(ScopeAnalysis.getSymbolMatches(sr));
+                    hits.addAll(SymbolAnalysis.getSymbolMatches(sr));
                 }
 
                 if (hits.size() > 1) {
@@ -65,7 +65,7 @@ public final class SymbolResolution
                     throw new IllegalStateException(String.format("Unresolved reference: %s", parts));
                 }
 
-                ScopeAnalysis.Symbol hit = hits.get(0);
+                SymbolAnalysis.Symbol hit = hits.get(0);
 
                 return new TQualifiedNameExpression(
                         new TQualifiedName(
