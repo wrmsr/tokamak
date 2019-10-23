@@ -16,13 +16,13 @@ package com.wrmsr.tokamak.core.search.analysis;
 import com.wrmsr.tokamak.core.search.node.SNode;
 import com.wrmsr.tokamak.core.search.node.visitor.TraversalSNodeVisitor;
 
-public final class PropertyAccessAnalysis
+public final class PropertyAnalysis
 {
-    private PropertyAccessAnalysis()
+    private PropertyAnalysis()
     {
     }
 
-    public static PropertyAccessAnalysis analyzePropertyAccess(SNode root)
+    public static PropertyAnalysis analyzePropertyAccess(SNode root)
     {
         root.accept(new TraversalSNodeVisitor<Void, Void>()
         {
