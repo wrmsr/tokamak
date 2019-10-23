@@ -108,7 +108,7 @@ public class DominatorTree<V, E>
      */
     public Map<V, V> getIdoms()
     {
-        return idom;
+        return Collections.unmodifiableMap(idom);
     }
 
     private SupplierLazyValue<SetMultimap<V, V>> dominatorTree = new SupplierLazyValue<>();
@@ -144,7 +144,7 @@ public class DominatorTree<V, E>
         return dominanceFrontiers.get(() -> {
             SetMultimap<V, V> dominanceFrontiers = HashMultimap.create();
 
-            for (V x : reverseTopologicalTraversal()) {
+            for (V x : getReverseTopologicalTraversal()) {
                 Set<V> dfx = dominanceFrontiers.get(x);
 
                 //  Compute DF(local)
@@ -175,7 +175,7 @@ public class DominatorTree<V, E>
      * @return the topological traversal of the dominator tree,
      * as an immutable List.
      */
-    public List<V> topologicalTraversal()
+    public List<V> getTopologicalTraversal()
     {
         return Collections.unmodifiableList(getToplogicalTraversalImplementation());
     }
@@ -187,7 +187,7 @@ public class DominatorTree<V, E>
      * @return a reverse topological traversal of the dominator tree,
      * as an immutable List.
      */
-    public Iterable<V> reverseTopologicalTraversal()
+    public Iterable<V> getReverseTopologicalTraversal()
     {
         return new Iterable<V>()
         {
