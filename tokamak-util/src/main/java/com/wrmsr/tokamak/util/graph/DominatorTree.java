@@ -16,12 +16,14 @@
 package com.wrmsr.tokamak.util.graph;
 
 import com.google.common.collect.HashMultimap;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSetMultimap;
+import com.google.common.collect.Multimap;
 import com.google.common.collect.SetMultimap;
 import com.wrmsr.tokamak.util.lazy.SupplierLazyValue;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -48,76 +50,24 @@ public class DominatorTree<V, E>
 
     private final DirectedGraph<V, E> graph;
 
-    /**
-     * Semidominator numbers by block.
-     */
-    private final Map<V, Integer> semi = new HashMap<>();
+    private final Dfs<V, E> dfs;
 
-    /**
-     * Parents by block.
-     */
-    private final Map<V, V> parent = new HashMap<>();
-
-    /**
-     * Predecessors by block.
-     */
-    private final SetMultimap<V, V> pred = HashMultimap.create();
-
-    /**
-     * Blocks in DFS order; used to look up a block from its semidominator
-     * numbering.
-     */
-    private final List<V> vertex = new ArrayList<>();
-
-    /**
-     * Blocks by semidominator block.
-     */
-    private final SetMultimap<V, V> bucket = HashMultimap.create();
-
-    /**
-     * idominator map, built iteratively.
-     */
-    private final Map<V, V> idom = new HashMap<>();
-
-    /**
-     * Auxiliary data structure used by the O(m log n) eval/link implementation:
-     * ancestor relationships in the forest (the processed tree as it's built
-     * back up).
-     */
-    private final Map<V, V> ancestor = new HashMap<>();
-
-    /**
-     * Auxiliary data structure used by the O(m log n) eval/link implementation:
-     * node with least semidominator seen during traversal of a path from node
-     * to subtree root in the forest.
-     */
-    private final Map<V, V> label = new HashMap<>();
+    private final Map<V, V> idom;
 
     public DominatorTree(DirectedGraph<V, E> graph, V root)
     {
         this.graph = checkNotNull(graph);
-        dfs(root);
-        computeDominators();
+        dfs = new Dfs<>(graph, root);
+        idom = new IdomComputer<>(dfs).computeIdoms();
     }
 
-    /**
-     * Create and/or fetch the map of immediate dominators.
-     *
-     * @return the map from each block to its immediate dominator
-     * (if it has one).
-     */
-    public Map<V, V> getIdoms()
+    public Map<V, V> getImmediateDominators()
     {
-        return Collections.unmodifiableMap(idom);
+        return idom;
     }
 
     private SupplierLazyValue<SetMultimap<V, V>> dominatorTree = new SupplierLazyValue<>();
 
-    /**
-     * Compute and/or fetch the dominator tree as a SetMultimap.
-     *
-     * @return the dominator tree.
-     */
     public SetMultimap<V, V> getDominatorTree()
     {
         return dominatorTree.get(() -> {
@@ -133,12 +83,6 @@ public class DominatorTree<V, E>
 
     private SupplierLazyValue<SetMultimap<V, V>> dominanceFrontiers = new SupplierLazyValue<>();
 
-    /**
-     * Compute and/or fetch the dominance frontiers as a SetMultimap.
-     *
-     * @return a SetMultimap where the set of nodes mapped to each key
-     * node is the set of nodes in the key node's dominance frontier.
-     */
     public SetMultimap<V, V> getDominanceFrontiers()
     {
         return dominanceFrontiers.get(() -> {
@@ -164,177 +108,224 @@ public class DominatorTree<V, E>
                 }
             }
 
-            return dominanceFrontiers;
+            return ImmutableSetMultimap.copyOf(dominanceFrontiers);
         });
     }
 
-    /**
-     * Create and/or fetch a topological traversal of the dominator tree,
-     * such that for every node, idom(node) appears before node.
-     *
-     * @return the topological traversal of the dominator tree,
-     * as an immutable List.
-     */
+    private final SupplierLazyValue<List<V>> topologicalTraversal = new SupplierLazyValue<>();
+
     public List<V> getTopologicalTraversal()
     {
-        return Collections.unmodifiableList(getToplogicalTraversalImplementation());
+        return topologicalTraversal.get(() -> ImmutableList.copyOf(getToplogicalTraversalImpl()));
     }
 
-    /**
-     * Create and/or fetch a reverse topological traversal of the dominator tree,
-     * such that for every node, node appears before idom(node).
-     *
-     * @return a reverse topological traversal of the dominator tree,
-     * as an immutable List.
-     */
-    public Iterable<V> getReverseTopologicalTraversal()
+    private final SupplierLazyValue<List<V>> reverseTopologicalTraversal = new SupplierLazyValue<>();
+
+    public List<V> getReverseTopologicalTraversal()
     {
-        return new Iterable<V>()
+        return reverseTopologicalTraversal.get(() -> ImmutableList.copyOf(getToplogicalTraversalImpl().descendingIterator()));
+    }
+
+    private static final class Dfs<V, E>
+    {
+        /**
+         * Semidominator numbers by block.
+         */
+        private final Map<V, Integer> semi;
+
+        /**
+         * Blocks in DFS order; used to look up a block from its semidominator
+         * numbering.
+         */
+        private final List<V> vertex;
+
+        /**
+         * Parents by block.
+         */
+        private final Map<V, V> parent;
+
+        /**
+         * Predecessors by block.
+         */
+        private final Multimap<V, V> pred;
+
+        /**
+         * Auxiliary data structure used by the O(m log n) eval/link implementation:
+         * node with least semidominator seen during traversal of a path from node
+         * to subtree root in the forest.
+         */
+        private final Map<V, V> label;
+
+        private Dfs(DirectedGraph<V, E> graph, V root)
         {
-            @Override
-            public Iterator<V> iterator()
-            {
-                return getToplogicalTraversalImplementation().descendingIterator();
-            }
-        };
-    }
+            Map<V, Integer> semi = new HashMap<>();
+            ImmutableList.Builder<V> vertex = ImmutableList.builder();
+            ImmutableMap.Builder<V, V> parent = ImmutableMap.builder();
+            ImmutableSetMultimap.Builder<V, V> pred = ImmutableSetMultimap.builder();
+            ImmutableMap.Builder<V, V> label = ImmutableMap.builder();
 
-    private void dfs(V root)
-    {
-        Iterator<V> it = graph.depthFirstIterate(root);
+            Iterator<V> it = graph.depthFirstIterate(root);
 
-        while (it.hasNext()) {
-            V node = it.next();
+            while (it.hasNext()) {
+                V node = it.next();
 
-            if (!semi.containsKey(node)) {
-                vertex.add(node);
+                if (!semi.containsKey(node)) {
+                    vertex.add(node);
 
-                //  Initial assumption: the node's semidominator is itself.
-                semi.put(node, semi.size());
-                label.put(node, node);
+                    //  Initial assumption: the node's semidominator is itself.
+                    semi.put(node, semi.size());
+                    label.put(node, node);
 
-                for (V child : graph.getSuccessors(node)) {
-                    pred.get(child).add(node);
-                    if (!semi.containsKey(child)) {
-                        parent.put(child, node);
+                    for (V child : graph.getSuccessors(node)) {
+                        pred.put(child, node);
+                        if (!semi.containsKey(child)) {
+                            parent.put(child, node);
+                        }
                     }
                 }
             }
+
+            this.semi = ImmutableMap.copyOf(semi);
+            this.vertex = vertex.build();
+            this.parent = parent.build();
+            this.pred = pred.build();
+            this.label = label.build();
         }
     }
 
-    /**
-     * Steps 2, 3, and 4 of Lengauer-Tarjan.
-     */
-    private void computeDominators()
+    private static final class IdomComputer<V, E>
     {
-        int lastSemiNumber = semi.size() - 1;
+        private final Dfs<V, E> dfs;
 
-        for (int i = lastSemiNumber; i > 0; i--) {
-            V w = vertex.get(i);
-            V p = parent.get(w);
+        /**
+         * Auxiliary data structure used by the O(m log n) eval/link implementation:
+         * ancestor relationships in the forest (the processed tree as it's built
+         * back up).
+         */
+        private final Map<V, V> ancestor = new HashMap<>();
 
-            //  step 2: compute semidominators
-            //  for each v in pred(w)...
-            int semidominator = semi.get(w);
-            for (V v : pred.get(w)) {
-                semidominator = Math.min(semidominator, semi.get(eval(v)));
+        public IdomComputer(Dfs<V, E> dfs)
+        {
+            this.dfs = dfs;
+        }
+
+        /**
+         * Steps 2, 3, and 4 of Lengauer-Tarjan.
+         */
+        public Map<V, V> computeIdoms()
+        {
+            Map<V, V> idom = new HashMap<>();
+            SetMultimap<V, V> bucket = HashMultimap.create();
+            ancestor.clear();
+
+            int lastSemiNumber = dfs.semi.size() - 1;
+
+            for (int i = lastSemiNumber; i > 0; i--) {
+                V w = dfs.vertex.get(i);
+                V p = dfs.parent.get(w);
+
+                //  step 2: compute semidominators
+                //  for each v in pred(w)...
+                int semidominator = dfs.semi.get(w);
+                for (V v : dfs.pred.get(w)) {
+                    semidominator = Math.min(semidominator, dfs.semi.get(eval(v)));
+                }
+
+                dfs.semi.put(w, semidominator);
+                bucket.get(dfs.vertex.get(semidominator)).add(w);
+
+                //  Link w into the forest via its parent, p
+                link(p, w);
+
+                //  step 3: implicitly compute idominators
+                //  for each v in bucket(parent(w)) ...
+                for (V v : bucket.get(p)) {
+                    V u = eval(v);
+
+                    if (dfs.semi.get(u) < dfs.semi.get(v)) {
+                        idom.put(v, u);
+                    }
+                    else {
+                        idom.put(v, p);
+                    }
+                }
+
+                bucket.get(p).clear();
             }
 
-            semi.put(w, semidominator);
-            bucket.get(vertex.get(semidominator)).add(w);
+            // step 4: explicitly compute idominators
+            for (int i = 1; i <= lastSemiNumber; i++) {
+                V w = dfs.vertex.get(i);
 
-            //  Link w into the forest via its parent, p
-            link(p, w);
+                if (idom.get(w) != dfs.vertex.get(dfs.semi.get(w))) {
+                    idom.put(w, idom.get(idom.get(w)));
+                }
+            }
 
-            //  step 3: implicitly compute idominators
-            //  for each v in bucket(parent(w)) ...
-            for (V v : bucket.get(p)) {
-                V u = eval(v);
+            return ImmutableMap.copyOf(idom);
+        }
 
-                if (semi.get(u) < semi.get(v)) {
-                    idom.put(v, u);
+        /**
+         * Extract the node with the least-numbered semidominator in the (processed) ancestors of the given node.
+         *
+         * @param v - the node of interest.
+         * @return "If v is the root of a tree in the forest, return v. Otherwise,
+         * let r be the root of the tree which contains v. Return any vertex u != r
+         * of miniumum semi(u) on the path r-*v."
+         */
+        private V eval(V v)
+        {
+            //  This version of Lengauer-Tarjan implements
+            //  eval(v) as a path-compression procedure.
+            compress(v);
+            return dfs.label.get(v);
+        }
+
+        /**
+         * Traverse ancestor pointers back to a subtree root, then propagate the least semidominator seen along this path through the "label" map.
+         */
+        private void compress(V v)
+        {
+            Stack<V> worklist = new Stack<V>();
+            worklist.add(v);
+
+            V a = ancestor.get(v);
+
+            //  Traverse back to the subtree root.
+            while (ancestor.containsKey(a)) {
+                worklist.push(a);
+                a = ancestor.get(a);
+            }
+
+            //  Propagate semidominator information forward.
+            V ancestor = worklist.pop();
+            int leastSemi = dfs.semi.get(dfs.label.get(ancestor));
+
+            while (!worklist.empty()) {
+                V descendent = worklist.pop();
+                int currentSemi = dfs.semi.get(dfs.label.get(descendent));
+
+                if (currentSemi > leastSemi) {
+                    dfs.label.put(descendent, dfs.label.get(ancestor));
                 }
                 else {
-                    idom.put(v, p);
+                    leastSemi = currentSemi;
                 }
-            }
 
-            bucket.get(p).clear();
-        }
-
-        // step 4: explicitly compute idominators
-        for (int i = 1; i <= lastSemiNumber; i++) {
-            V w = vertex.get(i);
-
-            if (idom.get(w) != vertex.get((semi.get(w)))) {
-                idom.put(w, idom.get(idom.get(w)));
+                //  Prepare to process the next iteration.
+                ancestor = descendent;
             }
         }
-    }
 
-    /**
-     * Extract the node with the least-numbered semidominator in the (processed)
-     * ancestors of the given node.
-     *
-     * @param v - the node of interest.
-     * @return "If v is the root of a tree in the forest, return v. Otherwise,
-     * let r be the root of the tree which contains v. Return any vertex u != r
-     * of miniumum semi(u) on the path r-*v."
-     */
-    private V eval(V v)
-    {
-        //  This version of Lengauer-Tarjan implements
-        //  eval(v) as a path-compression procedure.
-        compress(v);
-        return label.get(v);
-    }
-
-    /**
-     * Traverse ancestor pointers back to a subtree root, then propagate the
-     * least semidominator seen along this path through the "label" map.
-     */
-    private void compress(V v)
-    {
-        Stack<V> worklist = new Stack<V>();
-        worklist.add(v);
-
-        V a = ancestor.get(v);
-
-        //  Traverse back to the subtree root.
-        while (ancestor.containsKey(a)) {
-            worklist.push(a);
-            a = ancestor.get(a);
+        /**
+         * Simple version of link(parent,child) simply links the child into the
+         * parent's forest, with no attempt to balance the subtrees or otherwise
+         * optimize searching.
+         */
+        private void link(V parent, V child)
+        {
+            ancestor.put(child, parent);
         }
-
-        //  Propagate semidominator information forward.
-        V ancestor = worklist.pop();
-        int leastSemi = semi.get(label.get(ancestor));
-
-        while (!worklist.empty()) {
-            V descendent = worklist.pop();
-            int currentSemi = semi.get(label.get(descendent));
-
-            if (currentSemi > leastSemi) {
-                label.put(descendent, label.get(ancestor));
-            }
-            else {
-                leastSemi = currentSemi;
-            }
-
-            //  Prepare to process the next iteration.
-            ancestor = descendent;
-        }
-    }
-
-    /**
-     * Simple version of link(parent,child) simply links the child into the
-     * parent's forest, with no attempt to balance the subtrees or otherwise
-     * optimize searching.
-     */
-    private void link(V parent, V child)
-    {
-        ancestor.put(child, parent);
     }
 
     private final SupplierLazyValue<LinkedList<V>> topologicalTraversalImpl = new SupplierLazyValue<>();
@@ -342,16 +333,15 @@ public class DominatorTree<V, E>
     /**
      * Create/fetch the topological traversal of the dominator tree.
      *
-     * @return {@link this.topologicalTraversal}, the traversal of
-     * the dominator tree such that for any node n with a dominator,
+     * @return {@link this.topologicalTraversal}, the traversal of the dominator tree such that for any node n with a dominator,
      * n appears before idom(n).
      */
-    private LinkedList<V> getToplogicalTraversalImplementation()
+    private LinkedList<V> getToplogicalTraversalImpl()
     {
         return topologicalTraversalImpl.get(() -> {
             LinkedList<V> topologicalTraversalImpl = new LinkedList<V>();
 
-            for (V node : vertex) {
+            for (V node : dfs.vertex) {
                 int idx = topologicalTraversalImpl.indexOf(idom.get(node));
 
                 if (idx != -1) {
