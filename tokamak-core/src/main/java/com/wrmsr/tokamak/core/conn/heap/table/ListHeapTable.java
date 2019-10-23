@@ -19,6 +19,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.api.SchemaTable;
+import com.wrmsr.tokamak.core.layout.RowLayout;
 import com.wrmsr.tokamak.core.layout.TableLayout;
 
 import java.util.ArrayList;
@@ -97,8 +98,9 @@ public class ListHeapTable
 
     public ListHeapTable addRowMaps(Iterable<Map<String, Object>> rows, boolean strict)
     {
-        int length = tableLayout.getRowLayout().getFields().size();
-        return addRowArrays(Iterables.transform(rows, r -> getTableLayout().getRowLayout().mapToArray(r, strict)));
+        return addRowArrays(Iterables.transform(rows, r ->
+                getTableLayout().getRowLayout().mapToArray(
+                        r, strict ? RowLayout.MapToArrayStrictness.FULL : RowLayout.MapToArrayStrictness.NONE)));
     }
 
     public ListHeapTable addRowMaps(Iterable<Map<String, Object>> rows)

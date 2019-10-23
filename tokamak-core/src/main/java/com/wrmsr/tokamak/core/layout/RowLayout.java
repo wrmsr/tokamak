@@ -16,6 +16,7 @@ package com.wrmsr.tokamak.core.layout;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Sets;
 import com.wrmsr.tokamak.core.layout.field.FieldCollection;
 import com.wrmsr.tokamak.core.type.impl.StructType;
 import com.wrmsr.tokamak.util.collect.ObjectArrayBackedMap;
@@ -23,6 +24,7 @@ import com.wrmsr.tokamak.util.collect.ObjectArrayBackedMap;
 import javax.annotation.concurrent.Immutable;
 
 import java.util.Map;
+import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -80,24 +82,50 @@ public final class RowLayout
         return builder.build();
     }
 
-    public Object[] mapToArray(Map<String, Object> map, boolean strict)
+    public enum MapToArrayStrictness
+    {
+        NONE(false, false),
+        REJECT_UNEXPECTED(true, false),
+        REJECT_MISSING(false, true),
+        FULL(true, true);
+
+        private final boolean rejectUnexpected;
+        private final boolean rejectMissing;
+
+        MapToArrayStrictness(
+                boolean rejectUnexpected,
+                boolean rejectMissing)
+        {
+            this.rejectUnexpected = rejectUnexpected;
+            this.rejectMissing = rejectMissing;
+        }
+    }
+
+    public Object[] mapToArray(Map<String, Object> map, MapToArrayStrictness strictness)
     {
         checkNotNull(map);
+        checkNotNull(strictness);
         Object[] arr = new Object[fields.size()];
-        map.forEach((k, v) -> {
-            Integer pos = fields.getPositionsByName().get(k);
+        int seen = 0;
+        for (Map.Entry<String, Object> e : map.entrySet()) {
+            Integer pos = fields.getPositionsByName().get(e.getKey());
             if (pos != null) {
-                arr[pos] = v;
+                arr[pos] = e.getValue();
             }
-            else if (strict) {
-                throw new IllegalArgumentException("Unexpected key: " + k);
+            else if (strictness.rejectUnexpected) {
+                throw new IllegalArgumentException("Unexpected key: " + e.getKey());
             }
-        });
+            ++seen;
+        }
+        if (strictness.rejectMissing && seen != fields.size()) {
+            Set<String> missing = Sets.difference(fields.getNames(), map.keySet());
+            throw new IllegalArgumentException("Missing keys: " + missing);
+        }
         return arr;
     }
 
     public Object[] mapToArray(Map<String, Object> map)
     {
-        return mapToArray(map, true);
+        return mapToArray(map, MapToArrayStrictness.FULL);
     }
 }

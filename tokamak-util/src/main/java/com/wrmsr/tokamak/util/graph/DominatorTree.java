@@ -41,6 +41,11 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 public class DominatorTree<V, E>
 {
+    /*
+    TODO:
+     - DIY?
+    */
+
     public interface DirectedGraph<V, E>
     {
         Collection<V> getSuccessors(V vertex);
