@@ -15,6 +15,7 @@ package com.wrmsr.tokamak.core.driver.build.impl;
 
 import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.api.Key;
+import com.wrmsr.tokamak.core.catalog.Catalog;
 import com.wrmsr.tokamak.core.catalog.Function;
 import com.wrmsr.tokamak.core.driver.DriverImpl;
 import com.wrmsr.tokamak.core.driver.DriverRow;
@@ -26,7 +27,6 @@ import com.wrmsr.tokamak.core.driver.context.DriverContextImpl;
 import com.wrmsr.tokamak.core.exec.Executable;
 import com.wrmsr.tokamak.core.plan.node.PNode;
 import com.wrmsr.tokamak.core.plan.node.PProject;
-import com.wrmsr.tokamak.core.plan.node.PProjection;
 import com.wrmsr.tokamak.core.plan.node.PValue;
 
 import java.util.Map;
@@ -41,6 +41,31 @@ public final class ProjectBuilder
     public ProjectBuilder(DriverImpl driver, PProject node, Map<PNode, Builder> sources)
     {
         super(driver, node, sources);
+    }
+
+    private static Object getRowValue(Catalog catalog, Map<String, Object> rowMap, PValue value)
+    {
+        if (value instanceof PValue.Constant) {
+            return ((PValue.Constant) value).getValue();
+        }
+        else if (value instanceof PValue.Field) {
+            return rowMap.get(((PValue.Field) value).getField());
+        }
+        else if (value instanceof PValue.Function) {
+            PValue.Function functionInput = (PValue.Function) value;
+            // FIXME: check lol
+            Function function = catalog.getFunctionsByName().get(functionInput.getFunction().getName());
+            Executable executable = function.getExecutable();
+            // checkState(executable.getType().equals(functionInput.getType()));
+            Object[] args = new Object[functionInput.getArgs().size()];
+            for (int i = 0; i < args.length; ++i) {
+                args[i] = getRowValue(catalog, rowMap, functionInput.getArgs().get(i));
+            }
+            return executable.invoke(args);
+        }
+        else {
+            throw new IllegalStateException(Objects.toString(value));
+        }
     }
 
     @Override
@@ -60,31 +85,7 @@ public final class ProjectBuilder
                 Object[] attributes = new Object[node.getFields().size()];
                 int pos = 0;
                 for (Map.Entry<String, PValue> entry : node.getProjection()) {
-                    Object value;
-                    if (entry.getValue() instanceof PValue.Constant) {
-                        value = ((PValue.Constant) entry.getValue()).getValue();
-                    }
-                    else if (entry.getValue() instanceof PValue.Field) {
-                        value = rowMap.get(((PValue.Field) entry.getValue()).getField());
-                    }
-                    else if (entry.getValue() instanceof PValue.Function) {
-                        PValue.Function functionInput = (PValue.Function) entry.getValue();
-                        // FIXME: check lol
-                        Function function = context.getDriver().getCatalog().getFunctionsByName()
-                                .get(functionInput.getFunction().getName());
-                        Executable executable = function.getExecutable();
-                        // checkState(executable.getType().equals(functionInput.getType()));
-                        Object[] args = new Object[functionInput.getArgs().size()];
-                        for (int i = 0; i < args.length; ++i) {
-                            args[i] = rowMap.get(functionInput.getArgs().get(i));
-                        }
-                        value = executable.invoke(args);
-                    }
-                    else {
-                        throw new IllegalStateException(Objects.toString(entry));
-                    }
-
-                    attributes[pos++] = value;
+                    attributes[pos++] = getRowValue(driver.getCatalog(), rowMap, entry.getValue());
                 }
 
                 ret.add(
