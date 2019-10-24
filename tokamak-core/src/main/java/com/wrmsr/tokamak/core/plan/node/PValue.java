@@ -21,6 +21,7 @@ import com.google.common.collect.ImmutableList;
 import javax.annotation.Nullable;
 
 import java.util.List;
+import java.util.Objects;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
@@ -38,6 +39,29 @@ public interface PValue
                 @JsonProperty("value") @Nullable Object value)
         {
             this.value = value;
+        }
+
+        @Override
+        public boolean equals(Object o)
+        {
+            if (this == o) { return true; }
+            if (o == null || getClass() != o.getClass()) { return false; }
+            Constant constant = (Constant) o;
+            return Objects.equals(value, constant.value);
+        }
+
+        @Override
+        public int hashCode()
+        {
+            return Objects.hash(value);
+        }
+
+        @Override
+        public String toString()
+        {
+            return "Constant{" +
+                    "value=" + value +
+                    '}';
         }
 
         @JsonProperty("value")
@@ -58,6 +82,29 @@ public interface PValue
                 @JsonProperty("field") String field)
         {
             this.field = checkNotEmpty(field);
+        }
+
+        @Override
+        public boolean equals(Object o)
+        {
+            if (this == o) { return true; }
+            if (o == null || getClass() != o.getClass()) { return false; }
+            Field field1 = (Field) o;
+            return Objects.equals(field, field1.field);
+        }
+
+        @Override
+        public int hashCode()
+        {
+            return Objects.hash(field);
+        }
+
+        @Override
+        public String toString()
+        {
+            return "Field{" +
+                    "field='" + field + '\'' +
+                    '}';
         }
 
         @JsonProperty("field")
@@ -81,6 +128,31 @@ public interface PValue
             this.function = checkNotNull(function);
             this.args = ImmutableList.copyOf(args);
             checkState(this.args.size() == function.getType().getParamTypes().size());
+        }
+
+        @Override
+        public boolean equals(Object o)
+        {
+            if (this == o) { return true; }
+            if (o == null || getClass() != o.getClass()) { return false; }
+            Function function1 = (Function) o;
+            return Objects.equals(function, function1.function) &&
+                    Objects.equals(args, function1.args);
+        }
+
+        @Override
+        public int hashCode()
+        {
+            return Objects.hash(function, args);
+        }
+
+        @Override
+        public String toString()
+        {
+            return "Function{" +
+                    "function=" + function +
+                    ", args=" + args +
+                    '}';
         }
 
         @JsonProperty("function")
