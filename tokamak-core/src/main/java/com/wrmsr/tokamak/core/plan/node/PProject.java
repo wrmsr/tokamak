@@ -71,7 +71,7 @@ public final class PProject
             return source.getFields().getType(((PValue.Field) value).getField());
         }
         else if (value instanceof PValue.Function) {
-            return ((PValue.Function) value).getFunction().getType();
+            return ((PValue.Function) value).getFunction().getType().getReturnType();
         }
         else {
             throw new IllegalArgumentException(Objects.toString(value));
