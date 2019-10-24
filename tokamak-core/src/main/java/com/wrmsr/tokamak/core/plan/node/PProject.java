@@ -57,7 +57,7 @@ public final class PProject
         for (Map.Entry<String, PValue> entry : projection.getInputsByOutput().entrySet()) {
             fields.put(entry.getKey(), getValueType(entry.getValue()));
         }
-        this.fields = FieldCollection.of(fields.build());
+        this.fields = FieldCollection.of(fields.build()).withAnnotations(annotations.getFields());
 
         checkInvariants();
     }
