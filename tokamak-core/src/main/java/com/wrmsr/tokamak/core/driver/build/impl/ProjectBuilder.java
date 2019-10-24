@@ -27,6 +27,7 @@ import com.wrmsr.tokamak.core.exec.Executable;
 import com.wrmsr.tokamak.core.plan.node.PNode;
 import com.wrmsr.tokamak.core.plan.node.PProject;
 import com.wrmsr.tokamak.core.plan.node.PProjection;
+import com.wrmsr.tokamak.core.plan.node.PValue;
 
 import java.util.Map;
 import java.util.Objects;
@@ -58,15 +59,16 @@ public final class ProjectBuilder
                 Map<String, Object> rowMap = row.getMap();
                 Object[] attributes = new Object[node.getFields().size()];
                 int pos = 0;
-                for (Map.Entry<String, PProjection.Input> entry : node.getProjection()) {
+                for (Map.Entry<String, PValue> entry : node.getProjection()) {
                     Object value;
-
-                    if (entry.getValue() instanceof PProjection.FieldInput) {
-                        PProjection.FieldInput fieldInput = (PProjection.FieldInput) entry.getValue();
-                        value = rowMap.get(fieldInput.getField());
+                    if (entry.getValue() instanceof PValue.Constant) {
+                        value = ((PValue.Constant) entry.getValue()).getValue();
                     }
-                    else if (entry.getValue() instanceof PProjection.FunctionInput) {
-                        PProjection.FunctionInput functionInput = (PProjection.FunctionInput) entry.getValue();
+                    else if (entry.getValue() instanceof PValue.Field) {
+                        value = rowMap.get(((PValue.Field) entry.getValue()).getField());
+                    }
+                    else if (entry.getValue() instanceof PValue.Function) {
+                        PValue.Function functionInput = (PValue.Function) entry.getValue();
                         // FIXME: check lol
                         Function function = context.getDriver().getCatalog().getFunctionsByName()
                                 .get(functionInput.getFunction().getName());

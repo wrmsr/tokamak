@@ -39,6 +39,7 @@ import com.wrmsr.tokamak.core.plan.node.PStruct;
 import com.wrmsr.tokamak.core.plan.node.PUnify;
 import com.wrmsr.tokamak.core.plan.node.PUnion;
 import com.wrmsr.tokamak.core.plan.node.PUnnest;
+import com.wrmsr.tokamak.core.plan.node.PValue;
 import com.wrmsr.tokamak.core.plan.node.PValues;
 import com.wrmsr.tokamak.core.plan.node.visitor.CachingPNodeVisitor;
 import com.wrmsr.tokamak.core.plan.node.visitor.PNodeVisitors;
@@ -662,14 +663,20 @@ public final class OriginAnalysis
             public Void visitProject(PProject node, Void context)
             {
                 node.getProjection().getInputsByOutput().forEach((o, i) -> {
-                    if (i instanceof PProjection.FieldInput) {
-                        PProjection.FieldInput fi = (PProjection.FieldInput) i;
+                    if (i instanceof PValue.Constant) {
                         originations.add(new Origination(
-                                PNodeField.of(node, o), PNodeField.of(node.getSource(), fi.getField()), Genesis.DIRECT, Nesting.none()));
+                                PNodeField.of(node, o), Genesis.DIRECT));
                     }
-                    else {
+                    else if (i instanceof PValue.Field) {
+                        originations.add(new Origination(
+                                PNodeField.of(node, o), PNodeField.of(node.getSource(), ((PValue.Field) i).getField()), Genesis.DIRECT, Nesting.none()));
+                    }
+                    else if (i instanceof PValue.Function) {
                         originations.add(new Origination(
                                 PNodeField.of(node, o), Genesis.OPAQUE));
+                    }
+                    else{
+                        throw new IllegalStateException(Objects.toString(i));
                     }
                 });
 

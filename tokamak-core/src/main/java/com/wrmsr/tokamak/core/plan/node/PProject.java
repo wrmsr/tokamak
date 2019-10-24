@@ -51,22 +51,11 @@ public final class PProject
         this.source = checkNotNull(source);
         this.projection = checkNotNull(projection);
 
+        projection.getInputsByOutput().values().forEach(this::checkValue);
+
         ImmutableMap.Builder<String, Type> fields = ImmutableMap.builder();
         for (Map.Entry<String, PValue> entry : projection.getInputsByOutput().entrySet()) {
-            if (entry.getValue() instanceof PValue.Field) {
-                String inputField = ((PValue.Field) entry.getValue()).getField();
-                checkArgument(source.getFields().contains(inputField));
-                fields.put(entry.getKey(), source.getFields().getType(inputField));
-            }
-            else if (entry.getValue() instanceof PValue.Function) {
-                // FIXME: check types
-                PValue.Function functionInput = (PValue.Function) entry.getValue();
-                functionInput.getArgs().forEach(f -> checkArgument(source.getFields().contains(f)));
-                fields.put(entry.getKey(), functionInput.getFunction().getType().getReturnType());
-            }
-            else {
-                throw new IllegalArgumentException(Objects.toString(entry.getValue()));
-            }
+            fields.put(entry.getKey(), getValueType(entry.getValue()));
         }
         this.fields = FieldCollection.of(fields.build());
 
@@ -98,7 +87,7 @@ public final class PProject
             checkState(source.getFields().contains(((PValue.Field) value).getField()));
         }
         else if (value instanceof PValue.Function) {
-
+            ((PValue.Function) value).getArgs().forEach(this::checkValue);
         }
         else {
             throw new IllegalArgumentException(Objects.toString(value));

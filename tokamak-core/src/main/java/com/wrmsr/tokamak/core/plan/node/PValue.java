@@ -189,9 +189,9 @@ public interface PValue
         }
     }
 
-    static Constant constant(Object value)
+    static Constant constant(Object value, Type type)
     {
-        return new Constant(value);
+        return new Constant(value, type);
     }
 
     static Field field(String field)
