@@ -25,7 +25,6 @@ import javax.annotation.concurrent.Immutable;
 import java.util.Map;
 import java.util.Objects;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
@@ -57,7 +56,8 @@ public final class PProject
         for (Map.Entry<String, PValue> entry : projection.getInputsByOutput().entrySet()) {
             fields.put(entry.getKey(), getValueType(entry.getValue()));
         }
-        this.fields = FieldCollection.of(fields.build()).withAnnotations(annotations.getFields());
+        // FIXME: inherit anns of 1:1 fields? like including id? :|
+        this.fields = FieldCollection.of(fields.build());
 
         checkInvariants();
     }
