@@ -154,7 +154,10 @@ public final class Types
     {
         checkNotNull(l);
         checkNotNull(r);
-        // FIXME: structural
+        if (l == UNKNOWN || r == UNKNOWN) {
+            return true;
+        }
+        // FIXME: structural, nominal, lolinal
         return l.toSpec().equals(r.toSpec());
     }
 }

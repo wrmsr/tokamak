@@ -27,6 +27,7 @@ import java.util.Objects;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 
 @Immutable
 public final class PProject
@@ -51,15 +52,15 @@ public final class PProject
         this.projection = checkNotNull(projection);
 
         ImmutableMap.Builder<String, Type> fields = ImmutableMap.builder();
-        for (Map.Entry<String, PProjection.Input> entry : projection.getInputsByOutput().entrySet()) {
-            if (entry.getValue() instanceof PProjection.FieldInput) {
-                String inputField = ((PProjection.FieldInput) entry.getValue()).getField();
+        for (Map.Entry<String, PValue> entry : projection.getInputsByOutput().entrySet()) {
+            if (entry.getValue() instanceof PValue.Field) {
+                String inputField = ((PValue.Field) entry.getValue()).getField();
                 checkArgument(source.getFields().contains(inputField));
                 fields.put(entry.getKey(), source.getFields().getType(inputField));
             }
-            else if (entry.getValue() instanceof PProjection.FunctionInput) {
+            else if (entry.getValue() instanceof PValue.Function) {
                 // FIXME: check types
-                PProjection.FunctionInput functionInput = (PProjection.FunctionInput) entry.getValue();
+                PValue.Function functionInput = (PValue.Function) entry.getValue();
                 functionInput.getArgs().forEach(f -> checkArgument(source.getFields().contains(f)));
                 fields.put(entry.getKey(), functionInput.getFunction().getType().getReturnType());
             }
@@ -70,6 +71,38 @@ public final class PProject
         this.fields = FieldCollection.of(fields.build());
 
         checkInvariants();
+    }
+
+    private Type getValueType(PValue value)
+    {
+        if (value instanceof PValue.Constant) {
+            return ((PValue.Constant) value).getType();
+        }
+        else if (value instanceof PValue.Field) {
+            return source.getFields().getType(((PValue.Field) value).getField());
+        }
+        else if (value instanceof PValue.Function) {
+            return ((PValue.Function) value).getFunction().getType();
+        }
+        else {
+            throw new IllegalArgumentException(Objects.toString(value));
+        }
+    }
+
+    private void checkValue(PValue value)
+    {
+        if (value instanceof PValue.Constant) {
+            // pass
+        }
+        else if (value instanceof PValue.Field) {
+            checkState(source.getFields().contains(((PValue.Field) value).getField()));
+        }
+        else if (value instanceof PValue.Function) {
+
+        }
+        else {
+            throw new IllegalArgumentException(Objects.toString(value));
+        }
     }
 
     @JsonProperty("source")

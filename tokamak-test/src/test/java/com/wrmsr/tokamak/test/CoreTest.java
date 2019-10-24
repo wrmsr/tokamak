@@ -46,6 +46,7 @@ import com.wrmsr.tokamak.core.plan.node.PProject;
 import com.wrmsr.tokamak.core.plan.node.PProjection;
 import com.wrmsr.tokamak.core.plan.node.PScan;
 import com.wrmsr.tokamak.core.plan.node.PState;
+import com.wrmsr.tokamak.core.plan.node.PValue;
 import com.wrmsr.tokamak.core.type.Types;
 import com.wrmsr.tokamak.core.util.ApiJson;
 import com.wrmsr.tokamak.util.json.Json;
@@ -172,11 +173,13 @@ public class CoreTest
                 "project0",
                 PNodeAnnotations.empty(),
                 filterNode0,
-                PProjection.of(
-                        "N_NATIONKEY", "N_NATIONKEY",
-                        "N_NAME", catalog.addFunction(be.register(Reflection.reflect(getClass().getDeclaredMethod("addExclamationMark", String.class))).getName(), be), "N_NAME",
-                        "N_REGIONKEY", "N_REGIONKEY"
-                ));
+                new PProjection(ImmutableMap.of(
+                        "N_NATIONKEY", PValue.field("N_NATIONKEY"),
+                        "N_NAME", PValue.function(
+                                catalog.addFunction(be.register(Reflection.reflect(getClass().getDeclaredMethod("addExclamationMark", String.class))).getName(), be),
+                                PValue.field("N_NAME")),
+                        "N_REGIONKEY", PValue.field("N_REGIONKEY")
+                )));
 
         PNode scanNode1 = new PScan(
                 "scan1",

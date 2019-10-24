@@ -15,7 +15,10 @@ package com.wrmsr.tokamak.core.plan.node;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.google.common.collect.ImmutableList;
+import com.wrmsr.tokamak.core.type.Type;
 
 import javax.annotation.Nullable;
 
@@ -26,18 +29,29 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 
+@JsonTypeInfo(
+        use = JsonTypeInfo.Id.NAME,
+        include = JsonTypeInfo.As.WRAPPER_OBJECT)
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = PValue.Constant.class, name = "constant"),
+        @JsonSubTypes.Type(value = PValue.Field.class, name = "field"),
+        @JsonSubTypes.Type(value = PValue.Function.class, name = "function"),
+})
 public interface PValue
 {
     final class Constant
             implements PValue
     {
         private final @Nullable Object value;
+        private final Type type;
 
         @JsonCreator
         public Constant(
-                @JsonProperty("value") @Nullable Object value)
+                @JsonProperty("value") @Nullable Object value,
+                @JsonProperty("type") Type type)
         {
             this.value = value;
+            this.type = checkNotNull(type);
         }
 
         @Override
@@ -46,13 +60,14 @@ public interface PValue
             if (this == o) { return true; }
             if (o == null || getClass() != o.getClass()) { return false; }
             Constant constant = (Constant) o;
-            return Objects.equals(value, constant.value);
+            return Objects.equals(value, constant.value) &&
+                    Objects.equals(type, constant.type);
         }
 
         @Override
         public int hashCode()
         {
-            return Objects.hash(value);
+            return Objects.hash(value, type);
         }
 
         @Override
@@ -60,6 +75,7 @@ public interface PValue
         {
             return "Constant{" +
                     "value=" + value +
+                    ", type=" + type +
                     '}';
         }
 
@@ -68,6 +84,12 @@ public interface PValue
         public Object getValue()
         {
             return value;
+        }
+
+        @JsonProperty("type")
+        public Type getType()
+        {
+            return type;
         }
     }
 
@@ -178,6 +200,11 @@ public interface PValue
     }
 
     static Function function(PFunction function, Iterable<PValue> args)
+    {
+        return new Function(function, ImmutableList.copyOf(args));
+    }
+
+    static Function function(PFunction function, PValue... args)
     {
         return new Function(function, ImmutableList.copyOf(args));
     }
