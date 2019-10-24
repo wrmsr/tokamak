@@ -38,6 +38,7 @@ import com.wrmsr.tokamak.core.plan.Plan;
 import com.wrmsr.tokamak.core.plan.analysis.IdAnalysis;
 import com.wrmsr.tokamak.core.plan.analysis.OriginAnalysis;
 import com.wrmsr.tokamak.core.plan.dot.Dot;
+import com.wrmsr.tokamak.core.plan.node.PFunction;
 import com.wrmsr.tokamak.core.plan.node.PJoin;
 import com.wrmsr.tokamak.core.plan.node.PFilter;
 import com.wrmsr.tokamak.core.plan.node.PNode;
@@ -169,6 +170,9 @@ public class CoreTest
                 ImmutableList.of("N_NAME"),
                 PFilter.Linking.LINKED);
 
+        com.wrmsr.tokamak.core.catalog.Function func = catalog.addFunction(
+                be.register(Reflection.reflect(getClass().getDeclaredMethod("addExclamationMark", String.class))).getName(), be);
+
         PNode projectNode0 = new PProject(
                 "project0",
                 PNodeAnnotations.empty(),
@@ -176,7 +180,7 @@ public class CoreTest
                 new PProjection(ImmutableMap.of(
                         "N_NATIONKEY", PValue.field("N_NATIONKEY"),
                         "N_NAME", PValue.function(
-                                catalog.addFunction(be.register(Reflection.reflect(getClass().getDeclaredMethod("addExclamationMark", String.class))).getName(), be),
+                                PFunction.of(func.getExecutable()),
                                 PValue.field("N_NAME")),
                         "N_REGIONKEY", PValue.field("N_REGIONKEY")
                 )));

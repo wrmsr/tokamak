@@ -75,10 +75,10 @@ public class NodesTest
                 "project0",
                 PNodeAnnotations.empty(),
                 scanNode,
-                PProjection.of(
-                        "id", "id",
-                        "fn", Reflection.reflect(NodesTest.class.getDeclaredMethod("zero"))
-                ));
+                new PProjection(ImmutableMap.of(
+                        "id", PValue.field("id"),
+                        "fn", PValue.function(PFunction.of(Reflection.reflect(NodesTest.class.getDeclaredMethod("zero"))))
+                )));
 
         json = Json.writeValuePretty(projectNode);
         System.out.println(json);
