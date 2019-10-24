@@ -19,7 +19,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.core.layout.field.annotation.FieldAnnotation;
-import com.wrmsr.tokamak.core.plan.node.PNodeAnnotations;
 import com.wrmsr.tokamak.core.type.Type;
 import com.wrmsr.tokamak.core.type.Types;
 import com.wrmsr.tokamak.core.util.annotation.AnnotationCollectionMap;
@@ -184,7 +183,9 @@ public final class FieldCollection
 
     public FieldCollection withAnnotations(AnnotationCollectionMap<String, FieldAnnotation, ?, ?> anns)
     {
-        throw new IllegalStateException();
+        return fields.stream()
+                .map(f -> f.withAnnotations(anns.containsKey(f.getName()) ? anns.getOrEmpty(f.getName()) : f.getAnnotations()))
+                .collect(toFieldCollection());
     }
 
     public static final class Builder

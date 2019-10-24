@@ -100,6 +100,11 @@ public final class Field
         return new Field(name, type, annotations);
     }
 
+    public Field withAnnotations(Iterable<FieldAnnotation> annotations)
+    {
+        return new Field(name, type, annotations);
+    }
+
     public Field mapAnnotations(Function<FieldAnnotations, FieldAnnotations> fn)
     {
         return withAnnotations(fn.apply(annotations));

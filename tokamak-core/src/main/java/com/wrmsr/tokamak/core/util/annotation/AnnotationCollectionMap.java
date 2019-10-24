@@ -103,9 +103,24 @@ public abstract class AnnotationCollectionMap<
         return entriesByKey;
     }
 
+    public boolean containsKey(K key)
+    {
+        return entriesByKey.containsKey(key);
+    }
+
     public Optional<E> getEntry(K key)
     {
         return Optional.ofNullable(entriesByKey.get(key));
+    }
+
+    public Optional<AnnotationCollection<T, ?>> get(K key)
+    {
+        return Optional.ofNullable(entriesByKey.get(checkNotNull(key)));
+    }
+
+    public AnnotationCollection<T, ?> getOrEmpty(K key)
+    {
+        return get(key).orElseGet(() -> newEntry(key, ImmutableList.of()));
     }
 
     private final SupplierLazyValue<Map<Class<? extends T>, List<E>>> entryListsByAnnotationCls = new SupplierLazyValue<>();
