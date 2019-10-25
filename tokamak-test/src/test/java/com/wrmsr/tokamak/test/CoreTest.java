@@ -255,13 +255,14 @@ public class CoreTest
         System.out.println(ifa);
 
         PState state2 = (PState) plan.getNode("state2");
-        for (String field : new String[] {"N_NATIONKEY", "R_REGIONKEY"}) {
-            for (OriginAnalysis.Origination o : oa.getStateChainAnalysis().getFirstOriginationSetsBySink().get(PNodeField.of(state2, field))) {
-                oa.getOriginationSetsBySink().get(o.getSource().get());
-                oa.getStateChainAnalysis().getFirstOriginationSetsBySink().get(o.getSource().get());
+        for(IdAnalysis.Part part:  ifa.get(state2).getParts()) {
+            for (String field : part) {
+                for (OriginAnalysis.Origination o : oa.getStateChainAnalysis().getFirstOriginationSetsBySink().get(PNodeField.of(state2, field))) {
+                    oa.getOriginationSetsBySink().get(o.getSource().get());
+                    oa.getStateChainAnalysis().getFirstOriginationSetsBySink().get(o.getSource().get());
+                }
             }
         }
-
 
         src = om.writerWithDefaultPrettyPrinter().writeValueAsString(plan);
         System.out.println(src);
