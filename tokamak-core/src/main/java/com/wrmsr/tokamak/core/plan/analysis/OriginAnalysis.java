@@ -74,12 +74,6 @@ import static com.wrmsr.tokamak.util.MorePreconditions.checkSingle;
 public final class OriginAnalysis
         implements StreamableIterable<OriginAnalysis.Origination>
 {
-    /*
-    TODO:
-     - SUBFIELD TRACKING. INTO STRUCTS.
-      - groupBy List<Struct<...>> ele origins?
-    */
-
     public enum Genesis
     {
         DIRECT(false),

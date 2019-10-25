@@ -43,6 +43,7 @@ import com.wrmsr.tokamak.core.plan.node.PJoin;
 import com.wrmsr.tokamak.core.plan.node.PFilter;
 import com.wrmsr.tokamak.core.plan.node.PNode;
 import com.wrmsr.tokamak.core.plan.node.PNodeAnnotations;
+import com.wrmsr.tokamak.core.plan.node.PNodeField;
 import com.wrmsr.tokamak.core.plan.node.PProject;
 import com.wrmsr.tokamak.core.plan.node.PProjection;
 import com.wrmsr.tokamak.core.plan.node.PScan;
@@ -252,6 +253,15 @@ public class CoreTest
 
         IdAnalysis ifa = IdAnalysis.analyze(plan);
         System.out.println(ifa);
+
+        PState state2 = (PState) plan.getNode("state2");
+        for (String field : new String[] {"N_NATIONKEY", "R_REGIONKEY"}) {
+            for (OriginAnalysis.Origination o : oa.getStateChainAnalysis().getFirstOriginationSetsBySink().get(PNodeField.of(state2, field))) {
+                oa.getOriginationSetsBySink().get(o.getSource().get());
+                oa.getStateChainAnalysis().getFirstOriginationSetsBySink().get(o.getSource().get());
+            }
+        }
+
 
         src = om.writerWithDefaultPrettyPrinter().writeValueAsString(plan);
         System.out.println(src);

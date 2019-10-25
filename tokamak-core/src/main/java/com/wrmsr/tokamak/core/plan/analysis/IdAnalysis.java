@@ -370,6 +370,16 @@ public final class IdAnalysis
         this.entriesByNode.forEach((k, v) -> checkState(k == v.getNode()));
     }
 
+    public Map<PNode, Entry> getEntriesByNode()
+    {
+        return entriesByNode;
+    }
+
+    public Entry get(PNode node)
+    {
+        return checkNotNull(entriesByNode.get(node));
+    }
+
     public static IdAnalysis analyze(Plan plan)
     {
         Map<PNode, Entry> entriesByNode = new LinkedHashMap<>();
