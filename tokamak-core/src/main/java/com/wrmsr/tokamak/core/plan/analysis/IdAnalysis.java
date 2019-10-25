@@ -272,6 +272,11 @@ public final class IdAnalysis
             extras.forEach(parts::add);
             return of(node, Part.unify(parts));
         }
+
+        public static Entry unify(PNode node, Iterable<Entry> entries)
+        {
+            return unify(node, entries, ImmutableList.of());
+        }
     }
 
     @Immutable
@@ -391,21 +396,18 @@ public final class IdAnalysis
             @Override
             public Entry visitGroup(PGroup node, Void context)
             {
-                return new StandardEntry(
-                        node,
-                        node.getKeyFields().stream().map(Part::of).collect(toImmutableList()));
+                return Entry.of(node, node.getKeyFields().stream().map(Part::of).collect(toImmutableList()));
             }
 
             @Override
             public Entry visitJoin(PJoin node, Void context)
             {
-                // FIXME: left joins have nullable rest ids :|
+                // FIXME: non-inner joins have nullable rest ids :|
                 return Entry.unify(
                         node,
                         node.getBranches().stream()
                                 .map(b -> process(b.getNode(), context))
-                                .collect(toImmutableList()),
-                        ImmutableList.of());
+                                .collect(toImmutableList()));
             }
 
             @Override
