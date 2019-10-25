@@ -11,34 +11,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.core.search;
+package com.wrmsr.tokamak.core.search2.search;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.core.parse.SearchBaseVisitor;
 import com.wrmsr.tokamak.core.parse.SearchLexer;
 import com.wrmsr.tokamak.core.parse.SearchParser;
-import com.wrmsr.tokamak.core.search.node.SAnd;
-import com.wrmsr.tokamak.core.search.node.SCompare;
-import com.wrmsr.tokamak.core.search.node.SCreateArray;
-import com.wrmsr.tokamak.core.search.node.SCreateObject;
-import com.wrmsr.tokamak.core.search.node.SCurrent;
-import com.wrmsr.tokamak.core.search.node.SExpressionRef;
-import com.wrmsr.tokamak.core.search.node.SFlattenArray;
-import com.wrmsr.tokamak.core.search.node.SFlattenObject;
-import com.wrmsr.tokamak.core.search.node.SFunctionCall;
-import com.wrmsr.tokamak.core.search.node.SIndex;
-import com.wrmsr.tokamak.core.search.node.SJsonLiteral;
-import com.wrmsr.tokamak.core.search.node.SNegate;
-import com.wrmsr.tokamak.core.search.node.SNode;
-import com.wrmsr.tokamak.core.search.node.SOr;
-import com.wrmsr.tokamak.core.search.node.SParameter;
-import com.wrmsr.tokamak.core.search.node.SProject;
-import com.wrmsr.tokamak.core.search.node.SProperty;
-import com.wrmsr.tokamak.core.search.node.SSelection;
-import com.wrmsr.tokamak.core.search.node.SSequence;
-import com.wrmsr.tokamak.core.search.node.SSlice;
-import com.wrmsr.tokamak.core.search.node.SString;
+import com.wrmsr.tokamak.core.search2.search.node.SAnd;
+import com.wrmsr.tokamak.core.search2.search.node.SCompare;
+import com.wrmsr.tokamak.core.search2.search.node.SCreateArray;
+import com.wrmsr.tokamak.core.search2.search.node.SCreateObject;
+import com.wrmsr.tokamak.core.search2.search.node.SCurrent;
+import com.wrmsr.tokamak.core.search2.search.node.SExpressionRef;
+import com.wrmsr.tokamak.core.search2.search.node.SFlattenArray;
+import com.wrmsr.tokamak.core.search2.search.node.SFlattenObject;
+import com.wrmsr.tokamak.core.search2.search.node.SFunctionCall;
+import com.wrmsr.tokamak.core.search2.search.node.SIndex;
+import com.wrmsr.tokamak.core.search2.search.node.SJsonLiteral;
+import com.wrmsr.tokamak.core.search2.search.node.SNegate;
+import com.wrmsr.tokamak.core.search2.search.node.SNode;
+import com.wrmsr.tokamak.core.search2.search.node.SOr;
+import com.wrmsr.tokamak.core.search2.search.node.SParameter;
+import com.wrmsr.tokamak.core.search2.search.node.SProject;
+import com.wrmsr.tokamak.core.search2.search.node.SProperty;
+import com.wrmsr.tokamak.core.search2.search.node.SSelection;
+import com.wrmsr.tokamak.core.search2.search.node.SSequence;
+import com.wrmsr.tokamak.core.search2.search.node.SSlice;
+import com.wrmsr.tokamak.core.search2.search.node.SString;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
