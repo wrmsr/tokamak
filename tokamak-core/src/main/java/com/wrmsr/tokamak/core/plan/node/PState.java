@@ -172,6 +172,8 @@ public final class PState
     private final Map<String, LinkageMask> linkageMasks;
     private final Optional<LockOverride> lockOverride;
 
+    private FieldCollection fields;
+
     @JsonCreator
     public PState(
             @JsonProperty("name") String name,
@@ -191,6 +193,10 @@ public final class PState
         this.invalidations = ImmutableMap.copyOf(invalidations);
         this.linkageMasks = ImmutableMap.copyOf(linkageMasks);
         this.lockOverride = checkNotNull(lockOverride);
+
+        fields = source.getFields()
+                .withOnlyTransitiveAnnotations()
+                .withAnnotations(annotations.getFields());
 
         checkInvariants();
     }
@@ -235,7 +241,7 @@ public final class PState
     @Override
     public FieldCollection getFields()
     {
-        return source.getFields();
+        return fields;
     }
 
     @Override

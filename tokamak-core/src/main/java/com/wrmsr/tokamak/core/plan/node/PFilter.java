@@ -43,6 +43,8 @@ public final class PFilter
     private final List<String> args;
     private final Linking linking;
 
+    private final FieldCollection fields;
+
     @JsonCreator
     public PFilter(
             @JsonProperty("name") String name,
@@ -61,6 +63,10 @@ public final class PFilter
 
         checkArgument(function.getType().getReturnType() == Types.BOOLEAN);
         checkArgument(function.getType().getParamTypes().size() == this.args.size());
+
+        fields = source.getFields()
+                .withOnlyTransitiveAnnotations()
+                .withAnnotations(annotations.getFields());
 
         // FIXME: check
         // function.getSignature().getParams().forEach((f, t) -> {
@@ -100,7 +106,7 @@ public final class PFilter
     @Override
     public FieldCollection getFields()
     {
-        return source.getFields();
+        return fields;
     }
 
     @Override

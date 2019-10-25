@@ -20,7 +20,6 @@ import com.wrmsr.tokamak.core.layout.field.FieldCollection;
 import com.wrmsr.tokamak.core.plan.node.visitor.PNodeVisitor;
 import com.wrmsr.tokamak.core.type.Type;
 import com.wrmsr.tokamak.core.type.impl.StructType;
-import com.wrmsr.tokamak.core.util.annotation.AnnotationCollectionMap;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -62,10 +61,9 @@ public final class PExtract
         checkState(!source.getFields().contains(outputField));
 
         fields = FieldCollection.builder()
-                .addAll(source.getFields())
+                .addAll(source.getFields().withOnlyTransitiveAnnotations())
                 .add(outputField, structMemberType)
                 .build()
-                .withTransitiveAnnotations(source.getFields())
                 .withAnnotations(annotations.getFields());
 
         checkInvariants();

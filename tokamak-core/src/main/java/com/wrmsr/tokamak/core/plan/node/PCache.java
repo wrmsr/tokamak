@@ -40,7 +40,7 @@ public final class PCache
         this.source = checkNotNull(source);
 
         this.fields = source.getFields()
-                .withoutOnlyTransitiiveAnnotations()
+                .withOnlyTransitiveAnnotations()
                 .withAnnotations(annotations.getFields());
 
         checkInvariants();

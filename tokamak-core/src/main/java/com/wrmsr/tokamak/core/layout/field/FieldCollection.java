@@ -230,7 +230,7 @@ public final class FieldCollection
                 .collect(toImmutableList()));
     }
 
-    public FieldCollection withoutOnlyTransitiiveAnnotations()
+    public FieldCollection withOnlyTransitiveAnnotations()
     {
         return new FieldCollection(fields.stream()
                 .map(f -> f.withAnnotations(f.getAnnotations().stream()
