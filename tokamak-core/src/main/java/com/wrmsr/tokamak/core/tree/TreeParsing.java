@@ -31,6 +31,7 @@ import com.wrmsr.tokamak.core.tree.node.TRelation;
 import com.wrmsr.tokamak.core.tree.node.TSelect;
 import com.wrmsr.tokamak.core.tree.node.TSelectItem;
 import com.wrmsr.tokamak.core.tree.node.TStringLiteral;
+import com.wrmsr.tokamak.core.tree.node.TSubqueryRelation;
 import com.wrmsr.tokamak.core.tree.node.TTableName;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
@@ -194,6 +195,12 @@ public final class TreeParsing
             public TNode visitSingleStatement(SqlParser.SingleStatementContext ctx)
             {
                 return visit(ctx.statement());
+            }
+
+            @Override
+            public TNode visitSubqueryRelation(SqlParser.SubqueryRelationContext ctx)
+            {
+                return new TSubqueryRelation((TSelect) visit(ctx.select()));
             }
 
             @Override

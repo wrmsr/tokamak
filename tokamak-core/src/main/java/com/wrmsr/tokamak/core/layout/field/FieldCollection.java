@@ -36,6 +36,7 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
 import java.util.stream.IntStream;
@@ -43,6 +44,7 @@ import java.util.stream.Stream;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.wrmsr.tokamak.util.MoreCollections.checkOrdered;
 import static com.wrmsr.tokamak.util.MoreCollections.newImmutableListMap;
 import static com.wrmsr.tokamak.util.MoreCollections.streamIterator;
@@ -181,11 +183,19 @@ public final class FieldCollection
         return containsEquivalents(fields.iterator());
     }
 
-    public FieldCollection withAnnotations(AnnotationCollectionMap<String, FieldAnnotation, ?, ?> anns)
+    public FieldCollection withAnnotations(AnnotationCollectionMap<String, FieldAnnotation, ?, ?> anns, Predicate<FieldAnnotation> filter)
     {
         return fields.stream()
-                .map(f -> f.withAnnotations(anns.containsKey(f.getName()) ? anns.getOrEmpty(f.getName()) : f.getAnnotations()))
+                .map(f -> f.withAnnotations(
+                        anns.containsKey(f.getName()) ?
+                                anns.getOrEmpty(f.getName()) :
+                                f.getAnnotations().stream().filter(filter).collect(toImmutableList())))
                 .collect(toFieldCollection());
+    }
+
+    public FieldCollection withTransitiveAnnotations(AnnotationCollectionMap<String, FieldAnnotation, ?, ?> anns)
+    {
+        return withAnnotations(anns, FieldAnnotation::isTransitive);
     }
 
     public static final class Builder

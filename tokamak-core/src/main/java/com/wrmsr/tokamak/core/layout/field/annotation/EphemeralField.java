@@ -20,4 +20,10 @@ public final class EphemeralField
         implements FieldAnnotation
 {
     static final EphemeralField INSTANCE = new EphemeralField();
+
+    @Override
+    public boolean isTransitive()
+    {
+        return true;
+    }
 }

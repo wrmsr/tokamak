@@ -88,6 +88,21 @@ public class ParserTest
         }
     }
 
+    public void testParseSubquery()
+            throws Throwable
+    {
+        for (String str : new String[] {
+                "select a from (select a from b) b",
+        }) {
+            System.out.println(str);
+            SqlParser parser = TreeParsing.parse(str);
+            System.out.println(parser);
+            TNode node = TreeParsing.build(parser.statement());
+            System.out.println(TreeRendering.render(node));
+        }
+    }
+
+
     public void testParseQuoteMode()
             throws Throwable
     {

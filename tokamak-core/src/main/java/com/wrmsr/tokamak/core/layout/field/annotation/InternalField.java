@@ -20,4 +20,10 @@ public final class InternalField
         implements FieldAnnotation
 {
     static final InternalField INSTANCE = new InternalField();
+
+    @Override
+    public boolean isTransitive()
+    {
+        return true;
+    }
 }

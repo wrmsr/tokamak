@@ -34,6 +34,11 @@ import javax.annotation.concurrent.Immutable;
 public interface FieldAnnotation
         extends Annotation
 {
+    default boolean isTransitive()
+    {
+        return false;
+    }
+
     static EphemeralField ephemeral()
     {
         return EphemeralField.INSTANCE;
