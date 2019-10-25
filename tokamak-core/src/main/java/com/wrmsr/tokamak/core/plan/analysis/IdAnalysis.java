@@ -53,6 +53,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
+import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkSingle;
 
@@ -69,6 +70,8 @@ public final class IdAnalysis
     public static abstract class Part
             implements StreamableIterable<String>
     {
+        public abstract Set<String> getFields();
+
         public static Part of(Iterable<String> fields)
         {
             Set<String> set = ImmutableSet.copyOf(fields);
@@ -137,6 +140,12 @@ public final class IdAnalysis
         }
 
         @Override
+        public Set<String> getFields()
+        {
+            return ImmutableSet.of(field);
+        }
+
+        @Override
         public Iterator<String> iterator()
         {
             return Iterators.singletonIterator(field);
@@ -179,6 +188,7 @@ public final class IdAnalysis
             return Objects.hash(fields);
         }
 
+        @Override
         public Set<String> getFields()
         {
             return fields;
@@ -409,21 +419,20 @@ public final class IdAnalysis
             {
                 Entry source = process(node.getSource(), context);
 
-                // ImmutableSet.Builder<Set<String>> builder = ImmutableSet.builder();
-                // for (Set<String> set : source.getSets()) {
-                //     List<Set<String>> outputSets = set.stream()
-                //             .map(f -> node.getProjection().getOutputSetsByInputField().getOrDefault(f, ImmutableSet.of()))
-                //             .collect(toImmutableList());
-                //     if (outputSets.stream().anyMatch(Set::isEmpty)) {
-                //         continue;
-                //     }
-                //     builder.addAll(Sets.cartesianProduct(outputSets).stream()
-                //             .map(ImmutableSet::copyOf)
-                //             .collect(toImmutableList()));
-                // }
-                //
-                // return new Entry(node, builder.build());
-                throw new IllegalStateException();
+                List<Set<String>> sets = source.getParts().stream()
+                        .map(p -> p.getFields().stream()
+                                .map(node.getProjection().getOutputSetsByInputField()::get)
+                                .filter(Objects::nonNull)
+                                .flatMap(Set::stream)
+                                .collect(toImmutableSet()))
+                        .collect(toImmutableList());
+
+                if (sets.stream().noneMatch(Set::isEmpty)) {
+                    return Entry.of(node, sets.stream().map(Part::of).collect(toImmutableList()));
+                }
+                else {
+                    return Entry.anon(node);
+                }
             }
 
             @Override
