@@ -36,9 +36,9 @@ public final class STransforms
             public SNode visitSequence(SSequence node, Void context)
             {
                 return new SSequence(
-                        node.getItems().stream()
+                        node.getSources().stream()
                                 .map(i -> process(i, context))
-                                .map(i -> i instanceof SSequence ? ((SSequence) i).getItems() : ImmutableList.of(i))
+                                .map(i -> i instanceof SSequence ? ((SSequence) i).getSources() : ImmutableList.of(i))
                                 .flatMap(List::stream)
                                 .collect(toImmutableList()));
             }

@@ -18,12 +18,15 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.core.search2.search.node.visitor.SNodeVisitor;
 
+import javax.annotation.concurrent.Immutable;
+
 import java.util.List;
 
 import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 
+@Immutable
 public final class SFunctionCall
-        extends SNode
+        extends SAbstractNode
 {
     private final String name;
     private final List<SNode> args;
@@ -45,6 +48,12 @@ public final class SFunctionCall
 
     @JsonProperty("args")
     public List<SNode> getArgs()
+    {
+        return args;
+    }
+
+    @Override
+    public List<SNode> getSources()
     {
         return args;
     }

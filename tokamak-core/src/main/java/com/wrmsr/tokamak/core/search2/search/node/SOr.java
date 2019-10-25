@@ -18,10 +18,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.core.search2.search.node.visitor.SNodeVisitor;
 
+import javax.annotation.concurrent.Immutable;
+
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+@Immutable
 public final class SOr
         extends SAbstractNode
         implements SOperator

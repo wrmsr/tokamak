@@ -123,7 +123,7 @@ public class SNodeRewriter<C>
     public SNode visitNegate(SNegate node, C context)
     {
         return new SNegate(
-                process(node.getItem(), context));
+                process(node.getSource(), context));
     }
 
     @Override
@@ -159,14 +159,14 @@ public class SNodeRewriter<C>
     public SNode visitSelection(SSelection node, C context)
     {
         return new SSelection(
-                process(node.getChild(), context));
+                process(node.getSelector(), context));
     }
 
     @Override
     public SNode visitSequence(SSequence node, C context)
     {
         return new SSequence(
-                node.getItems().stream().map(n -> process(n, context)).collect(toImmutableList()));
+                node.getSources().stream().map(n -> process(n, context)).collect(toImmutableList()));
     }
 
     @Override

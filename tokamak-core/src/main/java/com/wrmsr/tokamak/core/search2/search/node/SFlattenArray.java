@@ -14,15 +14,29 @@
 package com.wrmsr.tokamak.core.search2.search.node;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wrmsr.tokamak.core.search2.search.node.visitor.SNodeVisitor;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 public final class SFlattenArray
-        extends SNode
-        implements SLeaf
+        extends SAbstractNode
+        implements SSingleSource
 {
+    private final SNode source;
+
     @JsonCreator
-    public SFlattenArray()
+    public SFlattenArray(
+            @JsonProperty("source") SNode source)
     {
+        this.source = checkNotNull(source);
+    }
+
+    @JsonProperty("source")
+    @Override
+    public SNode getSource()
+    {
+        return source;
     }
 
     @Override

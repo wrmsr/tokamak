@@ -15,26 +15,47 @@ package com.wrmsr.tokamak.core.search2.search.node;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.core.search2.search.node.visitor.SNodeVisitor;
+
+import javax.annotation.concurrent.Immutable;
+
+import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+@Immutable
 public final class SSelection
-        extends SNode
+        extends SAbstractNode
 {
-    private final SNode child;
+    private final SNode value;
+    private final SNode selector;
 
     @JsonCreator
     public SSelection(
-            @JsonProperty("child") SNode child)
+            @JsonProperty("value") SNode value,
+            @JsonProperty("selector") SNode selector)
     {
-        this.child = checkNotNull(child);
+        this.value = checkNotNull(value);
+        this.selector = checkNotNull(selector);
     }
 
-    @JsonProperty("child")
-    public SNode getChild()
+    @JsonProperty("value")
+    public SNode getValue()
     {
-        return child;
+        return value;
+    }
+
+    @JsonProperty("selector")
+    public SNode getSelector()
+    {
+        return selector;
+    }
+
+    @Override
+    public List<SNode> getSources()
+    {
+        return ImmutableList.of(value, selector);
     }
 
     @Override

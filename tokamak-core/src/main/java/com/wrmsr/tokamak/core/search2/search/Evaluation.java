@@ -297,7 +297,7 @@ public final class Evaluation
             @Override
             public T visitNegate(SNegate node, T context)
             {
-                return runtime.createBoolean(runtime.isTruthy(process(node.getItem(), context)));
+                return runtime.createBoolean(runtime.isTruthy(process(node.getSource(), context)));
             }
 
             @Override
@@ -338,7 +338,7 @@ public final class Evaluation
             {
                 if (runtime.getType(context) == ValueType.ARRAY) {
                     List<T> items = streamIterator(runtime.toIterable(context).iterator())
-                            .filter(v -> runtime.isTruthy(process(node.getChild(), v)))
+                            .filter(v -> runtime.isTruthy(process(node.getSelector(), v)))
                             .collect(toImmutableList());
                     return runtime.createArray(items);
                 }
@@ -350,7 +350,7 @@ public final class Evaluation
             @Override
             public T visitSequence(SSequence node, T context)
             {
-                for (SNode child : node.getItems()) {
+                for (SNode child : node.getSources()) {
                     context = process(child, context);
                 }
                 return context;

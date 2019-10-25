@@ -17,8 +17,11 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wrmsr.tokamak.core.search2.search.node.visitor.SNodeVisitor;
 
+import javax.annotation.concurrent.Immutable;
+
 import static com.google.common.base.Preconditions.checkNotNull;
 
+@Immutable
 public final class SJsonLiteral
         extends SAbstractNode
         implements SLeaf

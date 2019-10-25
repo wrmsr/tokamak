@@ -15,15 +15,17 @@ package com.wrmsr.tokamak.core.search2.search.node;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.core.search2.search.node.visitor.SNodeVisitor;
 
+import java.util.List;
 import java.util.Map;
 
 import static com.wrmsr.tokamak.util.MoreCollections.checkOrdered;
 
 public final class SCreateObject
-        extends SNode
+        extends SAbstractNode
 {
     private final Map<String, SNode> fields;
 
@@ -38,6 +40,12 @@ public final class SCreateObject
     public Map<String, SNode> getFields()
     {
         return fields;
+    }
+
+    @Override
+    public List<SNode> getSources()
+    {
+        return ImmutableList.copyOf(fields.values());
     }
 
     @Override

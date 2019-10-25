@@ -17,24 +17,29 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wrmsr.tokamak.core.search2.search.node.visitor.SNodeVisitor;
 
+import javax.annotation.concurrent.Immutable;
+
 import static com.google.common.base.Preconditions.checkNotNull;
 
+@Immutable
 public final class SNegate
-        extends SNode
+        extends SAbstractNode
+        implements SSingleSource
 {
-    private final SNode item;
+    private final SNode source;
 
     @JsonCreator
     public SNegate(
-            @JsonProperty("item") SNode item)
+            @JsonProperty("source") SNode source)
     {
-        this.item = checkNotNull(item);
+        this.source = checkNotNull(source);
     }
 
-    @JsonProperty("item")
-    public SNode getItem()
+    @JsonProperty("source")
+    @Override
+    public SNode getSource()
     {
-        return item;
+        return source;
     }
 
     @Override

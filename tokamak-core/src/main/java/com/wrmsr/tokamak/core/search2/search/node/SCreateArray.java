@@ -21,7 +21,7 @@ import com.wrmsr.tokamak.core.search2.search.node.visitor.SNodeVisitor;
 import java.util.List;
 
 public final class SCreateArray
-        extends SNode
+        extends SAbstractNode
 {
     private final List<SNode> items;
 
@@ -34,6 +34,12 @@ public final class SCreateArray
 
     @JsonProperty("items")
     public List<SNode> getItems()
+    {
+        return items;
+    }
+
+    @Override
+    public List<SNode> getSources()
     {
         return items;
     }

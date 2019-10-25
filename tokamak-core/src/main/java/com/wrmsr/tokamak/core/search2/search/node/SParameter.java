@@ -21,8 +21,11 @@ import com.wrmsr.tokamak.core.search2.search.node.visitor.SNodeVisitor;
 import com.wrmsr.tokamak.util.box.Box;
 import com.wrmsr.tokamak.util.box.IntBox;
 
+import javax.annotation.concurrent.Immutable;
+
 import static com.google.common.base.Preconditions.checkNotNull;
 
+@Immutable
 public final class SParameter
         extends SAbstractNode
         implements SLeaf

@@ -17,19 +17,32 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wrmsr.tokamak.core.search2.search.node.visitor.SNodeVisitor;
 
+import javax.annotation.concurrent.Immutable;
+
 import static com.google.common.base.Preconditions.checkNotNull;
 
+@Immutable
 public final class SProperty
-        extends SNode
-        implements SLeaf
+        extends SAbstractNode
+        implements SSingleSource
 {
+    private final SNode source;
     private final String name;
 
     @JsonCreator
     public SProperty(
+            @JsonProperty("source") SNode source,
             @JsonProperty("name") String name)
     {
+        this.source = checkNotNull(source);
         this.name = checkNotNull(name);
+    }
+
+    @JsonProperty("source")
+    @Override
+    public SNode getSource()
+    {
+        return source;
     }
 
     @JsonProperty("name")

@@ -18,24 +18,27 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.core.search2.search.node.visitor.SNodeVisitor;
 
+import javax.annotation.concurrent.Immutable;
+
 import java.util.List;
 
+@Immutable
 public final class SSequence
-        extends SNode
+        extends SAbstractNode
 {
-    private final List<SNode> items;
+    private final List<SNode> sources;
 
     @JsonCreator
     public SSequence(
-            @JsonProperty("items") List<SNode> items)
+            @JsonProperty("sources") List<SNode> sources)
     {
-        this.items = ImmutableList.copyOf(items);
+        this.sources = ImmutableList.copyOf(sources);
     }
 
-    @JsonProperty("items")
-    public List<SNode> getItems()
+    @JsonProperty("sources")
+    public List<SNode> getSources()
     {
-        return items;
+        return sources;
     }
 
     @Override

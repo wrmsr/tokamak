@@ -17,27 +17,40 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wrmsr.tokamak.core.search2.search.node.visitor.SNodeVisitor;
 
+import javax.annotation.concurrent.Immutable;
+
 import java.util.OptionalInt;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+@Immutable
 public final class SSlice
-        extends SNode
-        implements SLeaf
+        extends SAbstractNode
+        implements SSingleSource
 {
+    private final SNode source;
     private final OptionalInt start;
     private final OptionalInt stop;
     private final OptionalInt step;
 
     @JsonCreator
     public SSlice(
+            @JsonProperty("source") SNode source,
             @JsonProperty("start") OptionalInt start,
             @JsonProperty("stop") OptionalInt stop,
             @JsonProperty("step") OptionalInt step)
     {
+        this.source = checkNotNull(source);
         this.start = checkNotNull(start);
         this.stop = checkNotNull(stop);
         this.step = checkNotNull(step);
+    }
+
+    @JsonProperty("source")
+    @Override
+    public SNode getSource()
+    {
+        return source;
     }
 
     @JsonProperty("start")

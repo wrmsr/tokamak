@@ -17,17 +17,32 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wrmsr.tokamak.core.search2.search.node.visitor.SNodeVisitor;
 
+import javax.annotation.concurrent.Immutable;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+
+@Immutable
 public final class SIndex
-        extends SNode
-        implements SLeaf
+        extends SAbstractNode
+        implements SSingleSource
 {
+    private final SNode source;
     private final int value;
 
     @JsonCreator
     public SIndex(
+            @JsonProperty("source") SNode source,
             @JsonProperty("value") int value)
     {
+        this.source = checkNotNull(source);
         this.value = value;
+    }
+
+    @JsonProperty("source")
+    @Override
+    public SNode getSource()
+    {
+        return source;
     }
 
     @JsonProperty("value")
