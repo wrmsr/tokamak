@@ -193,9 +193,34 @@ public final class FieldCollection
                 .collect(toFieldCollection());
     }
 
+    public FieldCollection withAnnotations(AnnotationCollectionMap<String, FieldAnnotation, ?, ?> anns)
+    {
+        return withAnnotations(anns, a -> true);
+    }
+
     public FieldCollection withTransitiveAnnotations(AnnotationCollectionMap<String, FieldAnnotation, ?, ?> anns)
     {
         return withAnnotations(anns, FieldAnnotation::isTransitive);
+    }
+
+    public FieldCollection withAnnotations(FieldCollection coll, Predicate<FieldAnnotation> filter)
+    {
+        return fields.stream()
+                .map(f -> f.withAnnotations(
+                        coll.contains(f.getName()) ?
+                                coll.get(f.getName()).getAnnotations() :
+                                f.getAnnotations().stream().filter(filter).collect(toImmutableList())))
+                .collect(toFieldCollection());
+    }
+
+    public FieldCollection withAnnotations(FieldCollection coll)
+    {
+        return withAnnotations(coll, a -> true);
+    }
+
+    public FieldCollection withTransitiveAnnotations(FieldCollection coll)
+    {
+        return withAnnotations(coll, FieldAnnotation::isTransitive);
     }
 
     public static final class Builder
