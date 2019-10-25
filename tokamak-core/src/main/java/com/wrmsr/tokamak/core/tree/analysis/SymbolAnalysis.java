@@ -52,18 +52,18 @@ public final class SymbolAnalysis
     public static final class Symbol
     {
         private final Optional<String> name;
-        private final Scope scope;
+        private final SymbolScope symbolScope;
         private final Optional<Symbol> origin;
         private final TNode node;
 
-        public Symbol(Optional<String> name, TNode node, Optional<Symbol> origin, Scope scope)
+        public Symbol(Optional<String> name, TNode node, Optional<Symbol> origin, SymbolScope symbolScope)
         {
             this.name = checkNotNull(name);
-            this.scope = checkNotNull(scope);
+            this.symbolScope = checkNotNull(symbolScope);
             this.origin = checkNotNull(origin);
             this.node = checkNotNull(node);
 
-            scope.symbols.add(this);
+            symbolScope.symbols.add(this);
         }
 
         @Override
@@ -79,9 +79,9 @@ public final class SymbolAnalysis
             return name;
         }
 
-        public Scope getScope()
+        public SymbolScope getSymbolScope()
         {
-            return scope;
+            return symbolScope;
         }
 
         public Optional<Symbol> getOrigin()
@@ -100,16 +100,16 @@ public final class SymbolAnalysis
         private final Optional<List<String>> nameParts;
         private final TNode node;
         private final Optional<Symbol> binding;
-        private final Scope scope;
+        private final SymbolScope symbolScope;
 
-        public SymbolRef(Optional<List<String>> nameParts, TNode node, Optional<Symbol> binding, Scope scope)
+        public SymbolRef(Optional<List<String>> nameParts, TNode node, Optional<Symbol> binding, SymbolScope symbolScope)
         {
             this.nameParts = checkNotNull(nameParts).map(ImmutableList::copyOf);
             this.node = checkNotNull(node);
             this.binding = checkNotNull(binding);
-            this.scope = checkNotNull(scope);
+            this.symbolScope = checkNotNull(symbolScope);
 
-            scope.symbolRefs.add(this);
+            symbolScope.symbolRefs.add(this);
         }
 
         @Override
@@ -135,26 +135,26 @@ public final class SymbolAnalysis
             return binding;
         }
 
-        public Scope getScope()
+        public SymbolScope getSymbolScope()
         {
-            return scope;
+            return symbolScope;
         }
     }
 
-    public static final class Scope
+    public static final class SymbolScope
     {
         private final TNode node;
         private final Set<TNode> enclosedNodes = new LinkedHashSet<>();
 
-        private final Optional<Scope> parent;
-        private final Set<Scope> children = new LinkedHashSet<>();
+        private final Optional<SymbolScope> parent;
+        private final Set<SymbolScope> children = new LinkedHashSet<>();
 
         private final Optional<String> name;
 
         private final Set<Symbol> symbols = new LinkedHashSet<>();
         private final Set<SymbolRef> symbolRefs = new LinkedHashSet<>();
 
-        public Scope(TNode node, Optional<Scope> parent, Optional<String> name)
+        public SymbolScope(TNode node, Optional<SymbolScope> parent, Optional<String> name)
         {
             this.node = checkNotNull(node);
             this.parent = checkNotNull(parent);
@@ -183,12 +183,12 @@ public final class SymbolAnalysis
             return Collections.unmodifiableSet(enclosedNodes);
         }
 
-        public Optional<Scope> getParent()
+        public Optional<SymbolScope> getParent()
         {
             return parent;
         }
 
-        public Set<Scope> getChildren()
+        public Set<SymbolScope> getChildren()
         {
             return Collections.unmodifiableSet(children);
         }
@@ -231,28 +231,28 @@ public final class SymbolAnalysis
         }
     }
 
-    private final Scope rootScope;
+    private final SymbolScope rootSymbolScope;
 
-    private final Set<Scope> scopes;
-    private final Map<TNode, Scope> scopesByNode;
+    private final Set<SymbolScope> symbolScopes;
+    private final Map<TNode, SymbolScope> symbolScopesByNode;
     private final Map<TNode, Set<Symbol>> symbolSetsByNode;
     private final Map<TNode, SymbolRef> symbolRefsByNode;
 
-    private SymbolAnalysis(Scope rootScope)
+    private SymbolAnalysis(SymbolScope rootSymbolScope)
     {
-        this.rootScope = checkNotNull(rootScope);
+        this.rootSymbolScope = checkNotNull(rootSymbolScope);
 
-        ImmutableMap.Builder<TNode, Scope> scopesByNode = ImmutableMap.builder();
+        ImmutableMap.Builder<TNode, SymbolScope> symbolScopesByNode = ImmutableMap.builder();
         Map<TNode, Set<Symbol>> symbolSetsByNode = new LinkedHashMap<>();
         ImmutableMap.Builder<TNode, SymbolRef> symbolRefsByNode = ImmutableMap.builder();
 
-        Set<Scope> seen = new HashSet<>();
-        Queue<Scope> queue = new ArrayDeque<>();
-        queue.add(rootScope);
-        seen.add(rootScope);
+        Set<SymbolScope> seen = new HashSet<>();
+        Queue<SymbolScope> queue = new ArrayDeque<>();
+        queue.add(rootSymbolScope);
+        seen.add(rootSymbolScope);
         while (!queue.isEmpty()) {
-            Scope cur = queue.remove();
-            cur.enclosedNodes.forEach(n -> scopesByNode.put(n, cur));
+            SymbolScope cur = queue.remove();
+            cur.enclosedNodes.forEach(n -> symbolScopesByNode.put(n, cur));
             cur.symbols.forEach(s -> symbolSetsByNode.computeIfAbsent(s.node, n -> new LinkedHashSet<>()).add(s));
             cur.symbolRefs.forEach(sr -> symbolRefsByNode.put(sr.node, sr));
             cur.children.forEach(c -> {
@@ -262,17 +262,17 @@ public final class SymbolAnalysis
             });
         }
 
-        this.scopes = ImmutableSet.copyOf(seen);
-        this.scopesByNode = scopesByNode.build();
+        this.symbolScopes = ImmutableSet.copyOf(seen);
+        this.symbolScopesByNode = symbolScopesByNode.build();
         this.symbolSetsByNode = newImmutableSetMap(symbolSetsByNode);
         this.symbolRefsByNode = symbolRefsByNode.build();
     }
 
-    public static List<Symbol> getScopeMatches(SymbolRef symbolRef)
+    public static List<Symbol> getSymbolScopeMatches(SymbolRef symbolRef)
     {
         checkArgument(symbolRef.nameParts.isPresent());
-        return symbolRef.getScope().getChildren().stream()
-                .map(SymbolAnalysis.Scope::getSymbols)
+        return symbolRef.getSymbolScope().getChildren().stream()
+                .map(SymbolScope::getSymbols)
                 .flatMap(Set::stream)
                 .filter(s -> optionalTest(s.getName(), symbolRef.nameParts.get().get(0)::equals))
                 .collect(toImmutableList());
@@ -281,27 +281,27 @@ public final class SymbolAnalysis
     public static List<Symbol> getSymbolMatches(SymbolRef symbolRef)
     {
         checkArgument(optionalTest(symbolRef.nameParts, np -> np.size() > 1));
-        return symbolRef.getScope().getChildren().stream()
+        return symbolRef.getSymbolScope().getChildren().stream()
                 .filter(s -> optionalTest(s.getName(), symbolRef.nameParts.get().get(0)::equals))
-                .map(SymbolAnalysis.Scope::getSymbols)
+                .map(SymbolScope::getSymbols)
                 .flatMap(Set::stream)
                 .filter(s -> optionalTest(s.getName(), symbolRef.nameParts.get().get(1)::equals))
                 .collect(toImmutableList());
     }
 
-    public Set<Scope> getScopes()
+    public Set<SymbolScope> getSymbolScopes()
     {
-        return scopes;
+        return symbolScopes;
     }
 
-    public Map<TNode, Scope> getScopesByNode()
+    public Map<TNode, SymbolScope> getSymbolScopesByNode()
     {
-        return scopesByNode;
+        return symbolScopesByNode;
     }
 
-    public Optional<Scope> getScope(TNode node)
+    public Optional<SymbolScope> getSymbolScope(TNode node)
     {
-        return Optional.ofNullable(scopesByNode.get(node));
+        return Optional.ofNullable(symbolScopesByNode.get(node));
     }
 
     public Map<TNode, Set<Symbol>> getSymbolSetsByNode()
@@ -322,7 +322,7 @@ public final class SymbolAnalysis
             ImmutableMap.Builder<SymbolRef, Symbol> symbolResolutions = ImmutableMap.builder();
             Map<Symbol, Set<SymbolRef>> symbolRefResolutions = new LinkedHashMap<>();
 
-            scopes.forEach(cur -> {
+            symbolScopes.forEach(cur -> {
                 cur.symbolRefs.forEach(sr -> {
                     sr.nameParts.ifPresent(parts -> {
                         if (parts.size() > 1) {
@@ -345,10 +345,10 @@ public final class SymbolAnalysis
 
     public static SymbolAnalysis analyze(TNode statement, Optional<Catalog> catalog, Optional<String> defaultSchema)
     {
-        Scope scope = statement.accept(new TraversalTNodeVisitor<Scope, Scope>()
+        SymbolScope symbolScope = statement.accept(new TraversalTNodeVisitor<SymbolScope, SymbolScope>()
         {
             @Override
-            protected Scope visitNode(TNode treeNode, Scope context)
+            protected SymbolScope visitNode(TNode treeNode, SymbolScope context)
             {
                 if (context != null) {
                     context.enclosedNodes.add(treeNode);
@@ -357,7 +357,7 @@ public final class SymbolAnalysis
             }
 
             @Override
-            public Scope visitAllSelectItem(TAllSelectItem treeNode, Scope context)
+            public SymbolScope visitAllSelectItem(TAllSelectItem treeNode, SymbolScope context)
             {
                 context.enclosedNodes.add(treeNode);
                 context.children.forEach(c -> c.symbols.forEach(s -> {
@@ -368,7 +368,7 @@ public final class SymbolAnalysis
             }
 
             @Override
-            public Scope visitExpressionSelectItem(TExpressionSelectItem treeNode, Scope context)
+            public SymbolScope visitExpressionSelectItem(TExpressionSelectItem treeNode, SymbolScope context)
             {
                 context.enclosedNodes.add(treeNode);
                 process(treeNode.getExpression(), context);
@@ -381,7 +381,7 @@ public final class SymbolAnalysis
             }
 
             @Override
-            public Scope visitQualifiedNameExpression(TQualifiedNameExpression treeNode, Scope context)
+            public SymbolScope visitQualifiedNameExpression(TQualifiedNameExpression treeNode, SymbolScope context)
             {
                 context.enclosedNodes.add(treeNode);
                 new SymbolRef(Optional.of(treeNode.getQualifiedName().getParts()), treeNode, Optional.empty(), context);
@@ -389,30 +389,30 @@ public final class SymbolAnalysis
             }
 
             @Override
-            public Scope visitSelect(TSelect treeNode, Scope context)
+            public SymbolScope visitSelect(TSelect treeNode, SymbolScope context)
             {
-                Scope scope = new Scope(treeNode, Optional.ofNullable(context), Optional.empty());
+                SymbolScope symbolScope = new SymbolScope(treeNode, Optional.ofNullable(context), Optional.empty());
 
                 treeNode.getRelations().forEach(aliasedRelation -> {
-                    Scope relationScope = new Scope(aliasedRelation, Optional.of(scope), aliasedRelation.getAlias());
-                    process(aliasedRelation.getRelation(), relationScope);
+                    SymbolScope relationSymbolScope = new SymbolScope(aliasedRelation, Optional.of(symbolScope), aliasedRelation.getAlias());
+                    process(aliasedRelation.getRelation(), relationSymbolScope);
                 });
 
-                treeNode.getWhere().ifPresent(where -> process(where, scope));
-                treeNode.getItems().forEach(item -> process(item, scope));
+                treeNode.getWhere().ifPresent(where -> process(where, symbolScope));
+                treeNode.getItems().forEach(item -> process(item, symbolScope));
 
-                return scope;
+                return symbolScope;
             }
 
             @Override
-            public Scope visitSubqueryRelation(TSubqueryRelation treeNode, Scope context)
+            public SymbolScope visitSubqueryRelation(TSubqueryRelation treeNode, SymbolScope context)
             {
                 context.enclosedNodes.add(treeNode);
                 return process(treeNode.getSelect(), context);
             }
 
             @Override
-            public Scope visitTableName(TTableName treeNode, Scope context)
+            public SymbolScope visitTableName(TTableName treeNode, SymbolScope context)
             {
                 context.enclosedNodes.add(treeNode);
                 SchemaTable schemaTable = treeNode.getQualifiedName().toSchemaTable(defaultSchema);
@@ -422,6 +422,6 @@ public final class SymbolAnalysis
             }
         }, null);
 
-        return new SymbolAnalysis(scope);
+        return new SymbolAnalysis(symbolScope);
     }
 }

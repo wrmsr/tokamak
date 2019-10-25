@@ -15,7 +15,6 @@ package com.wrmsr.tokamak.core.tree;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.core.catalog.Catalog;
 import com.wrmsr.tokamak.core.catalog.Function;
@@ -77,12 +76,12 @@ public class TreePlanner
     {
         SymbolAnalysis symbolAnalysis = SymbolAnalysis.analyze(treeNode, catalog, defaultSchema);
 
-        return treeNode.accept(new TNodeVisitor<PNode, SymbolAnalysis.Scope>()
+        return treeNode.accept(new TNodeVisitor<PNode, SymbolAnalysis.SymbolScope>()
         {
             @Override
-            public PNode visitAliasedRelation(TAliasedRelation treeNode, SymbolAnalysis.Scope context)
+            public PNode visitAliasedRelation(TAliasedRelation treeNode, SymbolAnalysis.SymbolScope context)
             {
-                PNode scanNode = process(treeNode.getRelation(), symbolAnalysis.getScope(treeNode).get());
+                PNode scanNode = process(treeNode.getRelation(), symbolAnalysis.getSymbolScope(treeNode).get());
                 return new PProject(
                         nameGenerator.get("aliasedRelationProject"),
                         PNodeAnnotations.empty(),
@@ -93,7 +92,7 @@ public class TreePlanner
             }
 
             @Override
-            public PNode visitSelect(TSelect treeNode, SymbolAnalysis.Scope context)
+            public PNode visitSelect(TSelect treeNode, SymbolAnalysis.SymbolScope context)
             {
                 Map<String, PValue> projection = new LinkedHashMap<>();
 
@@ -148,7 +147,7 @@ public class TreePlanner
             }
 
             @Override
-            public PNode visitTableName(TTableName treeNode, SymbolAnalysis.Scope context)
+            public PNode visitTableName(TTableName treeNode, SymbolAnalysis.SymbolScope context)
             {
                 SchemaTable schemaTable = treeNode.getQualifiedName().toSchemaTable(defaultSchema);
 

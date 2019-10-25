@@ -13,21 +13,17 @@
  */
 package com.wrmsr.tokamak.api;
 
-import com.sun.istack.internal.Nullable;
-
 import static com.wrmsr.tokamak.api.Util.checkState;
 
 public interface Row
 {
     // Null id implies an anonymous row (one with no id) which may or may not be an empty row.
-    @Nullable
     Id getId();
 
     // Null attributes implies an empty row and an empty rowset. Operations will emit either
     // exactly one Row with null attributes or one-or-more rows all with non-null attributes
     // Empty rows must have a null id. Non-empty rows may or may not have a null id.
     // Attribute object array values may be null.
-    @Nullable
     Object[] getAttributes();
 
     default boolean isAnon()

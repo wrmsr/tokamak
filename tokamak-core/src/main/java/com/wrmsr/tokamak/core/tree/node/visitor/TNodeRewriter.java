@@ -32,11 +32,22 @@ import com.wrmsr.tokamak.core.tree.node.TStringLiteral;
 import com.wrmsr.tokamak.core.tree.node.TSubqueryRelation;
 import com.wrmsr.tokamak.core.tree.node.TTableName;
 
+import java.util.Map;
+
 import static com.google.common.collect.ImmutableList.toImmutableList;
 
 public class TNodeRewriter<C>
         extends CachingTNodeVisitor<TNode, C>
 {
+    public TNodeRewriter()
+    {
+    }
+
+    public TNodeRewriter(Map<TNode, TNode> cache)
+    {
+        super(cache);
+    }
+
     @Override
     protected TNode visitNode(TNode node, C context)
     {

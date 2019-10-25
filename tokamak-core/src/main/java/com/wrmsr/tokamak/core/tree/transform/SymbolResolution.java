@@ -53,7 +53,7 @@ public final class SymbolResolution
                 List<String> parts = treeNode.getQualifiedName().getParts();
 
                 List<SymbolAnalysis.Symbol> hits = new ArrayList<>();
-                hits.addAll(SymbolAnalysis.getScopeMatches(sr));
+                hits.addAll(SymbolAnalysis.getSymbolScopeMatches(sr));
                 if (parts.size() > 1) {
                     hits.addAll(SymbolAnalysis.getSymbolMatches(sr));
                 }
@@ -69,7 +69,7 @@ public final class SymbolResolution
 
                 return new TQualifiedNameExpression(
                         new TQualifiedName(
-                                ImmutableList.of(hit.getScope().getName().get(), hit.getName().get())));
+                                ImmutableList.of(hit.getSymbolScope().getName().get(), hit.getName().get())));
             }
         }, null);
     }
