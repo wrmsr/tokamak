@@ -223,6 +223,22 @@ public final class FieldCollection
         return withAnnotations(coll, FieldAnnotation::isTransitive);
     }
 
+    public FieldCollection withoutAllAnnotations()
+    {
+        return new FieldCollection(fields.stream()
+                .map(f -> f.withAnnotations(ImmutableList.of()))
+                .collect(toImmutableList()));
+    }
+
+    public FieldCollection withoutOnlyTransitiiveAnnotations()
+    {
+        return new FieldCollection(fields.stream()
+                .map(f -> f.withAnnotations(f.getAnnotations().stream()
+                        .filter(FieldAnnotation::isTransitive)
+                        .collect(toImmutableList())))
+                .collect(toImmutableList()));
+    }
+
     public static final class Builder
     {
         private final ImmutableList.Builder<Field> fields = ImmutableList.builder();

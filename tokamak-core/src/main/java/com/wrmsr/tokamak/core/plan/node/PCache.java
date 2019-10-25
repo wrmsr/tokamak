@@ -28,6 +28,8 @@ public final class PCache
 {
     private final PNode source;
 
+    private final FieldCollection fields;
+
     public PCache(
             @JsonProperty("name") String name,
             @JsonProperty("annotations") PNodeAnnotations annotations,
@@ -36,6 +38,10 @@ public final class PCache
         super(name, annotations);
 
         this.source = checkNotNull(source);
+
+        this.fields = source.getFields()
+                .withoutOnlyTransitiiveAnnotations()
+                .withAnnotations(annotations.getFields());
 
         checkInvariants();
     }
@@ -50,7 +56,7 @@ public final class PCache
     @Override
     public FieldCollection getFields()
     {
-        return source.getFields();
+        return fields;
     }
 
     @Override
