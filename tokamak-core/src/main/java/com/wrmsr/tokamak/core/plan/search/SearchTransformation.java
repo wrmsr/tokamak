@@ -24,6 +24,7 @@ import com.wrmsr.tokamak.core.plan.node.PScope;
 import com.wrmsr.tokamak.core.plan.node.PScopeExit;
 import com.wrmsr.tokamak.core.plan.node.PSearch;
 import com.wrmsr.tokamak.core.plan.node.visitor.PNodeRewriter;
+import com.wrmsr.tokamak.core.search.node.SNode;
 import com.wrmsr.tokamak.core.search.node.SProperty;
 import com.wrmsr.tokamak.core.search.node.SSequence;
 import com.wrmsr.tokamak.core.search.node.visitor.SNodeVisitor;
@@ -37,21 +38,6 @@ public final class SearchTransformation
 
     public static PNode transformSearch(PSearch search, NameGenerator nameGenerator)
     {
-        search.getSearch().accept(new SNodeVisitor<Void, Void>()
-        {
-            @Override
-            public Void visitProperty(SProperty node, Void context)
-            {
-                return super.visitProperty(node, context);
-            }
-
-            @Override
-            public Void visitSequence(SSequence node, Void context)
-            {
-                return super.visitSequence(node, context);
-            }
-        }, null);
-
         String scopeName = nameGenerator.get("searchScope");
 
         PScopeExit scopeExit = new PScopeExit(
@@ -60,13 +46,32 @@ public final class SearchTransformation
                 search.getSource(),
                 scopeName);
 
-        PSearch newSearch = new PSearch(
-                search.getName(),
-                search.getAnnotations(),
-                scopeExit,
-                search.getSearch(),
-                search.getOutputField(),
-                search.getOutputType());
+        PNode newSearch = search.getSearch().accept(new SNodeVisitor<PNode, PNode>()
+        {
+            @Override
+            protected PNode visitNode(SNode node, PNode context)
+            {
+                return new PSearch(
+                        search.getName(),
+                        PNodeAnnotations.empty(),
+                        context,
+                        node,
+                        search.getOutputField(),
+                        search.getOutputType());
+            }
+
+            @Override
+            public PNode visitProperty(SProperty node, PNode context)
+            {
+                return super.visitProperty(node, context);
+            }
+
+            @Override
+            public PNode visitSequence(SSequence node, PNode context)
+            {
+                return super.visitSequence(node, context);
+            }
+        }, scopeExit);
 
         PProject project = new PProject(
                 nameGenerator.get("searchScopeDrop"),
