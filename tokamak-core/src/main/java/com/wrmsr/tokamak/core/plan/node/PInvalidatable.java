@@ -11,18 +11,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.wrmsr.tokamak.core.plan.node;
 
-import com.google.common.collect.ImmutableList;
-
-import java.util.List;
-
-public interface PLeaf
-        extends PInvalidating
+public interface PInvalidatable
+        extends PNode
 {
-    @Override
-    default List<PNode> getSources()
-    {
-        return ImmutableList.of();
-    }
 }

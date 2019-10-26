@@ -23,6 +23,7 @@ import com.wrmsr.tokamak.core.plan.node.PState;
 import com.wrmsr.tokamak.core.plan.node.visitor.PNodeRewriter;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -40,7 +41,7 @@ public final class SetInvalidationsTransform
         OriginAnalysis originAnalysis = OriginAnalysis.analyze(plan);
         IdAnalysis idAnalysis = IdAnalysis.analyze(plan);
 
-        Map<PState, Map<String, Map<PState, Set<String>>>> invalidationMap = new HashMap<>();
+        Map<PNode, Map<String, Map<PState, Set<String>>>> invalidationMap = new HashMap<>();
 
         plan.getNodeTypeList(PState.class).forEach(state -> {
             for (IdAnalysis.Part part : idAnalysis.get(state).getParts()) {
@@ -59,9 +60,8 @@ public final class SetInvalidationsTransform
                                 invalidationMap
                                         .computeIfAbsent(sourceOrigination.getSink().getNode(), o -> new HashMap<>())
                                         .computeIfAbsent(sourceOrigination.getSink().getField(), o -> new HashMap<>())
-                                        .
-
-
+                                        .computeIfAbsent(state, o -> new HashSet<>())
+                                        .add(origination.getSink().getField());
                             }
                         }
                         else {

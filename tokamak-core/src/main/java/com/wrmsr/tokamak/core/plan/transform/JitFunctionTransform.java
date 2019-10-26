@@ -11,18 +11,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.core.plan.node;
 
-import com.google.common.collect.ImmutableList;
+package com.wrmsr.tokamak.core.plan.transform;
 
-import java.util.List;
+import com.wrmsr.tokamak.core.catalog.Catalog;
+import com.wrmsr.tokamak.core.plan.Plan;
 
-public interface PLeaf
-        extends PInvalidating
+import java.util.Optional;
+
+public final class JitFunctionTransform
 {
-    @Override
-    default List<PNode> getSources()
+    private JitFunctionTransform()
     {
-        return ImmutableList.of();
+    }
+
+    public static Plan jitFunctionTransform(Plan plan, Optional<Catalog> catalog)
+    {
+        return plan;
     }
 }

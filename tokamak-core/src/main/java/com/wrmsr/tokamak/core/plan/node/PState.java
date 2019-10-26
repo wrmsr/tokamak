@@ -34,55 +34,12 @@ import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 @Immutable
 public final class PState
         extends PAbstractNode
-        implements PSingleSource
+        implements PInvalidatable, PInvalidating, PSingleSource
 {
     public enum Denormalization
     {
         NONE,
         INPUT,
-    }
-
-    @Immutable
-    public static final class Invalidation
-    {
-        public enum Strength
-        {
-            STRONG,
-            WEAK,
-        }
-
-        private final String field;
-        private final Strength strength;
-
-        @JsonCreator
-        public Invalidation(
-                @JsonProperty("field") String field,
-                @JsonProperty("strength") Strength strength)
-        {
-            this.field = checkNotEmpty(field);
-            this.strength = checkNotNull(strength);
-        }
-
-        @Override
-        public String toString()
-        {
-            return "Invalidation{" +
-                    "field=" + field +
-                    ", strength=" + strength +
-                    '}';
-        }
-
-        @JsonProperty("fields")
-        public String getField()
-        {
-            return field;
-        }
-
-        @JsonProperty("strength")
-        public Strength getStrength()
-        {
-            return strength;
-        }
     }
 
     @Immutable
@@ -168,7 +125,7 @@ public final class PState
     private final PNode source;
     private final List<String> outputTargets;
     private final Denormalization denormalization;
-    private final Map<String, Invalidation> invalidations;
+    private final List<PInvalidation> invalidations;
     private final Map<String, LinkageMask> linkageMasks;
     private final Optional<LockOverride> lockOverride;
 
@@ -181,7 +138,7 @@ public final class PState
             @JsonProperty("source") PNode source,
             @JsonProperty("outputTargets") List<String> outputTargets,
             @JsonProperty("denormalization") Denormalization denormalization,
-            @JsonProperty("invalidations") Map<String, Invalidation> invalidations,
+            @JsonProperty("invalidations") Map<String, PInvalidation> invalidations,
             @JsonProperty("linkageMasks") Map<String, LinkageMask> linkageMasks,
             @JsonProperty("lockOverride") Optional<LockOverride> lockOverride)
     {
@@ -221,7 +178,7 @@ public final class PState
     }
 
     @JsonProperty("invalidations")
-    public Map<String, Invalidation> getInvalidations()
+    public List<PInvalidation> getInvalidations()
     {
         return invalidations;
     }
