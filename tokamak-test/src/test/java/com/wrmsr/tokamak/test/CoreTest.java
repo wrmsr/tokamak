@@ -248,8 +248,8 @@ public class CoreTest
         Plan plan = buildPlan(catalog);
 
         OriginAnalysis oa = OriginAnalysis.analyze(plan);
-        oa.getLeafChainAnalysis();
-        oa.getStateChainAnalysis();
+        oa.getLeafChainAnalysis().getSinkSetsByFirstSource();
+        oa.getStateChainAnalysis().getSinkSetsByFirstSource();
 
         IdAnalysis ifa = IdAnalysis.analyze(plan);
         System.out.println(ifa);

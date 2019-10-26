@@ -513,7 +513,7 @@ public final class OriginAnalysis
                 Map<PNodeField, Set<PNodeField>> ret = new LinkedHashMap<>();
                 firstOriginationSetsBySink.forEach((k, vs) -> {
                     vs.forEach(v -> {
-                        checkState(!v.source.isPresent());
+                        checkState(!v.source.isPresent() || splitPredicate.test(v));
                         ret.computeIfAbsent(v.sink, v_ -> new LinkedHashSet<>()).add(k);
                     });
                 });
