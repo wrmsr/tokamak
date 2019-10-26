@@ -49,6 +49,7 @@ import com.wrmsr.tokamak.core.plan.node.PProjection;
 import com.wrmsr.tokamak.core.plan.node.PScan;
 import com.wrmsr.tokamak.core.plan.node.PState;
 import com.wrmsr.tokamak.core.plan.node.PValue;
+import com.wrmsr.tokamak.core.plan.transform.SetInvalidationsTransform;
 import com.wrmsr.tokamak.core.type.Types;
 import com.wrmsr.tokamak.core.util.ApiJson;
 import com.wrmsr.tokamak.util.json.Json;
@@ -242,6 +243,8 @@ public class CoreTest
         // catalog = om.readValue(src, Catalog.class);
 
         Plan plan = buildPlan(catalog);
+
+        SetInvalidationsTransform.setInvalidations(plan);
 
         // Dot.openDot(Dot.buildPlanDot(plan));
 

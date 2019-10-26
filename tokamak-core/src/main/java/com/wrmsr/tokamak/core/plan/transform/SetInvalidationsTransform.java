@@ -16,6 +16,8 @@ package com.wrmsr.tokamak.core.plan.transform;
 import com.wrmsr.tokamak.core.plan.Plan;
 import com.wrmsr.tokamak.core.plan.analysis.IdAnalysis;
 import com.wrmsr.tokamak.core.plan.analysis.OriginAnalysis;
+import com.wrmsr.tokamak.core.plan.node.PInvalidatable;
+import com.wrmsr.tokamak.core.plan.node.PInvalidating;
 import com.wrmsr.tokamak.core.plan.node.PLeaf;
 import com.wrmsr.tokamak.core.plan.node.PNode;
 import com.wrmsr.tokamak.core.plan.node.PNodeField;
@@ -41,12 +43,12 @@ public final class SetInvalidationsTransform
         OriginAnalysis originAnalysis = OriginAnalysis.analyze(plan);
         IdAnalysis idAnalysis = IdAnalysis.analyze(plan);
 
-        Map<PNode, Map<String, Map<PState, Set<String>>>> invalidationMap = new HashMap<>();
+        Map<PInvalidating, Map<String, Map<PInvalidatable, Set<String>>>> invalidationMap = new HashMap<>();
 
-        plan.getNodeTypeList(PState.class).forEach(state -> {
-            for (IdAnalysis.Part part : idAnalysis.get(state).getParts()) {
+        plan.getNodeTypeList(PInvalidatable.class).forEach(invalidatable -> {
+            for (IdAnalysis.Part part : idAnalysis.get(invalidatable).getParts()) {
                 for (String field : part) {
-                    PNodeField nodeField = PNodeField.of(state, field);
+                    PNodeField nodeField = PNodeField.of(invalidatable, field);
                     Set<OriginAnalysis.Origination> originations = originAnalysis.getStateChainAnalysis()
                             .getFirstOriginationSetsBySink().get(nodeField);
                     checkNotNull(originations);
@@ -57,10 +59,11 @@ public final class SetInvalidationsTransform
                                     .getFirstOriginationSetsBySink().get(sourceNodeField);
                             checkNotNull(sourceOriginations);
                             for (OriginAnalysis.Origination sourceOrigination : sourceOriginations) {
+                                checkState(sourceOrigination.getSink().getNode() instanceof PInvalidating);
                                 invalidationMap
-                                        .computeIfAbsent(sourceOrigination.getSink().getNode(), o -> new HashMap<>())
+                                        .computeIfAbsent((PInvalidating) sourceOrigination.getSink().getNode(), o -> new HashMap<>())
                                         .computeIfAbsent(sourceOrigination.getSink().getField(), o -> new HashMap<>())
-                                        .computeIfAbsent(state, o -> new HashSet<>())
+                                        .computeIfAbsent(invalidatable, o -> new HashSet<>())
                                         .add(origination.getSink().getField());
                             }
                         }
