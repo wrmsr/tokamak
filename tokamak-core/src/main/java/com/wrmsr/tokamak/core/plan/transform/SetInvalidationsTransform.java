@@ -16,9 +16,18 @@ package com.wrmsr.tokamak.core.plan.transform;
 import com.wrmsr.tokamak.core.plan.Plan;
 import com.wrmsr.tokamak.core.plan.analysis.IdAnalysis;
 import com.wrmsr.tokamak.core.plan.analysis.OriginAnalysis;
+import com.wrmsr.tokamak.core.plan.node.PLeaf;
 import com.wrmsr.tokamak.core.plan.node.PNode;
+import com.wrmsr.tokamak.core.plan.node.PNodeField;
 import com.wrmsr.tokamak.core.plan.node.PState;
 import com.wrmsr.tokamak.core.plan.node.visitor.PNodeRewriter;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 
 public final class SetInvalidationsTransform
 {
@@ -30,6 +39,38 @@ public final class SetInvalidationsTransform
     {
         OriginAnalysis originAnalysis = OriginAnalysis.analyze(plan);
         IdAnalysis idAnalysis = IdAnalysis.analyze(plan);
+
+        Map<PState, Map<String, Map<PState, Set<String>>>> invalidationMap = new HashMap<>();
+
+        plan.getNodeTypeList(PState.class).forEach(state -> {
+            for (IdAnalysis.Part part : idAnalysis.get(state).getParts()) {
+                for (String field : part) {
+                    PNodeField nodeField = PNodeField.of(state, field);
+                    Set<OriginAnalysis.Origination> originations = originAnalysis.getStateChainAnalysis()
+                            .getFirstOriginationSetsBySink().get(nodeField);
+                    checkNotNull(originations);
+                    for (OriginAnalysis.Origination origination : originations) {
+                        if (origination.getSource().isPresent()) {
+                            PNodeField sourceNodeField = origination.getSource().get();
+                            Set<OriginAnalysis.Origination> sourceOriginations = originAnalysis.getStateChainAnalysis()
+                                    .getFirstOriginationSetsBySink().get(sourceNodeField);
+                            checkNotNull(sourceOriginations);
+                            for (OriginAnalysis.Origination sourceOrigination : sourceOriginations) {
+                                invalidationMap
+                                        .computeIfAbsent(sourceOrigination.getSink().getNode(), o -> new HashMap<>())
+                                        .computeIfAbsent(sourceOrigination.getSink().getField(), o -> new HashMap<>())
+                                        .
+
+
+                            }
+                        }
+                        else {
+                            checkState(origination.getSink().getNode() instanceof PLeaf);
+                        }
+                    }
+                }
+            }
+        });
 
         return new Plan(plan.getRoot().accept(new PNodeRewriter<Void>()
         {

@@ -38,9 +38,9 @@ import com.wrmsr.tokamak.core.plan.Plan;
 import com.wrmsr.tokamak.core.plan.analysis.IdAnalysis;
 import com.wrmsr.tokamak.core.plan.analysis.OriginAnalysis;
 import com.wrmsr.tokamak.core.plan.dot.Dot;
+import com.wrmsr.tokamak.core.plan.node.PFilter;
 import com.wrmsr.tokamak.core.plan.node.PFunction;
 import com.wrmsr.tokamak.core.plan.node.PJoin;
-import com.wrmsr.tokamak.core.plan.node.PFilter;
 import com.wrmsr.tokamak.core.plan.node.PNode;
 import com.wrmsr.tokamak.core.plan.node.PNodeAnnotations;
 import com.wrmsr.tokamak.core.plan.node.PNodeField;
@@ -257,7 +257,7 @@ public class CoreTest
         System.out.println(ifa);
 
         PState state2 = (PState) plan.getNode("state2");
-        for(IdAnalysis.Part part:  ifa.get(state2).getParts()) {
+        for (IdAnalysis.Part part : ifa.get(state2).getParts()) {
             for (String field : part) {
                 for (OriginAnalysis.Origination o : oa.getStateChainAnalysis().getFirstOriginationSetsBySink().get(PNodeField.of(state2, field))) {
                     oa.getOriginationSetsBySink().get(o.getSource().get());

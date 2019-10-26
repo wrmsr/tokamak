@@ -19,7 +19,7 @@ final class Util
     {
     }
 
-    public static <T> T checkNotNull(T obj)
+    static <T> T checkNotNull(T obj)
     {
         if (obj == null) {
             throw new IllegalStateException();
@@ -27,28 +27,28 @@ final class Util
         return obj;
     }
 
-    public static void checkArgument(boolean state)
+    static void checkArgument(boolean state)
     {
         if (!state) {
             throw new IllegalStateException();
         }
     }
 
-    public static void checkState(boolean state)
+    static void checkState(boolean state)
     {
         if (!state) {
             throw new IllegalStateException();
         }
     }
 
-    public static String checkNotEmpty(String obj)
+    static String checkNotEmpty(String obj)
     {
         checkNotNull(obj);
         checkState(!obj.isEmpty());
         return obj;
     }
 
-    public static String toHex(byte[] bytes)
+    static String toHex(byte[] bytes)
     {
         StringBuilder sb = new StringBuilder(bytes.length * 2);
         for (byte b : bytes) {
@@ -57,7 +57,7 @@ final class Util
         return sb.toString();
     }
 
-    public static byte[] fromHex(String string)
+    static byte[] fromHex(String string)
     {
         checkArgument(string.length() % 2 == 0);
         byte[] bytes = new byte[string.length() / 2];
