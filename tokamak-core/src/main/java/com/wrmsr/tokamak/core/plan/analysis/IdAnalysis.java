@@ -267,14 +267,21 @@ public final class IdAnalysis
 
         public static Entry unify(PNode node, Iterable<Entry> entries, Iterable<Part> extras)
         {
+            List<Entry> entriesList = ImmutableList.copyOf(entries);
+            List<Part> extrasList = ImmutableList.copyOf(extras);
+            Set<AnonEntry> anonEntries = entriesList.stream()
+                    .filter(AnonEntry.class::isInstance)
+                    .map(AnonEntry.class::cast)
+                    .collect(toImmutableSet());
+            if (!anonEntries.isEmpty()) {
+                return anon(node, anonEntries);
+            }
             List<Part> parts = new ArrayList<>();
-            for (Entry entry : entries) {
-                if (entry instanceof AnonEntry) {
-                    return Entry.anon(node);
-                }
+            for (Entry entry : entriesList) {
+                checkState(!(entry instanceof AnonEntry));
                 parts.addAll(entry.getParts());
             }
-            extras.forEach(parts::add);
+            parts.addAll(extrasList);
             return of(node, Part.unify(parts));
         }
 
