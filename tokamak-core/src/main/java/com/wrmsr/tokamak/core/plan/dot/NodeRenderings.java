@@ -21,10 +21,12 @@ import com.wrmsr.tokamak.core.plan.node.PFilter;
 import com.wrmsr.tokamak.core.plan.node.PGroup;
 import com.wrmsr.tokamak.core.plan.node.PLookupJoin;
 import com.wrmsr.tokamak.core.plan.node.PNode;
+import com.wrmsr.tokamak.core.plan.node.POutput;
 import com.wrmsr.tokamak.core.plan.node.PProject;
 import com.wrmsr.tokamak.core.plan.node.PScan;
 import com.wrmsr.tokamak.core.plan.node.PScope;
 import com.wrmsr.tokamak.core.plan.node.PScopeExit;
+import com.wrmsr.tokamak.core.plan.node.PSearch;
 import com.wrmsr.tokamak.core.plan.node.PState;
 import com.wrmsr.tokamak.core.plan.node.PStruct;
 import com.wrmsr.tokamak.core.plan.node.PUnify;
@@ -54,12 +56,13 @@ public final class NodeRenderings
                     .add(new NodeRendering<>(PGroup.class))
                     .add(new NodeRendering<>(PJoin.class))
                     .add(new NodeRendering<>(PLookupJoin.class))
+                    .add(new NodeRendering<>(POutput.class))
                     .add(new NodeRendering<>(PProject.class))
                     .add(new NodeRendering<>(PScan.class))
                     .add(new NodeRendering<>(PScope.class))
                     .add(new NodeRendering<>(PScopeExit.class))
+                    .add(new NodeRendering<>(PSearch.class))
                     .add(new NodeRendering<>(PState.class))
-                    .add(new NodeRendering<>(PStruct.class))
                     .add(new NodeRendering<>(PStruct.class))
                     .add(new NodeRendering<>(PUnify.class))
                     .add(new NodeRendering<>(PUnion.class))
