@@ -243,14 +243,14 @@ public class CoreTest
 
         Plan plan = buildPlan(catalog);
 
-        Dot.openDot(Dot.buildPlanDot(plan));
+        // Dot.openDot(Dot.buildPlanDot(plan));
 
         OriginAnalysis oa = OriginAnalysis.analyze(plan);
         oa.getLeafChainAnalysis().getSinkSetsByFirstSource();
         oa.getStateChainAnalysis().getSinkSetsByFirstSource();
 
-        // IdAnalysis ifa = IdAnalysis.analyze(plan);
-        // System.out.println(ifa);
+        IdAnalysis ifa = IdAnalysis.analyze(plan);
+        System.out.println(ifa);
 
         PState state2 = (PState) plan.getNode("state2");
         for (IdAnalysis.Part part : ifa.get(state2).getParts()) {
