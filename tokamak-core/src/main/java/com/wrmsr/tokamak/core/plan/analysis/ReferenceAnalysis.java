@@ -16,9 +16,6 @@ package com.wrmsr.tokamak.core.plan.analysis;
 import com.wrmsr.tokamak.core.plan.Plan;
 import com.wrmsr.tokamak.core.plan.node.PNode;
 import com.wrmsr.tokamak.core.plan.node.PNodeField;
-import com.wrmsr.tokamak.core.plan.node.PState;
-import com.wrmsr.tokamak.core.plan.node.visitor.CachingPNodeVisitor;
-import com.wrmsr.tokamak.core.plan.node.visitor.PNodeVisitors;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -83,18 +80,18 @@ public final class ReferenceAnalysis
     {
         List<Entry> entries = new ArrayList<>();
 
-        PNodeVisitors.postWalk(plan.getRoot(), new CachingPNodeVisitor<Void, Void>()
-        {
-            @Override
-            public Void visitState(PState node, Void context)
-            {
-                node.getInvalidations().forEach((n, i) -> {
-                    entries.add(new GenericEntry(node, PNodeField.of(plan.getNode(n), i.getField()), i));
-                });
-
-                return null;
-            }
-        }, null);
+        // PNodeVisitors.postWalk(plan.getRoot(), new CachingPNodeVisitor<Void, Void>()
+        // {
+        //     @Override
+        //     public Void visitState(PState node, Void context)
+        //     {
+        //         node.getInvalidations().forEach((n, i) -> {
+        //             entries.add(new GenericEntry(node, PNodeField.of(plan.getNode(n), i.getField()), i));
+        //         });
+        //
+        //         return null;
+        //     }
+        // }, null);
 
         throw new IllegalStateException();
     }

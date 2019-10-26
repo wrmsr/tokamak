@@ -15,6 +15,7 @@ package com.wrmsr.tokamak.core.plan.node;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.core.layout.field.FieldCollection;
 import com.wrmsr.tokamak.core.plan.node.visitor.PNodeVisitor;
@@ -23,6 +24,7 @@ import com.wrmsr.tokamak.util.collect.OrderPreservingImmutableMap;
 
 import javax.annotation.concurrent.Immutable;
 
+import java.util.List;
 import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -35,13 +37,15 @@ public final class PScan
 {
     private final SchemaTable schemaTable;
     private final FieldCollection fields;
+    private final List<PInvalidation> invalidations;
 
     @JsonCreator
     private PScan(
             @JsonProperty("name") String name,
             @JsonProperty("annotations") PNodeAnnotations annotations,
             @JsonProperty("schemaTable") SchemaTable schemaTable,
-            @JsonProperty("fields") OrderPreservingImmutableMap<String, Type> fields)
+            @JsonProperty("fields") OrderPreservingImmutableMap<String, Type> fields,
+            @JsonProperty("invalidations") List<PInvalidation> invalidations)
     {
         super(name, annotations);
 
@@ -49,6 +53,7 @@ public final class PScan
 
         this.schemaTable = checkNotNull(schemaTable);
         this.fields = FieldCollection.of(checkNotNull(fields), annotations.getFields());
+        this.invalidations = ImmutableList.copyOf(invalidations);
 
         checkInvariants();
     }
@@ -58,13 +63,15 @@ public final class PScan
             String name,
             PNodeAnnotations annotations,
             SchemaTable schemaTable,
-            Map<String, Type> fields)
+            Map<String, Type> fields,
+            List<PInvalidation> invalidations)
     {
         this(
                 name,
                 annotations,
                 schemaTable,
-                new OrderPreservingImmutableMap<>(checkOrdered(fields)));
+                new OrderPreservingImmutableMap<>(checkOrdered(fields)),
+                invalidations);
     }
 
     @JsonProperty("schemaTable")
@@ -83,6 +90,13 @@ public final class PScan
     private OrderPreservingImmutableMap<String, Type> getJsonFields()
     {
         return new OrderPreservingImmutableMap<>(fields.getTypesByName());
+    }
+
+    @JsonProperty("invalidations")
+    @Override
+    public List<PInvalidation> getInvalidations()
+    {
+        return invalidations;
     }
 
     @Override

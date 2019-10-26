@@ -16,7 +16,6 @@ package com.wrmsr.tokamak.core.plan.node;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.core.layout.field.FieldCollection;
 import com.wrmsr.tokamak.core.plan.node.visitor.PNodeVisitor;
 
@@ -24,10 +23,8 @@ import javax.annotation.concurrent.Immutable;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 
 @Immutable
 public final class PState
@@ -38,33 +35,6 @@ public final class PState
     {
         NONE,
         INPUT,
-    }
-
-    @Immutable
-    public static final class LinkageMask
-    {
-        private final Set<String> fields;
-
-        @JsonCreator
-        public LinkageMask(
-                @JsonProperty("fields") Set<String> fields)
-        {
-            this.fields = checkNotEmpty(ImmutableSet.copyOf(fields));
-        }
-
-        @Override
-        public String toString()
-        {
-            return "LinkageMask{" +
-                    "fields=" + fields +
-                    '}';
-        }
-
-        @JsonProperty("fields")
-        public Set<String> getFields()
-        {
-            return fields;
-        }
     }
 
     @Immutable
@@ -121,7 +91,6 @@ public final class PState
     }
 
     private final PNode source;
-    private final List<String> outputTargets;
     private final Denormalization denormalization;
     private final List<PInvalidation> invalidations;
     private final Optional<LockOverride> lockOverride;
@@ -133,7 +102,6 @@ public final class PState
             @JsonProperty("name") String name,
             @JsonProperty("annotations") PNodeAnnotations annotations,
             @JsonProperty("source") PNode source,
-            @JsonProperty("outputTargets") List<String> outputTargets,
             @JsonProperty("denormalization") Denormalization denormalization,
             @JsonProperty("invalidations") List<PInvalidation> invalidations,
             @JsonProperty("lockOverride") Optional<LockOverride> lockOverride)
@@ -141,7 +109,6 @@ public final class PState
         super(name, annotations);
 
         this.source = checkNotNull(source);
-        this.outputTargets = ImmutableList.copyOf(outputTargets);
         this.denormalization = checkNotNull(denormalization);
         this.invalidations = ImmutableList.copyOf(invalidations);
         this.lockOverride = checkNotNull(lockOverride);
@@ -158,12 +125,6 @@ public final class PState
     public PNode getSource()
     {
         return source;
-    }
-
-    @JsonProperty("outputTargets")
-    public List<String> getOutputTargets()
-    {
-        return outputTargets;
     }
 
     @JsonProperty("denormalization")

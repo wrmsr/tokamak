@@ -13,6 +13,7 @@
  */
 package com.wrmsr.tokamak.core.plan.node;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.api.SchemaTable;
@@ -63,7 +64,8 @@ public class NodesTest
                 "scan0",
                 PNodeAnnotations.empty().mapFields(fields -> fields.overwriting("id", FieldAnnotation.id())),
                 SchemaTable.of("public", "hi"),
-                ImmutableMap.of("id", Types.LONG, "thing", Types.STRING));
+                ImmutableMap.of("id", Types.LONG, "thing", Types.STRING),
+                ImmutableList.of());
 
         String json = Json.writeValuePretty(scanNode);
         System.out.println(json);

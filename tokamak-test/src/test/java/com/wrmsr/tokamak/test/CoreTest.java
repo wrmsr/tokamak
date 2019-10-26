@@ -151,16 +151,15 @@ public class CoreTest
                         "N_NATIONKEY", Types.LONG,
                         "N_NAME", Types.STRING,
                         "N_REGIONKEY", Types.LONG
-                ));
+                ),
+                ImmutableList.of());
 
         PNode stateNode0 = new PState(
                 "state0",
                 PNodeAnnotations.empty(),
                 scanNode0,
-                ImmutableList.of(),
                 PState.Denormalization.NONE,
-                ImmutableMap.of(),
-                ImmutableMap.of(),
+                ImmutableList.of(),
                 Optional.empty());
 
         PNode filterNode0 = new PFilter(
@@ -193,16 +192,15 @@ public class CoreTest
                 ImmutableMap.of(
                         "R_REGIONKEY", Types.LONG,
                         "R_NAME", Types.STRING
-                ));
+                ),
+                ImmutableList.of());
 
         PNode stateNode1 = new PState(
                 "state1",
                 PNodeAnnotations.empty(),
                 scanNode1,
-                ImmutableList.of(),
                 PState.Denormalization.NONE,
-                ImmutableMap.of(),
-                ImmutableMap.of(),
+                ImmutableList.of(),
                 Optional.empty());
 
         PNode equiJoinNode0 = new PJoin(
@@ -218,10 +216,8 @@ public class CoreTest
                 "state2",
                 PNodeAnnotations.empty(),
                 equiJoinNode0,
-                ImmutableList.of(),
                 PState.Denormalization.NONE,
-                ImmutableMap.of(),
-                ImmutableMap.of(),
+                ImmutableList.of(),
                 Optional.empty());
 
         return new Plan(persistNode0);
@@ -253,8 +249,8 @@ public class CoreTest
         oa.getLeafChainAnalysis().getSinkSetsByFirstSource();
         oa.getStateChainAnalysis().getSinkSetsByFirstSource();
 
-        IdAnalysis ifa = IdAnalysis.analyze(plan);
-        System.out.println(ifa);
+        // IdAnalysis ifa = IdAnalysis.analyze(plan);
+        // System.out.println(ifa);
 
         PState state2 = (PState) plan.getNode("state2");
         for (IdAnalysis.Part part : ifa.get(state2).getParts()) {
@@ -354,7 +350,8 @@ public class CoreTest
                 ImmutableMap.of(
                         "id", Types.LONG,
                         "str", Types.STRING
-                ));
+                ),
+                ImmutableList.of());
 
         Plan plan = new Plan(scan0);
 

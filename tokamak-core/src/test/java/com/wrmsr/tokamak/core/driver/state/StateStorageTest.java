@@ -40,16 +40,15 @@ public class StateStorageTest
                 "scan",
                 PNodeAnnotations.empty().mapFields(fields -> fields.with("id", FieldAnnotation.id())),
                 SchemaTable.of("s", "t"),
-                ImmutableMap.of("id", Types.LONG));
+                ImmutableMap.of("id", Types.LONG),
+                ImmutableList.of());
 
         PState stateNode = new PState(
                 "state",
                 PNodeAnnotations.empty(),
                 scanNode,
-                ImmutableList.of(),
                 PState.Denormalization.NONE,
-                ImmutableMap.of(),
-                ImmutableMap.of(),
+                ImmutableList.of(),
                 Optional.empty());
 
         StateStorage ss = new MapHeapStateStorage();

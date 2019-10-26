@@ -13,11 +13,11 @@
  */
 package com.wrmsr.tokamak.core.plan.node.visitor;
 
-import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.core.plan.node.PCache;
 import com.wrmsr.tokamak.core.plan.node.PExtract;
 import com.wrmsr.tokamak.core.plan.node.PFilter;
 import com.wrmsr.tokamak.core.plan.node.PGroup;
+import com.wrmsr.tokamak.core.plan.node.PInvalidation;
 import com.wrmsr.tokamak.core.plan.node.PJoin;
 import com.wrmsr.tokamak.core.plan.node.PLookupJoin;
 import com.wrmsr.tokamak.core.plan.node.PNode;
@@ -34,7 +34,7 @@ import com.wrmsr.tokamak.core.plan.node.PUnion;
 import com.wrmsr.tokamak.core.plan.node.PUnnest;
 import com.wrmsr.tokamak.core.plan.node.PValues;
 
-import java.util.Map;
+import java.util.List;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
 
@@ -44,6 +44,17 @@ public abstract class PNodeRewriter<C>
     public String visitNodeName(String name, C context)
     {
         return name;
+    }
+
+    public List<PInvalidation> visitInvalidations(List<PInvalidation> invalidations, C context)
+    {
+        return invalidations.stream()
+                .map(inv -> new PInvalidation(
+                        visitNodeName(inv.getNode(), context),
+                        inv.getKeyFieldsBySourceField(),
+                        inv.getSourceFieldMask(),
+                        inv.getStrength()))
+                .collect(toImmutableList());
     }
 
     @Override
@@ -146,7 +157,8 @@ public abstract class PNodeRewriter<C>
                 visitNodeName(node.getName(), context),
                 node.getAnnotations(),
                 node.getSchemaTable(),
-                node.getFields().getTypesByName());
+                node.getFields().getTypesByName(),
+                visitInvalidations(node.getInvalidations(), context));
     }
 
     @Override
@@ -187,12 +199,8 @@ public abstract class PNodeRewriter<C>
                 visitNodeName(node.getName(), context),
                 node.getAnnotations(),
                 process(node.getSource(), context),
-                node.getOutputTargets(),
                 node.getDenormalization(),
-                node.getInvalidations().entrySet().stream()
-                        .collect(ImmutableMap.toImmutableMap(e -> visitNodeName(e.getKey(), context), Map.Entry::getValue)),
-                node.getLinkageMasks().entrySet().stream()
-                        .collect(ImmutableMap.toImmutableMap(e -> visitNodeName(e.getKey(), context), Map.Entry::getValue)),
+                visitInvalidations(node.getInvalidations(), context),
                 node.getLockOverride().map(lo -> new PState.LockOverride(visitNodeName(lo.getNode(), context), lo.getField(), lo.getSpilling())));
     }
 

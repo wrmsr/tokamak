@@ -13,6 +13,7 @@
  */
 package com.wrmsr.tokamak.core.plan.transform;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.core.catalog.Catalog;
 import com.wrmsr.tokamak.core.catalog.Table;
@@ -63,7 +64,8 @@ public final class PTransforms
                             node.getName(),
                             node.getAnnotations().mapFields(fields -> fields.overwriting(table.getLayout().getPrimaryKeyFields(), FieldAnnotation.id())),
                             node.getSchemaTable(),
-                            node.getFields().getTypesByName());
+                            node.getFields().getTypesByName(),
+                            ImmutableList.of());
                 }
                 else {
                     ImmutableMap.Builder<String, Type> newFields = ImmutableMap.builder();
@@ -78,7 +80,8 @@ public final class PTransforms
                             node.getName(),
                             node.getAnnotations().mapFields(fields -> fields.overwriting(table.getLayout().getPrimaryKeyFields(), FieldAnnotation.id())),
                             node.getSchemaTable(),
-                            newFields.build());
+                            newFields.build(),
+                            ImmutableList.of());
 
                     return new PProject(
                             nameGenerator.get(),
