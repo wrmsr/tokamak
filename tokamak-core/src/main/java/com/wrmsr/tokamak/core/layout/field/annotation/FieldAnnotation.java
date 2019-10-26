@@ -28,6 +28,7 @@ import javax.annotation.concurrent.Immutable;
         @JsonSubTypes.Type(value = ImmutableField.class, name = "immutable"),
         @JsonSubTypes.Type(value = InternalField.class, name = "internal"),
         @JsonSubTypes.Type(value = MonotonicField.class, name = "monotonic"),
+        @JsonSubTypes.Type(value = SealedField.class, name = "sealed"),
         @JsonSubTypes.Type(value = UniqueField.class, name = "unique"),
 })
 @Immutable
@@ -62,6 +63,11 @@ public interface FieldAnnotation
     static MonotonicField monotonic()
     {
         return MonotonicField.INSTANCE;
+    }
+
+    static SealedField sealed()
+    {
+        return SealedField.INSTANCE;
     }
 
     static UniqueField unique()
