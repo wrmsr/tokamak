@@ -15,14 +15,20 @@ package com.wrmsr.tokamak.core.driver.build.impl;
 
 import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.core.driver.DriverImpl;
+import com.wrmsr.tokamak.core.driver.DriverRow;
 import com.wrmsr.tokamak.core.driver.build.Builder;
 import com.wrmsr.tokamak.core.driver.build.ops.BuildOp;
+import com.wrmsr.tokamak.core.driver.build.ops.RequestBuildOp;
+import com.wrmsr.tokamak.core.driver.build.ops.ResponseBuildOp;
 import com.wrmsr.tokamak.core.driver.context.DriverContextImpl;
 import com.wrmsr.tokamak.core.plan.node.PNode;
 import com.wrmsr.tokamak.core.plan.node.POutput;
 
+import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+
+import static com.google.common.collect.ImmutableList.toImmutableList;
 
 public final class OutputBuilder
         extends SingleSourceBuilder<POutput>
@@ -35,6 +41,15 @@ public final class OutputBuilder
     @Override
     protected void innerBuild(DriverContextImpl dctx, Key key, Consumer<BuildOp> opConsumer)
     {
-        throw new IllegalStateException();
+        opConsumer.accept(new RequestBuildOp(this, source, key, srows -> {
+            List<DriverRow> rows = srows.stream()
+                    .map(srow -> new DriverRow(
+                            node,
+                            dctx.getDriver().getLineagePolicy().build(srow),
+                            srow.getId(),
+                            srow.getAttributes()))
+                    .collect(toImmutableList());
+            opConsumer.accept(new ResponseBuildOp(this, key, rows));
+        }));
     }
 }

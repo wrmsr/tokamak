@@ -25,6 +25,7 @@ import com.wrmsr.tokamak.core.plan.node.PGroup;
 import com.wrmsr.tokamak.core.plan.node.PJoin;
 import com.wrmsr.tokamak.core.plan.node.PLookupJoin;
 import com.wrmsr.tokamak.core.plan.node.PNode;
+import com.wrmsr.tokamak.core.plan.node.POutput;
 import com.wrmsr.tokamak.core.plan.node.PProject;
 import com.wrmsr.tokamak.core.plan.node.PScan;
 import com.wrmsr.tokamak.core.plan.node.PSingleSource;
@@ -445,6 +446,12 @@ public final class IdAnalysis
             public Entry visitLookupJoin(PLookupJoin node, Void context)
             {
                 return new InheritedEntry(node, process(node.getSource(), context));
+            }
+
+            @Override
+            public Entry visitOutput(POutput node, Void context)
+            {
+                return inherit(node, context);
             }
 
             @Override

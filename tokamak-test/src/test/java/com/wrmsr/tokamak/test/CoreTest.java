@@ -44,6 +44,7 @@ import com.wrmsr.tokamak.core.plan.node.PJoin;
 import com.wrmsr.tokamak.core.plan.node.PNode;
 import com.wrmsr.tokamak.core.plan.node.PNodeAnnotations;
 import com.wrmsr.tokamak.core.plan.node.PNodeField;
+import com.wrmsr.tokamak.core.plan.node.POutput;
 import com.wrmsr.tokamak.core.plan.node.PProject;
 import com.wrmsr.tokamak.core.plan.node.PProjection;
 import com.wrmsr.tokamak.core.plan.node.PScan;
@@ -221,7 +222,13 @@ public class CoreTest
                 ImmutableList.of(),
                 Optional.empty());
 
-        return new Plan(persistNode0);
+        PNode outputNode0 = new POutput(
+                "output0",
+                PNodeAnnotations.empty(),
+                persistNode0,
+                ImmutableList.of());
+
+        return new Plan(outputNode0);
     }
 
     // https://docs.oracle.com/javase/tutorial/jdbc/basics/prepared.html
