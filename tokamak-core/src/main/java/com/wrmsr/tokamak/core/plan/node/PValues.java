@@ -111,6 +111,12 @@ public final class PValues
     }
 
     @Override
+    public List<PInvalidation> getInvalidations()
+    {
+        return ImmutableList.of();
+    }
+
+    @Override
     public <R, C> R accept(PNodeVisitor<R, C> visitor, C context)
     {
         return visitor.visitValues(this, context);

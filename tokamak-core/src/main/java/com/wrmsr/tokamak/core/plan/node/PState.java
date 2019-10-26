@@ -16,7 +16,6 @@ package com.wrmsr.tokamak.core.plan.node;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.core.layout.field.FieldCollection;
 import com.wrmsr.tokamak.core.plan.node.visitor.PNodeVisitor;
@@ -24,7 +23,6 @@ import com.wrmsr.tokamak.core.plan.node.visitor.PNodeVisitor;
 import javax.annotation.concurrent.Immutable;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -126,7 +124,6 @@ public final class PState
     private final List<String> outputTargets;
     private final Denormalization denormalization;
     private final List<PInvalidation> invalidations;
-    private final Map<String, LinkageMask> linkageMasks;
     private final Optional<LockOverride> lockOverride;
 
     private FieldCollection fields;
@@ -138,8 +135,7 @@ public final class PState
             @JsonProperty("source") PNode source,
             @JsonProperty("outputTargets") List<String> outputTargets,
             @JsonProperty("denormalization") Denormalization denormalization,
-            @JsonProperty("invalidations") Map<String, PInvalidation> invalidations,
-            @JsonProperty("linkageMasks") Map<String, LinkageMask> linkageMasks,
+            @JsonProperty("invalidations") List<PInvalidation> invalidations,
             @JsonProperty("lockOverride") Optional<LockOverride> lockOverride)
     {
         super(name, annotations);
@@ -147,8 +143,7 @@ public final class PState
         this.source = checkNotNull(source);
         this.outputTargets = ImmutableList.copyOf(outputTargets);
         this.denormalization = checkNotNull(denormalization);
-        this.invalidations = ImmutableMap.copyOf(invalidations);
-        this.linkageMasks = ImmutableMap.copyOf(linkageMasks);
+        this.invalidations = ImmutableList.copyOf(invalidations);
         this.lockOverride = checkNotNull(lockOverride);
 
         fields = source.getFields()
@@ -181,12 +176,6 @@ public final class PState
     public List<PInvalidation> getInvalidations()
     {
         return invalidations;
-    }
-
-    @JsonProperty("linkageMasks")
-    public Map<String, LinkageMask> getLinkageMasks()
-    {
-        return linkageMasks;
     }
 
     @JsonProperty("lockOverride")

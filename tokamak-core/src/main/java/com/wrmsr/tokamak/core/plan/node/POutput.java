@@ -29,7 +29,7 @@ import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 @Immutable
 public final class POutput
         extends PAbstractNode
-        implements PSingleSource
+        implements PInvalidatable, PSingleSource
 {
     private final PNode source;
 
