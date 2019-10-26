@@ -15,8 +15,14 @@ package com.wrmsr.tokamak.core.plan.node;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 
 import javax.annotation.concurrent.Immutable;
+
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
@@ -31,26 +37,30 @@ public final class PInvalidation
     }
 
     private final String node;
-    private final String field;
+    private final Map<String, String> keyFieldsBySourceField;
+    private final Optional<Set<String>> sourceFieldMask;
     private final Strength strength;
 
     @JsonCreator
     public PInvalidation(
             @JsonProperty("node") String node,
-            @JsonProperty("field") String field,
+            @JsonProperty("keyFieldsBySourceField") Map<String, String> keyFieldsBySourceField,
+            @JsonProperty("sourceFieldMask") Optional<Set<String>> sourceFieldMask,
             @JsonProperty("strength") Strength strength)
     {
         this.node = checkNotEmpty(node);
-        this.field = checkNotEmpty(field);
+        this.keyFieldsBySourceField = checkNotEmpty(ImmutableMap.copyOf(keyFieldsBySourceField));
+        this.sourceFieldMask = checkNotNull(sourceFieldMask).map(ImmutableSet::copyOf);
         this.strength = checkNotNull(strength);
     }
 
     @Override
     public String toString()
     {
-        return "Invalidation{" +
-                "node=" + node +
-                ", field=" + field +
+        return "PInvalidation{" +
+                "node='" + node + '\'' +
+                ", keyFieldsBySourceField=" + keyFieldsBySourceField +
+                ", sourceFieldMask=" + sourceFieldMask +
                 ", strength=" + strength +
                 '}';
     }
@@ -61,10 +71,16 @@ public final class PInvalidation
         return node;
     }
 
-    @JsonProperty("fields")
-    public String getField()
+    @JsonProperty("keyFieldsBySourceField")
+    public Map<String, String> getKeyFieldsBySourceField()
     {
-        return field;
+        return keyFieldsBySourceField;
+    }
+
+    @JsonProperty("sourceFieldMask")
+    public Optional<Set<String>> getSourceFieldMask()
+    {
+        return sourceFieldMask;
     }
 
     @JsonProperty("strength")
