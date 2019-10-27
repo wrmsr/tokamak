@@ -129,6 +129,21 @@ public final class MoreCollections
         return set;
     }
 
+    public static <K, V> V safeComputeIfAbsent(Map<K, V> map, K key, Function<K, V> fn)
+    {
+        if (map.containsKey(key)) {
+            return map.get(key);
+        }
+        V value = fn.apply(key);
+        if (map.containsKey(key)) {
+            checkState(map.get(key).equals(value));
+        }
+        else {
+            map.put(key, value);
+        }
+        return value;
+    }
+
     public static <K, V0, V1> Map<K, V1> immutableMapValues(Map<K, V0> map, Function<V0, V1> fn)
     {
         return map.entrySet().stream().collect(toImmutableMap(Map.Entry::getKey, e -> fn.apply(e.getValue())));

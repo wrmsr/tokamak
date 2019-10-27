@@ -18,6 +18,8 @@ import com.wrmsr.tokamak.core.search.node.SNode;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.wrmsr.tokamak.util.MoreCollections.safeComputeIfAbsent;
+
 public abstract class CachingSNodeVisitor<R, C>
         extends SNodeVisitor<R, C>
 {
@@ -36,7 +38,7 @@ public abstract class CachingSNodeVisitor<R, C>
     @Override
     public R process(SNode node, C context)
     {
-        return cache.computeIfAbsent(node, n -> super.process(node, context));
+        return safeComputeIfAbsent(cache, node, n -> super.process(node, context));
     }
 
     public Map<SNode, R> getCache()
