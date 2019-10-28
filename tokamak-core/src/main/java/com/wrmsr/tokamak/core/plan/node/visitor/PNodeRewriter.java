@@ -21,6 +21,7 @@ import com.wrmsr.tokamak.core.plan.node.PInvalidation;
 import com.wrmsr.tokamak.core.plan.node.PJoin;
 import com.wrmsr.tokamak.core.plan.node.PLookupJoin;
 import com.wrmsr.tokamak.core.plan.node.PNode;
+import com.wrmsr.tokamak.core.plan.node.PNodeAnnotations;
 import com.wrmsr.tokamak.core.plan.node.POutput;
 import com.wrmsr.tokamak.core.plan.node.PProject;
 import com.wrmsr.tokamak.core.plan.node.PScan;
@@ -41,12 +42,12 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 public abstract class PNodeRewriter<C>
         extends CachingPNodeVisitor<PNode, C>
 {
-    public String visitNodeName(String name, C context)
+    protected String visitNodeName(String name, C context)
     {
         return name;
     }
 
-    public List<PInvalidation> visitInvalidations(List<PInvalidation> invalidations, C context)
+    protected List<PInvalidation> visitInvalidations(List<PInvalidation> invalidations, C context)
     {
         return invalidations.stream()
                 .map(inv -> new PInvalidation(
@@ -57,12 +58,17 @@ public abstract class PNodeRewriter<C>
                 .collect(toImmutableList());
     }
 
+    protected PNodeAnnotations visitNodeAnnotations(PNode node, PNodeAnnotations annotations, C context)
+    {
+        return annotations;
+    }
+
     @Override
     public PNode visitCache(PCache node, C context)
     {
         return new PCache(
                 visitNodeName(node.getName(), context),
-                node.getAnnotations(),
+                visitNodeAnnotations(node, node.getAnnotations(), context),
                 process(node.getSource(), context));
     }
 
@@ -71,7 +77,7 @@ public abstract class PNodeRewriter<C>
     {
         return new PExtract(
                 visitNodeName(node.getName(), context),
-                node.getAnnotations(),
+                visitNodeAnnotations(node, node.getAnnotations(), context),
                 process(node.getSource(), context),
                 node.getSourceField(),
                 node.getStructMember(),
@@ -83,7 +89,7 @@ public abstract class PNodeRewriter<C>
     {
         return new PFilter(
                 visitNodeName(node.getName(), context),
-                node.getAnnotations(),
+                visitNodeAnnotations(node, node.getAnnotations(), context),
                 process(node.getSource(), context),
                 node.getFunction(),
                 node.getArgs(),
@@ -95,7 +101,7 @@ public abstract class PNodeRewriter<C>
     {
         return new PGroup(
                 visitNodeName(node.getName(), context),
-                node.getAnnotations(),
+                visitNodeAnnotations(node, node.getAnnotations(), context),
                 process(node.getSource(), context),
                 node.getKeyFields(),
                 node.getListField());
@@ -106,7 +112,7 @@ public abstract class PNodeRewriter<C>
     {
         return new PJoin(
                 visitNodeName(node.getName(), context),
-                node.getAnnotations(),
+                visitNodeAnnotations(node, node.getAnnotations(), context),
                 node.getBranches().stream()
                         .map(b -> new PJoin.Branch(
                                 process(b.getNode(), context),
@@ -120,7 +126,7 @@ public abstract class PNodeRewriter<C>
     {
         return new PLookupJoin(
                 visitNodeName(node.getName(), context),
-                node.getAnnotations(),
+                visitNodeAnnotations(node, node.getAnnotations(), context),
                 process(node.getSource(), context),
                 node.getSourceKeyFields(),
                 node.getBranches().stream()
@@ -135,7 +141,7 @@ public abstract class PNodeRewriter<C>
     {
         return new POutput(
                 visitNodeName(node.getName(), context),
-                node.getAnnotations(),
+                visitNodeAnnotations(node, node.getAnnotations(), context),
                 process(node.getSource(), context),
                 node.getTargets());
     }
@@ -145,7 +151,7 @@ public abstract class PNodeRewriter<C>
     {
         return new PProject(
                 visitNodeName(node.getName(), context),
-                node.getAnnotations(),
+                visitNodeAnnotations(node, node.getAnnotations(), context),
                 process(node.getSource(), context),
                 node.getProjection());
     }
@@ -155,7 +161,7 @@ public abstract class PNodeRewriter<C>
     {
         return new PScan(
                 visitNodeName(node.getName(), context),
-                node.getAnnotations(),
+                visitNodeAnnotations(node, node.getAnnotations(), context),
                 node.getSchemaTable(),
                 node.getFields().getTypesByName(),
                 visitInvalidations(node.getInvalidations(), context));
@@ -166,7 +172,7 @@ public abstract class PNodeRewriter<C>
     {
         return new PScope(
                 visitNodeName(node.getName(), context),
-                node.getAnnotations(),
+                visitNodeAnnotations(node, node.getAnnotations(), context),
                 process(node.getSource(), context));
     }
 
@@ -175,7 +181,7 @@ public abstract class PNodeRewriter<C>
     {
         return new PScopeExit(
                 visitNodeName(node.getScopeName(), context),
-                node.getAnnotations(),
+                visitNodeAnnotations(node, node.getAnnotations(), context),
                 process(node.getSource(), context),
                 visitNodeName(node.getScopeName(), context));
     }
@@ -185,7 +191,7 @@ public abstract class PNodeRewriter<C>
     {
         return new PSearch(
                 visitNodeName(node.getName(), context),
-                node.getAnnotations(),
+                visitNodeAnnotations(node, node.getAnnotations(), context),
                 process(node.getSource(), context),
                 node.getSearch(),
                 node.getOutputField(),
@@ -197,7 +203,7 @@ public abstract class PNodeRewriter<C>
     {
         return new PState(
                 visitNodeName(node.getName(), context),
-                node.getAnnotations(),
+                visitNodeAnnotations(node, node.getAnnotations(), context),
                 process(node.getSource(), context),
                 node.getDenormalization(),
                 visitInvalidations(node.getInvalidations(), context),
@@ -209,7 +215,7 @@ public abstract class PNodeRewriter<C>
     {
         return new PStruct(
                 visitNodeName(node.getName(), context),
-                node.getAnnotations(),
+                visitNodeAnnotations(node, node.getAnnotations(), context),
                 process(node.getSource(), context),
                 node.getType(),
                 node.getInputFields(),
@@ -221,7 +227,7 @@ public abstract class PNodeRewriter<C>
     {
         return new PUnify(
                 visitNodeName(node.getName(), context),
-                node.getAnnotations(),
+                visitNodeAnnotations(node, node.getAnnotations(), context),
                 process(node.getSource(), context),
                 node.getUnifiedFields(),
                 node.getOutputField());
@@ -232,7 +238,7 @@ public abstract class PNodeRewriter<C>
     {
         return new PUnion(
                 visitNodeName(node.getName(), context),
-                node.getAnnotations(),
+                visitNodeAnnotations(node, node.getAnnotations(), context),
                 node.getSources().stream().map(n -> process(n, context)).collect(toImmutableList()),
                 node.getIndexField());
     }
@@ -242,7 +248,7 @@ public abstract class PNodeRewriter<C>
     {
         return new PUnnest(
                 visitNodeName(node.getName(), context),
-                node.getAnnotations(),
+                visitNodeAnnotations(node, node.getAnnotations(), context),
                 process(node.getSource(), context),
                 node.getListField(),
                 node.getUnnestedFields(),
@@ -254,7 +260,7 @@ public abstract class PNodeRewriter<C>
     {
         return new PValues(
                 visitNodeName(node.getName(), context),
-                node.getAnnotations(),
+                visitNodeAnnotations(node, node.getAnnotations(), context),
                 node.getFields().getTypesByName(),
                 node.getValues(),
                 node.getIndexField(),

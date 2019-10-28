@@ -57,18 +57,18 @@ public final class Json
     {
     }
 
-    public static final Set<MapperFeature> DEFAULT_DISABLED_FEATURES = ImmutableSet.of(
+    public static final Set<MapperFeature> DEFAULT_DISABLED_FEATURES = ImmutableSet.copyOf(new MapperFeature[] {
+            MapperFeature.ALLOW_FINAL_FIELDS_AS_MUTATORS,
             MapperFeature.AUTO_DETECT_CREATORS,
             MapperFeature.AUTO_DETECT_FIELDS,
-            MapperFeature.AUTO_DETECT_SETTERS,
             MapperFeature.AUTO_DETECT_GETTERS,
             MapperFeature.AUTO_DETECT_IS_GETTERS,
-            MapperFeature.USE_GETTERS_AS_SETTERS,
-            MapperFeature.INFER_PROPERTY_MUTATORS,
+            MapperFeature.AUTO_DETECT_SETTERS,
             MapperFeature.INFER_CREATOR_FROM_CONSTRUCTOR_PROPERTIES,
-            MapperFeature.ALLOW_FINAL_FIELDS_AS_MUTATORS,
-            MapperFeature.USE_BASE_TYPE_AS_DEFAULT_IMPL
-    );
+            MapperFeature.INFER_PROPERTY_MUTATORS,
+            MapperFeature.USE_BASE_TYPE_AS_DEFAULT_IMPL,
+            MapperFeature.USE_GETTERS_AS_SETTERS,
+    });
 
     public static final List<Supplier<Module>> DEFAULT_MODULE_FACTORIES = new CopyOnWriteArrayList<>(ImmutableList.of(
             GuavaModule::new,

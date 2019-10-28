@@ -34,6 +34,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.Spliterator;
 import java.util.Spliterators;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -427,5 +428,19 @@ public final class MoreCollections
     public static <T> Map<T, Long> histogram(Iterator<T> iterator)
     {
         return histogram(streamIterator(iterator));
+    }
+
+    public static <T> void delimitedForEach(Iterable<T> items, Runnable delimiter, Consumer<T> consumer)
+    {
+        boolean delimit = false;
+        for (T item : items) {
+            if (delimit) {
+                delimiter.run();
+            }
+            else {
+                delimit = true;
+            }
+            consumer.accept(item);
+        }
     }
 }

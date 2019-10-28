@@ -16,6 +16,7 @@ package com.wrmsr.tokamak.util.java.lang;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.wrmsr.tokamak.util.MoreCollections;
 import com.wrmsr.tokamak.util.java.lang.tree.JInheritance;
 import com.wrmsr.tokamak.util.java.lang.tree.declaration.JAnnotatedDeclaration;
 import com.wrmsr.tokamak.util.java.lang.tree.declaration.JConstructor;
@@ -119,16 +120,7 @@ public final class JRenderer
 
     private <T> void delimitedForEach(Iterable<T> items, String delimiter, Consumer<T> consumer)
     {
-        boolean delimit = false;
-        for (T item : items) {
-            if (delimit) {
-                code.add(delimiter);
-            }
-            else {
-                delimit = true;
-            }
-            consumer.accept(item);
-        }
+        MoreCollections.delimitedForEach(items, () -> code.add(delimiter), consumer);
     }
 
     private void renderAccess(Set<JAccess> access)

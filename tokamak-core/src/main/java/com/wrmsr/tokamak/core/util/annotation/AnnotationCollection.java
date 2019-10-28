@@ -95,7 +95,7 @@ public abstract class AnnotationCollection<T extends Annotation, Self extends An
     public final Self without(Class<? extends T>... annotationClss)
     {
         return rebuildWith(
-                Iterables.filter(annotations, a -> Arrays.stream(annotationClss).anyMatch(ac -> ac.isInstance(a))));
+                Iterables.filter(annotations, a -> Arrays.stream(annotationClss).noneMatch(ac -> ac.isInstance(a))));
     }
 
     @SafeVarargs

@@ -47,6 +47,7 @@ public final class PTransforms
 
     public static Plan addScanNodeIdFields(Plan plan, Catalog catalog)
     {
+        // TODO: remove. generalize to addRequiredIdFields
         NameGenerator nameGenerator = new NameGenerator(plan.getNodeNames());
         return new Plan(plan.getRoot().accept(new PNodeRewriter<Void>()
         {
@@ -95,6 +96,7 @@ public final class PTransforms
 
     public static PNode addIdDistinguishingFields(Plan plan)
     {
+        // TODO: fuse with scans above / remove / generalize
         return plan.getRoot().accept(new PNodeRewriter<Void>()
         {
             @Override

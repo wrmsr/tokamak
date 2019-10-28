@@ -15,13 +15,14 @@ package com.wrmsr.tokamak.core.plan.dot;
 
 import com.wrmsr.tokamak.core.plan.Plan;
 import com.wrmsr.tokamak.core.plan.node.PNode;
-import com.wrmsr.tokamak.core.plan.node.visitor.CachingPNodeVisitor;
+import com.wrmsr.tokamak.core.plan.node.visitor.PNodeVisitor;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.TimeUnit;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.wrmsr.tokamak.util.MoreFiles.createTempDirectory;
 
 public final class Dot
@@ -31,7 +32,7 @@ public final class Dot
     }
 
     public static class Visitor
-            extends CachingPNodeVisitor<String, Void>
+            extends PNodeVisitor<String, Void>
     {
         private final Plan plan;
 
@@ -43,8 +44,28 @@ public final class Dot
         @Override
         protected String visitNode(PNode node, Void context)
         {
+            DotUtils.Table table = DotUtils.table();
+
+            table.add(
+                    DotUtils.section(
+                            DotUtils.row(node.getClass().getSimpleName() + ": " + node.getName()),
+                            DotUtils.row(node.getId().toPrefixedString())));
+
+            table.add(
+                    DotUtils.section(
+                            node.getFields().stream().map(f ->
+                                    DotUtils.row(
+                                            DotUtils.column(f.getName()))
+                            ).collect(toImmutableList())));
+
+            String label = table.render();
+
             NodeRendering rendering = checkNotNull(NodeRenderings.NODE_RENDERING_MAP.get().get(node.getClass()));
-            return String.format("%s [style=filled, fillcolor=\"%s\", label=%s];", node.getName(), rendering.getColor().toString(), node.getName());
+            return String.format(
+                    "%s [shape=box, style=filled, fillcolor=\"%s\", label=%s];",
+                    node.getName(),
+                    rendering.getColor().toString(),
+                    label);
         }
     }
 

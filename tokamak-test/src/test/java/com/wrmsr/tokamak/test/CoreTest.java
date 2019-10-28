@@ -35,8 +35,10 @@ import com.wrmsr.tokamak.core.layout.TableLayout;
 import com.wrmsr.tokamak.core.layout.field.FieldCollection;
 import com.wrmsr.tokamak.core.layout.field.annotation.FieldAnnotation;
 import com.wrmsr.tokamak.core.plan.Plan;
-import com.wrmsr.tokamak.core.plan.analysis.IdAnalysis;
-import com.wrmsr.tokamak.core.plan.analysis.OriginAnalysis;
+import com.wrmsr.tokamak.core.plan.analysis.id.IdAnalysis;
+import com.wrmsr.tokamak.core.plan.analysis.origin.OriginAnalysis;
+import com.wrmsr.tokamak.core.plan.analysis.id.part.IdAnalysisPart;
+import com.wrmsr.tokamak.core.plan.analysis.origin.Origination;
 import com.wrmsr.tokamak.core.plan.dot.Dot;
 import com.wrmsr.tokamak.core.plan.node.PFilter;
 import com.wrmsr.tokamak.core.plan.node.PFunction;
@@ -50,6 +52,7 @@ import com.wrmsr.tokamak.core.plan.node.PProjection;
 import com.wrmsr.tokamak.core.plan.node.PScan;
 import com.wrmsr.tokamak.core.plan.node.PState;
 import com.wrmsr.tokamak.core.plan.node.PValue;
+import com.wrmsr.tokamak.core.plan.transform.SetIdFieldsTransform;
 import com.wrmsr.tokamak.core.plan.transform.SetInvalidationsTransform;
 import com.wrmsr.tokamak.core.type.Types;
 import com.wrmsr.tokamak.core.util.ApiJson;
@@ -251,7 +254,13 @@ public class CoreTest
 
         Plan plan = buildPlan(catalog);
 
-        SetInvalidationsTransform.setInvalidations(plan);
+        Dot.openDot(Dot.buildPlanDot(plan));
+
+        plan = SetIdFieldsTransform.setIdFields(plan, Optional.of(catalog));
+
+        Dot.openDot(Dot.buildPlanDot(plan));
+
+        plan = SetInvalidationsTransform.setInvalidations(plan, Optional.of(catalog));
 
         // Dot.openDot(Dot.buildPlanDot(plan));
 
@@ -259,13 +268,13 @@ public class CoreTest
         oa.getLeafChainAnalysis().getSinkSetsByFirstSource();
         oa.getStateChainAnalysis().getSinkSetsByFirstSource();
 
-        IdAnalysis ifa = IdAnalysis.analyze(plan);
+        IdAnalysis ifa = IdAnalysis.analyze(plan, Optional.of(catalog));
         System.out.println(ifa);
 
         PState state2 = (PState) plan.getNode("state2");
-        for (IdAnalysis.Part part : ifa.get(state2).getParts()) {
+        for (IdAnalysisPart part : ifa.get(state2).getParts()) {
             for (String field : part) {
-                for (OriginAnalysis.Origination o : oa.getStateChainAnalysis().getFirstOriginationSetsBySink().get(PNodeField.of(state2, field))) {
+                for (Origination o : oa.getStateChainAnalysis().getFirstOriginationSetsBySink().get(PNodeField.of(state2, field))) {
                     oa.getOriginationSetsBySink().get(o.getSource().get());
                     oa.getStateChainAnalysis().getFirstOriginationSetsBySink().get(o.getSource().get());
                 }

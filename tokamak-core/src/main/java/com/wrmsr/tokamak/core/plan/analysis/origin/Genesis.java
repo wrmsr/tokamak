@@ -11,21 +11,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.core.plan.transform;
+package com.wrmsr.tokamak.core.plan.analysis.origin;
 
-import com.wrmsr.tokamak.core.catalog.Catalog;
-import com.wrmsr.tokamak.core.plan.Plan;
-
-import java.util.Optional;
-
-public final class JitFunctionTransform
+public enum Genesis
 {
-    private JitFunctionTransform()
+    DIRECT(false),
+
+    INNER_JOIN(false),
+    LEFT_JOIN_PRIMARY(false),
+    LEFT_JOIN_SECONDARY(false),
+    FULL_JOIN(false),
+    LOOKUP_JOIN(false),
+
+    SCAN(true),
+    VALUES(true),
+
+    GROUP(true),
+
+    OPAQUE(true);
+
+    final boolean leaf;
+
+    Genesis(boolean leaf)
     {
+        this.leaf = leaf;
     }
 
-    public static Plan registerJitFunctions(Plan plan, Optional<Catalog> catalog)
+    public boolean isLeaf()
     {
-        return plan;
+        return leaf;
     }
 }
