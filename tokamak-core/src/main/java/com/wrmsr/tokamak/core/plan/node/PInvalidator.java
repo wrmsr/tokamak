@@ -15,7 +15,7 @@ package com.wrmsr.tokamak.core.plan.node;
 
 import java.util.List;
 
-public interface PInvalidating
+public interface PInvalidator
         extends PNode
 {
     List<PInvalidation> getInvalidations();

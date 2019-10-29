@@ -49,7 +49,7 @@ public final class PTransforms
     {
         // TODO: remove. generalize to addRequiredIdFields
         NameGenerator nameGenerator = new NameGenerator(plan.getNodeNames());
-        return new Plan(plan.getRoot().accept(new PNodeRewriter<Void>()
+        return Plan.of(plan.getRoot().accept(new PNodeRewriter<Void>()
         {
             @Override
             public PNode visitScan(PScan node, Void context)

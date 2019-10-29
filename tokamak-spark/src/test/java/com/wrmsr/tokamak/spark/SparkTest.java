@@ -93,7 +93,7 @@ public class SparkTest
         public static void main(String[] args)
                 throws Exception
         {
-            Plan plan = new Plan(
+            Plan plan = Plan.of(
                     new PValues(
                             "values",
                             PNodeAnnotations.empty(),

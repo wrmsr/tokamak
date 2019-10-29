@@ -42,7 +42,7 @@ public final class SetIdFieldsTransform
     {
         IdAnalysis idAnalysis = IdAnalysis.analyze(plan, catalog);
 
-        return new Plan(plan.getRoot().accept(new PNodeRewriter<Void>()
+        return Plan.of(plan.getRoot().accept(new PNodeRewriter<Void>()
         {
             @Override
             public PNodeAnnotations visitNodeAnnotations(PNode node, PNodeAnnotations annotations, Void context)

@@ -59,7 +59,7 @@ public final class Plan
     private final Map<PNodeId, PNode> nodesByNodeId;
 
     @JsonCreator
-    public Plan(
+    private Plan(
             @JsonProperty("root") PNode root)
     {
         this.root = root;
@@ -88,6 +88,11 @@ public final class Plan
         this.nodesByNodeId = ImmutableMap.copyOf(nodesById);
 
         checkInvariants();
+    }
+
+    public static Plan of(PNode root)
+    {
+        return new Plan(root);
     }
 
     private void checkInvariants()

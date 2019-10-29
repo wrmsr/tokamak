@@ -29,7 +29,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 @Immutable
 public final class PState
         extends PAbstractNode
-        implements PInvalidatable, PInvalidating, PSingleSource
+        implements PInvalidatable, PInvalidator, PSingleSource
 {
     public enum Denormalization
     {

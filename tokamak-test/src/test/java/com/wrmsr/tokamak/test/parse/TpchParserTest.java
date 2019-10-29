@@ -132,7 +132,7 @@ public class TpchParserTest
             SymbolAnalysis.Resolutions sar = sa.getResolutions();
 
             PNode node = new TreePlanner(Optional.of(catalog), defaultSchema).plan(treeNode);
-            Plan plan = new Plan(node);
+            Plan plan = Plan.of(node);
 
             plan = PTransforms.addScanNodeIdFields(plan, catalog);
             System.out.println(Json.writeValuePretty(plan));

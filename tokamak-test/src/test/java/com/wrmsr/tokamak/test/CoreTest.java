@@ -231,7 +231,7 @@ public class CoreTest
                 persistNode0,
                 ImmutableList.of());
 
-        return new Plan(outputNode0);
+        return Plan.of(outputNode0);
     }
 
     // https://docs.oracle.com/javase/tutorial/jdbc/basics/prepared.html
@@ -258,7 +258,7 @@ public class CoreTest
 
         plan = SetIdFieldsTransform.setIdFields(plan, Optional.of(catalog));
 
-        Dot.openDot(Dot.buildPlanDot(plan));
+        // Dot.openDot(Dot.buildPlanDot(plan));
 
         plan = SetInvalidationsTransform.setInvalidations(plan, Optional.of(catalog));
 
@@ -372,7 +372,7 @@ public class CoreTest
                 ),
                 ImmutableList.of());
 
-        Plan plan = new Plan(scan0);
+        Plan plan = Plan.of(scan0);
 
         Driver driver = new DriverImpl(catalog, plan);
 

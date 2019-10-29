@@ -18,7 +18,7 @@ import com.google.common.collect.ImmutableList;
 import java.util.List;
 
 public interface PLeaf
-        extends PInvalidating
+        extends PInvalidator
 {
     @Override
     default List<PNode> getSources()

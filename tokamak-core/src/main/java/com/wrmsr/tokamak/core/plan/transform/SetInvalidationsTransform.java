@@ -20,7 +20,7 @@ import com.wrmsr.tokamak.core.plan.analysis.origin.OriginAnalysis;
 import com.wrmsr.tokamak.core.plan.analysis.id.part.IdAnalysisPart;
 import com.wrmsr.tokamak.core.plan.analysis.origin.Origination;
 import com.wrmsr.tokamak.core.plan.node.PInvalidatable;
-import com.wrmsr.tokamak.core.plan.node.PInvalidating;
+import com.wrmsr.tokamak.core.plan.node.PInvalidator;
 import com.wrmsr.tokamak.core.plan.node.PLeaf;
 import com.wrmsr.tokamak.core.plan.node.PNode;
 import com.wrmsr.tokamak.core.plan.node.PNodeField;
@@ -47,7 +47,7 @@ public final class SetInvalidationsTransform
         OriginAnalysis originAnalysis = OriginAnalysis.analyze(plan);
         IdAnalysis idAnalysis = IdAnalysis.analyze(plan, catalog);
 
-        Map<PInvalidating, Map<String, Map<PInvalidatable, Set<String>>>> invalidationMap = new HashMap<>();
+        Map<PInvalidator, Map<String, Map<PInvalidatable, Set<String>>>> invalidationMap = new HashMap<>();
 
         plan.getNodeTypeList(PInvalidatable.class).forEach(invalidatable -> {
             for (IdAnalysisPart part : idAnalysis.get(invalidatable).getParts()) {
@@ -63,9 +63,9 @@ public final class SetInvalidationsTransform
                                     .getFirstOriginationSetsBySink().get(sourceNodeField);
                             checkNotNull(sourceOriginations);
                             for (Origination sourceOrigination : sourceOriginations) {
-                                checkState(sourceOrigination.getSink().getNode() instanceof PInvalidating);
+                                checkState(sourceOrigination.getSink().getNode() instanceof PInvalidator);
                                 invalidationMap
-                                        .computeIfAbsent((PInvalidating) sourceOrigination.getSink().getNode(), o -> new HashMap<>())
+                                        .computeIfAbsent((PInvalidator) sourceOrigination.getSink().getNode(), o -> new HashMap<>())
                                         .computeIfAbsent(sourceOrigination.getSink().getField(), o -> new HashMap<>())
                                         .computeIfAbsent(invalidatable, o -> new HashSet<>())
                                         .add(origination.getSink().getField());
@@ -79,7 +79,7 @@ public final class SetInvalidationsTransform
             }
         });
 
-        return new Plan(plan.getRoot().accept(new PNodeRewriter<Void>()
+        return Plan.of(plan.getRoot().accept(new PNodeRewriter<Void>()
         {
             @Override
             public PNode visitState(PState node, Void context)
