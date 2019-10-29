@@ -22,7 +22,6 @@ import com.wrmsr.tokamak.core.layout.field.Field;
 import com.wrmsr.tokamak.core.layout.field.FieldCollection;
 import com.wrmsr.tokamak.core.layout.field.annotation.FieldAnnotation;
 import com.wrmsr.tokamak.core.plan.node.visitor.PNodeVisitor;
-import com.wrmsr.tokamak.core.type.Type;
 import com.wrmsr.tokamak.util.MoreCollections;
 import com.wrmsr.tokamak.util.Pair;
 import com.wrmsr.tokamak.util.lazy.SupplierLazyValue;
@@ -172,7 +171,8 @@ public final class PJoin
                 }
             }
         }
-        this.fields = FieldCollection.of(fields.values());
+        this.fields = FieldCollection.of(fields.values())
+                .withAnnotations(annotations.getFields());
 
         keyLength = this.branches.stream().map(b -> b.getFields().size()).distinct().collect(toCheckSingle());
 
