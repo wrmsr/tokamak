@@ -82,6 +82,11 @@ public final class FieldAnnotations
         return new FieldAnnotations(annotations);
     }
 
+    public FieldAnnotations onlyTransitive()
+    {
+        return filter(FieldAnnotation::isTransitive);
+    }
+
     public int size()
     {
         return annotations.size();

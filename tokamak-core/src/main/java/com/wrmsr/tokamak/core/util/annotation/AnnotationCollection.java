@@ -15,6 +15,7 @@ package com.wrmsr.tokamak.core.util.annotation;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
+import com.wrmsr.tokamak.core.layout.field.annotation.FieldAnnotation;
 import com.wrmsr.tokamak.util.collect.StreamableIterable;
 
 import javax.annotation.concurrent.Immutable;
@@ -24,8 +25,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 import static java.util.function.Function.identity;
 
@@ -83,6 +86,11 @@ public abstract class AnnotationCollection<T extends Annotation, Self extends An
     public boolean has(Class<? extends T> cls)
     {
         return annotationsByCls.containsKey(cls);
+    }
+
+    public Self filter(Predicate<T> predicate)
+    {
+        return rebuildWith(stream().filter(predicate).collect(toImmutableList()));
     }
 
     @SafeVarargs

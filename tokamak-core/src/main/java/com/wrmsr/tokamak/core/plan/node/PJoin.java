@@ -18,7 +18,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.wrmsr.tokamak.core.layout.field.Field;
 import com.wrmsr.tokamak.core.layout.field.FieldCollection;
+import com.wrmsr.tokamak.core.layout.field.annotation.FieldAnnotation;
 import com.wrmsr.tokamak.core.plan.node.visitor.PNodeVisitor;
 import com.wrmsr.tokamak.core.type.Type;
 import com.wrmsr.tokamak.util.MoreCollections;
@@ -156,19 +158,21 @@ public final class PJoin
                 .filter(e -> e.getValue().size() == 1)
                 .collect(toImmutableMap(Map.Entry::getKey, e -> checkSingle(e.getValue())));
 
-        Map<String, Type> fields = new LinkedHashMap<>();
+        Map<String, Field> fields = new LinkedHashMap<>();
         for (Branch branch : this.branches) {
-            for (Map.Entry<String, Type> entry : branch.getNode().getFields().getTypesByName().entrySet()) {
-                if (!fields.containsKey(entry.getKey())) {
-                    fields.put(entry.getKey(), entry.getValue());
+            for (Field field : branch.getNode().getFields()) {
+                if (!fields.containsKey(field.getName())) {
+                    Iterable<FieldAnnotation> fieldAnns = branchesByUniqueField.containsKey(field.getName()) ?
+                            field.getAnnotations().onlyTransitive() : ImmutableList.of();
+                    fields.put(field.getName(), new Field(field.getName(), field.getType(), fieldAnns));
                 }
                 else {
-                    checkArgument(!keyFields.contains(entry.getKey()));
-                    checkArgument(fields.get(entry.getKey()).equals(entry.getValue()));
+                    checkArgument(!keyFields.contains(field.getName()));
+                    checkArgument(fields.get(field.getName()).getType().equals(field.getType()));
                 }
             }
         }
-        this.fields = FieldCollection.of(ImmutableMap.copyOf(fields));
+        this.fields = FieldCollection.of(fields.values());
 
         keyLength = this.branches.stream().map(b -> b.getFields().size()).distinct().collect(toCheckSingle());
 

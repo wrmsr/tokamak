@@ -233,9 +233,7 @@ public final class FieldCollection
     public FieldCollection withOnlyTransitiveAnnotations()
     {
         return new FieldCollection(fields.stream()
-                .map(f -> f.withAnnotations(f.getAnnotations().stream()
-                        .filter(FieldAnnotation::isTransitive)
-                        .collect(toImmutableList())))
+                .map(f -> f.withAnnotations(f.getAnnotations().onlyTransitive()))
                 .collect(toImmutableList()));
     }
 
@@ -300,7 +298,7 @@ public final class FieldCollection
         return new Builder();
     }
 
-    public static FieldCollection of(List<Field> fields)
+    public static FieldCollection of(Iterable<Field> fields)
     {
         return builder().addAll(fields).build();
     }
