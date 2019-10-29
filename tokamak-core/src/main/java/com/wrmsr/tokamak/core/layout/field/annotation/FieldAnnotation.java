@@ -40,6 +40,11 @@ public interface FieldAnnotation
         return false;
     }
 
+    default String toDisplayString()
+    {
+        return getClass().getSimpleName();
+    }
+
     static EphemeralField ephemeral()
     {
         return EphemeralField.INSTANCE;

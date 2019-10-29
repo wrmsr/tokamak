@@ -13,6 +13,8 @@
  */
 package com.wrmsr.tokamak.core.plan.dot;
 
+import com.google.common.base.Joiner;
+import com.wrmsr.tokamak.core.layout.field.annotation.FieldAnnotation;
 import com.wrmsr.tokamak.core.plan.Plan;
 import com.wrmsr.tokamak.core.plan.node.PNode;
 import com.wrmsr.tokamak.core.plan.node.visitor.PNodeVisitor;
@@ -53,10 +55,21 @@ public final class Dot
 
             table.add(
                     DotUtils.section(
-                            node.getFields().stream().map(f ->
-                                    DotUtils.row(
-                                            DotUtils.column(f.getName()))
-                            ).collect(toImmutableList())));
+                            node.getFields().stream().map(f -> {
+                                DotUtils.Row row = DotUtils.row(
+                                        DotUtils.column(f.getName()),
+                                        DotUtils.column(f.getType().toSpec()));
+                                if (!f.getAnnotations().isEmpty()) {
+                                    row.add(
+                                            DotUtils.rawColumn(
+                                                    Joiner.on("<br>").join(
+                                                            f.getAnnotations().stream()
+                                                                    .map(FieldAnnotation::toDisplayString)
+                                                                    .map(DotUtils::htmlEscape)
+                                                                    .collect(toImmutableList()))));
+                                }
+                                return row;
+                            }).collect(toImmutableList())));
 
             String label = table.render();
 

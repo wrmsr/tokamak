@@ -254,7 +254,7 @@ public class CoreTest
 
         Plan plan = buildPlan(catalog);
 
-        Dot.openDot(Dot.buildPlanDot(plan));
+        // Dot.openDot(Dot.buildPlanDot(plan));
 
         plan = SetIdFieldsTransform.setIdFields(plan, Optional.of(catalog));
 

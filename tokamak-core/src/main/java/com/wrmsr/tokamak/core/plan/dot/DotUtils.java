@@ -87,7 +87,7 @@ public final class DotUtils
     {
         public final List<Column> columns = new ArrayList<>();
 
-        private Row add(Column... columns)
+        public Row add(Column... columns)
         {
             this.columns.addAll(Arrays.asList(columns));
             return this;

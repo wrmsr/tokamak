@@ -82,6 +82,16 @@ public final class FieldAnnotations
         return new FieldAnnotations(annotations);
     }
 
+    public int size()
+    {
+        return annotations.size();
+    }
+
+    public boolean isEmpty()
+    {
+        return annotations.isEmpty();
+    }
+
     private static final SupplierLazyValue<Map<Class<? extends FieldAnnotation>, Consumer<Field>>> validatorsByAnnotationType = new SupplierLazyValue<>();
 
     public static Map<Class<? extends FieldAnnotation>, Consumer<Field>> getValidatorsByAnnotationType()

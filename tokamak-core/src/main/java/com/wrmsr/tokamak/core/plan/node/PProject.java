@@ -15,8 +15,10 @@ package com.wrmsr.tokamak.core.plan.node;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableList;
+import com.wrmsr.tokamak.core.layout.field.Field;
 import com.wrmsr.tokamak.core.layout.field.FieldCollection;
+import com.wrmsr.tokamak.core.layout.field.annotation.FieldAnnotation;
 import com.wrmsr.tokamak.core.plan.node.visitor.PNodeVisitor;
 import com.wrmsr.tokamak.core.type.Type;
 
@@ -52,12 +54,20 @@ public final class PProject
 
         projection.getInputsByOutput().values().forEach(this::checkValue);
 
-        ImmutableMap.Builder<String, Type> fields = ImmutableMap.builder();
+        FieldCollection.Builder fields = FieldCollection.builder();
         for (Map.Entry<String, PValue> entry : projection.getInputsByOutput().entrySet()) {
-            fields.put(entry.getKey(), getValueType(entry.getValue()));
+            Iterable<FieldAnnotation> fieldAnns;
+            if (entry.getValue() instanceof PValue.Field) {
+                fieldAnns = source.getFields().get(((PValue.Field) entry.getValue()).getField()).getAnnotations();
+            }
+            else {
+                fieldAnns = ImmutableList.of();
+            }
+            fields.add(new Field(entry.getKey(), getValueType(entry.getValue()), fieldAnns));
         }
-        // FIXME: inherit anns of 1:1 fields? like including id? :|
-        this.fields = FieldCollection.of(fields.build());
+
+        this.fields = fields.build()
+                .withAnnotations(annotations.getFields());
 
         checkInvariants();
     }
