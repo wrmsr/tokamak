@@ -87,28 +87,12 @@ public final class Plan
         this.nodesByName = ImmutableMap.copyOf(nodesByName);
         this.nodesByNodeId = ImmutableMap.copyOf(nodesById);
 
-        checkInvariants();
+        PlanValidation.validatePlan(this);
     }
 
     public static Plan of(PNode root)
     {
         return new Plan(root);
-    }
-
-    private void checkInvariants()
-    {
-        /*
-        TODO:
-         - node name refs (invals, etc)
-         - field name refs (linkagemasks, etc)
-         - scope containment
-         - cwtc.plan.validate?
-          - nothing requiring a full blown ana? or are these just simple anas?
-
-        TODO NOT:
-         - simple types (done in node ctors)
-         - anns (doen in node ctors)
-        */
     }
 
     @JsonProperty("root")

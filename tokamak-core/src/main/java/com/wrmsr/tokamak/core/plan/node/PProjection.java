@@ -15,6 +15,7 @@ package com.wrmsr.tokamak.core.plan.node;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.util.collect.OrderPreservingImmutableMap;
@@ -96,5 +97,10 @@ public final class PProjection
         return new PProjection(
                 StreamSupport.stream(fields.spliterator(), false)
                         .collect(toImmutableMap(identity(), PValue::field)));
+    }
+
+    public static PProjection only(String... fields)
+    {
+        return only(ImmutableList.copyOf(fields));
     }
 }

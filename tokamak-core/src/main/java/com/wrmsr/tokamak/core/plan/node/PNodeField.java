@@ -14,12 +14,14 @@
 package com.wrmsr.tokamak.core.plan.node;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 
 import javax.annotation.concurrent.Immutable;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
@@ -89,6 +91,20 @@ public final class PNodeField
     {
         ImmutableMap.Builder<PNodeField, V> out = ImmutableMap.builder();
         in.forEach((k0, m) -> m.forEach((k1, v) -> out.put(of(k0, k1), v)));
+        return out.build();
+    }
+
+    public static Map<PNode, Set<String>> expandNodeFieldSet(Set<PNodeField> in)
+    {
+        Map<PNode, ImmutableSet.Builder<String>> out = new LinkedHashMap<>();
+        in.forEach(k -> out.computeIfAbsent(k.node, n -> ImmutableSet.builder()).add(k.field));
+        return out.entrySet().stream().collect(toImmutableMap(Map.Entry::getKey, e -> e.getValue().build()));
+    }
+
+    public static Set<PNodeField> flattenNodeFieldSet(Map<PNode, Set<String>> in)
+    {
+        ImmutableSet.Builder<PNodeField> out = ImmutableSet.builder();
+        in.forEach((n, s) -> s.forEach(f -> out.add(of(n, f))));
         return out.build();
     }
 }

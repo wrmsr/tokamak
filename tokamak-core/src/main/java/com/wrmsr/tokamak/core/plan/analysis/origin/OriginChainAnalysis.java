@@ -13,6 +13,7 @@
  */
 package com.wrmsr.tokamak.core.plan.analysis.origin;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.core.plan.node.PNodeField;
@@ -20,11 +21,14 @@ import com.wrmsr.tokamak.util.lazy.SupplierLazyValue;
 
 import javax.annotation.concurrent.Immutable;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -33,6 +37,7 @@ import static com.wrmsr.tokamak.util.MoreCollections.newImmutableSetMap;
 import static com.wrmsr.tokamak.util.MoreCollections.sorted;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkSingle;
+import static com.wrmsr.tokamak.util.func.RecursiveConsumer.acceptRecursive;
 
 @Immutable
 public final class OriginChainAnalysis
@@ -55,7 +60,10 @@ public final class OriginChainAnalysis
         Map<Origination, Set<Origination>> firstOriginationSetsByOrigination = new LinkedHashMap<>();
         Map<PNodeField, Set<OriginationLink>> originationLinkSetsBySink = new LinkedHashMap<>();
 
-        sorted(originAnalysis.originationSetsBySinkNodeBySinkField.keySet(), Comparator.comparing(originAnalysis.toposortIndicesByNode::get)).forEach(snkNode -> {
+        sorted(
+                originAnalysis.originationSetsBySinkNodeBySinkField.keySet(),
+                Comparator.comparing(originAnalysis.toposortIndicesByNode::get)
+        ).forEach(snkNode -> {
             originAnalysis.originationSetsBySinkNodeBySinkField.get(snkNode).forEach((snkField, snkOris) -> {
                 checkNotEmpty(snkOris);
 
@@ -140,5 +148,31 @@ public final class OriginChainAnalysis
             });
             return newImmutableSetMap(ret);
         });
+    }
+
+    public void forEachPath(PNodeField sink, PNodeField source, Consumer<List<OriginationLink>> consumer)
+    {
+        int sourceToposortIndex = originAnalysis.toposortIndicesByNode.get(source.getNode());
+        checkState(originAnalysis.toposortIndicesByNode.get(sink.getNode()) >= sourceToposortIndex);
+        originationLinkSetsBySink.get(sink).forEach(start -> {
+            List<OriginationLink> path = new ArrayList<>();
+            acceptRecursive((rec, link) -> {
+                path.add(link);
+                if (link.sink.sink.equals(source)) {
+                    consumer.accept(ImmutableList.copyOf(path));
+                }
+                else if (originAnalysis.toposortIndicesByNode.get(link.sink.sink.getNode()) > sourceToposortIndex) {
+                    link.next.forEach(rec);
+                }
+                checkState(path.remove(path.size() - 1) == link);
+            }, start);
+        });
+    }
+
+    public List<List<OriginationLink>> getPaths(PNodeField sink, PNodeField source)
+    {
+        ImmutableList.Builder<List<OriginationLink>> builder = ImmutableList.builder();
+        forEachPath(sink, source, builder::add);
+        return builder.build();
     }
 }

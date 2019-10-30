@@ -36,8 +36,8 @@ import com.wrmsr.tokamak.core.layout.field.FieldCollection;
 import com.wrmsr.tokamak.core.layout.field.annotation.FieldAnnotation;
 import com.wrmsr.tokamak.core.plan.Plan;
 import com.wrmsr.tokamak.core.plan.analysis.id.IdAnalysis;
-import com.wrmsr.tokamak.core.plan.analysis.origin.OriginAnalysis;
 import com.wrmsr.tokamak.core.plan.analysis.id.part.IdAnalysisPart;
+import com.wrmsr.tokamak.core.plan.analysis.origin.OriginAnalysis;
 import com.wrmsr.tokamak.core.plan.analysis.origin.Origination;
 import com.wrmsr.tokamak.core.plan.dot.Dot;
 import com.wrmsr.tokamak.core.plan.node.PFilter;
@@ -54,6 +54,7 @@ import com.wrmsr.tokamak.core.plan.node.PState;
 import com.wrmsr.tokamak.core.plan.node.PValue;
 import com.wrmsr.tokamak.core.plan.transform.SetIdFieldsTransform;
 import com.wrmsr.tokamak.core.plan.transform.SetInvalidationsTransform;
+import com.wrmsr.tokamak.core.type.Type;
 import com.wrmsr.tokamak.core.type.Types;
 import com.wrmsr.tokamak.core.util.ApiJson;
 import com.wrmsr.tokamak.util.json.Json;
@@ -152,17 +153,24 @@ public class CoreTest
                 "scan0",
                 PNodeAnnotations.empty().mapFields(fields -> fields.overwriting("N_NATIONKEY", FieldAnnotation.id())),
                 SchemaTable.of("PUBLIC", "NATION"),
-                ImmutableMap.of(
-                        "N_NATIONKEY", Types.LONG,
-                        "N_NAME", Types.STRING,
-                        "N_REGIONKEY", Types.LONG
-                ),
+                ImmutableMap.<String, Type>builder()
+                        .put("N_NATIONKEY", Types.LONG)
+                        .put("N_NAME", Types.STRING)
+                        .put("N_REGIONKEY", Types.LONG)
+                        .put("N_COMMENT", Types.STRING)
+                        .build(),
                 ImmutableList.of());
+
+        PNode scanNode0Dropped = new PProject(
+                "scanNode0Dropped",
+                PNodeAnnotations.empty(),
+                scanNode0,
+                PProjection.only("N_NATIONKEY", "N_NAME", "N_REGIONKEY"));
 
         PNode stateNode0 = new PState(
                 "state0",
                 PNodeAnnotations.empty(),
-                scanNode0,
+                scanNode0Dropped,
                 PState.Denormalization.NONE,
                 ImmutableList.of(),
                 Optional.empty());
