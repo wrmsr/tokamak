@@ -171,23 +171,26 @@ public final class OrderPreservingImmutableMap<K, V>
     @Override
     public V put(K key, V value)
     {
-        return map.put(key, value);
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public V remove(Object key)
     {
-        return map.remove(key);
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void putAll(Map<? extends K, ? extends V> m)
     {
-        map.putAll(m);
+        throw new UnsupportedOperationException();
     }
 
     @Override
-    public void clear() {map.clear();}
+    public void clear()
+    {
+        throw new UnsupportedOperationException();
+    }
 
     @Override
     public Set<K> keySet()
@@ -222,54 +225,54 @@ public final class OrderPreservingImmutableMap<K, V>
     @Override
     public void replaceAll(BiFunction<? super K, ? super V, ? extends V> function)
     {
-        map.replaceAll(function);
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public V putIfAbsent(K key, V value)
     {
-        return map.putIfAbsent(key, value);
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public boolean remove(Object key, Object value)
     {
-        return map.remove(key, value);
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public boolean replace(K key, V oldValue, V newValue)
     {
-        return map.replace(key, oldValue, newValue);
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public V replace(K key, V value)
     {
-        return map.replace(key, value);
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public V computeIfAbsent(K key, Function<? super K, ? extends V> mappingFunction)
     {
-        return map.computeIfAbsent(key, mappingFunction);
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public V computeIfPresent(K key, BiFunction<? super K, ? super V, ? extends V> remappingFunction)
     {
-        return map.computeIfPresent(key, remappingFunction);
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public V compute(K key, BiFunction<? super K, ? super V, ? extends V> remappingFunction)
     {
-        return map.compute(key, remappingFunction);
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public V merge(K key, V value, BiFunction<? super V, ? super V, ? extends V> remappingFunction)
     {
-        return map.merge(key, value, remappingFunction);
+        throw new UnsupportedOperationException();
     }
 }
