@@ -25,6 +25,8 @@ import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 public final class MissingOriginationsException
         extends RuntimeException
 {
+    private static final long serialVersionUID = -2294638172918695918L;
+
     private final PNode node;
     private final Set<String> presentFields;
 

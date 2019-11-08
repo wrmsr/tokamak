@@ -30,6 +30,7 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 import static java.util.function.Function.identity;
 
+@SuppressWarnings({"rawtypes"})
 @Immutable
 public final class UnionSerde
         implements Serde<Object>
@@ -85,14 +86,14 @@ public final class UnionSerde
         Object decode(byte tag, Input input);
     }
 
-    private final List<Entry<?>> entries;
+    private final List<Entry> entries;
     private final UnknownClsEncoder unknownClsEncoder;
     private final UnknownTagDecoder unknownTagDecoder;
 
-    private final Map<Class<?>, Entry<?>> entriesByCls;
-    private final Map<Byte, Entry<?>> entriesByTag;
+    private final Map<Class, Entry> entriesByCls;
+    private final Map<Byte, Entry> entriesByTag;
 
-    public UnionSerde(List<Entry<?>> entries, UnknownClsEncoder unknownClsEncoder, UnknownTagDecoder unknownTagDecoder)
+    public UnionSerde(List<Entry> entries, UnknownClsEncoder unknownClsEncoder, UnknownTagDecoder unknownTagDecoder)
     {
         this.entries = ImmutableList.copyOf(entries);
         this.unknownClsEncoder = checkNotNull(unknownClsEncoder);
@@ -102,7 +103,7 @@ public final class UnionSerde
         entriesByTag = this.entries.stream().collect(toImmutableMap(Entry::getTag, identity()));
     }
 
-    public UnionSerde(List<Entry<?>> entries)
+    public UnionSerde(List<Entry> entries)
     {
         this(
                 entries,
@@ -110,7 +111,7 @@ public final class UnionSerde
                 (t, i) -> {throw new IllegalArgumentException("Unsupported union tag: " + t);});
     }
 
-    public List<Entry<?>> getEntries()
+    public List<Entry> getEntries()
     {
         return entries;
     }
@@ -125,12 +126,12 @@ public final class UnionSerde
         return unknownTagDecoder;
     }
 
-    public Map<Class<?>, Entry<?>> getEntriesByCls()
+    public Map<Class, Entry> getEntriesByCls()
     {
         return entriesByCls;
     }
 
-    public Map<Byte, Entry<?>> getEntriesByTag()
+    public Map<Byte, Entry> getEntriesByTag()
     {
         return entriesByTag;
     }

@@ -256,7 +256,7 @@ public final class Evaluation
                 }
             }
 
-            @SuppressWarnings({"unchecked"})
+            @SuppressWarnings({"rawtypes", "unchecked"})
             @Override
             public T visitFunctionCall(SFunctionCall node, T context)
             {

@@ -77,7 +77,7 @@ public final class Reflection
         return reflect(method, "$reflected$" + reflectedCount.getAndIncrement() + "$" + method.getName());
     }
 
-    public static Executable reflect(Supplier supplier)
+    public static Executable reflect(Supplier<?> supplier)
     {
         try {
             return reflect(supplier.getClass().getDeclaredMethod("get"));

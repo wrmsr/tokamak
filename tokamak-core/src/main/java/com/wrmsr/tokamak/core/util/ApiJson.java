@@ -34,7 +34,7 @@ public final class ApiJson
     {
     }
 
-    private static final List<JsonConverter> JSON_CONVERTERS = ImmutableList.copyOf(new JsonConverter[] {
+    private static final List<JsonConverter<?, ?>> JSON_CONVERTERS = ImmutableList.copyOf(new JsonConverter<?, ?>[] {
             Id.JSON_CONVERTER,
             Key.JSON_CONVERTER,
             SchemaTable.JSON_CONVERTER,

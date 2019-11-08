@@ -31,7 +31,7 @@ public abstract class SingleSourceBuilder<T extends PSingleSource>
     public SingleSourceBuilder(DriverImpl driver, T node, Map<PNode, Builder<?>> sources)
     {
         super(driver, node, sources);
-        Builder source = MorePreconditions.checkSingle(this.sources.values());
+        Builder<?> source = MorePreconditions.checkSingle(this.sources.values());
         checkArgument(source.getNode() == node.getSource());
         this.source = source;
     }
