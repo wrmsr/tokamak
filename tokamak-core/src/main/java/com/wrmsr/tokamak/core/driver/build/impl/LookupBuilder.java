@@ -18,16 +18,16 @@ import com.wrmsr.tokamak.core.driver.DriverImpl;
 import com.wrmsr.tokamak.core.driver.build.Builder;
 import com.wrmsr.tokamak.core.driver.build.ops.BuildOp;
 import com.wrmsr.tokamak.core.driver.context.DriverContextImpl;
-import com.wrmsr.tokamak.core.plan.node.PLookupJoin;
+import com.wrmsr.tokamak.core.plan.node.PLookup;
 import com.wrmsr.tokamak.core.plan.node.PNode;
 
 import java.util.Map;
 import java.util.function.Consumer;
 
-public final class LookupJoinBuilder
-        extends AbstractBuilder<PLookupJoin>
+public final class LookupBuilder
+        extends AbstractBuilder<PLookup>
 {
-    public LookupJoinBuilder(DriverImpl driver, PLookupJoin node, Map<PNode, Builder> sources)
+    public LookupBuilder(DriverImpl driver, PLookup node, Map<PNode, Builder> sources)
     {
         super(driver, node, sources);
     }

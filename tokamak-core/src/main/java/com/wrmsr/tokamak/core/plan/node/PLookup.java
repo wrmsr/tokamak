@@ -34,7 +34,7 @@ import static com.wrmsr.tokamak.util.MoreCollections.checkOrdered;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 
 @Immutable
-public final class PLookupJoin
+public final class PLookup
         extends PAbstractNode
         implements PInternal, PJoinLike
 {
@@ -74,7 +74,7 @@ public final class PLookupJoin
     private final Map<Set<String>, Branch> branchesByFieldSets;
 
     @JsonCreator
-    public PLookupJoin(
+    public PLookup(
             @JsonProperty("name") String name,
             @JsonProperty("annotations") PNodeAnnotations annotations,
             @JsonProperty("source") PNode source,
@@ -140,6 +140,6 @@ public final class PLookupJoin
     @Override
     public <R, C> R accept(PNodeVisitor<R, C> visitor, C context)
     {
-        return visitor.visitLookupJoin(this, context);
+        return visitor.visitLookup(this, context);
     }
 }

@@ -19,7 +19,7 @@ import com.wrmsr.tokamak.core.plan.node.PExtract;
 import com.wrmsr.tokamak.core.plan.node.PJoin;
 import com.wrmsr.tokamak.core.plan.node.PFilter;
 import com.wrmsr.tokamak.core.plan.node.PGroup;
-import com.wrmsr.tokamak.core.plan.node.PLookupJoin;
+import com.wrmsr.tokamak.core.plan.node.PLookup;
 import com.wrmsr.tokamak.core.plan.node.PNode;
 import com.wrmsr.tokamak.core.plan.node.POutput;
 import com.wrmsr.tokamak.core.plan.node.PProject;
@@ -55,7 +55,7 @@ public final class NodeRenderings
                     .add(new NodeRendering<>(PFilter.class))
                     .add(new NodeRendering<>(PGroup.class))
                     .add(new NodeRendering<>(PJoin.class))
-                    .add(new NodeRendering<>(PLookupJoin.class))
+                    .add(new NodeRendering<>(PLookup.class))
                     .add(new NodeRendering<>(POutput.class))
                     .add(new NodeRendering<>(PProject.class))
                     .add(new NodeRendering<>(PScan.class))

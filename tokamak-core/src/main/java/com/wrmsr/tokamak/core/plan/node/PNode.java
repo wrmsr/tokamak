@@ -32,7 +32,7 @@ import java.util.List;
         @JsonSubTypes.Type(value = PFilter.class, name = "filter"),
         @JsonSubTypes.Type(value = PGroup.class, name = "group"),
         @JsonSubTypes.Type(value = PJoin.class, name = "join"),
-        @JsonSubTypes.Type(value = PLookupJoin.class, name = "lookupJoin"),
+        @JsonSubTypes.Type(value = PLookup.class, name = "lookup"),
         @JsonSubTypes.Type(value = POutput.class, name = "output"),
         @JsonSubTypes.Type(value = PProject.class, name = "project"),
         @JsonSubTypes.Type(value = PScan.class, name = "scan"),

@@ -19,7 +19,7 @@ import com.wrmsr.tokamak.core.plan.node.PFilter;
 import com.wrmsr.tokamak.core.plan.node.PGroup;
 import com.wrmsr.tokamak.core.plan.node.PInvalidation;
 import com.wrmsr.tokamak.core.plan.node.PJoin;
-import com.wrmsr.tokamak.core.plan.node.PLookupJoin;
+import com.wrmsr.tokamak.core.plan.node.PLookup;
 import com.wrmsr.tokamak.core.plan.node.PNode;
 import com.wrmsr.tokamak.core.plan.node.PNodeAnnotations;
 import com.wrmsr.tokamak.core.plan.node.POutput;
@@ -122,15 +122,15 @@ public abstract class PNodeRewriter<C>
     }
 
     @Override
-    public PNode visitLookupJoin(PLookupJoin node, C context)
+    public PNode visitLookup(PLookup node, C context)
     {
-        return new PLookupJoin(
+        return new PLookup(
                 visitNodeName(node.getName(), context),
                 visitNodeAnnotations(node, node.getAnnotations(), context),
                 process(node.getSource(), context),
                 node.getSourceKeyFields(),
                 node.getBranches().stream()
-                        .map(b -> new PLookupJoin.Branch(
+                        .map(b -> new PLookup.Branch(
                                 process(b.getNode(), context),
                                 b.getFields()))
                         .collect(toImmutableList()));

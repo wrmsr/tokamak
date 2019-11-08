@@ -22,7 +22,7 @@ import com.wrmsr.tokamak.core.plan.node.PExtract;
 import com.wrmsr.tokamak.core.plan.node.PFilter;
 import com.wrmsr.tokamak.core.plan.node.PGroup;
 import com.wrmsr.tokamak.core.plan.node.PJoin;
-import com.wrmsr.tokamak.core.plan.node.PLookupJoin;
+import com.wrmsr.tokamak.core.plan.node.PLookup;
 import com.wrmsr.tokamak.core.plan.node.PNode;
 import com.wrmsr.tokamak.core.plan.node.PNodeField;
 import com.wrmsr.tokamak.core.plan.node.POutput;
@@ -263,7 +263,7 @@ public final class OriginAnalysis
             }
 
             @Override
-            public Void visitLookupJoin(PLookupJoin node, Void context)
+            public Void visitLookup(PLookup node, Void context)
             {
                 node.getSource().getFields().getNames().forEach(f -> originations.add(new Origination(
                         PNodeField.of(node, f), PNodeField.of(node.getSource(), f), Genesis.DIRECT, OriginNesting.none())));
