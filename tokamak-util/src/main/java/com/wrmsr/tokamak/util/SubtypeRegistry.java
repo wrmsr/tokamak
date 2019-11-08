@@ -254,7 +254,7 @@ public class SubtypeRegistry<T, E extends SubtypeRegistry.Entry<T>>
                 objectMapper.getSerializationConfig(),
                 objectMapper.getSerializationConfig().introspect(objectMapper.getTypeFactory().constructType(cls)).getClassInfo());
         subtypes.forEach(st -> checkNotNull(st.getName()));
-        Set<Class> subtypeSet = subtypes.stream().map(NamedType::getType).collect(toImmutableSet());
+        Set<Class<?>> subtypeSet = subtypes.stream().map(NamedType::getType).collect(toImmutableSet());
         for (Class<? extends T> subcls : subclsList) {
             if (!subtypeSet.contains(subcls)) {
                 throw new IllegalStateException("Subtype type not registered: " + subcls);

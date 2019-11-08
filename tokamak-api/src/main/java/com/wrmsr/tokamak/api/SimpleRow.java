@@ -55,7 +55,7 @@ public final class SimpleRow
         return attributes;
     }
 
-    public static final JsonConverter JSON_CONVERTER = new JsonConverter<>(
+    public static final JsonConverter<SimpleRow, Object[]> JSON_CONVERTER = new JsonConverter<>(
             SimpleRow.class,
             Object[].class,
             r -> new Object[] {r.id, r.attributes},
