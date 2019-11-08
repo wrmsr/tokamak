@@ -56,7 +56,7 @@ public final class OptoTest
     public static Node create(Node parent, LongToLongFunction task, boolean specialize)
             throws Throwable
     {
-        Class nodeCls = NodeImpl.class;
+        Class<?> nodeCls = NodeImpl.class;
 
         if (specialize) {
             ForcingClassLoader cl = new ForcingClassLoader(OptoTest.class.getClassLoader());
@@ -94,7 +94,7 @@ public final class OptoTest
             super(parent);
         }
 
-        public Class forceReloadClass(Class cls)
+        public Class<?> forceReloadClass(Class<?> cls)
                 throws Throwable
         {
             byte[] clsBytes;

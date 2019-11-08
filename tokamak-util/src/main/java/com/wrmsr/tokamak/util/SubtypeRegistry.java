@@ -158,7 +158,7 @@ public class SubtypeRegistry<T, E extends SubtypeRegistry.Entry<T>>
         return entryCls;
     }
 
-    @SuppressWarnings({"unchecked"})
+    @SuppressWarnings({"rawtypes", "unchecked"})
     public static <T> SubtypeRegistry<T, SubtypeRegistry.Entry<T>> simple(Class<T> cls)
     {
         return (SubtypeRegistry<T, SubtypeRegistry.Entry<T>>) new SubtypeRegistry(cls, SubtypeRegistry.Entry.class);

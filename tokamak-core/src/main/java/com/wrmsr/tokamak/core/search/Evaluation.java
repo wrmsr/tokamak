@@ -151,7 +151,7 @@ public final class Evaluation
 
         Iterable<T> toIterable(T object);
 
-        T invokeFunction(String name, List<Arg> args);
+        T invokeFunction(String name, List<Arg<?>> args);
 
         T createBoolean(boolean value);
 
@@ -259,7 +259,7 @@ public final class Evaluation
             public T visitFunctionCall(SFunctionCall node, T context)
             {
                 @SuppressWarnings({"unchecked"})
-                List<Arg> args = node.getArgs().stream()
+                List<Arg<?>> args = node.getArgs().stream()
                         .map(arg -> {
                             if (arg instanceof SExpressionRef) {
                                 return new NodeArg(arg);

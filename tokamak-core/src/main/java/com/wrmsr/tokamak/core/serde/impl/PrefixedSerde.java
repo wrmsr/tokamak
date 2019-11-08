@@ -60,7 +60,7 @@ public final class PrefixedSerde<V>
         return child;
     }
 
-    public MismatchDecoder getMismatchDecoder()
+    public MismatchDecoder<V> getMismatchDecoder()
     {
         return mismatchDecoder;
     }

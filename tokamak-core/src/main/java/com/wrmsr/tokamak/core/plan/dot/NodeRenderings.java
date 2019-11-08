@@ -48,8 +48,8 @@ public final class NodeRenderings
     {
     }
 
-    public static final CtorLazyValue<List<NodeRendering>> RAW_NODE_RENDERINGS = new CtorLazyValue<>(() ->
-            ImmutableList.<NodeRendering>builder()
+    public static final CtorLazyValue<List<NodeRendering<?>>> RAW_NODE_RENDERINGS = new CtorLazyValue<>(() ->
+            ImmutableList.<NodeRendering<?>>builder()
                     .add(new NodeRendering<>(PCache.class))
                     .add(new NodeRendering<>(PExtract.class))
                     .add(new NodeRendering<>(PFilter.class))
@@ -71,14 +71,14 @@ public final class NodeRenderings
                     .build());
 
     @SuppressWarnings({"unchecked"})
-    public static final CtorLazyValue<List<NodeRendering>> NODE_RENDERINGS = new CtorLazyValue<>(() -> {
-        List<NodeRendering> renderings = new ArrayList<>(RAW_NODE_RENDERINGS.get());
+    public static final CtorLazyValue<List<NodeRendering<?>>> NODE_RENDERINGS = new CtorLazyValue<>(() -> {
+        List<NodeRendering<?>> renderings = new ArrayList<>(RAW_NODE_RENDERINGS.get());
 
         List<Color> colors = Color.RAINBOW.get();
         int step = (int) ((float) colors.size() / renderings.stream().filter(r -> r.getColor() == null).count());
         for (int i = 0, j = 0; i < renderings.size(); ++i) {
             if (renderings.get(i).getColor() == null) {
-                renderings.set(i, new NodeRendering(renderings.get(i), colors.get((j++) * step)));
+                renderings.set(i, new NodeRendering<>(renderings.get(i), colors.get((j++) * step)));
             }
         }
 
@@ -86,6 +86,6 @@ public final class NodeRenderings
     });
 
     @SuppressWarnings({"unchecked"})
-    public static final CtorLazyValue<Map<Class<? extends PNode>, NodeRendering>> NODE_RENDERING_MAP =
+    public static final CtorLazyValue<Map<Class<? extends PNode>, NodeRendering<?>>> NODE_RENDERING_MAP =
             new CtorLazyValue<>(() -> NODE_RENDERINGS.get().stream().collect(toImmutableMap(NodeRendering::getCls, identity())));
 }

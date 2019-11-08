@@ -73,7 +73,7 @@ public final class Dot
 
             String label = table.render();
 
-            NodeRendering rendering = checkNotNull(NodeRenderings.NODE_RENDERING_MAP.get().get(node.getClass()));
+            NodeRendering<?> rendering = checkNotNull(NodeRenderings.NODE_RENDERING_MAP.get().get(node.getClass()));
             return String.format(
                     "%s [shape=box, style=filled, fillcolor=\"%s\", label=%s];",
                     node.getName(),
