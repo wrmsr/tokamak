@@ -24,6 +24,8 @@ public final class StringPrefixing
     public static class InvalidPrefixedStringException
             extends RuntimeException
     {
+        private static final long serialVersionUID = 4800820186176296388L;
+
         private final String expectedPrefix;
         private final String value;
 

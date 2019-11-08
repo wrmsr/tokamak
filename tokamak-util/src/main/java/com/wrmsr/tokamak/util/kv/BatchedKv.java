@@ -248,7 +248,7 @@ public interface BatchedKv<K, V>
         ImmutableSet.Builder<K> ret = ImmutableSet.builder();
         batch(builder.build()).stream()
                 .map(ContainsKeyBatchResult.class::cast)
-                .filter(ContainsKeyBatchResult::isPresent)
+                .filter(r -> r.isPresent())
                 .forEach(k -> ret.add((K) k));
         return ret.build();
     }

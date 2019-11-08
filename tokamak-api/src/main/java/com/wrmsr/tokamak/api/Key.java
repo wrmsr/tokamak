@@ -82,11 +82,11 @@ public final class Key
     }
 
     @SuppressWarnings({"unchecked"})
-    public static final JsonConverter<Key, Map> JSON_CONVERTER = new JsonConverter<>(
+    public static final JsonConverter<Key, Map<String, Object>> JSON_CONVERTER = new JsonConverter<Key, Map<String, Object>>(
             Key.class,
-            Map.class,
+            (Class) Map.class,
             id -> id.valuesByField,
-            map -> of((Map<String, Object>) map));
+            map -> of(map));
 
     public static Key of(Map<String, Object> map)
     {
