@@ -61,7 +61,7 @@ public final class JoinBuilder
                     new VariableLengthSerde<>(
                             Serdes.BYTES_VALUE_SERDE));
 
-    public JoinBuilder(DriverImpl driver, PJoin node, Map<PNode, Builder> sources)
+    public JoinBuilder(DriverImpl driver, PJoin node, Map<PNode, Builder<?>> sources)
     {
         super(driver, node, sources);
     }

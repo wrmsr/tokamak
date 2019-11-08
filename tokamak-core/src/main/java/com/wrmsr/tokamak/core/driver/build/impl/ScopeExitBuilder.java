@@ -27,7 +27,7 @@ import java.util.function.Consumer;
 public final class ScopeExitBuilder
         extends SingleSourceBuilder<PScopeExit>
 {
-    public ScopeExitBuilder(DriverImpl driver, PScopeExit node, Map<PNode, Builder> sources)
+    public ScopeExitBuilder(DriverImpl driver, PScopeExit node, Map<PNode, Builder<?>> sources)
     {
         super(driver, node, sources);
     }

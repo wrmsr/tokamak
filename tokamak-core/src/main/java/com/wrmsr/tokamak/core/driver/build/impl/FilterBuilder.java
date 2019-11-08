@@ -38,7 +38,7 @@ public final class FilterBuilder
 {
     private final Executable executable;
 
-    public FilterBuilder(DriverImpl driver, PFilter node, Map<PNode, Builder> sources)
+    public FilterBuilder(DriverImpl driver, PFilter node, Map<PNode, Builder<?>> sources)
     {
         super(driver, node, sources);
 

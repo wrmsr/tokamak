@@ -21,15 +21,15 @@ import javax.annotation.concurrent.Immutable;
 public abstract class AbstractBuildOp
         implements BuildOp
 {
-    protected final Builder origin;
+    protected final Builder<?> origin;
 
-    public AbstractBuildOp(Builder origin)
+    public AbstractBuildOp(Builder<?> origin)
     {
         this.origin = origin;
     }
 
     @Override
-    public Builder getOrigin()
+    public Builder<?> getOrigin()
     {
         return origin;
     }

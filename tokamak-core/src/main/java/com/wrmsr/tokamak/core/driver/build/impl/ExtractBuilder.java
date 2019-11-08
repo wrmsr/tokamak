@@ -27,7 +27,7 @@ import java.util.function.Consumer;
 public final class ExtractBuilder
         extends SingleSourceBuilder<PExtract>
 {
-    public ExtractBuilder(DriverImpl driver, PExtract node, Map<PNode, Builder> sources)
+    public ExtractBuilder(DriverImpl driver, PExtract node, Map<PNode, Builder<?>> sources)
     {
         super(driver, node, sources);
     }

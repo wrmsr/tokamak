@@ -22,10 +22,10 @@ public class PairTest
     public void testJson()
             throws Throwable
     {
-        Pair p0 = Pair.immutable("a", 0);
+        Pair<String, Integer> p0 = Pair.immutable("a", 0);
         String json = Json.writeValue(p0);
         System.out.println(json);
-        Pair p1 = Json.readValue(json, Pair.Immutable.class);
+        Pair<?, ?> p1 = Json.readValue(json, Pair.Immutable.class);
         assertEquals(p0, p1);
     }
 }

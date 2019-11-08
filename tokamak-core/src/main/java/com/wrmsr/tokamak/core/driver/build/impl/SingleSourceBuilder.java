@@ -22,14 +22,13 @@ import com.wrmsr.tokamak.util.MorePreconditions;
 import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.wrmsr.tokamak.util.MorePreconditions.checkSingle;
 
 public abstract class SingleSourceBuilder<T extends PSingleSource>
         extends AbstractBuilder<T>
 {
-    protected final Builder source;
+    protected final Builder<?> source;
 
-    public SingleSourceBuilder(DriverImpl driver, T node, Map<PNode, Builder> sources)
+    public SingleSourceBuilder(DriverImpl driver, T node, Map<PNode, Builder<?>> sources)
     {
         super(driver, node, sources);
         Builder source = MorePreconditions.checkSingle(this.sources.values());
@@ -37,7 +36,7 @@ public abstract class SingleSourceBuilder<T extends PSingleSource>
         this.source = source;
     }
 
-    public Builder getSource()
+    public Builder<?> getSource()
     {
         return source;
     }

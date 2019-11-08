@@ -27,7 +27,7 @@ import java.util.function.Consumer;
 public final class UnifyBuilder
         extends SingleSourceBuilder<PUnify>
 {
-    public UnifyBuilder(DriverImpl driver, PUnify node, Map<PNode, Builder> sources)
+    public UnifyBuilder(DriverImpl driver, PUnify node, Map<PNode, Builder<?>> sources)
     {
         super(driver, node, sources);
     }

@@ -27,7 +27,7 @@ import java.util.function.Consumer;
 public final class StructBuilder
         extends SingleSourceBuilder<PStruct>
 {
-    public StructBuilder(DriverImpl driver, PStruct node, Map<PNode, Builder> sources)
+    public StructBuilder(DriverImpl driver, PStruct node, Map<PNode, Builder<?>> sources)
     {
         super(driver, node, sources);
     }

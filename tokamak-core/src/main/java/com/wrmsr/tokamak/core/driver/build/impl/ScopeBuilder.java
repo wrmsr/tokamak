@@ -27,7 +27,7 @@ import java.util.function.Consumer;
 public final class ScopeBuilder
         extends SingleSourceBuilder<PScope>
 {
-    public ScopeBuilder(DriverImpl driver, PScope node, Map<PNode, Builder> sources)
+    public ScopeBuilder(DriverImpl driver, PScope node, Map<PNode, Builder<?>> sources)
     {
         super(driver, node, sources);
     }

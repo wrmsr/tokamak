@@ -20,5 +20,5 @@ import javax.annotation.concurrent.Immutable;
 @Immutable
 public interface BuildOp
 {
-    Builder getOrigin();
+    Builder<?> getOrigin();
 }

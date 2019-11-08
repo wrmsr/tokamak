@@ -37,7 +37,7 @@ import static com.google.common.base.Preconditions.checkState;
 public final class StateBuilder
         extends SingleSourceBuilder<PState>
 {
-    public StateBuilder(DriverImpl driver, PState node, Map<PNode, Builder> sources)
+    public StateBuilder(DriverImpl driver, PState node, Map<PNode, Builder<?>> sources)
     {
         super(driver, node, sources);
     }

@@ -105,9 +105,9 @@ public class DriverImpl
                         })));
     }
 
-    private final SupplierLazyValue<Map<PNode, Builder>> buildersByNode = new SupplierLazyValue<>();
+    private final SupplierLazyValue<Map<PNode, Builder<?>>> buildersByNode = new SupplierLazyValue<>();
 
-    public Map<PNode, Builder> getBuildersByNode()
+    public Map<PNode, Builder<?>> getBuildersByNode()
     {
         return buildersByNode.get(() -> {
             BuilderFactory factory = new BuilderFactory(this);
@@ -116,13 +116,13 @@ public class DriverImpl
         });
     }
 
-    private final SupplierLazyValue<List<ContextualBuilder>> contextualBuilders = new SupplierLazyValue<>();
+    private final SupplierLazyValue<List<ContextualBuilder<?>>> contextualBuilders = new SupplierLazyValue<>();
 
-    public List<ContextualBuilder> getContextualBuilders()
+    public List<ContextualBuilder<?>> getContextualBuilders()
     {
         return contextualBuilders.get(() -> checkOrdered(getBuildersByNode()).values().stream()
                 .filter(ContextualBuilder.class::isInstance)
-                .map(ContextualBuilder.class::cast)
+                .map(cb -> (ContextualBuilder<?>) cb)
                 .collect(toImmutableList()));
     }
 

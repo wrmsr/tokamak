@@ -27,7 +27,7 @@ import java.util.function.Consumer;
 public final class SearchBuilder
         extends SingleSourceBuilder<PSearch>
 {
-    public SearchBuilder(DriverImpl driver, PSearch node, Map<PNode, Builder> sources)
+    public SearchBuilder(DriverImpl driver, PSearch node, Map<PNode, Builder<?>> sources)
     {
         super(driver, node, sources);
     }

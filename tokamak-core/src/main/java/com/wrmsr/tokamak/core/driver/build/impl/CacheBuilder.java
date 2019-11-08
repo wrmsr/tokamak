@@ -37,7 +37,7 @@ public final class CacheBuilder
         extends SingleSourceBuilder<PCache>
         implements ContextualBuilder<PCache>
 {
-    public CacheBuilder(DriverImpl driver, PCache node, Map<PNode, Builder> sources)
+    public CacheBuilder(DriverImpl driver, PCache node, Map<PNode, Builder<?>> sources)
     {
         super(driver, node, sources);
     }

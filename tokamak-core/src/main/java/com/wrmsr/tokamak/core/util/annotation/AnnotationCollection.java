@@ -96,7 +96,7 @@ public abstract class AnnotationCollection<T extends Annotation, Self extends An
     @SafeVarargs
     public final Self with(T... annotations)
     {
-        return rebuildWith(Iterables.<T>concat(this.annotations, Arrays.asList(annotations)));
+        return rebuildWith(Iterables.concat(this.annotations, Arrays.asList(annotations)));
     }
 
     @SafeVarargs

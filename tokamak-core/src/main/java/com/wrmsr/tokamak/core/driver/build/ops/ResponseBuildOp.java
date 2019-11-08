@@ -30,7 +30,7 @@ public final class ResponseBuildOp
     private final Key key;
     private final Collection<DriverRow> rows;
 
-    public ResponseBuildOp(Builder origin, Key key, Collection<DriverRow> rows)
+    public ResponseBuildOp(Builder<?> origin, Key key, Collection<DriverRow> rows)
     {
         super(origin);
         this.key = checkNotNull(key);

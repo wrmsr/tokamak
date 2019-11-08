@@ -28,11 +28,11 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public final class RequestBuildOp
         extends AbstractBuildOp
 {
-    private final Builder builder;
+    private final Builder<?> builder;
     private final Key key;
     private final Consumer<Collection<DriverRow>> callback;
 
-    public RequestBuildOp(Builder origin, Builder builder, Key key, Consumer<Collection<DriverRow>> callback)
+    public RequestBuildOp(Builder<?> origin, Builder<?> builder, Key key, Consumer<Collection<DriverRow>> callback)
     {
         super(origin);
         this.builder = checkNotNull(builder);
@@ -50,7 +50,7 @@ public final class RequestBuildOp
                 '}';
     }
 
-    public Builder getBuilder()
+    public Builder<?> getBuilder()
     {
         return builder;
     }

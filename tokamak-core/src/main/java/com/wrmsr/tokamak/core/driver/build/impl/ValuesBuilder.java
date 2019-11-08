@@ -27,7 +27,7 @@ import java.util.function.Consumer;
 public final class ValuesBuilder
         extends AbstractBuilder<PValues>
 {
-    public ValuesBuilder(DriverImpl driver, PValues node, Map<PNode, Builder> sources)
+    public ValuesBuilder(DriverImpl driver, PValues node, Map<PNode, Builder<?>> sources)
     {
         super(driver, node, sources);
     }

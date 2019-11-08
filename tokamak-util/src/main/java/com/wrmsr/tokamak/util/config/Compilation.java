@@ -66,6 +66,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Sets.immutableEnumSet;
 import static com.wrmsr.tokamak.util.java.lang.tree.JTrees.jblockify;
 
+@SuppressWarnings({"rawtypes"})
 public final class Compilation
 {
     private Compilation()

@@ -36,7 +36,7 @@ public final class GetStateBuildOp
     private final EnumSet<StateCache.GetFlag> flags;
     private final Consumer<Optional<State>> callback;
 
-    public GetStateBuildOp(Builder origin, PState node, Id id, EnumSet<StateCache.GetFlag> flags, Consumer<Optional<State>> callback)
+    public GetStateBuildOp(Builder<?> origin, PState node, Id id, EnumSet<StateCache.GetFlag> flags, Consumer<Optional<State>> callback)
     {
         super(origin);
         this.node = checkNotNull(node);

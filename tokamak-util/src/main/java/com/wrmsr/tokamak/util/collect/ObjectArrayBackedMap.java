@@ -303,8 +303,8 @@ public final class ObjectArrayBackedMap<K>
     @Override
     public void putAll(Map<? extends K, ?> m)
     {
-        for (Map.Entry e : m.entrySet()) {
-            put((K) e.getKey(), e.getValue());
+        for (Map.Entry<? extends K, ?> e : m.entrySet()) {
+            put(e.getKey(), e.getValue());
         }
     }
 
@@ -350,8 +350,8 @@ public final class ObjectArrayBackedMap<K>
 
         public Builder<K> putAll(Map<? extends K, ?> map)
         {
-            for (Map.Entry e : map.entrySet()) {
-                put((K) e.getKey(), e.getValue());
+            for (Map.Entry<? extends K, ?> e : map.entrySet()) {
+                put(e.getKey(), e.getValue());
             }
             return this;
         }

@@ -72,9 +72,12 @@ public final class Toposort
         return ret.build();
     }
 
+    @SuppressWarnings({"rawtypes"})
     public static final class CycleException
             extends RuntimeException
     {
+        private static final long serialVersionUID = -4180455364328557214L;
+
         private final Map data;
 
         public CycleException(Map data)

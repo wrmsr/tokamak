@@ -75,7 +75,7 @@ public class BuilderFactory
     @FunctionalInterface
     private interface BuilderConstructor
     {
-        Builder create(DriverImpl driver, PNode node, Map<PNode, Builder> sources);
+        Builder create(DriverImpl driver, PNode node, Map<PNode, Builder<?>> sources);
     }
 
     private final Map<Class<? extends PNode>, BuilderConstructor> BUILDER_CONSTRUCTORS_BY_NODE_TYPE =
@@ -100,14 +100,14 @@ public class BuilderFactory
                     .put(PValues.class, (d, n, s) -> new ValuesBuilder(d, (PValues) n, s))
                     .build();
 
-    public synchronized Builder get(PNode node)
+    public synchronized Builder<?> get(PNode node)
     {
         Builder builder = buildersByNode.get(node);
         if (builder != null) {
             return builder;
         }
 
-        Map<PNode, Builder> sources = node.getSources().stream()
+        Map<PNode, Builder<?>> sources = node.getSources().stream()
                 .collect(toImmutableMap(identity(), this::get));
 
         BuilderConstructor ctor = checkNotNull(BUILDER_CONSTRUCTORS_BY_NODE_TYPE.get(node.getClass()));

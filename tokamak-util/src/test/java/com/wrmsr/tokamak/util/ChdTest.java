@@ -204,16 +204,16 @@ public class ChdTest
                 m = 1;
             }
 
-            byte[][] keys = new byte[(int) n][];
-            byte[][] values = new byte[(int) n][];
+            byte[][] keys = new byte[n][];
+            byte[][] values = new byte[n][];
 
             Hasher hasher = new Hasher(n, m, rand);
 
-            Bucket[] buckets = new Bucket[(int) m];
+            Bucket[] buckets = new Bucket[m];
             for (int i = 0; i < buckets.length; ++i) {
                 buckets[i] = new Bucket();
             }
-            int[] indices = new int[(int) m];
+            int[] indices = new int[m];
             Arrays.fill(indices, -1);
 
             Set<Long> seen = new HashSet<>();

@@ -33,7 +33,7 @@ public final class ScanBuildOp
     private final Key key;
     private final Consumer<List<Map<String, Object>>> callback;
 
-    public ScanBuildOp(Builder origin, Scanner scanner, Key key, Consumer<List<Map<String, Object>>> callback)
+    public ScanBuildOp(Builder<?> origin, Scanner scanner, Key key, Consumer<List<Map<String, Object>>> callback)
     {
         super(origin);
         this.scanner = checkNotNull(scanner);

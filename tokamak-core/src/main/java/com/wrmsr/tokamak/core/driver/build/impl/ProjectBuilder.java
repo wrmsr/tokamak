@@ -38,7 +38,7 @@ import static com.google.common.collect.ImmutableMap.toImmutableMap;
 public final class ProjectBuilder
         extends SingleSourceBuilder<PProject>
 {
-    public ProjectBuilder(DriverImpl driver, PProject node, Map<PNode, Builder> sources)
+    public ProjectBuilder(DriverImpl driver, PProject node, Map<PNode, Builder<?>> sources)
     {
         super(driver, node, sources);
     }

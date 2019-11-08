@@ -147,6 +147,7 @@ public final class Plan
         return nameSortedIndicesByNode.get(() -> buildListIndexMap(getNameSortedNodes()));
     }
 
+    @SuppressWarnings({"rawtypes"})
     private final Map<Class<? extends PNode>, List> nodeListsByType = new HashMap<>();
 
     @SuppressWarnings({"unchecked"})

@@ -33,7 +33,7 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 public final class OutputBuilder
         extends SingleSourceBuilder<POutput>
 {
-    public OutputBuilder(DriverImpl driver, POutput node, Map<PNode, Builder> sources)
+    public OutputBuilder(DriverImpl driver, POutput node, Map<PNode, Builder<?>> sources)
     {
         super(driver, node, sources);
     }

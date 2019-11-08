@@ -32,9 +32,9 @@ public abstract class AbstractBuilder<T extends PNode>
 {
     protected final DriverImpl driver;
     protected final T node;
-    protected final Map<PNode, Builder> sources;
+    protected final Map<PNode, Builder<?>> sources;
 
-    public AbstractBuilder(DriverImpl driver, T node, Map<PNode, Builder> sources)
+    public AbstractBuilder(DriverImpl driver, T node, Map<PNode, Builder<?>> sources)
     {
         this.driver = checkNotNull(driver);
         this.node = checkNotNull(node);
@@ -62,7 +62,7 @@ public abstract class AbstractBuilder<T extends PNode>
     }
 
     @Override
-    public Map<PNode, Builder> getSources()
+    public Map<PNode, Builder<?>> getSources()
     {
         return sources;
     }

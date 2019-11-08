@@ -57,7 +57,7 @@ public class LifecycleModule
     @Override
     public <T> void onProvision(ProvisionInvocation<T> invocation)
     {
-        Class rawType = invocation.getBinding().getKey().getTypeLiteral().getRawType();
+        Class<?> rawType = invocation.getBinding().getKey().getTypeLiteral().getRawType();
         if (!Lifecycle.class.isAssignableFrom(rawType)) {
             invocation.provision();
             return;

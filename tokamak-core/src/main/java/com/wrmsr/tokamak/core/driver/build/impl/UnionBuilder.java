@@ -27,7 +27,7 @@ import java.util.function.Consumer;
 public final class UnionBuilder
         extends AbstractBuilder<PUnion>
 {
-    public UnionBuilder(DriverImpl driver, PUnion node, Map<PNode, Builder> sources)
+    public UnionBuilder(DriverImpl driver, PUnion node, Map<PNode, Builder<?>> sources)
     {
         super(driver, node, sources);
     }

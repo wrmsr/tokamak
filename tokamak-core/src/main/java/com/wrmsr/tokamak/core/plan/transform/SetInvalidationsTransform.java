@@ -13,6 +13,7 @@
  */
 package com.wrmsr.tokamak.core.plan.transform;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.core.catalog.Catalog;
@@ -21,6 +22,7 @@ import com.wrmsr.tokamak.core.plan.analysis.id.IdAnalysis;
 import com.wrmsr.tokamak.core.plan.analysis.id.part.IdAnalysisPart;
 import com.wrmsr.tokamak.core.plan.analysis.origin.OriginAnalysis;
 import com.wrmsr.tokamak.core.plan.analysis.origin.Origination;
+import com.wrmsr.tokamak.core.plan.analysis.origin.OriginationLink;
 import com.wrmsr.tokamak.core.plan.node.PInvalidatable;
 import com.wrmsr.tokamak.core.plan.node.PInvalidation;
 import com.wrmsr.tokamak.core.plan.node.PInvalidator;
@@ -31,13 +33,15 @@ import com.wrmsr.tokamak.core.plan.node.visitor.PNodeRewriter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static com.wrmsr.tokamak.util.MoreCollectors.groupingByImmutableSet;
 
@@ -51,12 +55,20 @@ public final class SetInvalidationsTransform
     {
         private final PInvalidator invalidator;
 
-        private final Set<String> linkedInvalidatorFields = new LinkedHashSet<>();
-        private final ImmutableMap.Builder<String, String> keyFieldsBySourceField = ImmutableMap.builder();
+        private static final class PathEntry
+        {
+            private final ImmutableMap.Builder<String, String> keyFieldsBySourceField = ImmutableMap.builder();
+
+            public PathEntry()
+            {
+            }
+        }
+
+        private final Map<ImmutableList<PNode>, PathEntry> entriesByPath = new LinkedHashMap<>();
 
         public InvalidationConstruction(PInvalidator invalidator)
         {
-            this.invalidator = invalidator;
+            this.invalidator = checkNotNull(invalidator);
         }
     }
 
@@ -83,38 +95,49 @@ public final class SetInvalidationsTransform
                             .flatMap(Set::stream)
                             .collect(groupingByImmutableSet(o -> (PInvalidator) o.getSink().getNode()));
 
-                    invalidatorOriginationsByInvalidatorNode.forEach((invalidator, invalidatorOriginations) -> {
+                    for (Map.Entry<PInvalidator, Set<Origination>> e0 : invalidatorOriginationsByInvalidatorNode.entrySet()) {
+                        PInvalidator invalidator = e0.getKey();
+                        Set<Origination> invalidatorOriginations = e0.getValue();
+
                         InvalidationConstruction construction = constructions.computeIfAbsent(invalidator, InvalidationConstruction::new);
 
-                        invalidatorOriginations.forEach(invalidatorOrigination -> {
+                        for (Origination invalidatorOrigination : invalidatorOriginations) {
                             checkState(invalidatorOrigination.getSink().getNode() instanceof PInvalidator);
                             checkState(invalidatorOrigination.getSink().getNode() != invalidatable);
 
-                            construction.keyFieldsBySourceField.put(invalidatorOrigination.getSink().getField(), nodeField.getField());
-
                             PNodeField sourceNodeField = invalidatorOrigination.getSink();
-                            originAnalysis.getLeafChainAnalysis().getPaths(nodeField, sourceNodeField).forEach(path -> {
+                            for (List<OriginationLink> path : originAnalysis.getLeafChainAnalysis().getPaths(nodeField, sourceNodeField)) {
                                 checkState(path.size() >= 2);
                                 checkState(path.get(0).getSink().getSink().equals(nodeField));
                                 checkState(path.get(path.size() - 1).getSink().getSink().equals(sourceNodeField));
                                 PNode entrypoint = path.get(path.size() - 2).getSink().getSink().getNode();
                                 checkState(entrypoint.getSources().contains(sourceNodeField.getNode()));
-                                originAnalysis.getOriginationSetsBySinkNodeBySinkField().get(entrypoint).values()
-                                        .forEach(os -> os.forEach(o -> construction.linkedInvalidatorFields.add(o.getSource().get().getField())));
-                            });
-                        });
-                    });
+
+                                ImmutableList<PNode> nodePath = path.stream()
+                                        .map(l -> l.getSink().getSink().getNode())
+                                        .collect(toImmutableList());
+                                construction.entriesByPath.computeIfAbsent(nodePath, p -> new InvalidationConstruction.PathEntry())
+                                        .keyFieldsBySourceField.put(invalidatorOrigination.getSink().getField(), nodeField.getField());
+                            }
+                        }
+                    }
                 }
             }
 
             constructions.values().forEach(construction -> {
-                PInvalidation invalidation = new PInvalidation(
-                        invalidatable.getName(),
-                        construction.keyFieldsBySourceField.build(),
-                        Optional.of(construction.linkedInvalidatorFields),
-                        PInvalidation.Strength.STRONG);
+                Set<ImmutableMap<String, String>> keyMaps = construction.entriesByPath.values().stream()
+                        .map(e -> e.keyFieldsBySourceField.build())
+                        .collect(toImmutableSet());
 
-                invalidationMap.computeIfAbsent(construction.invalidator, o -> new ArrayList<>()).add(invalidation);
+                keyMaps.forEach(keyMap -> {
+                    PInvalidation invalidation = new PInvalidation(
+                            invalidatable.getName(),
+                            keyMap,
+                            Optional.empty(),
+                            PInvalidation.Strength.STRONG);
+
+                    invalidationMap.computeIfAbsent(construction.invalidator, o -> new ArrayList<>()).add(invalidation);
+                });
             });
         });
 

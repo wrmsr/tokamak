@@ -28,7 +28,7 @@ public interface Builder<T extends PNode>
 
     T getNode();
 
-    Map<PNode, Builder> getSources();
+    Map<PNode, Builder<?>> getSources();
 
     void build(DriverContextImpl context, Key key, Consumer<BuildOp> opConsumer);
 }

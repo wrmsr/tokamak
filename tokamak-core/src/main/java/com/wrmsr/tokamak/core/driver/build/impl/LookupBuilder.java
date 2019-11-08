@@ -27,7 +27,7 @@ import java.util.function.Consumer;
 public final class LookupBuilder
         extends AbstractBuilder<PLookup>
 {
-    public LookupBuilder(DriverImpl driver, PLookup node, Map<PNode, Builder> sources)
+    public LookupBuilder(DriverImpl driver, PLookup node, Map<PNode, Builder<?>> sources)
     {
         super(driver, node, sources);
     }

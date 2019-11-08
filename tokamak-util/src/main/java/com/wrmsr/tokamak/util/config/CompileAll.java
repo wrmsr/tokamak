@@ -88,6 +88,7 @@ public class CompileAll
                         }
                         Files.copy(implClassPath, targetImplClassPath);
 
+                        @SuppressWarnings({"rawtypes"})
                         Class implCls = Class.forName(compiled.getFullClassName());
                         checkState(cls.isAssignableFrom(implCls));
                     }

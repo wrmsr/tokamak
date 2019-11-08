@@ -27,7 +27,7 @@ import java.util.function.Consumer;
 public final class UnnestBuilder
         extends SingleSourceBuilder<PUnnest>
 {
-    public UnnestBuilder(DriverImpl driver, PUnnest node, Map<PNode, Builder> sources)
+    public UnnestBuilder(DriverImpl driver, PUnnest node, Map<PNode, Builder<?>> sources)
     {
         super(driver, node, sources);
     }

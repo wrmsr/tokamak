@@ -29,7 +29,7 @@ import static com.wrmsr.tokamak.util.MorePreconditions.checkSingle;
 public final class GroupBuilder
         extends SingleSourceBuilder<PGroup>
 {
-    public GroupBuilder(DriverImpl driver, PGroup node, Map<PNode, Builder> sources)
+    public GroupBuilder(DriverImpl driver, PGroup node, Map<PNode, Builder<?>> sources)
     {
         super(driver, node, sources);
     }

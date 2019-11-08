@@ -62,7 +62,7 @@ public final class ConfigPropertyMetadata
             type = rt.getActualTypeArguments()[0];
         }
         else {
-            Class rt = method.getReturnType();
+            Class<?> rt = method.getReturnType();
             if (rt == BooleanConfigProperty.class) {
                 type = boolean.class;
             }

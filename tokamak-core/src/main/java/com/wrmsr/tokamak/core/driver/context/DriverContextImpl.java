@@ -59,7 +59,7 @@ public class DriverContextImpl
     private final boolean journaling;
     private final List<JournalEntry> journalEntries;
 
-    private final Map<ContextualBuilder, BuilderContext> builderContextMap;
+    private final Map<ContextualBuilder<?>, BuilderContext> builderContextMap;
 
     private Driver.ContextState state;
 
@@ -141,7 +141,7 @@ public class DriverContextImpl
     }
 
     @SuppressWarnings({"unchecked"})
-    public <T extends BuilderContext> T getBuildContext(ContextualBuilder contextualBuilder)
+    public <T extends BuilderContext> T getBuildContext(ContextualBuilder<?> contextualBuilder)
     {
         return (T) checkNotNull(builderContextMap.get(contextualBuilder));
     }
@@ -193,7 +193,7 @@ public class DriverContextImpl
 
     public Collection<DriverRow> buildSync(PNode node, Key key)
     {
-        Builder builder = checkNotNull(driver.getBuildersByNode().get(node));
+        Builder<?> builder = checkNotNull(driver.getBuildersByNode().get(node));
         return buildSync(builder, key);
     }
 
