@@ -39,7 +39,7 @@ import static com.wrmsr.tokamak.util.sql.SqlUtils.executeUpdate;
 
 public final class TpchUtils
 {
-    @SuppressWarnings({"unchecked"})
+    @SuppressWarnings({"rawtypes", "unchecked"})
     public static <E extends TpchEntity> Object getColumnValue(TpchColumn column, E entity)
     {
         switch (column.getType().getBase()) {

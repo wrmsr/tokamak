@@ -27,18 +27,19 @@ import java.util.List;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 
+@SuppressWarnings({"rawtypes"})
 @Immutable
 public final class TupleSerde
         implements Serde<Object[]>
 {
-    private final List<Serde<?>> children;
+    private final List<Serde> children;
 
-    public TupleSerde(List<Serde<?>> children)
+    public TupleSerde(List<Serde> children)
     {
         this.children = ImmutableList.copyOf(children);
     }
 
-    public List<Serde<?>> getChildren()
+    public List<Serde> getChildren()
     {
         return children;
     }
@@ -57,7 +58,7 @@ public final class TupleSerde
     {
         checkArgument(value.length == children.size());
         for (int i = 0; i < value.length; ++i) {
-            ((Serde) children.get(i)).write(value[i], output);
+            children.get(i).write(value[i], output);
         }
     }
 

@@ -16,6 +16,7 @@ package com.wrmsr.tokamak.main.server;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Binder;
 import com.google.inject.Module;
+import com.google.inject.TypeLiteral;
 import com.wrmsr.tokamak.main.server.gsh.GshService;
 import com.wrmsr.tokamak.main.server.jaxrs.ApplicationModule;
 import com.wrmsr.tokamak.main.server.jaxrs.NettyServer;
@@ -43,6 +44,6 @@ public class ServerModule
 
         binder.bind(NettyServer.class).asEagerSingleton();
 
-        newSetBinder(binder, Class.class, Resource.class).addBinding().toInstance(RootResource.class);
+        newSetBinder(binder, new TypeLiteral<Class<?>>() {}, Resource.class).addBinding().toInstance(RootResource.class);
     }
 }

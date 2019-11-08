@@ -217,6 +217,8 @@ public class TypeInferenceTest
     public static final class UnificationError
             extends RuntimeException
     {
+        private static final long serialVersionUID = 1430529479337446669L;
+
         private final Term x;
         private final Term y;
 
@@ -340,7 +342,7 @@ public class TypeInferenceTest
         return new Var();
     }
 
-    public static <T> Con con(T value)
+    public static <T> Con<T> con(T value)
     {
         return new Con<>(value);
     }

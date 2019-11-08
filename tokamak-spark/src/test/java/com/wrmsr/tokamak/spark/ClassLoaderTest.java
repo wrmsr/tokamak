@@ -137,7 +137,7 @@ public class ClassLoaderTest
                         "org.apache.spark"
                 ));
 
-        Class tc = sparkCl.loadClass("com.wrmsr.tokamak.spark.SparkTest$ExampleJob");
+        Class<?> tc = sparkCl.loadClass("com.wrmsr.tokamak.spark.SparkTest$ExampleJob");
 
         Thread.currentThread().setContextClassLoader(sparkCl);
 

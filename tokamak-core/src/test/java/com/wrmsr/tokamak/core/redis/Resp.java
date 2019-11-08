@@ -108,7 +108,7 @@ public final class Resp
         encodeBytes(output, value.getBytes(Charsets.UTF_8));
     }
 
-    public static void encodeList(OutputStream output, List value)
+    public static void encodeList(OutputStream output, List<?> value)
             throws IOException
     {
         output.write(PREFIX_ARRAY);

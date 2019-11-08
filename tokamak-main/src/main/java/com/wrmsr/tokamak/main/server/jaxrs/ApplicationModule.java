@@ -27,7 +27,7 @@ public class ApplicationModule
         extends AbstractModule
 {
     @Provides
-    public Application provideApplication(Injector injector, @Resource Set<Class> resources)
+    public Application provideApplication(Injector injector, @Resource Set<Class<?>> resources)
     {
         ResourceConfig resourceConfig = new ResourceConfig();
         resourceConfig.register(GuiceFeature.class);

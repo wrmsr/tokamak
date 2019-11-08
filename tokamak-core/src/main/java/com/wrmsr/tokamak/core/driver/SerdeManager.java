@@ -34,6 +34,7 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 import static java.util.function.Function.identity;
 
+@SuppressWarnings({"rawtypes"})
 public final class SerdeManager
 {
     private static final int MAX_LINKAGE_SIZE = 128 * 1024 * 1024;
@@ -53,7 +54,7 @@ public final class SerdeManager
 
     private final SupplierLazyValue<Map<PState, Serde<Object[]>>> attributesSerdesByStateNode = new SupplierLazyValue<>();
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
+    @SuppressWarnings({"unchecked"})
     public Map<PState, Serde<Object[]>> getAttributesSerdesByStateNode()
     {
         return attributesSerdesByStateNode.get(() -> {
