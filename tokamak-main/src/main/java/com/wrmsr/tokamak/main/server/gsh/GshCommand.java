@@ -97,7 +97,9 @@ public class GshCommand
         IO io = new IO(in, out, err);
         io.setVerbosity(IO.Verbosity.DEBUG);
         final Groovysh shell = new Groovysh(createBinding(bindings, out, err), io);
-        shell.setErrorHook(new Closure(this)
+
+        @SuppressWarnings({"rawtypes"})
+        Closure errorHook = new Closure(this)
         {
             @Override
             public Object call(Object... args)
@@ -108,7 +110,8 @@ public class GshCommand
                 }
                 return shell.getDefaultErrorHook().call(args);
             }
-        });
+        };
+        shell.setErrorHook(errorHook);
 
         try {
             loadDefaultScripts(shell);

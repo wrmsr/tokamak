@@ -159,7 +159,8 @@ public final class ConfigPropertyMetadata
         return defaultValue;
     }
 
-    public Class<? extends BaseConfigPropertyImpl> getImplCls()
+    @SuppressWarnings({"unchecked"})
+    public Class<? extends BaseConfigPropertyImpl<?>> getImplCls()
     {
         if (type == boolean.class) {
             return BooleanConfigPropertyImpl.class;
@@ -168,7 +169,7 @@ public final class ConfigPropertyMetadata
             return IntConfigPropertyImpl.class;
         }
         else {
-            return ConfigPropertyImpl.class;
+            return (Class) ConfigPropertyImpl.class;
         }
     }
 }

@@ -38,6 +38,12 @@ public final class JBlank
     }
 
     @Override
+    public int hashCode()
+    {
+        return getClass().hashCode();
+    }
+
+    @Override
     public <R, C> R accept(JStatementVisitor<R, C> visitor, C context)
     {
         return visitor.visitBlank(this, context);
