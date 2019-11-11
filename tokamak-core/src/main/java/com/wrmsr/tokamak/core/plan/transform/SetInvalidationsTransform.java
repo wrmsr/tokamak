@@ -109,69 +109,93 @@ public final class SetInvalidationsTransform
                 .collect(toImmutableList());
     }
 
+    private static void addConstructionsForField(
+            Map<PInvalidator, InvalidationConstruction> constructionsByInvalidator,
+            PInvalidatable invalidatable,
+            String field,
+            OriginAnalysis originAnalysis)
+    {
+        PNodeField sinkNodeField = PNodeField.of(invalidatable, field);
+        Set<PNodeField> searchNodeFields = invalidatable instanceof PState ?
+                originAnalysis.getOriginationSetsBySink().get(sinkNodeField).stream()
+                        .map(o -> o.getSource().get())
+                        .collect(toImmutableSet()) :
+                ImmutableSet.of(sinkNodeField);
+        Map<PInvalidator, Set<Origination>> invalidatorOriginationsByInvalidatorNode = searchNodeFields.stream()
+                .map(originAnalysis.getStateChainAnalysis().getFirstOriginationSetsBySink()::get)
+                .flatMap(Set::stream)
+                .collect(groupingByImmutableSet(o -> (PInvalidator) o.getSink().getNode()));
+
+        invalidatorOriginationsByInvalidatorNode.forEach((invalidator, invalidatorOriginations) -> {
+            InvalidationConstruction construction = constructionsByInvalidator
+                    .computeIfAbsent(invalidator, InvalidationConstruction::new);
+
+            for (Origination invalidatorOrigination : invalidatorOriginations) {
+                checkState(invalidatorOrigination.getSink().getNode() instanceof PInvalidator);
+                checkState(invalidatorOrigination.getSink().getNode() != invalidatable);
+
+                PNodeField sourceNodeField = invalidatorOrigination.getSink();
+                Iterable<List<OriginationLink>> originationPaths =
+                        originAnalysis.getLeafChainAnalysis().getPaths(sinkNodeField, sourceNodeField);
+                for (List<OriginationLink> originationPath : originationPaths) {
+                    ImmutableList<PNode> nodePath = buildNodePath(sinkNodeField, sourceNodeField, originationPath);
+                    construction.entriesByNodePath.computeIfAbsent(nodePath, InvalidationConstruction.PathEntry::new)
+                            .keyFieldsBySourceField.put(invalidatorOrigination.getSink().getField(), sinkNodeField.getField());
+                }
+            }
+        });
+    }
+
+    private static void addInvalidationsForNode(
+            Map<PInvalidator, List<PInvalidation>> invalidationsByInvalidator,
+            PInvalidatable invalidatable,
+            OriginAnalysis originAnalysis,
+            IdAnalysis idAnalysis)
+    {
+        Map<PInvalidator, InvalidationConstruction> constructionsByInvalidator = new HashMap<>();
+
+        for (IdAnalysisPart part : idAnalysis.get(invalidatable).getParts()) {
+            for (String field : part) {
+                addConstructionsForField(
+                        constructionsByInvalidator,
+                        invalidatable,
+                        field,
+                        originAnalysis);
+            }
+        }
+
+        for (InvalidationConstruction construction : constructionsByInvalidator.values()) {
+            Map<ImmutableMap<String, String>, Set<InvalidationConstruction.PathEntry>> entrySetsByKeyMaps =
+                    construction.entriesByNodePath.values().stream()
+                            .collect(groupingByImmutableSet(e -> e.keyFieldsBySourceField.build()));
+
+            entrySetsByKeyMaps.forEach((keyMap, entrySet) -> {
+                Set<String> linkageMask = construction.buildLinkageMask(originAnalysis, keyMap.keySet());
+
+                PInvalidation invalidation = new PInvalidation(
+                        invalidatable.getName(),
+                        keyMap,
+                        Optional.of(linkageMask),
+                        PInvalidation.Strength.STRONG);
+
+                invalidationsByInvalidator.computeIfAbsent(construction.invalidator, o -> new ArrayList<>()).add(invalidation);
+            });
+        }
+    }
+
     public static Plan setInvalidations(Plan plan, Optional<Catalog> catalog)
     {
         OriginAnalysis originAnalysis = OriginAnalysis.analyze(plan);
         IdAnalysis idAnalysis = IdAnalysis.analyze(plan, catalog);
 
-        Map<PInvalidator, List<PInvalidation>> invalidationMap = new HashMap<>();
+        Map<PInvalidator, List<PInvalidation>> invalidationsByInvalidator = new HashMap<>();
 
         plan.getNodeTypeList(PInvalidatable.class).forEach(invalidatable -> {
-            Map<PInvalidator, InvalidationConstruction> constructions = new HashMap<>();
-
-            for (IdAnalysisPart part : idAnalysis.get(invalidatable).getParts()) {
-                for (String field : part) {
-                    PNodeField sinkNodeField = PNodeField.of(invalidatable, field);
-                    Set<PNodeField> searchNodeFields = invalidatable instanceof PState ?
-                            originAnalysis.getOriginationSetsBySink().get(sinkNodeField).stream()
-                                    .map(o -> o.getSource().get())
-                                    .collect(toImmutableSet()) :
-                            ImmutableSet.of(sinkNodeField);
-                    Map<PInvalidator, Set<Origination>> invalidatorOriginationsByInvalidatorNode = searchNodeFields.stream()
-                            .map(originAnalysis.getStateChainAnalysis().getFirstOriginationSetsBySink()::get)
-                            .flatMap(Set::stream)
-                            .collect(groupingByImmutableSet(o -> (PInvalidator) o.getSink().getNode()));
-
-                    for (Map.Entry<PInvalidator, Set<Origination>> e0 : invalidatorOriginationsByInvalidatorNode.entrySet()) {
-                        PInvalidator invalidator = e0.getKey();
-                        Set<Origination> invalidatorOriginations = e0.getValue();
-
-                        InvalidationConstruction construction = constructions.computeIfAbsent(invalidator, InvalidationConstruction::new);
-
-                        for (Origination invalidatorOrigination : invalidatorOriginations) {
-                            checkState(invalidatorOrigination.getSink().getNode() instanceof PInvalidator);
-                            checkState(invalidatorOrigination.getSink().getNode() != invalidatable);
-
-                            PNodeField sourceNodeField = invalidatorOrigination.getSink();
-                            Iterable<List<OriginationLink>> originationPaths =
-                                    originAnalysis.getLeafChainAnalysis().getPaths(sinkNodeField, sourceNodeField);
-                            for (List<OriginationLink> originationPath : originationPaths) {
-                                ImmutableList<PNode> nodePath = buildNodePath(sinkNodeField, sourceNodeField, originationPath);
-                                construction.entriesByNodePath.computeIfAbsent(nodePath, InvalidationConstruction.PathEntry::new)
-                                        .keyFieldsBySourceField.put(invalidatorOrigination.getSink().getField(), sinkNodeField.getField());
-                            }
-                        }
-                    }
-                }
-            }
-
-            constructions.values().forEach(construction -> {
-                Map<ImmutableMap<String, String>, Set<InvalidationConstruction.PathEntry>> entrySetsByKeyMaps =
-                        construction.entriesByNodePath.values().stream()
-                                .collect(groupingByImmutableSet(e -> e.keyFieldsBySourceField.build()));
-
-                entrySetsByKeyMaps.forEach((keyMap, entrySet) -> {
-                    Set<String> linkageMask = construction.buildLinkageMask(originAnalysis, keyMap.keySet());
-
-                    PInvalidation invalidation = new PInvalidation(
-                            invalidatable.getName(),
-                            keyMap,
-                            Optional.of(linkageMask),
-                            PInvalidation.Strength.STRONG);
-
-                    invalidationMap.computeIfAbsent(construction.invalidator, o -> new ArrayList<>()).add(invalidation);
-                });
-            });
+            addInvalidationsForNode(
+                    invalidationsByInvalidator,
+                    invalidatable,
+                    originAnalysis,
+                    idAnalysis);
         });
 
         return Plan.of(plan.getRoot().accept(new PNodeRewriter<Void>()
