@@ -58,22 +58,55 @@ public final class SetInvalidationsTransform
 
         private static final class PathEntry
         {
-            private final ImmutableList<PNode> path;
+            private final ImmutableList<PNode> nodePath;
 
             private final ImmutableMap.Builder<String, String> keyFieldsBySourceField = ImmutableMap.builder();
 
-            public PathEntry(ImmutableList<PNode> path)
+            public PathEntry(ImmutableList<PNode> nodePath)
             {
-                this.path = checkNotNull(path);
+                this.nodePath = checkNotNull(nodePath);
             }
         }
 
-        private final Map<ImmutableList<PNode>, PathEntry> entriesByPath = new LinkedHashMap<>();
+        private final Map<ImmutableList<PNode>, PathEntry> entriesByNodePath = new LinkedHashMap<>();
 
         public InvalidationConstruction(PInvalidator invalidator)
         {
             this.invalidator = checkNotNull(invalidator);
         }
+
+        public Set<String> buildLinkageMask(OriginAnalysis originAnalysis, Set<String> keyFields)
+        {
+            return entriesByNodePath.values().stream()
+                    .map(e -> {
+                        PNode entrypoint = e.nodePath.get(e.nodePath.size() - 2);
+                        return originAnalysis.getOriginationSetsBySinkNodeBySinkField().get(entrypoint).values().stream()
+                                .flatMap(Set::stream)
+                                .filter(o -> o.getSource().isPresent())
+                                .map(o -> o.getSource().get())
+                                .filter(nf -> nf.getNode() == invalidator)
+                                .map(PNodeField::getField)
+                                .collect(toImmutableSet());
+                    })
+                    .flatMap(Set::stream)
+                    .filter(negate(keyFields::contains))
+                    .collect(toImmutableSet());
+        }
+    }
+
+    private static ImmutableList<PNode> buildNodePath(
+            PNodeField sinkNodeField,
+            PNodeField sourceNodeField,
+            List<OriginationLink> originationPath)
+    {
+        checkState(originationPath.size() >= 2);
+        checkState(originationPath.get(0).getSink().getSink().equals(sinkNodeField));
+        checkState(originationPath.get(originationPath.size() - 1).getSink().getSink().equals(sourceNodeField));
+        PNode entrypoint = originationPath.get(originationPath.size() - 2).getSink().getSink().getNode();
+        checkState(entrypoint.getSources().contains(sourceNodeField.getNode()));
+        return originationPath.stream()
+                .map(l -> l.getSink().getSink().getNode())
+                .collect(toImmutableList());
     }
 
     public static Plan setInvalidations(Plan plan, Optional<Catalog> catalog)
@@ -88,12 +121,12 @@ public final class SetInvalidationsTransform
 
             for (IdAnalysisPart part : idAnalysis.get(invalidatable).getParts()) {
                 for (String field : part) {
-                    PNodeField nodeField = PNodeField.of(invalidatable, field);
+                    PNodeField sinkNodeField = PNodeField.of(invalidatable, field);
                     Set<PNodeField> searchNodeFields = invalidatable instanceof PState ?
-                            originAnalysis.getOriginationSetsBySink().get(nodeField).stream()
+                            originAnalysis.getOriginationSetsBySink().get(sinkNodeField).stream()
                                     .map(o -> o.getSource().get())
                                     .collect(toImmutableSet()) :
-                            ImmutableSet.of(nodeField);
+                            ImmutableSet.of(sinkNodeField);
                     Map<PInvalidator, Set<Origination>> invalidatorOriginationsByInvalidatorNode = searchNodeFields.stream()
                             .map(originAnalysis.getStateChainAnalysis().getFirstOriginationSetsBySink()::get)
                             .flatMap(Set::stream)
@@ -110,18 +143,12 @@ public final class SetInvalidationsTransform
                             checkState(invalidatorOrigination.getSink().getNode() != invalidatable);
 
                             PNodeField sourceNodeField = invalidatorOrigination.getSink();
-                            for (List<OriginationLink> path : originAnalysis.getLeafChainAnalysis().getPaths(nodeField, sourceNodeField)) {
-                                checkState(path.size() >= 2);
-                                checkState(path.get(0).getSink().getSink().equals(nodeField));
-                                checkState(path.get(path.size() - 1).getSink().getSink().equals(sourceNodeField));
-                                PNode entrypoint = path.get(path.size() - 2).getSink().getSink().getNode();
-                                checkState(entrypoint.getSources().contains(sourceNodeField.getNode()));
-
-                                ImmutableList<PNode> nodePath = path.stream()
-                                        .map(l -> l.getSink().getSink().getNode())
-                                        .collect(toImmutableList());
-                                construction.entriesByPath.computeIfAbsent(nodePath, InvalidationConstruction.PathEntry::new)
-                                        .keyFieldsBySourceField.put(invalidatorOrigination.getSink().getField(), nodeField.getField());
+                            Iterable<List<OriginationLink>> originationPaths =
+                                    originAnalysis.getLeafChainAnalysis().getPaths(sinkNodeField, sourceNodeField);
+                            for (List<OriginationLink> originationPath : originationPaths) {
+                                ImmutableList<PNode> nodePath = buildNodePath(sinkNodeField, sourceNodeField, originationPath);
+                                construction.entriesByNodePath.computeIfAbsent(nodePath, InvalidationConstruction.PathEntry::new)
+                                        .keyFieldsBySourceField.put(invalidatorOrigination.getSink().getField(), sinkNodeField.getField());
                             }
                         }
                     }
@@ -130,24 +157,11 @@ public final class SetInvalidationsTransform
 
             constructions.values().forEach(construction -> {
                 Map<ImmutableMap<String, String>, Set<InvalidationConstruction.PathEntry>> entrySetsByKeyMaps =
-                        construction.entriesByPath.values().stream()
+                        construction.entriesByNodePath.values().stream()
                                 .collect(groupingByImmutableSet(e -> e.keyFieldsBySourceField.build()));
 
                 entrySetsByKeyMaps.forEach((keyMap, entrySet) -> {
-                    Set<String> linkageMask = entrySet.stream()
-                            .map(e -> {
-                                PNode entrypoint = e.path.get(e.path.size() - 2);
-                                return originAnalysis.getOriginationSetsBySinkNodeBySinkField().get(entrypoint).values().stream()
-                                        .flatMap(Set::stream)
-                                        .filter(o -> o.getSource().isPresent())
-                                        .map(o -> o.getSource().get())
-                                        .filter(nf -> nf.getNode() == construction.invalidator)
-                                        .map(PNodeField::getField)
-                                        .collect(toImmutableSet());
-                            })
-                            .flatMap(Set::stream)
-                            .filter(negate(idAnalysis.get(construction.invalidator)::contains))
-                            .collect(toImmutableSet());
+                    Set<String> linkageMask = construction.buildLinkageMask(originAnalysis, keyMap.keySet());
 
                     PInvalidation invalidation = new PInvalidation(
                             invalidatable.getName(),
