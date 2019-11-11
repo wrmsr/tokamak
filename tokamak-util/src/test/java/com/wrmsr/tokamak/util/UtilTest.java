@@ -13,6 +13,9 @@
  */
 package com.wrmsr.tokamak.util;
 
+import junit.framework.TestCase;
+
 public class UtilTest
+        extends TestCase
 {
 }

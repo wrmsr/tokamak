@@ -62,6 +62,11 @@ public abstract class IdAnalysisEntry
         return getParts().iterator();
     }
 
+    public boolean contains(String field)
+    {
+        return stream().anyMatch(p -> p.contains(field));
+    }
+
     public static IdAnalysisEntry anon(PNode node, Iterable<AnonIdAnalysisEntry> dependencies)
     {
         return new AnonIdAnalysisEntry(node, ImmutableSet.copyOf(dependencies));

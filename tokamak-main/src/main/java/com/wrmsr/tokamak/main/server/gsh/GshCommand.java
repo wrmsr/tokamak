@@ -134,10 +134,7 @@ public class GshCommand
                     shell.run("");
                     callback.onExit(0);
                 }
-                catch (RuntimeException e) {
-                    callback.onExit(-1, e.getMessage());
-                }
-                catch (Error e) {
+                catch (RuntimeException | Error e) {
                     callback.onExit(-1, e.getMessage());
                 }
             }
@@ -150,13 +147,19 @@ public class GshCommand
     {
         Binding binding = new Binding();
 
-        if (objects != null) { for (Map.Entry<String, Object> row : objects.entrySet()) { binding.setVariable(row.getKey(), row.getValue()); } }
+        if (objects != null) {
+            for (Map.Entry<String, Object> row : objects.entrySet()) {
+                binding.setVariable(row.getKey(), row.getValue());
+            }
+        }
 
         binding.setVariable("out", createPrintStream(out));
         binding.setVariable("err", createPrintStream(err));
 
         binding.setVariable("activeSessions", new Closure<List<AbstractSession>>(this)
         {
+            private static final long serialVersionUID = -5067603783691580051L;
+
             @Override
             public List<AbstractSession> call()
             {

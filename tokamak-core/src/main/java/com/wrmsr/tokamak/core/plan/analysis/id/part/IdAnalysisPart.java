@@ -25,6 +25,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.StreamSupport;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkSingle;
 
@@ -33,6 +34,12 @@ public abstract class IdAnalysisPart
         implements StreamableIterable<String>
 {
     public abstract Set<String> getFields();
+
+    public boolean contains(String field)
+    {
+        checkNotNull(field);
+        return stream().anyMatch(field::equals);
+    }
 
     public static IdAnalysisPart of(Iterable<String> fields)
     {

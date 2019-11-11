@@ -44,6 +44,7 @@ import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static com.wrmsr.tokamak.util.MoreCollectors.groupingByImmutableSet;
+import static com.wrmsr.tokamak.util.MoreFunctions.negate;
 
 public final class SetInvalidationsTransform
 {
@@ -57,10 +58,13 @@ public final class SetInvalidationsTransform
 
         private static final class PathEntry
         {
+            private final ImmutableList<PNode> path;
+
             private final ImmutableMap.Builder<String, String> keyFieldsBySourceField = ImmutableMap.builder();
 
-            public PathEntry()
+            public PathEntry(ImmutableList<PNode> path)
             {
+                this.path = checkNotNull(path);
             }
         }
 
@@ -116,7 +120,7 @@ public final class SetInvalidationsTransform
                                 ImmutableList<PNode> nodePath = path.stream()
                                         .map(l -> l.getSink().getSink().getNode())
                                         .collect(toImmutableList());
-                                construction.entriesByPath.computeIfAbsent(nodePath, p -> new InvalidationConstruction.PathEntry())
+                                construction.entriesByPath.computeIfAbsent(nodePath, InvalidationConstruction.PathEntry::new)
                                         .keyFieldsBySourceField.put(invalidatorOrigination.getSink().getField(), nodeField.getField());
                             }
                         }
@@ -125,15 +129,30 @@ public final class SetInvalidationsTransform
             }
 
             constructions.values().forEach(construction -> {
-                Set<ImmutableMap<String, String>> keyMaps = construction.entriesByPath.values().stream()
-                        .map(e -> e.keyFieldsBySourceField.build())
-                        .collect(toImmutableSet());
+                Map<ImmutableMap<String, String>, Set<InvalidationConstruction.PathEntry>> entrySetsByKeyMaps =
+                        construction.entriesByPath.values().stream()
+                                .collect(groupingByImmutableSet(e -> e.keyFieldsBySourceField.build()));
 
-                keyMaps.forEach(keyMap -> {
+                entrySetsByKeyMaps.forEach((keyMap, entrySet) -> {
+                    Set<String> linkageMask = entrySet.stream()
+                            .map(e -> {
+                                PNode entrypoint = e.path.get(e.path.size() - 2);
+                                return originAnalysis.getOriginationSetsBySinkNodeBySinkField().get(entrypoint).values().stream()
+                                        .flatMap(Set::stream)
+                                        .filter(o -> o.getSource().isPresent())
+                                        .map(o -> o.getSource().get())
+                                        .filter(nf -> nf.getNode() == construction.invalidator)
+                                        .map(PNodeField::getField)
+                                        .collect(toImmutableSet());
+                            })
+                            .flatMap(Set::stream)
+                            .filter(negate(idAnalysis.get(construction.invalidator)::contains))
+                            .collect(toImmutableSet());
+
                     PInvalidation invalidation = new PInvalidation(
                             invalidatable.getName(),
                             keyMap,
-                            Optional.empty(),
+                            Optional.of(linkageMask),
                             PInvalidation.Strength.STRONG);
 
                     invalidationMap.computeIfAbsent(construction.invalidator, o -> new ArrayList<>()).add(invalidation);
