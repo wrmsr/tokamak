@@ -75,7 +75,9 @@ public class DriverContextImpl
                 ImmutableList.of(this::onStateAttributesSet),
                 Stat.Updater.nop());
 
-        this.invalidationManager = new InvalidationManager();
+        this.invalidationManager = new InvalidationManager(
+                driver.getPlan(),
+                stateCache);
 
         this.linkageManager = new LinkageManager(stateCache);
 

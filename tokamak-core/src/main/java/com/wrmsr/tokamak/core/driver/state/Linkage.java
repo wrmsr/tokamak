@@ -17,9 +17,11 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.core.plan.node.PNodeId;
+import com.wrmsr.tokamak.util.collect.StreamableIterable;
 
 import javax.annotation.concurrent.Immutable;
 
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -28,7 +30,20 @@ import java.util.Set;
 public final class Linkage
 {
     public interface Links
+            extends StreamableIterable<Id>
     {
+        Set<Id> getIds();
+
+        default boolean contains(Id id)
+        {
+            return getIds().contains(id);
+        }
+
+        @Override
+        default Iterator<Id> iterator()
+        {
+            return getIds().iterator();
+        }
     }
 
     @Immutable
@@ -57,6 +72,7 @@ public final class Linkage
             return Objects.hash(ids);
         }
 
+        @Override
         public Set<Id> getIds()
         {
             return ids;
@@ -92,6 +108,12 @@ public final class Linkage
         public Map<Id, Object[]> getAttributesById()
         {
             return attributesById;
+        }
+
+        @Override
+        public Set<Id> getIds()
+        {
+            return attributesById.keySet();
         }
     }
 

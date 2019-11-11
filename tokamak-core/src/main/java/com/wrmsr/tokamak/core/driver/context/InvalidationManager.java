@@ -14,17 +14,39 @@
 package com.wrmsr.tokamak.core.driver.context;
 
 import com.wrmsr.tokamak.api.Id;
+import com.wrmsr.tokamak.core.driver.context.state.StateCache;
 import com.wrmsr.tokamak.core.driver.state.State;
+import com.wrmsr.tokamak.core.plan.Plan;
 import com.wrmsr.tokamak.core.plan.node.PState;
 
 import java.util.Map;
 import java.util.Set;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 public class InvalidationManager
 {
+    private final Plan plan;
+    private final StateCache stateCache;
+
+    public InvalidationManager(
+            Plan plan,
+            StateCache stateCache)
+    {
+        this.plan = checkNotNull(plan);
+        this.stateCache = checkNotNull(stateCache);
+    }
+
     public void invalidate(State state)
     {
-        // throw new IllegalStateException();
+        checkNotNull(state);
+
+        if (state.getLinkage() != null) {
+            state.getLinkage().getOutput().forEach((sinkNodeId, links) -> {
+                PState sinkNode = (PState) checkNotNull(plan.getNode(sinkNodeId));
+                stateCache.invalidate(sinkNode, links.getIds(
+            });
+        }
     }
 
     public void recursiveInvalidate(
