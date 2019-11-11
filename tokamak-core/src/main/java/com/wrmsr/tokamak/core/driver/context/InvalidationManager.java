@@ -44,7 +44,7 @@ public class InvalidationManager
         if (state.getLinkage() != null) {
             state.getLinkage().getOutput().forEach((sinkNodeId, links) -> {
                 PState sinkNode = (PState) checkNotNull(plan.getNode(sinkNodeId));
-                stateCache.invalidate(sinkNode, links.getIds(
+                stateCache.invalidate(sinkNode, links.getIds());
             });
         }
     }

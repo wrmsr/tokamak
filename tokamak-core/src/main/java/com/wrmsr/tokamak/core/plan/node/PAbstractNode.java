@@ -15,7 +15,6 @@ package com.wrmsr.tokamak.core.plan.node;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wrmsr.tokamak.core.layout.RowLayout;
-import com.wrmsr.tokamak.core.layout.field.FieldCollection;
 import com.wrmsr.tokamak.util.lazy.SupplierLazyValue;
 
 import javax.annotation.concurrent.Immutable;
@@ -51,6 +50,10 @@ public abstract class PAbstractNode
                 Optional.ofNullable(PNodeAnnotations.getValidatorsByAnnotationType().get(annotation.getClass()))
                         .ifPresent(validator -> validator.accept(this)));
         annotations.getFields().forEach(field -> checkState(getFields().getNames().contains(field.getKey())));
+
+        if (this instanceof PInvalidator) {
+            PInvalidator.checkInvariants((PInvalidator) this));
+        }
     }
 
     @Override

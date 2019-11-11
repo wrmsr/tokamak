@@ -14,9 +14,23 @@
 package com.wrmsr.tokamak.core.plan.node;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import static com.google.common.base.Preconditions.checkState;
 
 public interface PInvalidator
         extends PNode
 {
+    Map<String, Set<String>> getLinkageMasks();
+
     List<PInvalidation> getInvalidations();
+
+    static void checkInvariants(PInvalidator node)
+    {
+        node.getLinkageMasks().forEach((sinkNode, fields) ->
+                fields.forEach(f -> checkState(node.getFields().contains(f))));
+        node.getInvalidations().forEach(inv ->
+                inv.getKeyFieldsBySourceField().keySet().forEach(f -> checkState(node.getFields().contains(f))));
+    }
 }

@@ -193,13 +193,13 @@ public final class SetInvalidationsTransform
         }
     }
 
-    private static void sortInvalidations(Map<PInvalidator, List<PInvalidation>> invalidationsByInvalidator, Plan plan)
+    private static void sortInvalidations(Map<PInvalidator, List<PInvalidation>> invalidationsByInvalidator)
     {
         Comparator<PInvalidation> cmp0 = Comparator.comparing(
                 inv -> sorted(ImmutableList.copyOf(inv.getKeyFieldsBySourceField().keySet()), Comparator.naturalOrder()),
                 Comparators.lexicographical(Comparator.<String>naturalOrder()));
         Comparator<PInvalidation> cmp = Comparator
-                .<PInvalidation, Integer>comparing(inv -> plan.getToposortIndicesByNode().get(plan.getNode(inv.getNode())))
+                .comparing(PInvalidation::getNode)
                 .thenComparing(cmp0);
         invalidationsByInvalidator.values().forEach(lst -> lst.sort(cmp));
     }
@@ -219,7 +219,7 @@ public final class SetInvalidationsTransform
                     idAnalysis);
         });
 
-        sortInvalidations(invalidationsByInvalidator, plan);
+        sortInvalidations(invalidationsByInvalidator);
 
         return Plan.of(plan.getRoot().accept(new PNodeRewriter<Void>()
         {
