@@ -87,7 +87,7 @@ public final class PScan
     }
 
     @JsonProperty("fields")
-    private OrderPreservingImmutableMap<String, Type> getJsonFields()
+    public OrderPreservingImmutableMap<String, Type> getScanFields()
     {
         return new OrderPreservingImmutableMap<>(fields.getTypesByName());
     }

@@ -65,7 +65,7 @@ public final class PTransforms
                             node.getName(),
                             node.getAnnotations().mapFields(fields -> fields.overwriting(table.getLayout().getPrimaryKeyFields(), FieldAnnotation.id())),
                             node.getSchemaTable(),
-                            node.getFields().getTypesByName(),
+                            node.getScanFields(),
                             ImmutableList.of());
                 }
                 else {

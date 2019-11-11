@@ -13,6 +13,7 @@
  */
 package com.wrmsr.tokamak.core.plan.transform;
 
+import com.google.common.collect.Comparators;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -28,10 +29,12 @@ import com.wrmsr.tokamak.core.plan.node.PInvalidation;
 import com.wrmsr.tokamak.core.plan.node.PInvalidator;
 import com.wrmsr.tokamak.core.plan.node.PNode;
 import com.wrmsr.tokamak.core.plan.node.PNodeField;
+import com.wrmsr.tokamak.core.plan.node.PScan;
 import com.wrmsr.tokamak.core.plan.node.PState;
 import com.wrmsr.tokamak.core.plan.node.visitor.PNodeRewriter;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -43,6 +46,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
+import static com.wrmsr.tokamak.util.MoreCollections.sorted;
 import static com.wrmsr.tokamak.util.MoreCollectors.groupingByImmutableSet;
 import static com.wrmsr.tokamak.util.MoreFunctions.negate;
 
@@ -183,6 +187,17 @@ public final class SetInvalidationsTransform
         }
     }
 
+    private static void sortInvalidations(Map<PInvalidator, List<PInvalidation>> invalidationsByInvalidator, Plan plan)
+    {
+        Comparator<PInvalidation> cmp0 = Comparator.comparing(
+                inv -> sorted(ImmutableList.copyOf(inv.getKeyFieldsBySourceField().keySet()), Comparator.naturalOrder()),
+                Comparators.lexicographical(Comparator.<String>naturalOrder()));
+        Comparator<PInvalidation> cmp = Comparator
+                .<PInvalidation, Integer>comparing(inv -> plan.getToposortIndicesByNode().get(plan.getNode(inv.getNode())))
+                .thenComparing(cmp0);
+        invalidationsByInvalidator.values().forEach(lst -> lst.sort(cmp));
+    }
+
     public static Plan setInvalidations(Plan plan, Optional<Catalog> catalog)
     {
         OriginAnalysis originAnalysis = OriginAnalysis.analyze(plan);
@@ -198,12 +213,31 @@ public final class SetInvalidationsTransform
                     idAnalysis);
         });
 
+        sortInvalidations(invalidationsByInvalidator, plan);
+
         return Plan.of(plan.getRoot().accept(new PNodeRewriter<Void>()
         {
             @Override
+            public PNode visitScan(PScan node, Void context)
+            {
+                return new PScan(
+                        node.getName(),
+                        node.getAnnotations(),
+                        node.getSchemaTable(),
+                        node.getScanFields(),
+                        invalidationsByInvalidator.getOrDefault(node, ImmutableList.of()));
+            }
+
+            @Override
             public PNode visitState(PState node, Void context)
             {
-                return super.visitState(node, context);
+                return new PState(
+                        node.getName(),
+                        node.getAnnotations(),
+                        node.getSource(),
+                        node.getDenormalization(),
+                        invalidationsByInvalidator.getOrDefault(node, ImmutableList.of()),
+                        node.getLockOverride());
             }
         }, null));
     }
