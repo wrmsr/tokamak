@@ -84,7 +84,8 @@ public class DriverContextImpl
 
         state = Driver.ContextState.ACTIVE;
 
-        builderContextMap = driver.getContextualBuilders().stream().collect(toImmutableMap(identity(), cb -> cb.buildContext(this)));
+        builderContextMap = driver.getContextualBuilders().stream()
+                .collect(toImmutableMap(identity(), cb -> cb.buildContext(this)));
     }
 
     protected void addJournalEntry(JournalEntry entry)

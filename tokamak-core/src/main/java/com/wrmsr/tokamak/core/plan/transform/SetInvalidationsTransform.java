@@ -52,6 +52,12 @@ import static com.wrmsr.tokamak.util.MoreFunctions.negate;
 
 public final class SetInvalidationsTransform
 {
+    /*
+    TODO:
+     - PInvalidate - not just PStates (for which persistence is mandatory due to linkage tracking)
+     - weaks
+    */
+
     private SetInvalidationsTransform()
     {
     }

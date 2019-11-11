@@ -54,11 +54,6 @@ import static com.wrmsr.tokamak.util.MorePreconditions.checkSingle;
 public class DefaultStateCache
         implements StateCache
 {
-    /*
-    TODO:
-     - StateNode everywhere?
-    */
-
     @FunctionalInterface
     public interface AttributesSetCallback
     {
