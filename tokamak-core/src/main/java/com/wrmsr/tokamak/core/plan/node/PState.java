@@ -15,18 +15,12 @@ package com.wrmsr.tokamak.core.plan.node;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.core.layout.field.FieldCollection;
 import com.wrmsr.tokamak.core.plan.node.visitor.PNodeVisitor;
 
 import javax.annotation.concurrent.Immutable;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.wrmsr.tokamak.util.MoreCollections.newImmutableSetMap;
 
 @Immutable
 public final class PState
@@ -41,8 +35,7 @@ public final class PState
 
     private final PNode source;
     private final Denormalization denormalization;
-    private final Map<String, Set<String>> linkageMasks;
-    private final List<PInvalidation> invalidations;
+    private final PInvalidations invalidations;
 
     private FieldCollection fields;
 
@@ -52,15 +45,13 @@ public final class PState
             @JsonProperty("annotations") PNodeAnnotations annotations,
             @JsonProperty("source") PNode source,
             @JsonProperty("denormalization") Denormalization denormalization,
-            @JsonProperty("linkageMasks") Map<String, Set<String>> linkageMasks,
-            @JsonProperty("invalidations") List<PInvalidation> invalidations,
+            @JsonProperty("invalidations") PInvalidations invalidations)
     {
         super(name, annotations);
 
         this.source = checkNotNull(source);
         this.denormalization = checkNotNull(denormalization);
-        this.linkageMasks = newImmutableSetMap(linkageMasks);
-        this.invalidations = ImmutableList.copyOf(invalidations);
+        this.invalidations = checkNotNull(invalidations);
 
         fields = source.getFields()
                 .withOnlyTransitiveAnnotations()
@@ -82,15 +73,8 @@ public final class PState
         return denormalization;
     }
 
-    @JsonProperty("linkageMasks")
-    @Override
-    public Map<String, Set<String>> getLinkageMasks()
-    {
-        return linkageMasks;
-    }
-
     @JsonProperty("invalidations")
-    public List<PInvalidation> getInvalidations()
+    public PInvalidations getInvalidations()
     {
         return invalidations;
     }
