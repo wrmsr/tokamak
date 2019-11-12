@@ -15,7 +15,6 @@ package com.wrmsr.tokamak.core.plan.node;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.core.layout.field.FieldCollection;
 import com.wrmsr.tokamak.core.plan.node.visitor.PNodeVisitor;
@@ -24,13 +23,10 @@ import com.wrmsr.tokamak.util.collect.OrderPreservingImmutableMap;
 
 import javax.annotation.concurrent.Immutable;
 
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.wrmsr.tokamak.util.MoreCollections.checkOrdered;
-import static com.wrmsr.tokamak.util.MoreCollections.newImmutableSetMap;
 
 @Immutable
 public final class PScan
@@ -39,8 +35,7 @@ public final class PScan
 {
     private final SchemaTable schemaTable;
     private final FieldCollection fields;
-    private final Map<String, Set<String>> linkageMasks;
-    private final List<PInvalidation> invalidations;
+    private final PInvalidations invalidations;
 
     @JsonCreator
     private PScan(
@@ -48,8 +43,7 @@ public final class PScan
             @JsonProperty("annotations") PNodeAnnotations annotations,
             @JsonProperty("schemaTable") SchemaTable schemaTable,
             @JsonProperty("fields") OrderPreservingImmutableMap<String, Type> fields,
-            @JsonProperty("linkageMasks") Map<String, Set<String>> linkageMasks,
-            @JsonProperty("invalidations") List<PInvalidation> invalidations)
+            @JsonProperty("invalidations") PInvalidations invalidations)
     {
         super(name, annotations);
 
@@ -57,8 +51,7 @@ public final class PScan
 
         this.schemaTable = checkNotNull(schemaTable);
         this.fields = FieldCollection.of(checkNotNull(fields), annotations.getFields());
-        this.linkageMasks = newImmutableSetMap(linkageMasks);
-        this.invalidations = ImmutableList.copyOf(invalidations);
+        this.invalidations = invalidations;
 
         checkInvariants();
     }
@@ -69,15 +62,13 @@ public final class PScan
             PNodeAnnotations annotations,
             SchemaTable schemaTable,
             Map<String, Type> fields,
-            Map<String, Set<String>> linkageMasks,
-            List<PInvalidation> invalidations)
+            PInvalidations invalidations)
     {
         this(
                 name,
                 annotations,
                 schemaTable,
                 new OrderPreservingImmutableMap<>(checkOrdered(fields)),
-                linkageMasks,
                 invalidations);
     }
 
@@ -99,16 +90,9 @@ public final class PScan
         return new OrderPreservingImmutableMap<>(fields.getTypesByName());
     }
 
-    @JsonProperty("linkageMasks")
-    @Override
-    public Map<String, Set<String>> getLinkageMasks()
-    {
-        return linkageMasks;
-    }
-
     @JsonProperty("invalidations")
     @Override
-    public List<PInvalidation> getInvalidations()
+    public PInvalidations getInvalidations()
     {
         return invalidations;
     }

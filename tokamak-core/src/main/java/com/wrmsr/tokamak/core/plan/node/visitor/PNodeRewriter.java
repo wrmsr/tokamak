@@ -17,7 +17,7 @@ import com.wrmsr.tokamak.core.plan.node.PCache;
 import com.wrmsr.tokamak.core.plan.node.PExtract;
 import com.wrmsr.tokamak.core.plan.node.PFilter;
 import com.wrmsr.tokamak.core.plan.node.PGroup;
-import com.wrmsr.tokamak.core.plan.node.PInvalidation;
+import com.wrmsr.tokamak.core.plan.node.PInvalidations;
 import com.wrmsr.tokamak.core.plan.node.PJoin;
 import com.wrmsr.tokamak.core.plan.node.PLookup;
 import com.wrmsr.tokamak.core.plan.node.PNode;
@@ -35,9 +35,10 @@ import com.wrmsr.tokamak.core.plan.node.PUnion;
 import com.wrmsr.tokamak.core.plan.node.PUnnest;
 import com.wrmsr.tokamak.core.plan.node.PValues;
 
-import java.util.List;
+import java.util.Map;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
+import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 
 public abstract class PNodeRewriter<C>
         extends CachingPNodeVisitor<PNode, C>
@@ -47,15 +48,11 @@ public abstract class PNodeRewriter<C>
         return name;
     }
 
-    protected List<PInvalidation> visitInvalidations(List<PInvalidation> invalidations, C context)
+    protected PInvalidations visitInvalidations(PInvalidations invalidations, C context)
     {
-        return invalidations.stream()
-                .map(inv -> new PInvalidation(
-                        visitNodeName(inv.getNode(), context),
-                        inv.getKeyFieldsBySourceField(),
-                        inv.getSourceFieldMask(),
-                        inv.getStrength()))
-                .collect(toImmutableList());
+        return new PInvalidations(
+                invalidations.getEntriesByNode().entrySet().stream()
+                        .collect(toImmutableMap(e -> visitNodeName(e.getKey(), context), Map.Entry::getValue)));
     }
 
     protected PNodeAnnotations visitNodeAnnotations(PNode node, PNodeAnnotations annotations, C context)
@@ -206,8 +203,7 @@ public abstract class PNodeRewriter<C>
                 visitNodeAnnotations(node, node.getAnnotations(), context),
                 process(node.getSource(), context),
                 node.getDenormalization(),
-                visitInvalidations(node.getInvalidations(), context),
-                node.getLockOverride().map(lo -> new PState.LockOverride(visitNodeName(lo.getNode(), context), lo.getField(), lo.getSpilling())));
+                visitInvalidations(node.getInvalidations(), context));
     }
 
     @Override

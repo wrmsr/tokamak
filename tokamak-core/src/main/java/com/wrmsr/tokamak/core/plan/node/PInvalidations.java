@@ -102,17 +102,17 @@ public final class PInvalidations
         }
     }
 
-    private final Map<PNodeId, NodeEntry> entriesByNode;
+    private final Map<String, NodeEntry> entriesByNode;
 
     @JsonCreator
     public PInvalidations(
-            @JsonProperty("entriesByNode") Map<PNodeId, NodeEntry> entriesByNode)
+            @JsonProperty("entriesByNode") Map<String, NodeEntry> entriesByNode)
     {
         this.entriesByNode = ImmutableMap.copyOf(entriesByNode);
     }
 
     @JsonProperty("entriesByNode")
-    public Map<PNodeId, NodeEntry> getEntriesByNode()
+    public Map<String, NodeEntry> getEntriesByNode()
     {
         return entriesByNode;
     }

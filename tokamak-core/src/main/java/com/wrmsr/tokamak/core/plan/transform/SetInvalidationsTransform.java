@@ -13,7 +13,6 @@
  */
 package com.wrmsr.tokamak.core.plan.transform;
 
-import com.google.common.collect.Comparators;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -34,7 +33,6 @@ import com.wrmsr.tokamak.core.plan.node.PState;
 import com.wrmsr.tokamak.core.plan.node.visitor.PNodeRewriter;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -46,7 +44,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
-import static com.wrmsr.tokamak.util.MoreCollections.sorted;
 import static com.wrmsr.tokamak.util.MoreCollectors.groupingByImmutableSet;
 import static com.wrmsr.tokamak.util.MoreFunctions.negate;
 
@@ -193,17 +190,6 @@ public final class SetInvalidationsTransform
         }
     }
 
-    private static void sortInvalidations(Map<PInvalidator, List<PInvalidation>> invalidationsByInvalidator)
-    {
-        Comparator<PInvalidation> cmp0 = Comparator.comparing(
-                inv -> sorted(ImmutableList.copyOf(inv.getKeyFieldsBySourceField().keySet()), Comparator.naturalOrder()),
-                Comparators.lexicographical(Comparator.<String>naturalOrder()));
-        Comparator<PInvalidation> cmp = Comparator
-                .comparing(PInvalidation::getNode)
-                .thenComparing(cmp0);
-        invalidationsByInvalidator.values().forEach(lst -> lst.sort(cmp));
-    }
-
     public static Plan setInvalidations(Plan plan, Optional<Catalog> catalog)
     {
         OriginAnalysis originAnalysis = OriginAnalysis.analyze(plan);
@@ -216,8 +202,6 @@ public final class SetInvalidationsTransform
                 invalidatable,
                 originAnalysis,
                 idAnalysis));
-
-        sortInvalidations(invalidationsByInvalidator);
 
         return Plan.of(plan.getRoot().accept(new PNodeRewriter<Void>()
         {
