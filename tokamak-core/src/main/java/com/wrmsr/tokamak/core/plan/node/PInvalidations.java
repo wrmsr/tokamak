@@ -116,4 +116,11 @@ public final class PInvalidations
     {
         return entriesByNode;
     }
+
+    private static final PInvalidations EMPTY = new PInvalidations(ImmutableMap.of());
+
+    public static PInvalidations empty()
+    {
+        return EMPTY;
+    }
 }
