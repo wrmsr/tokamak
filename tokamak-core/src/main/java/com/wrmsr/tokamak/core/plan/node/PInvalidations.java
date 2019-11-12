@@ -13,12 +13,20 @@
  */
 package com.wrmsr.tokamak.core.plan.node;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+
 import javax.annotation.concurrent.Immutable;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
 public final class PInvalidations
@@ -35,6 +43,35 @@ public final class PInvalidations
         private final Map<String, String> keyFieldsBySourceField;
         private final Optional<Set<String>> updateMask;
         private final Strength strength;
+
+        @JsonCreator
+        public Invalidation(
+                @JsonProperty("keyFieldsBySourceField") Map<String, String> keyFieldsBySourceField,
+                @JsonProperty("updateMask") Optional<Set<String>> updateMask,
+                @JsonProperty("strength") Strength strength)
+        {
+            this.keyFieldsBySourceField = ImmutableMap.copyOf(keyFieldsBySourceField);
+            this.updateMask = checkNotNull(updateMask).map(ImmutableSet::copyOf);
+            this.strength = checkNotNull(strength);
+        }
+
+        @JsonProperty("keyFieldsBySourceField")
+        public Map<String, String> getKeyFieldsBySourceField()
+        {
+            return keyFieldsBySourceField;
+        }
+
+        @JsonProperty("updateMask")
+        public Optional<Set<String>> getUpdateMask()
+        {
+            return updateMask;
+        }
+
+        @JsonProperty("strength")
+        public Strength getStrength()
+        {
+            return strength;
+        }
     }
 
     @Immutable
@@ -42,7 +79,41 @@ public final class PInvalidations
     {
         private final List<Invalidation> invalidations;
         private final Optional<Set<String>> updateMask;
+
+        @JsonCreator
+        public NodeEntry(
+                @JsonProperty("invalidations") List<Invalidation> invalidations,
+                @JsonProperty("updateMask") Optional<Set<String>> updateMask)
+        {
+            this.invalidations = ImmutableList.copyOf(invalidations);
+            this.updateMask = checkNotNull(updateMask).map(ImmutableSet::copyOf);
+        }
+
+        @JsonProperty("invalidations")
+        public List<Invalidation> getInvalidations()
+        {
+            return invalidations;
+        }
+
+        @JsonProperty("updateMask")
+        public Optional<Set<String>> getUpdateMask()
+        {
+            return updateMask;
+        }
     }
 
     private final Map<PNodeId, NodeEntry> entriesByNode;
+
+    @JsonCreator
+    public PInvalidations(
+            @JsonProperty("entriesByNode") Map<PNodeId, NodeEntry> entriesByNode)
+    {
+        this.entriesByNode = ImmutableMap.copyOf(entriesByNode);
+    }
+
+    @JsonProperty("entriesByNode")
+    public Map<PNodeId, NodeEntry> getEntriesByNode()
+    {
+        return entriesByNode;
+    }
 }
