@@ -52,7 +52,7 @@ public abstract class PAbstractNode
         annotations.getFields().forEach(field -> checkState(getFields().getNames().contains(field.getKey())));
 
         if (this instanceof PInvalidator) {
-            PInvalidator.checkInvariants((PInvalidator) this));
+            PInvalidator.checkInvariants((PInvalidator) this);
         }
     }
 

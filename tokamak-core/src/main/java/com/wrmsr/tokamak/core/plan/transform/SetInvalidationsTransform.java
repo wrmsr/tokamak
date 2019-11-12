@@ -211,13 +211,11 @@ public final class SetInvalidationsTransform
 
         Map<PInvalidator, List<PInvalidation>> invalidationsByInvalidator = new HashMap<>();
 
-        plan.getNodeTypeList(PInvalidatable.class).forEach(invalidatable -> {
-            addInvalidationsForNode(
-                    invalidationsByInvalidator,
-                    invalidatable,
-                    originAnalysis,
-                    idAnalysis);
-        });
+        plan.getNodeTypeList(PInvalidatable.class).forEach(invalidatable -> addInvalidationsForNode(
+                invalidationsByInvalidator,
+                invalidatable,
+                originAnalysis,
+                idAnalysis));
 
         sortInvalidations(invalidationsByInvalidator);
 

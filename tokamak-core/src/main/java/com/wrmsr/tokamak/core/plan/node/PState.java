@@ -22,9 +22,11 @@ import com.wrmsr.tokamak.core.plan.node.visitor.PNodeVisitor;
 import javax.annotation.concurrent.Immutable;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
+import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.wrmsr.tokamak.util.MoreCollections.newImmutableSetMap;
 
 @Immutable
 public final class PState
@@ -37,63 +39,10 @@ public final class PState
         INPUT,
     }
 
-    @Immutable
-    public static final class LockOverride
-    {
-        public enum Spilling
-        {
-            NONE,
-            SPILL,
-        }
-
-        private final String node;
-        private final String field;  // FIXME: ordered set
-        private final Spilling spilling;
-
-        @JsonCreator
-        public LockOverride(
-                @JsonProperty("node") String node,
-                @JsonProperty("field") String field,
-                @JsonProperty("spilling") Spilling spilling)
-        {
-            this.node = checkNotNull(node);
-            this.field = checkNotNull(field);
-            this.spilling = checkNotNull(spilling);
-        }
-
-        @Override
-        public String toString()
-        {
-            return "LockOverride{" +
-                    "node='" + node + '\'' +
-                    ", field='" + field + '\'' +
-                    ", spilling=" + spilling + +
-                    '}';
-        }
-
-        @JsonProperty("node")
-        public String getNode()
-        {
-            return node;
-        }
-
-        @JsonProperty("field")
-        public String getField()
-        {
-            return field;
-        }
-
-        @JsonProperty("spilling")
-        public Spilling getSpilling()
-        {
-            return spilling;
-        }
-    }
-
     private final PNode source;
     private final Denormalization denormalization;
+    private final Map<String, Set<String>> linkageMasks;
     private final List<PInvalidation> invalidations;
-    private final Optional<LockOverride> lockOverride;
 
     private FieldCollection fields;
 
@@ -103,15 +52,15 @@ public final class PState
             @JsonProperty("annotations") PNodeAnnotations annotations,
             @JsonProperty("source") PNode source,
             @JsonProperty("denormalization") Denormalization denormalization,
+            @JsonProperty("linkageMasks") Map<String, Set<String>> linkageMasks,
             @JsonProperty("invalidations") List<PInvalidation> invalidations,
-            @JsonProperty("lockOverride") Optional<LockOverride> lockOverride)
     {
         super(name, annotations);
 
         this.source = checkNotNull(source);
         this.denormalization = checkNotNull(denormalization);
+        this.linkageMasks = newImmutableSetMap(linkageMasks);
         this.invalidations = ImmutableList.copyOf(invalidations);
-        this.lockOverride = checkNotNull(lockOverride);
 
         fields = source.getFields()
                 .withOnlyTransitiveAnnotations()
@@ -133,16 +82,17 @@ public final class PState
         return denormalization;
     }
 
+    @JsonProperty("linkageMasks")
+    @Override
+    public Map<String, Set<String>> getLinkageMasks()
+    {
+        return linkageMasks;
+    }
+
     @JsonProperty("invalidations")
     public List<PInvalidation> getInvalidations()
     {
         return invalidations;
-    }
-
-    @JsonProperty("lockOverride")
-    public Optional<LockOverride> getLockOverride()
-    {
-        return lockOverride;
     }
 
     @Override

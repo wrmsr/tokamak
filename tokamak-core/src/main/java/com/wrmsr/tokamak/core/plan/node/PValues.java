@@ -30,6 +30,7 @@ import javax.annotation.concurrent.Immutable;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -108,6 +109,12 @@ public final class PValues
     public Strictness getStrictness()
     {
         return strictness;
+    }
+
+    @Override
+    public Map<String, Set<String>> getLinkageMasks()
+    {
+        return ImmutableMap.of();
     }
 
     @Override
