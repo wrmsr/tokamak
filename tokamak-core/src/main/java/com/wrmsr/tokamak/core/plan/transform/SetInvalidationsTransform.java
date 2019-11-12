@@ -139,7 +139,7 @@ public final class SetInvalidationsTransform
     }
 
     private static void addConstructionsForField(
-            Map<PInvalidator, InvalidationConstruction> constructionsByInvalidator,
+            Map<PInvalidator, InvalidationsBuilder> invalidationsBuilders,
             PInvalidatable invalidatable,
             String field,
             OriginAnalysis originAnalysis)
@@ -156,8 +156,8 @@ public final class SetInvalidationsTransform
                 .collect(groupingByImmutableSet(o -> (PInvalidator) o.getSink().getNode()));
 
         invalidatorOriginationsByInvalidatorNode.forEach((invalidator, invalidatorOriginations) -> {
-            InvalidationConstruction construction = constructionsByInvalidator
-                    .computeIfAbsent(invalidator, InvalidationConstruction::new);
+            InvalidationsBuilder builder = invalidationsBuilders
+                    .computeIfAbsent(invalidator, InvalidationsBuilder::new);
 
             for (Origination invalidatorOrigination : invalidatorOriginations) {
                 checkState(invalidatorOrigination.getSink().getNode() instanceof PInvalidator);
@@ -168,7 +168,7 @@ public final class SetInvalidationsTransform
                         originAnalysis.getLeafChainAnalysis().getPaths(sinkNodeField, sourceNodeField);
                 for (List<OriginationLink> originationPath : originationPaths) {
                     ImmutableList<PNode> nodePath = buildNodePath(sinkNodeField, sourceNodeField, originationPath);
-                    construction.entriesByNodePath.computeIfAbsent(nodePath, InvalidationConstruction.PathEntry::new)
+                    builder.getNode(invalidatable).getPath(nodePath)
                             .keyFieldsBySourceField.put(invalidatorOrigination.getSink().getField(), sinkNodeField.getField());
                 }
             }
@@ -176,7 +176,7 @@ public final class SetInvalidationsTransform
     }
 
     private static void addInvalidationsForNode(
-            Map<PInvalidator, List<PInvalidation>> invalidationsByInvalidator,
+            Map<PInvalidator, InvalidationsBuilder> invalidationsBuilders,
             PInvalidatable invalidatable,
             OriginAnalysis originAnalysis,
             IdAnalysis idAnalysis)
