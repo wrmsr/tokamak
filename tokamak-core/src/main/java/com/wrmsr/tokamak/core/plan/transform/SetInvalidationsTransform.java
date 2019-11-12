@@ -24,7 +24,7 @@ import com.wrmsr.tokamak.core.plan.analysis.origin.OriginAnalysis;
 import com.wrmsr.tokamak.core.plan.analysis.origin.Origination;
 import com.wrmsr.tokamak.core.plan.analysis.origin.OriginationLink;
 import com.wrmsr.tokamak.core.plan.node.PInvalidatable;
-import com.wrmsr.tokamak.core.plan.node.PInvalidation;
+import com.wrmsr.tokamak.core.plan.node.PInvalidations;
 import com.wrmsr.tokamak.core.plan.node.PInvalidator;
 import com.wrmsr.tokamak.core.plan.node.PNode;
 import com.wrmsr.tokamak.core.plan.node.PNodeField;
@@ -59,45 +59,67 @@ public final class SetInvalidationsTransform
     {
     }
 
-    private static final class InvalidationConstruction
+    private static final class InvalidationsBuilder
     {
-        private final PInvalidator invalidator;
-
-        private static final class PathEntry
+        private final class NodeBuilder
         {
-            private final ImmutableList<PNode> nodePath;
-
-            private final ImmutableMap.Builder<String, String> keyFieldsBySourceField = ImmutableMap.builder();
-
-            public PathEntry(ImmutableList<PNode> nodePath)
+            private final class PathBuilder
             {
-                this.nodePath = checkNotNull(nodePath);
+                private final ImmutableList<PNode> path;
+
+                private final ImmutableMap.Builder<String, String> keyFieldsBySourceField = ImmutableMap.builder();
+
+                public PathBuilder(ImmutableList<PNode> path)
+                {
+                    this.path = checkNotNull(path);
+                }
+            }
+
+            private final PInvalidatable invalidatble;
+
+            private final Map<ImmutableList<PNode>, PathBuilder> pathBuilders = new LinkedHashMap<>();
+
+            public NodeBuilder(PInvalidatable invalidatble)
+            {
+                this.invalidatble = checkNotNull(invalidatble);
+            }
+
+            public PathBuilder getPath(ImmutableList<PNode> path)
+            {
+                return pathBuilders.computeIfAbsent(path, PathBuilder::new);
+            }
+
+            public Set<String> buildLinkageMask(Set<String> keyFields, OriginAnalysis originAnalysis)
+            {
+                return pathBuilders.values().stream()
+                        .map(e -> {
+                            PNode entrypoint = e.path.get(e.path.size() - 2);
+                            return originAnalysis.getOriginationSetsBySinkNodeBySinkField().get(entrypoint).values().stream()
+                                    .flatMap(Set::stream)
+                                    .filter(o -> o.getSource().isPresent())
+                                    .map(o -> o.getSource().get())
+                                    .filter(nf -> nf.getNode() == invalidator)
+                                    .map(PNodeField::getField)
+                                    .collect(toImmutableSet());
+                        })
+                        .flatMap(Set::stream)
+                        .filter(negate(keyFields::contains))
+                        .collect(toImmutableSet());
             }
         }
 
-        private final Map<ImmutableList<PNode>, PathEntry> entriesByNodePath = new LinkedHashMap<>();
+        private final PInvalidator invalidator;
 
-        public InvalidationConstruction(PInvalidator invalidator)
+        private final Map<PInvalidatable, NodeBuilder> nodeBuilders = new LinkedHashMap<>();
+
+        public InvalidationsBuilder(PInvalidator invalidator)
         {
             this.invalidator = checkNotNull(invalidator);
         }
 
-        public Set<String> buildLinkageMask(OriginAnalysis originAnalysis, Set<String> keyFields)
+        public NodeBuilder getNode(PInvalidatable node)
         {
-            return entriesByNodePath.values().stream()
-                    .map(e -> {
-                        PNode entrypoint = e.nodePath.get(e.nodePath.size() - 2);
-                        return originAnalysis.getOriginationSetsBySinkNodeBySinkField().get(entrypoint).values().stream()
-                                .flatMap(Set::stream)
-                                .filter(o -> o.getSource().isPresent())
-                                .map(o -> o.getSource().get())
-                                .filter(nf -> nf.getNode() == invalidator)
-                                .map(PNodeField::getField)
-                                .collect(toImmutableSet());
-                    })
-                    .flatMap(Set::stream)
-                    .filter(negate(keyFields::contains))
-                    .collect(toImmutableSet());
+            return nodeBuilders.computeIfAbsent(node, NodeBuilder::new);
         }
     }
 
@@ -195,7 +217,7 @@ public final class SetInvalidationsTransform
         OriginAnalysis originAnalysis = OriginAnalysis.analyze(plan);
         IdAnalysis idAnalysis = IdAnalysis.analyze(plan, catalog);
 
-        Map<PInvalidator, List<PInvalidation>> invalidationsByInvalidator = new HashMap<>();
+        Map<PInvalidator, PInvalidations> invalidationsByInvalidator = new HashMap<>();
 
         plan.getNodeTypeList(PInvalidatable.class).forEach(invalidatable -> addInvalidationsForNode(
                 invalidationsByInvalidator,
@@ -213,7 +235,7 @@ public final class SetInvalidationsTransform
                         node.getAnnotations(),
                         node.getSchemaTable(),
                         node.getScanFields(),
-                        invalidationsByInvalidator.getOrDefault(node, ImmutableList.of()));
+                        invalidationsByInvalidator.getOrDefault(node, PInvalidations.empty()));
             }
 
             @Override
@@ -224,8 +246,7 @@ public final class SetInvalidationsTransform
                         node.getAnnotations(),
                         node.getSource(),
                         node.getDenormalization(),
-                        invalidationsByInvalidator.getOrDefault(node, ImmutableList.of()),
-                        node.getLockOverride());
+                        invalidationsByInvalidator.getOrDefault(node, PInvalidations.empty()));
             }
         }, null));
     }
