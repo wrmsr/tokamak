@@ -104,15 +104,6 @@ public final class SetInvalidationsTransform
                 return pathBuilders.computeIfAbsent(path, PathBuilder::new);
             }
 
-            public Set<String> buildUpdateMask(Set<String> ignoredFields, OriginAnalysis originAnalysis)
-            {
-                return pathBuilders.values().stream()
-                        .map(e -> SetInvalidationsTransform.buildUpdateMask(invalidator, e.getEntrypoint(), originAnalysis))
-                        .flatMap(Set::stream)
-                        .filter(negate(ignoredFields::contains))
-                        .collect(toImmutableSet());
-            }
-
             public PInvalidator getInvalidator()
             {
                 return invalidator;
@@ -233,9 +224,14 @@ public final class SetInvalidationsTransform
                     PInvalidations.Strength.STRONG));
         });
 
+        Set<String> updateMask = builder.pathBuilders.values().stream()
+                    .map(e -> SetInvalidationsTransform.buildUpdateMask(builder.getInvalidator(), e.getEntrypoint(), originAnalysis))
+                    .flatMap(Set::stream)
+                    .collect(toImmutableSet());
+
         return new PInvalidations.NodeEntry(
                 invalidations,
-                Optional.of(builder.buildUpdateMask(ImmutableSet.of(), originAnalysis)));
+                Optional.of(updateMask));
     }
 
     public static Plan setInvalidations(Plan plan, Optional<Catalog> catalog)
