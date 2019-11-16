@@ -33,6 +33,7 @@ import com.wrmsr.tokamak.core.plan.node.PState;
 import com.wrmsr.tokamak.core.plan.node.visitor.PNodeRewriter;
 import com.wrmsr.tokamak.util.lazy.SupplierLazyValue;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -46,6 +47,7 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static com.wrmsr.tokamak.util.MoreCollections.immutableMapValues;
 import static com.wrmsr.tokamak.util.MoreCollectors.groupingByImmutableSet;
+import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 import static com.wrmsr.tokamak.util.MoreFunctions.negate;
 
 public final class SetInvalidationsTransform
@@ -200,6 +202,18 @@ public final class SetInvalidationsTransform
         }
     }
 
+    private static PInvalidations.NodeEntry buildNodeEntry(InvalidationsBuilder.NodeBuilder builder)
+    {
+        Map<ImmutableMap<String, String>, List<InvalidationsBuilder.NodeBuilder.PathBuilder>> pathBuilderListsByKeyMap = new HashMap<>();
+        for (InvalidationsBuilder.NodeBuilder.PathBuilder pathBuilder : builder.pathBuilders.values()) {
+            pathBuilderListsByKeyMap.computeIfAbsent(pathBuilder.getKeyFieldsBySourceField(), m -> new ArrayList<>()).add(pathBuilder);
+        }
+
+        return new PInvalidations.NodeEntry(
+                ImmutableList.of(),
+                Optional.empty());
+    }
+
     public static Plan setInvalidations(Plan plan, Optional<Catalog> catalog)
     {
         OriginAnalysis originAnalysis = OriginAnalysis.analyze(plan);
@@ -213,9 +227,9 @@ public final class SetInvalidationsTransform
                 originAnalysis,
                 idAnalysis));
 
-        Map<PInvalidator, PInvalidations> invalidations = immutableMapValues(builders, builder -> {
-            return PInvalidations.empty();
-        });
+        Map<PInvalidator, PInvalidations> invalidations = immutableMapValues(builders, ib ->
+                new PInvalidations(ib.nodeBuilders.values().stream().collect(toImmutableMap(
+                        nb -> nb.invalidatble.getName(), SetInvalidationsTransform::buildNodeEntry))));
 
         // for (InvalidationsBuilder builder : buildersByInvalidator.values()) {
         //     Map<ImmutableMap<String, String>, Set<InvalidationsBuilder.PathBuilder>> entrySetsByKeyMaps =
