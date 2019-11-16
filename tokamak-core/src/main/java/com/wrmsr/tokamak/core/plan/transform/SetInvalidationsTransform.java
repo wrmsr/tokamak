@@ -31,8 +31,8 @@ import com.wrmsr.tokamak.core.plan.node.PNodeField;
 import com.wrmsr.tokamak.core.plan.node.PScan;
 import com.wrmsr.tokamak.core.plan.node.PState;
 import com.wrmsr.tokamak.core.plan.node.visitor.PNodeRewriter;
+import com.wrmsr.tokamak.util.lazy.SupplierLazyValue;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -44,6 +44,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
+import static com.wrmsr.tokamak.util.MoreCollections.immutableMapValues;
 import static com.wrmsr.tokamak.util.MoreCollectors.groupingByImmutableSet;
 import static com.wrmsr.tokamak.util.MoreFunctions.negate;
 
@@ -67,11 +68,18 @@ public final class SetInvalidationsTransform
             {
                 private final ImmutableList<PNode> path;
 
-                private final ImmutableMap.Builder<String, String> keyFieldsBySourceField = ImmutableMap.builder();
+                private final ImmutableMap.Builder<String, String> keyFieldsBySourceFieldBuilder = ImmutableMap.builder();
 
                 public PathBuilder(ImmutableList<PNode> path)
                 {
                     this.path = checkNotNull(path);
+                }
+
+                private final SupplierLazyValue<ImmutableMap<String, String>> keyFieldsBySourceField = new SupplierLazyValue<>();
+
+                public ImmutableMap<String, String> getKeyFieldsBySourceField()
+                {
+                    return keyFieldsBySourceField.get(keyFieldsBySourceFieldBuilder::build);
                 }
             }
 
@@ -89,7 +97,7 @@ public final class SetInvalidationsTransform
                 return pathBuilders.computeIfAbsent(path, PathBuilder::new);
             }
 
-            public Set<String> buildLinkageMask(Set<String> keyFields, OriginAnalysis originAnalysis)
+            public Set<String> buildUpdateMask(Set<String> keyFields, OriginAnalysis originAnalysis)
             {
                 return pathBuilders.values().stream()
                         .map(e -> {
@@ -138,8 +146,8 @@ public final class SetInvalidationsTransform
                 .collect(toImmutableList());
     }
 
-    private static void addConstructionsForField(
-            Map<PInvalidator, InvalidationsBuilder> invalidationsBuilders,
+    private static void processField(
+            Map<PInvalidator, InvalidationsBuilder> builders,
             PInvalidatable invalidatable,
             String field,
             OriginAnalysis originAnalysis)
@@ -156,7 +164,7 @@ public final class SetInvalidationsTransform
                 .collect(groupingByImmutableSet(o -> (PInvalidator) o.getSink().getNode()));
 
         invalidatorOriginationsByInvalidatorNode.forEach((invalidator, invalidatorOriginations) -> {
-            InvalidationsBuilder builder = invalidationsBuilders
+            InvalidationsBuilder builder = builders
                     .computeIfAbsent(invalidator, InvalidationsBuilder::new);
 
             for (Origination invalidatorOrigination : invalidatorOriginations) {
@@ -169,46 +177,26 @@ public final class SetInvalidationsTransform
                 for (List<OriginationLink> originationPath : originationPaths) {
                     ImmutableList<PNode> nodePath = buildNodePath(sinkNodeField, sourceNodeField, originationPath);
                     builder.getNode(invalidatable).getPath(nodePath)
-                            .keyFieldsBySourceField.put(invalidatorOrigination.getSink().getField(), sinkNodeField.getField());
+                            .keyFieldsBySourceFieldBuilder.put(invalidatorOrigination.getSink().getField(), sinkNodeField.getField());
                 }
             }
         });
     }
 
-    private static void addInvalidationsForNode(
-            Map<PInvalidator, InvalidationsBuilder> invalidationsBuilders,
+    private static void processNode(
+            Map<PInvalidator, InvalidationsBuilder> builders,
             PInvalidatable invalidatable,
             OriginAnalysis originAnalysis,
             IdAnalysis idAnalysis)
     {
-        Map<PInvalidator, InvalidationConstruction> constructionsByInvalidator = new HashMap<>();
-
         for (IdAnalysisPart part : idAnalysis.get(invalidatable).getParts()) {
             for (String field : part) {
-                addConstructionsForField(
-                        constructionsByInvalidator,
+                processField(
+                        builders,
                         invalidatable,
                         field,
                         originAnalysis);
             }
-        }
-
-        for (InvalidationConstruction construction : constructionsByInvalidator.values()) {
-            Map<ImmutableMap<String, String>, Set<InvalidationConstruction.PathEntry>> entrySetsByKeyMaps =
-                    construction.entriesByNodePath.values().stream()
-                            .collect(groupingByImmutableSet(e -> e.keyFieldsBySourceField.build()));
-
-            entrySetsByKeyMaps.forEach((keyMap, entrySet) -> {
-                Set<String> linkageMask = construction.buildLinkageMask(originAnalysis, keyMap.keySet());
-
-                PInvalidation invalidation = new PInvalidation(
-                        invalidatable.getName(),
-                        keyMap,
-                        Optional.of(linkageMask),
-                        PInvalidation.Strength.STRONG);
-
-                invalidationsByInvalidator.computeIfAbsent(construction.invalidator, o -> new ArrayList<>()).add(invalidation);
-            });
         }
     }
 
@@ -217,13 +205,35 @@ public final class SetInvalidationsTransform
         OriginAnalysis originAnalysis = OriginAnalysis.analyze(plan);
         IdAnalysis idAnalysis = IdAnalysis.analyze(plan, catalog);
 
-        Map<PInvalidator, PInvalidations> invalidationsByInvalidator = new HashMap<>();
+        Map<PInvalidator, InvalidationsBuilder> builders = new HashMap<>();
 
-        plan.getNodeTypeList(PInvalidatable.class).forEach(invalidatable -> addInvalidationsForNode(
-                invalidationsByInvalidator,
+        plan.getNodeTypeList(PInvalidatable.class).forEach(invalidatable -> processNode(
+                builders,
                 invalidatable,
                 originAnalysis,
                 idAnalysis));
+
+        Map<PInvalidator, PInvalidations> invalidations = immutableMapValues(builders, builder -> {
+            return PInvalidations.empty();
+        });
+
+        // for (InvalidationsBuilder builder : buildersByInvalidator.values()) {
+        //     Map<ImmutableMap<String, String>, Set<InvalidationsBuilder.PathBuilder>> entrySetsByKeyMaps =
+        //             builder.entriesByNodePath.values().stream()
+        //                     .collect(groupingByImmutableSet(e -> e.keyFieldsBySourceField.build()));
+        //
+        //     entrySetsByKeyMaps.forEach((keyMap, entrySet) -> {
+        //         Set<String> linkageMask = builder.buildLinkageMask(originAnalysis, keyMap.keySet());
+        //
+        //         PInvalidation invalidation = new PInvalidation(
+        //                 invalidatable.getName(),
+        //                 keyMap,
+        //                 Optional.of(linkageMask),
+        //                 PInvalidation.Strength.STRONG);
+        //
+        //         invalidationsByInvalidator.computeIfAbsent(builder.invalidator, o -> new ArrayList<>()).add(invalidation);
+        //     });
+        // }
 
         return Plan.of(plan.getRoot().accept(new PNodeRewriter<Void>()
         {
@@ -235,7 +245,7 @@ public final class SetInvalidationsTransform
                         node.getAnnotations(),
                         node.getSchemaTable(),
                         node.getScanFields(),
-                        invalidationsByInvalidator.getOrDefault(node, PInvalidations.empty()));
+                        invalidations.getOrDefault(node, PInvalidations.empty()));
             }
 
             @Override
@@ -246,7 +256,7 @@ public final class SetInvalidationsTransform
                         node.getAnnotations(),
                         node.getSource(),
                         node.getDenormalization(),
-                        invalidationsByInvalidator.getOrDefault(node, PInvalidations.empty()));
+                        invalidations.getOrDefault(node, PInvalidations.empty()));
             }
         }, null));
     }

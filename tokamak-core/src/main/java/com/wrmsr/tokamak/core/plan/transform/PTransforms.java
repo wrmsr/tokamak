@@ -21,6 +21,7 @@ import com.wrmsr.tokamak.core.layout.field.Field;
 import com.wrmsr.tokamak.core.layout.field.annotation.FieldAnnotation;
 import com.wrmsr.tokamak.core.layout.field.annotation.IdField;
 import com.wrmsr.tokamak.core.plan.Plan;
+import com.wrmsr.tokamak.core.plan.node.PInvalidations;
 import com.wrmsr.tokamak.core.plan.node.PNode;
 import com.wrmsr.tokamak.core.plan.node.PProject;
 import com.wrmsr.tokamak.core.plan.node.PProjection;
@@ -66,7 +67,7 @@ public final class PTransforms
                             node.getAnnotations().mapFields(fields -> fields.overwriting(table.getLayout().getPrimaryKeyFields(), FieldAnnotation.id())),
                             node.getSchemaTable(),
                             node.getScanFields(),
-                            ImmutableList.of());
+                            PInvalidations.empty());
                 }
                 else {
                     ImmutableMap.Builder<String, Type> newFields = ImmutableMap.builder();
@@ -82,7 +83,7 @@ public final class PTransforms
                             node.getAnnotations().mapFields(fields -> fields.overwriting(table.getLayout().getPrimaryKeyFields(), FieldAnnotation.id())),
                             node.getSchemaTable(),
                             newFields.build(),
-                            ImmutableList.of());
+                            PInvalidations.empty());
 
                     return new PProject(
                             nameGenerator.get(),

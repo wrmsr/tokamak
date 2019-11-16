@@ -42,6 +42,7 @@ import com.wrmsr.tokamak.core.plan.analysis.origin.Origination;
 import com.wrmsr.tokamak.core.plan.dot.Dot;
 import com.wrmsr.tokamak.core.plan.node.PFilter;
 import com.wrmsr.tokamak.core.plan.node.PFunction;
+import com.wrmsr.tokamak.core.plan.node.PInvalidations;
 import com.wrmsr.tokamak.core.plan.node.PJoin;
 import com.wrmsr.tokamak.core.plan.node.PNode;
 import com.wrmsr.tokamak.core.plan.node.PNodeAnnotations;
@@ -159,7 +160,7 @@ public class CoreTest
                         .put("N_REGIONKEY", Types.LONG)
                         .put("N_COMMENT", Types.STRING)
                         .build(),
-                ImmutableList.of());
+                PInvalidations.empty());
 
         PNode scanNode0Dropped = new PProject(
                 "scanNode0Dropped",
@@ -172,8 +173,7 @@ public class CoreTest
                 PNodeAnnotations.empty(),
                 scanNode0Dropped,
                 PState.Denormalization.NONE,
-                ImmutableList.of(),
-                Optional.empty());
+                PInvalidations.empty());
 
         PNode filterNode0 = new PFilter(
                 "filter0",
@@ -206,15 +206,14 @@ public class CoreTest
                         "R_REGIONKEY", Types.LONG,
                         "R_NAME", Types.STRING
                 ),
-                ImmutableList.of());
+                PInvalidations.empty());
 
         PNode stateNode1 = new PState(
                 "state1",
                 PNodeAnnotations.empty(),
                 scanNode1,
                 PState.Denormalization.NONE,
-                ImmutableList.of(),
-                Optional.empty());
+                PInvalidations.empty());
 
         PNode equiJoinNode0 = new PJoin(
                 "equiJoin0",
@@ -230,8 +229,7 @@ public class CoreTest
                 PNodeAnnotations.empty(),
                 equiJoinNode0,
                 PState.Denormalization.NONE,
-                ImmutableList.of(),
-                Optional.empty());
+                PInvalidations.empty());
 
         PNode outputNode0 = new POutput(
                 "output0",
@@ -378,7 +376,7 @@ public class CoreTest
                         "id", Types.LONG,
                         "str", Types.STRING
                 ),
-                ImmutableList.of());
+                PInvalidations.empty());
 
         Plan plan = Plan.of(scan0);
 

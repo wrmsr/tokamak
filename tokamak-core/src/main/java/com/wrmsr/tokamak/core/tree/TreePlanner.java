@@ -19,6 +19,7 @@ import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.core.catalog.Catalog;
 import com.wrmsr.tokamak.core.catalog.Function;
 import com.wrmsr.tokamak.core.catalog.Table;
+import com.wrmsr.tokamak.core.plan.node.PInvalidations;
 import com.wrmsr.tokamak.core.plan.node.PJoin;
 import com.wrmsr.tokamak.core.plan.node.PNode;
 import com.wrmsr.tokamak.core.plan.node.PNodeAnnotations;
@@ -168,7 +169,7 @@ public class TreePlanner
                         PNodeAnnotations.empty(),
                         schemaTable,
                         columns.stream().collect(toImmutableMap(identity(), table.getRowLayout().getFields()::getType)),
-                        ImmutableList.of());
+                        PInvalidations.empty());
             }
         }, null);
     }

@@ -65,7 +65,7 @@ public class NodesTest
                 PNodeAnnotations.empty().mapFields(fields -> fields.overwriting("id", FieldAnnotation.id())),
                 SchemaTable.of("public", "hi"),
                 ImmutableMap.of("id", Types.LONG, "thing", Types.STRING),
-                ImmutableList.of());
+                PInvalidations.empty());
 
         String json = Json.writeValuePretty(scanNode);
         System.out.println(json);
