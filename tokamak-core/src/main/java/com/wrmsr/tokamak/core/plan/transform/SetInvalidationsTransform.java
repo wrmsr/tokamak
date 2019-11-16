@@ -89,9 +89,9 @@ public final class SetInvalidationsTransform
 
             private final Map<ImmutableList<PNode>, PathBuilder> pathBuilders = new LinkedHashMap<>();
 
-            public NodeBuilder(PInvalidatable invalidatble)
+            public NodeBuilder(PInvalidatable invalidatable)
             {
-                this.invalidatble = checkNotNull(invalidatble);
+                this.invalidatble = checkNotNull(invalidatable);
             }
 
             public PathBuilder getPath(ImmutableList<PNode> path)
@@ -99,21 +99,12 @@ public final class SetInvalidationsTransform
                 return pathBuilders.computeIfAbsent(path, PathBuilder::new);
             }
 
-            public Set<String> buildUpdateMask(Set<String> keyFields, OriginAnalysis originAnalysis)
+            public Set<String> buildUpdateMask(Set<String> ignoredFields, OriginAnalysis originAnalysis)
             {
                 return pathBuilders.values().stream()
-                        .map(e -> {
-                            PNode entrypoint = e.path.get(e.path.size() - 2);
-                            return originAnalysis.getOriginationSetsBySinkNodeBySinkField().get(entrypoint).values().stream()
-                                    .flatMap(Set::stream)
-                                    .filter(o -> o.getSource().isPresent())
-                                    .map(o -> o.getSource().get())
-                                    .filter(nf -> nf.getNode() == invalidator)
-                                    .map(PNodeField::getField)
-                                    .collect(toImmutableSet());
-                        })
+                        .map(e -> SetInvalidationsTransform.buildUpdateMask(invalidator, e.path.get(e.path.size() - 2), originAnalysis))
                         .flatMap(Set::stream)
-                        .filter(negate(keyFields::contains))
+                        .filter(negate(ignoredFields::contains))
                         .collect(toImmutableSet());
             }
         }
@@ -131,6 +122,17 @@ public final class SetInvalidationsTransform
         {
             return nodeBuilders.computeIfAbsent(node, NodeBuilder::new);
         }
+    }
+
+    private static Set<String> buildUpdateMask(PInvalidator invalidator, PNode entrypoint, OriginAnalysis originAnalysis)
+    {
+        return originAnalysis.getOriginationSetsBySinkNodeBySinkField().get(entrypoint).values().stream()
+                .flatMap(Set::stream)
+                .filter(o -> o.getSource().isPresent())
+                .map(o -> o.getSource().get())
+                .filter(nf -> nf.getNode() == invalidator)
+                .map(PNodeField::getField)
+                .collect(toImmutableSet());
     }
 
     private static ImmutableList<PNode> buildNodePath(
@@ -202,16 +204,27 @@ public final class SetInvalidationsTransform
         }
     }
 
-    private static PInvalidations.NodeEntry buildNodeEntry(InvalidationsBuilder.NodeBuilder builder)
+    private static PInvalidations.NodeEntry buildNodeEntry(InvalidationsBuilder.NodeBuilder builder, OriginAnalysis originAnalysis)
     {
         Map<ImmutableMap<String, String>, List<InvalidationsBuilder.NodeBuilder.PathBuilder>> pathBuilderListsByKeyMap = new HashMap<>();
         for (InvalidationsBuilder.NodeBuilder.PathBuilder pathBuilder : builder.pathBuilders.values()) {
             pathBuilderListsByKeyMap.computeIfAbsent(pathBuilder.getKeyFieldsBySourceField(), m -> new ArrayList<>()).add(pathBuilder);
         }
 
+        List<PInvalidations.Invalidation> invalidations = new ArrayList<>();
+        pathBuilderListsByKeyMap.forEach((keyMap, pathBuilders) -> {
+            Set<String> updateMask = pathBuilders.stream()
+                    .flatMap(pb -> builder.bu)
+
+            invalidations.add(new PInvalidations.Invalidation(
+                    keyMap,
+                    Optional.of(updateMask),
+                    PInvalidations.Strength.STRONG));
+        });
+
         return new PInvalidations.NodeEntry(
-                ImmutableList.of(),
-                Optional.empty());
+                invalidations,
+                Optional.of(builder.buildUpdateMask(ImmutableSet.of(), originAnalysis)));
     }
 
     public static Plan setInvalidations(Plan plan, Optional<Catalog> catalog)
@@ -229,7 +242,7 @@ public final class SetInvalidationsTransform
 
         Map<PInvalidator, PInvalidations> invalidations = immutableMapValues(builders, ib ->
                 new PInvalidations(ib.nodeBuilders.values().stream().collect(toImmutableMap(
-                        nb -> nb.invalidatble.getName(), SetInvalidationsTransform::buildNodeEntry))));
+                        nb -> nb.invalidatble.getName(), nb -> buildNodeEntry(nb, originAnalysis)))));
 
         // for (InvalidationsBuilder builder : buildersByInvalidator.values()) {
         //     Map<ImmutableMap<String, String>, Set<InvalidationsBuilder.PathBuilder>> entrySetsByKeyMaps =
