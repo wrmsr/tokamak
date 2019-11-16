@@ -224,7 +224,8 @@ public final class SetInvalidationsTransform
         List<PInvalidations.Invalidation> invalidations = new ArrayList<>();
         pathBuilderListsByKeyMap.forEach((keyMap, pathBuilders) -> {
             Set<String> updateMask = pathBuilders.stream()
-                    .flatMap(pb -> buildUpdateMask(builder.getInvalidator(), pb.path.get())
+                    .flatMap(pb -> buildUpdateMask(builder.getInvalidator(), pb.getEntrypoint(), originAnalysis).stream())
+                    .collect(toImmutableSet());
 
             invalidations.add(new PInvalidations.Invalidation(
                     keyMap,
