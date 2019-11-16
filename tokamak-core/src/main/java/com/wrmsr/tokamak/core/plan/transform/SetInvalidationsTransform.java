@@ -83,6 +83,11 @@ public final class SetInvalidationsTransform
                 {
                     return keyFieldsBySourceField.get(keyFieldsBySourceFieldBuilder::build);
                 }
+
+                public PNode getEntrypoint()
+                {
+                    return path.get(path.size() - 2);
+                }
             }
 
             private final PInvalidatable invalidatble;
@@ -102,10 +107,15 @@ public final class SetInvalidationsTransform
             public Set<String> buildUpdateMask(Set<String> ignoredFields, OriginAnalysis originAnalysis)
             {
                 return pathBuilders.values().stream()
-                        .map(e -> SetInvalidationsTransform.buildUpdateMask(invalidator, e.path.get(e.path.size() - 2), originAnalysis))
+                        .map(e -> SetInvalidationsTransform.buildUpdateMask(invalidator, e.getEntrypoint(), originAnalysis))
                         .flatMap(Set::stream)
                         .filter(negate(ignoredFields::contains))
                         .collect(toImmutableSet());
+            }
+
+            public PInvalidator getInvalidator()
+            {
+                return invalidator;
             }
         }
 
@@ -214,7 +224,7 @@ public final class SetInvalidationsTransform
         List<PInvalidations.Invalidation> invalidations = new ArrayList<>();
         pathBuilderListsByKeyMap.forEach((keyMap, pathBuilders) -> {
             Set<String> updateMask = pathBuilders.stream()
-                    .flatMap(pb -> builder.bu)
+                    .flatMap(pb -> buildUpdateMask(builder.getInvalidator(), pb.path.get())
 
             invalidations.add(new PInvalidations.Invalidation(
                     keyMap,
