@@ -83,7 +83,7 @@ public abstract class AnnotationCollection<T extends Annotation, Self extends An
         return Optional.ofNullable((U) annotationsByCls.get(cls));
     }
 
-    public boolean has(Class<? extends T> cls)
+    public boolean contains(Class<? extends T> cls)
     {
         return annotationsByCls.containsKey(cls);
     }

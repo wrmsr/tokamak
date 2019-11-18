@@ -23,7 +23,7 @@ import com.wrmsr.tokamak.core.exec.builtin.BuiltinExecutor;
 import com.wrmsr.tokamak.core.parse.SqlParser;
 import com.wrmsr.tokamak.core.plan.Plan;
 import com.wrmsr.tokamak.core.plan.node.PNode;
-import com.wrmsr.tokamak.core.plan.transform.PTransforms;
+import com.wrmsr.tokamak.core.plan.transform.PropagateIdsTransform;
 import com.wrmsr.tokamak.core.tree.TreeParsing;
 import com.wrmsr.tokamak.core.tree.TreePlanner;
 import com.wrmsr.tokamak.core.tree.TreeRendering;
@@ -134,7 +134,7 @@ public class TpchParserTest
             PNode node = new TreePlanner(Optional.of(catalog), defaultSchema).plan(treeNode);
             Plan plan = Plan.of(node);
 
-            plan = PTransforms.addScanNodeIdFields(plan, catalog);
+            plan = PropagateIdsTransform.propagateIds(plan, catalog);
             System.out.println(Json.writeValuePretty(plan));
 
             System.out.println();

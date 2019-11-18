@@ -13,9 +13,9 @@
  */
 package com.wrmsr.tokamak.core.plan.transform;
 
-public final class ThreadIdsTransform
+public final class Transforms
 {
-    private ThreadIdsTransform()
+    private Transforms()
     {
     }
 }

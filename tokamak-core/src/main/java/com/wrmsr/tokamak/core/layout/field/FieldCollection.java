@@ -45,7 +45,9 @@ import java.util.stream.Stream;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
+import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static com.wrmsr.tokamak.util.MoreCollections.checkOrdered;
+import static com.wrmsr.tokamak.util.MoreCollections.immutableMapValues;
 import static com.wrmsr.tokamak.util.MoreCollections.newImmutableListMap;
 import static com.wrmsr.tokamak.util.MoreCollections.streamIterator;
 import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
@@ -162,6 +164,14 @@ public final class FieldCollection
         });
     }
 
+    private final SupplierLazyValue<Map<Class<? extends FieldAnnotation>, Set<String>>> fieldNameSetsByAnnotationCls = new SupplierLazyValue<>();
+
+    public Map<Class<? extends FieldAnnotation>, Set<String>> getFieldNameSetsByAnnotationCls()
+    {
+        return fieldNameSetsByAnnotationCls.get(() ->
+                immutableMapValues(getFieldListsByAnnotationCls(), l -> l.stream().map(Field::getName).collect(toImmutableSet())));
+    }
+
     public boolean containsEquivalent(Field field)
     {
         Field thisField = fieldsByName.get(field.getName());
@@ -181,6 +191,11 @@ public final class FieldCollection
     public boolean containsEquivalents(Iterable<Field> fields)
     {
         return containsEquivalents(fields.iterator());
+    }
+
+    public boolean containsAnnotation(Class<? extends FieldAnnotation> cls)
+    {
+        return fields.stream().anyMatch(f -> f.getAnnotations().contains(cls));
     }
 
     public FieldCollection withAnnotations(AnnotationCollectionMap<String, FieldAnnotation, ?, ?> anns, Predicate<FieldAnnotation> filter)
