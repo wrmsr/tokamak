@@ -15,6 +15,7 @@ package com.wrmsr.tokamak.core.plan.transform;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Ordering;
 import com.wrmsr.tokamak.core.catalog.Catalog;
 import com.wrmsr.tokamak.core.catalog.Table;
 import com.wrmsr.tokamak.core.layout.field.annotation.FieldAnnotation;
@@ -31,6 +32,7 @@ import com.wrmsr.tokamak.core.plan.node.PNode;
 import com.wrmsr.tokamak.core.plan.node.PNodeAnnotations;
 import com.wrmsr.tokamak.core.plan.node.POutput;
 import com.wrmsr.tokamak.core.plan.node.PProject;
+import com.wrmsr.tokamak.core.plan.node.PProjection;
 import com.wrmsr.tokamak.core.plan.node.PScan;
 import com.wrmsr.tokamak.core.plan.node.PScope;
 import com.wrmsr.tokamak.core.plan.node.PScopeExit;
@@ -52,6 +54,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiFunction;
 
+import static com.google.common.collect.ImmutableList.sortedCopyOf;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
@@ -203,17 +206,34 @@ public final class PropagateIdsTransform
                 }
 
                 ImmutableMap.Builder<String, PValue> newInputsByOutputBuilder = ImmutableMap.builder();
+                ImmutableSet.Builder<String> idFieldsBuilder = ImmutableSet.builder();
+                ImmutableSet.Builder<String> internalFieldsBuilder = ImmutableSet.builder();
                 newInputsByOutputBuilder.putAll(node.getProjection());
-                checkNotEmpty(source.getAnnotations().getFields().getEntryListsByAnnotationCls().get(IdField.class)).forEach(f -> {
-                    if (!)
-
-                });
-                table.getLayout().getPrimaryKeyFields().forEach(f -> {
-                    if (!node.getFields().contains(f)) {
-                        newFieldsBuilder.put(f, table.getRowLayout().getFields().getType(f));
+                checkNotEmpty(source.getAnnotations().getFields().getKeySetsByAnnotationCls().get(IdField.class)).forEach(inputField -> {
+                    String idField;
+                    Set<String> outputSet = node.getProjection().getOutputSetsByInputField().get(inputField);
+                    if (outputSet != null) {
+                        // FIXME: do better
+                        idField = sortedCopyOf(Ordering.natural(), checkNotEmpty(outputSet)).get(0);
                     }
+                    else {
+                        idField = plan.getFieldNameGenerator().get(inputField);
+                        internalFieldsBuilder.add(idField);
+                    }
+                    idFieldsBuilder.add(idField);
                 });
-                Map<String, Type> newFields = newFieldsBuilder.build();
+                Map<String, PValue> newInputsByOutput = newInputsByOutputBuilder.build();
+                Set<String> idFields = idFieldsBuilder.build();
+                Set<String> internalFields = internalFieldsBuilder.build();
+
+                return new PProject(
+                        visitNodeName(node.getName(), context),
+                        node.getAnnotations().mapFields(fields -> fields
+                                .without(IdField.class)
+                                .with(idFields, FieldAnnotation.id())
+                                .with(internalFields, FieldAnnotation.internal())),
+                        source,
+                        new PProjection(newInputsByOutput));
             }
 
             @Override
