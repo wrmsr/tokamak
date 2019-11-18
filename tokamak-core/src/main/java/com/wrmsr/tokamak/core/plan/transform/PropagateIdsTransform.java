@@ -241,21 +241,25 @@ public final class PropagateIdsTransform
             {
                 Table table = catalog.get().getSchemaTable(node.getSchemaTable());
 
+                // FIXME: *do* have to add projection - have to generate unique field names to prevent upstream clashing :/
                 ImmutableMap.Builder<String, Type> newFieldsBuilder = ImmutableMap.builder();
+                ImmutableSet.Builder<String> internalFieldsBuilder = ImmutableSet.builder();
                 newFieldsBuilder.putAll(node.getFields().getTypesByName());
                 table.getLayout().getPrimaryKeyFields().forEach(f -> {
                     if (!node.getFields().contains(f)) {
                         newFieldsBuilder.put(f, table.getRowLayout().getFields().getType(f));
+                        internalFieldsBuilder.add(f);
                     }
                 });
                 Map<String, Type> newFields = newFieldsBuilder.build();
+                Set<String> internalFields = internalFieldsBuilder.build();
 
                 return new PScan(
                         visitNodeName(node.getName(), context),
                         node.getAnnotations().mapFields(fields -> fields
                                 .without(IdField.class)
                                 .with(table.getLayout().getPrimaryKeyFields(), FieldAnnotation.id())
-                                .with(newFields.keySet(), FieldAnnotation.internal())),
+                                .with(internalFields, FieldAnnotation.internal())),
                         node.getSchemaTable(),
                         newFields,
                         PInvalidations.empty());
