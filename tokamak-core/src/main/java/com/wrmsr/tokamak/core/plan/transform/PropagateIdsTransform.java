@@ -72,7 +72,7 @@ public final class PropagateIdsTransform
             private PNode inherit(PSingleSource node, Void context, BiFunction<PNodeAnnotations, PNode, PNode> factory)
             {
                 PNode source = process(node.getSource(), context);
-                if (!source.getFields().containsAnnotation(IdField.class)) {
+                if (!source.getAnnotations().getFields().containsAnnotation(IdField.class)) {
                     return factory.apply(
                             node.getAnnotations().mapFields(fields -> fields
                                     .without(IdField.class)),

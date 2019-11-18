@@ -136,6 +136,11 @@ public abstract class AnnotationCollectionMap<
         });
     }
 
+    public boolean containsAnnotation(Class<? extends T> cls)
+    {
+        return entries.stream().anyMatch(e -> e.contains(cls));
+    }
+
     public E getEntryOrEmpty(K key)
     {
         return getEntry(key).orElseGet(() -> newEntry(key, ImmutableList.of()));
