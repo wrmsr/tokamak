@@ -153,10 +153,10 @@ public class CoreTest
 
         PNode scanNode0 = new PScan(
                 "scan0",
-                PNodeAnnotations.empty().mapFields(fields -> fields.overwriting("N_NATIONKEY", FieldAnnotation.id())),
+                PNodeAnnotations.empty(),
                 SchemaTable.of("PUBLIC", "NATION"),
                 ImmutableMap.<String, Type>builder()
-                        .put("N_NATIONKEY", Types.LONG)
+                        // .put("N_NATIONKEY", Types.LONG)
                         .put("N_NAME", Types.STRING)
                         .put("N_REGIONKEY", Types.LONG)
                         .put("N_COMMENT", Types.STRING)
@@ -167,7 +167,7 @@ public class CoreTest
                 "scanNode0Dropped",
                 PNodeAnnotations.empty(),
                 scanNode0,
-                PProjection.only("N_NATIONKEY", "N_NAME", "N_REGIONKEY"));
+                PProjection.only(/*"N_NATIONKEY",*/ "N_NAME", "N_REGIONKEY"));
 
         PNode stateNode0 = new PState(
                 "state0",
@@ -192,7 +192,7 @@ public class CoreTest
                 PNodeAnnotations.empty(),
                 filterNode0,
                 new PProjection(ImmutableMap.of(
-                        "N_NATIONKEY", PValue.field("N_NATIONKEY"),
+                        // "N_NATIONKEY", PValue.field("N_NATIONKEY"),
                         "N_NAME", PValue.function(
                                 PFunction.of(func.getExecutable()),
                                 PValue.field("N_NAME")),

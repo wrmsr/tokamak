@@ -219,6 +219,7 @@ public final class PropagateIdsTransform
                     else {
                         idField = plan.getFieldNameGenerator().get(inputField);
                         internalFieldsBuilder.add(idField);
+                        newInputsByOutputBuilder.put(idField, PValue.field(inputField));
                     }
                     idFieldsBuilder.add(idField);
                 });
