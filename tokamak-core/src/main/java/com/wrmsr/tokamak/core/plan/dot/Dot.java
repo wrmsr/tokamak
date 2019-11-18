@@ -13,7 +13,6 @@
  */
 package com.wrmsr.tokamak.core.plan.dot;
 
-import com.google.common.base.Joiner;
 import com.wrmsr.tokamak.core.layout.field.annotation.FieldAnnotation;
 import com.wrmsr.tokamak.core.plan.Plan;
 import com.wrmsr.tokamak.core.plan.node.PNode;
@@ -60,13 +59,14 @@ public final class Dot
                                         DotUtils.column(f.getName()),
                                         DotUtils.column(f.getType().toSpec()));
                                 if (!f.getAnnotations().isEmpty()) {
-                                    row.add(
-                                            DotUtils.rawColumn(
-                                                    Joiner.on("<br>").join(
-                                                            f.getAnnotations().stream()
-                                                                    .map(FieldAnnotation::toDisplayString)
-                                                                    .map(DotUtils::htmlEscape)
-                                                                    .collect(toImmutableList()))));
+                                    DotUtils.Table attsTable = DotUtils.table(
+                                            DotUtils.section(
+                                                    f.getAnnotations().stream()
+                                                            .map(FieldAnnotation::toDisplayString)
+                                                            .map(DotUtils::row)
+                                                            .collect(toImmutableList())));
+
+                                    row.add(DotUtils.rawColumn(DotUtils.render(attsTable::renderInternal)));
                                 }
                                 return row;
                             }).collect(toImmutableList())));

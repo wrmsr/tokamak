@@ -20,6 +20,7 @@ import com.google.common.html.HtmlEscapers;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Consumer;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableList.toImmutableList;
@@ -38,15 +39,20 @@ public final class DotUtils
         return HTML_ESCAPER.escape(string);
     }
 
+    public static String render(Consumer<StringBuilder> renderable)
+    {
+        StringBuilder sb = new StringBuilder();
+        renderable.accept(sb);
+        return sb.toString();
+    }
+
     public interface Renderable
     {
         void render(StringBuilder sb);
 
         default String render()
         {
-            StringBuilder sb = new StringBuilder();
-            render(sb);
-            return sb.toString();
+            return DotUtils.render(this::render);
         }
     }
 
@@ -163,11 +169,18 @@ public final class DotUtils
             return this;
         }
 
+        public void renderInternal(StringBuilder sb)
+        {
+            sb.append("<table>");
+            delimitedForEach(sections, () -> Section.BLANK.render(sb), section -> section.render(sb));
+            sb.append("</table>");
+        }
+
         public void render(StringBuilder sb)
         {
-            sb.append("<<table>");
-            delimitedForEach(sections, () -> Section.BLANK.render(sb), section -> section.render(sb));
-            sb.append("</table>>");
+            sb.append("<");
+            renderInternal(sb);
+            sb.append(">");
         }
     }
 

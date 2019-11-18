@@ -261,13 +261,12 @@ public class CoreTest
 
         Plan plan = buildPlan(catalog);
 
-        // Dot.openDot(Dot.buildPlanDot(plan));
+        Dot.openDot(Dot.buildPlanDot(plan));
 
         // plan = SetIdFieldsTransform.setIdFields(plan, Optional.of(catalog));
-
         plan = PropagateIdsTransform.propagateIds(plan, Optional.of(catalog));
 
-        // Dot.openDot(Dot.buildPlanDot(plan));
+        Dot.openDot(Dot.buildPlanDot(plan));
 
         plan = SetInvalidationsTransform.setInvalidations(plan, Optional.of(catalog));
 
