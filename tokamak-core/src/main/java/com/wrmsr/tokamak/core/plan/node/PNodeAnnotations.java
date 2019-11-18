@@ -32,10 +32,13 @@ import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.ImmutableSet.toImmutableSet;
+import static com.wrmsr.tokamak.util.MoreCollections.immutableMapValues;
 import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 import static com.wrmsr.tokamak.util.func.ThrowableThrowingSupplier.throwableRethrowingGet;
@@ -111,6 +114,14 @@ public final class PNodeAnnotations
         protected Entry newEntry(String key, Iterable<FieldAnnotation> annotations)
         {
             return new Entry(key, annotations);
+        }
+
+        private final SupplierLazyValue<Map<Class<? extends FieldAnnotation>, Set<String>>> keySetsByAnnotationCls = new SupplierLazyValue<>();
+
+        public Map<Class<? extends FieldAnnotation>, Set<String>> getKeySetsByAnnotationCls()
+        {
+            return keySetsByAnnotationCls.get(() ->
+                    immutableMapValues(getEntryListsByAnnotationCls(), l -> l.stream().map(Entry::getKey).collect(toImmutableSet())));
         }
     }
 

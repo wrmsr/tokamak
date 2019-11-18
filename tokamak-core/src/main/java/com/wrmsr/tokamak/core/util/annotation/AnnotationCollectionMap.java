@@ -35,7 +35,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.wrmsr.tokamak.util.MoreCollections.newImmutableListMap;
 import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
-import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 import static java.util.function.Function.identity;
 
 @Immutable

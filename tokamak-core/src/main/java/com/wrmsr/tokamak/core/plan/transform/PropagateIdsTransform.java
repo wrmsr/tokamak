@@ -81,22 +81,33 @@ public final class PropagateIdsTransform
                 else {
                     return factory.apply(
                             node.getAnnotations().mapFields(fields -> fields
-                                            .without(IdField.class)
-                                            .with(checkNotEmpty(source.getFields().getFieldNameSetsByAnnotationCls().get(IdField.class)), FieldAnnotation.id())),
-                                    source);
+                                    .without(IdField.class)
+                                    .with(checkNotEmpty(source.getFields().getFieldNameSetsByAnnotationCls().get(IdField.class)), FieldAnnotation.id())),
+                            source);
                 }
             }
 
             @Override
             public PNode visitCache(PCache node, Void context)
             {
-                throw new IllegalStateException();
+                return inherit(node, context, (annotations, source) ->
+                        new PCache(
+                                node.getName(),
+                                annotations,
+                                source));
             }
 
             @Override
             public PNode visitExtract(PExtract node, Void context)
             {
-                throw new IllegalStateException();
+                return inherit(node, context, (annotations, source) ->
+                        new PExtract(
+                                node.getName(),
+                                annotations,
+                                source,
+                                node.getSourceField(),
+                                node.getStructMember(),
+                                node.getOutputField()));
             }
 
             @Override
@@ -115,12 +126,25 @@ public final class PropagateIdsTransform
             @Override
             public PNode visitGroup(PGroup node, Void context)
             {
-                throw new IllegalStateException();
+                return new PGroup(
+                        node.getName(),
+                        node.getAnnotations().mapFields(fields -> fields
+                                .without(IdField.class)
+                                .with(node.getKeyFields(), FieldAnnotation.id())),
+                        process(node.getSource(), context),
+                        node.getKeyFields(),
+                        node.getListField());
             }
 
             @Override
             public PNode visitJoin(PJoin node, Void context)
             {
+                List<PJoin.Branch> branches = node.getBranches().stream()
+                        .map(b -> new PJoin.Branch(
+                                process(b.getNode(), context),
+                                b.getFields()))
+                        .collect(toImmutableList());
+
                 throw new IllegalStateException();
             }
 
@@ -133,7 +157,12 @@ public final class PropagateIdsTransform
             @Override
             public PNode visitOutput(POutput node, Void context)
             {
-                throw new IllegalStateException();
+                return inherit(node, context, (annotations, source) ->
+                        new POutput(
+                                node.getName(),
+                                annotations,
+                                source,
+                                node.getTargets()));
             }
 
             @Override
@@ -188,13 +217,26 @@ public final class PropagateIdsTransform
             @Override
             public PNode visitState(PState node, Void context)
             {
-                throw new IllegalStateException();
+                return inherit(node, context, (annotations, source) ->
+                        new PState(
+                                node.getName(),
+                                annotations,
+                                source,
+                                node.getDenormalization(),
+                                node.getInvalidations()));
             }
 
             @Override
             public PNode visitStruct(PStruct node, Void context)
             {
-                throw new IllegalStateException();
+                return inherit(node, context, (annotations, source) ->
+                        new PStruct(
+                                node.getName(),
+                                annotations,
+                                source,
+                                node.getType(),
+                                node.getInputFields(),
+                                node.getOutputField()));
             }
 
             @Override
