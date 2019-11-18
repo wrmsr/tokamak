@@ -61,6 +61,11 @@ public final class PropagateIdsTransform
     /*
     Adds *all possible id propagations and authoritatively sets all IdField annotations. Not everything will
     necessarily be successfully id'd.
+
+    TODO:
+     - scopes? everything needs concating scope id
+     - volatility / redundancy compensation: for redundant fields on projects pick least volatile
+      - prob using unify?
     */
 
     private PropagateIdsTransform()
