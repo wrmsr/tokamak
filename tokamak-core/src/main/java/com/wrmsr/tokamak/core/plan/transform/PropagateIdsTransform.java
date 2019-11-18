@@ -14,6 +14,7 @@
 package com.wrmsr.tokamak.core.plan.transform;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.core.catalog.Catalog;
 import com.wrmsr.tokamak.core.catalog.Table;
 import com.wrmsr.tokamak.core.layout.field.annotation.FieldAnnotation;
@@ -40,6 +41,7 @@ import com.wrmsr.tokamak.core.plan.node.PStruct;
 import com.wrmsr.tokamak.core.plan.node.PUnify;
 import com.wrmsr.tokamak.core.plan.node.PUnion;
 import com.wrmsr.tokamak.core.plan.node.PUnnest;
+import com.wrmsr.tokamak.core.plan.node.PValue;
 import com.wrmsr.tokamak.core.plan.node.PValues;
 import com.wrmsr.tokamak.core.plan.node.visitor.PNodeRewriter;
 import com.wrmsr.tokamak.core.type.Type;
@@ -92,7 +94,7 @@ public final class PropagateIdsTransform
             {
                 return inherit(node, context, (annotations, source) ->
                         new PCache(
-                                node.getName(),
+                                visitNodeName(node.getName(), context),
                                 annotations,
                                 source));
             }
@@ -102,7 +104,7 @@ public final class PropagateIdsTransform
             {
                 return inherit(node, context, (annotations, source) ->
                         new PExtract(
-                                node.getName(),
+                                visitNodeName(node.getName(), context),
                                 annotations,
                                 source,
                                 node.getSourceField(),
@@ -115,7 +117,7 @@ public final class PropagateIdsTransform
             {
                 return inherit(node, context, (annotations, source) ->
                         new PFilter(
-                                node.getName(),
+                                visitNodeName(node.getName(), context),
                                 annotations,
                                 source,
                                 node.getFunction(),
@@ -127,7 +129,7 @@ public final class PropagateIdsTransform
             public PNode visitGroup(PGroup node, Void context)
             {
                 return new PGroup(
-                        node.getName(),
+                        visitNodeName(node.getName(), context),
                         node.getAnnotations().mapFields(fields -> fields
                                 .without(IdField.class)
                                 .with(node.getKeyFields(), FieldAnnotation.id())),
@@ -145,7 +147,23 @@ public final class PropagateIdsTransform
                                 b.getFields()))
                         .collect(toImmutableList());
 
-                throw new IllegalStateException();
+                Set<String> idFields;
+                if (branches.stream().allMatch(b -> b.getNode().getAnnotations().getFields().containsAnnotation(IdField.class))) {
+                    idFields = branches.stream()
+                            .flatMap(b -> checkNotEmpty(b.getNode().getFields().getFieldNameSetsByAnnotationCls().get(IdField.class)).stream())
+                            .collect(toImmutableSet());
+                }
+                else {
+                    idFields = ImmutableSet.of();
+                }
+
+                return new PJoin(
+                        visitNodeName(node.getName(), context),
+                        node.getAnnotations().mapFields(fields -> fields
+                                .without(IdField.class)
+                                .with(idFields, FieldAnnotation.id())),
+                        branches,
+                        node.getMode());
             }
 
             @Override
@@ -159,7 +177,7 @@ public final class PropagateIdsTransform
             {
                 return inherit(node, context, (annotations, source) ->
                         new POutput(
-                                node.getName(),
+                                visitNodeName(node.getName(), context),
                                 annotations,
                                 source,
                                 node.getTargets()));
@@ -168,7 +186,29 @@ public final class PropagateIdsTransform
             @Override
             public PNode visitProject(PProject node, Void context)
             {
-                throw new IllegalStateException();
+                PNode source = process(node.getSource(), context);
+
+                if (!source.getAnnotations().getFields().containsAnnotation(IdField.class)) {
+                    return new PProject(
+                            visitNodeName(node.getName(), context),
+                            node.getAnnotations().mapFields(fields -> fields
+                                    .without(IdField.class)),
+                            source,
+                            node.getProjection());
+                }
+
+                ImmutableMap.Builder<String, PValue> newInputsByOutputBuilder = ImmutableMap.builder();
+                newInputsByOutputBuilder.putAll(node.getProjection());
+                checkNotEmpty(source.getAnnotations().getFields().getEntryListsByAnnotationCls().get(IdField.class)).forEach(f -> {
+                    if (!)
+
+                });
+                table.getLayout().getPrimaryKeyFields().forEach(f -> {
+                    if (!node.getFields().contains(f)) {
+                        newFieldsBuilder.put(f, table.getRowLayout().getFields().getType(f));
+                    }
+                });
+                Map<String, Type> newFields = newFieldsBuilder.build();
             }
 
             @Override
@@ -186,7 +226,7 @@ public final class PropagateIdsTransform
                 Map<String, Type> newFields = newFieldsBuilder.build();
 
                 return new PScan(
-                        node.getName(),
+                        visitNodeName(node.getName(), context),
                         node.getAnnotations().mapFields(fields -> fields
                                 .without(IdField.class)
                                 .with(table.getLayout().getPrimaryKeyFields(), FieldAnnotation.id())
@@ -219,7 +259,7 @@ public final class PropagateIdsTransform
             {
                 return inherit(node, context, (annotations, source) ->
                         new PState(
-                                node.getName(),
+                                visitNodeName(node.getName(), context),
                                 annotations,
                                 source,
                                 node.getDenormalization(),
@@ -231,7 +271,7 @@ public final class PropagateIdsTransform
             {
                 return inherit(node, context, (annotations, source) ->
                         new PStruct(
-                                node.getName(),
+                                visitNodeName(node.getName(), context),
                                 annotations,
                                 source,
                                 node.getType(),
@@ -251,7 +291,7 @@ public final class PropagateIdsTransform
                 List<PNode> sources = node.getSources().stream().map(n -> process(n, context)).collect(toImmutableList());
                 if (!sources.stream().allMatch(s -> s.getFields().containsAnnotation(IdField.class))) {
                     return new PUnion(
-                            node.getName(),
+                            visitNodeName(node.getName(), context),
                             node.getAnnotations().mapFields(fields -> fields
                                     .without(IdField.class)),
                             sources,
@@ -279,7 +319,7 @@ public final class PropagateIdsTransform
                         .with(indexField, FieldAnnotation.id()));
 
                 return new PUnion(
-                        node.getName(),
+                        visitNodeName(node.getName(), context),
                         annotations,
                         sources,
                         Optional.of(indexField));
@@ -291,7 +331,7 @@ public final class PropagateIdsTransform
                 PNode source = process(node.getSource(), context);
                 if (!source.getFields().containsAnnotation(IdField.class)) {
                     return new PUnnest(
-                            node.getName(),
+                            visitNodeName(node.getName(), context),
                             node.getAnnotations(),
                             source,
                             node.getListField(),
@@ -318,7 +358,7 @@ public final class PropagateIdsTransform
                         .with(indexField, FieldAnnotation.id()));
 
                 return new PUnnest(
-                        node.getName(),
+                        visitNodeName(node.getName(), context),
                         annotations,
                         source,
                         node.getListField(),
@@ -345,7 +385,7 @@ public final class PropagateIdsTransform
                         .with(indexField, FieldAnnotation.id()));
 
                 return new PValues(
-                        node.getName(),
+                        visitNodeName(node.getName(), context),
                         annotations,
                         node.getFields().getTypesByName(),
                         node.getValues(),
