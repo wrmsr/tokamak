@@ -38,7 +38,7 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 @Immutable
 public final class PValues
         extends PAbstractNode
-        implements PLeaf
+        implements PLeaf, PIndexable
 {
     public enum Strictness
     {
@@ -99,6 +99,7 @@ public final class PValues
     }
 
     @JsonProperty("indexField")
+    @Override
     public Optional<String> getIndexField()
     {
         return indexField;

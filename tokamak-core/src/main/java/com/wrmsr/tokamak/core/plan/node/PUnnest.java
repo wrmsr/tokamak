@@ -37,7 +37,7 @@ import static com.wrmsr.tokamak.util.MoreCollections.checkOrdered;
 @Immutable
 public final class PUnnest
         extends PAbstractNode
-        implements PSingleSource
+        implements PIndexable, PSingleSource
 {
     private final PNode source;
     private final String listField;
@@ -105,6 +105,7 @@ public final class PUnnest
     }
 
     @JsonProperty("indexField")
+    @Override
     public Optional<String> getIndexField()
     {
         return indexField;
