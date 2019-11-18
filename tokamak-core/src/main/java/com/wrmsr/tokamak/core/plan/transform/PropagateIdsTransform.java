@@ -19,10 +19,25 @@ import com.wrmsr.tokamak.core.catalog.Table;
 import com.wrmsr.tokamak.core.layout.field.annotation.FieldAnnotation;
 import com.wrmsr.tokamak.core.layout.field.annotation.IdField;
 import com.wrmsr.tokamak.core.plan.Plan;
+import com.wrmsr.tokamak.core.plan.node.PCache;
+import com.wrmsr.tokamak.core.plan.node.PExtract;
+import com.wrmsr.tokamak.core.plan.node.PFilter;
+import com.wrmsr.tokamak.core.plan.node.PGroup;
 import com.wrmsr.tokamak.core.plan.node.PInvalidations;
+import com.wrmsr.tokamak.core.plan.node.PJoin;
+import com.wrmsr.tokamak.core.plan.node.PLookup;
 import com.wrmsr.tokamak.core.plan.node.PNode;
 import com.wrmsr.tokamak.core.plan.node.PNodeAnnotations;
+import com.wrmsr.tokamak.core.plan.node.POutput;
+import com.wrmsr.tokamak.core.plan.node.PProject;
 import com.wrmsr.tokamak.core.plan.node.PScan;
+import com.wrmsr.tokamak.core.plan.node.PScope;
+import com.wrmsr.tokamak.core.plan.node.PScopeExit;
+import com.wrmsr.tokamak.core.plan.node.PSearch;
+import com.wrmsr.tokamak.core.plan.node.PSingleSource;
+import com.wrmsr.tokamak.core.plan.node.PState;
+import com.wrmsr.tokamak.core.plan.node.PStruct;
+import com.wrmsr.tokamak.core.plan.node.PUnify;
 import com.wrmsr.tokamak.core.plan.node.PUnion;
 import com.wrmsr.tokamak.core.plan.node.PUnnest;
 import com.wrmsr.tokamak.core.plan.node.PValues;
@@ -33,6 +48,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.BiFunction;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
@@ -53,6 +69,79 @@ public final class PropagateIdsTransform
     {
         return Plan.of(plan.getRoot().accept(new PNodeRewriter<Void>()
         {
+            private PNode inherit(PSingleSource node, Void context, BiFunction<PNodeAnnotations, PNode, PNode> factory)
+            {
+                PNode source = process(node.getSource(), context);
+                if (!source.getFields().containsAnnotation(IdField.class)) {
+                    return factory.apply(
+                            node.getAnnotations().mapFields(fields -> fields
+                                    .without(IdField.class)),
+                            source);
+                }
+                else {
+                    return factory.apply(
+                            node.getAnnotations().mapFields(fields -> fields
+                                            .without(IdField.class)
+                                            .with(checkNotEmpty(source.getFields().getFieldNameSetsByAnnotationCls().get(IdField.class)), FieldAnnotation.id())),
+                                    source);
+                }
+            }
+
+            @Override
+            public PNode visitCache(PCache node, Void context)
+            {
+                throw new IllegalStateException();
+            }
+
+            @Override
+            public PNode visitExtract(PExtract node, Void context)
+            {
+                throw new IllegalStateException();
+            }
+
+            @Override
+            public PNode visitFilter(PFilter node, Void context)
+            {
+                return inherit(node, context, (annotations, source) ->
+                        new PFilter(
+                                node.getName(),
+                                annotations,
+                                source,
+                                node.getFunction(),
+                                node.getArgs(),
+                                node.getLinking()));
+            }
+
+            @Override
+            public PNode visitGroup(PGroup node, Void context)
+            {
+                throw new IllegalStateException();
+            }
+
+            @Override
+            public PNode visitJoin(PJoin node, Void context)
+            {
+                throw new IllegalStateException();
+            }
+
+            @Override
+            public PNode visitLookup(PLookup node, Void context)
+            {
+                throw new IllegalStateException();
+            }
+
+            @Override
+            public PNode visitOutput(POutput node, Void context)
+            {
+                throw new IllegalStateException();
+            }
+
+            @Override
+            public PNode visitProject(PProject node, Void context)
+            {
+                throw new IllegalStateException();
+            }
+
             @Override
             public PNode visitScan(PScan node, Void context)
             {
@@ -76,6 +165,42 @@ public final class PropagateIdsTransform
                         node.getSchemaTable(),
                         newFields,
                         PInvalidations.empty());
+            }
+
+            @Override
+            public PNode visitScope(PScope node, Void context)
+            {
+                throw new IllegalStateException();
+            }
+
+            @Override
+            public PNode visitScopeExit(PScopeExit node, Void context)
+            {
+                throw new IllegalStateException();
+            }
+
+            @Override
+            public PNode visitSearch(PSearch node, Void context)
+            {
+                throw new IllegalStateException();
+            }
+
+            @Override
+            public PNode visitState(PState node, Void context)
+            {
+                throw new IllegalStateException();
+            }
+
+            @Override
+            public PNode visitStruct(PStruct node, Void context)
+            {
+                throw new IllegalStateException();
+            }
+
+            @Override
+            public PNode visitUnify(PUnify node, Void context)
+            {
+                throw new IllegalStateException();
             }
 
             @Override
@@ -132,7 +257,7 @@ public final class PropagateIdsTransform
                             node.getIndexField());
                 }
 
-                Set<String> idFields = checkNotEmpty(source.getFields().getFieldNameSetsByAnnotationCls().get(IdField.class);
+                Set<String> idFields = checkNotEmpty(source.getFields().getFieldNameSetsByAnnotationCls().get(IdField.class));
 
                 PNodeAnnotations annotations = node.getAnnotations().mapFields(fields -> fields
                         .without(IdField.class)
@@ -150,29 +275,40 @@ public final class PropagateIdsTransform
                 annotations = annotations.mapFields(fields -> fields
                         .with(indexField, FieldAnnotation.id()));
 
-                return new PUnion(
+                return new PUnnest(
                         node.getName(),
                         annotations,
-                        sources,
+                        source,
+                        node.getListField(),
+                        node.getUnnestedFields(),
                         Optional.of(indexField));
             }
 
             @Override
             public PNode visitValues(PValues node, Void context)
             {
+                PNodeAnnotations annotations = node.getAnnotations().mapFields(fields -> fields
+                        .without(IdField.class));
+
+                String indexField;
                 if (!node.getIndexField().isPresent()) {
-                    String indexField = plan.getFieldNameGenerator().get("index");
-                    return new PValues(
-                            node.getName(),
-                            node.getAnnotations().mapFields(f -> f.with(indexField, FieldAnnotation.internal())),
-                            node.getFields().getTypesByName(),
-                            node.getValues(),
-                            Optional.of(indexField),
-                            node.getStrictness());
+                    indexField = plan.getFieldNameGenerator().get("index");
+                    annotations = annotations.mapFields(fields -> fields
+                            .with(indexField, FieldAnnotation.internal()));
                 }
                 else {
-                    return super.visitValues(node, context);
+                    indexField = node.getIndexField().get();
                 }
+                annotations = annotations.mapFields(fields -> fields
+                        .with(indexField, FieldAnnotation.id()));
+
+                return new PValues(
+                        node.getName(),
+                        annotations,
+                        node.getFields().getTypesByName(),
+                        node.getValues(),
+                        Optional.of(indexField),
+                        node.getStrictness());
             }
         }, null));
     }

@@ -30,10 +30,12 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.wrmsr.tokamak.util.MoreCollections.newImmutableListMap;
 import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
+import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 import static java.util.function.Function.identity;
 
 @Immutable
@@ -201,6 +203,7 @@ public abstract class AnnotationCollectionMap<
     @SafeVarargs
     public final Self with(Iterable<K> keys, T... annotations)
     {
+        checkArgument(annotations.length > 0);
         @SuppressWarnings({"unchecked"})
         Self ret = (Self) this;
         for (K key : keys) {
@@ -212,6 +215,7 @@ public abstract class AnnotationCollectionMap<
     @SafeVarargs
     public final Self without(Iterable<K> keys, Class<? extends T>... annotationClss)
     {
+        checkArgument(annotationClss.length > 0);
         @SuppressWarnings({"unchecked"})
         Self ret = (Self) this;
         for (K key : keys) {
@@ -223,6 +227,7 @@ public abstract class AnnotationCollectionMap<
     @SafeVarargs
     public final Self overwriting(Iterable<K> keys, T... annotations)
     {
+        checkArgument(annotations.length > 0);
         @SuppressWarnings({"unchecked"})
         Self ret = (Self) this;
         for (K key : keys) {
