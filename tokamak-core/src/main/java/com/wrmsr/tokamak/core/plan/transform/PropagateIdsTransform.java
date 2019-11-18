@@ -75,7 +75,7 @@ public final class PropagateIdsTransform
     {
     }
 
-    public static Plan propagateIds(Plan plan, Catalog catalog)
+    public static Plan propagateIds(Plan plan, Optional<Catalog> catalog)
     {
         return Plan.of(plan.getRoot().accept(new PNodeRewriter<Void>()
         {
@@ -239,7 +239,7 @@ public final class PropagateIdsTransform
             @Override
             public PNode visitScan(PScan node, Void context)
             {
-                Table table = catalog.getSchemaTable(node.getSchemaTable());
+                Table table = catalog.get().getSchemaTable(node.getSchemaTable());
 
                 ImmutableMap.Builder<String, Type> newFieldsBuilder = ImmutableMap.builder();
                 newFieldsBuilder.putAll(node.getFields().getTypesByName());

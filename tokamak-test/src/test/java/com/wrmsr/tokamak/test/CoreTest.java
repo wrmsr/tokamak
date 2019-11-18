@@ -53,6 +53,7 @@ import com.wrmsr.tokamak.core.plan.node.PProjection;
 import com.wrmsr.tokamak.core.plan.node.PScan;
 import com.wrmsr.tokamak.core.plan.node.PState;
 import com.wrmsr.tokamak.core.plan.node.PValue;
+import com.wrmsr.tokamak.core.plan.transform.PropagateIdsTransform;
 import com.wrmsr.tokamak.core.plan.transform.SetIdFieldsTransform;
 import com.wrmsr.tokamak.core.plan.transform.SetInvalidationsTransform;
 import com.wrmsr.tokamak.core.type.Type;
@@ -262,7 +263,9 @@ public class CoreTest
 
         // Dot.openDot(Dot.buildPlanDot(plan));
 
-        plan = SetIdFieldsTransform.setIdFields(plan, Optional.of(catalog));
+        // plan = SetIdFieldsTransform.setIdFields(plan, Optional.of(catalog));
+
+        plan = PropagateIdsTransform.propagateIds(plan, Optional.of(catalog));
 
         // Dot.openDot(Dot.buildPlanDot(plan));
 

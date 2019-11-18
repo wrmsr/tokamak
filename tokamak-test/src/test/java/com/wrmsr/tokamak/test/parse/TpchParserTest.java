@@ -134,7 +134,7 @@ public class TpchParserTest
             PNode node = new TreePlanner(Optional.of(catalog), defaultSchema).plan(treeNode);
             Plan plan = Plan.of(node);
 
-            plan = PropagateIdsTransform.propagateIds(plan, catalog);
+            plan = PropagateIdsTransform.propagateIds(plan, Optional.of(catalog));
             System.out.println(Json.writeValuePretty(plan));
 
             System.out.println();
