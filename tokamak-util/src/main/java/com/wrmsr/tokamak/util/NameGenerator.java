@@ -30,14 +30,31 @@ public final class NameGenerator
 
     private final Set<String> names;
     private final String globalPrefix;
-    private final Map<String, Integer> prefixCounts = new HashMap<>();
+    private final boolean useGlobalPrefixIfPresent;
+    private final boolean addGlobalPrefixBeforeNumber;
+    private final boolean useNumberIfPresent;
+
+    private final Map<String, Integer> nameCounts = new HashMap<>();
     private final Object lock = new Object();
 
-    public NameGenerator(Set<String> unavailableStrings, String globalPrefix)
+    public NameGenerator(
+            Set<String> unavailableStrings,
+            String globalPrefix,
+            boolean useGlobalPrefixIfPresent,
+            boolean addGlobalPrefixBeforeNumber,
+            boolean useNumberIfPresent)
     {
         this.names = new HashSet<>();
         names.addAll(unavailableStrings);
         this.globalPrefix = checkNotNull(globalPrefix);
+        this.useGlobalPrefixIfPresent = useGlobalPrefixIfPresent;
+        this.addGlobalPrefixBeforeNumber = addGlobalPrefixBeforeNumber;
+        this.useNumberIfPresent = useNumberIfPresent;
+    }
+
+    public NameGenerator(Set<String> names, String globalPrefix)
+    {
+        this(names, globalPrefix, true, true, true);
     }
 
     public NameGenerator(Set<String> names)
@@ -57,11 +74,42 @@ public final class NameGenerator
 
     public String get(String prefix)
     {
+        String baseName;
+        if (useGlobalPrefixIfPresent && prefix.startsWith(globalPrefix)) {
+            baseName = prefix;
+        }
+        else {
+            baseName = globalPrefix + prefix;
+        }
+
+        int baseCount = -1;
+        if (Character.isDigit(baseName.charAt(baseName.length() - 1))) {
+            int i = baseName.length() - 1;
+            while (i > 0 && Character.isDigit(baseName.charAt(i))) {
+                --i;
+            }
+            baseCount = Integer.parseInt(baseName.substring(i), 10);
+            baseName = baseName.substring(0, i);
+        }
+
+        if (addGlobalPrefixBeforeNumber) {
+            if (!(useGlobalPrefixIfPresent && baseName.endsWith(globalPrefix)))  {
+                baseName += globalPrefix;
+            }
+        }
+
         synchronized (lock) {
+            if (baseCount >= 0) {
+                int count = nameCounts.getOrDefault(baseName, 0);
+                if (baseCount > count) {
+                    nameCounts.put(baseName, baseCount);
+                }
+            }
+
             while (true) {
-                int count = prefixCounts.getOrDefault(prefix, 0);
-                prefixCounts.put(prefix, count + 1);
-                String name = globalPrefix + prefix + count;
+                int count = nameCounts.getOrDefault(baseName, 0);
+                nameCounts.put(baseName, count + 1);
+                String name = baseName + count;
                 if (!names.contains(name)) {
                     names.add(name);
                     return name;
