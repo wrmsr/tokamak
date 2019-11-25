@@ -24,15 +24,13 @@ import com.wrmsr.tokamak.util.lazy.SupplierLazyValue;
 
 import javax.annotation.concurrent.Immutable;
 
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 
 import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
+import static com.wrmsr.tokamak.util.MoreFunctions.tryGetMethodHandle;
 import static com.wrmsr.tokamak.util.func.ThrowableThrowingSupplier.throwableRethrowingGet;
 
 @Immutable
@@ -87,36 +85,15 @@ public final class FieldAnnotations
         return filter(FieldAnnotation::isTransitive);
     }
 
-    public int size()
-    {
-        return annotations.size();
-    }
-
-    public boolean isEmpty()
-    {
-        return annotations.isEmpty();
-    }
-
     private static final SupplierLazyValue<Map<Class<? extends FieldAnnotation>, Consumer<Field>>> validatorsByAnnotationType = new SupplierLazyValue<>();
 
     public static Map<Class<? extends FieldAnnotation>, Consumer<Field>> getValidatorsByAnnotationType()
     {
         return validatorsByAnnotationType.get(() ->
                 Json.getAnnotatedSubtypes(FieldAnnotation.class).values().stream()
-                        .<Optional<Pair<Class<? extends FieldAnnotation>, Consumer<Field>>>>map(cls -> {
-                            try {
-                                Method method = cls.getDeclaredMethod("validate", Field.class);
-                                MethodHandle handle = MethodHandles.lookup().unreflect(method);
-                                Consumer<Field> validator = field -> throwableRethrowingGet(() -> handle.invoke(field));
-                                return Optional.of(Pair.immutable(cls, validator));
-                            }
-                            catch (NoSuchMethodException e) {
-                                return Optional.empty();
-                            }
-                            catch (Exception e) {
-                                throw new RuntimeException(e);
-                            }
-                        })
+                        .<Optional<Pair<Class<? extends FieldAnnotation>, Consumer<Field>>>>map(cls ->
+                                tryGetMethodHandle(cls, "validate", Field.class).map(handle ->
+                                        Pair.immutable(cls, field -> throwableRethrowingGet(() -> handle.invoke(field)))))
                         .filter(Optional::isPresent)
                         .map(Optional::get)
                         .collect(toImmutableMap()));

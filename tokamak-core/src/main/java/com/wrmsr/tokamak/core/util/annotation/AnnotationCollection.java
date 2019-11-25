@@ -15,7 +15,6 @@ package com.wrmsr.tokamak.core.util.annotation;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
-import com.wrmsr.tokamak.core.layout.field.annotation.FieldAnnotation;
 import com.wrmsr.tokamak.util.collect.StreamableIterable;
 
 import javax.annotation.concurrent.Immutable;
@@ -63,6 +62,16 @@ public abstract class AnnotationCollection<T extends Annotation, Self extends An
     public Iterator<T> iterator()
     {
         return annotations.iterator();
+    }
+
+    public int size()
+    {
+        return annotations.size();
+    }
+
+    public boolean isEmpty()
+    {
+        return annotations.isEmpty();
     }
 
     @Override

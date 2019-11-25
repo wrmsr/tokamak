@@ -84,10 +84,11 @@ public final class NameGenerator
 
         int baseCount = -1;
         if (Character.isDigit(baseName.charAt(baseName.length() - 1))) {
-            int i = baseName.length() - 1;
-            while (i > 0 && Character.isDigit(baseName.charAt(i))) {
+            int i = baseName.length() - 2;
+            while (i >= 0 && Character.isDigit(baseName.charAt(i))) {
                 --i;
             }
+            i += 1;
             baseCount = Integer.parseInt(baseName.substring(i), 10);
             baseName = baseName.substring(0, i);
         }

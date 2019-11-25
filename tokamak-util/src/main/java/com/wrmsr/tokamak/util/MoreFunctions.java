@@ -13,6 +13,10 @@
  */
 package com.wrmsr.tokamak.util;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.reflect.Method;
+import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -135,5 +139,20 @@ public final class MoreFunctions
                 flag.set(true);
             }
         };
+    }
+
+    public static Optional<MethodHandle> tryGetMethodHandle(Class<?> cls, String name, Class<?>... args)
+    {
+        try {
+            Method method = cls.getDeclaredMethod(name, args);
+            MethodHandle handle = MethodHandles.lookup().unreflect(method);
+            return Optional.of(handle);
+        }
+        catch (NoSuchMethodException e) {
+            return Optional.empty();
+        }
+        catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

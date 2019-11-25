@@ -16,121 +16,35 @@ package com.wrmsr.tokamak.core.plan.node;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
-import com.wrmsr.tokamak.core.layout.field.annotation.FieldAnnotation;
 import com.wrmsr.tokamak.core.plan.node.annotation.PNodeAnnotation;
 import com.wrmsr.tokamak.core.util.annotation.AnnotationCollection;
-import com.wrmsr.tokamak.core.util.annotation.AnnotationCollectionMap;
 import com.wrmsr.tokamak.util.Pair;
 import com.wrmsr.tokamak.util.json.Json;
 import com.wrmsr.tokamak.util.lazy.SupplierLazyValue;
 
 import javax.annotation.concurrent.Immutable;
 
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.collect.ImmutableSet.toImmutableSet;
-import static com.wrmsr.tokamak.util.MoreCollections.immutableMapValues;
 import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
-import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
+import static com.wrmsr.tokamak.util.MoreFunctions.tryGetMethodHandle;
 import static com.wrmsr.tokamak.util.func.ThrowableThrowingSupplier.throwableRethrowingGet;
 
 @Immutable
 public final class PNodeAnnotations
         extends AnnotationCollection<PNodeAnnotation, PNodeAnnotations>
 {
-    @Immutable
-    public static final class Fields
-            extends AnnotationCollectionMap<String, FieldAnnotation, Fields.Entry, Fields>
-    {
-        @Immutable
-        public static final class Entry
-                extends AnnotationCollectionMap.Entry<String, FieldAnnotation, PNodeAnnotations.Fields.Entry>
-        {
-            @JsonCreator
-            public Entry(
-                    @JsonProperty("key") String key,
-                    @JsonProperty("annotations") Iterable<FieldAnnotation> annotations)
-            {
-                super(checkNotEmpty(key), annotations);
-            }
-
-            @JsonProperty("key")
-            @Override
-            public String getKey()
-            {
-                return super.getKey();
-            }
-
-            @JsonProperty("annotations")
-            @Override
-            public List<FieldAnnotation> get()
-            {
-                return super.get();
-            }
-
-            @Override
-            public Class<FieldAnnotation> getBaseCls()
-            {
-                return FieldAnnotation.class;
-            }
-
-            @Override
-            protected Entry rebuildWith(Iterable<FieldAnnotation> annotations)
-            {
-                return new Entry(key, annotations);
-            }
-        }
-
-        @JsonCreator
-        public Fields(
-                @JsonProperty("entries") Iterable<Entry> entries)
-        {
-            super(entries);
-        }
-
-        @JsonProperty("entries")
-        @Override
-        public List<Entry> getEntries()
-        {
-            return super.getEntries();
-        }
-
-        @Override
-        protected Fields rebuildWithEntries(Iterable<Entry> entries)
-        {
-            return new Fields(entries);
-        }
-
-        @Override
-        protected Entry newEntry(String key, Iterable<FieldAnnotation> annotations)
-        {
-            return new Entry(key, annotations);
-        }
-
-        private final SupplierLazyValue<Map<Class<? extends FieldAnnotation>, Set<String>>> keySetsByAnnotationCls = new SupplierLazyValue<>();
-
-        public Map<Class<? extends FieldAnnotation>, Set<String>> getKeySetsByAnnotationCls()
-        {
-            return keySetsByAnnotationCls.get(() ->
-                    immutableMapValues(getEntryListsByAnnotationCls(), l -> l.stream().map(Entry::getKey).collect(toImmutableSet())));
-        }
-    }
-
-    private final Fields fields;
+    private final PNodeFieldAnnotations fields;
 
     @JsonCreator
     public PNodeAnnotations(
             @JsonProperty("annotations") Iterable<PNodeAnnotation> annotations,
-            @JsonProperty("fields") Fields fields)
+            @JsonProperty("fields") PNodeFieldAnnotations fields)
     {
         super(annotations);
 
@@ -145,14 +59,14 @@ public final class PNodeAnnotations
     }
 
     @JsonProperty("fields")
-    public Fields getFields()
+    public PNodeFieldAnnotations getFields()
     {
         return fields;
     }
 
     private PNodeAnnotations()
     {
-        this(ImmutableList.of(), new Fields(ImmutableList.of()));
+        this(ImmutableList.of(), new PNodeFieldAnnotations(ImmutableList.of()));
     }
 
     private static final PNodeAnnotations EMPTY = new PNodeAnnotations();
@@ -174,12 +88,12 @@ public final class PNodeAnnotations
         return new PNodeAnnotations(annotations, fields);
     }
 
-    public PNodeAnnotations withFields(Fields fields)
+    public PNodeAnnotations withFields(PNodeFieldAnnotations fields)
     {
         return new PNodeAnnotations(annotations, fields);
     }
 
-    public PNodeAnnotations mapFields(Function<Fields, Fields> fn)
+    public PNodeAnnotations mapFields(Function<PNodeFieldAnnotations, PNodeFieldAnnotations> fn)
     {
         return withFields(fn.apply(fields));
     }
@@ -190,20 +104,9 @@ public final class PNodeAnnotations
     {
         return validatorsByAnnotationType.get(() ->
                 Json.getAnnotatedSubtypes(PNodeAnnotation.class).values().stream()
-                        .<Optional<Pair<Class<? extends PNodeAnnotation>, Consumer<PNode>>>>map(cls -> {
-                            try {
-                                Method method = cls.getDeclaredMethod("validate", PNode.class);
-                                MethodHandle handle = MethodHandles.lookup().unreflect(method);
-                                Consumer<PNode> validator = node -> throwableRethrowingGet(() -> handle.invoke(node));
-                                return Optional.of(Pair.immutable(cls, validator));
-                            }
-                            catch (NoSuchMethodException e) {
-                                return Optional.empty();
-                            }
-                            catch (Exception e) {
-                                throw new RuntimeException(e);
-                            }
-                        })
+                        .<Optional<Pair<Class<? extends PNodeAnnotation>, Consumer<PNode>>>>map(cls ->
+                                tryGetMethodHandle(cls, "validate", PNode.class).map(handle ->
+                                        Pair.immutable(cls, node -> throwableRethrowingGet(() -> handle.invoke(node)))))
                         .filter(Optional::isPresent)
                         .map(Optional::get)
                         .collect(toImmutableMap()));
