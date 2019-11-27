@@ -84,7 +84,7 @@ public abstract class AnnotationCollection<T extends Annotation, Self extends An
 
     public abstract Class<T> getBaseCls();
 
-    protected abstract Self rebuildWith(Iterable<T> annotations);
+    protected abstract Self rebuild(Iterable<T> annotations);
 
     @SuppressWarnings({"unchecked"})
     public <U extends T> Optional<T> get(Class<U> cls)
@@ -99,26 +99,28 @@ public abstract class AnnotationCollection<T extends Annotation, Self extends An
 
     public Self filter(Predicate<T> predicate)
     {
-        return rebuildWith(stream().filter(predicate).collect(toImmutableList()));
+        return rebuild(stream().filter(predicate).collect(toImmutableList()));
     }
 
     @SafeVarargs
-    public final Self with(T... annotations)
+    public final Self append(T... annotations)
     {
-        return rebuildWith(Iterables.concat(this.annotations, Arrays.asList(annotations)));
+        return rebuild(Iterables.concat(this.annotations, Arrays.asList(annotations)));
     }
 
     @SafeVarargs
-    public final Self without(Class<? extends T>... annotationClss)
+    public final Self drop(Class<? extends T>... annotationClss)
     {
-        return rebuildWith(
+        return rebuild(
                 Iterables.filter(annotations, a -> Arrays.stream(annotationClss).noneMatch(ac -> ac.isInstance(a))));
     }
 
     @SafeVarargs
-    public final Self overwriting(T... annotations)
+    public final Self update(T... annotations)
     {
-        return rebuildWith(
-                Iterables.concat(Iterables.filter(this.annotations, a -> Arrays.stream(annotations).anyMatch(ac -> ac.getClass().isInstance(a))), Arrays.asList(annotations)));
+        return rebuild(
+                Iterables.concat(
+                        Iterables.filter(this.annotations, a -> Arrays.stream(annotations).anyMatch(ac -> ac.getClass().isInstance(a))),
+                        Arrays.asList(annotations)));
     }
 }

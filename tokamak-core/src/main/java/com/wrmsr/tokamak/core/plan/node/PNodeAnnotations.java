@@ -83,7 +83,7 @@ public final class PNodeAnnotations
     }
 
     @Override
-    protected PNodeAnnotations rebuildWith(Iterable<PNodeAnnotation> annotations)
+    protected PNodeAnnotations rebuild(Iterable<PNodeAnnotation> annotations)
     {
         return new PNodeAnnotations(annotations, fields);
     }

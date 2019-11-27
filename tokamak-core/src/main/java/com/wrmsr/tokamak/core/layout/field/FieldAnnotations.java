@@ -75,7 +75,7 @@ public final class FieldAnnotations
     }
 
     @Override
-    protected FieldAnnotations rebuildWith(Iterable<FieldAnnotation> annotations)
+    protected FieldAnnotations rebuild(Iterable<FieldAnnotation> annotations)
     {
         return new FieldAnnotations(annotations);
     }

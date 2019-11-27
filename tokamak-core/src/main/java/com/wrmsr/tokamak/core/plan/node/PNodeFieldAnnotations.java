@@ -66,7 +66,7 @@ public final class PNodeFieldAnnotations
         }
 
         @Override
-        protected Entry rebuildWith(Iterable<FieldAnnotation> annotations)
+        protected Entry rebuild(Iterable<FieldAnnotation> annotations)
         {
             return new Entry(key, annotations);
         }
@@ -87,7 +87,7 @@ public final class PNodeFieldAnnotations
     }
 
     @Override
-    protected PNodeFieldAnnotations rebuildWithEntries(Iterable<Entry> entries)
+    protected PNodeFieldAnnotations rebuild(Iterable<Entry> entries)
     {
         return new PNodeFieldAnnotations(entries);
     }

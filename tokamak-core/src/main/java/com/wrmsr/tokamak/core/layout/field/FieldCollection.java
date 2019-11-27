@@ -36,7 +36,6 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
 import java.util.stream.IntStream;
@@ -44,7 +43,6 @@ import java.util.stream.Stream;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static com.wrmsr.tokamak.util.MoreCollections.checkOrdered;
 import static com.wrmsr.tokamak.util.MoreCollections.immutableMapValues;
@@ -196,60 +194,6 @@ public final class FieldCollection
     public boolean containsAnnotation(Class<? extends FieldAnnotation> cls)
     {
         return fields.stream().anyMatch(f -> f.getAnnotations().contains(cls));
-    }
-
-    public FieldCollection withAnnotations(AnnotationCollectionMap<String, FieldAnnotation, ?, ?> anns, Predicate<FieldAnnotation> filter)
-    {
-        return fields.stream()
-                .map(f -> f.withAnnotations(
-                        anns.containsKey(f.getName()) ?
-                                anns.getOrEmpty(f.getName()) :
-                                f.getAnnotations().stream().filter(filter).collect(toImmutableList())))
-                .collect(toFieldCollection());
-    }
-
-    public FieldCollection withAnnotations(AnnotationCollectionMap<String, FieldAnnotation, ?, ?> anns)
-    {
-        return withAnnotations(anns, a -> true);
-    }
-
-    public FieldCollection withTransitiveAnnotations(AnnotationCollectionMap<String, FieldAnnotation, ?, ?> anns)
-    {
-        return withAnnotations(anns, FieldAnnotation::isTransitive);
-    }
-
-    public FieldCollection withAnnotations(FieldCollection coll, Predicate<FieldAnnotation> filter)
-    {
-        return fields.stream()
-                .map(f -> f.withAnnotations(
-                        coll.contains(f.getName()) ?
-                                coll.get(f.getName()).getAnnotations() :
-                                f.getAnnotations().stream().filter(filter).collect(toImmutableList())))
-                .collect(toFieldCollection());
-    }
-
-    public FieldCollection withAnnotations(FieldCollection coll)
-    {
-        return withAnnotations(coll, a -> true);
-    }
-
-    public FieldCollection withTransitiveAnnotations(FieldCollection coll)
-    {
-        return withAnnotations(coll, FieldAnnotation::isTransitive);
-    }
-
-    public FieldCollection withoutAllAnnotations()
-    {
-        return new FieldCollection(fields.stream()
-                .map(f -> f.withAnnotations(ImmutableList.of()))
-                .collect(toImmutableList()));
-    }
-
-    public FieldCollection withOnlyTransitiveAnnotations()
-    {
-        return new FieldCollection(fields.stream()
-                .map(f -> f.withAnnotations(f.getAnnotations().onlyTransitive()))
-                .collect(toImmutableList()));
     }
 
     public static final class Builder

@@ -26,7 +26,7 @@ public class PlanTest
             throws Throwable
     {
         PNodeAnnotations anns = PNodeAnnotations.empty()
-                .with(PNodeAnnotation.exposed())
+                .append(PNodeAnnotation.exposed())
                 .mapFields(f -> f
                         .with("x", FieldAnnotation.id()));
 

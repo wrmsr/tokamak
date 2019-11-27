@@ -14,23 +14,19 @@
 package com.wrmsr.tokamak.core.util.annotation;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
 import com.wrmsr.tokamak.util.collect.StreamableIterable;
 import com.wrmsr.tokamak.util.lazy.SupplierLazyValue;
 
 import javax.annotation.concurrent.Immutable;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
+import java.util.function.Predicate;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.wrmsr.tokamak.util.MoreCollections.newImmutableListMap;
@@ -84,7 +80,7 @@ public abstract class AnnotationCollectionMap<
                 .collect(toImmutableMap(Entry::getKey, identity()));
     }
 
-    protected abstract Self rebuildWithEntries(Iterable<E> entries);
+    protected abstract Self rebuild(Iterable<E> entries);
 
     protected abstract E newEntry(K key, Iterable<T> annotations);
 
@@ -145,116 +141,26 @@ public abstract class AnnotationCollectionMap<
         return getEntry(key).orElseGet(() -> newEntry(key, ImmutableList.of()));
     }
 
-    @SafeVarargs
-    public final Self with(T... annotations)
+    public Self filterAnnotations(Predicate<T> predicate)
     {
-        return rebuildWithEntries(getEntries().stream()
-                .map(fa -> fa.with(annotations)).collect(toImmutableList()));
+        return rebuild(entries.stream().map(e -> e.filter(predicate)).collect(toImmutableList()));
     }
 
     @SafeVarargs
-    public final Self without(Class<? extends T>... annotationClss)
+    public final Self appendAnnotations(T... annotations)
     {
-        return rebuildWithEntries(getEntries().stream()
-                .map(fa -> fa.without(annotationClss)).collect(toImmutableList()));
+        return rebuild(entries.stream().map(e -> e.append(annotations)).collect(toImmutableList()));
     }
 
     @SafeVarargs
-    public final Self overwriting(T... annotations)
+    public final Self dropAnnotations(Class<? extends T>... annotationClss)
     {
-        return rebuildWithEntries(getEntries().stream()
-                .map(fa -> fa.overwriting(annotations)).collect(toImmutableList()));
+        return rebuild(entries.stream().map(e -> e.drop(annotationClss)).collect(toImmutableList()));
     }
 
     @SafeVarargs
-    public final Self with(K key, T... annotations)
+    public final Self updateAnnotations(T... annotations)
     {
-        if (entriesByKey.containsKey(key)) {
-            return rebuildWithEntries(getEntries().stream()
-                    .map(fa -> fa.getKey().equals(key) ? fa.with(annotations) : fa)
-                    .collect(toImmutableList()));
-        }
-        else {
-            return rebuildWithEntries(Iterables.concat(
-                    getEntries(),
-                    ImmutableList.of(newEntry(key, Arrays.asList(annotations)))));
-        }
-    }
-
-    @SafeVarargs
-    public final Self without(K key, Class<? extends T>... annotationClss)
-    {
-        return rebuildWithEntries(getEntries().stream()
-                .map(fa -> fa.getKey().equals(key) ? fa.without(annotationClss) : fa)
-                .collect(toImmutableList()));
-    }
-
-    @SafeVarargs
-    public final Self overwriting(K key, T... annotations)
-    {
-        if (entriesByKey.containsKey(key)) {
-            return rebuildWithEntries(getEntries().stream()
-                    .map(fa -> fa.getKey().equals(key) ? fa.overwriting(annotations) : fa)
-                    .collect(toImmutableList()));
-        }
-        else {
-            return rebuildWithEntries(Iterables.concat(
-                    getEntries(),
-                    ImmutableList.of(newEntry(key, Arrays.asList(annotations)))));
-        }
-    }
-
-    @SafeVarargs
-    public final Self with(Iterable<K> keys, T... annotations)
-    {
-        checkArgument(annotations.length > 0);
-        @SuppressWarnings({"unchecked"})
-        Self ret = (Self) this;
-        for (K key : keys) {
-            ret = ret.with(key, annotations);
-        }
-        return ret;
-    }
-
-    @SafeVarargs
-    public final Self without(Iterable<K> keys, Class<? extends T>... annotationClss)
-    {
-        checkArgument(annotationClss.length > 0);
-        @SuppressWarnings({"unchecked"})
-        Self ret = (Self) this;
-        for (K key : keys) {
-            ret = ret.without(key, annotationClss);
-        }
-        return ret;
-    }
-
-    @SafeVarargs
-    public final Self overwriting(Iterable<K> keys, T... annotations)
-    {
-        checkArgument(annotations.length > 0);
-        @SuppressWarnings({"unchecked"})
-        Self ret = (Self) this;
-        for (K key : keys) {
-            ret = ret.overwriting(key, annotations);
-        }
-        return ret;
-    }
-
-    public final Self withoutKeys(Set<K> keys)
-    {
-        return rebuildWithEntries(getEntries().stream()
-                .filter(e -> !keys.contains(e.key))
-                .collect(toImmutableList()));
-    }
-
-    public final Self withoutKeys(Iterable<K> keys)
-    {
-        return withoutKeys(ImmutableSet.copyOf(keys));
-    }
-
-    @SafeVarargs
-    public final Self withoutKeys(K... keys)
-    {
-        return withoutKeys(ImmutableSet.copyOf(keys));
+        return rebuild(entries.stream().map(e -> e.update(annotations)).collect(toImmutableList()));
     }
 }
