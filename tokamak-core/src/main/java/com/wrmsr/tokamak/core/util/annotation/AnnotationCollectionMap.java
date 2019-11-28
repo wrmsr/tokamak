@@ -51,9 +51,10 @@ public final class AnnotationCollectionMap<
         return new AnnotationCollectionMap<>(ImmutableMap.of());
     }
 
+    @SuppressWarnings({"unchecked"})
     public static <K, T extends Annotation, C extends AnnotationCollection<T, C>> AnnotationCollectionMap<K, T, C> of(Map<K, C> map)
     {
-        return map instanceof AnnotationCollectionMap ? map : new AnnotationCollectionMap<>(map);
+        return map instanceof AnnotationCollectionMap ? (AnnotationCollectionMap) map : new AnnotationCollectionMap<>(map);
     }
 
     @JsonProperty("map")

@@ -16,6 +16,7 @@ package com.wrmsr.tokamak.core.plan.node;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.core.layout.field.FieldAnnotations;
 import com.wrmsr.tokamak.core.layout.field.annotation.FieldAnnotation;
 import com.wrmsr.tokamak.core.plan.node.annotation.PNodeAnnotation;
@@ -52,7 +53,16 @@ public final class PNodeAnnotations
     {
         super(annotations);
 
-        this.fields = new AnnotationCollectionMap<>(immutableMapValues(checkNotNull(fields), FieldAnnotations::new));
+        this.fields = AnnotationCollectionMap.of(immutableMapValues(checkNotNull(fields), FieldAnnotations::new));
+    }
+
+    public PNodeAnnotations(
+            Iterable<PNodeAnnotation> annotations,
+            AnnotationCollectionMap<String, FieldAnnotation, FieldAnnotations> fields)
+    {
+        super(annotations);
+
+        this.fields = checkNotNull(fields);
     }
 
     @JsonProperty("annotations")
@@ -68,12 +78,7 @@ public final class PNodeAnnotations
         return fields;
     }
 
-    private PNodeAnnotations()
-    {
-        this(ImmutableList.of(),
-    }
-
-    private static final PNodeAnnotations EMPTY = new PNodeAnnotations();
+    private static final PNodeAnnotations EMPTY = new PNodeAnnotations(ImmutableList.of(), ImmutableMap.of());
 
     public static PNodeAnnotations empty()
     {
