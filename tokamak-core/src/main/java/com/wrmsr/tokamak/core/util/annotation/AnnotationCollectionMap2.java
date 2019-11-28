@@ -13,27 +13,23 @@
  */
 package com.wrmsr.tokamak.core.util.annotation;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.util.collect.AbstractUnmodifiableMap;
 import com.wrmsr.tokamak.util.lazy.SupplierLazyValue;
 
 import javax.annotation.concurrent.Immutable;
 
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.Set;
+import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.collect.ImmutableList.toImmutableList;
-import static com.wrmsr.tokamak.util.MoreCollections.newImmutableListMap;
+import static com.wrmsr.tokamak.util.MoreCollections.immutableMapValues;
 
 @Immutable
-public abstract class AnnotationCollectionMap2<
+public final class AnnotationCollectionMap2<
         K,
         T extends Annotation,
         C extends AnnotationCollection<T, C>>
@@ -46,87 +42,61 @@ public abstract class AnnotationCollectionMap2<
         this.map = ImmutableMap.copyOf(map);
     }
 
-    protected abstract Self rebuild(Iterable<E> entries);
-
-    protected abstract E newEntry(K key, Iterable<T> annotations);
-
-    public List<E> getEntries()
+    @Override
+    public Set<Entry<K, C>> entrySet()
     {
-        return entries;
+        return map.entrySet();
     }
 
     @Override
-    public Iterator<E> iterator()
+    public C getOrDefault(Object key, C defaultValue)
     {
-        return entries.iterator();
+        return map.getOrDefault(key, defaultValue);
     }
 
-    public Map<K, E> getEntriesByKey()
+    @Override
+    public void forEach(BiConsumer<? super K, ? super C> action)
     {
-        return entriesByKey;
+        map.forEach(action);
     }
 
-    public boolean containsKey(K key)
-    {
-        return entriesByKey.containsKey(key);
-    }
+    private final SupplierLazyValue<Map<Class<? extends T>, Set<K>>> keySetsByAnnotationCls = new SupplierLazyValue<>();
 
-    public Optional<E> getEntry(K key)
+    @SuppressWarnings({"unchecked"})
+    public Map<Class<? extends T>, Set<K>> getKeySetsByAnnotationCls()
     {
-        return Optional.ofNullable(entriesByKey.get(key));
-    }
-
-    public Optional<AnnotationCollection<T, ?>> get(K key)
-    {
-        return Optional.ofNullable(entriesByKey.get(checkNotNull(key)));
-    }
-
-    public AnnotationCollection<T, ?> getOrEmpty(K key)
-    {
-        return get(key).orElseGet(() -> newEntry(key, ImmutableList.of()));
-    }
-
-    private final SupplierLazyValue<Map<Class<? extends T>, List<E>>> entryListsByAnnotationCls = new SupplierLazyValue<>();
-
-    public Map<Class<? extends T>, List<E>> getEntryListsByAnnotationCls()
-    {
-        return entryListsByAnnotationCls.get(() -> {
-            Map<Class<? extends T>, List<E>> listsByCls = new LinkedHashMap<>();
-            entries.forEach(e -> e.getByCls().keySet().forEach(ac -> listsByCls.computeIfAbsent(ac, ac_ -> new ArrayList<>()).add(e)));
-            return newImmutableListMap(listsByCls);
+        return keySetsByAnnotationCls.get(() -> {
+            Map<Class<? extends T>, ImmutableSet.Builder<K>> buildersByCls = new LinkedHashMap<>();
+            map.forEach((k, c) -> c.forEach(a -> buildersByCls.computeIfAbsent((Class<? extends T>) a.getClass(), ac -> ImmutableSet.<K>builder()).add(k)));
+            return immutableMapValues(buildersByCls, ImmutableSet.Builder::build);
         });
     }
 
     public boolean containsAnnotation(Class<? extends T> cls)
     {
-        return entries.stream().anyMatch(e -> e.contains(cls));
+        return map.values().stream().anyMatch(c -> c.contains(cls));
     }
 
-    public E getEntryOrEmpty(K key)
+    public AnnotationCollectionMap2<K, T, C> filter(Predicate<T> predicate)
     {
-        return getEntry(key).orElseGet(() -> newEntry(key, ImmutableList.of()));
-    }
-
-    public Self filterAnnotations(Predicate<T> predicate)
-    {
-        return rebuild(entries.stream().map(e -> e.filter(predicate)).collect(toImmutableList()));
+        return new AnnotationCollectionMap2<>(immutableMapValues(map, c -> c.filter(predicate)));
     }
 
     @SafeVarargs
-    public final Self appendAnnotations(T... annotations)
+    public final AnnotationCollectionMap2<K, T, C> append(T... annotations)
     {
-        return rebuild(entries.stream().map(e -> e.append(annotations)).collect(toImmutableList()));
+        return new AnnotationCollectionMap2<>(immutableMapValues(map, e -> e.append(annotations)));
     }
 
     @SafeVarargs
-    public final Self dropAnnotations(Class<? extends T>... annotationClss)
+    public final AnnotationCollectionMap2<K, T, C> drop(Class<? extends T>... annotationClss)
     {
-        return rebuild(entries.stream().map(e -> e.drop(annotationClss)).collect(toImmutableList()));
+        return new AnnotationCollectionMap2<>(immutableMapValues(map, e -> e.drop(annotationClss)));
     }
 
     @SafeVarargs
-    public final Self updateAnnotations(T... annotations)
+    public final AnnotationCollectionMap2<K, T, C> update(T... annotations)
     {
-        return rebuild(entries.stream().map(e -> e.update(annotations)).collect(toImmutableList()));
+        return new AnnotationCollectionMap2<>(immutableMapValues(map, e -> e.update(annotations)));
     }
 }
