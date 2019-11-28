@@ -16,7 +16,9 @@ package com.wrmsr.tokamak.core.layout.field;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wrmsr.tokamak.core.layout.field.annotation.FieldAnnotation;
+import com.wrmsr.tokamak.core.layout.field.annotation.FieldAnnotations;
 import com.wrmsr.tokamak.core.type.Type;
+import com.wrmsr.tokamak.core.util.annotation.AnnotationCollection;
 import com.wrmsr.tokamak.util.Pair;
 
 import javax.annotation.concurrent.Immutable;
@@ -32,7 +34,7 @@ public final class Field
 {
     private final String name;
     private final Type type;
-    private final FieldAnnotations annotations;
+    private final AnnotationCollection<FieldAnnotation> annotations;
 
     private final Pair<String, Type> nameTypePair;
 
@@ -40,7 +42,7 @@ public final class Field
     public Field(
             @JsonProperty("name") String name,
             @JsonProperty("type") Type type,
-            @JsonProperty("annotations") FieldAnnotations annotations)
+            @JsonProperty("annotations") AnnotationCollection<FieldAnnotation> annotations)
     {
         this.name = checkNotEmpty(name);
         this.type = checkNotNull(type);
@@ -55,12 +57,12 @@ public final class Field
 
     public Field(String name, Type type, Iterable<FieldAnnotation> annotations)
     {
-        this(name, type, new FieldAnnotations(annotations));
+        this(name, type, AnnotationCollection.of(annotations));
     }
 
     public Field(String name, Type type)
     {
-        this(name, type, FieldAnnotations.empty());
+        this(name, type, AnnotationCollection.of());
     }
 
     @Override
@@ -90,12 +92,12 @@ public final class Field
     }
 
     @JsonProperty("annotations")
-    public FieldAnnotations getAnnotations()
+    public AnnotationCollection<FieldAnnotation> getAnnotations()
     {
         return annotations;
     }
 
-    public Field withAnnotations(FieldAnnotations annotations)
+    public Field withAnnotations(AnnotationCollection<FieldAnnotation> annotations)
     {
         return new Field(name, type, annotations);
     }
@@ -105,7 +107,7 @@ public final class Field
         return new Field(name, type, annotations);
     }
 
-    public Field mapAnnotations(Function<FieldAnnotations, FieldAnnotations> fn)
+    public Field mapAnnotations(Function<AnnotationCollection<FieldAnnotation>, AnnotationCollection<FieldAnnotation>> fn)
     {
         return withAnnotations(fn.apply(annotations));
     }

@@ -11,20 +11,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.core.layout.field;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.collect.ImmutableList;
-import com.wrmsr.tokamak.core.layout.field.annotation.FieldAnnotation;
-import com.wrmsr.tokamak.core.util.annotation.AnnotationCollection;
+package com.wrmsr.tokamak.core.layout.field.annotation;
+
+import com.wrmsr.tokamak.core.layout.field.Field;
 import com.wrmsr.tokamak.util.Pair;
 import com.wrmsr.tokamak.util.json.Json;
 import com.wrmsr.tokamak.util.lazy.SupplierLazyValue;
 
-import javax.annotation.concurrent.Immutable;
-
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -33,51 +27,10 @@ import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 import static com.wrmsr.tokamak.util.MoreFunctions.tryGetMethodHandle;
 import static com.wrmsr.tokamak.util.func.ThrowableThrowingSupplier.throwableRethrowingGet;
 
-@Immutable
 public final class FieldAnnotations
-        extends AnnotationCollection<FieldAnnotation, FieldAnnotations>
 {
-    @JsonCreator
-    public FieldAnnotations(
-            @JsonProperty("annotations") Iterable<FieldAnnotation> annotations)
+    private FieldAnnotations()
     {
-        super(annotations);
-    }
-
-    public static FieldAnnotations of(FieldAnnotation... annotations)
-    {
-        return new FieldAnnotations(ImmutableList.copyOf(annotations));
-    }
-
-    @JsonProperty("annotations")
-    @Override
-    public List<FieldAnnotation> get()
-    {
-        return super.get();
-    }
-
-    private static final FieldAnnotations EMPTY = new FieldAnnotations(ImmutableList.of());
-
-    public static FieldAnnotations empty()
-    {
-        return EMPTY;
-    }
-
-    @Override
-    public Class<FieldAnnotation> getBaseCls()
-    {
-        return FieldAnnotation.class;
-    }
-
-    @Override
-    protected FieldAnnotations rebuild(Iterable<FieldAnnotation> annotations)
-    {
-        return new FieldAnnotations(annotations);
-    }
-
-    public FieldAnnotations onlyTransitive()
-    {
-        return filter(FieldAnnotation::isTransitive);
     }
 
     private static final SupplierLazyValue<Map<Class<? extends FieldAnnotation>, Consumer<Field>>> validatorsByAnnotationType = new SupplierLazyValue<>();
