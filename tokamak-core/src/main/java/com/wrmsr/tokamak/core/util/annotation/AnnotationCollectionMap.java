@@ -31,52 +31,58 @@ import java.util.function.Predicate;
 import static com.wrmsr.tokamak.util.MoreCollections.immutableMapValues;
 
 @Immutable
-public final class AnnotationCollectionMap<
-        K,
-        T extends Annotation,
-        C extends AnnotationCollection<T, C>>
-        extends AbstractUnmodifiableMap<K, C>
+public final class AnnotationCollectionMap<K, T extends Annotation>
+        extends AbstractUnmodifiableMap<K, AnnotationCollection<T>>
 {
-    protected final Map<K, C> map;
+    protected final Map<K, AnnotationCollection<T>> map;
 
     @JsonCreator
     public AnnotationCollectionMap(
-            @JsonProperty("map") Map<K, C> map)
+            @JsonProperty("map") Map<K, AnnotationCollection<T>> map)
     {
         this.map = ImmutableMap.copyOf(map);
     }
 
-    public static <K, T extends Annotation, C extends AnnotationCollection<T, C>> AnnotationCollectionMap<K, T, C> empty()
+    public static <K, T extends Annotation> AnnotationCollectionMap<K, T> of()
     {
         return new AnnotationCollectionMap<>(ImmutableMap.of());
     }
 
     @SuppressWarnings({"unchecked"})
-    public static <K, T extends Annotation, C extends AnnotationCollection<T, C>> AnnotationCollectionMap<K, T, C> of(Map<K, C> map)
+    public static <K, T extends Annotation> AnnotationCollectionMap<K, T> of(Map<K, Iterable<T>> map)
     {
-        return map instanceof AnnotationCollectionMap ? (AnnotationCollectionMap) map : new AnnotationCollectionMap<>(map);
+        return map instanceof AnnotationCollectionMap ? (AnnotationCollectionMap) map :
+                new AnnotationCollectionMap<>(immutableMapValues(map, AnnotationCollection::of));
+    }
+
+    @Override
+    public String toString()
+    {
+        return "AnnotationCollectionMap{" +
+                "map=" + map +
+                '}';
     }
 
     @JsonProperty("map")
-    public Map<K, C> getMap()
+    public Map<K, AnnotationCollection<T>> getMap()
     {
         return map;
     }
 
     @Override
-    public Set<Entry<K, C>> entrySet()
+    public Set<Entry<K, AnnotationCollection<T>>> entrySet()
     {
         return map.entrySet();
     }
 
     @Override
-    public C getOrDefault(Object key, C defaultValue)
+    public AnnotationCollection<T> getOrDefault(Object key, AnnotationCollection<T> defaultValue)
     {
         return map.getOrDefault(key, defaultValue);
     }
 
     @Override
-    public void forEach(BiConsumer<? super K, ? super C> action)
+    public void forEach(BiConsumer<? super K, ? super AnnotationCollection<T>> action)
     {
         map.forEach(action);
     }
@@ -98,26 +104,28 @@ public final class AnnotationCollectionMap<
         return map.values().stream().anyMatch(c -> c.contains(cls));
     }
 
-    public AnnotationCollectionMap<K, T, C> filter(Predicate<T> predicate)
+    public AnnotationCollectionMap<K, T> filter(Predicate<T> predicate)
     {
         return new AnnotationCollectionMap<>(immutableMapValues(map, c -> c.filter(predicate)));
     }
 
     @SafeVarargs
-    public final AnnotationCollectionMap<K, T, C> append(T... annotations)
+    public final AnnotationCollectionMap<K, T> append(T... annotations)
     {
         return new AnnotationCollectionMap<>(immutableMapValues(map, e -> e.append(annotations)));
     }
 
     @SafeVarargs
-    public final AnnotationCollectionMap<K, T, C> drop(Class<? extends T>... annotationClss)
+    public final AnnotationCollectionMap<K, T> drop(Class<? extends T>... annotationClss)
     {
         return new AnnotationCollectionMap<>(immutableMapValues(map, e -> e.drop(annotationClss)));
     }
 
     @SafeVarargs
-    public final AnnotationCollectionMap<K, T, C> update(T... annotations)
+    public final AnnotationCollectionMap<K, T> update(T... annotations)
     {
         return new AnnotationCollectionMap<>(immutableMapValues(map, e -> e.update(annotations)));
     }
+
+    public static
 }

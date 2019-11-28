@@ -97,11 +97,6 @@ public final class PNodeAnnotations
         return new PNodeAnnotations(annotations, fields);
     }
 
-    public PNodeAnnotations withFields(PNodeFieldAnnotations fields)
-    {
-        return new PNodeAnnotations(annotations, fields);
-    }
-
     public PNodeAnnotations mapFields(Function<PNodeFieldAnnotations, PNodeFieldAnnotations> fn)
     {
         return withFields(fn.apply(fields));
