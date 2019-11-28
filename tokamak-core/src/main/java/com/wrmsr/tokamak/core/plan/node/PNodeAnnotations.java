@@ -16,8 +16,11 @@ package com.wrmsr.tokamak.core.plan.node;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
+import com.wrmsr.tokamak.core.layout.field.FieldAnnotations;
+import com.wrmsr.tokamak.core.layout.field.annotation.FieldAnnotation;
 import com.wrmsr.tokamak.core.plan.node.annotation.PNodeAnnotation;
 import com.wrmsr.tokamak.core.util.annotation.AnnotationCollection;
+import com.wrmsr.tokamak.core.util.annotation.AnnotationCollectionMap;
 import com.wrmsr.tokamak.util.Pair;
 import com.wrmsr.tokamak.util.json.Json;
 import com.wrmsr.tokamak.util.lazy.SupplierLazyValue;
@@ -29,8 +32,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.stream.StreamSupport;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.wrmsr.tokamak.util.MoreCollections.immutableMapValues;
 import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 import static com.wrmsr.tokamak.util.MoreFunctions.tryGetMethodHandle;
 import static com.wrmsr.tokamak.util.func.ThrowableThrowingSupplier.throwableRethrowingGet;
@@ -39,16 +44,16 @@ import static com.wrmsr.tokamak.util.func.ThrowableThrowingSupplier.throwableRet
 public final class PNodeAnnotations
         extends AnnotationCollection<PNodeAnnotation, PNodeAnnotations>
 {
-    private final PNodeFieldAnnotations fields;
+    private final AnnotationCollectionMap<String, FieldAnnotation, FieldAnnotations> fields;
 
     @JsonCreator
     public PNodeAnnotations(
             @JsonProperty("annotations") Iterable<PNodeAnnotation> annotations,
-            @JsonProperty("fields") PNodeFieldAnnotations fields)
+            @JsonProperty("fields") Map<String, Iterable<FieldAnnotation>> fields)
     {
         super(annotations);
 
-        this.fields = checkNotNull(fields);
+        this.fields = new AnnotationCollectionMap<>(immutableMapValues(checkNotNull(fields), FieldAnnotations::new));
     }
 
     @JsonProperty("annotations")
