@@ -93,7 +93,7 @@ public final class AnnotationCollection<T extends Annotation>
     @Override
     public String toString()
     {
-        return getClass().getSimpleName() + "{" +
+        return "AnnotationCollection{" +
                 "annotations=" + annotations +
                 '}';
     }

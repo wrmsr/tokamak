@@ -126,6 +126,4 @@ public final class AnnotationCollectionMap<K, T extends Annotation>
     {
         return new AnnotationCollectionMap<>(immutableMapValues(map, e -> e.update(annotations)));
     }
-
-    public static
 }
