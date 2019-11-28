@@ -46,6 +46,16 @@ public final class AnnotationCollectionMap<
         this.map = ImmutableMap.copyOf(map);
     }
 
+    public static <K, T extends Annotation, C extends AnnotationCollection<T, C>> AnnotationCollectionMap<K, T, C> empty()
+    {
+        return new AnnotationCollectionMap<>(ImmutableMap.of());
+    }
+
+    public static <K, T extends Annotation, C extends AnnotationCollection<T, C>> AnnotationCollectionMap<K, T, C> of(Map<K, C> map)
+    {
+        return map instanceof AnnotationCollectionMap ? map : new AnnotationCollectionMap<>(map);
+    }
+
     @JsonProperty("map")
     public Map<K, C> getMap()
     {

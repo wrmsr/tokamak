@@ -56,12 +56,7 @@ public final class FieldAnnotations
         return super.get();
     }
 
-    private FieldAnnotations()
-    {
-        this(ImmutableList.of());
-    }
-
-    private static final FieldAnnotations EMPTY = new FieldAnnotations();
+    private static final FieldAnnotations EMPTY = new FieldAnnotations(ImmutableList.of());
 
     public static FieldAnnotations empty()
     {

@@ -32,7 +32,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.stream.StreamSupport;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.wrmsr.tokamak.util.MoreCollections.immutableMapValues;
@@ -64,14 +63,14 @@ public final class PNodeAnnotations
     }
 
     @JsonProperty("fields")
-    public PNodeFieldAnnotations getFields()
+    public AnnotationCollectionMap<String, FieldAnnotation, FieldAnnotations> getFields()
     {
         return fields;
     }
 
     private PNodeAnnotations()
     {
-        this(ImmutableList.of(), new PNodeFieldAnnotations(ImmutableList.of()));
+        this(ImmutableList.of(),
     }
 
     private static final PNodeAnnotations EMPTY = new PNodeAnnotations();
