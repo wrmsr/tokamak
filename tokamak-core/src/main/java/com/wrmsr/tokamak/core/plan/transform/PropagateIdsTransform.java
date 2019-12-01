@@ -82,7 +82,7 @@ public final class PropagateIdsTransform
             private PNode inherit(PSingleSource node, Void context, BiFunction<PNodeAnnotations, PNode, PNode> factory)
             {
                 PNode source = process(node.getSource(), context);
-                if (!source.getAnnotations().getFields().containsAnnotation(IdField.class)) {
+                if (!source.getAnnotations().getFieldAnnotations().containsAnnotation(IdField.class)) {
                     return factory.apply(
                             node.getAnnotations().mapFields(fields -> fields
                                     .without(IdField.class)),
@@ -156,7 +156,7 @@ public final class PropagateIdsTransform
                         .collect(toImmutableList());
 
                 Set<String> idFields;
-                if (branches.stream().allMatch(b -> b.getNode().getAnnotations().getFields().containsAnnotation(IdField.class))) {
+                if (branches.stream().allMatch(b -> b.getNode().getAnnotations().getFieldAnnotations().containsAnnotation(IdField.class))) {
                     idFields = branches.stream()
                             .flatMap(b -> checkNotEmpty(b.getNode().getFields().getFieldNameSetsByAnnotationCls().get(IdField.class)).stream())
                             .collect(toImmutableSet());
@@ -196,7 +196,7 @@ public final class PropagateIdsTransform
             {
                 PNode source = process(node.getSource(), context);
 
-                if (!source.getAnnotations().getFields().containsAnnotation(IdField.class)) {
+                if (!source.getAnnotations().getFieldAnnotations().containsAnnotation(IdField.class)) {
                     return new PProject(
                             visitNodeName(node.getName(), context),
                             node.getAnnotations().mapFields(fields -> fields
@@ -209,7 +209,7 @@ public final class PropagateIdsTransform
                 ImmutableSet.Builder<String> idFieldsBuilder = ImmutableSet.builder();
                 ImmutableSet.Builder<String> internalFieldsBuilder = ImmutableSet.builder();
                 newInputsByOutputBuilder.putAll(node.getProjection());
-                checkNotEmpty(source.getAnnotations().getFields().getKeySetsByAnnotationCls().get(IdField.class)).forEach(inputField -> {
+                checkNotEmpty(source.getAnnotations().getFieldAnnotations().getKeySetsByAnnotationCls().get(IdField.class)).forEach(inputField -> {
                     String idField;
                     Set<String> outputSet = node.getProjection().getOutputSetsByInputField().get(inputField);
                     if (outputSet != null) {

@@ -62,7 +62,7 @@ public final class PProject
         }
 
         this.fields = fields.build()
-                .withAnnotations(annotations.getFields());
+                .withAnnotations(annotations.getFieldAnnotations());
 
         checkInvariants();
     }

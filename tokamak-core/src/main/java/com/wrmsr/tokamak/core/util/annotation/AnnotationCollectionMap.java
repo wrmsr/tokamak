@@ -49,10 +49,10 @@ public final class AnnotationCollectionMap<K, T extends Annotation>
     }
 
     @SuppressWarnings({"unchecked"})
-    public static <K, T extends Annotation> AnnotationCollectionMap<K, T> of(Map<K, Iterable<T>> map)
+    public static <K, T extends Annotation> AnnotationCollectionMap<K, T> copyOf(Map<K, Iterable<T>> map)
     {
         return map instanceof AnnotationCollectionMap ? (AnnotationCollectionMap) map :
-                new AnnotationCollectionMap<>(immutableMapValues(map, AnnotationCollection::of));
+                new AnnotationCollectionMap<>(immutableMapValues(map, AnnotationCollection::copyOf));
     }
 
     @Override

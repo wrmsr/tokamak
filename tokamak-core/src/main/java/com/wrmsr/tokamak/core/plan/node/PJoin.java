@@ -172,7 +172,7 @@ public final class PJoin
             }
         }
         this.fields = FieldCollection.of(fields.values())
-                .withAnnotations(annotations.getFields());
+                .withAnnotations(annotations.getFieldAnnotations());
 
         keyLength = this.branches.stream().map(b -> b.getFields().size()).distinct().collect(toCheckSingle());
 

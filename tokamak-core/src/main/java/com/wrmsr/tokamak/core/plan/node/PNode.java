@@ -19,7 +19,11 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.wrmsr.tokamak.core.layout.RowLayout;
 import com.wrmsr.tokamak.core.layout.field.FieldCollection;
+import com.wrmsr.tokamak.core.layout.field.annotation.FieldAnnotation;
+import com.wrmsr.tokamak.core.plan.node.annotation.PNodeAnnotation;
 import com.wrmsr.tokamak.core.plan.node.visitor.PNodeVisitor;
+import com.wrmsr.tokamak.core.util.annotation.AnnotationCollection;
+import com.wrmsr.tokamak.core.util.annotation.AnnotationCollectionMap;
 
 import java.util.List;
 
@@ -53,7 +57,9 @@ public interface PNode
 
     PNodeId getId();
 
-    PNodeAnnotations getAnnotations();
+    AnnotationCollection<PNodeAnnotation> getAnnotations();
+
+    AnnotationCollectionMap<String, FieldAnnotation> getFieldAnnotations();
 
     List<PNode> getSources();
 

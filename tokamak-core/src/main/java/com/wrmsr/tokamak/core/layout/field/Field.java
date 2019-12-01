@@ -57,7 +57,7 @@ public final class Field
 
     public Field(String name, Type type, Iterable<FieldAnnotation> annotations)
     {
-        this(name, type, AnnotationCollection.of(annotations));
+        this(name, type, AnnotationCollection.copyOf(annotations));
     }
 
     public Field(String name, Type type)

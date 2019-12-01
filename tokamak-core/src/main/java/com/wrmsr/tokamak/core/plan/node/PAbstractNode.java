@@ -15,6 +15,11 @@ package com.wrmsr.tokamak.core.plan.node;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wrmsr.tokamak.core.layout.RowLayout;
+import com.wrmsr.tokamak.core.layout.field.annotation.FieldAnnotation;
+import com.wrmsr.tokamak.core.plan.node.annotation.PNodeAnnotation;
+import com.wrmsr.tokamak.core.plan.node.annotation.PNodeAnnotations;
+import com.wrmsr.tokamak.core.util.annotation.AnnotationCollection;
+import com.wrmsr.tokamak.core.util.annotation.AnnotationCollectionMap;
 import com.wrmsr.tokamak.util.lazy.SupplierLazyValue;
 
 import javax.annotation.concurrent.Immutable;
@@ -32,13 +37,18 @@ public abstract class PAbstractNode
 {
     private final String name;
     private final PNodeId nodeId;
-    private final PNodeAnnotations annotations;
+    private final AnnotationCollection<PNodeAnnotation> annotations;
+    private final AnnotationCollectionMap<String, FieldAnnotation> fieldAnnotations;
 
-    protected PAbstractNode(String name, PNodeAnnotations annotations)
+    protected PAbstractNode(
+            String name,
+            AnnotationCollection<PNodeAnnotation> annotations,
+            AnnotationCollectionMap<String, FieldAnnotation> fieldAnnotations)
     {
         this.name = checkNotEmpty(name);
         this.nodeId = PNodeId.of(name);
         this.annotations = checkNotNull(annotations);
+        this.fieldAnnotations = checkNotNull(fieldAnnotations);
     }
 
     protected void checkInvariants()
@@ -49,7 +59,7 @@ public abstract class PAbstractNode
         annotations.forEach(annotation ->
                 Optional.ofNullable(PNodeAnnotations.getValidatorsByAnnotationType().get(annotation.getClass()))
                         .ifPresent(validator -> validator.accept(this)));
-        annotations.getFields().forEach(field -> checkState(getFields().getNames().contains(field.getKey())));
+        fieldAnnotations.keySet().forEach(field -> checkState(getFields().getNames().contains(field)));
 
         if (this instanceof PInvalidator) {
             PInvalidator.checkInvariants((PInvalidator) this);
@@ -80,9 +90,16 @@ public abstract class PAbstractNode
 
     @JsonProperty("annotations")
     @Override
-    public PNodeAnnotations getAnnotations()
+    public AnnotationCollection<PNodeAnnotation> getAnnotations()
     {
         return annotations;
+    }
+
+    @JsonProperty("fieldAnnotations")
+    @Override
+    public AnnotationCollectionMap<String, FieldAnnotation> getFieldAnnotations()
+    {
+        return fieldAnnotations;
     }
 
     private final SupplierLazyValue<RowLayout> rowLayout = new SupplierLazyValue<>();

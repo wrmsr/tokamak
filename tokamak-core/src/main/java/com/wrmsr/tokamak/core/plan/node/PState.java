@@ -55,7 +55,7 @@ public final class PState
 
         fields = source.getFields()
                 .withOnlyTransitiveAnnotations()
-                .withAnnotations(annotations.getFields());
+                .withAnnotations(annotations.getFieldAnnotations());
 
         checkInvariants();
     }

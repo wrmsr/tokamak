@@ -66,7 +66,7 @@ public final class PFilter
 
         fields = source.getFields()
                 .withOnlyTransitiveAnnotations()
-                .withAnnotations(annotations.getFields());
+                .withAnnotations(annotations.getFieldAnnotations());
 
         // FIXME: check
         // function.getSignature().getParams().forEach((f, t) -> {

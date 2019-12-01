@@ -59,7 +59,7 @@ public final class AnnotationCollection<T extends Annotation>
         return new AnnotationCollection<>(ImmutableList.copyOf(annotations));
     }
 
-    public static <T extends Annotation> AnnotationCollection<T> of(Iterable<T> annotations)
+    public static <T extends Annotation> AnnotationCollection<T> copyOf(Iterable<T> annotations)
     {
         return annotations instanceof AnnotationCollection ? (AnnotationCollection<T>) annotations : new AnnotationCollection<>(annotations);
     }

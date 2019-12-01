@@ -64,7 +64,7 @@ public final class PExtract
                 .addAll(source.getFields().withOnlyTransitiveAnnotations())
                 .add(outputField, structMemberType)
                 .build()
-                .withAnnotations(annotations.getFields());
+                .withAnnotations(annotations.getFieldAnnotations());
 
         checkInvariants();
     }

@@ -97,7 +97,7 @@ public abstract class IdAnalysisEntry
     {
         return of(
                 node,
-                node.getAnnotations().getFields().getEntryListsByAnnotationCls().getOrDefault(IdField.class, ImmutableList.of()).stream()
+                node.getAnnotations().getFieldAnnotations().getEntryListsByAnnotationCls().getOrDefault(IdField.class, ImmutableList.of()).stream()
                         .map(e -> IdAnalysisPart.of(e.getKey()))
                         .collect(toImmutableList()));
     }

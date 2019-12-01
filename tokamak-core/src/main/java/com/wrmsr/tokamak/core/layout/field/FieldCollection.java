@@ -21,8 +21,8 @@ import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.core.layout.field.annotation.FieldAnnotation;
 import com.wrmsr.tokamak.core.type.Type;
 import com.wrmsr.tokamak.core.type.Types;
+import com.wrmsr.tokamak.core.util.annotation.AnnotationCollection;
 import com.wrmsr.tokamak.core.util.annotation.AnnotationCollectionMap;
-import com.wrmsr.tokamak.util.collect.AbstractUnmodifiableMap;
 import com.wrmsr.tokamak.util.collect.StreamableIterable;
 import com.wrmsr.tokamak.util.lazy.SupplierLazyValue;
 
@@ -71,7 +71,7 @@ public final class FieldCollection
     private final List<String> nameList;
     private final Map<String, Integer> positionsByName;
 
-    private final AnnotationCollectionMap<String, FieldAnnotation> annotationMap;
+    private final AnnotationCollectionMap<String, FieldAnnotation> annotations;
 
     @JsonCreator
     public FieldCollection(
@@ -86,7 +86,7 @@ public final class FieldCollection
         nameList = ImmutableList.copyOf(fieldsByName.keySet());
         positionsByName = IntStream.range(0, this.fields.size()).boxed().collect(ImmutableMap.toImmutableMap(nameList::get, identity()));
 
-        annotationMap = AnnotationCollectionMap.of(this.fields.stream().collect(toImmutableMap(Field::getName, Field::getAnnotations)));
+        annotations = AnnotationCollectionMap.copyOf(this.fields.stream().collect(toImmutableMap(Field::getName, Field::getAnnotations)));
     }
 
     public boolean contains(String name)
@@ -144,6 +144,18 @@ public final class FieldCollection
     public int getPosition(String name)
     {
         return positionsByName.get(name);
+    }
+
+    public AnnotationCollectionMap<String, FieldAnnotation> getAnnotations()
+    {
+        return annotations;
+    }
+
+    private final SupplierLazyValue<AnnotationCollectionMap<String, FieldAnnotation>> transitiveAnnotations = new SupplierLazyValue<>();
+
+    public AnnotationCollectionMap<String, FieldAnnotation> getTransitiveAnnotations()
+    {
+        return transitiveAnnotations.get(() -> annotations.filter(FieldAnnotation::isTransitive));
     }
 
     public Field get(String name)
@@ -274,12 +286,12 @@ public final class FieldCollection
 
     public static FieldCollection of(
             Map<String, Type> typesByName,
-            AnnotationCollectionMap<String, FieldAnnotation, ? extends AnnotationCollectionMap.Entry<String, FieldAnnotation, ?>, ?> annotations)
+            AnnotationCollectionMap<String, FieldAnnotation> annotations)
     {
         checkOrdered(typesByName);
         Builder builder = builder();
-        annotations.forEach(e -> checkState(typesByName.containsKey(e.getKey())));
-        typesByName.forEach((n, t) -> builder.add(new Field(n, t, annotations.getEntryOrEmpty(n))));
+        annotations.forEach((f, a) -> checkState(typesByName.containsKey(f)));
+        typesByName.forEach((n, t) -> builder.add(new Field(n, t, annotations.getOrDefault(n, AnnotationCollection.of()))));
         return builder.build();
     }
 
