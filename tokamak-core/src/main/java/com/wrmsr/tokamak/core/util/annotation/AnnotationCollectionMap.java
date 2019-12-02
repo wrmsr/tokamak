@@ -31,6 +31,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 
 import static com.wrmsr.tokamak.util.MoreCollections.immutableMapValues;
+import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 
 @Immutable
 public final class AnnotationCollectionMap<K, T extends Annotation>
@@ -42,7 +43,13 @@ public final class AnnotationCollectionMap<K, T extends Annotation>
     public AnnotationCollectionMap(
             @JsonProperty("map") Map<K, AnnotationCollection<T>> map)
     {
-        this.map = ImmutableMap.copyOf(map);
+        map = ImmutableMap.copyOf(map);
+        if (map.values().stream().anyMatch(AnnotationCollection::isEmpty)) {
+            map = map.entrySet().stream()
+                    .filter(e -> !e.getValue().isEmpty())
+                    .collect(toImmutableMap());
+        }
+        this.map = map;
     }
 
     public static <K, T extends Annotation> AnnotationCollectionMap<K, T> of()
@@ -50,7 +57,7 @@ public final class AnnotationCollectionMap<K, T extends Annotation>
         return new AnnotationCollectionMap<>(ImmutableMap.of());
     }
 
-    @SuppressWarnings({"unchecked"})
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public static <K, T extends Annotation> AnnotationCollectionMap<K, T> copyOf(Map<K, Iterable<T>> map)
     {
         return map instanceof AnnotationCollectionMap ? (AnnotationCollectionMap) map :

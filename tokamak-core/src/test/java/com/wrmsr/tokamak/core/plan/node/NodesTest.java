@@ -13,7 +13,6 @@
  */
 package com.wrmsr.tokamak.core.plan.node;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.api.SchemaTable;
@@ -21,6 +20,8 @@ import com.wrmsr.tokamak.core.exec.Reflection;
 import com.wrmsr.tokamak.core.layout.field.annotation.FieldAnnotation;
 import com.wrmsr.tokamak.core.type.Types;
 import com.wrmsr.tokamak.core.util.ApiJson;
+import com.wrmsr.tokamak.core.util.annotation.AnnotationCollection;
+import com.wrmsr.tokamak.core.util.annotation.AnnotationCollectionMap;
 import com.wrmsr.tokamak.util.json.Json;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -62,7 +63,8 @@ public class NodesTest
     {
         PNode scanNode = new PScan(
                 "scan0",
-                PNodeAnnotations.empty().mapFields(fields -> fields.overwriting("id", FieldAnnotation.id())),
+                AnnotationCollection.of(),
+                AnnotationCollectionMap.copyOf(ImmutableMap.of("id", AnnotationCollection.of(FieldAnnotation.id()))),
                 SchemaTable.of("public", "hi"),
                 ImmutableMap.of("id", Types.LONG, "thing", Types.STRING),
                 PInvalidations.empty());
@@ -75,7 +77,8 @@ public class NodesTest
 
         PNode projectNode = new PProject(
                 "project0",
-                PNodeAnnotations.empty(),
+                AnnotationCollection.of(),
+                AnnotationCollectionMap.of(),
                 scanNode,
                 new PProjection(ImmutableMap.of(
                         "id", PValue.field("id"),

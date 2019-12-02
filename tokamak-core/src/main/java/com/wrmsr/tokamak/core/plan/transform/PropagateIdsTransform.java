@@ -29,7 +29,6 @@ import com.wrmsr.tokamak.core.plan.node.PInvalidations;
 import com.wrmsr.tokamak.core.plan.node.PJoin;
 import com.wrmsr.tokamak.core.plan.node.PLookup;
 import com.wrmsr.tokamak.core.plan.node.PNode;
-import com.wrmsr.tokamak.core.plan.node.PNodeAnnotations;
 import com.wrmsr.tokamak.core.plan.node.POutput;
 import com.wrmsr.tokamak.core.plan.node.PProject;
 import com.wrmsr.tokamak.core.plan.node.PProjection;
@@ -47,6 +46,7 @@ import com.wrmsr.tokamak.core.plan.node.PValue;
 import com.wrmsr.tokamak.core.plan.node.PValues;
 import com.wrmsr.tokamak.core.plan.node.visitor.PNodeRewriter;
 import com.wrmsr.tokamak.core.type.Type;
+import com.wrmsr.tokamak.core.util.annotation.AnnotationCollection;
 import com.wrmsr.tokamak.core.util.annotation.AnnotationCollectionMap;
 
 import java.util.List;
@@ -58,7 +58,10 @@ import java.util.function.BiFunction;
 import static com.google.common.collect.ImmutableList.sortedCopyOf;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
+import static com.wrmsr.tokamak.util.MoreCollections.immutableMapOfSame;
+import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
+import static java.util.function.Function.identity;
 
 public final class PropagateIdsTransform
 {
@@ -70,6 +73,7 @@ public final class PropagateIdsTransform
      - scopes? everything needs concating scope id
      - volatility / redundancy compensation: for redundant fields on projects pick least volatile
       - prob using unify?
+     - structs lol - have to propagate new internal fields.. everywhere..
     */
 
     private PropagateIdsTransform()
@@ -85,15 +89,14 @@ public final class PropagateIdsTransform
                 PNode source = process(node.getSource(), context);
                 if (!source.getFieldAnnotations().containsAnnotation(IdField.class)) {
                     return factory.apply(
-                            node.getAnnotations().mapFields(fields -> fields
-                                    .without(IdField.class)),
+                            node.getFieldAnnotations().dropped(IdField.class),
                             source);
                 }
                 else {
                     return factory.apply(
-                            node.getAnnotations().mapFields(fields -> fields
-                                    .without(IdField.class)
-                                    .with(checkNotEmpty(source.getFields().getFieldNameSetsByAnnotationCls().get(IdField.class)), FieldAnnotation.id())),
+                            node.getFieldAnnotations().dropped(IdField.class).merged(
+                                    checkNotEmpty(source.getFields().getFieldNameSetsByAnnotationCls().get(IdField.class)).stream()
+                                            .collect(toImmutableMap(identity(), f -> AnnotationCollection.of(FieldAnnotation.id())))),
                             source);
                 }
             }
@@ -143,9 +146,8 @@ public final class PropagateIdsTransform
                 return new PGroup(
                         visitNodeName(node.getName(), context),
                         node.getAnnotations(),
-                        node.getAnnotations().mapFields(fields -> fields
-                                .without(IdField.class)
-                                .with(node.getKeyFields(), FieldAnnotation.id())),
+                        node.getFieldAnnotations().dropped(IdField.class).merged(
+                                node.getKeyFields().stream().collect(toImmutableMap(identity(), f -> AnnotationCollection.of(FieldAnnotation.id())))),
                         process(node.getSource(), context),
                         node.getKeyFields(),
                         node.getListField());
@@ -161,7 +163,7 @@ public final class PropagateIdsTransform
                         .collect(toImmutableList());
 
                 Set<String> idFields;
-                if (branches.stream().allMatch(b -> b.getNode().getAnnotations().getFieldAnnotations().containsAnnotation(IdField.class))) {
+                if (branches.stream().allMatch(b -> b.getNode().getFieldAnnotations().containsAnnotation(IdField.class))) {
                     idFields = branches.stream()
                             .flatMap(b -> checkNotEmpty(b.getNode().getFields().getFieldNameSetsByAnnotationCls().get(IdField.class)).stream())
                             .collect(toImmutableSet());
@@ -172,9 +174,9 @@ public final class PropagateIdsTransform
 
                 return new PJoin(
                         visitNodeName(node.getName(), context),
-                        node.getAnnotations().mapFields(fields -> fields
-                                .without(IdField.class)
-                                .with(idFields, FieldAnnotation.id())),
+                        node.getAnnotations(),
+                        node.getFieldAnnotations().dropped(IdField.class).merged(
+                                idFields.stream().collect(toImmutableMap(identity(), f -> AnnotationCollection.of(FieldAnnotation.id())))),
                         branches,
                         node.getMode());
             }
@@ -188,10 +190,11 @@ public final class PropagateIdsTransform
             @Override
             public PNode visitOutput(POutput node, Void context)
             {
-                return inherit(node, context, (annotations, source) ->
+                return inherit(node, context, (fieldAnnotations, source) ->
                         new POutput(
                                 visitNodeName(node.getName(), context),
-                                annotations,
+                                node.getAnnotations(),
+                                fieldAnnotations,
                                 source,
                                 node.getTargets()));
             }
@@ -201,11 +204,11 @@ public final class PropagateIdsTransform
             {
                 PNode source = process(node.getSource(), context);
 
-                if (!source.getAnnotations().getFieldAnnotations().containsAnnotation(IdField.class)) {
+                if (!source.getFieldAnnotations().containsAnnotation(IdField.class)) {
                     return new PProject(
                             visitNodeName(node.getName(), context),
-                            node.getAnnotations().mapFields(fields -> fields
-                                    .without(IdField.class)),
+                            node.getAnnotations(),
+                            node.getFieldAnnotations().dropped(IdField.class),
                             source,
                             node.getProjection());
                 }
@@ -214,7 +217,7 @@ public final class PropagateIdsTransform
                 ImmutableSet.Builder<String> idFieldsBuilder = ImmutableSet.builder();
                 ImmutableSet.Builder<String> internalFieldsBuilder = ImmutableSet.builder();
                 newInputsByOutputBuilder.putAll(node.getProjection());
-                checkNotEmpty(source.getAnnotations().getFieldAnnotations().getKeySetsByAnnotationCls().get(IdField.class)).forEach(inputField -> {
+                checkNotEmpty(source.getFieldAnnotations().getKeySetsByAnnotationCls().get(IdField.class)).forEach(inputField -> {
                     String idField;
                     Set<String> outputSet = node.getProjection().getOutputSetsByInputField().get(inputField);
                     if (outputSet != null) {
@@ -234,10 +237,10 @@ public final class PropagateIdsTransform
 
                 return new PProject(
                         visitNodeName(node.getName(), context),
-                        node.getAnnotations().mapFields(fields -> fields
-                                .without(IdField.class)
-                                .with(idFields, FieldAnnotation.id())
-                                .with(internalFields, FieldAnnotation.internal())),
+                        node.getAnnotations(),
+                        node.getFieldAnnotations().dropped(IdField.class)
+                                .merged(immutableMapOfSame(idFields, AnnotationCollection.of(FieldAnnotation.id())))
+                                .merged(immutableMapOfSame(internalFields, AnnotationCollection.of(FieldAnnotation.internal()))),
                         source,
                         new PProjection(newInputsByOutput));
             }
@@ -262,10 +265,10 @@ public final class PropagateIdsTransform
 
                 return new PScan(
                         visitNodeName(node.getName(), context),
-                        node.getAnnotations().mapFields(fields -> fields
-                                .without(IdField.class)
-                                .with(table.getLayout().getPrimaryKeyFields(), FieldAnnotation.id())
-                                .with(internalFields, FieldAnnotation.internal())),
+                        node.getAnnotations(),
+                        node.getFieldAnnotations().dropped(IdField.class)
+                                .merged(immutableMapOfSame(table.getLayout().getPrimaryKeyFields(), AnnotationCollection.of(FieldAnnotation.id())))
+                                .merged(immutableMapOfSame(internalFields, AnnotationCollection.of(FieldAnnotation.internal()))),
                         node.getSchemaTable(),
                         newFields,
                         PInvalidations.empty());
@@ -295,6 +298,7 @@ public final class PropagateIdsTransform
                 return inherit(node, context, (fieldAnnotations, source) ->
                         new PState(
                                 visitNodeName(node.getName(), context),
+                                node.getAnnotations(),
                                 fieldAnnotations,
                                 source,
                                 node.getDenormalization(),
@@ -307,6 +311,7 @@ public final class PropagateIdsTransform
                 return inherit(node, context, (fieldAnnotations, source) ->
                         new PStruct(
                                 visitNodeName(node.getName(), context),
+                                node.getAnnotations(),
                                 fieldAnnotations,
                                 source,
                                 node.getType(),
@@ -327,8 +332,8 @@ public final class PropagateIdsTransform
                 if (!sources.stream().allMatch(s -> s.getFields().containsAnnotation(IdField.class))) {
                     return new PUnion(
                             visitNodeName(node.getName(), context),
-                            node.getAnnotations().mapFields(fields -> fields
-                                    .without(IdField.class)),
+                            node.getAnnotations(),
+                            node.getFieldAnnotations().dropped(IdField.class),
                             sources,
                             node.getIndexField());
                 }
@@ -337,25 +342,26 @@ public final class PropagateIdsTransform
                         .flatMap(s -> checkNotEmpty(s.getFields().getFieldNameSetsByAnnotationCls().get(IdField.class)).stream())
                         .collect(toImmutableSet());
 
-                PNodeAnnotations annotations = node.getAnnotations().mapFields(fields -> fields
-                        .without(IdField.class)
-                        .with(idFields, FieldAnnotation.id()));
+                AnnotationCollectionMap<String, FieldAnnotation> fieldAnnotations = node.getFieldAnnotations()
+                        .dropped(IdField.class)
+                        .merged(immutableMapOfSame(idFields, AnnotationCollection.of(FieldAnnotation.id())));
 
                 String indexField;
                 if (!node.getIndexField().isPresent()) {
                     indexField = plan.getFieldNameGenerator().get("index");
-                    annotations = annotations.mapFields(fields -> fields
-                            .with(indexField, FieldAnnotation.internal()));
+                    fieldAnnotations = fieldAnnotations.merged(
+                            ImmutableMap.of(indexField, AnnotationCollection.of(FieldAnnotation.internal())));
                 }
                 else {
                     indexField = node.getIndexField().get();
                 }
-                annotations = annotations.mapFields(fields -> fields
-                        .with(indexField, FieldAnnotation.id()));
+                fieldAnnotations = fieldAnnotations.merged(
+                        ImmutableMap.of(indexField, AnnotationCollection.of(FieldAnnotation.id())));
 
                 return new PUnion(
                         visitNodeName(node.getName(), context),
-                        annotations,
+                        node.getAnnotations(),
+                        fieldAnnotations,
                         sources,
                         Optional.of(indexField));
             }
@@ -368,6 +374,7 @@ public final class PropagateIdsTransform
                     return new PUnnest(
                             visitNodeName(node.getName(), context),
                             node.getAnnotations(),
+                            node.getFieldAnnotations().dropped(IdField.class),
                             source,
                             node.getListField(),
                             node.getUnnestedFields(),
@@ -376,25 +383,26 @@ public final class PropagateIdsTransform
 
                 Set<String> idFields = checkNotEmpty(source.getFields().getFieldNameSetsByAnnotationCls().get(IdField.class));
 
-                PNodeAnnotations annotations = node.getAnnotations().mapFields(fields -> fields
-                        .without(IdField.class)
-                        .with(idFields, FieldAnnotation.id()));
+                AnnotationCollectionMap<String, FieldAnnotation> fieldAnnotations = node.getFieldAnnotations()
+                        .dropped(IdField.class)
+                        .merged(immutableMapOfSame(idFields, AnnotationCollection.of(FieldAnnotation.id())));
 
                 String indexField;
                 if (!node.getIndexField().isPresent()) {
                     indexField = plan.getFieldNameGenerator().get("index");
-                    annotations = annotations.mapFields(fields -> fields
-                            .with(indexField, FieldAnnotation.internal()));
+                    fieldAnnotations = fieldAnnotations.merged(
+                            ImmutableMap.of(indexField, AnnotationCollection.of(FieldAnnotation.internal())));
                 }
                 else {
                     indexField = node.getIndexField().get();
                 }
-                annotations = annotations.mapFields(fields -> fields
-                        .with(indexField, FieldAnnotation.id()));
+                fieldAnnotations = fieldAnnotations.merged(
+                        ImmutableMap.of(indexField, AnnotationCollection.of(FieldAnnotation.id())));
 
                 return new PUnnest(
                         visitNodeName(node.getName(), context),
-                        annotations,
+                        node.getAnnotations(),
+                        fieldAnnotations,
                         source,
                         node.getListField(),
                         node.getUnnestedFields(),
@@ -404,24 +412,25 @@ public final class PropagateIdsTransform
             @Override
             public PNode visitValues(PValues node, Void context)
             {
-                PNodeAnnotations annotations = node.getAnnotations().mapFields(fields -> fields
-                        .without(IdField.class));
+                AnnotationCollectionMap<String, FieldAnnotation> fieldAnnotations = node.getFieldAnnotations()
+                        .dropped(IdField.class);
 
                 String indexField;
                 if (!node.getIndexField().isPresent()) {
                     indexField = plan.getFieldNameGenerator().get("index");
-                    annotations = annotations.mapFields(fields -> fields
-                            .with(indexField, FieldAnnotation.internal()));
+                    fieldAnnotations = fieldAnnotations.merged(
+                            ImmutableMap.of(indexField, AnnotationCollection.of(FieldAnnotation.internal())));
                 }
                 else {
                     indexField = node.getIndexField().get();
                 }
-                annotations = annotations.mapFields(fields -> fields
-                        .with(indexField, FieldAnnotation.id()));
+                fieldAnnotations = fieldAnnotations.merged(
+                        ImmutableMap.of(indexField, AnnotationCollection.of(FieldAnnotation.id())));
 
                 return new PValues(
                         visitNodeName(node.getName(), context),
-                        annotations,
+                        node.getAnnotations(),
+                        fieldAnnotations,
                         node.getFields().getTypesByName(),
                         node.getValues(),
                         Optional.of(indexField),

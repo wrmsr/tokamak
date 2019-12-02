@@ -15,7 +15,9 @@ package com.wrmsr.tokamak.core.plan.node;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wrmsr.tokamak.core.layout.RowLayout;
+import com.wrmsr.tokamak.core.layout.field.Field;
 import com.wrmsr.tokamak.core.layout.field.annotation.FieldAnnotation;
+import com.wrmsr.tokamak.core.layout.field.annotation.FieldAnnotations;
 import com.wrmsr.tokamak.core.plan.node.annotation.PNodeAnnotation;
 import com.wrmsr.tokamak.core.plan.node.annotation.PNodeAnnotations;
 import com.wrmsr.tokamak.core.util.annotation.AnnotationCollection;
@@ -56,10 +58,15 @@ public abstract class PAbstractNode
         checkNotNull(getFields());
         checkUnique(getSources());
         checkState(getSources().isEmpty() == (this instanceof PLeaf));
-        annotations.forEach(annotation ->
-                Optional.ofNullable(PNodeAnnotations.getValidatorsByAnnotationType().get(annotation.getClass()))
+        annotations.forEach(ann ->
+                Optional.ofNullable(PNodeAnnotations.getValidatorsByAnnotationType().get(ann.getClass()))
                         .ifPresent(validator -> validator.accept(this)));
-        fieldAnnotations.keySet().forEach(field -> checkState(getFields().getNames().contains(field)));
+        fieldAnnotations.forEach((fld, anns) -> {
+            checkState(getFields().getNames().contains(fld));
+            Field field = checkNotNull(getFields().get(fld));
+            anns.forEach(ann -> Optional.ofNullable(FieldAnnotations.getValidatorsByAnnotationType().get(ann.getClass()))
+                    .ifPresent(validator -> validator.accept(field)));
+        });
 
         if (this instanceof PInvalidator) {
             PInvalidator.checkInvariants((PInvalidator) this);

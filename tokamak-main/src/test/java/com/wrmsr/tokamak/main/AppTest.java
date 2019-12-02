@@ -18,7 +18,6 @@ import com.eclipsesource.v8.V8Object;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
@@ -30,9 +29,10 @@ import com.google.inject.name.Names;
 import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.core.layout.field.annotation.FieldAnnotation;
 import com.wrmsr.tokamak.core.plan.node.PInvalidations;
-import com.wrmsr.tokamak.core.plan.node.PNodeAnnotations;
 import com.wrmsr.tokamak.core.plan.node.PScan;
 import com.wrmsr.tokamak.core.type.Types;
+import com.wrmsr.tokamak.core.util.annotation.AnnotationCollection;
+import com.wrmsr.tokamak.core.util.annotation.AnnotationCollectionMap;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -182,7 +182,8 @@ public class AppTest
     {
         PScan scanNode = new PScan(
                 "scan0",
-                PNodeAnnotations.empty().mapFields(fields -> fields.overwriting("id", FieldAnnotation.id())),
+                AnnotationCollection.of(),
+                AnnotationCollectionMap.copyOf(ImmutableMap.of("id", AnnotationCollection.of(FieldAnnotation.id()))),
                 SchemaTable.of("a", "b"),
                 ImmutableMap.of("id", Types.LONG),
                 PInvalidations.empty());

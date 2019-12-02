@@ -27,10 +27,10 @@ import com.wrmsr.tokamak.core.driver.build.ops.ResponseBuildOp;
 import com.wrmsr.tokamak.core.driver.context.DriverContextImpl;
 import com.wrmsr.tokamak.core.plan.node.PJoin;
 import com.wrmsr.tokamak.core.plan.node.PNode;
-import com.wrmsr.tokamak.core.serde.impl.NullableSerde;
-import com.wrmsr.tokamak.core.serde.impl.TupleSerde;
 import com.wrmsr.tokamak.core.serde.Serde;
 import com.wrmsr.tokamak.core.serde.Serdes;
+import com.wrmsr.tokamak.core.serde.impl.NullableSerde;
+import com.wrmsr.tokamak.core.serde.impl.TupleSerde;
 import com.wrmsr.tokamak.core.serde.impl.VariableLengthSerde;
 import com.wrmsr.tokamak.util.Pair;
 
@@ -73,19 +73,20 @@ public final class JoinBuilder
 
         List<Pair<PJoin.Branch, Map<String, Object>>> lookups;
 
-        Set<PJoin.Branch> idBranches = node.getBranchSetsByKeyFieldSet().get(key.getValuesByField().keySet());
-        if (idBranches != null) {
-            PJoin.Branch idBranch = checkNotNull(idBranches.iterator().next());
-            // branchFieldKeyPair = Pair.immutable(idBranch, Key.of())
-            throw new IllegalStateException();
-        }
-        else {
-            Map<PJoin.Branch, List<Map.Entry<String, Object>>> m = key.getValuesByField().entrySet().stream()
-                    .collect(Collectors.groupingBy(e -> checkNotNull(node.getBranchesByUniqueField().get(e.getKey()))));
-            lookups = m.entrySet().stream()
-                    .map(e -> Pair.immutable(e.getKey(), (Map<String, Object>) e.getValue().stream().collect(toImmutableMap())))
-                    .collect(toImmutableList());
-        }
+        // Set<PJoin.Branch> idBranches = node.getBranchSetsByKeyFieldSet().get(key.getValuesByField().keySet());
+        // if (idBranches != null) {
+        //     // FIXME: lol
+        //     PJoin.Branch idBranch = checkNotNull(idBranches.iterator().next());
+        //     // branchFieldKeyPair = Pair.immutable(idBranch, Key.of())
+        //     throw new IllegalStateException();
+        // }
+        // else {
+        Map<PJoin.Branch, List<Map.Entry<String, Object>>> m = key.getValuesByField().entrySet().stream()
+                .collect(Collectors.groupingBy(e -> checkNotNull(node.getBranchesByField().get(e.getKey()))));
+        lookups = m.entrySet().stream()
+                .map(e -> Pair.immutable(e.getKey(), (Map<String, Object>) e.getValue().stream().collect(toImmutableMap())))
+                .collect(toImmutableList());
+        // }
 
         ImmutableList.Builder<DriverRow> builder = ImmutableList.builder();
 

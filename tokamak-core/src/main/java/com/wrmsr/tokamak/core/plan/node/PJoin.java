@@ -18,7 +18,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.wrmsr.tokamak.core.layout.field.Field;
 import com.wrmsr.tokamak.core.layout.field.FieldCollection;
 import com.wrmsr.tokamak.core.layout.field.annotation.FieldAnnotation;
 import com.wrmsr.tokamak.core.plan.node.annotation.PNodeAnnotation;
@@ -32,7 +31,6 @@ import com.wrmsr.tokamak.util.lazy.SupplierLazyValue;
 import javax.annotation.concurrent.Immutable;
 
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -43,14 +41,14 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
-import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
+import static com.wrmsr.tokamak.util.MoreCollections.enumerate;
+import static com.wrmsr.tokamak.util.MoreCollections.invertMap;
 import static com.wrmsr.tokamak.util.MoreCollectors.groupingByImmutableSet;
 import static com.wrmsr.tokamak.util.MoreCollectors.toCheckSingle;
+import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
-import static com.wrmsr.tokamak.util.MorePreconditions.checkSingle;
-import static java.util.function.Function.identity;
-import static java.util.stream.Collectors.groupingBy;
+import static com.wrmsr.tokamak.util.MorePreconditions.checkUnique;
 
 @Immutable
 public final class PJoin
@@ -124,9 +122,8 @@ public final class PJoin
     private final Map<PNode, Set<Branch>> branchSetsByNode;
     private final Map<Set<String>, Set<Branch>> branchSetsByKeyFieldSet;
     private final Map<Branch, Integer> indicesByBranch;
-    private final Map<String, Set<Branch>> branchSetsByField;
+    private final Map<String, Branch> branchesByField;
     private final Set<String> keyFields;
-    private final Map<String, Branch> branchesByUniqueField;
     private final FieldCollection fields;
     private final int keyLength;
 
@@ -143,42 +140,28 @@ public final class PJoin
         this.branches = checkNotEmpty(ImmutableList.copyOf(branches));
         this.mode = checkNotNull(mode);
 
+        checkUnique(this.branches.stream().flatMap(b -> b.getNode().getFields().stream()).collect(toImmutableList()));
+
         branchSetsByNode = this.branches.stream()
                 .collect(groupingByImmutableSet(Branch::getNode));
         branchSetsByKeyFieldSet = this.branches.stream()
                 .collect(groupingByImmutableSet(b -> ImmutableSet.copyOf(b.getFields())));
-        indicesByBranch = IntStream.range(0, this.branches.size()).boxed().collect(toImmutableMap(this.branches::get, identity()));
+        indicesByBranch = invertMap(ImmutableMap.copyOf(enumerate(this.branches)));
 
-        $ Nope. branchesByField. UNIQUE.
-
-        branchSetsByField = this.branches.stream()
+        branchesByField = this.branches.stream()
                 .flatMap(b -> b.getNode().getFields().getNames().stream().map(f -> Pair.immutable(f, b)))
-                .collect(groupingBy(Pair::first)).entrySet().stream()
-                .collect(toImmutableMap(Map.Entry::getKey, e -> e.getValue().stream().map(Pair::second).collect(toImmutableSet())));
+                .collect(toImmutableMap());
 
         keyFields = this.branches.stream()
                 .flatMap(b -> b.getFields().stream())
                 .collect(toImmutableSet());
-        branchesByUniqueField = this.branchSetsByField.entrySet().stream()
-                .filter(e -> e.getValue().size() == 1)
-                .collect(toImmutableMap(Map.Entry::getKey, e -> checkSingle(e.getValue())));
 
-        Map<String, Field> fields = new LinkedHashMap<>();
-        for (Branch branch : this.branches) {
-            for (Field field : branch.getNode().getFields()) {
-                if (!fields.containsKey(field.getName())) {
-                    Iterable<FieldAnnotation> fieldAnns = branchesByUniqueField.containsKey(field.getName()) ?
-                            field.getAnnotations().onlyTransitive() : ImmutableList.of();
-                    fields.put(field.getName(), new Field(field.getName(), field.getType(), fieldAnns));
-                }
-                else {
-                    checkArgument(!keyFields.contains(field.getName()));
-                    checkArgument(fields.get(field.getName()).getType().equals(field.getType()));
-                }
-            }
-        }
-        this.fields = FieldCollection.of(fields.values())
-                .withAnnotations(annotations.getFieldAnnotations());
+        this.fields = FieldCollection.of(
+                this.branches.stream().flatMap(b -> b.getNode().getFields().getTypesByName().entrySet().stream()).collect(toImmutableMap()),
+                AnnotationCollectionMap.mergeOf(
+                        AnnotationCollectionMap.merge(
+                                this.branches.stream().map(b -> b.getNode().getFields().getTransitiveAnnotations()).collect(toImmutableList())),
+                        fieldAnnotations));
 
         keyLength = this.branches.stream().map(b -> b.getFields().size()).distinct().collect(toCheckSingle());
 
@@ -224,19 +207,14 @@ public final class PJoin
         return indicesByBranch;
     }
 
-    public Map<String, Set<Branch>> getBranchSetsByField()
+    public Map<String, Branch> getBranchesByField()
     {
-        return branchSetsByField;
+        return branchesByField;
     }
 
     public Set<String> getKeyFields()
     {
         return keyFields;
-    }
-
-    public Map<String, Branch> getBranchesByUniqueField()
-    {
-        return branchesByUniqueField;
     }
 
     public int getKeyLength()

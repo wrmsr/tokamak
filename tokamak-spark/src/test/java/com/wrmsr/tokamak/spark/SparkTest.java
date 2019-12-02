@@ -16,9 +16,10 @@ package com.wrmsr.tokamak.spark;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.core.plan.Plan;
-import com.wrmsr.tokamak.core.plan.node.PNodeAnnotations;
 import com.wrmsr.tokamak.core.plan.node.PValues;
 import com.wrmsr.tokamak.core.type.Types;
+import com.wrmsr.tokamak.core.util.annotation.AnnotationCollection;
+import com.wrmsr.tokamak.core.util.annotation.AnnotationCollectionMap;
 import org.apache.hadoop.mapred.TextOutputFormat;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaPairRDD;
@@ -96,7 +97,8 @@ public class SparkTest
             Plan plan = Plan.of(
                     new PValues(
                             "values",
-                            PNodeAnnotations.empty(),
+                            AnnotationCollection.of(),
+                            AnnotationCollectionMap.of(),
                             ImmutableMap.of("x", Types.LONG),
                             ImmutableList.of(ImmutableList.of(420L)),
                             java.util.Optional.empty(),

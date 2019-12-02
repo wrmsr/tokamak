@@ -49,6 +49,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newIdentityHashSet;
 import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 import static java.util.Objects.requireNonNull;
+import static java.util.function.Function.identity;
 
 public final class MoreCollections
 {
@@ -175,6 +176,11 @@ public final class MoreCollections
         return reversedImmutableListOf(iterable.iterator());
     }
 
+    public static <K, V> Map<K, V> immutableMapOfSame(Iterable<K> keys, V value)
+    {
+        return StreamSupport.stream(keys.spliterator(), false).collect(toImmutableMap(identity(), k -> value));
+    }
+
     public static <T> List<T> listOf(int size, T value)
     {
         return IntStream.range(0, size).boxed().map(i -> value).collect(toImmutableList());
@@ -208,7 +214,7 @@ public final class MoreCollections
     }
 
     public static final class EnumeratedElement<T>
-            implements Comparable<EnumeratedElement<T>>
+            implements Map.Entry<Integer, T>, Comparable<EnumeratedElement<T>>
     {
         private final int index;
         private final T item;
@@ -256,6 +262,24 @@ public final class MoreCollections
         public T getItem()
         {
             return item;
+        }
+
+        @Override
+        public Integer getKey()
+        {
+            return index;
+        }
+
+        @Override
+        public T getValue()
+        {
+            return item;
+        }
+
+        @Override
+        public T setValue(T value)
+        {
+            throw new UnsupportedOperationException();
         }
 
         @Override
@@ -422,7 +446,7 @@ public final class MoreCollections
 
     public static <T> Map<T, Long> histogram(Stream<T> stream)
     {
-        return stream.collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+        return stream.collect(Collectors.groupingBy(identity(), Collectors.counting()));
     }
 
     public static <T> Map<T, Long> histogram(Iterator<T> iterator)

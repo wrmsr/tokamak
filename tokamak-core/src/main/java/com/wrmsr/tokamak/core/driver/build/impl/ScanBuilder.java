@@ -14,6 +14,7 @@
 package com.wrmsr.tokamak.core.driver.build.impl;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.core.catalog.Scanner;
@@ -34,14 +35,15 @@ import com.wrmsr.tokamak.core.serde.impl.TupleSerde;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
 
-import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 
 public final class ScanBuilder
         extends AbstractBuilder<PScan>
 {
+    private final Set<String> idFields;
     private final List<String> orderedIdFields;
     private final Serde<Object[]> idSerde;
 
@@ -50,6 +52,7 @@ public final class ScanBuilder
         super(driver, node, sources);
 
         orderedIdFields = node.getFields().getFieldListsByAnnotationCls().get(IdField.class).stream().map(Field::getName).collect(toImmutableList());
+        idFields = ImmutableSet.copyOf(orderedIdFields);
 
         idSerde = new TupleSerde(
                 orderedIdFields.stream()
@@ -64,26 +67,50 @@ public final class ScanBuilder
         Scanner scanner = driver.getScannersByNode().get(node);
 
         opConsumer.accept(new ScanBuildOp(this, scanner, key, scanRows -> {
-            // FIXME: scanners can return empty, driver compensates
-            checkState(!scanRows.isEmpty());
-
             ImmutableList.Builder<DriverRow> rows = ImmutableList.builder();
-            for (Map<String, Object> scanRow : scanRows) {
-                Object[] idAtts = new Object[orderedIdFields.size()];
-                for (int i = 0; i < idAtts.length; ++i) {
-                    idAtts[i] = scanRow.get(orderedIdFields.get(i));
+
+            // FIXME: scanners can return empty, driver compensates
+            if (scanRows.isEmpty()) {
+                Id id;
+                if (key.getFields().equals(idFields)) {
+                    Object[] idAtts = new Object[orderedIdFields.size()];
+                    for (int i = 0; i < idAtts.length; ++i) {
+                        idAtts[i] = key.get(orderedIdFields.get(i));
+                    }
+
+                    id = Id.of(idSerde.writeBytes(idAtts));
+                }
+                else {
+                    id = null;
                 }
 
-                Id id = Id.of(idSerde.writeBytes(idAtts));
-
-                Object[] attributes = scanRow.values().toArray();
                 DriverRow row = new DriverRow(
                         node,
                         dctx.getDriver().getLineagePolicy().build(),
                         id,
-                        attributes);
+                        null);
 
                 rows.add(row);
+            }
+
+            else {
+                for (Map<String, Object> scanRow : scanRows) {
+                    Object[] idAtts = new Object[orderedIdFields.size()];
+                    for (int i = 0; i < idAtts.length; ++i) {
+                        idAtts[i] = scanRow.get(orderedIdFields.get(i));
+                    }
+
+                    Id id = Id.of(idSerde.writeBytes(idAtts));
+
+                    Object[] attributes = scanRow.values().toArray();
+                    DriverRow row = new DriverRow(
+                            node,
+                            dctx.getDriver().getLineagePolicy().build(),
+                            id,
+                            attributes);
+
+                    rows.add(row);
+                }
             }
 
             opConsumer.accept(new ResponseBuildOp(this, key, rows.build()));

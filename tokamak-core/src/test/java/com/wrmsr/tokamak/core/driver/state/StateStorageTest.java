@@ -21,10 +21,11 @@ import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.core.conn.heap.MapHeapStateStorage;
 import com.wrmsr.tokamak.core.layout.field.annotation.FieldAnnotation;
 import com.wrmsr.tokamak.core.plan.node.PInvalidations;
-import com.wrmsr.tokamak.core.plan.node.PNodeAnnotations;
 import com.wrmsr.tokamak.core.plan.node.PScan;
 import com.wrmsr.tokamak.core.plan.node.PState;
 import com.wrmsr.tokamak.core.type.Types;
+import com.wrmsr.tokamak.core.util.annotation.AnnotationCollection;
+import com.wrmsr.tokamak.core.util.annotation.AnnotationCollectionMap;
 import junit.framework.TestCase;
 
 import java.util.EnumSet;
@@ -39,14 +40,16 @@ public class StateStorageTest
     {
         PScan scanNode = new PScan(
                 "scan",
-                PNodeAnnotations.empty().mapFields(fields -> fields.with("id", FieldAnnotation.id())),
+                AnnotationCollection.of(),
+                AnnotationCollectionMap.copyOf(ImmutableMap.of("id", AnnotationCollection.of(FieldAnnotation.id()))),
                 SchemaTable.of("s", "t"),
                 ImmutableMap.of("id", Types.LONG),
                 PInvalidations.empty());
 
         PState stateNode = new PState(
                 "state",
-                PNodeAnnotations.empty(),
+                AnnotationCollection.of(),
+                AnnotationCollectionMap.of(),
                 scanNode,
                 PState.Denormalization.NONE,
                 PInvalidations.empty());

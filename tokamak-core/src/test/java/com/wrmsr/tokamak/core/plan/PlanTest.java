@@ -13,9 +13,10 @@
  */
 package com.wrmsr.tokamak.core.plan;
 
+import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.core.layout.field.annotation.FieldAnnotation;
-import com.wrmsr.tokamak.core.plan.node.PNodeAnnotations;
-import com.wrmsr.tokamak.core.plan.node.annotation.PNodeAnnotation;
+import com.wrmsr.tokamak.core.util.annotation.AnnotationCollection;
+import com.wrmsr.tokamak.core.util.annotation.AnnotationCollectionMap;
 import com.wrmsr.tokamak.util.json.Json;
 import junit.framework.TestCase;
 
@@ -25,10 +26,8 @@ public class PlanTest
     public void testAnns()
             throws Throwable
     {
-        PNodeAnnotations anns = PNodeAnnotations.empty()
-                .append(PNodeAnnotation.exposed())
-                .mapFields(f -> f
-                        .with("x", FieldAnnotation.id()));
+        AnnotationCollectionMap<String, FieldAnnotation> anns = AnnotationCollectionMap.copyOf(
+                ImmutableMap.of("x", AnnotationCollection.of(FieldAnnotation.id())));
 
         String src = Json.writeValue(anns);
 
