@@ -17,9 +17,13 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wrmsr.tokamak.core.layout.field.Field;
 import com.wrmsr.tokamak.core.layout.field.FieldCollection;
+import com.wrmsr.tokamak.core.layout.field.annotation.FieldAnnotation;
+import com.wrmsr.tokamak.core.plan.node.annotation.PNodeAnnotation;
 import com.wrmsr.tokamak.core.plan.node.visitor.PNodeVisitor;
 import com.wrmsr.tokamak.core.type.Type;
 import com.wrmsr.tokamak.core.type.impl.StructType;
+import com.wrmsr.tokamak.core.util.annotation.AnnotationCollection;
+import com.wrmsr.tokamak.core.util.annotation.AnnotationCollectionMap;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -42,13 +46,14 @@ public final class PExtract
     @JsonCreator
     public PExtract(
             @JsonProperty("name") String name,
-            @JsonProperty("annotations") PNodeAnnotations annotations,
+            @JsonProperty("annotations") AnnotationCollection<PNodeAnnotation> annotations,
+            @JsonProperty("fieldAnnotations") AnnotationCollectionMap<String, FieldAnnotation> fieldAnnotations,
             @JsonProperty("source") PNode source,
             @JsonProperty("sourceField") String sourceField,
             @JsonProperty("structMember") String structMember,
             @JsonProperty("outputField") String outputField)
     {
-        super(name, annotations);
+        super(name, annotations, fieldAnnotations);
 
         this.source = checkNotNull(source);
         this.sourceField = checkNotEmpty(sourceField);

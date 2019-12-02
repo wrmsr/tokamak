@@ -19,9 +19,13 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.core.layout.field.FieldCollection;
+import com.wrmsr.tokamak.core.layout.field.annotation.FieldAnnotation;
+import com.wrmsr.tokamak.core.plan.node.annotation.PNodeAnnotation;
 import com.wrmsr.tokamak.core.plan.node.visitor.PNodeVisitor;
 import com.wrmsr.tokamak.core.type.Type;
 import com.wrmsr.tokamak.core.type.Types;
+import com.wrmsr.tokamak.core.util.annotation.AnnotationCollection;
+import com.wrmsr.tokamak.core.util.annotation.AnnotationCollectionMap;
 import com.wrmsr.tokamak.util.collect.OrderPreservingImmutableMap;
 
 import javax.annotation.concurrent.Immutable;
@@ -49,13 +53,14 @@ public final class PUnnest
     @JsonCreator
     public PUnnest(
             @JsonProperty("name") String name,
-            @JsonProperty("annotations") PNodeAnnotations annotations,
+            @JsonProperty("annotations") AnnotationCollection<PNodeAnnotation> annotations,
+            @JsonProperty("fieldAnnotations") AnnotationCollectionMap<String, FieldAnnotation> fieldAnnotations,
             @JsonProperty("source") PNode source,
             @JsonProperty("listField") String listField,
             @JsonProperty("unnestedFields") Map<String, Type> unnestedFields,
             @JsonProperty("indexField") Optional<String> indexField)
     {
-        super(name, annotations);
+        super(name, annotations, fieldAnnotations);
 
         this.source = checkNotNull(source);
         this.listField = checkNotNull(listField);

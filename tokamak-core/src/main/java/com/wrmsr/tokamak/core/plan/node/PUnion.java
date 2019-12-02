@@ -18,9 +18,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.core.layout.field.FieldCollection;
+import com.wrmsr.tokamak.core.layout.field.annotation.FieldAnnotation;
+import com.wrmsr.tokamak.core.plan.node.annotation.PNodeAnnotation;
 import com.wrmsr.tokamak.core.plan.node.visitor.PNodeVisitor;
 import com.wrmsr.tokamak.core.type.Type;
 import com.wrmsr.tokamak.core.type.Types;
+import com.wrmsr.tokamak.core.util.annotation.AnnotationCollection;
+import com.wrmsr.tokamak.core.util.annotation.AnnotationCollectionMap;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -44,11 +48,12 @@ public final class PUnion
     @JsonCreator
     public PUnion(
             @JsonProperty("name") String name,
-            @JsonProperty("annotations") PNodeAnnotations annotations,
+            @JsonProperty("annotations") AnnotationCollection<PNodeAnnotation> annotations,
+            @JsonProperty("fieldAnnotations") AnnotationCollectionMap<String, FieldAnnotation> fieldAnnotations,
             @JsonProperty("sources") List<PNode> sources,
             @JsonProperty("indexField") Optional<String> indexField)
     {
-        super(name, annotations);
+        super(name, annotations, fieldAnnotations);
 
         this.sources = checkNotEmpty(ImmutableList.copyOf(sources));
         this.indexField = checkNotNull(indexField);

@@ -71,6 +71,7 @@ public final class AnnotationCollectionMap<K, T extends Annotation>
         return new AnnotationCollectionMap<>(immutableMapValues(ret, retMap -> new AnnotationCollection<>(retMap.values())));
     }
 
+    @SafeVarargs
     public static <K, T extends Annotation> AnnotationCollectionMap<K, T> mergeOf(Map<K, AnnotationCollection<T>>... annotationCollectionMaps)
     {
         return merge(Arrays.asList(annotationCollectionMaps));

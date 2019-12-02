@@ -22,7 +22,6 @@ import com.wrmsr.tokamak.core.catalog.Table;
 import com.wrmsr.tokamak.core.plan.node.PInvalidations;
 import com.wrmsr.tokamak.core.plan.node.PJoin;
 import com.wrmsr.tokamak.core.plan.node.PNode;
-import com.wrmsr.tokamak.core.plan.node.PNodeAnnotations;
 import com.wrmsr.tokamak.core.plan.node.PProject;
 import com.wrmsr.tokamak.core.plan.node.PProjection;
 import com.wrmsr.tokamak.core.plan.node.PScan;
@@ -39,6 +38,8 @@ import com.wrmsr.tokamak.core.tree.node.TSelect;
 import com.wrmsr.tokamak.core.tree.node.TSelectItem;
 import com.wrmsr.tokamak.core.tree.node.TTableName;
 import com.wrmsr.tokamak.core.tree.node.visitor.TNodeVisitor;
+import com.wrmsr.tokamak.core.util.annotation.AnnotationCollection;
+import com.wrmsr.tokamak.core.util.annotation.AnnotationCollectionMap;
 import com.wrmsr.tokamak.util.NameGenerator;
 
 import java.util.LinkedHashMap;
@@ -85,7 +86,8 @@ public class TreePlanner
                 PNode scanNode = process(treeNode.getRelation(), symbolAnalysis.getSymbolScope(treeNode).get());
                 return new PProject(
                         nameGenerator.get("aliasedRelationProject"),
-                        PNodeAnnotations.empty(),
+                        AnnotationCollection.of(),
+                        AnnotationCollectionMap.of(),
                         scanNode,
                         new PProjection(
                                 scanNode.getFields().getNames().stream()

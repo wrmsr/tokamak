@@ -16,9 +16,13 @@ package com.wrmsr.tokamak.core.plan.node;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wrmsr.tokamak.core.layout.field.FieldCollection;
+import com.wrmsr.tokamak.core.layout.field.annotation.FieldAnnotation;
+import com.wrmsr.tokamak.core.plan.node.annotation.PNodeAnnotation;
 import com.wrmsr.tokamak.core.plan.node.visitor.PNodeVisitor;
 import com.wrmsr.tokamak.core.search.node.SNode;
 import com.wrmsr.tokamak.core.type.Type;
+import com.wrmsr.tokamak.core.util.annotation.AnnotationCollection;
+import com.wrmsr.tokamak.core.util.annotation.AnnotationCollectionMap;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -39,13 +43,14 @@ public final class PSearch
     @JsonCreator
     public PSearch(
             @JsonProperty("name") String name,
-            @JsonProperty("annotations") PNodeAnnotations annotations,
+            @JsonProperty("annotations") AnnotationCollection<PNodeAnnotation> annotations,
+            @JsonProperty("fieldAnnotations") AnnotationCollectionMap<String, FieldAnnotation> fieldAnnotations,
             @JsonProperty("source") PNode source,
             @JsonProperty("search") SNode search,
             @JsonProperty("outputField") String outputField,
             @JsonProperty("outputType") Type outputType)
     {
-        super(name, annotations);
+        super(name, annotations, fieldAnnotations);
         this.source = checkNotNull(source);
         this.search = checkNotNull(search);
         this.outputField = checkNotEmpty(outputField);

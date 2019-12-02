@@ -21,7 +21,10 @@ import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.core.layout.field.Field;
 import com.wrmsr.tokamak.core.layout.field.FieldCollection;
 import com.wrmsr.tokamak.core.layout.field.annotation.FieldAnnotation;
+import com.wrmsr.tokamak.core.plan.node.annotation.PNodeAnnotation;
 import com.wrmsr.tokamak.core.plan.node.visitor.PNodeVisitor;
+import com.wrmsr.tokamak.core.util.annotation.AnnotationCollection;
+import com.wrmsr.tokamak.core.util.annotation.AnnotationCollectionMap;
 import com.wrmsr.tokamak.util.MoreCollections;
 import com.wrmsr.tokamak.util.Pair;
 import com.wrmsr.tokamak.util.lazy.SupplierLazyValue;
@@ -130,11 +133,12 @@ public final class PJoin
     @JsonCreator
     public PJoin(
             @JsonProperty("name") String name,
-            @JsonProperty("annotations") PNodeAnnotations annotations,
+            @JsonProperty("annotations") AnnotationCollection<PNodeAnnotation> annotations,
+            @JsonProperty("fieldAnnotations") AnnotationCollectionMap<String, FieldAnnotation> fieldAnnotations,
             @JsonProperty("branches") List<Branch> branches,
             @JsonProperty("mode") Mode mode)
     {
-        super(name, annotations);
+        super(name, annotations, fieldAnnotations);
 
         this.branches = checkNotEmpty(ImmutableList.copyOf(branches));
         this.mode = checkNotNull(mode);

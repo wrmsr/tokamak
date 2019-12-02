@@ -77,6 +77,7 @@ public final class AnnotationCollection<T extends Annotation>
         return new AnnotationCollection<>(ret.values());
     }
 
+    @SafeVarargs
     public static <T extends Annotation> AnnotationCollection<T> mergeOf(Iterable<T>... annotationCollections)
     {
         return merge(Arrays.asList(annotationCollections));

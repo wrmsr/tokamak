@@ -19,7 +19,11 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.core.layout.field.FieldCollection;
+import com.wrmsr.tokamak.core.layout.field.annotation.FieldAnnotation;
+import com.wrmsr.tokamak.core.plan.node.annotation.PNodeAnnotation;
 import com.wrmsr.tokamak.core.plan.node.visitor.PNodeVisitor;
+import com.wrmsr.tokamak.core.util.annotation.AnnotationCollection;
+import com.wrmsr.tokamak.core.util.annotation.AnnotationCollectionMap;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -76,12 +80,13 @@ public final class PLookup
     @JsonCreator
     public PLookup(
             @JsonProperty("name") String name,
-            @JsonProperty("annotations") PNodeAnnotations annotations,
+            @JsonProperty("annotations") AnnotationCollection<PNodeAnnotation> annotations,
+            @JsonProperty("fieldAnnotations") AnnotationCollectionMap<String, FieldAnnotation> fieldAnnotations,
             @JsonProperty("source") PNode source,
             @JsonProperty("sourceKeyFields") Set<String> sourceKeyFields,
             @JsonProperty("branches") List<Branch> branches)
     {
-        super(name, annotations);
+        super(name, annotations, fieldAnnotations);
 
         this.source = checkNotNull(source);
         this.sourceKeyFields = ImmutableSet.copyOf(checkOrdered(sourceKeyFields));
