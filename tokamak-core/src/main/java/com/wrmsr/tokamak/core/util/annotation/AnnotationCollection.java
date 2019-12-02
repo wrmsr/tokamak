@@ -13,8 +13,9 @@
  */
 package com.wrmsr.tokamak.core.util.annotation;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.wrmsr.tokamak.util.collect.StreamableIterable;
 
@@ -26,13 +27,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
-import java.util.function.BiConsumer;
-import java.util.function.BinaryOperator;
-import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.function.Supplier;
-import java.util.stream.Collector;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
@@ -42,16 +37,18 @@ import static java.util.function.Function.identity;
 public final class AnnotationCollection<T extends Annotation>
         implements StreamableIterable<T>
 {
-    private final List<T> annotations;
+    private final List<T> list;
 
     private final Map<Class<? extends T>, T> annotationsByCls;
 
     @SuppressWarnings({"unchecked"})
-    public AnnotationCollection(Iterable<T> annotations)
+    @JsonCreator
+    public AnnotationCollection(
+            @JsonProperty("list") Iterable<T> list)
     {
-        this.annotations = ImmutableList.copyOf(annotations);
+        this.list = ImmutableList.copyOf(list);
 
-        annotationsByCls = (Map) this.annotations.stream().collect(toImmutableMap(Annotation::getClass, identity()));
+        annotationsByCls = (Map) this.list.stream().collect(toImmutableMap(Annotation::getClass, identity()));
     }
 
     public static <T extends Annotation> AnnotationCollection<T> of()
@@ -88,9 +85,10 @@ public final class AnnotationCollection<T extends Annotation>
         return merge(Arrays.asList(annotationCollections));
     }
 
-    public List<T> get()
+    @JsonProperty("list")
+    public List<T> getList()
     {
-        return annotations;
+        return list;
     }
 
     public Map<Class<? extends T>, T> getByCls()
@@ -101,24 +99,24 @@ public final class AnnotationCollection<T extends Annotation>
     @Override
     public Iterator<T> iterator()
     {
-        return annotations.iterator();
+        return list.iterator();
     }
 
     public int size()
     {
-        return annotations.size();
+        return list.size();
     }
 
     public boolean isEmpty()
     {
-        return annotations.isEmpty();
+        return list.isEmpty();
     }
 
     @Override
     public String toString()
     {
         return "AnnotationCollection{" +
-                "annotations=" + annotations +
+                "annotations=" + list +
                 '}';
     }
 
@@ -141,14 +139,14 @@ public final class AnnotationCollection<T extends Annotation>
     @SafeVarargs
     public final AnnotationCollection<T> appended(T... annotations)
     {
-        return new AnnotationCollection<>(Iterables.concat(this.annotations, Arrays.asList(annotations)));
+        return new AnnotationCollection<>(Iterables.concat(this.list, Arrays.asList(annotations)));
     }
 
     @SafeVarargs
     public final AnnotationCollection<T> dropped(Class<? extends T>... annotationClss)
     {
         return new AnnotationCollection<>(
-                Iterables.filter(annotations, a -> Arrays.stream(annotationClss).noneMatch(ac -> ac.isInstance(a))));
+                Iterables.filter(list, a -> Arrays.stream(annotationClss).noneMatch(ac -> ac.isInstance(a))));
     }
 
     @SafeVarargs
@@ -156,7 +154,7 @@ public final class AnnotationCollection<T extends Annotation>
     {
         return new AnnotationCollection<>(
                 Iterables.concat(
-                        Iterables.filter(this.annotations, a -> Arrays.stream(annotations).anyMatch(ac -> ac.getClass().isInstance(a))),
+                        Iterables.filter(this.list, a -> Arrays.stream(annotations).anyMatch(ac -> ac.getClass().isInstance(a))),
                         Arrays.asList(annotations)));
     }
 
@@ -164,41 +162,5 @@ public final class AnnotationCollection<T extends Annotation>
     public final AnnotationCollection<T> merged(Iterable<T>... annotationCollections)
     {
         return merge(ImmutableList.<Iterable<T>>builder().add(this).add(annotationCollections).build());
-    }
-
-    public static <T extends Annotation> Collector<T, ?, AnnotationCollection<T>> toAnnotationCollection()
-    {
-        return new Collector<T, ImmutableList.Builder, AnnotationCollection<T>>()
-        {
-            @Override
-            public Supplier<ImmutableList.Builder> supplier()
-            {
-                return () -> ImmutableList.builder();
-            }
-
-            @Override
-            public BiConsumer<ImmutableList.Builder, T> accumulator()
-            {
-                return (b, i) -> b.add(i);
-            }
-
-            @Override
-            public BinaryOperator<ImmutableList.Builder> combiner()
-            {
-                return (l, r) -> l.addAll(r.build());
-            }
-
-            @Override
-            public Function<ImmutableList.Builder, AnnotationCollection<T>> finisher()
-            {
-                return b -> new AnnotationCollection<T>(b.build());
-            }
-
-            @Override
-            public Set<Characteristics> characteristics()
-            {
-                return ImmutableSet.of();
-            }
-        };
     }
 }

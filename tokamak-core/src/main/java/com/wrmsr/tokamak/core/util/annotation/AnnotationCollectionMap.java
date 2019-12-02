@@ -18,7 +18,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
 import com.wrmsr.tokamak.util.collect.AbstractUnmodifiableMap;
 import com.wrmsr.tokamak.util.lazy.SupplierLazyValue;
 

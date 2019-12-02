@@ -17,7 +17,6 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.core.layout.field.annotation.FieldAnnotation;
 import com.wrmsr.tokamak.core.type.Type;
 import com.wrmsr.tokamak.core.type.Types;
@@ -34,11 +33,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.BiConsumer;
-import java.util.function.BinaryOperator;
-import java.util.function.Function;
-import java.util.function.Supplier;
-import java.util.stream.Collector;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -293,41 +287,5 @@ public final class FieldCollection
         annotations.forEach((f, a) -> checkState(typesByName.containsKey(f)));
         typesByName.forEach((n, t) -> builder.add(new Field(n, t, annotations.getOrDefault(n, AnnotationCollection.of()))));
         return builder.build();
-    }
-
-    public static Collector<Field, ?, FieldCollection> toFieldCollection()
-    {
-        return new Collector<Field, Builder, FieldCollection>()
-        {
-            @Override
-            public Supplier<Builder> supplier()
-            {
-                return () -> builder();
-            }
-
-            @Override
-            public BiConsumer<Builder, Field> accumulator()
-            {
-                return (b, f) -> b.add(f);
-            }
-
-            @Override
-            public BinaryOperator<Builder> combiner()
-            {
-                return (l, r) -> l.addAll(r.build());
-            }
-
-            @Override
-            public Function<Builder, FieldCollection> finisher()
-            {
-                return b -> b.build();
-            }
-
-            @Override
-            public Set<Characteristics> characteristics()
-            {
-                return ImmutableSet.of();
-            }
-        };
     }
 }

@@ -17,7 +17,6 @@ import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.core.plan.Plan;
 import com.wrmsr.tokamak.core.plan.node.PJoin;
 import com.wrmsr.tokamak.core.plan.node.PNode;
-import com.wrmsr.tokamak.core.plan.node.PNodeAnnotations;
 import com.wrmsr.tokamak.core.plan.node.PProject;
 import com.wrmsr.tokamak.core.plan.node.PProjection;
 import com.wrmsr.tokamak.core.plan.node.PScope;
@@ -28,6 +27,8 @@ import com.wrmsr.tokamak.core.search.node.SNode;
 import com.wrmsr.tokamak.core.search.node.SProperty;
 import com.wrmsr.tokamak.core.search.node.SSequence;
 import com.wrmsr.tokamak.core.search.node.visitor.SNodeVisitor;
+import com.wrmsr.tokamak.core.util.annotation.AnnotationCollection;
+import com.wrmsr.tokamak.core.util.annotation.AnnotationCollectionMap;
 import com.wrmsr.tokamak.util.NameGenerator;
 
 public final class SearchTransformation
@@ -42,7 +43,8 @@ public final class SearchTransformation
 
         PScopeExit scopeExit = new PScopeExit(
                 nameGenerator.get("searchScopeExit"),
-                PNodeAnnotations.empty(),
+                AnnotationCollection.of(),
+                AnnotationCollectionMap.of(),
                 search.getSource(),
                 scopeName);
 
@@ -53,7 +55,8 @@ public final class SearchTransformation
             {
                 return new PSearch(
                         search.getName(),
-                        PNodeAnnotations.empty(),
+                        AnnotationCollection.of(),
+                        AnnotationCollectionMap.of(),
                         context,
                         node,
                         search.getOutputField(),
@@ -75,18 +78,21 @@ public final class SearchTransformation
 
         PProject project = new PProject(
                 nameGenerator.get("searchScopeDrop"),
-                PNodeAnnotations.empty(),
+                AnnotationCollection.of(),
+                AnnotationCollectionMap.of(),
                 newSearch,
                 PProjection.only(ImmutableList.of(search.getOutputField())));
 
         PScope scope = new PScope(
                 scopeName,
-                PNodeAnnotations.empty(),
+                AnnotationCollection.of(),
+                AnnotationCollectionMap.of(),
                 project);
 
         PJoin join = new PJoin(
                 nameGenerator.get("searchScopeJoin"),
-                PNodeAnnotations.empty(),
+                AnnotationCollection.of(),
+                AnnotationCollectionMap.of(),
                 ImmutableList.of(
                         new PJoin.Branch(search.getSource(), ImmutableList.of()),
                         new PJoin.Branch(scope, ImmutableList.of())
