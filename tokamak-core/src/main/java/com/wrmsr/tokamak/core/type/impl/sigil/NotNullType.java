@@ -11,11 +11,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.core.type.impl;
+package com.wrmsr.tokamak.core.type.impl.sigil;
 
 import com.google.common.collect.ImmutableList;
+import com.wrmsr.tokamak.core.type.SigilType;
 import com.wrmsr.tokamak.core.type.Type;
 import com.wrmsr.tokamak.core.type.Types;
+import com.wrmsr.tokamak.core.type.impl.AbstractType;
 
 import javax.annotation.concurrent.Immutable;
 
