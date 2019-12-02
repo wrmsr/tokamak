@@ -149,6 +149,8 @@ public final class PJoin
                 .collect(groupingByImmutableSet(b -> ImmutableSet.copyOf(b.getFields())));
         indicesByBranch = IntStream.range(0, this.branches.size()).boxed().collect(toImmutableMap(this.branches::get, identity()));
 
+        $ Nope. branchesByField. UNIQUE.
+
         branchSetsByField = this.branches.stream()
                 .flatMap(b -> b.getNode().getFields().getNames().stream().map(f -> Pair.immutable(f, b)))
                 .collect(groupingBy(Pair::first)).entrySet().stream()
