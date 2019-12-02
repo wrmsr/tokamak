@@ -47,6 +47,7 @@ import com.wrmsr.tokamak.core.plan.node.PValue;
 import com.wrmsr.tokamak.core.plan.node.PValues;
 import com.wrmsr.tokamak.core.plan.node.visitor.PNodeRewriter;
 import com.wrmsr.tokamak.core.type.Type;
+import com.wrmsr.tokamak.core.util.annotation.AnnotationCollectionMap;
 
 import java.util.List;
 import java.util.Map;
@@ -79,10 +80,10 @@ public final class PropagateIdsTransform
     {
         return Plan.of(plan.getRoot().accept(new PNodeRewriter<Void>()
         {
-            private PNode inherit(PSingleSource node, Void context, BiFunction<PNodeAnnotations, PNode, PNode> factory)
+            private PNode inherit(PSingleSource node, Void context, BiFunction<AnnotationCollectionMap<String, FieldAnnotation>, PNode, PNode> factory)
             {
                 PNode source = process(node.getSource(), context);
-                if (!source.getAnnotations().getFieldAnnotations().containsAnnotation(IdField.class)) {
+                if (!source.getFieldAnnotations().containsAnnotation(IdField.class)) {
                     return factory.apply(
                             node.getAnnotations().mapFields(fields -> fields
                                     .without(IdField.class)),
@@ -100,10 +101,11 @@ public final class PropagateIdsTransform
             @Override
             public PNode visitCache(PCache node, Void context)
             {
-                return inherit(node, context, (annotations, source) ->
+                return inherit(node, context, (fieldAnnotations, source) ->
                         new PCache(
                                 visitNodeName(node.getName(), context),
-                                annotations,
+                                node.getAnnotations(),
+                                fieldAnnotations,
                                 source));
             }
 
@@ -113,6 +115,7 @@ public final class PropagateIdsTransform
                 return inherit(node, context, (annotations, source) ->
                         new PExtract(
                                 visitNodeName(node.getName(), context),
+                                node.getAnnotations(),
                                 annotations,
                                 source,
                                 node.getSourceField(),
@@ -126,6 +129,7 @@ public final class PropagateIdsTransform
                 return inherit(node, context, (annotations, source) ->
                         new PFilter(
                                 visitNodeName(node.getName(), context),
+                                node.getAnnotations(),
                                 annotations,
                                 source,
                                 node.getFunction(),
@@ -138,6 +142,7 @@ public final class PropagateIdsTransform
             {
                 return new PGroup(
                         visitNodeName(node.getName(), context),
+                        node.getAnnotations(),
                         node.getAnnotations().mapFields(fields -> fields
                                 .without(IdField.class)
                                 .with(node.getKeyFields(), FieldAnnotation.id())),
@@ -287,10 +292,10 @@ public final class PropagateIdsTransform
             @Override
             public PNode visitState(PState node, Void context)
             {
-                return inherit(node, context, (annotations, source) ->
+                return inherit(node, context, (fieldAnnotations, source) ->
                         new PState(
                                 visitNodeName(node.getName(), context),
-                                annotations,
+                                fieldAnnotations,
                                 source,
                                 node.getDenormalization(),
                                 node.getInvalidations()));
@@ -299,10 +304,10 @@ public final class PropagateIdsTransform
             @Override
             public PNode visitStruct(PStruct node, Void context)
             {
-                return inherit(node, context, (annotations, source) ->
+                return inherit(node, context, (fieldAnnotations, source) ->
                         new PStruct(
                                 visitNodeName(node.getName(), context),
-                                annotations,
+                                fieldAnnotations,
                                 source,
                                 node.getType(),
                                 node.getInputFields(),
