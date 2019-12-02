@@ -17,12 +17,13 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.wrmsr.tokamak.core.layout.field.Field;
-import com.wrmsr.tokamak.core.layout.field.FieldAnnotations;
-import com.wrmsr.tokamak.core.layout.field.annotation.FieldAnnotation;
+import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.core.layout.field.FieldCollection;
+import com.wrmsr.tokamak.core.layout.field.annotation.FieldAnnotation;
+import com.wrmsr.tokamak.core.layout.field.annotation.IdField;
 import com.wrmsr.tokamak.core.plan.node.annotation.PNodeAnnotation;
 import com.wrmsr.tokamak.core.plan.node.visitor.PNodeVisitor;
+import com.wrmsr.tokamak.core.type.Type;
 import com.wrmsr.tokamak.core.type.impl.ListType;
 import com.wrmsr.tokamak.core.type.impl.StructType;
 import com.wrmsr.tokamak.core.util.annotation.AnnotationCollection;
@@ -34,6 +35,8 @@ import java.util.List;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
+import static java.util.function.Function.identity;
 
 @Immutable
 public final class PGroup
@@ -65,15 +68,21 @@ public final class PGroup
         checkArgument(!keyFields.contains(listField));
         checkArgument(source.getFields().containsAll(keyFields));
 
-        structType = new StructType(ImmutableMap.copyOf(source.getFields().getTypesByName()));
-        fields = FieldCollection.builder()
-                .addAll(keyFields.stream()
-                        .map(f -> new Field(f, source.getFields().getType(f), new FieldAnnotations(ImmutableList.of(FieldAnnotation.id())))))
-                .add(listField, new ListType(structType))
-                .build();
+        if (fieldAnnotations.containsAnnotation(IdField.class)) {
+            checkArgument(ImmutableSet.copyOf(keyFields).equals(fieldAnnotations.getKeySetsByAnnotationCls().get(IdField.class)));
+        }
 
-        // FIXME:
-        // checkState(fields.get(groupField).hasAnnotation(IdField.class));
+        structType = new StructType(ImmutableMap.copyOf(source.getFields().getTypesByName()));
+
+        fields = FieldCollection.of(
+                ImmutableMap.<String, Type>builder()
+                        .putAll(keyFields.stream().collect(toImmutableMap(identity(), source.getFields()::getType)))
+                        .put(listField, new ListType(structType))
+                        .build(),
+                AnnotationCollectionMap.mergeOf(
+                        source.getFields().getTransitiveAnnotations(),
+                        fieldAnnotations,
+                        keyFields.stream().collect(toImmutableMap(identity(), f -> AnnotationCollection.of(FieldAnnotation.id())))));
 
         checkInvariants();
     }

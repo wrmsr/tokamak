@@ -55,7 +55,7 @@ public final class PScan
         checkNotNull(fields);
 
         this.schemaTable = checkNotNull(schemaTable);
-        this.fields = FieldCollection.of(checkNotNull(fields), annotations.getFieldAnnotations());
+        this.fields = FieldCollection.of(checkNotNull(fields), fieldAnnotations);
         this.invalidations = invalidations;
 
         checkInvariants();
