@@ -15,6 +15,7 @@ package com.wrmsr.tokamak.core.plan.node;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.core.layout.field.Field;
 import com.wrmsr.tokamak.core.layout.field.FieldCollection;
 import com.wrmsr.tokamak.core.layout.field.annotation.FieldAnnotation;
@@ -65,11 +66,14 @@ public final class PExtract
         Type structMemberType = structType.getMember(structMember).getType();
         checkState(!source.getFields().contains(outputField));
 
-        fields = FieldCollection.builder()
-                .addAll(source.getFields().withOnlyTransitiveAnnotations())
-                .add(outputField, structMemberType)
-                .build()
-                .withAnnotations(annotations.getFieldAnnotations());
+        fields = FieldCollection.of(
+                ImmutableMap.<String, Type>builder()
+                        .putAll(source.getFields().getTypesByName())
+                        .put(outputField, structMemberType)
+                        .build(),
+                AnnotationCollectionMap.mergeOf(
+                        source.getFields().getTransitiveAnnotations(),
+                        fieldAnnotations));
 
         checkInvariants();
     }

@@ -23,14 +23,17 @@ import com.wrmsr.tokamak.core.plan.analysis.id.entry.AnonIdAnalysisEntry;
 import com.wrmsr.tokamak.core.plan.analysis.id.entry.IdAnalysisEntry;
 import com.wrmsr.tokamak.core.plan.analysis.id.part.FieldIdAnalysisPart;
 import com.wrmsr.tokamak.core.plan.node.PNode;
-import com.wrmsr.tokamak.core.plan.node.PNodeAnnotations;
 import com.wrmsr.tokamak.core.plan.node.visitor.PNodeRewriter;
+import com.wrmsr.tokamak.core.util.annotation.AnnotationCollection;
+import com.wrmsr.tokamak.core.util.annotation.AnnotationCollectionMap;
 
 import java.util.List;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableList.toImmutableList;
+import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
+import static java.util.function.Function.identity;
 
 public final class SetIdFieldsTransform
 {
@@ -45,7 +48,7 @@ public final class SetIdFieldsTransform
         return Plan.of(plan.getRoot().accept(new PNodeRewriter<Void>()
         {
             @Override
-            public PNodeAnnotations visitNodeAnnotations(PNode node, PNodeAnnotations annotations, Void context)
+            public AnnotationCollectionMap<String, FieldAnnotation> visitNodeFieldAnnotations(PNode node, AnnotationCollectionMap<String, FieldAnnotation> fieldAnnotations, Void context)
             {
                 List<String> idFields;
                 IdAnalysisEntry entry = checkNotNull(idAnalysis.get(node));
@@ -55,7 +58,9 @@ public final class SetIdFieldsTransform
                 else {
                     idFields = ImmutableList.of();
                 }
-                return annotations.mapFields(fields -> fields.without(IdField.class).with(idFields, FieldAnnotation.id()));
+                return AnnotationCollectionMap.mergeOf(
+                        fieldAnnotations.drop(IdField.class),
+                        idFields.stream().collect(toImmutableMap(identity(), f -> AnnotationCollection.of(FieldAnnotation.id()))));
             }
         }, null));
     }
