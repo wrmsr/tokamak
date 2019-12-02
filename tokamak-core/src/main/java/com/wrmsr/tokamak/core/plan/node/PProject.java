@@ -59,20 +59,19 @@ public final class PProject
         projection.getInputsByOutput().values().forEach(this::checkValue);
 
         FieldCollection.Builder fields = FieldCollection.builder();
-        for (Map.Entry<String, PValue> entry : projection.getInputsByOutput().entrySet()) {
+        projection.getInputsByOutput().forEach((field, input) -> {
             AnnotationCollection<FieldAnnotation> fldAnns = AnnotationCollection.of();
 
-            if (entry.getValue() instanceof PValue.Field) {
-                String srcField = ((PValue.Field) entry.getValue()).getField();
+            if (input instanceof PValue.Field) {
+                String srcField = ((PValue.Field) input).getField();
                 AnnotationCollection<FieldAnnotation> srcFldAnns = source.getFields().getTransitiveAnnotations().getOrEmpty(srcField);
-
-            }
-            else {
-                ImmutableList.of();
+                fldAnns = fldAnns.merged(srcFldAnns);
             }
 
-            fields.add(new Field(entry.getKey(), getValueType(entry.getValue()), fldAnns));
-        }
+            fldAnns = fldAnns.merged(fieldAnnotations.getOrEmpty(field));
+
+            fields.add(new Field(field, getValueType(input), fldAnns));
+        });
 
         this.fields = fields.build();
 

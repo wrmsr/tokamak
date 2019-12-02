@@ -156,13 +156,8 @@ public final class AnnotationCollectionMap<K, T extends Annotation>
         return new AnnotationCollectionMap<>(immutableMapValues(map, e -> e.updated(annotations)));
     }
 
-    public AnnotationCollectionMap<K, T> merged(Iterable<Map<K, AnnotationCollection<T>>> annotationCollectionMaps)
-    {
-        return merge(Iterables.concat(ImmutableList.of(this), annotationCollectionMaps));
-    }
-
     @SafeVarargs
-    public final AnnotationCollectionMap<K, T> mergedOf(Map<K, AnnotationCollection<T>>... annotationCollectionMaps)
+    public final AnnotationCollectionMap<K, T> merged(Map<K, AnnotationCollection<T>>... annotationCollectionMaps)
     {
         return merge(ImmutableList.<Map<K, AnnotationCollection<T>>>builder().add(this).add(annotationCollectionMaps).build());
     }

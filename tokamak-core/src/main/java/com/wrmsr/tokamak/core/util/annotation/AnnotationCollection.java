@@ -160,13 +160,8 @@ public final class AnnotationCollection<T extends Annotation>
                         Arrays.asList(annotations)));
     }
 
-    public AnnotationCollection<T> merged(Iterable<Iterable<T>> annotationCollections)
-    {
-        return merge(Iterables.concat(ImmutableList.of(this), annotationCollections));
-    }
-
     @SafeVarargs
-    public final AnnotationCollection<T> mergedOf(Iterable<T>... annotationCollections)
+    public final AnnotationCollection<T> merged(Iterable<T>... annotationCollections)
     {
         return merge(ImmutableList.<Iterable<T>>builder().add(this).add(annotationCollections).build());
     }
