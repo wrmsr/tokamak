@@ -44,6 +44,7 @@ public final class PCache
 
         this.source = checkNotNull(source);
 
+        FieldCollection.of(source.getFields(), source.getFields().getTransitiveAnnotations().update(fieldAnnotations));
         this.fields = source.getFields()
                 .withOnlyTransitiveAnnotations()
                 .withAnnotations(annotations.getFieldAnnotations());
