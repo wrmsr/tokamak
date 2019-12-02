@@ -60,13 +60,21 @@ public final class PProject
 
         FieldCollection.Builder fields = FieldCollection.builder();
         for (Map.Entry<String, PValue> entry : projection.getInputsByOutput().entrySet()) {
-            Iterable<FieldAnnotation> fieldAnns = entry.getValue() instanceof PValue.Field ?
-                    source.getFields().get(((PValue.Field) entry.getValue()).getField()).getAnnotations().onlyTransitive() : ImmutableList.of();
-            fields.add(new Field(entry.getKey(), getValueType(entry.getValue()), fieldAnns));
+            AnnotationCollection<FieldAnnotation> fldAnns = AnnotationCollection.of();
+
+            if (entry.getValue() instanceof PValue.Field) {
+                String srcField = ((PValue.Field) entry.getValue()).getField();
+                AnnotationCollection<FieldAnnotation> srcFldAnns = source.getFields().getTransitiveAnnotations().getOrEmpty(srcField);
+
+            }
+            else {
+                ImmutableList.of();
+            }
+
+            fields.add(new Field(entry.getKey(), getValueType(entry.getValue()), fldAnns));
         }
 
-        this.fields = fields.build()
-                .withAnnotations(annotations.getFieldAnnotations());
+        this.fields = fields.build();
 
         checkInvariants();
     }

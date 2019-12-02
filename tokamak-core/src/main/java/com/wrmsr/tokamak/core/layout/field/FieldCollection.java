@@ -155,7 +155,7 @@ public final class FieldCollection
 
     public AnnotationCollectionMap<String, FieldAnnotation> getTransitiveAnnotations()
     {
-        return transitiveAnnotations.get(() -> annotations.filter(FieldAnnotation::isTransitive));
+        return transitiveAnnotations.get(() -> annotations.filtered(FieldAnnotation::isTransitive));
     }
 
     public Field get(String name)

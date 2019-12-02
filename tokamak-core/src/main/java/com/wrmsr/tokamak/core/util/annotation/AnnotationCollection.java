@@ -133,31 +133,42 @@ public final class AnnotationCollection<T extends Annotation>
         return annotationsByCls.containsKey(cls);
     }
 
-    public AnnotationCollection<T> filter(Predicate<T> predicate)
+    public AnnotationCollection<T> filtered(Predicate<T> predicate)
     {
         return new AnnotationCollection<>(stream().filter(predicate).collect(toImmutableList()));
     }
 
     @SafeVarargs
-    public final AnnotationCollection<T> append(T... annotations)
+    public final AnnotationCollection<T> appended(T... annotations)
     {
         return new AnnotationCollection<>(Iterables.concat(this.annotations, Arrays.asList(annotations)));
     }
 
     @SafeVarargs
-    public final AnnotationCollection<T> drop(Class<? extends T>... annotationClss)
+    public final AnnotationCollection<T> dropped(Class<? extends T>... annotationClss)
     {
         return new AnnotationCollection<>(
                 Iterables.filter(annotations, a -> Arrays.stream(annotationClss).noneMatch(ac -> ac.isInstance(a))));
     }
 
     @SafeVarargs
-    public final AnnotationCollection<T> update(T... annotations)
+    public final AnnotationCollection<T> updated(T... annotations)
     {
         return new AnnotationCollection<>(
                 Iterables.concat(
                         Iterables.filter(this.annotations, a -> Arrays.stream(annotations).anyMatch(ac -> ac.getClass().isInstance(a))),
                         Arrays.asList(annotations)));
+    }
+
+    public AnnotationCollection<T> merged(Iterable<Iterable<T>> annotationCollections)
+    {
+        return merge(Iterables.concat(ImmutableList.of(this), annotationCollections));
+    }
+
+    @SafeVarargs
+    public final AnnotationCollection<T> mergedOf(Iterable<T>... annotationCollections)
+    {
+        return merge(ImmutableList.<Iterable<T>>builder().add(this).add(annotationCollections).build());
     }
 
     public static <T extends Annotation> Collector<T, ?, AnnotationCollection<T>> toAnnotationCollection()

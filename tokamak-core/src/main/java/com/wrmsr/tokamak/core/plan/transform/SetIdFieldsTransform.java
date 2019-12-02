@@ -59,7 +59,7 @@ public final class SetIdFieldsTransform
                     idFields = ImmutableList.of();
                 }
                 return AnnotationCollectionMap.mergeOf(
-                        fieldAnnotations.drop(IdField.class),
+                        fieldAnnotations.dropped(IdField.class),
                         idFields.stream().collect(toImmutableMap(identity(), f -> AnnotationCollection.of(FieldAnnotation.id()))));
             }
         }, null));

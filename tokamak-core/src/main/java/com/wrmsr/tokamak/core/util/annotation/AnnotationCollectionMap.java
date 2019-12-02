@@ -15,8 +15,10 @@ package com.wrmsr.tokamak.core.util.annotation;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
 import com.wrmsr.tokamak.util.collect.AbstractUnmodifiableMap;
 import com.wrmsr.tokamak.util.lazy.SupplierLazyValue;
 
@@ -103,6 +105,11 @@ public final class AnnotationCollectionMap<K, T extends Annotation>
         return map.getOrDefault(key, defaultValue);
     }
 
+    public AnnotationCollection<T> getOrEmpty(Object key)
+    {
+        return map.getOrDefault(key, AnnotationCollection.of());
+    }
+
     @Override
     public void forEach(BiConsumer<? super K, ? super AnnotationCollection<T>> action)
     {
@@ -126,26 +133,37 @@ public final class AnnotationCollectionMap<K, T extends Annotation>
         return map.values().stream().anyMatch(c -> c.contains(cls));
     }
 
-    public AnnotationCollectionMap<K, T> filter(Predicate<T> predicate)
+    public AnnotationCollectionMap<K, T> filtered(Predicate<T> predicate)
     {
-        return new AnnotationCollectionMap<>(immutableMapValues(map, c -> c.filter(predicate)));
+        return new AnnotationCollectionMap<>(immutableMapValues(map, c -> c.filtered(predicate)));
     }
 
     @SafeVarargs
-    public final AnnotationCollectionMap<K, T> append(T... annotations)
+    public final AnnotationCollectionMap<K, T> appended(T... annotations)
     {
-        return new AnnotationCollectionMap<>(immutableMapValues(map, e -> e.append(annotations)));
+        return new AnnotationCollectionMap<>(immutableMapValues(map, e -> e.appended(annotations)));
     }
 
     @SafeVarargs
-    public final AnnotationCollectionMap<K, T> drop(Class<? extends T>... annotationClss)
+    public final AnnotationCollectionMap<K, T> dropped(Class<? extends T>... annotationClss)
     {
-        return new AnnotationCollectionMap<>(immutableMapValues(map, e -> e.drop(annotationClss)));
+        return new AnnotationCollectionMap<>(immutableMapValues(map, e -> e.dropped(annotationClss)));
     }
 
     @SafeVarargs
-    public final AnnotationCollectionMap<K, T> update(T... annotations)
+    public final AnnotationCollectionMap<K, T> updated(T... annotations)
     {
-        return new AnnotationCollectionMap<>(immutableMapValues(map, e -> e.update(annotations)));
+        return new AnnotationCollectionMap<>(immutableMapValues(map, e -> e.updated(annotations)));
+    }
+
+    public AnnotationCollectionMap<K, T> merged(Iterable<Map<K, AnnotationCollection<T>>> annotationCollectionMaps)
+    {
+        return merge(Iterables.concat(ImmutableList.of(this), annotationCollectionMaps));
+    }
+
+    @SafeVarargs
+    public final AnnotationCollectionMap<K, T> mergedOf(Map<K, AnnotationCollection<T>>... annotationCollectionMaps)
+    {
+        return merge(ImmutableList.<Map<K, AnnotationCollection<T>>>builder().add(this).add(annotationCollectionMaps).build());
     }
 }
