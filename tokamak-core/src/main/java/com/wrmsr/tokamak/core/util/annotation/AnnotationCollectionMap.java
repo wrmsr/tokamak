@@ -22,6 +22,7 @@ import com.wrmsr.tokamak.util.lazy.SupplierLazyValue;
 
 import javax.annotation.concurrent.Immutable;
 
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
@@ -53,6 +54,26 @@ public final class AnnotationCollectionMap<K, T extends Annotation>
     {
         return map instanceof AnnotationCollectionMap ? (AnnotationCollectionMap) map :
                 new AnnotationCollectionMap<>(immutableMapValues(map, AnnotationCollection::copyOf));
+    }
+
+    @SuppressWarnings({"unchecked"})
+    public static <K, T extends Annotation> AnnotationCollectionMap<K, T> merge(Iterable<Map<K, AnnotationCollection<T>>> annotationCollectionMaps)
+    {
+        Map<K, Map<Class<? extends T>, T>> ret = new LinkedHashMap<>();
+        for (Map<K, AnnotationCollection<T>> map : annotationCollectionMaps) {
+            for (Map.Entry<K, AnnotationCollection<T>> entry : map.entrySet()) {
+                Map<Class<? extends T>, T> retMap = ret.computeIfAbsent(entry.getKey(), k_ -> new LinkedHashMap<>());
+                for (T ann : entry.getValue()) {
+                    retMap.put((Class<? extends T>) ann.getClass(), ann);
+                }
+            }
+        }
+        return new AnnotationCollectionMap<>(immutableMapValues(ret, retMap -> new AnnotationCollection<>(retMap.values())));
+    }
+
+    public static <K, T extends Annotation> AnnotationCollectionMap<K, T> mergeOf(Map<K, AnnotationCollection<T>>... annotationCollectionMaps)
+    {
+        return merge(Arrays.asList(annotationCollectionMaps));
     }
 
     @Override

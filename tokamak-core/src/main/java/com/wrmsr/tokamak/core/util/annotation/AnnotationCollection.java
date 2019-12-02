@@ -22,6 +22,7 @@ import javax.annotation.concurrent.Immutable;
 
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -62,6 +63,23 @@ public final class AnnotationCollection<T extends Annotation>
     public static <T extends Annotation> AnnotationCollection<T> copyOf(Iterable<T> annotations)
     {
         return annotations instanceof AnnotationCollection ? (AnnotationCollection<T>) annotations : new AnnotationCollection<>(annotations);
+    }
+
+    @SuppressWarnings({"unchecked"})
+    public static <T extends Annotation> AnnotationCollection<T> merge(Iterable<Iterable<T>> annotationCollections)
+    {
+        Map<Class<? extends T>, T> ret = new LinkedHashMap<>();
+        for (Iterable<T> coll : annotationCollections) {
+            for (T ann : coll) {
+                ret.put((Class<? extends T>) ann.getClass(), ann);
+            }
+        }
+        return new AnnotationCollection<>(ret.values());
+    }
+
+    public static <T extends Annotation> AnnotationCollection<T> mergeOf(Iterable<T>... annotationCollections)
+    {
+        return merge(Arrays.asList(annotationCollections));
     }
 
     public List<T> get()
