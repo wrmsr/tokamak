@@ -137,14 +137,16 @@ public class TreePlanner
                 else {
                     source = new PJoin(
                             nameGenerator.get("projectJoin"),
-                            PNodeAnnotations.empty(),
+                            AnnotationCollection.of(),
+                            AnnotationCollectionMap.of(),
                             sources.stream().map(s -> new PJoin.Branch(s, ImmutableList.of())).collect(toImmutableList()),
                             PJoin.Mode.FULL);
                 }
 
                 return new PProject(
                         nameGenerator.get("selectProject"),
-                        PNodeAnnotations.empty(),
+                        AnnotationCollection.of(),
+                        AnnotationCollectionMap.of(),
                         source,
                         new PProjection(projection));
             }
@@ -168,7 +170,8 @@ public class TreePlanner
 
                 return new PScan(
                         nameGenerator.get("scan"),
-                        PNodeAnnotations.empty(),
+                        AnnotationCollection.of(),
+                        AnnotationCollectionMap.of(),
                         schemaTable,
                         columns.stream().collect(toImmutableMap(identity(), table.getRowLayout().getFields()::getType)),
                         PInvalidations.empty());

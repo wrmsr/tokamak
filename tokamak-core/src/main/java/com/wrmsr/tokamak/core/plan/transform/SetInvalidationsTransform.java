@@ -260,6 +260,7 @@ public final class SetInvalidationsTransform
                 return new PScan(
                         node.getName(),
                         node.getAnnotations(),
+                        node.getFieldAnnotations(),
                         node.getSchemaTable(),
                         node.getScanFields(),
                         invalidations.getOrDefault(node, PInvalidations.empty()));
@@ -271,6 +272,7 @@ public final class SetInvalidationsTransform
                 return new PState(
                         node.getName(),
                         node.getAnnotations(),
+                        node.getFieldAnnotations(),
                         node.getSource(),
                         node.getDenormalization(),
                         invalidations.getOrDefault(node, PInvalidations.empty()));

@@ -54,6 +54,11 @@ public final class AnnotationCollection<T extends Annotation>
         annotationsByCls = (Map) this.annotations.stream().collect(toImmutableMap(Annotation::getClass, identity()));
     }
 
+    public static <T extends Annotation> AnnotationCollection<T> of()
+    {
+        return new AnnotationCollection<>(ImmutableList.of());
+    }
+
     @SafeVarargs
     public static <T extends Annotation> AnnotationCollection<T> of(T... annotations)
     {

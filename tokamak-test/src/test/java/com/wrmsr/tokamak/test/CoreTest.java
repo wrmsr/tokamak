@@ -45,7 +45,6 @@ import com.wrmsr.tokamak.core.plan.node.PFunction;
 import com.wrmsr.tokamak.core.plan.node.PInvalidations;
 import com.wrmsr.tokamak.core.plan.node.PJoin;
 import com.wrmsr.tokamak.core.plan.node.PNode;
-import com.wrmsr.tokamak.core.plan.node.PNodeAnnotations;
 import com.wrmsr.tokamak.core.plan.node.PNodeField;
 import com.wrmsr.tokamak.core.plan.node.POutput;
 import com.wrmsr.tokamak.core.plan.node.PProject;
@@ -54,11 +53,12 @@ import com.wrmsr.tokamak.core.plan.node.PScan;
 import com.wrmsr.tokamak.core.plan.node.PState;
 import com.wrmsr.tokamak.core.plan.node.PValue;
 import com.wrmsr.tokamak.core.plan.transform.PropagateIdsTransform;
-import com.wrmsr.tokamak.core.plan.transform.SetIdFieldsTransform;
 import com.wrmsr.tokamak.core.plan.transform.SetInvalidationsTransform;
 import com.wrmsr.tokamak.core.type.Type;
 import com.wrmsr.tokamak.core.type.Types;
 import com.wrmsr.tokamak.core.util.ApiJson;
+import com.wrmsr.tokamak.core.util.annotation.AnnotationCollection;
+import com.wrmsr.tokamak.core.util.annotation.AnnotationCollectionMap;
 import com.wrmsr.tokamak.util.json.Json;
 import com.wrmsr.tokamak.util.sql.SqlUtils;
 import junit.framework.TestCase;
@@ -153,7 +153,8 @@ public class CoreTest
 
         PNode scanNode0 = new PScan(
                 "scan0",
-                PNodeAnnotations.empty(),
+                AnnotationCollection.of(),
+                AnnotationCollectionMap.of(),
                 SchemaTable.of("PUBLIC", "NATION"),
                 ImmutableMap.<String, Type>builder()
                         // .put("N_NATIONKEY", Types.LONG)
@@ -165,20 +166,23 @@ public class CoreTest
 
         PNode scanNode0Dropped = new PProject(
                 "scanNode0Dropped",
-                PNodeAnnotations.empty(),
+                AnnotationCollection.of(),
+                AnnotationCollectionMap.of(),
                 scanNode0,
                 PProjection.only(/*"N_NATIONKEY",*/ "N_NAME", "N_REGIONKEY"));
 
         PNode stateNode0 = new PState(
                 "state0",
-                PNodeAnnotations.empty(),
+                AnnotationCollection.of(),
+                AnnotationCollectionMap.of(),
                 scanNode0Dropped,
                 PState.Denormalization.NONE,
                 PInvalidations.empty());
 
         PNode filterNode0 = new PFilter(
                 "filter0",
-                PNodeAnnotations.empty(),
+                AnnotationCollection.of(),
+                AnnotationCollectionMap.of(),
                 stateNode0,
                 catalog.addFunction(be.register(Reflection.reflect(getClass().getDeclaredMethod("isStringNotNull", String.class))).getName(), be).asNodeFunction(),
                 ImmutableList.of("N_NAME"),
@@ -189,7 +193,8 @@ public class CoreTest
 
         PNode projectNode0 = new PProject(
                 "project0",
-                PNodeAnnotations.empty(),
+                AnnotationCollection.of(),
+                AnnotationCollectionMap.of(),
                 filterNode0,
                 new PProjection(ImmutableMap.of(
                         // "N_NATIONKEY", PValue.field("N_NATIONKEY"),
@@ -201,7 +206,8 @@ public class CoreTest
 
         PNode scanNode1 = new PScan(
                 "scan1",
-                PNodeAnnotations.empty().mapFields(fields -> fields.overwriting("R_REGIONKEY", FieldAnnotation.id())),
+                AnnotationCollection.of(),
+                AnnotationCollectionMap.copyOf(ImmutableMap.of("R_REGIONKEY", AnnotationCollection.of(FieldAnnotation.id()))),
                 SchemaTable.of("PUBLIC", "REGION"),
                 ImmutableMap.of(
                         "R_REGIONKEY", Types.LONG,
@@ -211,14 +217,16 @@ public class CoreTest
 
         PNode stateNode1 = new PState(
                 "state1",
-                PNodeAnnotations.empty(),
+                AnnotationCollection.of(),
+                AnnotationCollectionMap.of(),
                 scanNode1,
                 PState.Denormalization.NONE,
                 PInvalidations.empty());
 
         PNode equiJoinNode0 = new PJoin(
                 "equiJoin0",
-                PNodeAnnotations.empty(),
+                AnnotationCollection.of(),
+                AnnotationCollectionMap.of(),
                 ImmutableList.of(
                         new PJoin.Branch(projectNode0, ImmutableList.of("N_REGIONKEY")),
                         new PJoin.Branch(stateNode1, ImmutableList.of("R_REGIONKEY"))
@@ -227,14 +235,16 @@ public class CoreTest
 
         PNode persistNode0 = new PState(
                 "state2",
-                PNodeAnnotations.empty(),
+                AnnotationCollection.of(),
+                AnnotationCollectionMap.of(),
                 equiJoinNode0,
                 PState.Denormalization.NONE,
                 PInvalidations.empty());
 
         PNode outputNode0 = new POutput(
                 "output0",
-                PNodeAnnotations.empty(),
+                AnnotationCollection.of(),
+                AnnotationCollectionMap.of(),
                 persistNode0,
                 ImmutableList.of());
 
@@ -372,7 +382,8 @@ public class CoreTest
 
         PScan scan0 = new PScan(
                 "scan0",
-                PNodeAnnotations.empty().mapFields(fields -> fields.overwriting("id", FieldAnnotation.id())),
+                AnnotationCollection.of(),
+                AnnotationCollectionMap.copyOf(ImmutableMap.of("id", AnnotationCollection.of(FieldAnnotation.id()))),
                 SchemaTable.of("stuff_schema", "stuff_table"),
                 ImmutableMap.of(
                         "id", Types.LONG,
