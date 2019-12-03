@@ -309,7 +309,7 @@ public class CoreTest
         Collection<Row> buildRows = driver.build(
                 ctx,
                 plan.getRoot(),
-                Key.of("R_REGIONKEY", 10));
+                Key.of("R_REGIONKEY", 1));
 
         System.out.println(buildRows);
 
@@ -323,7 +323,7 @@ public class CoreTest
         buildRows = driver.build(
                 ctx,
                 plan.getRoot(),
-                Key.of("R_REGIONKEY", 10));
+                Key.of("R_REGIONKEY", 1));
 
         System.out.println(buildRows);
 
