@@ -48,6 +48,16 @@ public abstract class JournalEntry
             this.ids = ImmutableSet.copyOf(ids);
             this.reason = checkNotNull(reason);
         }
+
+        @Override
+        public String toString()
+        {
+            return "Invalidate{" +
+                    "node=" + node +
+                    ", ids=" + ids +
+                    ", reason=" + reason +
+                    '}';
+        }
     }
 
     public static final class BuildInput
@@ -60,6 +70,15 @@ public abstract class JournalEntry
         {
             this.node = checkNotNull(node);
             this.key = checkNotNull(key);
+        }
+
+        @Override
+        public String toString()
+        {
+            return "BuildInput{" +
+                    "node=" + node +
+                    ", key=" + key +
+                    '}';
         }
     }
 
@@ -75,6 +94,16 @@ public abstract class JournalEntry
             this.node = checkNotNull(node);
             this.key = checkNotNull(key);
             this.rows = checkNotNull(rows);
+        }
+
+        @Override
+        public String toString()
+        {
+            return "BuildOutput{" +
+                    "node=" + node +
+                    ", key=" + key +
+                    ", rows=" + rows +
+                    '}';
         }
     }
 }

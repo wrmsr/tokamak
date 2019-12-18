@@ -35,6 +35,7 @@ import com.wrmsr.tokamak.core.plan.node.PNode;
 import com.wrmsr.tokamak.core.plan.node.PScan;
 import com.wrmsr.tokamak.util.Cell;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -81,8 +82,10 @@ public class DriverContextImpl
 
         this.linkageManager = new LinkageManager(stateCache);
 
-        journaling = false;
-        journalEntries = null;
+        // journaling = false;
+        // journalEntries = null;
+        journaling = true;
+        journalEntries = new ArrayList<>();
 
         state = Driver.ContextState.ACTIVE;
 
