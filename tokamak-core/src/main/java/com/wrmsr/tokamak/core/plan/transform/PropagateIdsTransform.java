@@ -17,6 +17,7 @@ import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Ordering;
+import com.google.common.collect.Sets;
 import com.wrmsr.tokamak.core.catalog.Catalog;
 import com.wrmsr.tokamak.core.catalog.Table;
 import com.wrmsr.tokamak.core.layout.field.annotation.FieldAnnotation;
@@ -266,7 +267,7 @@ public final class PropagateIdsTransform
                 });
                 Map<String, Type> newFields = newScanFieldsBuilder.build();
                 Set<String> internalFields = newInternalFieldsBuilder.build();
-                Map<String, String> projectionMap = remapProjectionMapBuilder.build();
+                Map<String, String> remapProjection = remapProjectionMapBuilder.build();
 
                 PScan scan = new PScan(
                         visitNodeName(node.getName(), context),
@@ -280,8 +281,11 @@ public final class PropagateIdsTransform
 
                 PNode ret = scan;
 
-                if (!projectionMap.isEmpty()) {
-                    Set<String> remapIdFields = ImmutableSet.of();
+                if (!remapProjection.isEmpty()) {
+                    Set<String> remapIdFields = ImmutableSet.builder()
+                            .addAll(Sets.intersection(table.getLayout().getPrimaryKeyFields(), node.getFields().getNames()))
+                            .add(remapProjection.keySet())
+                            .build();
                     Set<String> remapInternalFields = ImmutableSet.of();
                     Map<String, PValue> inputsByOutput = ImmutableMap.of();
                     ret = new PProject(
