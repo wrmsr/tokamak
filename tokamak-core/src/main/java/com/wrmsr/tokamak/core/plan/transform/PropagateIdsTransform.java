@@ -13,6 +13,7 @@
  */
 package com.wrmsr.tokamak.core.plan.transform;
 
+import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Ordering;
@@ -251,19 +252,23 @@ public final class PropagateIdsTransform
                 Table table = catalog.get().getSchemaTable(node.getSchemaTable());
 
                 // FIXME: *do* have to add projection - have to generate unique field names to prevent upstream clashing :/
-                ImmutableMap.Builder<String, Type> newFieldsBuilder = ImmutableMap.builder();
-                ImmutableSet.Builder<String> internalFieldsBuilder = ImmutableSet.builder();
-                newFieldsBuilder.putAll(node.getFields().getTypesByName());
+                ImmutableMap.Builder<String, Type> newScanFieldsBuilder = ImmutableMap.builder();
+                ImmutableSet.Builder<String> newInternalFieldsBuilder = ImmutableSet.builder();
+                ImmutableBiMap.Builder<String, String> remapProjectionMapBuilder = ImmutableBiMap.builder();
+                newScanFieldsBuilder.putAll(node.getFields().getTypesByName());
                 table.getLayout().getPrimaryKeyFields().forEach(f -> {
                     if (!node.getFields().contains(f)) {
-                        newFieldsBuilder.put(f, table.getRowLayout().getFields().getType(f));
-                        internalFieldsBuilder.add(f);
+                        String internalField = plan.getFieldNameGenerator().get(f);
+                        remapProjectionMapBuilder.put(internalField, f);
+                        newScanFieldsBuilder.put(f, table.getRowLayout().getFields().getType(f));
+                        newInternalFieldsBuilder.add(f);
                     }
                 });
-                Map<String, Type> newFields = newFieldsBuilder.build();
-                Set<String> internalFields = internalFieldsBuilder.build();
+                Map<String, Type> newFields = newScanFieldsBuilder.build();
+                Set<String> internalFields = newInternalFieldsBuilder.build();
+                Map<String, String> projectionMap = remapProjectionMapBuilder.build();
 
-                return new PScan(
+                PScan scan = new PScan(
                         visitNodeName(node.getName(), context),
                         node.getAnnotations(),
                         node.getFieldAnnotations().dropped(IdField.class)
@@ -272,6 +277,20 @@ public final class PropagateIdsTransform
                         node.getSchemaTable(),
                         newFields,
                         PInvalidations.empty());
+
+                PNode ret = scan;
+
+                if (!projectionMap.isEmpty()) {
+                    ret = new PProject(
+                            plan.getNodeNameGenerator().get("propagateIdsScanRemap"),
+                            AnnotationCollection.of(),
+
+
+
+                    );
+                }
+
+                return ret;
             }
 
             @Override
