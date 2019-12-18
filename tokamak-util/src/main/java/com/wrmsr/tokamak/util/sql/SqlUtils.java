@@ -22,7 +22,7 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -47,7 +47,7 @@ public final class SqlUtils
             throws SQLException
     {
         ResultSetMetaData rmd = rs.getMetaData();
-        Map<String, Object> ret = new LinkedHashMap<>();
+        Map<String, Object> ret = new HashMap<>();
         for (int i = 1; i <= rmd.getColumnCount(); ++i) {
             ret.put(rmd.getColumnName(i), rs.getObject(i));
         }

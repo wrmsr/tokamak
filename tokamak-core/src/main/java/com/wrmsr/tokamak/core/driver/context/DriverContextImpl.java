@@ -31,6 +31,7 @@ import com.wrmsr.tokamak.core.driver.context.diag.JournalEntry;
 import com.wrmsr.tokamak.core.driver.context.diag.Stat;
 import com.wrmsr.tokamak.core.driver.context.state.DefaultStateCache;
 import com.wrmsr.tokamak.core.driver.state.State;
+import com.wrmsr.tokamak.core.layout.field.Field;
 import com.wrmsr.tokamak.core.plan.node.PNode;
 import com.wrmsr.tokamak.core.plan.node.PScan;
 import com.wrmsr.tokamak.util.Cell;
@@ -44,7 +45,9 @@ import java.util.Objects;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
+import static com.wrmsr.tokamak.util.MoreCollectors.toLinkedMap;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 import static java.util.function.UnaryOperator.identity;
 
@@ -181,7 +184,10 @@ public class DriverContextImpl
                 Schema schema = driver.getCatalog().getSchemasByName().get(((PScan) builder.getNode()).getSchemaTable().getSchema());
                 Connection connection = getConnection(schema.getConnector());
                 List<Map<String, Object>> scanRows = sop.getScanner().scan(connection, key);
-                sop.getCallback().accept(scanRows);
+                List<Map<String, Object>> orderedScanRows = scanRows.stream().map(r ->
+                        builder.getNode().getFields().stream().map(Field::getName).collect(toLinkedMap(identity(), r::get)))
+                        .collect(toImmutableList());
+                sop.getCallback().accept(orderedScanRows);
             }
             else {
                 throw new IllegalStateException(Objects.toString(op));
