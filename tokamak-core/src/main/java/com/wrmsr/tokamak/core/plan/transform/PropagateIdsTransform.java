@@ -281,13 +281,17 @@ public final class PropagateIdsTransform
                 PNode ret = scan;
 
                 if (!projectionMap.isEmpty()) {
+                    Set<String> remapIdFields = ImmutableSet.of();
+                    Set<String> remapInternalFields = ImmutableSet.of();
+                    Map<String, PValue> inputsByOutput = ImmutableMap.of();
                     ret = new PProject(
                             plan.getNodeNameGenerator().get("propagateIdsScanRemap"),
                             AnnotationCollection.of(),
-
-
-
-                    );
+                            AnnotationCollectionMap.<String, FieldAnnotation>of()
+                                    .merged(immutableMapOfSame(remapIdFields, AnnotationCollection.of(FieldAnnotation.id())))
+                                    .merged(immutableMapOfSame(remapInternalFields, AnnotationCollection.of(FieldAnnotation.internal()))),
+                            ret,
+                            new PProjection(inputsByOutput));
                 }
 
                 return ret;
