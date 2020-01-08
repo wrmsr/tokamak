@@ -28,6 +28,8 @@ public interface Cell<T>
 
     void set(T value);
 
+    boolean isSet();
+
     default Supplier<T> toSupplier()
     {
         return this::get;
@@ -58,6 +60,12 @@ public interface Cell<T>
         public final void set(T value)
         {
             this.value = value;
+        }
+
+        @Override
+        public boolean isSet()
+        {
+            return true;
         }
 
         @Override
@@ -93,6 +101,12 @@ public interface Cell<T>
             isSet = true;
             this.value = value;
         }
+
+        @Override
+        public boolean isSet()
+        {
+            return isSet;
+        }
     }
 
     static <T> Cell<T> optional()
@@ -123,6 +137,12 @@ public interface Cell<T>
             }
             isSet = true;
             this.value = value;
+        }
+
+        @Override
+        public boolean isSet()
+        {
+            return isSet;
         }
     }
 

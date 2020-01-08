@@ -13,37 +13,28 @@
  */
 package com.wrmsr.tokamak.core.plan.dot;
 
+import com.wrmsr.tokamak.core.layout.field.Field;
+import com.wrmsr.tokamak.core.layout.field.annotation.FieldAnnotation;
+import com.wrmsr.tokamak.core.plan.Plan;
 import com.wrmsr.tokamak.core.plan.node.PNode;
+import com.wrmsr.tokamak.util.Cell;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.ImmutableList.toImmutableList;
 
 @Immutable
-final class NodeRendering<T extends PNode>
+class NodeRendering<T extends PNode>
 {
-    private final Class<T> cls;
+    final Class<T> cls;
 
-    @Nullable
-    private final Color color;
+    final Cell<Color> color = Cell.setOnce();
 
     public NodeRendering(Class<T> cls)
     {
         this.cls = checkNotNull(cls);
-        this.color = null;
-    }
-
-    public NodeRendering(Class<T> cls, Color color)
-    {
-        this.cls = checkNotNull(cls);
-        this.color = checkNotNull(color);
-    }
-
-    public NodeRendering(NodeRendering<T> proto, Color color)
-    {
-        this.cls = proto.cls;
-        this.color = checkNotNull(color);
     }
 
     public Class<T> getCls()
@@ -54,6 +45,95 @@ final class NodeRendering<T extends PNode>
     @Nullable
     public Color getColor()
     {
-        return color;
+        return color.get();
+    }
+
+    public static final class Context<T>
+    {
+        protected final T node;
+        protected final Plan plan;
+
+        public Context(T node, Plan plan)
+        {
+            this.node = node;
+            this.plan = plan;
+        }
+    }
+
+    public String render(Context<T> ctx)
+    {
+        DotUtils.Table table = DotUtils.table();
+
+        addHeader(ctx, table);
+
+        addFieldsSection(ctx, table);
+
+        String label = table.render();
+
+        return String.format(
+                "\"%s\" [shape=box, style=filled, fillcolor=\"%s\", label=%s];",
+                ctx.node.getName(),
+                color.toString(),
+                label);
+    }
+
+    protected void addHeader(Context<T> ctx, DotUtils.Table table)
+    {
+        table.add(
+                DotUtils.section(
+                        DotUtils.row(ctx.node.getClass().getSimpleName() + ": " + ctx.node.getName()),
+                        DotUtils.row(ctx.node.getId().toPrefixedString())));
+    }
+
+    protected void addFieldsSection(Context<T> ctx, DotUtils.Table table)
+    {
+        DotUtils.Section section = DotUtils.section();
+
+        ctx.node.getFields().forEach(field -> addFieldRow(ctx, field, section));
+
+        table.add(section);
+    }
+
+    protected void addFieldRow(Context<T> ctx, Field field, DotUtils.Section section)
+    {
+        DotUtils.Row row = DotUtils.row();
+
+        addFieldName(ctx, field, row);
+
+        addFieldExtra(ctx, field, row);
+
+        addFieldType(ctx, field, row);
+
+        addFieldAnnotations(ctx, field, row);
+
+        section.add(row);
+    }
+
+    protected void addFieldName(Context<T> ctx, Field field, DotUtils.Row row)
+    {
+        row.add(DotUtils.column(field.getName()));
+    }
+
+    protected void addFieldExtra(Context<T> ctx, Field field, DotUtils.Row row)
+    {
+    }
+
+    protected void addFieldType(Context<T> ctx, Field field, DotUtils.Row row)
+    {
+        row.add(DotUtils.column(field.getType().toSpec()));
+    }
+
+    protected void addFieldAnnotations(Context<T> ctx, Field field, DotUtils.Row row)
+    {
+        if (!field.getAnnotations().isEmpty()) {
+            DotUtils.Table attsTable = DotUtils.table(
+                    DotUtils.section(
+                            field.getAnnotations().stream()
+                                    .map(FieldAnnotation::toDisplayString)
+                                    .map(DotUtils::row)
+                                    .collect(toImmutableList())));
+
+            row.add(DotUtils.rawColumn(DotUtils.render(attsTable::renderInternal)));
+        }
     }
 }

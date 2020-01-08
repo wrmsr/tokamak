@@ -14,11 +14,12 @@
 package com.wrmsr.tokamak.core.plan.dot;
 
 import com.google.common.collect.ImmutableList;
+import com.wrmsr.tokamak.core.layout.field.Field;
 import com.wrmsr.tokamak.core.plan.node.PCache;
 import com.wrmsr.tokamak.core.plan.node.PExtract;
-import com.wrmsr.tokamak.core.plan.node.PJoin;
 import com.wrmsr.tokamak.core.plan.node.PFilter;
 import com.wrmsr.tokamak.core.plan.node.PGroup;
+import com.wrmsr.tokamak.core.plan.node.PJoin;
 import com.wrmsr.tokamak.core.plan.node.PLookup;
 import com.wrmsr.tokamak.core.plan.node.PNode;
 import com.wrmsr.tokamak.core.plan.node.POutput;
@@ -35,7 +36,6 @@ import com.wrmsr.tokamak.core.plan.node.PUnnest;
 import com.wrmsr.tokamak.core.plan.node.PValues;
 import com.wrmsr.tokamak.util.lazy.CtorLazyValue;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -48,44 +48,69 @@ public final class NodeRenderings
     {
     }
 
-    public static final CtorLazyValue<List<NodeRendering<?>>> RAW_NODE_RENDERINGS = new CtorLazyValue<>(() ->
-            ImmutableList.<NodeRendering<?>>builder()
-                    .add(new NodeRendering<>(PCache.class))
-                    .add(new NodeRendering<>(PExtract.class))
-                    .add(new NodeRendering<>(PFilter.class))
-                    .add(new NodeRendering<>(PGroup.class))
-                    .add(new NodeRendering<>(PJoin.class))
-                    .add(new NodeRendering<>(PLookup.class))
-                    .add(new NodeRendering<>(POutput.class))
-                    .add(new NodeRendering<>(PProject.class))
-                    .add(new NodeRendering<>(PScan.class))
-                    .add(new NodeRendering<>(PScope.class))
-                    .add(new NodeRendering<>(PScopeExit.class))
-                    .add(new NodeRendering<>(PSearch.class))
-                    .add(new NodeRendering<>(PState.class))
-                    .add(new NodeRendering<>(PStruct.class))
-                    .add(new NodeRendering<>(PUnify.class))
-                    .add(new NodeRendering<>(PUnion.class))
-                    .add(new NodeRendering<>(PUnnest.class))
-                    .add(new NodeRendering<>(PValues.class))
-                    .build());
+    private static final CtorLazyValue<List<NodeRendering<?>>> RAW_NODE_RENDERINGS = new CtorLazyValue<>(() -> ImmutableList.<NodeRendering<?>>builder()
 
-    @SuppressWarnings({"unchecked"})
+            .add(new NodeRendering<>(PCache.class))
+
+            .add(new NodeRendering<>(PExtract.class))
+
+            .add(new NodeRendering<>(PFilter.class))
+
+            .add(new NodeRendering<>(PGroup.class))
+
+            .add(new NodeRendering<>(PJoin.class))
+
+            .add(new NodeRendering<>(PLookup.class))
+
+            .add(new NodeRendering<>(POutput.class))
+
+            .add(new NodeRendering<PProject>(PProject.class)
+            {
+                @Override
+                protected void addFieldExtra(Context<PProject> ctx, Field field, DotUtils.Row row)
+                {
+                    row.add(DotUtils.column("hi"));
+                }
+            })
+
+            .add(new NodeRendering<>(PScan.class))
+
+            .add(new NodeRendering<>(PScope.class))
+
+            .add(new NodeRendering<>(PScopeExit.class))
+
+            .add(new NodeRendering<>(PSearch.class))
+
+            .add(new NodeRendering<>(PState.class))
+
+            .add(new NodeRendering<>(PStruct.class))
+
+            .add(new NodeRendering<>(PUnify.class))
+
+            .add(new NodeRendering<>(PUnion.class))
+
+            .add(new NodeRendering<>(PUnnest.class))
+
+            .add(new NodeRendering<>(PValues.class))
+
+            .build());
+
     public static final CtorLazyValue<List<NodeRendering<?>>> NODE_RENDERINGS = new CtorLazyValue<>(() -> {
-        List<NodeRendering<?>> renderings = new ArrayList<>(RAW_NODE_RENDERINGS.get());
+        List<NodeRendering<?>> renderings = RAW_NODE_RENDERINGS.get();
 
         List<Color> colors = Color.RAINBOW.get();
-        int step = (int) ((float) colors.size() / renderings.stream().filter(r -> r.getColor() == null).count());
+        int step = (int) ((float) colors.size() / renderings.stream().filter(r -> !r.color.isSet()).count());
+
         for (int i = 0, j = 0; i < renderings.size(); ++i) {
-            if (renderings.get(i).getColor() == null) {
-                renderings.set(i, new NodeRendering<>(renderings.get(i), colors.get((j++) * step)));
+            NodeRendering<?> rendering = renderings.get(i);
+            if (!rendering.color.isSet()) {
+                rendering.color.set(colors.get((j++) * step));
             }
         }
 
-        return ImmutableList.copyOf(renderings);
+        return renderings;
     });
 
-    @SuppressWarnings({"unchecked"})
-    public static final CtorLazyValue<Map<Class<? extends PNode>, NodeRendering<?>>> NODE_RENDERING_MAP =
-            new CtorLazyValue<>(() -> NODE_RENDERINGS.get().stream().collect(toImmutableMap(NodeRendering::getCls, identity())));
+    public static final CtorLazyValue<Map<Class<? extends PNode>, NodeRendering<?>>> NODE_RENDERING_MAP = new CtorLazyValue<>(() ->
+            NODE_RENDERINGS.get().stream().collect(toImmutableMap(NodeRendering::getCls, identity())));
 }

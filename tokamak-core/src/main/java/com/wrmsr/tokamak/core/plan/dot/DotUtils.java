@@ -34,9 +34,11 @@ public final class DotUtils
 
     private static final Escaper HTML_ESCAPER = HtmlEscapers.htmlEscaper();
 
-    public static String htmlEscape(String string)
+    public static String escape(String string)
     {
-        return HTML_ESCAPER.escape(string);
+        return HTML_ESCAPER
+                .escape(string)
+                .replaceAll("@", "&#64;");
     }
 
     public static String render(Consumer<StringBuilder> renderable)
@@ -191,12 +193,12 @@ public final class DotUtils
 
     public static Column column(String content)
     {
-        return new Column(htmlEscape(content));
+        return new Column(escape(content));
     }
 
     public static Column column(String content, String style)
     {
-        return new Column(htmlEscape(content), style);
+        return new Column(escape(content), style);
     }
 
     public static Column rawColumn(String content)
@@ -207,6 +209,11 @@ public final class DotUtils
     public static Column rawColumn(String content, String style)
     {
         return new Column(content, style);
+    }
+
+    public static Row row()
+    {
+        return new Row();
     }
 
     public static Row row(Column... columns)

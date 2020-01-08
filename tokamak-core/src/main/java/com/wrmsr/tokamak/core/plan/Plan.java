@@ -242,6 +242,13 @@ public final class Plan
         return toposortIndicesByNodeField.get(() -> buildListIndexMap(getToposortedNodeFields()));
     }
 
+    private final SupplierLazyValue<Set<String>> fieldNames = new SupplierLazyValue<>();
+
+    public Set<String> getFieldNames()
+    {
+        return fieldNames.get(() -> nodes.stream().flatMap(n -> n.getFields().getNames().stream()).collect(toImmutableSet()));
+    }
+
     public static final String NAME_GENERATOR_PREFIX = "@";
 
     private final SupplierLazyValue<NameGenerator> nodeNameGenerator = new SupplierLazyValue<>();
@@ -255,7 +262,6 @@ public final class Plan
 
     public NameGenerator getFieldNameGenerator()
     {
-        return fieldNameGenerator.get(() ->
-                new NameGenerator(nodes.stream().flatMap(n -> n.getFields().getNames().stream()).collect(toImmutableSet()), NAME_GENERATOR_PREFIX));
+        return fieldNameGenerator.get(() -> new NameGenerator(getFieldNames(), NAME_GENERATOR_PREFIX));
     }
 }

@@ -32,70 +32,21 @@ public final class Dot
     {
     }
 
-    public static class Visitor
-            extends PNodeVisitor<String, Void>
-    {
-        private final Plan plan;
-
-        public Visitor(Plan plan)
-        {
-            this.plan = checkNotNull(plan);
-        }
-
-        @Override
-        protected String visitNode(PNode node, Void context)
-        {
-            DotUtils.Table table = DotUtils.table();
-
-            table.add(
-                    DotUtils.section(
-                            DotUtils.row(node.getClass().getSimpleName() + ": " + node.getName()),
-                            DotUtils.row(node.getId().toPrefixedString())));
-
-            table.add(
-                    DotUtils.section(
-                            node.getFields().stream().map(f -> {
-                                DotUtils.Row row = DotUtils.row(
-                                        DotUtils.column(f.getName()),
-                                        DotUtils.column(f.getType().toSpec()));
-                                if (!f.getAnnotations().isEmpty()) {
-                                    DotUtils.Table attsTable = DotUtils.table(
-                                            DotUtils.section(
-                                                    f.getAnnotations().stream()
-                                                            .map(FieldAnnotation::toDisplayString)
-                                                            .map(DotUtils::row)
-                                                            .collect(toImmutableList())));
-
-                                    row.add(DotUtils.rawColumn(DotUtils.render(attsTable::renderInternal)));
-                                }
-                                return row;
-                            }).collect(toImmutableList())));
-
-            String label = table.render();
-
-            NodeRendering<?> rendering = checkNotNull(NodeRenderings.NODE_RENDERING_MAP.get().get(node.getClass()));
-            return String.format(
-                    "%s [shape=box, style=filled, fillcolor=\"%s\", label=%s];",
-                    node.getName(),
-                    rendering.getColor().toString(),
-                    label);
-        }
-    }
-
+    @SuppressWarnings({"rawtypes", "unchecked"})
     public static String buildPlanDot(Plan plan)
     {
         StringBuilder sb = new StringBuilder();
         sb.append("digraph G {\n");
 
-        Visitor visitor = new Visitor(plan);
         for (PNode node : plan.getReverseToposortedNodes()) {
-            sb.append(node.accept(visitor, null));
+            NodeRendering rendering = checkNotNull(NodeRenderings.NODE_RENDERING_MAP.get().get(node.getClass()));
+            sb.append(rendering.render(new NodeRendering.Context(node, plan)));
             sb.append("\n");
         }
 
         for (PNode node : plan.getToposortedNodes()) {
             for (PNode source : node.getSources()) {
-                sb.append(String.format("%s -> %s [dir=back];\n", node.getName(), source.getName()));
+                sb.append(String.format("\"%s\" -> \"%s\" [dir=back];\n", node.getName(), source.getName()));
             }
         }
 

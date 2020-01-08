@@ -270,17 +270,16 @@ public class CoreTest
         // catalog = om.readValue(src, Catalog.class);
 
         Plan plan = buildPlan(catalog);
-
-        // Dot.openDot(Dot.buildPlanDot(plan));
+        Dot.openDot(Dot.buildPlanDot(plan));
 
         // plan = SetIdFieldsTransform.setIdFields(plan, Optional.of(catalog));
-        plan = PropagateIdsTransform.propagateIds(plan, Optional.of(catalog));
-
         // Dot.openDot(Dot.buildPlanDot(plan));
+
+        plan = PropagateIdsTransform.propagateIds(plan, Optional.of(catalog));
+        Dot.openDot(Dot.buildPlanDot(plan));
 
         plan = SetInvalidationsTransform.setInvalidations(plan, Optional.of(catalog));
-
-        // Dot.openDot(Dot.buildPlanDot(plan));
+        Dot.openDot(Dot.buildPlanDot(plan));
 
         OriginAnalysis oa = OriginAnalysis.analyze(plan);
         oa.getLeafChainAnalysis().getSinkSetsByFirstSource();
