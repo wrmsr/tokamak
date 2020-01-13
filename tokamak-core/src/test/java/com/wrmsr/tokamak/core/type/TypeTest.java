@@ -39,9 +39,6 @@ public class TypeTest
         Type type = Types.BUILTIN_REGISTRY.fromSpec("Internal<NotNull<Map<Long, Sized<NotNull<Long>, 420>>>>");
         System.out.println(type);
         System.out.println(type.toSpec());
-
-        NormalizedType normalizedType = (NormalizedType) NormalizedType.of(type);
-        System.out.println(normalizedType);
     }
 
     public void testJson()

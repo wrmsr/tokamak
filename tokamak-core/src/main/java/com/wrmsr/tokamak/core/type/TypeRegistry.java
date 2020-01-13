@@ -15,10 +15,16 @@ package com.wrmsr.tokamak.core.type;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Ordering;
 import com.google.common.primitives.Primitives;
 import com.wrmsr.tokamak.util.Pair;
 
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
+
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.Lists.newArrayList;
 import static com.wrmsr.tokamak.util.MoreCollections.immutableMapItems;
 import static com.wrmsr.tokamak.util.MoreCollections.immutableMapValues;
 
@@ -69,7 +75,9 @@ public final class TypeRegistry
     public Type fromSpec(String str)
     {
         TypeParsing.ParsedType parsedType = TypeParsing.parseType(str);
-        return (Type) fromParsed(parsedType);
+        Type type = (Type) fromParsed(parsedType);
+        NormalizedType normalizedType = new NormalizedType(type);
+        return (Type) denormalize(normalizedType);
     }
 
     private Object fromParsed(Object item)
@@ -80,6 +88,37 @@ public final class TypeRegistry
             return registrant.construct(
                     immutableMapItems(parsedType.getArgs(), this::fromParsed),
                     immutableMapValues(parsedType.getKwargs(), this::fromParsed));
+        }
+        else {
+            return item;
+        }
+    }
+
+    public Object denormalize(Object item)
+    {
+        if (item instanceof NormalizedType) {
+            NormalizedType normalizedType = (NormalizedType) item;
+            TypeRegistrant registrant = registrantsByBaseName.get(normalizedType.getItem().getBaseName());
+            Type type = registrant.construct(
+                    immutableMapItems(normalizedType.getArgs(), this::denormalize),
+                    immutableMapValues(normalizedType.getKwargs(), this::denormalize));
+
+            List<Type.Sigil> sigils = newArrayList(normalizedType.getSigilsByName().values());
+            sigils.sort(Comparator.comparing(Type::getBaseName, Ordering.natural()).reversed());
+            for (Type.Sigil sigil : sigils) {
+                TypeRegistrant sigilRegistrant = registrantsByBaseName.get(sigil.getBaseName());
+                type = sigilRegistrant.construct(
+                        ImmutableList.builder()
+                                .add(type)
+                                .addAll(immutableMapItems(sigil.getArgs().subList(1, sigil.getArgs().size()), this::denormalize))
+                                .build(),
+                        immutableMapValues(sigil.getKwargs(), this::denormalize));
+            }
+
+            return type;
+        }
+        else if (item instanceof Type) {
+            throw new IllegalArgumentException(Objects.toString(item));
         }
         else {
             return item;
