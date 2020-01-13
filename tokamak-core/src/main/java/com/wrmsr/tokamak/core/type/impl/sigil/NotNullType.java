@@ -36,6 +36,7 @@ public final class NotNullType
         this.item = checkNotNull(item);
     }
 
+    @Override
     public Type getItem()
     {
         return item;

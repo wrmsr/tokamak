@@ -13,9 +13,8 @@
  */
 package com.wrmsr.tokamak.core.type;
 
-import com.wrmsr.tokamak.core.type.Type;
-
 public interface SigilType
         extends Type
 {
+    Type getItem();
 }
