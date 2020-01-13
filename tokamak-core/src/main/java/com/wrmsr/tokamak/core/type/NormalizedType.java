@@ -17,9 +17,12 @@ import com.google.common.collect.ImmutableMap;
 
 import javax.annotation.concurrent.Immutable;
 
+import java.util.List;
 import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.wrmsr.tokamak.util.MoreCollections.immutableMapItems;
+import static com.wrmsr.tokamak.util.MoreCollections.immutableMapValues;
 
 @Immutable
 public final class NormalizedType
@@ -27,6 +30,9 @@ public final class NormalizedType
     private final Type item;
 
     private final Map<Class<? extends Type.Sigil>, Type.Sigil> sigilsByType;
+
+    private final List<Object> args;
+    private final Map<String, Object> kwargs;
 
     @SuppressWarnings({"unchecked"})
     public NormalizedType(Type type)
@@ -42,6 +48,9 @@ public final class NormalizedType
 
         this.item = checkNotNull(curType);
         this.sigilsByType = sigilsByType.build();
+
+        args = immutableMapItems(type.getArgs(), NormalizedType::normalize);
+        kwargs = immutableMapValues(type.getKwargs(), NormalizedType::normalize);
     }
 
     public Type getItem()
@@ -52,5 +61,25 @@ public final class NormalizedType
     public Map<Class<? extends Type.Sigil>, Type.Sigil> getSigilsByType()
     {
         return sigilsByType;
+    }
+
+    public List<Object> getArgs()
+    {
+        return args;
+    }
+
+    public Map<String, Object> getKwargs()
+    {
+        return kwargs;
+    }
+
+    public static Object normalize(Object item)
+    {
+        if (item instanceof Type) {
+            return new NormalizedType((Type) item);
+        }
+        else {
+            return item;
+        }
     }
 }
