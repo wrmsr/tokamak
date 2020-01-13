@@ -93,7 +93,10 @@ public final class TypeRegistrant
 
     public static TypeRegistrant standard(Type type)
     {
-        if (type instanceof PrimitiveType || type instanceof SimpleType || type instanceof SpecialType) {
+        if (type instanceof PrimitiveType || type instanceof SimpleType) {
+            return new TypeRegistrant(type.getBaseName(), type.getClass(), type.toReflect(), TypeConstructor.of(() -> type));
+        }
+        else if (type instanceof SpecialType) {
             return new TypeRegistrant(type.getBaseName(), type.getClass(), TypeConstructor.of(() -> type));
         }
         else {
