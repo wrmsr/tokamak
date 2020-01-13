@@ -11,23 +11,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.core.type.impl;
+package com.wrmsr.tokamak.core.type;
 
-import com.wrmsr.tokamak.core.type.Type;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import com.wrmsr.tokamak.core.type.impl.ReferenceType;
 
-import javax.annotation.concurrent.Immutable;
+import java.util.Map;
+import java.util.Set;
 
-@Immutable
-public final class NamedType
-        extends ReferenceType
+public final class ReferenceTypeCollection
 {
-    public NamedType(String name)
-    {
-        super(name);
-    }
+    private final Object lock = new Object();
 
-    public NamedType(String name, Type targetType)
-    {
-        super(name, targetType);
-    }
+    private volatile Set<String> names = ImmutableSet.of();
+    private volatile Map<String, ReferenceType> namedTypesByName = ImmutableMap.of();
 }

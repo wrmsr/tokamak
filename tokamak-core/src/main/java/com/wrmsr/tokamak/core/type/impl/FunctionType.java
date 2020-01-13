@@ -24,7 +24,7 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.collect.ImmutableList.toImmutableList;
+import static com.wrmsr.tokamak.util.MoreCollections.immutableMapItems;
 
 @Immutable
 public final class FunctionType
@@ -32,7 +32,7 @@ public final class FunctionType
 {
     public static final String NAME = "Function";
     public static final TypeRegistrant REGISTRANT = new TypeRegistrant(NAME, FunctionType.class, Method.class, TypeConstructor.of(
-            (List<Object> args) -> new FunctionType((Type) args.get(0), args.subList(1, args.size()).stream().map(Type.class::cast).collect(toImmutableList()))));
+            (List<Object> args) -> new FunctionType((Type) args.get(0), immutableMapItems(args.subList(1, args.size()), Type.class::cast))));
 
     public FunctionType(Type returnType, List<Type> paramTypes)
     {
@@ -44,10 +44,9 @@ public final class FunctionType
         return (Type) checkNotNull(getArgs().get(0));
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
     public List<Type> getParams()
     {
-        return (List) getArgs().subList(1, getArgs().size());
+        return immutableMapItems(getArgs().subList(1, getArgs().size()), Type.class::cast);
     }
 
     @Override

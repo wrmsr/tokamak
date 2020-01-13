@@ -18,15 +18,15 @@ import com.wrmsr.tokamak.core.type.Type;
 import javax.annotation.concurrent.Immutable;
 
 @Immutable
-public final class NamedType
+public class AliasType
         extends ReferenceType
 {
-    public NamedType(String name)
+    public AliasType(String name)
     {
         super(name);
     }
 
-    public NamedType(String name, Type targetType)
+    public AliasType(String name, Type targetType)
     {
         super(name, targetType);
     }
