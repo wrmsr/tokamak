@@ -14,10 +14,23 @@
 package com.wrmsr.tokamak.core.type;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.wrmsr.tokamak.core.type.impl.BiMapType;
+import com.wrmsr.tokamak.core.type.impl.EnumSetType;
+import com.wrmsr.tokamak.core.type.impl.EnumType;
+import com.wrmsr.tokamak.core.type.impl.FunctionType;
+import com.wrmsr.tokamak.core.type.impl.ListType;
+import com.wrmsr.tokamak.core.type.impl.MapType;
+import com.wrmsr.tokamak.core.type.impl.NotNullType;
 import com.wrmsr.tokamak.core.type.impl.PrimitiveType;
+import com.wrmsr.tokamak.core.type.impl.SetType;
 import com.wrmsr.tokamak.core.type.impl.SimpleType;
 import com.wrmsr.tokamak.core.type.impl.SpecialType;
+import com.wrmsr.tokamak.core.type.impl.StructType;
+import com.wrmsr.tokamak.core.type.impl.StructuralType;
+import com.wrmsr.tokamak.core.type.impl.TupleType;
+import com.wrmsr.tokamak.core.type.impl.UnionType;
 import com.wrmsr.tokamak.util.Pair;
 
 import java.math.BigDecimal;
@@ -84,7 +97,7 @@ public final class Types
     public static final SpecialType ARGS = new SpecialType("Args");
     public static final SpecialType JIT_FUNCTION = new SpecialType("JitFunction");
 
-    public static final Set<Type> BUILTINS = ImmutableSet.<Type>builder()
+    public static final Set<Type> BUILTIN_TYPES = ImmutableSet.<Type>builder()
 
             .add(VOID)
             .add(OBJECT)
@@ -108,6 +121,25 @@ public final class Types
             .add(UNKNOWN)
             .add(ARGS)
             .add(JIT_FUNCTION)
+
+            .build();
+
+    public static final List<TypeRegistrant> BUILTIN_REGISTRANTS = ImmutableList.<TypeRegistrant>builder()
+
+            .addAll(BUILTIN_TYPES.stream().map(TypeRegistrant::standard).collect(toImmutableList()))
+
+            .add(BiMapType.REGISTRANT)
+            .add(EnumSetType.REGISTRANT)
+            .add(EnumType.REGISTRANT)
+            .add(FunctionType.REGISTRANT)
+            .add(ListType.REGISTRANT)
+            .add(MapType.REGISTRANT)
+            .add(NotNullType.REGISTRANT)
+            .add(SetType.REGISTRANT)
+            .add(StructType.REGISTRANT)
+            .add(StructuralType.REGISTRANT)
+            .add(TupleType.REGISTRANT)
+            .add(UnionType.REGISTRANT)
 
             .build();
 
