@@ -13,13 +13,11 @@
  */
 package com.wrmsr.tokamak.core.type.impl;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.core.type.Type;
 import com.wrmsr.tokamak.core.type.TypeRendering;
 import com.wrmsr.tokamak.core.type.Types;
-import com.wrmsr.tokamak.util.Pair;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -28,10 +26,8 @@ import java.util.Map;
 import java.util.OptionalInt;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.wrmsr.tokamak.core.type.Types.checkValidArg;
 import static com.wrmsr.tokamak.util.MoreCollections.checkOrdered;
-import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 
 @Immutable
@@ -127,15 +123,5 @@ public abstract class AbstractType
     public final String toSpec()
     {
         return TypeRendering.buildSpec(baseName, args, kwargs);
-    }
-
-    protected static List<Type> objectsToTypes(List<Object> objects)
-    {
-        return objects.stream().map(Preconditions::checkNotNull).map(Type.class::cast).collect(toImmutableList());
-    }
-
-    protected static Map<String, Type> objectsToTypes(Map<String, Object> objects)
-    {
-        return objects.entrySet().stream().map(e -> Pair.immutable(e.getKey(), (Type) checkNotNull(e.getValue()))).collect(toImmutableMap());
     }
 }

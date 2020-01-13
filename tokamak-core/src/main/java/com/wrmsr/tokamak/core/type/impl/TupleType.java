@@ -17,6 +17,7 @@ import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.core.type.Type;
 import com.wrmsr.tokamak.core.type.TypeConstructor;
 import com.wrmsr.tokamak.core.type.TypeRegistrant;
+import com.wrmsr.tokamak.core.type.Types;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -28,7 +29,7 @@ public final class TupleType
 {
     public static final String NAME = "Tuple";
     public static final TypeRegistrant REGISTRANT = new TypeRegistrant(NAME, TupleType.class, TypeConstructor.of(
-            (List<Object> args) -> new TupleType(objectsToTypes(args))));
+            (List<Object> args) -> new TupleType(Types.objectsToTypes(args))));
 
     public TupleType(List<Type> itemTypes)
     {

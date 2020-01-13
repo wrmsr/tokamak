@@ -13,10 +13,12 @@
  */
 package com.wrmsr.tokamak.core.type;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.core.type.impl.PrimitiveType;
 import com.wrmsr.tokamak.core.type.impl.SimpleType;
 import com.wrmsr.tokamak.core.type.impl.SpecialType;
+import com.wrmsr.tokamak.util.Pair;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -25,9 +27,14 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.ImmutableList.toImmutableList;
+import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 
 public final class Types
 {
@@ -113,5 +120,15 @@ public final class Types
     {
         checkArgument(isValidArg(a));
         return a;
+    }
+
+    public static List<Type> objectsToTypes(List<Object> objects)
+    {
+        return objects.stream().map(Preconditions::checkNotNull).map(Type.class::cast).collect(toImmutableList());
+    }
+
+    public static Map<String, Type> objectsToTypes(Map<String, Object> objects)
+    {
+        return objects.entrySet().stream().map(e -> Pair.immutable(e.getKey(), (Type) checkNotNull(e.getValue()))).collect(toImmutableMap());
     }
 }

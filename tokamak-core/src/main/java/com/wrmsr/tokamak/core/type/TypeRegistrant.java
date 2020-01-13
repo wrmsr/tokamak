@@ -67,14 +67,8 @@ public final class TypeRegistrant
 
     public static TypeRegistrant standard(Type type)
     {
-        if (type instanceof SimpleType) {
-            SimpleType<?> simpleType = (SimpleType<?>) type;
-        }
-        else if (type instanceof PrimitiveType) {
-            PrimitiveType<?> primitiveType = (PrimitiveType<?>) type;
-        }
-        else if (type instanceof SpecialType) {
-            SpecialType specialType = (SpecialType) type;
+        if (type instanceof PrimitiveType || type instanceof SimpleType || type instanceof SpecialType) {
+            return new TypeRegistrant(type.getBaseName(), type.getClass(), TypeConstructor.of(() -> type));
         }
         else {
             throw new IllegalArgumentException(Objects.toString(type));

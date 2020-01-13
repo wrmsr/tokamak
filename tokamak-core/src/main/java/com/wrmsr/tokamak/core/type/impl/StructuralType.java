@@ -17,6 +17,7 @@ import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.core.type.Type;
 import com.wrmsr.tokamak.core.type.TypeConstructor;
 import com.wrmsr.tokamak.core.type.TypeRegistrant;
+import com.wrmsr.tokamak.core.type.Types;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -28,7 +29,7 @@ public final class StructuralType
 {
     public static final String NAME = "Structural";
     public static final TypeRegistrant REGISTRANT = new TypeRegistrant(NAME, StructuralType.class, TypeConstructor.of(
-            (Map<String, Object> kwargs) -> new StructuralType(objectsToTypes(kwargs))));
+            (Map<String, Object> kwargs) -> new StructuralType(Types.objectsToTypes(kwargs))));
 
     public StructuralType(Map<String, Type> memberTypes)
     {

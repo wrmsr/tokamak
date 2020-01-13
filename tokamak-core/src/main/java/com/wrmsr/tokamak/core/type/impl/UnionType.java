@@ -17,6 +17,7 @@ import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.core.type.Type;
 import com.wrmsr.tokamak.core.type.TypeConstructor;
 import com.wrmsr.tokamak.core.type.TypeRegistrant;
+import com.wrmsr.tokamak.core.type.Types;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -28,7 +29,7 @@ public final class UnionType
 {
     public static final String NAME = "Union";
     public static final TypeRegistrant REGISTRANT = new TypeRegistrant(NAME, UnionType.class, TypeConstructor.of(
-            (List<Object> args) -> new UnionType(objectsToTypes(args))));
+            (List<Object> args) -> new UnionType(Types.objectsToTypes(args))));
 
     public UnionType(List<Type> itemTypes)
     {
