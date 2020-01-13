@@ -148,7 +148,7 @@ public interface PValue
         {
             this.function = checkNotNull(function);
             this.args = ImmutableList.copyOf(args);
-            checkState(this.args.size() == function.getType().getParamTypes().size());
+            checkState(this.args.size() == function.getType().getParams().size());
         }
 
         @Override

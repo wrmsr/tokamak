@@ -66,8 +66,8 @@ public final class PFilter
         this.args = ImmutableList.copyOf(args);
         this.linking = checkNotNull(linking);
 
-        checkArgument(function.getType().getReturnType() == Types.BOOLEAN);
-        checkArgument(function.getType().getParamTypes().size() == this.args.size());
+        checkArgument(function.getType().getReturn() == Types.BOOLEAN);
+        checkArgument(function.getType().getParams().size() == this.args.size());
 
         this.fields = FieldCollection.of(
                 source.getFields().getTypesByName(),
