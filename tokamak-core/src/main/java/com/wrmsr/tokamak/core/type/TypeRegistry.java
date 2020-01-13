@@ -86,6 +86,7 @@ public final class TypeRegistry
         }
     }
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
     public Type fromReflect(java.lang.reflect.Type reflect)
     {
         return registrantsByReflect.get(Primitives.wrap((Class) reflect)).getConstructor().construct(ImmutableList.of(), ImmutableMap.of());
