@@ -18,7 +18,7 @@ import com.wrmsr.tokamak.main.boot.Bootstrap;
 import java.net.ProxySelector;
 
 public class NoProxyOp
-    implements Bootstrap.Op
+        implements Bootstrap.Op
 {
     @Override
     public void run()

@@ -78,17 +78,20 @@ public class HttpTest
     {
     }
 
-    static class MyObjFactory implements Factory<MyObj>
+    static class MyObjFactory
+            implements Factory<MyObj>
     {
         private ContainerRequestContext requestContext;
 
         @Inject
-        public MyObjFactory(ContainerRequestContext requestContext) {
+        public MyObjFactory(ContainerRequestContext requestContext)
+        {
             this.requestContext = requestContext;
         }
 
         @Override
-        public MyObj provide() {
+        public MyObj provide()
+        {
             MyObj obj = new MyObj();
             return obj;
         }
@@ -98,10 +101,12 @@ public class HttpTest
         {
         }
 
-        public static class Binder extends AbstractBinder
+        public static class Binder
+                extends AbstractBinder
         {
             @Override
-            protected void configure() {
+            protected void configure()
+            {
                 bindFactory(MyObjFactory.class).to(MyObj.class).in(RequestScoped.class);
             }
         }

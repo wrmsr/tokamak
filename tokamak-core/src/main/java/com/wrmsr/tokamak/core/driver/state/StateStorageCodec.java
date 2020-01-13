@@ -14,8 +14,8 @@
 package com.wrmsr.tokamak.core.driver.state;
 
 import com.wrmsr.tokamak.core.plan.node.PState;
-import com.wrmsr.tokamak.core.serde.impl.PrefixedSerde;
 import com.wrmsr.tokamak.core.serde.Serde;
+import com.wrmsr.tokamak.core.serde.impl.PrefixedSerde;
 import com.wrmsr.tokamak.util.codec.Codec;
 
 import static com.google.common.base.Preconditions.checkArgument;

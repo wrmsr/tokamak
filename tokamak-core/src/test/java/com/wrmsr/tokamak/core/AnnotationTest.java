@@ -13,19 +13,7 @@
  */
 package com.wrmsr.tokamak.core;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
 import junit.framework.TestCase;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
-import static java.util.function.Function.identity;
 
 public class AnnotationTest
         extends TestCase

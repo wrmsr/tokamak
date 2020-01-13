@@ -28,13 +28,13 @@ import com.wrmsr.tokamak.core.search.node.SNegate;
 import com.wrmsr.tokamak.core.search.node.SNode;
 import com.wrmsr.tokamak.core.search.node.SOperator;
 import com.wrmsr.tokamak.core.search.node.SOr;
+import com.wrmsr.tokamak.core.search.node.SParameter;
 import com.wrmsr.tokamak.core.search.node.SProject;
 import com.wrmsr.tokamak.core.search.node.SProperty;
 import com.wrmsr.tokamak.core.search.node.SSelection;
 import com.wrmsr.tokamak.core.search.node.SSequence;
 import com.wrmsr.tokamak.core.search.node.SSlice;
 import com.wrmsr.tokamak.core.search.node.SString;
-import com.wrmsr.tokamak.core.search.node.SParameter;
 
 import java.util.Objects;
 

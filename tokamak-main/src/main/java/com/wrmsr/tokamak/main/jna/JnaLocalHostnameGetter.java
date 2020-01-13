@@ -16,11 +16,10 @@ package com.wrmsr.tokamak.main.jna;
 import com.sun.jna.LastErrorException;
 import com.sun.jna.Library;
 import com.sun.jna.Native;
-
 import com.wrmsr.tokamak.main.boot.dns.LocalHostnameGetter;
 
 public final class JnaLocalHostnameGetter
-    implements LocalHostnameGetter
+        implements LocalHostnameGetter
 {
     private interface Libc
             extends Library

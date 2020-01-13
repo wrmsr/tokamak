@@ -13,12 +13,6 @@
  */
 package com.wrmsr.tokamak.core.serde;
 
-import com.wrmsr.tokamak.core.serde.ByteArrayInput;
-import com.wrmsr.tokamak.core.serde.ByteArrayOutput;
-import com.wrmsr.tokamak.core.serde.Input;
-import com.wrmsr.tokamak.core.serde.Output;
-import com.wrmsr.tokamak.core.serde.Width;
-
 public interface Serde<V>
 {
     /*

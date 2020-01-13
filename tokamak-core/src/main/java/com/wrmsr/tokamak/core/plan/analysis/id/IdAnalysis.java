@@ -166,7 +166,6 @@ public final class IdAnalysis
                     return IdAnalysisEntry.anon(node);
                 }
 
-
                 return IdAnalysisEntry.of(node, table.getLayout().getPrimaryKeyFields().stream().map(IdAnalysisPart::of).collect(toImmutableList()));
             }
 

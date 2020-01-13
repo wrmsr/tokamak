@@ -102,7 +102,6 @@ public class ParserTest
         }
     }
 
-
     public void testParseQuoteMode()
             throws Throwable
     {

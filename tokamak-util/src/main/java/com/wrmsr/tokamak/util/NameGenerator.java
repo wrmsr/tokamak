@@ -94,7 +94,7 @@ public final class NameGenerator
         }
 
         if (addGlobalPrefixBeforeNumber) {
-            if (!(useGlobalPrefixIfPresent && baseName.endsWith(globalPrefix)))  {
+            if (!(useGlobalPrefixIfPresent && baseName.endsWith(globalPrefix))) {
                 baseName += globalPrefix;
             }
         }

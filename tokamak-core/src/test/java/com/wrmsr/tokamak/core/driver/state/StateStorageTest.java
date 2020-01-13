@@ -13,7 +13,6 @@
  */
 package com.wrmsr.tokamak.core.driver.state;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.api.Id;
@@ -30,7 +29,6 @@ import junit.framework.TestCase;
 
 import java.util.EnumSet;
 import java.util.Map;
-import java.util.Optional;
 
 public class StateStorageTest
         extends TestCase
