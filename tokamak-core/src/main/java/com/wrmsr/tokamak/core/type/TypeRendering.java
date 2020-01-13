@@ -14,6 +14,7 @@
 package com.wrmsr.tokamak.core.type;
 
 import com.google.common.base.Joiner;
+import com.google.common.collect.Streams;
 
 import java.util.List;
 import java.util.Map;
@@ -27,43 +28,33 @@ public final class TypeRendering
     {
     }
 
-    public static String buildSpec(String baseName, List<Object> args, Map<String, Object> kwargs)
+    public static String buildSpec(
+            String baseName,
+            List<Object> args,
+            Map<String, Object> kwargs)
     {
-        throw new IllegalStateException();
+        if (args.isEmpty() && kwargs.isEmpty()) {
+            return baseName;
+        }
+
+        List<String> parts = Streams.concat(
+                args.stream().map(TypeRendering::buildArgSpec),
+                kwargs.entrySet().stream().map(e -> e.getKey() + "=" + buildArgSpec(e.getValue()))
+        ).collect(toImmutableList());
+
+        return baseName + '<' + Joiner.on(", ").join(parts);
     }
 
-    public static String buildArgsSpec(String name, List<Object> args)
+    private static String buildArgSpec(Object v)
     {
-        return name + '<' + Joiner.on(", ").join(
-                args.stream().map(v -> {
-                    if (v instanceof Type) {
-                        return ((Type) v).toSpec();
-                    }
-                    else if (v instanceof Long) {
-                        return Long.toString((Long) v);
-                    }
-                    else {
-                        throw new IllegalStateException(Objects.toString(v));
-                    }
-                }).collect(toImmutableList())) + '>';
-    }
-
-    public static String buildKwargsSpec(String name, Map<String, Object> kwargs)
-    {
-        return name + '<' + Joiner.on(", ").join(
-                kwargs.entrySet().stream().map(e -> {
-                    Object v = e.getValue();
-                    String vs;
-                    if (v instanceof Type) {
-                        vs = ((Type) v).toSpec();
-                    }
-                    else if (v instanceof Long) {
-                        vs = Long.toString((Long) v);
-                    }
-                    else {
-                        throw new IllegalStateException(Objects.toString(v));
-                    }
-                    return e.getKey() + '=' + vs;
-                }).collect(toImmutableList())) + '>';
+        if (v instanceof Type) {
+            return ((Type) v).toSpec();
+        }
+        else if (v instanceof Long) {
+            return Long.toString((Long) v);
+        }
+        else {
+            throw new IllegalStateException(Objects.toString(v));
+        }
     }
 }

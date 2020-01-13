@@ -27,17 +27,17 @@ public final class NormalizedType
 {
     private final Type item;
 
-    private final Map<Class<? extends SigilType>, SigilType> sigilsByType;
+    private final Map<Class<? extends Type.Sigil>, SigilType> sigilsByType;
 
     @SuppressWarnings({"unchecked"})
     public NormalizedType(Type type)
     {
         Type curType = checkNotNull(type);
-        ImmutableMap.Builder<Class<? extends SigilType>, SigilType> sigilsByType = ImmutableMap.builder();
+        ImmutableMap.Builder<Class<? extends Type.Sigil>, Type.Sigil> sigilsByType = ImmutableMap.builder();
 
-        while (curType instanceof SigilType) {
-            SigilType sigilType = (SigilType) curType;
-            sigilsByType.put((Class<? extends SigilType>) curType.getClass(), sigilType);
+        while (curType instanceof Type.Sigil) {
+            Type.Sigil sigilType = (Type.Sigil) curType;
+            sigilsByType.put((Class<? extends Type.Sigil>) curType.getClass(), sigilType);
             curType = checkNotNull(sigilType.getItem());
         }
 
@@ -50,7 +50,7 @@ public final class NormalizedType
         return item;
     }
 
-    public Map<Class<? extends SigilType>, SigilType> getSigilsByType()
+    public Map<Class<? extends Type.Sigil>, Type.Sigil> getSigilsByType()
     {
         return sigilsByType;
     }
