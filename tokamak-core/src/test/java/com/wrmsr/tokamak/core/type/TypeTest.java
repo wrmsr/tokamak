@@ -29,6 +29,7 @@ public class TypeTest
                 "Map<Long, String>",
                 "Enum<x=0>",
                 "Struct<x=Long, y=Double>",
+                "Barf<0, Long, x=1, y=Double>",
         }) {
             System.out.println(TypeParsing.parseType(str));
         }
