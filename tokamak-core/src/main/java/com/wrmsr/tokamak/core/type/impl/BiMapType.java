@@ -16,7 +16,7 @@ package com.wrmsr.tokamak.core.type.impl;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.core.type.Type;
-import com.wrmsr.tokamak.core.type.Types;
+import com.wrmsr.tokamak.core.type.TypeRendering;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -64,6 +64,6 @@ public final class BiMapType
     @Override
     public String toSpec()
     {
-        return Types.buildArgsSpec(baseName, ImmutableList.of(keyType, valueType));
+        return TypeRendering.buildArgsSpec(baseName, ImmutableList.of(keyType, valueType));
     }
 }

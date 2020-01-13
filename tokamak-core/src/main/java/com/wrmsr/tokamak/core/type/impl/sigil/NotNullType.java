@@ -16,7 +16,7 @@ package com.wrmsr.tokamak.core.type.impl.sigil;
 import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.core.type.SigilType;
 import com.wrmsr.tokamak.core.type.Type;
-import com.wrmsr.tokamak.core.type.Types;
+import com.wrmsr.tokamak.core.type.TypeRendering;
 import com.wrmsr.tokamak.core.type.impl.AbstractType;
 
 import javax.annotation.concurrent.Immutable;
@@ -50,6 +50,6 @@ public final class NotNullType
     @Override
     public String toSpec()
     {
-        return Types.buildArgsSpec(baseName, ImmutableList.of(item));
+        return TypeRendering.buildArgsSpec(baseName, ImmutableList.of(item));
     }
 }

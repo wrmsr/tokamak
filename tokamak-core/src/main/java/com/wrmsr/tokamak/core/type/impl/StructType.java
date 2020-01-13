@@ -15,13 +15,11 @@ package com.wrmsr.tokamak.core.type.impl;
 
 import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.core.type.Type;
-import com.wrmsr.tokamak.util.Pair;
 
 import javax.annotation.concurrent.Immutable;
 
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableList.toImmutableList;

@@ -13,16 +13,40 @@
  */
 package com.wrmsr.tokamak.core.type;
 
+import com.google.common.collect.ImmutableMap;
+
+import java.util.Map;
+
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public final class TypeRegistry
 {
-    public Type fromRepr(String str)
+    /*
+    TODO:
+     - inheritance
+    */
+
+    private final Object lock = new Object();
+
+    private volatile ImmutableMap<String, Type> typesByBaseName = ImmutableMap.of();
+
+    public Map<String, Type> getBaseNameMap()
     {
-        throw new IllegalStateException();
+        return typesByBaseName;
     }
 
-    public String toRepr(Type type)
+    public Type register(Type type)
+    {
+        synchronized (lock) {
+            if (typesByBaseName.containsKey(type.getBaseName())) {
+                throw new IllegalArgumentException(String.format("Type base name %s taken", type.getBaseName()));
+            }
+            typesByBaseName = ImmutableMap.<String, Type>builder().putAll(typesByBaseName).put(type.getBaseName(), type).build();
+        }
+        return type;
+    }
+
+    public Type fromSpec(String str)
     {
         throw new IllegalStateException();
     }

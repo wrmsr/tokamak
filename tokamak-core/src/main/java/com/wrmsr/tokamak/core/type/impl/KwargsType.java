@@ -15,7 +15,7 @@ package com.wrmsr.tokamak.core.type.impl;
 
 import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.core.type.Type;
-import com.wrmsr.tokamak.core.type.Types;
+import com.wrmsr.tokamak.core.type.TypeRendering;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -57,6 +57,6 @@ public abstract class KwargsType
     @Override
     public final String toSpec()
     {
-        return Types.buildKwargsSpec(baseName, kwargs);
+        return TypeRendering.buildKwargsSpec(baseName, kwargs);
     }
 }
