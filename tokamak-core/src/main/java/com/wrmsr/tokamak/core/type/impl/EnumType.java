@@ -30,7 +30,7 @@ public final class EnumType
     }
 
     @Override
-    public java.lang.reflect.Type getReflect()
+    public java.lang.reflect.Type toReflect()
     {
         return Enum.class;
     }

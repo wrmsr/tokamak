@@ -42,9 +42,9 @@ public final class NotNullType
     }
 
     @Override
-    public java.lang.reflect.Type getReflect()
+    public java.lang.reflect.Type toReflect()
     {
-        return item.getReflect();
+        return item.toReflect();
     }
 
     @Override

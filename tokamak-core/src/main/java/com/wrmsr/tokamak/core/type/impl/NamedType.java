@@ -38,9 +38,9 @@ public final class NamedType
     }
 
     @Override
-    public java.lang.reflect.Type getReflect()
+    public java.lang.reflect.Type toReflect()
     {
-        return type.getReflect();
+        return type.toReflect();
     }
 
     @Override

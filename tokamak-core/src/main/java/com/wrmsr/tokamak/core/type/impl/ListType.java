@@ -49,7 +49,7 @@ public final class ListType
     }
 
     @Override
-    public java.lang.reflect.Type getReflect()
+    public java.lang.reflect.Type toReflect()
     {
         return List.class;
     }

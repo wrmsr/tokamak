@@ -56,7 +56,7 @@ public final class BiMapType
     }
 
     @Override
-    public java.lang.reflect.Type getReflect()
+    public java.lang.reflect.Type toReflect()
     {
         return BiMap.class;
     }

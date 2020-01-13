@@ -13,10 +13,6 @@
  */
 package com.wrmsr.tokamak.core.type;
 
-import com.google.common.base.Joiner;
-import com.google.common.collect.BiMap;
-import com.google.common.collect.ImmutableBiMap;
-import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.core.type.impl.PrimitiveType;
 import com.wrmsr.tokamak.core.type.impl.SimpleType;
 import com.wrmsr.tokamak.core.type.impl.SpecialType;
@@ -28,16 +24,12 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.collect.ImmutableList.toImmutableList;
 
 public final class Types
 {
     /*
+    com.google.common.primitives.Primitives
+
     TODO:
      - coerce, check
      - serdes
@@ -80,84 +72,4 @@ public final class Types
     public static final SpecialType UNKNOWN = new SpecialType("?");
     public static final SpecialType ARGS = new SpecialType("Args");
     public static final SpecialType JIT_FUNCTION = new SpecialType("JitFunction");
-
-    public static final Map<Class<?>, Type> FROM_JAVA_TYPE = ImmutableMap.<Class<?>, Type>builder()
-            .put(Boolean.class, BOOLEAN)
-            .put(boolean.class, BOOLEAN)
-            .put(Long.class, LONG)
-            .put(long.class, LONG)
-            .put(Double.class, DOUBLE)
-            .put(double.class, DOUBLE)
-            .put(String.class, STRING)
-            .put(byte[].class, BYTES)
-            .build();
-
-    public static final BiMap<Type, String> PRIMITIVE_STRING_MAP = ImmutableBiMap.<Type, String>builder()
-            .put(BOOLEAN, "Boolean")
-            .put(LONG, "Long")
-            .put(DOUBLE, "Double")
-            .put(BYTES, "Bytes")
-            .put(STRING, "String")
-            .build();
-
-    public static Type parseRepr(String str)
-    {
-        return checkNotNull(PRIMITIVE_STRING_MAP.inverse().get(str));
-    }
-
-    public static String toRepr(Type type)
-    {
-        return PRIMITIVE_STRING_MAP.get(type);
-    }
-
-    public static Type fromJavaType(Class<?> cls)
-    {
-        return checkNotNull(FROM_JAVA_TYPE.get(cls));
-    }
-
-    public static String buildArgsSpec(String name, List<Object> args)
-    {
-        return name + '<' + Joiner.on(", ").join(
-                args.stream().map(v -> {
-                    if (v instanceof Type) {
-                        return ((Type) v).toSpec();
-                    }
-                    else if (v instanceof Long) {
-                        return Long.toString((Long) v);
-                    }
-                    else {
-                        throw new IllegalStateException(Objects.toString(v));
-                    }
-                }).collect(toImmutableList())) + '>';
-    }
-
-    public static String buildKwargsSpec(String name, Map<String, Object> kwargs)
-    {
-        return name + '<' + Joiner.on(", ").join(
-                kwargs.entrySet().stream().map(e -> {
-                    Object v = e.getValue();
-                    String vs;
-                    if (v instanceof Type) {
-                        vs = ((Type) v).toSpec();
-                    }
-                    else if (v instanceof Long) {
-                        vs = Long.toString((Long) v);
-                    }
-                    else {
-                        throw new IllegalStateException(Objects.toString(v));
-                    }
-                    return e.getKey() + '=' + vs;
-                }).collect(toImmutableList())) + '>';
-    }
-
-    public static boolean areEquivalent(Type l, Type r)
-    {
-        checkNotNull(l);
-        checkNotNull(r);
-        if (l == UNKNOWN || r == UNKNOWN) {
-            return true;
-        }
-        // FIXME: structural, nominal, lolinal
-        return l.toSpec().equals(r.toSpec());
-    }
 }

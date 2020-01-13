@@ -57,7 +57,7 @@ public final class MapType
     }
 
     @Override
-    public java.lang.reflect.Type getReflect()
+    public java.lang.reflect.Type toReflect()
     {
         return Map.class;
     }

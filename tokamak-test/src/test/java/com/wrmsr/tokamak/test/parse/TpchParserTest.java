@@ -157,11 +157,11 @@ public class TpchParserTest
                         ImmutableList.<JDeclaration>of(
                                 new JMethod(
                                         immutableEnumSet(JAccess.PUBLIC, JAccess.STATIC),
-                                        JTypeSpecifier.of(retType.getReflect()),
+                                        JTypeSpecifier.of(retType.toReflect()),
                                         "invoke",
                                         enumerate(argTypes.stream())
                                                 .map(a -> new JParam(
-                                                        JTypeSpecifier.of(a.getItem().getReflect()),
+                                                        JTypeSpecifier.of(a.getItem().toReflect()),
                                                         "_" + a.getIndex()))
                                                 .collect(toImmutableList()),
                                         Optional.of(
@@ -183,7 +183,7 @@ public class TpchParserTest
                 TpchParserTest.class.getClassLoader());
 
         Method method = cls.getDeclaredMethod(
-                "invoke", argTypes.stream().map(Type::getReflect).collect(toImmutableList()).toArray(new Class<?>[] {}));
+                "invoke", argTypes.stream().map(Type::toReflect).collect(toImmutableList()).toArray(new Class<?>[] {}));
 
         return method;
     }

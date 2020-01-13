@@ -23,7 +23,7 @@ public interface Type
 
     OptionalInt getFixedSize();
 
-    default java.lang.reflect.Type getReflect()
+    default java.lang.reflect.Type toReflect()
     {
         throw new IllegalStateException();
     }

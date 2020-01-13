@@ -49,7 +49,7 @@ public final class EnumSetType
     }
 
     @Override
-    public Type getReflect()
+    public Type toReflect()
     {
         return EnumSet.class;
     }
