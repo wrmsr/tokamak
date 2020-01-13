@@ -45,6 +45,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
+import static com.wrmsr.tokamak.util.MoreCollections.immutableMapItems;
 import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 
 public final class JoinBuilder
@@ -249,7 +250,7 @@ public final class JoinBuilder
             }
 
             Serde<Object[]> idSerde = new TupleSerde(
-                    node.getBranches().stream().map(b -> NULLABLE_BYTES_VALUE_SERDE).collect(toImmutableList()));
+                    immutableMapItems(node.getBranches(), b -> NULLABLE_BYTES_VALUE_SERDE));
             Object[] idBytesObjects = new Object[node.getBranches().size()];
             System.arraycopy(idProto, 0, idBytesObjects, 0, idProto.length);
             Id id = new Id(idSerde.writeBytes(idBytesObjects));

@@ -115,7 +115,10 @@ public final class TypeParsing
             @Override
             public Object visitType(TypeParser.TypeContext ctx)
             {
-                List<ArgOrKwarg> items = ctx.argOrKwarg().stream().map(this::visit).map(ArgOrKwarg.class::cast).collect(toImmutableList());
+                List<ArgOrKwarg> items = ctx.argOrKwarg().stream()
+                        .map(this::visit)
+                        .map(ArgOrKwarg.class::cast)
+                        .collect(toImmutableList());
                 return new RawParsedType(ctx.NAME().getText(), items);
             }
 

@@ -14,6 +14,7 @@
 package com.wrmsr.tokamak.core.conn.jdbc;
 
 import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.api.SchemaTable;
@@ -34,6 +35,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static com.wrmsr.tokamak.util.MoreCollections.checkOrdered;
+import static com.wrmsr.tokamak.util.MoreCollections.immutableMapItems;
 import static com.wrmsr.tokamak.util.sql.SqlUtils.execute;
 import static java.util.function.Function.identity;
 
@@ -109,14 +111,14 @@ public final class JdbcScanner
 
             String stmt = "" +
                     "select " +
-                    Joiner.on(", ").join(selectedFields.stream().collect(toImmutableList())) +
+                    Joiner.on(", ").join(ImmutableList.copyOf(selectedFields)) +
                     " from " +
                     schemaTable.getSchema() + "." + schemaTable.getTable();
 
             if (!this.keyFields.isEmpty()) {
                 stmt += "" +
                         " where " +
-                        Joiner.on(" and ").join(this.keyFields.stream().map(f -> String.format("%s = ?", f, f)).collect(toImmutableList()));
+                        Joiner.on(" and ").join(immutableMapItems(this.keyFields, f -> String.format("%s = ?", f)));
             }
 
             this.stmt = stmt;

@@ -28,6 +28,7 @@ import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
+import static com.wrmsr.tokamak.util.MoreCollections.immutableMapItems;
 
 public final class LetFunctionRewriting
 {
@@ -54,8 +55,8 @@ public final class LetFunctionRewriting
                 List<TSelectItem> items = new ArrayList<>();
 
                 return new TSelect(
-                        node.getItems().stream().map(i -> (TSelectItem) process(i, context)).collect(toImmutableList()),
-                        node.getRelations().stream().map(r -> (TAliasedRelation) process(r, context)).collect(toImmutableList()),
+                        immutableMapItems(node.getItems(), i -> (TSelectItem) process(i, context)),
+                        immutableMapItems(node.getRelations(), r -> (TAliasedRelation) process(r, context)),
                         node.getWhere().map(w -> (TExpression) process(w, context)));
             }
         }, null);

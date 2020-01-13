@@ -35,8 +35,8 @@ import java.util.stream.StreamSupport;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
+import static com.wrmsr.tokamak.util.MoreCollections.immutableMapItems;
 import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkUnique;
 import static java.util.function.Function.identity;
@@ -323,9 +323,7 @@ public final class ObjectArrayBackedMap<K>
     @Override
     public Collection<Object> values()
     {
-        return shape.indicesByKey.values().stream()
-                .map(i -> values[i])
-                .collect(toImmutableList());
+        return immutableMapItems(shape.indicesByKey.values(), i -> values[i]);
     }
 
     public static final class Builder<K>

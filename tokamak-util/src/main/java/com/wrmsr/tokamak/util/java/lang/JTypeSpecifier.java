@@ -25,7 +25,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.collect.ImmutableList.toImmutableList;
+import static com.wrmsr.tokamak.util.MoreCollections.immutableMapItems;
 
 @Immutable
 public final class JTypeSpecifier
@@ -60,7 +60,7 @@ public final class JTypeSpecifier
             ParameterizedType ptype = (ParameterizedType) type;
             return new JTypeSpecifier(
                     JName.of(ptype.getRawType()),
-                    Optional.of(Arrays.stream(ptype.getActualTypeArguments()).map(JTypeSpecifier::of).collect(toImmutableList())),
+                    Optional.of(immutableMapItems(Arrays.stream(ptype.getActualTypeArguments()), JTypeSpecifier::of)),
                     ImmutableList.of());
         }
         else {

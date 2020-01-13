@@ -39,6 +39,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
+import static com.wrmsr.tokamak.util.MoreCollections.immutableMapItems;
 
 public final class ScanBuilder
         extends AbstractBuilder<PScan>
@@ -51,7 +52,7 @@ public final class ScanBuilder
     {
         super(driver, node, sources);
 
-        orderedIdFields = node.getFields().getFieldListsByAnnotationCls().get(IdField.class).stream().map(Field::getName).collect(toImmutableList());
+        orderedIdFields = immutableMapItems(node.getFields().getFieldListsByAnnotationCls().get(IdField.class), Field::getName);
         idFields = ImmutableSet.copyOf(orderedIdFields);
 
         idSerde = new TupleSerde(

@@ -28,13 +28,13 @@ import com.wrmsr.tokamak.core.search.node.SJsonLiteral;
 import com.wrmsr.tokamak.core.search.node.SNegate;
 import com.wrmsr.tokamak.core.search.node.SNode;
 import com.wrmsr.tokamak.core.search.node.SOr;
+import com.wrmsr.tokamak.core.search.node.SParameter;
 import com.wrmsr.tokamak.core.search.node.SProject;
 import com.wrmsr.tokamak.core.search.node.SProperty;
 import com.wrmsr.tokamak.core.search.node.SSelection;
 import com.wrmsr.tokamak.core.search.node.SSequence;
 import com.wrmsr.tokamak.core.search.node.SSlice;
 import com.wrmsr.tokamak.core.search.node.SString;
-import com.wrmsr.tokamak.core.search.node.SParameter;
 import com.wrmsr.tokamak.core.search.node.visitor.SNodeVisitor;
 
 import java.util.List;
@@ -43,6 +43,7 @@ import java.util.Objects;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableList.toImmutableList;
+import static com.wrmsr.tokamak.util.MoreCollections.immutableMapItems;
 import static com.wrmsr.tokamak.util.MoreCollections.immutableMapValues;
 import static com.wrmsr.tokamak.util.MoreCollections.streamIterator;
 
@@ -198,7 +199,7 @@ public final class Evaluation
                     return context;
                 }
                 else {
-                    return runtime.createArray(node.getItems().stream().map(n -> process(n, context)).collect(toImmutableList()));
+                    return runtime.createArray(immutableMapItems(node.getItems(), n -> process(n, context)));
                 }
             }
 

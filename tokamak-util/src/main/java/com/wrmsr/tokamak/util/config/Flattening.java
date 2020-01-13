@@ -31,6 +31,7 @@ import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.wrmsr.tokamak.util.MoreCollections.arrayWithReplaced;
 import static com.wrmsr.tokamak.util.MoreCollections.concatArrays;
+import static com.wrmsr.tokamak.util.MoreCollections.immutableMapItems;
 import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 
@@ -165,7 +166,7 @@ public class Flattening
         @Override
         public List<Object> build()
         {
-            return list.stream().map(UnflattenNode::build).collect(toImmutableList());
+            return immutableMapItems(list, UnflattenNode::build);
         }
     }
 
@@ -183,9 +184,7 @@ public class Flattening
                             ImmutableList.Builder<Object> builder = ImmutableList.builder();
                             builder.add(part.substring(0, pos));
                             String idxStr = part.substring(pos + 1, part.length() - indexClose.length());
-                            List<Integer> idxs = Splitter.on(indexClose + indexOpen).splitToList(idxStr).stream()
-                                    .map(Integer::parseInt)
-                                    .collect(toImmutableList());
+                            List<Integer> idxs = immutableMapItems(Splitter.on(indexClose + indexOpen).splitToList(idxStr), Integer::parseInt);
                             builder.addAll(idxs);
                             return builder.build();
                         }

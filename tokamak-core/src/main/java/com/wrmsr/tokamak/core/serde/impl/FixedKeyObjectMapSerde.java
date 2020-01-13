@@ -28,8 +28,8 @@ import java.util.List;
 import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.wrmsr.tokamak.util.MoreCollections.checkOrdered;
+import static com.wrmsr.tokamak.util.MoreCollections.immutableMapItems;
 import static com.wrmsr.tokamak.util.MoreOptionals.reduceOptionals;
 
 @Immutable
@@ -45,7 +45,7 @@ public final class FixedKeyObjectMapSerde<K>
     public FixedKeyObjectMapSerde(Map<K, Serde> childrenByKey, boolean strict)
     {
         this.childrenByKey = ImmutableMap.copyOf(checkOrdered(childrenByKey));
-        this.keyChildPairs = this.childrenByKey.entrySet().stream().map(Pair::immutable).collect(toImmutableList());
+        this.keyChildPairs = immutableMapItems(this.childrenByKey.entrySet(), Pair::immutable);
         this.shape = ObjectArrayBackedMap.Shape.of(this.childrenByKey.keySet());
         this.strict = strict;
     }
@@ -56,7 +56,7 @@ public final class FixedKeyObjectMapSerde<K>
     public Width getWidth()
     {
         return width.get(() -> {
-            List<Width> childWidths = childrenByKey.values().stream().map(Serde::getWidth).collect(toImmutableList());
+            List<Width> childWidths = immutableMapItems(childrenByKey.values(), Serde::getWidth);
             return Width.of(
                     childWidths.stream().map(Width::getMin).reduce(0, Integer::sum),
                     reduceOptionals(0, Integer::sum, childWidths.stream().map(Width::getMax).iterator()));

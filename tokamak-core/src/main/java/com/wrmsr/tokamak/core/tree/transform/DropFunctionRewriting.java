@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.collect.ImmutableList.toImmutableList;
+import static com.wrmsr.tokamak.util.MoreCollections.immutableMapItems;
 
 public final class DropFunctionRewriting
 {
@@ -70,7 +70,7 @@ public final class DropFunctionRewriting
 
                 return new TSelect(
                         items,
-                        node.getRelations().stream().map(r -> (TAliasedRelation) process(r, context)).collect(toImmutableList()),
+                        immutableMapItems(node.getRelations(), r -> (TAliasedRelation) process(r, context)),
                         node.getWhere().map(w -> (TExpression) process(w, context)));
             }
         }, null);

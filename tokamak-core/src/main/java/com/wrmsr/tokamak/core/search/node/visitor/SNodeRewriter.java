@@ -27,15 +27,15 @@ import com.wrmsr.tokamak.core.search.node.SJsonLiteral;
 import com.wrmsr.tokamak.core.search.node.SNegate;
 import com.wrmsr.tokamak.core.search.node.SNode;
 import com.wrmsr.tokamak.core.search.node.SOr;
+import com.wrmsr.tokamak.core.search.node.SParameter;
 import com.wrmsr.tokamak.core.search.node.SProject;
 import com.wrmsr.tokamak.core.search.node.SProperty;
 import com.wrmsr.tokamak.core.search.node.SSelection;
 import com.wrmsr.tokamak.core.search.node.SSequence;
 import com.wrmsr.tokamak.core.search.node.SSlice;
 import com.wrmsr.tokamak.core.search.node.SString;
-import com.wrmsr.tokamak.core.search.node.SParameter;
 
-import static com.google.common.collect.ImmutableList.toImmutableList;
+import static com.wrmsr.tokamak.util.MoreCollections.immutableMapItems;
 import static com.wrmsr.tokamak.util.MoreCollections.immutableMapValues;
 
 public class SNodeRewriter<C>
@@ -62,7 +62,7 @@ public class SNodeRewriter<C>
     public SNode visitCreateArray(SCreateArray node, C context)
     {
         return new SCreateArray(
-                node.getItems().stream().map(n -> process(n, context)).collect(toImmutableList()));
+                immutableMapItems(node.getItems(), n -> process(n, context)));
     }
 
     @Override
@@ -102,7 +102,7 @@ public class SNodeRewriter<C>
     {
         return new SFunctionCall(
                 node.getName(),
-                node.getArgs().stream().map(n -> process(n, context)).collect(toImmutableList()));
+                immutableMapItems(node.getArgs(), n -> process(n, context)));
     }
 
     @Override
@@ -166,7 +166,7 @@ public class SNodeRewriter<C>
     public SNode visitSequence(SSequence node, C context)
     {
         return new SSequence(
-                node.getItems().stream().map(n -> process(n, context)).collect(toImmutableList()));
+                immutableMapItems(node.getItems(), n -> process(n, context)));
     }
 
     @Override

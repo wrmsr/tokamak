@@ -17,8 +17,8 @@ import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.core.layout.RowLayout;
 import com.wrmsr.tokamak.core.layout.TableLayout;
 import com.wrmsr.tokamak.core.layout.field.Field;
-import com.wrmsr.tokamak.core.layout.field.annotation.FieldAnnotation;
 import com.wrmsr.tokamak.core.layout.field.FieldCollection;
+import com.wrmsr.tokamak.core.layout.field.annotation.FieldAnnotation;
 import com.wrmsr.tokamak.core.type.Type;
 import com.wrmsr.tokamak.core.util.annotation.AnnotationCollection;
 import com.wrmsr.tokamak.util.sql.metadata.IndexMetaData;
@@ -29,8 +29,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
+import static com.wrmsr.tokamak.util.MoreCollections.immutableMapItems;
 
 public final class JdbcLayoutUtils
 {
@@ -67,14 +67,8 @@ public final class JdbcLayoutUtils
         return new TableLayout(
                 rowLayout,
                 new TableLayout.Key(
-                        tableDescription.getCompositePrimaryKeyMetaData().stream()
-                                .map(PrimaryKeyMetaData::getColumnName)
-                                .collect(toImmutableList())),
-                tableDescription.getCompositeIndexMetaDatas().stream()
-                        .map(imd -> new TableLayout.Key(
-                                imd.stream()
-                                        .map(IndexMetaData::getColumnName)
-                                        .collect(toImmutableList())))
-                        .collect(toImmutableList()));
+                        immutableMapItems(tableDescription.getCompositePrimaryKeyMetaData(), PrimaryKeyMetaData::getColumnName)),
+                immutableMapItems(tableDescription.getCompositeIndexMetaDatas(), imd -> new TableLayout.Key(
+                        immutableMapItems(imd, IndexMetaData::getColumnName))));
     }
 }

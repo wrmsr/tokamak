@@ -28,6 +28,7 @@ import java.util.function.LongPredicate;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.ImmutableList.toImmutableList;
+import static com.wrmsr.tokamak.util.MoreCollections.immutableMapItems;
 
 public final class Histogram
 {
@@ -229,7 +230,7 @@ public final class Histogram
 
     private List<Integer> calcPercentilePosList(int size)
     {
-        return percentiles.stream().map(p -> calcPercentilePos(p, size)).collect(toImmutableList());
+        return immutableMapItems(percentiles, p -> calcPercentilePos(p, size));
     }
 
     private List<Percentile> calcPercentiles(AtomicLongArray entries, LongPredicate entryPredicate)

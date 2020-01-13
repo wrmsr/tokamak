@@ -52,6 +52,7 @@ import java.util.Set;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
+import static com.wrmsr.tokamak.util.MoreCollections.immutableMapItems;
 import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkSingle;
 import static java.util.function.Function.identity;
@@ -127,9 +128,7 @@ public class TreePlanner
                     }
                 }
 
-                List<PNode> sources = treeNode.getRelations().stream()
-                        .map(r -> process(r, null))
-                        .collect(toImmutableList());
+                List<PNode> sources = immutableMapItems(treeNode.getRelations(), r -> process(r, null));
                 PNode source;
                 if (sources.size() == 1) {
                     source = checkSingle(sources);
@@ -139,7 +138,7 @@ public class TreePlanner
                             nameGenerator.get("projectJoin"),
                             AnnotationCollection.of(),
                             AnnotationCollectionMap.of(),
-                            sources.stream().map(s -> new PJoin.Branch(s, ImmutableList.of())).collect(toImmutableList()),
+                            immutableMapItems(sources, s -> new PJoin.Branch(s, ImmutableList.of())),
                             PJoin.Mode.FULL);
                 }
 

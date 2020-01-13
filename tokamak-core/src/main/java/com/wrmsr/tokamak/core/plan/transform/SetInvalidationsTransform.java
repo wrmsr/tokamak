@@ -226,9 +226,9 @@ public final class SetInvalidationsTransform
         });
 
         Set<String> updateMask = builder.pathBuilders.values().stream()
-                    .map(e -> SetInvalidationsTransform.buildUpdateMask(builder.getInvalidator(), e.getEntrypoint(), originAnalysis))
-                    .flatMap(Set::stream)
-                    .collect(toImmutableSet());
+                .map(e -> SetInvalidationsTransform.buildUpdateMask(builder.getInvalidator(), e.getEntrypoint(), originAnalysis))
+                .flatMap(Set::stream)
+                .collect(toImmutableSet());
 
         return new PInvalidations.NodeEntry(
                 invalidations,

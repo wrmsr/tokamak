@@ -40,7 +40,7 @@ public class TypeTest
         System.out.println(type);
         System.out.println(type.toSpec());
 
-        NormalizedType normalizedType = (NormalizedType) NormalizedType.normalize(type);
+        NormalizedType normalizedType = (NormalizedType) NormalizedType.of(type);
         System.out.println(normalizedType);
     }
 

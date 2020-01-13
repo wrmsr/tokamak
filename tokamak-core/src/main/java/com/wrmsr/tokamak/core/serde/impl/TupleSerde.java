@@ -25,7 +25,7 @@ import javax.annotation.concurrent.Immutable;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.collect.ImmutableList.toImmutableList;
+import static com.wrmsr.tokamak.util.MoreCollections.immutableMapItems;
 
 @SuppressWarnings({"rawtypes"})
 @Immutable
@@ -49,7 +49,7 @@ public final class TupleSerde
     @Override
     public Width getWidth()
     {
-        return width.get(() -> Width.sum(children.stream().map(Serde::getWidth).collect(toImmutableList())));
+        return width.get(() -> Width.sum(immutableMapItems(children, Serde::getWidth)));
     }
 
     @SuppressWarnings({"unchecked"})

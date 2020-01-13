@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.collect.ImmutableList.toImmutableList;
+import static com.wrmsr.tokamak.util.MoreCollections.immutableMapItems;
 import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 import static java.util.function.Function.identity;
 
@@ -145,7 +145,7 @@ public final class UnionSerde
                 Width.reduce(
                         0,
                         Integer::sum,
-                        entries.stream().map(e -> e.getChild().getWidth()).collect(toImmutableList())
+                        immutableMapItems(entries, e -> e.getChild().getWidth())
                 ).map(w -> w + 1));
     }
 

@@ -50,8 +50,8 @@ public final class NormalizedType
         this.sigilsByCls = sigilsByCls.build();
         this.sigilsByName = sigilsByBaseName.build();
 
-        args = immutableMapItems(item.getArgs(), NormalizedType::normalize);
-        kwargs = immutableMapValues(item.getKwargs(), NormalizedType::normalize);
+        args = immutableMapItems(item.getArgs(), NormalizedType::of);
+        kwargs = immutableMapValues(item.getKwargs(), NormalizedType::of);
     }
 
     public Type getItem()
@@ -79,7 +79,7 @@ public final class NormalizedType
         return kwargs;
     }
 
-    public static Object normalize(Object item)
+    public static Object of(Object item)
     {
         if (item instanceof Type) {
             return new NormalizedType((Type) item);

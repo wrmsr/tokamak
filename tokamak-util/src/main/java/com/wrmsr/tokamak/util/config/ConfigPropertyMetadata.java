@@ -30,7 +30,7 @@ import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.collect.ImmutableList.toImmutableList;
+import static com.wrmsr.tokamak.util.MoreCollections.immutableMapItems;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 import static com.wrmsr.tokamak.util.MoreStrings.splitCamelCase;
 
@@ -126,7 +126,7 @@ public final class ConfigPropertyMetadata
 
         this.name = checkNotEmpty(name);
         checkArgument(!name.startsWith("_"));
-        nameParts = splitCamelCase(name).stream().map(String::toLowerCase).collect(toImmutableList());
+        nameParts = immutableMapItems(splitCamelCase(name), String::toLowerCase);
     }
 
     public ConfigMetadata getParent()

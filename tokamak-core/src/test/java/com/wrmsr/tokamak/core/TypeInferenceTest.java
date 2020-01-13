@@ -29,6 +29,7 @@ import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static com.google.common.collect.Lists.newArrayList;
+import static com.wrmsr.tokamak.util.MoreCollections.immutableMapItems;
 import static com.wrmsr.tokamak.util.MoreCollections.immutableMapValues;
 import static com.wrmsr.tokamak.util.MoreCollectors.toArrayList;
 import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
@@ -203,7 +204,7 @@ public class TypeInferenceTest
         }
         else if (t instanceof Fun) {
             return new Fun(
-                    ((Fun) t).args.stream().map(a -> apply(s, a)).collect(toImmutableList()),
+                    immutableMapItems(((Fun) t).args, a -> apply(s, a)),
                     apply(s, ((Fun) t).ret));
         }
         else if (t instanceof Var) {

@@ -87,6 +87,7 @@ import java.util.function.Consumer;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableList.toImmutableList;
+import static com.wrmsr.tokamak.util.MoreCollections.immutableMapItems;
 
 public final class JRenderer
 {
@@ -144,7 +145,7 @@ public final class JRenderer
     public void renderImportSpecs(Iterator<JImportSpec> importSpecs)
     {
         Set<JImportSpec> normals = new TreeSet<>();
-        List<Set<JImportSpec>> blocks = importBlocks.stream().map(s -> new TreeSet<JImportSpec>()).collect(toImmutableList());
+        List<Set<JImportSpec>> blocks = immutableMapItems(importBlocks, s -> new TreeSet<>());
         Set<JImportSpec> statics = new TreeSet<>();
         outer:
         while (importSpecs.hasNext()) {

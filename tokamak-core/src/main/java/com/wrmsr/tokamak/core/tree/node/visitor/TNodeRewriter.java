@@ -34,7 +34,7 @@ import com.wrmsr.tokamak.core.tree.node.TTableName;
 
 import java.util.Map;
 
-import static com.google.common.collect.ImmutableList.toImmutableList;
+import static com.wrmsr.tokamak.util.MoreCollections.immutableMapItems;
 
 public class TNodeRewriter<C>
         extends CachingTNodeVisitor<TNode, C>
@@ -81,7 +81,7 @@ public class TNodeRewriter<C>
     {
         return new TFunctionCallExpression(
                 node.getName(),
-                node.getArgs().stream().map(a -> (TExpression) process(a, context)).collect(toImmutableList()));
+                immutableMapItems(node.getArgs(), a -> (TExpression) process(a, context)));
     }
 
     @Override
@@ -129,8 +129,8 @@ public class TNodeRewriter<C>
     public TNode visitSelect(TSelect node, C context)
     {
         return new TSelect(
-                node.getItems().stream().map(i -> (TSelectItem) process(i, context)).collect(toImmutableList()),
-                node.getRelations().stream().map(r -> (TAliasedRelation) process(r, context)).collect(toImmutableList()),
+                immutableMapItems(node.getItems(), i -> (TSelectItem) process(i, context)),
+                immutableMapItems(node.getRelations(), r -> (TAliasedRelation) process(r, context)),
                 node.getWhere().map(w -> (TExpression) process(w, context)));
     }
 

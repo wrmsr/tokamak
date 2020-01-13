@@ -153,7 +153,12 @@ public final class MoreCollections
 
     public static <T0, T1> List<T1> immutableMapItems(Iterable<T0> iterable, Function<T0, T1> fn)
     {
-        return StreamSupport.stream(iterable.spliterator(), false).map(fn).collect(toImmutableList());
+        return streamIterable(iterable).map(fn).collect(toImmutableList());
+    }
+
+    public static <T0, T1> List<T1> immutableMapItems(Stream<T0> stream, Function<T0, T1> fn)
+    {
+        return stream.map(fn).collect(toImmutableList());
     }
 
     public static <K, V0, V1> Map<K, V1> immutableMapValues(Map<K, V0> map, Function<V0, V1> fn)
@@ -188,7 +193,7 @@ public final class MoreCollections
 
     public static <K, V> Map<K, V> immutableMapOfSame(Iterable<K> keys, V value)
     {
-        return StreamSupport.stream(keys.spliterator(), false).collect(toImmutableMap(identity(), k -> value));
+        return streamIterable(keys).collect(toImmutableMap(identity(), k -> value));
     }
 
     public static <T> List<T> listOf(int size, T value)
@@ -452,6 +457,11 @@ public final class MoreCollections
     public static <T> Stream<T> streamIterator(Iterator<T> iterator)
     {
         return StreamSupport.stream(Spliterators.spliteratorUnknownSize(iterator, Spliterator.ORDERED), false);
+    }
+
+    public static <T> Stream<T> streamIterable(Iterable<T> iterable)
+    {
+        return StreamSupport.stream(iterable.spliterator(), false);
     }
 
     public static <T> Map<T, Long> histogram(Stream<T> stream)
