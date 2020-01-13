@@ -67,9 +67,9 @@ public final class NodeRenderings
             .add(new NodeRendering<PProject>(PProject.class)
             {
                 @Override
-                protected void addFieldExtra(Context<PProject> ctx, Field field, DotUtils.Row row)
+                protected void addFieldName(Context<PProject> ctx, Field field, DotUtils.Row row)
                 {
-                    row.add(DotUtils.column("hi"));
+                    row.add(DotUtils.column(field.getName()));
                 }
             })
 

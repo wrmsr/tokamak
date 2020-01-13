@@ -45,7 +45,7 @@ class NodeRendering<T extends PNode>
     @Nullable
     public Color getColor()
     {
-        return color.get();
+        return color.isSet() ? color.get() : null;
     }
 
     public static final class Context<T>
@@ -73,7 +73,7 @@ class NodeRendering<T extends PNode>
         return String.format(
                 "\"%s\" [shape=box, style=filled, fillcolor=\"%s\", label=%s];",
                 ctx.node.getName(),
-                color.toString(),
+                getColor().toString(),
                 label);
     }
 
