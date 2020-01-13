@@ -15,6 +15,7 @@ package com.wrmsr.tokamak.core.type;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.primitives.Primitives;
 import com.wrmsr.tokamak.util.Pair;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -70,7 +71,7 @@ public final class TypeRegistry
 
     public Type fromReflect(java.lang.reflect.Type reflect)
     {
-        return registrantsByReflect.get(reflect).getConstructor().construct(ImmutableList.of(), ImmutableMap.of());
+        return registrantsByReflect.get(Primitives.wrap((Class) reflect)).getConstructor().construct(ImmutableList.of(), ImmutableMap.of());
     }
 
     public boolean areEquivalent(Type l, Type r)

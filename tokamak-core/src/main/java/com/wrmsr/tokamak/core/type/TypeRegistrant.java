@@ -13,6 +13,7 @@
  */
 package com.wrmsr.tokamak.core.type;
 
+import com.google.common.primitives.Primitives;
 import com.wrmsr.tokamak.core.type.impl.PrimitiveType;
 import com.wrmsr.tokamak.core.type.impl.SimpleType;
 import com.wrmsr.tokamak.core.type.impl.SpecialType;
@@ -24,6 +25,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 
@@ -45,6 +47,7 @@ public final class TypeRegistrant
         this.baseName = checkNotEmpty(baseName);
         this.cls = checkNotNull(cls);
         this.reflect = checkNotNull(reflect);
+        reflect.ifPresent(rfl -> checkArgument(!Primitives.allPrimitiveTypes().contains(rfl)));
         this.constructor = checkNotNull(constructor);
     }
 
