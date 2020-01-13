@@ -27,6 +27,11 @@ public final class TypeRendering
     {
     }
 
+    public static String buildSpec(String baseName, List<Object> args, Map<String, Object> kwargs)
+    {
+        throw new IllegalStateException();
+    }
+
     public static String buildArgsSpec(String name, List<Object> args)
     {
         return name + '<' + Joiner.on(", ").join(

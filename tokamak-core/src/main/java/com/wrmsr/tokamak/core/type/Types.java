@@ -27,6 +27,8 @@ import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.util.Set;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 public final class Types
 {
     /*
@@ -101,4 +103,15 @@ public final class Types
             .add(JIT_FUNCTION)
 
             .build();
+
+    public static boolean isValidArg(Object a)
+    {
+        return a instanceof Type || a instanceof Long;
+    }
+
+    public static <T> T checkValidArg(T a)
+    {
+        checkArgument(isValidArg(a));
+        return a;
+    }
 }

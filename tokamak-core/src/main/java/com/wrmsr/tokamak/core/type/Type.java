@@ -15,7 +15,11 @@ package com.wrmsr.tokamak.core.type;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import java.util.List;
+import java.util.Map;
 import java.util.OptionalInt;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public interface Type
 {
@@ -30,4 +34,17 @@ public interface Type
 
     @JsonValue
     String toSpec();
+
+    List<Object> getArgs();
+
+    Map<String, Object> getKwargs();
+
+    interface Sigil
+            extends Type
+    {
+        default Type getItem()
+        {
+            return (Type) checkNotNull(getArgs().get(0));
+        }
+    }
 }

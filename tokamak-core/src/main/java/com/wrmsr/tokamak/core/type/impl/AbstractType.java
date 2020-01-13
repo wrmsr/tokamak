@@ -13,13 +13,21 @@
  */
 package com.wrmsr.tokamak.core.type.impl;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.core.type.Type;
+import com.wrmsr.tokamak.core.type.TypeRendering;
+import com.wrmsr.tokamak.core.type.Types;
 
 import javax.annotation.concurrent.Immutable;
 
+import java.util.List;
+import java.util.Map;
 import java.util.OptionalInt;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.wrmsr.tokamak.core.type.Types.checkValidArg;
+import static com.wrmsr.tokamak.util.MoreCollections.checkOrdered;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 
 @Immutable
@@ -29,10 +37,42 @@ public abstract class AbstractType
     protected final String baseName;
     protected final OptionalInt fixedSize;
 
-    public AbstractType(String baseName, OptionalInt fixedSize)
+    protected final List<Object> args;
+    protected final Map<String, Object> kwargs;
+
+    public AbstractType(
+            String baseName,
+            OptionalInt fixedSize,
+            List<Object> args,
+            Map<String, Object> kwargs)
     {
         this.baseName = checkNotEmpty(baseName);
         this.fixedSize = checkNotNull(fixedSize);
+
+        this.args = ImmutableList.copyOf(args);
+        this.args.forEach(Types::checkValidArg);
+
+        this.kwargs = ImmutableMap.copyOf(checkOrdered(kwargs));
+        this.kwargs.forEach((k, v) -> {
+            checkNotEmpty(k);
+            checkValidArg(v);
+        });
+    }
+
+    @Override
+    public String toString()
+    {
+        return getClass().getName() + "{" +
+                "baseName='" + baseName + '\'' +
+                ", fixedSize=" + fixedSize +
+                ", args=" + args +
+                ", kwargs=" + kwargs +
+                '}';
+    }
+
+    public AbstractType(String baseName, OptionalInt fixedSize)
+    {
+        this(baseName, fixedSize, ImmutableList.of(), ImmutableMap.of());
     }
 
     public AbstractType(String baseName, int fixedSize)
@@ -55,5 +95,23 @@ public abstract class AbstractType
     public OptionalInt getFixedSize()
     {
         return fixedSize;
+    }
+
+    @Override
+    public List<Object> getArgs()
+    {
+        return args;
+    }
+
+    @Override
+    public Map<String, Object> getKwargs()
+    {
+        return kwargs;
+    }
+
+    @Override
+    public final String toSpec()
+    {
+        return TypeRendering.buildSpec(baseName, args, kwargs);
     }
 }
