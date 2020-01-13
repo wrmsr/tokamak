@@ -22,6 +22,7 @@ import javax.annotation.concurrent.Immutable;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
@@ -32,16 +33,36 @@ public final class TypeRegistrant
 {
     private final String baseName;
     private final Class<? extends Type> cls;
+    private final Optional<java.lang.reflect.Type> reflect;
     private final TypeConstructor constructor;
+
+    public TypeRegistrant(
+            String baseName,
+            Class<? extends Type> cls,
+            Optional<java.lang.reflect.Type> reflect,
+            TypeConstructor constructor)
+    {
+        this.baseName = checkNotEmpty(baseName);
+        this.cls = checkNotNull(cls);
+        this.reflect = checkNotNull(reflect);
+        this.constructor = checkNotNull(constructor);
+    }
+
+    public TypeRegistrant(
+            String baseName,
+            Class<? extends Type> cls,
+            java.lang.reflect.Type reflect,
+            TypeConstructor constructor)
+    {
+        this(baseName, cls, Optional.of(reflect), constructor);
+    }
 
     public TypeRegistrant(
             String baseName,
             Class<? extends Type> cls,
             TypeConstructor constructor)
     {
-        this.baseName = checkNotEmpty(baseName);
-        this.cls = checkNotNull(cls);
-        this.constructor = checkNotNull(constructor);
+        this(baseName, cls, Optional.empty(), constructor);
     }
 
     public String getBaseName()
@@ -52,6 +73,11 @@ public final class TypeRegistrant
     public Class<? extends Type> getCls()
     {
         return cls;
+    }
+
+    public Optional<java.lang.reflect.Type> getReflect()
+    {
+        return reflect;
     }
 
     public TypeConstructor getConstructor()

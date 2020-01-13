@@ -25,7 +25,7 @@ public final class BiMapType
         extends KeyValueType
 {
     public static final String NAME = "BiMap";
-    public static final TypeRegistrant REGISTRANT = new TypeRegistrant(NAME, BiMapType.class, TypeConstructor.of(BiMapType::new));
+    public static final TypeRegistrant REGISTRANT = new TypeRegistrant(NAME, BiMapType.class, BiMap.class, TypeConstructor.of(BiMapType::new));
 
     public BiMapType(Type keyType, Type valueType)
     {

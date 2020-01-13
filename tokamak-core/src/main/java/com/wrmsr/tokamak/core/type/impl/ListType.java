@@ -26,7 +26,7 @@ public final class ListType
         extends ItemType
 {
     public static final String NAME = "List";
-    public static final TypeRegistrant REGISTRANT = new TypeRegistrant(NAME, ListType.class, TypeConstructor.of(ListType::new));
+    public static final TypeRegistrant REGISTRANT = new TypeRegistrant(NAME, ListType.class, List.class, TypeConstructor.of(ListType::new));
 
     public ListType(Type itemType)
     {

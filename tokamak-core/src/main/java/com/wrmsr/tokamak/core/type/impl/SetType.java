@@ -26,7 +26,7 @@ public final class SetType
         extends ItemType
 {
     public static final String NAME = "Set";
-    public static final TypeRegistrant REGISTRANT = new TypeRegistrant(NAME, SetType.class, TypeConstructor.of(SetType::new));
+    public static final TypeRegistrant REGISTRANT = new TypeRegistrant(NAME, SetType.class, Set.class, TypeConstructor.of(SetType::new));
 
     public SetType(Type itemType)
     {

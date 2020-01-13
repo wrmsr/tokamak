@@ -26,7 +26,7 @@ public final class EnumSetType
         extends ItemType
 {
     public static final String NAME = "EnumSet";
-    public static final TypeRegistrant REGISTRANT = new TypeRegistrant(NAME, EnumSetType.class, TypeConstructor.of(
+    public static final TypeRegistrant REGISTRANT = new TypeRegistrant(NAME, EnumSetType.class, EnumSet.class, TypeConstructor.of(
             (Type enumType) -> new EnumSetType((EnumType) enumType)));
 
     public EnumSetType(EnumType enumType)

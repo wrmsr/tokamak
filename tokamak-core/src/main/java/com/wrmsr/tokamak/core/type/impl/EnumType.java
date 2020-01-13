@@ -28,8 +28,8 @@ public final class EnumType
         extends AbstractType
 {
     public static final String NAME = "Enum";
-    public static final TypeRegistrant REGISTRANT = new TypeRegistrant(
-            NAME, EnumType.class, TypeConstructor.of((Map<String, Object> kwargs) -> new EnumType(immutableMapValues(kwargs, Long.class::cast))));
+    public static final TypeRegistrant REGISTRANT = new TypeRegistrant(NAME, EnumType.class, Enum.class, TypeConstructor.of(
+            (Map<String, Object> kwargs) -> new EnumType(immutableMapValues(kwargs, Long.class::cast))));
 
     public EnumType(Map<String, Long> values)
     {

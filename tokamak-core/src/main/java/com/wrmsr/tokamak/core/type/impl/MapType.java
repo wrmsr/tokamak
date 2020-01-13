@@ -26,7 +26,7 @@ public final class MapType
         extends KeyValueType
 {
     public static final String NAME = "Map";
-    public static final TypeRegistrant REGISTRANT = new TypeRegistrant(NAME, MapType.class, TypeConstructor.of(MapType::new));
+    public static final TypeRegistrant REGISTRANT = new TypeRegistrant(NAME, MapType.class, Map.class, TypeConstructor.of(MapType::new));
 
     public MapType(Type keyType, Type valueType)
     {

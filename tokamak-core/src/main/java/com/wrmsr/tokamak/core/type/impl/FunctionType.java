@@ -20,6 +20,7 @@ import com.wrmsr.tokamak.core.type.TypeRegistrant;
 
 import javax.annotation.concurrent.Immutable;
 
+import java.lang.reflect.Method;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -30,7 +31,7 @@ public final class FunctionType
         extends AbstractType
 {
     public static final String NAME = "Function";
-    public static final TypeRegistrant REGISTRANT = new TypeRegistrant(NAME, FunctionType.class, TypeConstructor.of(
+    public static final TypeRegistrant REGISTRANT = new TypeRegistrant(NAME, FunctionType.class, Method.class, TypeConstructor.of(
             (List<Object> args) -> new FunctionType((Type) args.get(0), args.subList(1, args.size()).stream().map(Type.class::cast).collect(toImmutableList()))));
 
     public FunctionType(Type returnType, List<Type> paramTypes)
@@ -47,5 +48,11 @@ public final class FunctionType
     public List<Type> getParams()
     {
         return (List) getArgs().subList(1, getArgs().size());
+    }
+
+    @Override
+    public java.lang.reflect.Type toReflect()
+    {
+        return Method.class;
     }
 }
