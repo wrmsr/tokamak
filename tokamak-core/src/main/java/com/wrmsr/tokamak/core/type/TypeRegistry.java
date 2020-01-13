@@ -19,6 +19,8 @@ import com.google.common.primitives.Primitives;
 import com.wrmsr.tokamak.util.Pair;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.wrmsr.tokamak.util.MoreCollections.immutableMapItems;
+import static com.wrmsr.tokamak.util.MoreCollections.immutableMapValues;
 
 public final class TypeRegistry
 {
@@ -66,7 +68,22 @@ public final class TypeRegistry
 
     public Type fromSpec(String str)
     {
-        throw new IllegalStateException();
+        TypeParsing.ParsedType parsedType = TypeParsing.parseType(str);
+        return (Type) fromParsed(parsedType);
+    }
+
+    private Object fromParsed(Object item)
+    {
+        if (item instanceof TypeParsing.ParsedType) {
+            TypeParsing.ParsedType parsedType = (TypeParsing.ParsedType) item;
+            TypeRegistrant registrant = registrantsByBaseName.get(parsedType.getName());
+            return registrant.construct(
+                    immutableMapItems(parsedType.getArgs(), this::fromParsed),
+                    immutableMapValues(parsedType.getKwargs(), this::fromParsed));
+        }
+        else {
+            return item;
+        }
     }
 
     public Type fromReflect(java.lang.reflect.Type reflect)

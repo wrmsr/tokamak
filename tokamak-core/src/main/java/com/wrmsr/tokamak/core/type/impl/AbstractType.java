@@ -87,10 +87,8 @@ public abstract class AbstractType
     @Override
     public String toString()
     {
-        return getClass().getName() + "{" +
-                "baseName='" + baseName + '\'' +
-                ", fixedSize=" + fixedSize +
-                ", args=" + args +
+        return getClass().getSimpleName() + "{" +
+                "args=" + args +
                 ", kwargs=" + kwargs +
                 '}';
     }

@@ -146,6 +146,16 @@ public final class MoreCollections
         return value;
     }
 
+    public static <T0, T1> List<T1> immutableMapItems(Iterator<T0> iterator, Function<T0, T1> fn)
+    {
+        return streamIterator(iterator).map(fn).collect(toImmutableList());
+    }
+
+    public static <T0, T1> List<T1> immutableMapItems(Iterable<T0> iterable, Function<T0, T1> fn)
+    {
+        return StreamSupport.stream(iterable.spliterator(), false).map(fn).collect(toImmutableList());
+    }
+
     public static <K, V0, V1> Map<K, V1> immutableMapValues(Map<K, V0> map, Function<V0, V1> fn)
     {
         return map.entrySet().stream().collect(toImmutableMap(Map.Entry::getKey, e -> fn.apply(e.getValue())));

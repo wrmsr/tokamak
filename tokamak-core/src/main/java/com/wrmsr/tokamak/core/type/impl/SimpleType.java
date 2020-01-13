@@ -28,6 +28,14 @@ public final class SimpleType<T>
     }
 
     @Override
+    public String toString()
+    {
+        return "SimpleType{" +
+                "cls=" + cls +
+                '}';
+    }
+
+    @Override
     public java.lang.reflect.Type toReflect()
     {
         return cls;

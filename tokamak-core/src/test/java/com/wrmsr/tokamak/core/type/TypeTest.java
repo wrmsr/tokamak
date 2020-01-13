@@ -33,6 +33,8 @@ public class TypeTest
         }) {
             System.out.println(TypeParsing.parseType(str));
         }
+
+        System.out.println(Types.BUILTIN_REGISTRY.fromSpec("List<Long>"));
     }
 
     public void testJson()

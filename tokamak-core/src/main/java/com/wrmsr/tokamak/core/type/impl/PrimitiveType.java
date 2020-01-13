@@ -32,6 +32,15 @@ public final class PrimitiveType<T>
     }
 
     @Override
+    public String toString()
+    {
+        return "PrimitiveType{" +
+                "cls=" + cls +
+                ", primCls=" + primCls +
+                '}';
+    }
+
+    @Override
     public java.lang.reflect.Type toReflect()
     {
         return cls;
