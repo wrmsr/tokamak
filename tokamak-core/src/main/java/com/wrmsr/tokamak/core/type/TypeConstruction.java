@@ -13,6 +13,8 @@
  */
 package com.wrmsr.tokamak.core.type;
 
+import javax.annotation.concurrent.Immutable;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -29,6 +31,29 @@ public final class TypeConstruction
 {
     private TypeConstruction()
     {
+    }
+
+    @Immutable
+    public static final class TypeConstructor
+    {
+    }
+
+    @Immutable
+    public static final class TypeConstructor
+    {
+        private final String baseName;
+        private final Class<? extends Type> cls;
+        private final com.wrmsr.tokamak.core.type.TypeConstructor.Function function;
+
+        public TypeConstructor(
+                String baseName,
+                Class<? extends Type> cls,
+                com.wrmsr.tokamak.core.type.TypeConstructor.Function function)
+        {
+            this.baseName = checkNotEmpty(baseName);
+            this.cls = checkNotNull(cls);
+            this.function = checkNotNull(function);
+        }
     }
 
     public static abstract class Supplier
