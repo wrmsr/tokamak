@@ -32,12 +32,14 @@ public interface Type
         throw new IllegalStateException();
     }
 
-    @JsonValue
-    String toSpec();
-
     List<Object> getArgs();
 
     Map<String, Object> getKwargs();
+
+    @JsonValue
+    String toSpec();
+
+    NormalizedType getNormalized();
 
     interface Sigil
             extends Type

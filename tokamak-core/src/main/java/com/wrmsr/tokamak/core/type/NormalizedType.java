@@ -79,10 +79,15 @@ public final class NormalizedType
         return kwargs;
     }
 
+    public boolean containsSigil(Class<? extends Type.Sigil> cls)
+    {
+        return sigilsByCls.containsKey(cls);
+    }
+
     public static Object normalize(Object item)
     {
         if (item instanceof Type) {
-            return new NormalizedType((Type) item);
+            return ((Type) item).getNormalized();
         }
         else {
             return item;

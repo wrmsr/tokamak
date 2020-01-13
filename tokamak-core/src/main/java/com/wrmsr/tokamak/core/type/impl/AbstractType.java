@@ -15,9 +15,11 @@ package com.wrmsr.tokamak.core.type.impl;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.wrmsr.tokamak.core.type.NormalizedType;
 import com.wrmsr.tokamak.core.type.Type;
 import com.wrmsr.tokamak.core.type.TypeRendering;
 import com.wrmsr.tokamak.core.type.Types;
+import com.wrmsr.tokamak.util.lazy.SupplierLazyValue;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -121,5 +123,13 @@ public abstract class AbstractType
     public final String toSpec()
     {
         return TypeRendering.buildSpec(baseName, args, kwargs);
+    }
+
+    private final SupplierLazyValue<NormalizedType> normalized = new SupplierLazyValue<>();
+
+    @Override
+    public NormalizedType getNormalized()
+    {
+        return normalized.get(() -> new NormalizedType(this));
     }
 }
