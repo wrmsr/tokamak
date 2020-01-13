@@ -14,32 +14,51 @@
 package com.wrmsr.tokamak.core.type.impl;
 
 import com.wrmsr.tokamak.core.type.Type;
+import com.wrmsr.tokamak.util.Cell;
 
 import javax.annotation.concurrent.Immutable;
 
+import java.util.Optional;
+
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
 public final class NamedType
         extends AbstractType
 {
-    private final Type targetType;
+    private final Cell<Type> targetType = Cell.setOnce();
+
+    public NamedType(String name)
+    {
+        super(name);
+    }
 
     public NamedType(String name, Type targetType)
     {
         super(name);
 
-        this.targetType = checkNotNull(targetType);
+        this.targetType.set(checkNotNull(targetType));
     }
 
-    public Type getTarget()
+    public Optional<Type> getTarget()
     {
-        return targetType;
+        return targetType.getOptional();
+    }
+
+    void setTarget(Type targetType)
+    {
+        if (!this.targetType.isSet()) {
+            this.targetType.set(checkNotNull(targetType));
+        }
+        else {
+            checkArgument(this.targetType.get() == targetType);
+        }
     }
 
     @Override
     public java.lang.reflect.Type toReflect()
     {
-        return targetType.toReflect();
+        return targetType.get().toReflect();
     }
 }

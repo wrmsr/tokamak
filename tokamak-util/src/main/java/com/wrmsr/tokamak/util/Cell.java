@@ -13,6 +13,7 @@
  */
 package com.wrmsr.tokamak.util;
 
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -38,6 +39,11 @@ public interface Cell<T>
     default Consumer<T> toConsumer()
     {
         return this::set;
+    }
+
+    default Optional<T> getOptional()
+    {
+        return isSet() ? Optional.of(get()) : Optional.empty();
     }
 
     final class DefaultImpl<T>
