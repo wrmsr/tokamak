@@ -44,9 +44,9 @@ public final class Catalog
     private volatile Map<String, Function> functionsByName = ImmutableMap.of();
     private volatile Map<String, View> viewsByName = ImmutableMap.of();
 
-    public Catalog(List<Catalog> parent)
+    public Catalog(List<Catalog> parents)
     {
-        this.parents = ImmutableList.copyOf(parent);
+        this.parents = ImmutableList.copyOf(parents);
     }
 
     public Catalog()
@@ -56,14 +56,14 @@ public final class Catalog
 
     @JsonCreator
     private Catalog(
-            @JsonProperty("parent") List<Catalog> parent,
+            @JsonProperty("parents") List<Catalog> parents,
             @JsonProperty("connectors") List<Connector> connectors,
             @JsonProperty("schemas") List<Schema> schemas,
             @JsonProperty("executors") List<Executor> executors,
             @JsonProperty("functions") List<Function> functions,
             @JsonProperty("views") List<View> views)
     {
-        this.parents = ImmutableList.copyOf(parent);
+        this.parents = ImmutableList.copyOf(parents);
 
         checkNotNull(connectors).forEach(this::addConnector);
         Map<String, Schema> schemasByName = new LinkedHashMap<>();
@@ -88,7 +88,7 @@ public final class Catalog
         views.forEach(this::addView);
     }
 
-    @JsonProperty("parent")
+    @JsonProperty("parents")
     public List<Catalog> getParents()
     {
         return parents;

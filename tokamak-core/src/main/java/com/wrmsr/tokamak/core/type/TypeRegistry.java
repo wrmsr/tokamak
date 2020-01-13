@@ -21,6 +21,7 @@ import com.wrmsr.tokamak.util.Pair;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -37,15 +38,15 @@ public final class TypeRegistry
 
     private final Object lock = new Object();
 
-    private volatile ImmutableMap<String, TypeRegistrant> registrantsByBaseName = ImmutableMap.of();
-    private volatile ImmutableMap<java.lang.reflect.Type, TypeRegistrant> registrantsByReflect = ImmutableMap.of();
+    private volatile Map<String, TypeRegistrant> registrantsByBaseName = ImmutableMap.of();
+    private volatile Map<java.lang.reflect.Type, TypeRegistrant> registrantsByReflect = ImmutableMap.of();
 
-    public ImmutableMap<String, TypeRegistrant> getRegistrantsByBaseName()
+    public Map<String, TypeRegistrant> getRegistrantsByBaseName()
     {
         return registrantsByBaseName;
     }
 
-    public ImmutableMap<java.lang.reflect.Type, TypeRegistrant> getRegistrantsByReflect()
+    public Map<java.lang.reflect.Type, TypeRegistrant> getRegistrantsByReflect()
     {
         return registrantsByReflect;
     }
@@ -117,9 +118,11 @@ public final class TypeRegistry
 
             return type;
         }
+
         else if (item instanceof Type) {
             throw new IllegalArgumentException(Objects.toString(item));
         }
+
         else {
             return item;
         }
