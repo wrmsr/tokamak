@@ -72,13 +72,23 @@ public final class NodeRenderings
                 @Override
                 protected void addFieldsSection(Context<PProject> ctx, DotUtils.Table table)
                 {
-                    DotUtils.Section section = DotUtils.section();
+                    if (ctx.node.getAddedFields().isEmpty() && !ctx.node.getDroppedFields().isEmpty() && ctx.node.getProjection().isForward()) {
+                        DotUtils.Section section = DotUtils.section();
 
-                    ctx.node.getFields().forEach(field -> addFieldRow(ctx, field, section));
+                        ctx.node.getDroppedFields().forEach(field -> {
+                            DotUtils.Row row = DotUtils.row();
 
-                    table.add(section);
+                            row.add(DotUtils.column(field));
+                            row.add(DotUtils.rawColumn(" &lt;- ∅"));
 
-                    super.addFieldsSection(ctx, table);
+                            section.add(row);
+                        });
+
+                        table.add(section);
+                    }
+                    else {
+                        super.addFieldsSection(ctx, table);
+                    }
                 }
 
                 @Override
