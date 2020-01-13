@@ -184,7 +184,7 @@ public final class FieldCollection
     public boolean containsEquivalent(Field field)
     {
         Field thisField = fieldsByName.get(field.getName());
-        return thisField != null && Types.areEquivalent(field.getType(), thisField.getType());
+        return thisField != null && Types.BUILTIN_REGISTRY.areEquivalent(field.getType(), thisField.getType());
     }
 
     public boolean containsEquivalents(Iterator<Field> fields)

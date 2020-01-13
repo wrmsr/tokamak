@@ -43,6 +43,7 @@ import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Supplier;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -142,6 +143,12 @@ public final class Types
             .add(UnionType.REGISTRANT)
 
             .build();
+
+    public static final TypeRegistry BUILTIN_REGISTRY = ((Supplier<TypeRegistry>) () -> {
+        TypeRegistry registry = new TypeRegistry();
+        BUILTIN_REGISTRANTS.forEach(registry::register);
+        return registry;
+    }).get();
 
     public static boolean isValidArg(Object a)
     {

@@ -15,8 +15,6 @@ package com.wrmsr.tokamak.core.type;
 
 import com.google.common.collect.ImmutableMap;
 
-import java.util.Map;
-
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public final class TypeRegistry
@@ -28,22 +26,25 @@ public final class TypeRegistry
 
     private final Object lock = new Object();
 
-    private volatile ImmutableMap<String, Type> typesByBaseName = ImmutableMap.of();
+    private volatile ImmutableMap<String, TypeRegistrant> registrantsByBaseName = ImmutableMap.of();
 
-    public Map<String, Type> getBaseNameMap()
+    public ImmutableMap<String, TypeRegistrant> getRegistrantsByBaseName()
     {
-        return typesByBaseName;
+        return registrantsByBaseName;
     }
 
-    public Type register(Type type)
+    public TypeRegistrant register(TypeRegistrant registrant)
     {
         synchronized (lock) {
-            if (typesByBaseName.containsKey(type.getBaseName())) {
-                throw new IllegalArgumentException(String.format("Type base name %s taken", type.getBaseName()));
+            if (registrantsByBaseName.containsKey(registrant.getBaseName())) {
+                throw new IllegalArgumentException(String.format("Type base name %s taken", registrant.getBaseName()));
             }
-            typesByBaseName = ImmutableMap.<String, Type>builder().putAll(typesByBaseName).put(type.getBaseName(), type).build();
+            registrantsByBaseName = ImmutableMap.<String, TypeRegistrant>builder()
+                    .putAll(registrantsByBaseName)
+                    .put(registrant.getBaseName(), registrant)
+                    .build();
         }
-        return type;
+        return registrant;
     }
 
     public Type fromSpec(String str)

@@ -45,8 +45,8 @@ public final class Reflection
         return new SimpleExecutable(
                 name,
                 new FunctionType(
-                        Types.fromJavaType(method.getReturnType()),
-                        Arrays.stream(method.getParameterTypes()).map(Types::fromJavaType).collect(toImmutableList())),
+                        Types.BUILTIN_REGISTRY.fromReflect(method.getReturnType()),
+                        Arrays.stream(method.getParameterTypes()).map(Types.BUILTIN_REGISTRY::fromReflect).collect(toImmutableList())),
                 args -> rethrowingGet(() -> method.invoke(args)));
     }
 
@@ -57,8 +57,8 @@ public final class Reflection
         return new SimpleExecutable(
                 name,
                 new FunctionType(
-                        Types.fromJavaType(method.getReturnType()),
-                        Arrays.stream(method.getParameterTypes()).map(Types::fromJavaType).collect(toImmutableList())),
+                        Types.BUILTIN_REGISTRY.fromReflect(method.getReturnType()),
+                        Arrays.stream(method.getParameterTypes()).map(Types.BUILTIN_REGISTRY::fromReflect).collect(toImmutableList())),
                 args -> throwableRethrowingGet(() -> handle.invokeWithArguments(args)));
     }
 
