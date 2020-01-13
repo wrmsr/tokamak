@@ -20,6 +20,7 @@ import com.wrmsr.tokamak.core.type.impl.BiMapType;
 import com.wrmsr.tokamak.core.type.impl.EnumSetType;
 import com.wrmsr.tokamak.core.type.impl.EnumType;
 import com.wrmsr.tokamak.core.type.impl.FunctionType;
+import com.wrmsr.tokamak.core.type.impl.InternalType;
 import com.wrmsr.tokamak.core.type.impl.ListType;
 import com.wrmsr.tokamak.core.type.impl.MapType;
 import com.wrmsr.tokamak.core.type.impl.NotNullType;
@@ -133,6 +134,7 @@ public final class Types
             .add(EnumSetType.REGISTRANT)
             .add(EnumType.REGISTRANT)
             .add(FunctionType.REGISTRANT)
+            .add(InternalType.REGISTRANT)
             .add(ListType.REGISTRANT)
             .add(MapType.REGISTRANT)
             .add(NotNullType.REGISTRANT)

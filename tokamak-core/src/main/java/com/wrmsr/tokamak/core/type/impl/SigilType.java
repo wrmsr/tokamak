@@ -27,6 +27,7 @@ public abstract class SigilType
     public SigilType(String name, Type itemType)
     {
         super(name, itemType);
-        args.forEach(a -> checkArgument(!(a instanceof Type)));
+        args.subList(1, args.size()).forEach(i -> checkArgument(!(i instanceof Type)));
+        kwargs.values().forEach(i -> checkArgument(!(i instanceof Type)));
     }
 }

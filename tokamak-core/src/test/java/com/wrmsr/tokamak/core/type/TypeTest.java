@@ -35,6 +35,10 @@ public class TypeTest
         }
 
         System.out.println(Types.BUILTIN_REGISTRY.fromSpec("List<Long>"));
+
+        Type type = Types.BUILTIN_REGISTRY.fromSpec("Internal<NotNull<Map<Long, NotNull<Long>>>>");
+        System.out.println(type);
+        System.out.println(type.toSpec());
     }
 
     public void testJson()
