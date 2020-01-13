@@ -13,21 +13,19 @@
  */
 package com.wrmsr.tokamak.core.type.impl;
 
+import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.core.type.Type;
 
 import javax.annotation.concurrent.Immutable;
 
 import java.util.Map;
 
-import static com.google.common.base.Preconditions.checkArgument;
-
 @Immutable
 public final class StructuralType
         extends AbstractType
 {
-    public StructuralType(Map<String, Object> kwargs)
+    public StructuralType(Map<String, Type> memberTypes)
     {
-        super("Structural", kwargs);
-        this.kwargs.forEach((k, v) -> checkArgument(v instanceof Type));
+        super("Structural", ImmutableMap.copyOf(memberTypes));
     }
 }

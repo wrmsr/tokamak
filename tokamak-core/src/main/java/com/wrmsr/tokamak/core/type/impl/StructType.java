@@ -14,6 +14,7 @@
 package com.wrmsr.tokamak.core.type.impl;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.core.type.Type;
 
 import javax.annotation.concurrent.Immutable;
@@ -72,9 +73,9 @@ public final class StructType
     private final List<Member> members;
     private final Map<String, Member> membersByName;
 
-    public StructType(Map<String, Object> kwargs)
+    public StructType(Map<String, Type> memberTypes)
     {
-        super("Struct", kwargs);
+        super("Struct", ImmutableMap.copyOf(memberTypes));
         List<Map.Entry<String, Type>> entryList = ImmutableList.copyOf(
                 immutableMapValues(checkOrdered(this.kwargs), Type.class::cast).entrySet());
         members = enumerate(entryList.stream())

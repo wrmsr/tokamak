@@ -13,21 +13,19 @@
  */
 package com.wrmsr.tokamak.core.type.impl;
 
+import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.core.type.Type;
 
 import javax.annotation.concurrent.Immutable;
 
 import java.util.List;
 
-import static com.google.common.base.Preconditions.checkArgument;
-
 @Immutable
 public final class TupleType
         extends AbstractType
 {
-    public TupleType(List<Object> itemTypes)
+    public TupleType(List<Type> itemTypes)
     {
-        super("Tuple", itemTypes);
-        this.args.forEach(a -> checkArgument(a instanceof Type));
+        super("Tuple", ImmutableList.copyOf(itemTypes));
     }
 }

@@ -13,6 +13,9 @@
  */
 package com.wrmsr.tokamak.core.type.impl;
 
+import com.google.common.collect.ImmutableList;
+import com.wrmsr.tokamak.core.type.Type;
+
 import javax.annotation.concurrent.Immutable;
 
 import java.util.List;
@@ -21,8 +24,8 @@ import java.util.List;
 public final class UnionType
         extends AbstractType
 {
-    public UnionType(List<Object> args)
+    public UnionType(List<Type> itemTypes)
     {
-        super("Union", args);
+        super("Union", ImmutableList.copyOf(itemTypes));
     }
 }
