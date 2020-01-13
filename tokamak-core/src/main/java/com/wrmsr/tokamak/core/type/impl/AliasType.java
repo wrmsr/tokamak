@@ -18,7 +18,7 @@ import com.wrmsr.tokamak.core.type.Type;
 import javax.annotation.concurrent.Immutable;
 
 @Immutable
-public class AliasType
+public final class AliasType
         extends ReferenceType
 {
     public AliasType(String name)
