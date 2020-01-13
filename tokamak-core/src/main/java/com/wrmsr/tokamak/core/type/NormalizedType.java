@@ -29,7 +29,8 @@ public final class NormalizedType
 {
     private final Type item;
 
-    private final Map<Class<? extends Type.Sigil>, Type.Sigil> sigilsByType;
+    private final Map<Class<? extends Type.Sigil>, Type.Sigil> sigilsByCls;
+    private final Map<String, Type.Sigil> sigilsByName;
 
     private final List<Object> args;
     private final Map<String, Object> kwargs;
@@ -38,19 +39,20 @@ public final class NormalizedType
     public NormalizedType(Type type)
     {
         Type curType = checkNotNull(type);
-        ImmutableMap.Builder<Class<? extends Type.Sigil>, Type.Sigil> sigilsByType = ImmutableMap.builder();
-
+        ImmutableMap.Builder<Class<? extends Type.Sigil>, Type.Sigil> sigilsByCls = ImmutableMap.builder();
+        ImmutableMap.Builder<String, Type.Sigil> sigilsByBaseName = ImmutableMap.builder();
         while (curType instanceof Type.Sigil) {
             Type.Sigil sigilType = (Type.Sigil) curType;
-            sigilsByType.put((Class<? extends Type.Sigil>) curType.getClass(), sigilType);
+            sigilsByCls.put(sigilType.getClass(), sigilType);
+            sigilsByBaseName.put(sigilType.getBaseName(), sigilType);
             curType = checkNotNull(sigilType.getItem());
         }
-
         this.item = checkNotNull(curType);
-        this.sigilsByType = sigilsByType.build();
+        this.sigilsByCls = sigilsByCls.build();
+        this.sigilsByName = sigilsByBaseName.build();
 
-        args = immutableMapItems(type.getArgs(), NormalizedType::normalize);
-        kwargs = immutableMapValues(type.getKwargs(), NormalizedType::normalize);
+        args = immutableMapItems(item.getArgs(), NormalizedType::normalize);
+        kwargs = immutableMapValues(item.getKwargs(), NormalizedType::normalize);
     }
 
     public Type getItem()
@@ -58,9 +60,14 @@ public final class NormalizedType
         return item;
     }
 
-    public Map<Class<? extends Type.Sigil>, Type.Sigil> getSigilsByType()
+    public Map<Class<? extends Type.Sigil>, Type.Sigil> getSigilsByCls()
     {
-        return sigilsByType;
+        return sigilsByCls;
+    }
+
+    public Map<String, Type.Sigil> getSigilsByName()
+    {
+        return sigilsByName;
     }
 
     public List<Object> getArgs()

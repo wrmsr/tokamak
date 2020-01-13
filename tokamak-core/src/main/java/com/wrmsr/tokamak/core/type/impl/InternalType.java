@@ -20,13 +20,13 @@ import com.wrmsr.tokamak.core.type.TypeRegistrant;
 import javax.annotation.concurrent.Immutable;
 
 @Immutable
-public final class NotNullType
+public final class InternalType
         extends SigilType
 {
-    public static final String NAME = "NotNull";
-    public static final TypeRegistrant REGISTRANT = new TypeRegistrant(NAME, NotNullType.class, TypeConstructor.of(NotNullType::new));
+    public static final String NAME = "Internal";
+    public static final TypeRegistrant REGISTRANT = new TypeRegistrant(NAME, InternalType.class, TypeConstructor.of(InternalType::new));
 
-    public NotNullType(Type itemType)
+    public InternalType(Type itemType)
     {
         super(NAME, itemType);
     }

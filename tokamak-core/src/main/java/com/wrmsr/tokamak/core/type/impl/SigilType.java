@@ -14,20 +14,19 @@
 package com.wrmsr.tokamak.core.type.impl;
 
 import com.wrmsr.tokamak.core.type.Type;
-import com.wrmsr.tokamak.core.type.TypeConstructor;
-import com.wrmsr.tokamak.core.type.TypeRegistrant;
 
 import javax.annotation.concurrent.Immutable;
 
-@Immutable
-public final class NotNullType
-        extends SigilType
-{
-    public static final String NAME = "NotNull";
-    public static final TypeRegistrant REGISTRANT = new TypeRegistrant(NAME, NotNullType.class, TypeConstructor.of(NotNullType::new));
+import static com.google.common.base.Preconditions.checkArgument;
 
-    public NotNullType(Type itemType)
+@Immutable
+public abstract class SigilType
+        extends ItemType
+        implements Type.Sigil
+{
+    public SigilType(String name, Type itemType)
     {
-        super(NAME, itemType);
+        super(name, itemType);
+        args.forEach(a -> checkArgument(!(a instanceof Type)));
     }
 }
