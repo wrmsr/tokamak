@@ -33,12 +33,15 @@ import com.wrmsr.tokamak.core.plan.node.PStruct;
 import com.wrmsr.tokamak.core.plan.node.PUnify;
 import com.wrmsr.tokamak.core.plan.node.PUnion;
 import com.wrmsr.tokamak.core.plan.node.PUnnest;
+import com.wrmsr.tokamak.core.plan.node.PValue;
 import com.wrmsr.tokamak.core.plan.node.PValues;
 import com.wrmsr.tokamak.util.lazy.CtorLazyValue;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 import static java.util.function.Function.identity;
 
@@ -67,9 +70,26 @@ public final class NodeRenderings
             .add(new NodeRendering<PProject>(PProject.class)
             {
                 @Override
-                protected void addFieldName(Context<PProject> ctx, Field field, DotUtils.Row row)
+                protected void addFieldExtra(Context<PProject> ctx, Field field, DotUtils.Row row)
                 {
-                    row.add(DotUtils.column(field.getName()));
+                    StringBuilder sb = new StringBuilder();
+                    sb.append(" &lt;- ");
+
+                    PValue value = checkNotNull(ctx.node.getProjection().getInputsByOutput().get(field.getName()));
+                    if (value instanceof PValue.Constant) {
+                        sb.append(DotUtils.escape(Objects.toString(((PValue.Constant) value).getValue())));
+                    }
+                    else if (value instanceof PValue.Field) {
+                        sb.append(DotUtils.escape(((PValue.Field) value).getField()));
+                    }
+                    else if (value instanceof PValue.Function) {
+                        sb.append("λ ").append(DotUtils.escape(((PValue.Function) value).getFunction().getName()));
+                    }
+                    else {
+                        sb.append("?");
+                    }
+
+                    row.add(DotUtils.rawColumn(sb.toString()));
                 }
             })
 
