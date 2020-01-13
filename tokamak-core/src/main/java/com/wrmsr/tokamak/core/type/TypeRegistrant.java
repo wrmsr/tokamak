@@ -13,10 +13,15 @@
  */
 package com.wrmsr.tokamak.core.type;
 
+import com.wrmsr.tokamak.core.type.impl.PrimitiveType;
+import com.wrmsr.tokamak.core.type.impl.SimpleType;
+import com.wrmsr.tokamak.core.type.impl.SpecialType;
+
 import javax.annotation.concurrent.Immutable;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
@@ -58,5 +63,21 @@ public final class TypeRegistrant
     public Type construct(List<Object> args, Map<String, Object> kwargs)
     {
         return constructor.construct(args, kwargs);
+    }
+
+    public static TypeRegistrant standard(Type type)
+    {
+        if (type instanceof SimpleType) {
+            SimpleType<?> simpleType = (SimpleType<?>) type;
+        }
+        else if (type instanceof PrimitiveType) {
+            PrimitiveType<?> primitiveType = (PrimitiveType<?>) type;
+        }
+        else if (type instanceof SpecialType) {
+            SpecialType specialType = (SpecialType) type;
+        }
+        else {
+            throw new IllegalArgumentException(Objects.toString(type));
+        }
     }
 }

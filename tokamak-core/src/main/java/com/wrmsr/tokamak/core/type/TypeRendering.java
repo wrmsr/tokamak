@@ -42,7 +42,7 @@ public final class TypeRendering
                 kwargs.entrySet().stream().map(e -> e.getKey() + "=" + buildArgSpec(e.getValue()))
         ).collect(toImmutableList());
 
-        return baseName + '<' + Joiner.on(", ").join(parts);
+        return baseName + '<' + Joiner.on(", ").join(parts) + '>';
     }
 
     private static String buildArgSpec(Object v)
