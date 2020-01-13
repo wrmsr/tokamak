@@ -51,7 +51,7 @@ public final class TypeRegistry
                 throw new IllegalArgumentException(String.format("Type base name %s taken", registrant.getBaseName()));
             }
             if (registrant.getReflect().isPresent() && registrantsByReflect.containsKey(registrant.getReflect().get())) {
-                throw new IllegalArgumentException(String.format("Type reflect name %s taken", registrant.getReflect().get()));
+                throw new IllegalArgumentException(String.format("Type reflect %s taken", registrant.getReflect().get()));
             }
 
             registrantsByBaseName = ImmutableMap.<String, TypeRegistrant>builder()
