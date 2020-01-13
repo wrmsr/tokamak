@@ -14,41 +14,41 @@
 package com.wrmsr.tokamak.core.type.impl;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.core.type.Type;
-import com.wrmsr.tokamak.core.type.TypeRendering;
 
 import javax.annotation.concurrent.Immutable;
+
+import java.util.OptionalInt;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
-public final class NotNullType
+public abstract class KeyValueType
         extends AbstractType
-        implements Type.Sigil
 {
-    private final Type item;
-
-    public NotNullType(Type item)
+    public KeyValueType(String baseName, OptionalInt fixedSize, Type key, Type value)
     {
-        super("NotNull");
-        this.item = checkNotNull(item);
+        super(baseName, fixedSize, ImmutableList.of(key, value), ImmutableMap.of());
     }
 
-    @Override
-    public Type getItem()
+    public KeyValueType(String baseName, int fixedSize, Type key, Type value)
     {
-        return item;
+        this(baseName, OptionalInt.of(fixedSize), key, value);
     }
 
-    @Override
-    public java.lang.reflect.Type toReflect()
+    public KeyValueType(String baseName, Type key, Type value)
     {
-        return item.toReflect();
+        this(baseName, OptionalInt.empty(), key, value);
     }
 
-    @Override
-    public String toSpec()
+    public Type getKey()
     {
-        return TypeRendering.buildArgsSpec(baseName, ImmutableList.of(item));
+        return (Type) checkNotNull(getArgs().get(0));
+    }
+
+    public Type getValue()
+    {
+        return (Type) checkNotNull(getArgs().get(1));
     }
 }

@@ -59,17 +59,6 @@ public abstract class AbstractType
         });
     }
 
-    @Override
-    public String toString()
-    {
-        return getClass().getName() + "{" +
-                "baseName='" + baseName + '\'' +
-                ", fixedSize=" + fixedSize +
-                ", args=" + args +
-                ", kwargs=" + kwargs +
-                '}';
-    }
-
     public AbstractType(String baseName, OptionalInt fixedSize)
     {
         this(baseName, fixedSize, ImmutableList.of(), ImmutableMap.of());
@@ -83,6 +72,27 @@ public abstract class AbstractType
     public AbstractType(String baseName)
     {
         this(baseName, OptionalInt.empty());
+    }
+
+    public AbstractType(String baseName, List<Object> args)
+    {
+        this(baseName, OptionalInt.empty(), args, ImmutableMap.of());
+    }
+
+    public AbstractType(String baseName, Map<String, Object> kwargs)
+    {
+        this(baseName, OptionalInt.empty(), ImmutableList.of(), kwargs);
+    }
+
+    @Override
+    public String toString()
+    {
+        return getClass().getName() + "{" +
+                "baseName='" + baseName + '\'' +
+                ", fixedSize=" + fixedSize +
+                ", args=" + args +
+                ", kwargs=" + kwargs +
+                '}';
     }
 
     @Override

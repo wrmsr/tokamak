@@ -16,7 +16,6 @@ package com.wrmsr.tokamak.core.type.impl;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.core.type.Type;
-import com.wrmsr.tokamak.core.type.TypeRendering;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -31,7 +30,7 @@ public final class BiMapType
 
     public BiMapType(Type keyType, Type valueType)
     {
-        super("BiMap");
+        super("BiMap", ImmutableList.of(keyType, valueType));
         this.keyType = checkNotNull(keyType);
         this.valueType = checkNotNull(valueType);
     }
@@ -59,11 +58,5 @@ public final class BiMapType
     public java.lang.reflect.Type toReflect()
     {
         return BiMap.class;
-    }
-
-    @Override
-    public String toSpec()
-    {
-        return TypeRendering.buildArgsSpec(baseName, ImmutableList.of(keyType, valueType));
     }
 }
