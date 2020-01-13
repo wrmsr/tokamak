@@ -20,7 +20,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 @FunctionalInterface
-interface TypeConstructor
+public interface TypeConstructor
 {
     Type construct(List<Object> args, Map<String, Object> kwargs);
 

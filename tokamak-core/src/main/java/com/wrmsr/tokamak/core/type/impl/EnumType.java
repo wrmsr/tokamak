@@ -13,20 +13,27 @@
  */
 package com.wrmsr.tokamak.core.type.impl;
 
+import com.google.common.collect.ImmutableMap;
+import com.wrmsr.tokamak.core.type.TypeConstructor;
+import com.wrmsr.tokamak.core.type.TypeRegistrant;
+
 import javax.annotation.concurrent.Immutable;
 
 import java.util.Map;
 
-import static com.google.common.base.Preconditions.checkArgument;
+import static com.wrmsr.tokamak.util.MoreCollections.immutableMapValues;
 
 @Immutable
 public final class EnumType
         extends AbstractType
 {
-    public EnumType(Map<String, Object> kwargs)
+    public static final String NAME = "Enum";
+    public static final TypeRegistrant REGISTRANT = new TypeRegistrant(
+            NAME, EnumType.class, TypeConstructor.of((Map<String, Object> kwargs) -> new EnumType(immutableMapValues(kwargs, Long.class::cast))));
+
+    public EnumType(Map<String, Long> values)
     {
-        super("Enum", kwargs);
-        this.kwargs.forEach((k, v) -> checkArgument(v instanceof Long));
+        super(NAME, ImmutableMap.copyOf(values));
     }
 
     @Override

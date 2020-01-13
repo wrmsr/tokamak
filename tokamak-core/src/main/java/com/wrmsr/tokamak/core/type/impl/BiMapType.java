@@ -15,6 +15,8 @@ package com.wrmsr.tokamak.core.type.impl;
 
 import com.google.common.collect.BiMap;
 import com.wrmsr.tokamak.core.type.Type;
+import com.wrmsr.tokamak.core.type.TypeConstructor;
+import com.wrmsr.tokamak.core.type.TypeRegistrant;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -22,9 +24,12 @@ import javax.annotation.concurrent.Immutable;
 public final class BiMapType
         extends KeyValueType
 {
+    public static final String NAME = "BiMap";
+    public static final TypeRegistrant REGISTRANT = new TypeRegistrant(NAME, BiMapType.class, TypeConstructor.of(BiMapType::new));
+
     public BiMapType(Type keyType, Type valueType)
     {
-        super("BiMap", keyType, valueType);
+        super(NAME, keyType, valueType);
     }
 
     @Override

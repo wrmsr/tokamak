@@ -23,9 +23,11 @@ import java.util.List;
 public final class ListType
         extends ItemType
 {
+    public static final String NAME = "List";
+
     public ListType(Type itemType)
     {
-        super("List", itemType);
+        super(NAME, itemType);
     }
 
     @Override

@@ -13,18 +13,25 @@
  */
 package com.wrmsr.tokamak.core.type.impl;
 
+import com.wrmsr.tokamak.core.type.Type;
+import com.wrmsr.tokamak.core.type.TypeConstructor;
+import com.wrmsr.tokamak.core.type.TypeRegistrant;
+
 import javax.annotation.concurrent.Immutable;
 
-import java.lang.reflect.Type;
 import java.util.EnumSet;
 
 @Immutable
 public final class EnumSetType
         extends ItemType
 {
+    public static final String NAME = "EnumSet";
+    public static final TypeRegistrant REGISTRANT = new TypeRegistrant(NAME, EnumSetType.class, TypeConstructor.of(
+            (Type enumType) -> new EnumSetType((EnumType) enumType)));
+
     public EnumSetType(EnumType enumType)
     {
-        super("EnumSet", enumType);
+        super(NAME, enumType);
     }
 
     public EnumType getEnum()
@@ -33,7 +40,7 @@ public final class EnumSetType
     }
 
     @Override
-    public Type toReflect()
+    public java.lang.reflect.Type toReflect()
     {
         return EnumSet.class;
     }

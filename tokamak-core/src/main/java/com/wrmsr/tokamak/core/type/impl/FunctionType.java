@@ -15,20 +15,27 @@ package com.wrmsr.tokamak.core.type.impl;
 
 import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.core.type.Type;
+import com.wrmsr.tokamak.core.type.TypeConstructor;
+import com.wrmsr.tokamak.core.type.TypeRegistrant;
 
 import javax.annotation.concurrent.Immutable;
 
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.ImmutableList.toImmutableList;
 
 @Immutable
 public final class FunctionType
         extends AbstractType
 {
+    public static final String NAME = "Function";
+    public static final TypeRegistrant REGISTRANT = new TypeRegistrant(NAME, FunctionType.class, TypeConstructor.of(
+            (List<Object> args) -> new FunctionType((Type) args.get(0), args.subList(1, args.size()).stream().map(Type.class::cast).collect(toImmutableList()))));
+
     public FunctionType(Type returnType, List<Type> paramTypes)
     {
-        super("Function", ImmutableList.builder().add(returnType).addAll(paramTypes).build());
+        super(NAME, ImmutableList.builder().add(returnType).addAll(paramTypes).build());
     }
 
     public Type getReturn()
