@@ -15,6 +15,8 @@ package com.wrmsr.tokamak.core.type.impl;
 
 import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.core.type.Type;
+import com.wrmsr.tokamak.core.type.TypeConstructor;
+import com.wrmsr.tokamak.core.type.TypeRegistrant;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -24,8 +26,12 @@ import java.util.Map;
 public final class StructuralType
         extends AbstractType
 {
+    public static final String NAME = "Structural";
+    public static final TypeRegistrant REGISTRANT = new TypeRegistrant(NAME, StructuralType.class, TypeConstructor.of(
+            (Map<String, Object> kwargs) -> new StructuralType(objectsToTypes(kwargs))));
+
     public StructuralType(Map<String, Type> memberTypes)
     {
-        super("Structural", ImmutableMap.copyOf(memberTypes));
+        super(NAME, ImmutableMap.copyOf(memberTypes));
     }
 }

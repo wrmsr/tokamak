@@ -14,6 +14,8 @@
 package com.wrmsr.tokamak.core.type.impl;
 
 import com.wrmsr.tokamak.core.type.Type;
+import com.wrmsr.tokamak.core.type.TypeConstructor;
+import com.wrmsr.tokamak.core.type.TypeRegistrant;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -23,9 +25,12 @@ import java.util.Map;
 public final class MapType
         extends KeyValueType
 {
+    public static final String NAME = "Map";
+    public static final TypeRegistrant REGISTRANT = new TypeRegistrant(NAME, MapType.class, TypeConstructor.of(MapType::new));
+
     public MapType(Type keyType, Type valueType)
     {
-        super("Map", keyType, valueType);
+        super(NAME, keyType, valueType);
     }
 
     @Override

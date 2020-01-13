@@ -14,6 +14,8 @@
 package com.wrmsr.tokamak.core.type.impl;
 
 import com.wrmsr.tokamak.core.type.Type;
+import com.wrmsr.tokamak.core.type.TypeConstructor;
+import com.wrmsr.tokamak.core.type.TypeRegistrant;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -22,8 +24,11 @@ public final class NotNullType
         extends ItemType
         implements Type.Sigil
 {
+    public static final String NAME = "NotNull";
+    public static final TypeRegistrant REGISTRANT = new TypeRegistrant(NAME, NotNullType.class, TypeConstructor.of(NotNullType::new));
+
     public NotNullType(Type itemType)
     {
-        super("NotNull", itemType);
+        super(NAME, itemType);
     }
 }

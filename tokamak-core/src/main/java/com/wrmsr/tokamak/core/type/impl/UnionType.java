@@ -15,6 +15,8 @@ package com.wrmsr.tokamak.core.type.impl;
 
 import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.core.type.Type;
+import com.wrmsr.tokamak.core.type.TypeConstructor;
+import com.wrmsr.tokamak.core.type.TypeRegistrant;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -24,8 +26,12 @@ import java.util.List;
 public final class UnionType
         extends AbstractType
 {
+    public static final String NAME = "Union";
+    public static final TypeRegistrant REGISTRANT = new TypeRegistrant(NAME, UnionType.class, TypeConstructor.of(
+            (List<Object> args) -> new UnionType(objectsToTypes(args))));
+
     public UnionType(List<Type> itemTypes)
     {
-        super("Union", ImmutableList.copyOf(itemTypes));
+        super(NAME, ImmutableList.copyOf(itemTypes));
     }
 }

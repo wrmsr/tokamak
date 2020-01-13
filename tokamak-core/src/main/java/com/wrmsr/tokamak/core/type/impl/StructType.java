@@ -16,6 +16,8 @@ package com.wrmsr.tokamak.core.type.impl;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.core.type.Type;
+import com.wrmsr.tokamak.core.type.TypeConstructor;
+import com.wrmsr.tokamak.core.type.TypeRegistrant;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -39,6 +41,10 @@ public final class StructType
     NOTE:
      - not 'record' to not clash with upcoming java keyword
     */
+
+    public static final String NAME = "Struct";
+    public static final TypeRegistrant REGISTRANT = new TypeRegistrant(NAME, StructType.class, TypeConstructor.of(
+            (Map<String, Object> kwargs) -> new StructType(objectsToTypes(kwargs))));
 
     @Immutable
     public static final class Member
@@ -75,7 +81,7 @@ public final class StructType
 
     public StructType(Map<String, Type> memberTypes)
     {
-        super("Struct", ImmutableMap.copyOf(memberTypes));
+        super(NAME, ImmutableMap.copyOf(memberTypes));
         List<Map.Entry<String, Type>> entryList = ImmutableList.copyOf(
                 immutableMapValues(checkOrdered(this.kwargs), Type.class::cast).entrySet());
         members = enumerate(entryList.stream())
