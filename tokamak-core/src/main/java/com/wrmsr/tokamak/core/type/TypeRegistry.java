@@ -13,18 +13,11 @@
  */
 package com.wrmsr.tokamak.core.type;
 
-import com.google.common.base.Joiner;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.collect.ImmutableList.toImmutableList;
 
 public final class TypeRegistry
 {
-    public Type useRepr(String str)
+    public Type fromRepr(String str)
     {
         throw new IllegalStateException();
     }
@@ -39,46 +32,11 @@ public final class TypeRegistry
         throw new IllegalStateException();
     }
 
-    public static String buildArgsSpec(String name, List<Object> args)
-    {
-        return name + '<' + Joiner.on(", ").join(
-                args.stream().map(v -> {
-                    if (v instanceof Type) {
-                        return ((Type) v).toSpec();
-                    }
-                    else if (v instanceof Long) {
-                        return Long.toString((Long) v);
-                    }
-                    else {
-                        throw new IllegalStateException(Objects.toString(v));
-                    }
-                }).collect(toImmutableList())) + '>';
-    }
-
-    public static String buildKwargsSpec(String name, Map<String, Object> kwargs)
-    {
-        return name + '<' + Joiner.on(", ").join(
-                kwargs.entrySet().stream().map(e -> {
-                    Object v = e.getValue();
-                    String vs;
-                    if (v instanceof Type) {
-                        vs = ((Type) v).toSpec();
-                    }
-                    else if (v instanceof Long) {
-                        vs = Long.toString((Long) v);
-                    }
-                    else {
-                        throw new IllegalStateException(Objects.toString(v));
-                    }
-                    return e.getKey() + '=' + vs;
-                }).collect(toImmutableList())) + '>';
-    }
-
     public boolean areEquivalent(Type l, Type r)
     {
         checkNotNull(l);
         checkNotNull(r);
-        if (l == UNKNOWN || r == UNKNOWN) {
+        if (l == Types.UNKNOWN || r == Types.UNKNOWN) {
             return true;
         }
         // FIXME: structural, nominal, lolinal

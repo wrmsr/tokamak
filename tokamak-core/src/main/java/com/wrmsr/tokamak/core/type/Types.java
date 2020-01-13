@@ -13,6 +13,7 @@
  */
 package com.wrmsr.tokamak.core.type;
 
+import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.core.type.impl.PrimitiveType;
 import com.wrmsr.tokamak.core.type.impl.SimpleType;
 import com.wrmsr.tokamak.core.type.impl.SpecialType;
@@ -24,6 +25,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
+import java.util.Set;
 
 public final class Types
 {
@@ -72,4 +74,31 @@ public final class Types
     public static final SpecialType UNKNOWN = new SpecialType("?");
     public static final SpecialType ARGS = new SpecialType("Args");
     public static final SpecialType JIT_FUNCTION = new SpecialType("JitFunction");
+
+    public static final Set<Type> BUILTINS = ImmutableSet.<Type>builder()
+
+            .add(VOID)
+            .add(OBJECT)
+
+            .add(BOOLEAN)
+            .add(LONG)
+            .add(DOUBLE)
+
+            .add(STRING)
+            .add(BYTES)
+
+            .add(BIG_INTEGER)
+            .add(BIG_DECIMAL)
+
+            .add(LOCAL_DATE)
+            .add(LOCAL_TIME)
+            .add(LOCAL_DATE_TIME)
+            .add(ZONED_DATE_TIME)
+            .add(DURATION)
+
+            .add(UNKNOWN)
+            .add(ARGS)
+            .add(JIT_FUNCTION)
+
+            .build();
 }
