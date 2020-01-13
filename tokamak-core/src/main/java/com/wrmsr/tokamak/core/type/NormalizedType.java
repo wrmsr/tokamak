@@ -35,7 +35,6 @@ public final class NormalizedType
     private final List<Object> args;
     private final Map<String, Object> kwargs;
 
-    @SuppressWarnings({"unchecked"})
     public NormalizedType(Type type)
     {
         Type curType = checkNotNull(type);

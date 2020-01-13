@@ -16,38 +16,33 @@ package com.wrmsr.tokamak.core.type.impl;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.core.type.Type;
+import com.wrmsr.tokamak.core.type.TypeConstructor;
+import com.wrmsr.tokamak.core.type.TypeRegistrant;
 
 import javax.annotation.concurrent.Immutable;
 
 import java.util.List;
-import java.util.OptionalInt;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
-public abstract class SigilType
-        extends AbstractType
-        implements Type.Sigil
+public final class SizedType
+        extends SigilType
 {
-    public SigilType(
-            String name,
-            Type itemType,
-            List<Object> args,
-            ImmutableMap<String, Object> kwargs)
+    public static final String NAME = "Sized";
+    public static final TypeRegistrant REGISTRANT = new TypeRegistrant(NAME, SizedType.class, TypeConstructor.of(
+            (List<Object> args) -> {
+                checkArgument(args.size() == 2);
+                return new SizedType((Type) args.get(0), (long) args.get(1));
+            }));
+
+    public SizedType(Type itemType, long size)
     {
-        super(name, OptionalInt.empty(), ImmutableList.builder().add(itemType).addAll(args).build(), ImmutableMap.copyOf(kwargs));
-        getArgs().subList(1, getArgs().size()).forEach(i -> checkArgument(!(i instanceof Type)));
-        getKwargs().values().forEach(i -> checkArgument(!(i instanceof Type)));
+        super(NAME, itemType, ImmutableList.of(size), ImmutableMap.of());
     }
 
-    public SigilType(String name, Type itemType)
+    public long getSize()
     {
-        this(name, itemType, ImmutableList.of(), ImmutableMap.of());
-    }
-
-    public Type getItem()
-    {
-        return (Type) checkNotNull(getArgs().get(0));
+        return (long) args.get(1);
     }
 }

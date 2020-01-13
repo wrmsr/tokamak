@@ -27,6 +27,7 @@ import com.wrmsr.tokamak.core.type.impl.NotNullType;
 import com.wrmsr.tokamak.core.type.impl.PrimitiveType;
 import com.wrmsr.tokamak.core.type.impl.SetType;
 import com.wrmsr.tokamak.core.type.impl.SimpleType;
+import com.wrmsr.tokamak.core.type.impl.SizedType;
 import com.wrmsr.tokamak.core.type.impl.SpecialType;
 import com.wrmsr.tokamak.core.type.impl.StructType;
 import com.wrmsr.tokamak.core.type.impl.StructuralType;
@@ -139,6 +140,7 @@ public final class Types
             .add(MapType.REGISTRANT)
             .add(NotNullType.REGISTRANT)
             .add(SetType.REGISTRANT)
+            .add(SizedType.REGISTRANT)
             .add(StructType.REGISTRANT)
             .add(StructuralType.REGISTRANT)
             .add(TupleType.REGISTRANT)
