@@ -13,7 +13,9 @@
  */
 package com.wrmsr.tokamak.core.type;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.wrmsr.tokamak.util.Pair;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -27,10 +29,16 @@ public final class TypeRegistry
     private final Object lock = new Object();
 
     private volatile ImmutableMap<String, TypeRegistrant> registrantsByBaseName = ImmutableMap.of();
+    private volatile ImmutableMap<java.lang.reflect.Type, TypeRegistrant> registrantsByReflect = ImmutableMap.of();
 
     public ImmutableMap<String, TypeRegistrant> getRegistrantsByBaseName()
     {
         return registrantsByBaseName;
+    }
+
+    public ImmutableMap<java.lang.reflect.Type, TypeRegistrant> getRegistrantsByReflect()
+    {
+        return registrantsByReflect;
     }
 
     public TypeRegistrant register(TypeRegistrant registrant)
@@ -39,9 +47,17 @@ public final class TypeRegistry
             if (registrantsByBaseName.containsKey(registrant.getBaseName())) {
                 throw new IllegalArgumentException(String.format("Type base name %s taken", registrant.getBaseName()));
             }
+            if (registrant.getReflect().isPresent() && registrantsByReflect.containsKey(registrant.getReflect().get())) {
+                throw new IllegalArgumentException(String.format("Type reflect name %s taken", registrant.getReflect().get()));
+            }
+
             registrantsByBaseName = ImmutableMap.<String, TypeRegistrant>builder()
                     .putAll(registrantsByBaseName)
                     .put(registrant.getBaseName(), registrant)
+                    .build();
+            registrantsByReflect = ImmutableMap.<java.lang.reflect.Type, TypeRegistrant>builder()
+                    .putAll(registrantsByReflect)
+                    .putAll(registrant.getReflect().isPresent() ? ImmutableList.of(Pair.immutable(registrant.getReflect().get(), registrant)) : ImmutableList.of())
                     .build();
         }
         return registrant;
@@ -52,9 +68,9 @@ public final class TypeRegistry
         throw new IllegalStateException();
     }
 
-    public Type fromReflect(java.lang.reflect.Type rfl)
+    public Type fromReflect(java.lang.reflect.Type reflect)
     {
-        throw new IllegalStateException();
+        return registrantsByReflect.get(reflect).getConstructor().construct(ImmutableList.of(), ImmutableMap.of());
     }
 
     public boolean areEquivalent(Type l, Type r)
