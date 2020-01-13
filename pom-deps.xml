@@ -29,7 +29,7 @@
         <dep.antlr4.version>4.7.2</dep.antlr4.version>
         <dep.guice.version>4.2.2</dep.guice.version>
         <dep.jackson.version>2.10.2</dep.jackson.version>
-        <dep.jersey.version>2.29.1</dep.jersey.version>
+        <dep.jersey.version>2.30</dep.jersey.version>
         <dep.protobuf.version>3.11.1</dep.protobuf.version>
 
     </properties>
@@ -224,7 +224,7 @@
             <dependency>
                 <groupId>mysql</groupId>
                 <artifactId>mysql-connector-java</artifactId>
-                <version>8.0.18</version>
+                <version>8.0.19</version>
             </dependency>
 
             <dependency>
@@ -474,13 +474,13 @@
             <dependency>
                 <groupId>io.airlift</groupId>
                 <artifactId>stats</artifactId>
-                <version>0.188</version>
+                <version>0.189</version>
             </dependency>
 
             <dependency>
                 <groupId>io.airlift</groupId>
                 <artifactId>concurrent</artifactId>
-                <version>0.188</version>
+                <version>0.189</version>
             </dependency>
 
             <dependency>
@@ -606,13 +606,13 @@
             <dependency>
                 <groupId>com.github.jasync-sql</groupId>
                 <artifactId>jasync-mysql</artifactId>
-                <version>1.0.12</version>
+                <version>1.0.13</version>
             </dependency>
 
             <dependency>
                 <groupId>com.github.jasync-sql</groupId>
                 <artifactId>jasync-postgresql</artifactId>
-                <version>1.0.12</version>
+                <version>1.0.13</version>
             </dependency>
 
             <dependency>

@@ -24,6 +24,7 @@ import io.netty.handler.ssl.SslContext;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
 import org.glassfish.jersey.server.ApplicationHandler;
+import org.glassfish.jersey.server.ResourceConfig;
 
 import javax.ws.rs.ProcessingException;
 import javax.ws.rs.core.Application;
@@ -56,7 +57,7 @@ public final class TokamakNettyHttpContainerProvider
             b.option(ChannelOption.SO_BACKLOG, 1024);
             b.group(bossGroup, workerGroup)
                     .channel(NioServerSocketChannel.class)
-                    .childHandler(new JerseyServerInitializer(baseUri, sslContext, container));
+                    .childHandler(new JerseyServerInitializer(baseUri, sslContext, container, ResourceConfig.forApplication(application)));
             serverBootstrapConsumer.accept(b);
 
             int port = getPort(baseUri);
