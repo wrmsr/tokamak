@@ -19,7 +19,7 @@ import java.util.List;
 
 @Immutable
 public final class UnionType
-        extends ArgsType
+        extends AbstractType
 {
     public UnionType(List<Object> args)
     {

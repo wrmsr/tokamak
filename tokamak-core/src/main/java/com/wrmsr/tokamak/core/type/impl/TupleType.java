@@ -13,16 +13,21 @@
  */
 package com.wrmsr.tokamak.core.type.impl;
 
+import com.wrmsr.tokamak.core.type.Type;
+
 import javax.annotation.concurrent.Immutable;
 
 import java.util.List;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 @Immutable
 public final class TupleType
-        extends ArgsType
+        extends AbstractType
 {
-    public TupleType(List<Object> args)
+    public TupleType(List<Object> itemTypes)
     {
-        super("Tuple", args);
+        super("Tuple", itemTypes);
+        this.args.forEach(a -> checkArgument(a instanceof Type));
     }
 }

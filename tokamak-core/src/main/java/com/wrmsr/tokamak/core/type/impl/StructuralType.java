@@ -23,7 +23,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 @Immutable
 public final class StructuralType
-        extends KwargsType
+        extends AbstractType
 {
     public StructuralType(Map<String, Object> kwargs)
     {

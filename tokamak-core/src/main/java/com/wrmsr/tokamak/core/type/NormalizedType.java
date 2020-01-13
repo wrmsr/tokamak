@@ -26,7 +26,7 @@ public final class NormalizedType
 {
     private final Type item;
 
-    private final Map<Class<? extends Type.Sigil>, SigilType> sigilsByType;
+    private final Map<Class<? extends Type.Sigil>, Type.Sigil> sigilsByType;
 
     @SuppressWarnings({"unchecked"})
     public NormalizedType(Type type)

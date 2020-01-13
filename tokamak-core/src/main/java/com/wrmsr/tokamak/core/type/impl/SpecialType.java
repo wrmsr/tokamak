@@ -23,18 +23,4 @@ public final class SpecialType
     {
         super(name);
     }
-
-    @Override
-    public String toString()
-    {
-        return "SpecialType{" +
-                "name=" + baseName +
-                '}';
-    }
-
-    @Override
-    public String toSpec()
-    {
-        return baseName;
-    }
 }

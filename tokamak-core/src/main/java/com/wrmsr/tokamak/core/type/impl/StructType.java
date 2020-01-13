@@ -32,7 +32,7 @@ import static java.util.function.UnaryOperator.identity;
 
 @Immutable
 public final class StructType
-        extends KwargsType
+        extends AbstractType
 {
     /*
     NOTE:

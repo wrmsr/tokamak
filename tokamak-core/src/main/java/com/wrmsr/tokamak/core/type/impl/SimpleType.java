@@ -28,14 +28,6 @@ public final class SimpleType<T>
     }
 
     @Override
-    public String toString()
-    {
-        return "SimpleType{" +
-                "cls=" + cls +
-                '}';
-    }
-
-    @Override
     public java.lang.reflect.Type toReflect()
     {
         return cls;
@@ -44,11 +36,5 @@ public final class SimpleType<T>
     public Class<T> getCls()
     {
         return cls;
-    }
-
-    @Override
-    public String toSpec()
-    {
-        return baseName;
     }
 }
