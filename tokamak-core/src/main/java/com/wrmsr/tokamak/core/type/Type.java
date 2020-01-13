@@ -46,5 +46,11 @@ public interface Type
         {
             return (Type) checkNotNull(getArgs().get(0));
         }
+
+        @Override
+        default java.lang.reflect.Type toReflect()
+        {
+            return getItem().toReflect();
+        }
     }
 }

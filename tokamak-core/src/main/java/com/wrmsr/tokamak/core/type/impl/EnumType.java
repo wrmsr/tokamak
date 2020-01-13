@@ -21,7 +21,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 @Immutable
 public final class EnumType
-        extends KwargsType
+        extends AbstractType
 {
     public EnumType(Map<String, Object> kwargs)
     {

@@ -13,42 +13,17 @@
  */
 package com.wrmsr.tokamak.core.type.impl;
 
-import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.core.type.Type;
-import com.wrmsr.tokamak.core.type.TypeRendering;
 
 import javax.annotation.concurrent.Immutable;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 @Immutable
 public final class NotNullType
-        extends AbstractType
+        extends ItemType
         implements Type.Sigil
 {
-    private final Type item;
-
-    public NotNullType(Type item)
+    public NotNullType(Type itemType)
     {
-        super("NotNull");
-        this.item = checkNotNull(item);
-    }
-
-    @Override
-    public Type getItem()
-    {
-        return item;
-    }
-
-    @Override
-    public java.lang.reflect.Type toReflect()
-    {
-        return item.toReflect();
-    }
-
-    @Override
-    public String toSpec()
-    {
-        return TypeRendering.buildArgsSpec(baseName, ImmutableList.of(item));
+        super("NotNull", itemType);
     }
 }

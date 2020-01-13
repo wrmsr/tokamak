@@ -13,50 +13,24 @@
  */
 package com.wrmsr.tokamak.core.type.impl;
 
-import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.core.type.Type;
-import com.wrmsr.tokamak.core.type.TypeRendering;
 
 import javax.annotation.concurrent.Immutable;
 
 import java.util.Set;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 @Immutable
 public final class SetType
-        extends AbstractType
+        extends ItemType
 {
-    private final Type itemType;
-
     public SetType(Type itemType)
     {
-        super("Set");
-        this.itemType = checkNotNull(itemType);
-    }
-
-    @Override
-    public String toString()
-    {
-        return "SetType{" +
-                "itemType=" + itemType +
-                '}';
-    }
-
-    public Type getItemType()
-    {
-        return itemType;
+        super("Set", itemType);
     }
 
     @Override
     public java.lang.reflect.Type toReflect()
     {
         return Set.class;
-    }
-
-    @Override
-    public String toSpec()
-    {
-        return TypeRendering.buildArgsSpec(baseName, ImmutableList.of(itemType));
     }
 }

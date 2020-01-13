@@ -13,58 +13,24 @@
  */
 package com.wrmsr.tokamak.core.type.impl;
 
-import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.core.type.Type;
-import com.wrmsr.tokamak.core.type.TypeRendering;
 
 import javax.annotation.concurrent.Immutable;
 
 import java.util.Map;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 @Immutable
 public final class MapType
-        extends AbstractType
+        extends KeyValueType
 {
-    private final Type keyType;
-    private final Type valueType;
-
     public MapType(Type keyType, Type valueType)
     {
-        super("Map");
-        this.keyType = checkNotNull(keyType);
-        this.valueType = checkNotNull(valueType);
-    }
-
-    @Override
-    public String toString()
-    {
-        return "MapType{" +
-                "keyType=" + keyType +
-                ", valueType=" + valueType +
-                '}';
-    }
-
-    public Type getKeyType()
-    {
-        return keyType;
-    }
-
-    public Type getValueType()
-    {
-        return valueType;
+        super("Map", keyType, valueType);
     }
 
     @Override
     public java.lang.reflect.Type toReflect()
     {
         return Map.class;
-    }
-
-    @Override
-    public String toSpec()
-    {
-        return TypeRendering.buildArgsSpec(baseName, ImmutableList.of(keyType, valueType));
     }
 }

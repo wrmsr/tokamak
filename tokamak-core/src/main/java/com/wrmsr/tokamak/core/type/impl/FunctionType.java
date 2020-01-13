@@ -15,7 +15,6 @@ package com.wrmsr.tokamak.core.type.impl;
 
 import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.core.type.Type;
-import com.wrmsr.tokamak.core.type.TypeRendering;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -27,29 +26,19 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public final class FunctionType
         extends AbstractType
 {
-    private final Type returnType;
-    private final List<Type> paramTypes;
-
     public FunctionType(Type returnType, List<Type> paramTypes)
     {
-        super("Function");
-        this.returnType = checkNotNull(returnType);
-        this.paramTypes = ImmutableList.copyOf(paramTypes);
+        super("Function", ImmutableList.builder().add(returnType).addAll(paramTypes).build());
     }
 
-    public Type getReturnType()
+    public Type getReturn()
     {
-        return returnType;
+        return (Type) checkNotNull(getArgs().get(0));
     }
 
-    public List<Type> getParamTypes()
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    public List<Type> getParams()
     {
-        return paramTypes;
-    }
-
-    @Override
-    public String toSpec()
-    {
-        return TypeRendering.buildArgsSpec(baseName, ImmutableList.builder().add(returnType).addAll(paramTypes).build());
+        return (List) getArgs().subList(1, getArgs().size());
     }
 }

@@ -14,44 +14,17 @@
 package com.wrmsr.tokamak.core.type.impl;
 
 import com.google.common.collect.BiMap;
-import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.core.type.Type;
 
 import javax.annotation.concurrent.Immutable;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 @Immutable
 public final class BiMapType
-        extends AbstractType
+        extends KeyValueType
 {
-    private final Type keyType;
-    private final Type valueType;
-
     public BiMapType(Type keyType, Type valueType)
     {
-        super("BiMap", ImmutableList.of(keyType, valueType));
-        this.keyType = checkNotNull(keyType);
-        this.valueType = checkNotNull(valueType);
-    }
-
-    @Override
-    public String toString()
-    {
-        return "BiMapType{" +
-                "keyType=" + keyType +
-                ", valueType=" + valueType +
-                '}';
-    }
-
-    public Type getKeyType()
-    {
-        return keyType;
-    }
-
-    public Type getValueType()
-    {
-        return valueType;
+        super("BiMap", keyType, valueType);
     }
 
     @Override

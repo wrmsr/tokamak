@@ -20,32 +20,23 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public final class NamedType
         extends AbstractType
 {
-    private final Type type;
+    private final Type targetType;
 
-    public NamedType(String name, Type type)
+    public NamedType(String name, Type targetType)
     {
         super(name);
-        this.type = checkNotNull(type);
+
+        this.targetType = checkNotNull(targetType);
     }
 
-    @Override
-    public String toString()
+    public Type getTarget()
     {
-        return "NamedType{" +
-                "name='" + baseName + '\'' +
-                ", type=" + type +
-                '}';
+        return targetType;
     }
 
     @Override
     public java.lang.reflect.Type toReflect()
     {
-        return type.toReflect();
-    }
-
-    @Override
-    public String toSpec()
-    {
-        return baseName;
+        return targetType.toReflect();
     }
 }

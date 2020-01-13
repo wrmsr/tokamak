@@ -27,19 +27,19 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public abstract class ItemType
         extends AbstractType
 {
-    public ItemType(String baseName, OptionalInt fixedSize, Type item)
+    public ItemType(String baseName, OptionalInt fixedSize, Type itemType)
     {
-        super(baseName, fixedSize, ImmutableList.of(item), ImmutableMap.of());
+        super(baseName, fixedSize, ImmutableList.of(itemType), ImmutableMap.of());
     }
 
-    public ItemType(String baseName, int fixedSize, Type item)
+    public ItemType(String baseName, int fixedSize, Type itemType)
     {
-        this(baseName, OptionalInt.of(fixedSize), item);
+        this(baseName, OptionalInt.of(fixedSize), itemType);
     }
 
-    public ItemType(String baseName, Type item)
+    public ItemType(String baseName, Type itemType)
     {
-        this(baseName, OptionalInt.empty(), item);
+        this(baseName, OptionalInt.empty(), itemType);
     }
 
     public Type getItem()

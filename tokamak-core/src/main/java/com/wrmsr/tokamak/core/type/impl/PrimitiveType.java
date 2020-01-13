@@ -32,17 +32,6 @@ public final class PrimitiveType<T>
     }
 
     @Override
-    public String toString()
-    {
-        return "PrimitiveType{" +
-                "name='" + baseName + '\'' +
-                ", cls=" + cls +
-                ", primCls=" + primCls +
-                ", fixedSize=" + fixedSize.getAsInt() +
-                '}';
-    }
-
-    @Override
     public java.lang.reflect.Type toReflect()
     {
         return cls;
@@ -56,11 +45,5 @@ public final class PrimitiveType<T>
     public Class<?> getPrimCls()
     {
         return primCls;
-    }
-
-    @Override
-    public String toSpec()
-    {
-        return baseName;
     }
 }

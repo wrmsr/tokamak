@@ -27,19 +27,19 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public abstract class KeyValueType
         extends AbstractType
 {
-    public KeyValueType(String baseName, OptionalInt fixedSize, Type key, Type value)
+    public KeyValueType(String baseName, OptionalInt fixedSize, Type keyType, Type valueType)
     {
-        super(baseName, fixedSize, ImmutableList.of(key, value), ImmutableMap.of());
+        super(baseName, fixedSize, ImmutableList.of(keyType, valueType), ImmutableMap.of());
     }
 
-    public KeyValueType(String baseName, int fixedSize, Type key, Type value)
+    public KeyValueType(String baseName, int fixedSize, Type keyType, Type valueType)
     {
-        this(baseName, OptionalInt.of(fixedSize), key, value);
+        this(baseName, OptionalInt.of(fixedSize), keyType, valueType);
     }
 
-    public KeyValueType(String baseName, Type key, Type value)
+    public KeyValueType(String baseName, Type keyType, Type valueType)
     {
-        this(baseName, OptionalInt.empty(), key, value);
+        this(baseName, OptionalInt.empty(), keyType, valueType);
     }
 
     public Type getKey()

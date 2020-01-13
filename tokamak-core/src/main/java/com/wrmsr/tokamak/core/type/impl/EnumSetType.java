@@ -13,50 +13,28 @@
  */
 package com.wrmsr.tokamak.core.type.impl;
 
-import com.google.common.collect.ImmutableList;
-import com.wrmsr.tokamak.core.type.TypeRendering;
-
 import javax.annotation.concurrent.Immutable;
 
 import java.lang.reflect.Type;
 import java.util.EnumSet;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 @Immutable
 public final class EnumSetType
-        extends AbstractType
+        extends ItemType
 {
-    private final EnumType enumType;
-
     public EnumSetType(EnumType enumType)
     {
-        super("EnumSet");
-        this.enumType = checkNotNull(enumType);
+        super("EnumSet", enumType);
     }
 
-    @Override
-    public String toString()
+    public EnumType getEnum()
     {
-        return "EnumSetType{" +
-                "enumType=" + enumType +
-                '}';
-    }
-
-    public EnumType getEnumType()
-    {
-        return enumType;
+        return (EnumType) super.getItem();
     }
 
     @Override
     public Type toReflect()
     {
         return EnumSet.class;
-    }
-
-    @Override
-    public String toSpec()
-    {
-        return TypeRendering.buildArgsSpec(baseName, ImmutableList.of(enumType));
     }
 }
