@@ -42,6 +42,8 @@ public final class PProjection
 
     private final Map<String, String> inputFieldsByOutput;
     private final Map<String, Set<String>> outputSetsByInputField;
+    private final Set<String> forwardedFields;
+    private final boolean isForward;
 
     @JsonCreator
     public PProjection(
@@ -51,18 +53,25 @@ public final class PProjection
 
         ImmutableMap.Builder<String, String> inputFieldsByOutput = ImmutableMap.builder();
         Map<String, ImmutableSet.Builder<String>> outputSetsByInputField = new HashMap<>();
+        ImmutableSet.Builder<String> forwardedFields = ImmutableSet.builder();
 
         for (Map.Entry<String, PValue> entry : this.inputsByOutput.entrySet()) {
             if (entry.getValue() instanceof PValue.Field) {
                 String field = ((PValue.Field) entry.getValue()).getField();
                 inputFieldsByOutput.put(entry.getKey(), field);
                 outputSetsByInputField.computeIfAbsent(field, v -> ImmutableSet.builder()).add(entry.getKey());
+                if (entry.getKey().equals(field)) {
+                    forwardedFields.add(field);
+                }
             }
         }
 
         this.inputFieldsByOutput = inputFieldsByOutput.build();
         this.outputSetsByInputField = outputSetsByInputField.entrySet().stream()
                 .collect(toImmutableMap(Map.Entry::getKey, e -> e.getValue().build()));
+        this.forwardedFields = forwardedFields.build();
+
+        isForward = this.forwardedFields.equals(inputsByOutput.keySet());
     }
 
     public PProjection(Map<String, PValue> inputsByOutput)
@@ -90,6 +99,16 @@ public final class PProjection
     public Map<String, Set<String>> getOutputSetsByInputField()
     {
         return outputSetsByInputField;
+    }
+
+    public Set<String> getForwardedFields()
+    {
+        return forwardedFields;
+    }
+
+    public boolean isForward()
+    {
+        return isForward;
     }
 
     public static PProjection only(Iterable<String> fields)

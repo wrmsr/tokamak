@@ -15,7 +15,8 @@ package com.wrmsr.tokamak.core.plan.node;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 import com.wrmsr.tokamak.core.layout.field.Field;
 import com.wrmsr.tokamak.core.layout.field.FieldCollection;
 import com.wrmsr.tokamak.core.layout.field.annotation.FieldAnnotation;
@@ -24,11 +25,12 @@ import com.wrmsr.tokamak.core.plan.node.visitor.PNodeVisitor;
 import com.wrmsr.tokamak.core.type.Type;
 import com.wrmsr.tokamak.core.util.annotation.AnnotationCollection;
 import com.wrmsr.tokamak.core.util.annotation.AnnotationCollectionMap;
+import com.wrmsr.tokamak.util.lazy.SupplierLazyValue;
 
 import javax.annotation.concurrent.Immutable;
 
-import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
@@ -133,5 +135,19 @@ public final class PProject
     public <R, C> R accept(PNodeVisitor<R, C> visitor, C context)
     {
         return visitor.visitProject(this, context);
+    }
+
+    private final SupplierLazyValue<Set<String>> addedFields = new SupplierLazyValue<>();
+
+    public Set<String> getAddedFields()
+    {
+        return addedFields.get(() -> ImmutableSet.copyOf(Sets.difference(projection.getInputsByOutput().keySet(), source.getFields().getNames())));
+    }
+
+    private final SupplierLazyValue<Set<String>> droppedFields = new SupplierLazyValue<>();
+
+    public Set<String> getDroppedFields()
+    {
+        return droppedFields.get(() -> ImmutableSet.copyOf(Sets.difference(source.getFields().getNames(), projection.getInputsByOutput().keySet())));
     }
 }

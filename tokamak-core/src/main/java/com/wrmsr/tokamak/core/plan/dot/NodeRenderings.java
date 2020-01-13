@@ -70,6 +70,18 @@ public final class NodeRenderings
             .add(new NodeRendering<PProject>(PProject.class)
             {
                 @Override
+                protected void addFieldsSection(Context<PProject> ctx, DotUtils.Table table)
+                {
+                    DotUtils.Section section = DotUtils.section();
+
+                    ctx.node.getFields().forEach(field -> addFieldRow(ctx, field, section));
+
+                    table.add(section);
+
+                    super.addFieldsSection(ctx, table);
+                }
+
+                @Override
                 protected void addFieldExtra(Context<PProject> ctx, Field field, DotUtils.Row row)
                 {
                     StringBuilder sb = new StringBuilder();
