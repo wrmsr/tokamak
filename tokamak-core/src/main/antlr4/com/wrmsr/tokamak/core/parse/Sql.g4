@@ -42,6 +42,7 @@ expression
     | literal                                             #literalExpression
     | identifier '(' (expression (',' expression)*)? ')'  #functionCallExpression
     | parameter                                           #parameterExpression
+    | expression comparisonOperator expression            #comparisonExpression
     ;
 
 parameter
@@ -63,6 +64,10 @@ qualifiedName
 identifier
     : IDENTIFIER         #unquotedIdentifier
     | QUOTED_IDENTIFIER  #quotedIdentifier
+    ;
+
+comparisonOperator
+    : EQ | NEQ | LT | LTE | GT | GTE
     ;
 
 AS: 'AS';
@@ -89,6 +94,13 @@ SINGLE_QUOTED_STRING
 TRIPLE_QUOTED_STRING
     : '\'\'\'' (~'\'' | '\\\'' | ('\'' ~'\'') | ('\'\'' ~'\''))* '\'\'\''
     ;
+
+EQ  : '=';
+NEQ : '<>' | '!=';
+LT  : '<';
+LTE : '<=';
+GT  : '>';
+GTE : '>=';
 
 fragment DIGIT
     : [0-9]

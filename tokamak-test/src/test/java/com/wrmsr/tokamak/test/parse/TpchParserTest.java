@@ -103,6 +103,7 @@ public class TpchParserTest
         // )
 
         for (String str : new String[] {
+                // "select * where from",
                 "select * from NATION",
                 "select * from NATION, NATION",
                 "select N_NAME, N_COMMENT from NATION",

@@ -15,6 +15,7 @@ package com.wrmsr.tokamak.core.tree.node.visitor;
 
 import com.wrmsr.tokamak.core.tree.node.TAliasedRelation;
 import com.wrmsr.tokamak.core.tree.node.TAllSelectItem;
+import com.wrmsr.tokamak.core.tree.node.TComparisonExpression;
 import com.wrmsr.tokamak.core.tree.node.TExpression;
 import com.wrmsr.tokamak.core.tree.node.TExpressionSelectItem;
 import com.wrmsr.tokamak.core.tree.node.TFunctionCallExpression;
@@ -56,6 +57,11 @@ public abstract class TNodeVisitor<R, C>
     public R visitAllSelectItem(TAllSelectItem node, C context)
     {
         return visitSelectItem(node, context);
+    }
+
+    public R visitComparisonExpression(TComparisonExpression node, C context)
+    {
+        return visitExpression(node, context);
     }
 
     public R visitExpression(TExpression node, C context)
