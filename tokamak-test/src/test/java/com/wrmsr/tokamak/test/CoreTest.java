@@ -39,6 +39,7 @@ import com.wrmsr.tokamak.core.layout.RowLayout;
 import com.wrmsr.tokamak.core.layout.TableLayout;
 import com.wrmsr.tokamak.core.layout.field.FieldCollection;
 import com.wrmsr.tokamak.core.layout.field.annotation.FieldAnnotation;
+import com.wrmsr.tokamak.core.parse.SqlParser;
 import com.wrmsr.tokamak.core.plan.Plan;
 import com.wrmsr.tokamak.core.plan.analysis.id.IdAnalysis;
 import com.wrmsr.tokamak.core.plan.analysis.id.part.IdAnalysisPart;
@@ -59,6 +60,9 @@ import com.wrmsr.tokamak.core.plan.node.PState;
 import com.wrmsr.tokamak.core.plan.node.PValue;
 import com.wrmsr.tokamak.core.plan.transform.PropagateIdsTransform;
 import com.wrmsr.tokamak.core.plan.transform.SetInvalidationsTransform;
+import com.wrmsr.tokamak.core.tree.TreeParsing;
+import com.wrmsr.tokamak.core.tree.TreeRendering;
+import com.wrmsr.tokamak.core.tree.node.TNode;
 import com.wrmsr.tokamak.core.type.Type;
 import com.wrmsr.tokamak.core.type.Types;
 import com.wrmsr.tokamak.core.util.ApiJson;
@@ -293,16 +297,16 @@ public class CoreTest
         catalog = om.readValue(src, Catalog.class);
 
         Plan plan = buildPlan(catalog);
-        Dot.openDot(Dot.buildPlanDot(plan));
+        // Dot.openDot(Dot.buildPlanDot(plan));
 
         // plan = SetIdFieldsTransform.setIdFields(plan, Optional.of(catalog));
         // Dot.openDot(Dot.buildPlanDot(plan));
 
         plan = PropagateIdsTransform.propagateIds(plan, Optional.of(catalog));
-        Dot.openDot(Dot.buildPlanDot(plan));
+        // Dot.openDot(Dot.buildPlanDot(plan));
 
         plan = SetInvalidationsTransform.setInvalidations(plan, Optional.of(catalog));
-        Dot.openDot(Dot.buildPlanDot(plan));
+        // Dot.openDot(Dot.buildPlanDot(plan));
 
         OriginAnalysis oa = OriginAnalysis.analyze(plan);
         oa.getLeafChainAnalysis().getSinkSetsByFirstSource();
@@ -352,6 +356,17 @@ public class CoreTest
         ctx.commit();
 
         System.out.println(ctx);
+
+        // String stmtStr = "select N_NAME, N_REGIONKEY, N_COMMENT, R_NAME from NATION inner join REGION on N_REGIONKEY = R_REGIONKEY";
+        // SqlParser parser = TreeParsing.parse(stmtStr);
+        // TNode treeNode = TreeParsing.build(parser.statement());
+        // System.out.println(TreeRendering.render(treeNode));
+    }
+
+    public void testTxt()
+            throws Throwable
+    {
+
     }
 
     public void testDot()
