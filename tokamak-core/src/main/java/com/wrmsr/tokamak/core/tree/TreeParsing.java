@@ -18,6 +18,7 @@ import com.wrmsr.tokamak.core.parse.SqlLexer;
 import com.wrmsr.tokamak.core.parse.SqlParser;
 import com.wrmsr.tokamak.core.tree.node.TAliasedRelation;
 import com.wrmsr.tokamak.core.tree.node.TAllSelectItem;
+import com.wrmsr.tokamak.core.tree.node.TComparisonExpression;
 import com.wrmsr.tokamak.core.tree.node.TExpression;
 import com.wrmsr.tokamak.core.tree.node.TExpressionSelectItem;
 import com.wrmsr.tokamak.core.tree.node.TFunctionCallExpression;
@@ -97,6 +98,15 @@ public final class TreeParsing
                 return new TAliasedRelation(
                         (TRelation) visit(ctx.relation()),
                         ctx.identifier() != null ? Optional.of(ctx.identifier().getText()) : Optional.empty());
+            }
+
+            @Override
+            public TNode visitComparisonExpression(SqlParser.ComparisonExpressionContext ctx)
+            {
+                return new TComparisonExpression(
+                        (TExpression) visit(ctx.expression(0)),
+                        TComparisonExpression.Op.fromString(ctx.comparisonOperator().getText()),
+                        (TExpression) visit(ctx.expression(1)));
             }
 
             @Override

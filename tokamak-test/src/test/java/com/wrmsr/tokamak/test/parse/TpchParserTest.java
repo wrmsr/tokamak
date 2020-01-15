@@ -102,6 +102,8 @@ public class TpchParserTest
         //
         // )
 
+        // FIXME: ensure whole string consumed :|
+
         for (String str : new String[] {
                 // "select * where from",
                 "select * from NATION",
