@@ -13,7 +13,12 @@
  */
 package com.wrmsr.tokamak.test;
 
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.api.Key;
@@ -63,6 +68,7 @@ import com.wrmsr.tokamak.util.json.Json;
 import com.wrmsr.tokamak.util.sql.SqlUtils;
 import junit.framework.TestCase;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -253,6 +259,17 @@ public class CoreTest
 
     // https://docs.oracle.com/javase/tutorial/jdbc/basics/prepared.html
 
+    public static final class TypeDeserializer extends JsonDeserializer<Type>
+    {
+        @Override
+        public Type deserialize(JsonParser p, DeserializationContext ctxt)
+                throws IOException, JsonProcessingException
+        {
+            String spec = p.readValueAs(String.class);
+            return Types.BUILTIN_REGISTRY.fromSpec(spec);
+        }
+    }
+
     public void testTpch()
             throws Throwable
     {
@@ -264,10 +281,16 @@ public class CoreTest
         CatalogRegistry cn = new CatalogRegistry();
         BuiltinConnectors.register(cn);
         BuiltinExecutors.register(cn);
-        ObjectMapper om = cn.register(Json.newObjectMapper());
+
+        ObjectMapper om = Json.newObjectMapper();
+        cn.register(om);
+        om.registerModule(new SimpleModule().addDeserializer(Type.class, new TypeDeserializer()));
+
         String src = om.writerWithDefaultPrettyPrinter().writeValueAsString(catalog);
         System.out.println(src);
-        // catalog = om.readValue(src, Catalog.class);
+
+        om.readValue("null", Type.class);
+        catalog = om.readValue(src, Catalog.class);
 
         Plan plan = buildPlan(catalog);
         Dot.openDot(Dot.buildPlanDot(plan));

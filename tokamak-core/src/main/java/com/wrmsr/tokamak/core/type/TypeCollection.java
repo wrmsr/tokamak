@@ -19,11 +19,14 @@ import com.wrmsr.tokamak.core.type.impl.ReferenceType;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
-public final class ReferenceTypeCollection
+public final class TypeCollection
 {
     private final Object lock = new Object();
 
+    private final Map<String, Type> typesBySpec = new ConcurrentHashMap<>();
+
     private volatile Set<String> names = ImmutableSet.of();
-    private volatile Map<String, ReferenceType> namedTypesByName = ImmutableMap.of();
+    private volatile Map<String, ReferenceType> referenceTypesByName = ImmutableMap.of();
 }
