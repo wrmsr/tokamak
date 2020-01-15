@@ -14,6 +14,7 @@
 package com.wrmsr.tokamak.core.tree.node.visitor;
 
 import com.wrmsr.tokamak.core.tree.node.TAliasedRelation;
+import com.wrmsr.tokamak.core.tree.node.TComparisonExpression;
 import com.wrmsr.tokamak.core.tree.node.TExpressionSelectItem;
 import com.wrmsr.tokamak.core.tree.node.TFunctionCallExpression;
 import com.wrmsr.tokamak.core.tree.node.TNode;
@@ -42,6 +43,16 @@ public class TraversalTNodeVisitor<R, C>
         process(node.getRelation(), traversedContext);
 
         return super.visitAliasedRelation(node, context);
+    }
+
+    @Override
+    public R visitComparisonExpression(TComparisonExpression node, C context)
+    {
+        C traversedContext = traverseContext(node, context);
+        process(node.getLeft(), traversedContext);
+        process(node.getRight(), traversedContext);
+
+        return super.visitComparisonExpression(node, context);
     }
 
     @Override

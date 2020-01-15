@@ -15,6 +15,7 @@ package com.wrmsr.tokamak.core.tree.node.visitor;
 
 import com.wrmsr.tokamak.core.tree.node.TAliasedRelation;
 import com.wrmsr.tokamak.core.tree.node.TAllSelectItem;
+import com.wrmsr.tokamak.core.tree.node.TComparisonExpression;
 import com.wrmsr.tokamak.core.tree.node.TExpression;
 import com.wrmsr.tokamak.core.tree.node.TExpressionSelectItem;
 import com.wrmsr.tokamak.core.tree.node.TFunctionCallExpression;
@@ -66,6 +67,15 @@ public class TNodeRewriter<C>
     public TNode visitAllSelectItem(TAllSelectItem node, C context)
     {
         return new TAllSelectItem();
+    }
+
+    @Override
+    public TNode visitComparisonExpression(TComparisonExpression node, C context)
+    {
+        return new TComparisonExpression(
+                (TExpression) process(node.getLeft(), context),
+                node.getOp(),
+                (TExpression) process(node.getRight(), context));
     }
 
     @Override
