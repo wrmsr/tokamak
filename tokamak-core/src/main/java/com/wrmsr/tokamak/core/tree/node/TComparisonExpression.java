@@ -31,7 +31,7 @@ public final class TComparisonExpression
 {
     public enum Op
     {
-        EQ("=="),
+        EQ("="),
         NE("!=", "<>"),
         GT(">"),
         GE(">="),
