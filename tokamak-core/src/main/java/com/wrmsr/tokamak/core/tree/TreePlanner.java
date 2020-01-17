@@ -46,6 +46,7 @@ import com.wrmsr.tokamak.util.MoreCollections;
 import com.wrmsr.tokamak.util.NameGenerator;
 import com.wrmsr.tokamak.util.Pair;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -53,13 +54,16 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static com.wrmsr.tokamak.util.MoreCollections.immutableMapItems;
+import static com.wrmsr.tokamak.util.MoreCollections.immutableMapValues;
 import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
+import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkSingle;
 import static java.util.function.Function.identity;
 
@@ -68,6 +72,7 @@ public class TreePlanner
     private Optional<Catalog> catalog;
     private Optional<String> defaultSchema;
 
+    // FIXME: ensure no collisions (node *and* field names)
     private final NameGenerator nameGenerator = new NameGenerator();
 
     public TreePlanner(Optional<Catalog> catalog, Optional<String> defaultSchema)
@@ -173,11 +178,36 @@ public class TreePlanner
                             .filter(s -> s.stream().map(f -> checkNotNull(sourcesByField.get(f))).collect(toImmutableSet()).equals(sourcesSet))
                             .collect(toImmutableList());
 
+                    Map<PNode, List<Set<String>>> sourceFieldUnifications = new LinkedHashMap<>();
+                    Set<String> seen = new LinkedHashSet<>();
+                    for (Set<String> joinEquality : joinEqualities) {
+                        Map<PNode, Set<String>> eqFieldSetsByNode = immutableMapValues(
+                                joinEquality.stream()
+                                        .collect(Collectors.groupingBy(sourcesByField::get)),
+                                ImmutableSet::copyOf);
+                        checkState(eqFieldSetsByNode.keySet().equals(sourcesSet));
+
+                        eqFieldSetsByNode.forEach((eqNode, eqFields) -> {
+                            for (String eqField : checkNotEmpty(eqFields)) {
+                                checkState(!seen.contains(eqField));
+                                seen.add(eqField);
+                            }
+                            if (eqFields.size() > 1) {
+                                sourceFieldUnifications
+                            }
+                        });
+                    }
+
+                    List<PJoin.Branch> branches = new ArrayList<>();
+                    for (PNode joinSource : sources) {
+                        branches.add(new PJoin.Branch(joinSource, ImmutableList.of()));
+                    }
+
                     source = new PJoin(
                             nameGenerator.get("projectJoin"),
                             AnnotationCollection.of(),
                             AnnotationCollectionMap.of(),
-                            immutableMapItems(sources, s -> new PJoin.Branch(s, ImmutableList.of())),
+                            branches,
                             PJoin.Mode.FULL);
                 }
 
