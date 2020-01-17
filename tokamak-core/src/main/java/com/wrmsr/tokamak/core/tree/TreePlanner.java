@@ -15,6 +15,7 @@ package com.wrmsr.tokamak.core.tree;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.core.catalog.Catalog;
 import com.wrmsr.tokamak.core.catalog.Function;
@@ -28,6 +29,7 @@ import com.wrmsr.tokamak.core.plan.node.PScan;
 import com.wrmsr.tokamak.core.plan.node.PValue;
 import com.wrmsr.tokamak.core.tree.analysis.SymbolAnalysis;
 import com.wrmsr.tokamak.core.tree.node.TAliasedRelation;
+import com.wrmsr.tokamak.core.tree.node.TComparisonExpression;
 import com.wrmsr.tokamak.core.tree.node.TExpression;
 import com.wrmsr.tokamak.core.tree.node.TExpressionSelectItem;
 import com.wrmsr.tokamak.core.tree.node.TFunctionCallExpression;
@@ -40,18 +42,22 @@ import com.wrmsr.tokamak.core.tree.node.TTableName;
 import com.wrmsr.tokamak.core.tree.node.visitor.TNodeVisitor;
 import com.wrmsr.tokamak.core.util.annotation.AnnotationCollection;
 import com.wrmsr.tokamak.core.util.annotation.AnnotationCollectionMap;
+import com.wrmsr.tokamak.util.MoreCollections;
 import com.wrmsr.tokamak.util.NameGenerator;
+import com.wrmsr.tokamak.util.Pair;
 
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
+import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static com.wrmsr.tokamak.util.MoreCollections.immutableMapItems;
 import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkSingle;
@@ -128,12 +134,45 @@ public class TreePlanner
                     }
                 }
 
+                Set<Set<String>> fieldEqualitiesSet = new LinkedHashSet<>();
+                if (treeNode.getWhere().isPresent()) {
+                    TNode where = treeNode.getWhere().get();
+                    if (where instanceof TComparisonExpression) {
+                        TComparisonExpression cmp = (TComparisonExpression) where;
+                        if (cmp.getLeft() instanceof TQualifiedNameExpression && cmp.getRight() instanceof TQualifiedNameExpression) {
+                            Set<String> set = ImmutableList.of(cmp.getLeft(), cmp.getRight()).stream()
+                                    .map(TQualifiedNameExpression.class::cast)
+                                    .map(TQualifiedNameExpression::getQualifiedName)
+                                    .map(TQualifiedName::getParts)
+                                    .map(Joiner.on(".")::join)
+                                    .collect(toImmutableSet());
+                            fieldEqualitiesSet.add(set);
+                        }
+                        else {
+                            throw new IllegalStateException(Objects.toString(cmp));
+                        }
+                    }
+                    else {
+                        throw new IllegalStateException(Objects.toString(where));
+                    }
+                }
+                List<Set<String>> fieldEqualities = MoreCollections.unify(fieldEqualitiesSet);
+
                 List<PNode> sources = immutableMapItems(treeNode.getRelations(), r -> process(r, null));
+                Map<String, PNode> sourcesByField = sources.stream()
+                        .flatMap(s -> s.getFields().getNames().stream().map(f -> Pair.immutable(f, s)))
+                        .collect(toImmutableMap());
+
                 PNode source;
                 if (sources.size() == 1) {
                     source = checkSingle(sources);
                 }
                 else {
+                    Set<PNode> sourcesSet = ImmutableSet.copyOf(sources);
+                    List<Set<String>> joinEqualities = fieldEqualities.stream()
+                            .filter(s -> s.stream().map(f -> checkNotNull(sourcesByField.get(f))).collect(toImmutableSet()).equals(sourcesSet))
+                            .collect(toImmutableList());
+
                     source = new PJoin(
                             nameGenerator.get("projectJoin"),
                             AnnotationCollection.of(),

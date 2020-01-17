@@ -29,6 +29,7 @@ import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.google.common.collect.ImmutableList;
 
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
 
@@ -130,6 +131,19 @@ public interface Pair<K, V>
         return new Immutable<>(entry.getKey(), entry.getValue());
     }
 
+    static <T> Immutable<T, T> immutable(Iterator<T> iterator)
+    {
+        T key = iterator.next();
+        T value = iterator.next();
+        checkState(!iterator.hasNext());
+        return immutable(key, value);
+    }
+
+    static <T> Immutable<T, T> immutable(Iterable<T> iterable)
+    {
+        return immutable(iterable.iterator());
+    }
+
     @JsonSerialize(using = Pair.Serializer.class)
     @JsonDeserialize(using = Pair.MutableDeserializer.class)
     final class Mutable<K, V>
@@ -210,6 +224,19 @@ public interface Pair<K, V>
     static <K, V> Mutable<K, V> mutable(Map.Entry<K, V> entry)
     {
         return new Mutable<>(entry.getKey(), entry.getValue());
+    }
+
+    static <T> Mutable<T, T> mutable(Iterator<T> iterator)
+    {
+        T key = iterator.next();
+        T value = iterator.next();
+        checkState(!iterator.hasNext());
+        return mutable(key, value);
+    }
+
+    static <T> Mutable<T, T> mutable(Iterable<T> iterable)
+    {
+        return mutable(iterable.iterator());
     }
 
     final class Serializer
