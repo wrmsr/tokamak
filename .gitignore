@@ -6,6 +6,7 @@
 .revision
 .venv/
 __pycache__/
+host.key
 node_modules/
 package-lock.json
 target/
