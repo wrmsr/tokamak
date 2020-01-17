@@ -20,9 +20,11 @@ import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.core.catalog.Catalog;
 import com.wrmsr.tokamak.core.catalog.Table;
 import com.wrmsr.tokamak.core.tree.node.TAllSelectItem;
+import com.wrmsr.tokamak.core.tree.node.TBooleanExpression;
 import com.wrmsr.tokamak.core.tree.node.TComparisonExpression;
 import com.wrmsr.tokamak.core.tree.node.TExpressionSelectItem;
 import com.wrmsr.tokamak.core.tree.node.TNode;
+import com.wrmsr.tokamak.core.tree.node.TNotExpression;
 import com.wrmsr.tokamak.core.tree.node.TQualifiedNameExpression;
 import com.wrmsr.tokamak.core.tree.node.TSelect;
 import com.wrmsr.tokamak.core.tree.node.TSubqueryRelation;
@@ -369,6 +371,15 @@ public final class SymbolAnalysis
             }
 
             @Override
+            public SymbolScope visitBooleanExpression(TBooleanExpression treeNode, SymbolScope context)
+            {
+                context.enclosedNodes.add(treeNode);
+                process(treeNode.getLeft(), context);
+                process(treeNode.getRight(), context);
+                return null;
+            }
+
+            @Override
             public SymbolScope visitComparisonExpression(TComparisonExpression treeNode, SymbolScope context)
             {
                 context.enclosedNodes.add(treeNode);
@@ -387,6 +398,14 @@ public final class SymbolAnalysis
                     label = Optional.of(((TQualifiedNameExpression) treeNode.getExpression()).getQualifiedName().getLast());
                 }
                 new Symbol(label, treeNode, Optional.empty(), context);
+                return null;
+            }
+
+            @Override
+            public SymbolScope visitNotExpression(TNotExpression treeNode, SymbolScope context)
+            {
+                context.enclosedNodes.add(treeNode);
+                process(treeNode.getExpression(), context);
                 return null;
             }
 

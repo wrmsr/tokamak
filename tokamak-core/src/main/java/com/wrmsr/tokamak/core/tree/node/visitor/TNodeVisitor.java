@@ -15,6 +15,7 @@ package com.wrmsr.tokamak.core.tree.node.visitor;
 
 import com.wrmsr.tokamak.core.tree.node.TAliasedRelation;
 import com.wrmsr.tokamak.core.tree.node.TAllSelectItem;
+import com.wrmsr.tokamak.core.tree.node.TBooleanExpression;
 import com.wrmsr.tokamak.core.tree.node.TComparisonExpression;
 import com.wrmsr.tokamak.core.tree.node.TExpression;
 import com.wrmsr.tokamak.core.tree.node.TExpressionSelectItem;
@@ -22,6 +23,7 @@ import com.wrmsr.tokamak.core.tree.node.TFunctionCallExpression;
 import com.wrmsr.tokamak.core.tree.node.TIdentifier;
 import com.wrmsr.tokamak.core.tree.node.TLiteral;
 import com.wrmsr.tokamak.core.tree.node.TNode;
+import com.wrmsr.tokamak.core.tree.node.TNotExpression;
 import com.wrmsr.tokamak.core.tree.node.TNullLiteral;
 import com.wrmsr.tokamak.core.tree.node.TNumberLiteral;
 import com.wrmsr.tokamak.core.tree.node.TQualifiedName;
@@ -59,6 +61,11 @@ public abstract class TNodeVisitor<R, C>
         return visitSelectItem(node, context);
     }
 
+    public R visitBooleanExpression(TBooleanExpression node, C context)
+    {
+        return visitExpression(node, context);
+    }
+
     public R visitComparisonExpression(TComparisonExpression node, C context)
     {
         return visitExpression(node, context);
@@ -85,6 +92,11 @@ public abstract class TNodeVisitor<R, C>
     }
 
     public R visitLiteral(TLiteral node, C context)
+    {
+        return visitExpression(node, context);
+    }
+
+    public R visitNotExpression(TNotExpression node, C context)
     {
         return visitExpression(node, context);
     }

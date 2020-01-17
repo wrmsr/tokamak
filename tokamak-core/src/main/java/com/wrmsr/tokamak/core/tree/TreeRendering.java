@@ -16,11 +16,13 @@ package com.wrmsr.tokamak.core.tree;
 import com.google.common.base.Joiner;
 import com.wrmsr.tokamak.core.tree.node.TAliasedRelation;
 import com.wrmsr.tokamak.core.tree.node.TAllSelectItem;
+import com.wrmsr.tokamak.core.tree.node.TBooleanExpression;
 import com.wrmsr.tokamak.core.tree.node.TComparisonExpression;
 import com.wrmsr.tokamak.core.tree.node.TExpressionSelectItem;
 import com.wrmsr.tokamak.core.tree.node.TFunctionCallExpression;
 import com.wrmsr.tokamak.core.tree.node.TIdentifier;
 import com.wrmsr.tokamak.core.tree.node.TNode;
+import com.wrmsr.tokamak.core.tree.node.TNotExpression;
 import com.wrmsr.tokamak.core.tree.node.TNullLiteral;
 import com.wrmsr.tokamak.core.tree.node.TNumberLiteral;
 import com.wrmsr.tokamak.core.tree.node.TQualifiedName;
@@ -76,6 +78,17 @@ public final class TreeRendering
             }
 
             @Override
+            public Void visitBooleanExpression(TBooleanExpression node, Void context)
+            {
+                process(node.getLeft(), context);
+                sb.append(" ");
+                sb.append(node.getOp().getString());
+                sb.append(" ");
+                process(node.getRight(), context);
+                return null;
+            }
+
+            @Override
             public Void visitComparisonExpression(TComparisonExpression node, Void context)
             {
                 process(node.getLeft(), context);
@@ -108,6 +121,14 @@ public final class TreeRendering
             public Void visitIdentifier(TIdentifier treeNode, Void context)
             {
                 sb.append(treeNode.getValue());
+                return null;
+            }
+
+            @Override
+            public Void visitNotExpression(TNotExpression treeNode, Void context)
+            {
+                sb.append("not ");
+                process(treeNode.getExpression(), context);
                 return null;
             }
 

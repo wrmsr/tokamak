@@ -14,10 +14,12 @@
 package com.wrmsr.tokamak.core.tree.node.visitor;
 
 import com.wrmsr.tokamak.core.tree.node.TAliasedRelation;
+import com.wrmsr.tokamak.core.tree.node.TBooleanExpression;
 import com.wrmsr.tokamak.core.tree.node.TComparisonExpression;
 import com.wrmsr.tokamak.core.tree.node.TExpressionSelectItem;
 import com.wrmsr.tokamak.core.tree.node.TFunctionCallExpression;
 import com.wrmsr.tokamak.core.tree.node.TNode;
+import com.wrmsr.tokamak.core.tree.node.TNotExpression;
 import com.wrmsr.tokamak.core.tree.node.TQualifiedNameExpression;
 import com.wrmsr.tokamak.core.tree.node.TSelect;
 import com.wrmsr.tokamak.core.tree.node.TSubqueryRelation;
@@ -46,6 +48,16 @@ public class TraversalTNodeVisitor<R, C>
     }
 
     @Override
+    public R visitBooleanExpression(TBooleanExpression node, C context)
+    {
+        C traversedContext = traverseContext(node, context);
+        process(node.getLeft(), traversedContext);
+        process(node.getRight(), traversedContext);
+
+        return super.visitBooleanExpression(node, context);
+    }
+
+    @Override
     public R visitComparisonExpression(TComparisonExpression node, C context)
     {
         C traversedContext = traverseContext(node, context);
@@ -71,6 +83,15 @@ public class TraversalTNodeVisitor<R, C>
         node.getArgs().forEach(a -> process(a, traversedContext));
 
         return super.visitFunctionCallExpression(node, context);
+    }
+
+    @Override
+    public R visitNotExpression(TNotExpression node, C context)
+    {
+        C traversedContext = traverseContext(node, context);
+        process(node.getExpression(), traversedContext);
+
+        return super.visitNotExpression(node, context);
     }
 
     @Override

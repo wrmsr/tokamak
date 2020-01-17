@@ -37,12 +37,13 @@ relation
     ;
 
 expression
-    : NOT expression                                      #notExpression
-    | qualifiedName                                       #qualifiedNameExpression
-    | literal                                             #literalExpression
-    | identifier '(' (expression (',' expression)*)? ')'  #functionCallExpression
-    | parameter                                           #parameterExpression
-    | expression comparisonOperator expression            #comparisonExpression
+    : NOT expression                                       #notExpression
+    | left=expression booleanOperator right=expression     #booleanExpression
+    | left=expression comparisonOperator right=expression  #comparisonExpression
+    | qualifiedName                                        #qualifiedNameExpression
+    | literal                                              #literalExpression
+    | identifier '(' (expression (',' expression)*)? ')'   #functionCallExpression
+    | parameter                                            #parameterExpression
     ;
 
 parameter
@@ -66,15 +67,21 @@ identifier
     | QUOTED_IDENTIFIER  #quotedIdentifier
     ;
 
-comparisonOperator
-    : EQ | NEQ | LT | LTE | GT | GTE
+booleanOperator
+    : AND | OR
     ;
 
+comparisonOperator
+    : EQ | NE | LT | LE | GT | GE
+    ;
+
+AND: 'AND';
 AS: 'AS';
 FALSE: 'FALSE';
 FROM: 'FROM';
 NOT: 'NOT';
 NULL: 'NULL';
+OR: 'OR';
 SELECT: 'SELECT';
 TRUE: 'TRUE';
 WHERE: 'WHERE';

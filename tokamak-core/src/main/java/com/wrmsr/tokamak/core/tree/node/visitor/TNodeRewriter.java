@@ -15,12 +15,14 @@ package com.wrmsr.tokamak.core.tree.node.visitor;
 
 import com.wrmsr.tokamak.core.tree.node.TAliasedRelation;
 import com.wrmsr.tokamak.core.tree.node.TAllSelectItem;
+import com.wrmsr.tokamak.core.tree.node.TBooleanExpression;
 import com.wrmsr.tokamak.core.tree.node.TComparisonExpression;
 import com.wrmsr.tokamak.core.tree.node.TExpression;
 import com.wrmsr.tokamak.core.tree.node.TExpressionSelectItem;
 import com.wrmsr.tokamak.core.tree.node.TFunctionCallExpression;
 import com.wrmsr.tokamak.core.tree.node.TIdentifier;
 import com.wrmsr.tokamak.core.tree.node.TNode;
+import com.wrmsr.tokamak.core.tree.node.TNotExpression;
 import com.wrmsr.tokamak.core.tree.node.TNullLiteral;
 import com.wrmsr.tokamak.core.tree.node.TNumberLiteral;
 import com.wrmsr.tokamak.core.tree.node.TQualifiedName;
@@ -70,6 +72,15 @@ public class TNodeRewriter<C>
     }
 
     @Override
+    public TNode visitBooleanExpression(TBooleanExpression node, C context)
+    {
+        return new TBooleanExpression(
+                (TExpression) process(node.getLeft(), context),
+                node.getOp(),
+                (TExpression) process(node.getRight(), context));
+    }
+
+    @Override
     public TNode visitComparisonExpression(TComparisonExpression node, C context)
     {
         return new TComparisonExpression(
@@ -99,6 +110,13 @@ public class TNodeRewriter<C>
     {
         return new TIdentifier(
                 node.getValue());
+    }
+
+    @Override
+    public TNode visitNotExpression(TNotExpression node, C context)
+    {
+        return new TNotExpression(
+                (TExpression) process(node.getExpression(), context));
     }
 
     @Override

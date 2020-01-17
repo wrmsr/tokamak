@@ -19,9 +19,12 @@ import com.wrmsr.tokamak.core.type.TypeRegistration;
 
 import javax.annotation.concurrent.Immutable;
 
+import java.util.Comparator;
 import java.util.Map;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.wrmsr.tokamak.util.MoreCollections.immutableMapValues;
+import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 
 @Immutable
 public final class EnumType
@@ -31,9 +34,14 @@ public final class EnumType
     public static final TypeRegistration REGISTRATION = new TypeRegistration(NAME, EnumType.class, Enum.class, TypeConstructor.of(
             (Map<String, Object> kwargs) -> new EnumType(immutableMapValues(kwargs, Long.class::cast))));
 
+    private static Map<String, Long> sortValues(Map<String, Long> values)
+    {
+        return values.entrySet().stream().sorted(Comparator.comparingLong(e -> checkNotNull(e.getValue()))).collect(toImmutableMap());
+    }
+
     public EnumType(Map<String, Long> values)
     {
-        super(NAME, ImmutableMap.copyOf(values));
+        super(NAME, ImmutableMap.copyOf(sortValues(values)));
     }
 
     @Override
