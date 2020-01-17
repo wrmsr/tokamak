@@ -44,6 +44,7 @@ expression
     | literal                                              #literalExpression
     | identifier '(' (expression (',' expression)*)? ')'   #functionCallExpression
     | parameter                                            #parameterExpression
+    | '(' expression ')'                                   #parenthesizedExpression
     ;
 
 parameter

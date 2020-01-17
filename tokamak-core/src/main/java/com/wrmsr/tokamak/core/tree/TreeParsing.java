@@ -148,6 +148,12 @@ public final class TreeParsing
             }
 
             @Override
+            public TNode visitParenthesizedExpression(SqlParser.ParenthesizedExpressionContext ctx)
+            {
+                return (TExpression) visit(ctx.expression());
+            }
+
+            @Override
             public TNode visitQualifiedName(SqlParser.QualifiedNameContext ctx)
             {
                 List<String> parts = visit(ctx.identifier(), TIdentifier.class).stream()

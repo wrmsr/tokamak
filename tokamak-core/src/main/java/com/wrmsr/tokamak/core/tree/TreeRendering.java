@@ -18,6 +18,7 @@ import com.wrmsr.tokamak.core.tree.node.TAliasedRelation;
 import com.wrmsr.tokamak.core.tree.node.TAllSelectItem;
 import com.wrmsr.tokamak.core.tree.node.TBooleanExpression;
 import com.wrmsr.tokamak.core.tree.node.TComparisonExpression;
+import com.wrmsr.tokamak.core.tree.node.TExpression;
 import com.wrmsr.tokamak.core.tree.node.TExpressionSelectItem;
 import com.wrmsr.tokamak.core.tree.node.TFunctionCallExpression;
 import com.wrmsr.tokamak.core.tree.node.TIdentifier;
@@ -60,6 +61,19 @@ public final class TreeRendering
                     }
                     consumer.accept(item);
                 }
+            }
+
+            @Override
+            public Void process(TNode node, Void context)
+            {
+                if (node instanceof TExpression) {
+                    sb.append("(");
+                }
+                node.accept(this, context);
+                if (node instanceof TExpression) {
+                    sb.append(")");
+                }
+                return null;
             }
 
             @Override
