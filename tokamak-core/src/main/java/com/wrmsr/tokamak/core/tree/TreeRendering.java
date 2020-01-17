@@ -16,6 +16,7 @@ package com.wrmsr.tokamak.core.tree;
 import com.google.common.base.Joiner;
 import com.wrmsr.tokamak.core.tree.node.TAliasedRelation;
 import com.wrmsr.tokamak.core.tree.node.TAllSelectItem;
+import com.wrmsr.tokamak.core.tree.node.TComparisonExpression;
 import com.wrmsr.tokamak.core.tree.node.TExpressionSelectItem;
 import com.wrmsr.tokamak.core.tree.node.TFunctionCallExpression;
 import com.wrmsr.tokamak.core.tree.node.TIdentifier;
@@ -71,6 +72,17 @@ public final class TreeRendering
             public Void visitAllSelectItem(TAllSelectItem treeNode, Void context)
             {
                 sb.append("*");
+                return null;
+            }
+
+            @Override
+            public Void visitComparisonExpression(TComparisonExpression node, Void context)
+            {
+                process(node.getLeft(), context);
+                sb.append(" ");
+                sb.append(node.getOp().getString());
+                sb.append(" ");
+                process(node.getRight(), context);
                 return null;
             }
 

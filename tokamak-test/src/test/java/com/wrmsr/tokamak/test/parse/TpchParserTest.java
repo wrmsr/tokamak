@@ -106,6 +106,9 @@ public class TpchParserTest
 
         for (String str : new String[] {
                 // "select * where from",
+
+                "select N_NAME, N_REGIONKEY, N_COMMENT, R_NAME from NATION, REGION where N_REGIONKEY = R_REGIONKEY",
+
                 "select * from NATION",
                 "select * from NATION, NATION",
                 "select N_NAME, N_COMMENT from NATION",
@@ -116,6 +119,7 @@ public class TpchParserTest
                 "select N_NATIONKEY, R_REGIONKEY, NATION.N_COMMENT from NATION, REGION",
                 "select N2.N_NATIONKEY, R_REGIONKEY, NATION.N_COMMENT from NATION, REGION, NATION as N2",
                 "select N_NAME, N_REGIONKEY, N_COMMENT, R_NAME from NATION, REGION where N_REGIONKEY = R_REGIONKEY",
+
                 // "select N_NAME, N_REGIONKEY, N_COMMENT, R_NAME from NATION join REGION on N_REGIONKEY = R_REGIONKEY",
                 // "select N_NAME, N_REGIONKEY, N_COMMENT, R_NAME from NATION inner join REGION on N_REGIONKEY = R_REGIONKEY",
                 // "select java('String', '_0 + \"!\"', N_NAME) from NATION",

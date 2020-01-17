@@ -20,6 +20,7 @@ import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.core.catalog.Catalog;
 import com.wrmsr.tokamak.core.catalog.Table;
 import com.wrmsr.tokamak.core.tree.node.TAllSelectItem;
+import com.wrmsr.tokamak.core.tree.node.TComparisonExpression;
 import com.wrmsr.tokamak.core.tree.node.TExpressionSelectItem;
 import com.wrmsr.tokamak.core.tree.node.TNode;
 import com.wrmsr.tokamak.core.tree.node.TQualifiedNameExpression;
@@ -364,6 +365,15 @@ public final class SymbolAnalysis
                     Symbol symbol = new Symbol(s.name, treeNode, Optional.of(s), context);
                     new SymbolRef(s.name.map(ImmutableList::of), treeNode, Optional.of(symbol), context);
                 }));
+                return null;
+            }
+
+            @Override
+            public SymbolScope visitComparisonExpression(TComparisonExpression treeNode, SymbolScope context)
+            {
+                context.enclosedNodes.add(treeNode);
+                process(treeNode.getLeft(), context);
+                process(treeNode.getRight(), context);
                 return null;
             }
 
