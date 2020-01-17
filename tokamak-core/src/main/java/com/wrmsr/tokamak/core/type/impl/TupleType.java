@@ -16,7 +16,7 @@ package com.wrmsr.tokamak.core.type.impl;
 import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.core.type.Type;
 import com.wrmsr.tokamak.core.type.TypeConstructor;
-import com.wrmsr.tokamak.core.type.TypeRegistrant;
+import com.wrmsr.tokamak.core.type.TypeRegistration;
 import com.wrmsr.tokamak.core.type.Types;
 
 import javax.annotation.concurrent.Immutable;
@@ -28,7 +28,7 @@ public final class TupleType
         extends AbstractType
 {
     public static final String NAME = "Tuple";
-    public static final TypeRegistrant REGISTRANT = new TypeRegistrant(NAME, TupleType.class, TypeConstructor.of(
+    public static final TypeRegistration REGISTRATION = new TypeRegistration(NAME, TupleType.class, TypeConstructor.of(
             (List<Object> args) -> new TupleType(Types.objectsToTypes(args))));
 
     public TupleType(List<Type> itemTypes)

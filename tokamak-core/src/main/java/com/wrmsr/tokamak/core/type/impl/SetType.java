@@ -15,7 +15,7 @@ package com.wrmsr.tokamak.core.type.impl;
 
 import com.wrmsr.tokamak.core.type.Type;
 import com.wrmsr.tokamak.core.type.TypeConstructor;
-import com.wrmsr.tokamak.core.type.TypeRegistrant;
+import com.wrmsr.tokamak.core.type.TypeRegistration;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -26,7 +26,7 @@ public final class SetType
         extends ItemType
 {
     public static final String NAME = "Set";
-    public static final TypeRegistrant REGISTRANT = new TypeRegistrant(NAME, SetType.class, Set.class, TypeConstructor.of(SetType::new));
+    public static final TypeRegistration REGISTRATION = new TypeRegistration(NAME, SetType.class, Set.class, TypeConstructor.of(SetType::new));
 
     public SetType(Type itemType)
     {

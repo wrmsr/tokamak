@@ -127,30 +127,30 @@ public final class Types
 
             .build();
 
-    public static final List<TypeRegistrant> BUILTIN_REGISTRANTS = ImmutableList.<TypeRegistrant>builder()
+    public static final List<TypeRegistration> BUILTIN_REGISTRATIONS = ImmutableList.<TypeRegistration>builder()
 
-            .addAll(BUILTIN_TYPES.stream().map(TypeRegistrant::standard).collect(toImmutableList()))
+            .addAll(BUILTIN_TYPES.stream().map(TypeRegistration::standard).collect(toImmutableList()))
 
-            .add(BiMapType.REGISTRANT)
-            .add(EnumSetType.REGISTRANT)
-            .add(EnumType.REGISTRANT)
-            .add(FunctionType.REGISTRANT)
-            .add(InternalType.REGISTRANT)
-            .add(ListType.REGISTRANT)
-            .add(MapType.REGISTRANT)
-            .add(NotNullType.REGISTRANT)
-            .add(SetType.REGISTRANT)
-            .add(SizedType.REGISTRANT)
-            .add(StructType.REGISTRANT)
-            .add(StructuralType.REGISTRANT)
-            .add(TupleType.REGISTRANT)
-            .add(UnionType.REGISTRANT)
+            .add(BiMapType.REGISTRATION)
+            .add(EnumSetType.REGISTRATION)
+            .add(EnumType.REGISTRATION)
+            .add(FunctionType.REGISTRATION)
+            .add(InternalType.REGISTRATION)
+            .add(ListType.REGISTRATION)
+            .add(MapType.REGISTRATION)
+            .add(NotNullType.REGISTRATION)
+            .add(SetType.REGISTRATION)
+            .add(SizedType.REGISTRATION)
+            .add(StructType.REGISTRATION)
+            .add(StructuralType.REGISTRATION)
+            .add(TupleType.REGISTRATION)
+            .add(UnionType.REGISTRATION)
 
             .build();
 
     public static final TypeRegistry BUILTIN_REGISTRY = ((Supplier<TypeRegistry>) () -> {
         TypeRegistry registry = new TypeRegistry();
-        BUILTIN_REGISTRANTS.forEach(registry::register);
+        BUILTIN_REGISTRATIONS.forEach(registry::register);
         return registry;
     }).get();
 

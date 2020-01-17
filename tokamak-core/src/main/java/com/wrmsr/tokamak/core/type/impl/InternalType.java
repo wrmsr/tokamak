@@ -15,7 +15,7 @@ package com.wrmsr.tokamak.core.type.impl;
 
 import com.wrmsr.tokamak.core.type.Type;
 import com.wrmsr.tokamak.core.type.TypeConstructor;
-import com.wrmsr.tokamak.core.type.TypeRegistrant;
+import com.wrmsr.tokamak.core.type.TypeRegistration;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -24,7 +24,7 @@ public final class InternalType
         extends SigilType
 {
     public static final String NAME = "Internal";
-    public static final TypeRegistrant REGISTRANT = new TypeRegistrant(NAME, InternalType.class, TypeConstructor.of(InternalType::new));
+    public static final TypeRegistration REGISTRATION = new TypeRegistration(NAME, InternalType.class, TypeConstructor.of(InternalType::new));
 
     public InternalType(Type itemType)
     {

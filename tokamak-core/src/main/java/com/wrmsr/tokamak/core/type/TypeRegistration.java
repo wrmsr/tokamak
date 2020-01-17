@@ -30,7 +30,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 
 @Immutable
-public final class TypeRegistrant
+public final class TypeRegistration
         implements TypeConstructor
 {
     private final String baseName;
@@ -38,7 +38,7 @@ public final class TypeRegistrant
     private final Optional<java.lang.reflect.Type> reflect;
     private final TypeConstructor constructor;
 
-    public TypeRegistrant(
+    public TypeRegistration(
             String baseName,
             Class<? extends Type> cls,
             Optional<java.lang.reflect.Type> reflect,
@@ -51,7 +51,7 @@ public final class TypeRegistrant
         this.constructor = checkNotNull(constructor);
     }
 
-    public TypeRegistrant(
+    public TypeRegistration(
             String baseName,
             Class<? extends Type> cls,
             java.lang.reflect.Type reflect,
@@ -60,7 +60,7 @@ public final class TypeRegistrant
         this(baseName, cls, Optional.of(reflect), constructor);
     }
 
-    public TypeRegistrant(
+    public TypeRegistration(
             String baseName,
             Class<? extends Type> cls,
             TypeConstructor constructor)
@@ -94,13 +94,13 @@ public final class TypeRegistrant
         return constructor.construct(args, kwargs);
     }
 
-    public static TypeRegistrant standard(Type type)
+    public static TypeRegistration standard(Type type)
     {
         if (type instanceof PrimitiveType || type instanceof SimpleType) {
-            return new TypeRegistrant(type.getBaseName(), type.getClass(), type.toReflect(), TypeConstructor.of(() -> type));
+            return new TypeRegistration(type.getBaseName(), type.getClass(), type.toReflect(), TypeConstructor.of(() -> type));
         }
         else if (type instanceof SpecialType) {
-            return new TypeRegistrant(type.getBaseName(), type.getClass(), TypeConstructor.of(() -> type));
+            return new TypeRegistration(type.getBaseName(), type.getClass(), TypeConstructor.of(() -> type));
         }
         else {
             throw new IllegalArgumentException(Objects.toString(type));

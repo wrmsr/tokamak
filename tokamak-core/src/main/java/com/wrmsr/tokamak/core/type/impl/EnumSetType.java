@@ -15,7 +15,7 @@ package com.wrmsr.tokamak.core.type.impl;
 
 import com.wrmsr.tokamak.core.type.Type;
 import com.wrmsr.tokamak.core.type.TypeConstructor;
-import com.wrmsr.tokamak.core.type.TypeRegistrant;
+import com.wrmsr.tokamak.core.type.TypeRegistration;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -26,7 +26,7 @@ public final class EnumSetType
         extends ItemType
 {
     public static final String NAME = "EnumSet";
-    public static final TypeRegistrant REGISTRANT = new TypeRegistrant(NAME, EnumSetType.class, EnumSet.class, TypeConstructor.of(
+    public static final TypeRegistration REGISTRATION = new TypeRegistration(NAME, EnumSetType.class, EnumSet.class, TypeConstructor.of(
             (Type enumType) -> new EnumSetType((EnumType) enumType)));
 
     public EnumSetType(EnumType enumType)

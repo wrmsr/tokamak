@@ -17,7 +17,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.core.type.Type;
 import com.wrmsr.tokamak.core.type.TypeConstructor;
-import com.wrmsr.tokamak.core.type.TypeRegistrant;
+import com.wrmsr.tokamak.core.type.TypeRegistration;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -30,7 +30,7 @@ public final class SizedType
         extends SigilType
 {
     public static final String NAME = "Sized";
-    public static final TypeRegistrant REGISTRANT = new TypeRegistrant(NAME, SizedType.class, TypeConstructor.of(
+    public static final TypeRegistration REGISTRATION = new TypeRegistration(NAME, SizedType.class, TypeConstructor.of(
             (List<Object> args) -> {
                 checkArgument(args.size() == 2);
                 return new SizedType((Type) args.get(0), (long) args.get(1));

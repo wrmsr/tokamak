@@ -16,7 +16,7 @@ package com.wrmsr.tokamak.core.type.impl;
 import com.google.common.collect.BiMap;
 import com.wrmsr.tokamak.core.type.Type;
 import com.wrmsr.tokamak.core.type.TypeConstructor;
-import com.wrmsr.tokamak.core.type.TypeRegistrant;
+import com.wrmsr.tokamak.core.type.TypeRegistration;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -25,7 +25,7 @@ public final class BiMapType
         extends KeyValueType
 {
     public static final String NAME = "BiMap";
-    public static final TypeRegistrant REGISTRANT = new TypeRegistrant(NAME, BiMapType.class, BiMap.class, TypeConstructor.of(BiMapType::new));
+    public static final TypeRegistration REGISTRATION = new TypeRegistration(NAME, BiMapType.class, BiMap.class, TypeConstructor.of(BiMapType::new));
 
     public BiMapType(Type keyType, Type valueType)
     {

@@ -16,7 +16,7 @@ package com.wrmsr.tokamak.core.type.impl;
 import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.core.type.Type;
 import com.wrmsr.tokamak.core.type.TypeConstructor;
-import com.wrmsr.tokamak.core.type.TypeRegistrant;
+import com.wrmsr.tokamak.core.type.TypeRegistration;
 import com.wrmsr.tokamak.core.type.Types;
 
 import javax.annotation.concurrent.Immutable;
@@ -28,7 +28,7 @@ public final class StructuralType
         extends AbstractType
 {
     public static final String NAME = "Structural";
-    public static final TypeRegistrant REGISTRANT = new TypeRegistrant(NAME, StructuralType.class, TypeConstructor.of(
+    public static final TypeRegistration REGISTRATION = new TypeRegistration(NAME, StructuralType.class, TypeConstructor.of(
             (Map<String, Object> kwargs) -> new StructuralType(Types.objectsToTypes(kwargs))));
 
     public StructuralType(Map<String, Type> memberTypes)

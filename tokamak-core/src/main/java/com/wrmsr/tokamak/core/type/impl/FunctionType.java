@@ -16,7 +16,7 @@ package com.wrmsr.tokamak.core.type.impl;
 import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.core.type.Type;
 import com.wrmsr.tokamak.core.type.TypeConstructor;
-import com.wrmsr.tokamak.core.type.TypeRegistrant;
+import com.wrmsr.tokamak.core.type.TypeRegistration;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -31,7 +31,7 @@ public final class FunctionType
         extends AbstractType
 {
     public static final String NAME = "Function";
-    public static final TypeRegistrant REGISTRANT = new TypeRegistrant(NAME, FunctionType.class, Method.class, TypeConstructor.of(
+    public static final TypeRegistration REGISTRATION = new TypeRegistration(NAME, FunctionType.class, Method.class, TypeConstructor.of(
             (List<Object> args) -> new FunctionType((Type) args.get(0), immutableMapItems(args.subList(1, args.size()), Type.class::cast))));
 
     public FunctionType(Type returnType, List<Type> paramTypes)

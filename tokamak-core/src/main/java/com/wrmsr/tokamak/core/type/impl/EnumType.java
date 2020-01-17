@@ -15,7 +15,7 @@ package com.wrmsr.tokamak.core.type.impl;
 
 import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.core.type.TypeConstructor;
-import com.wrmsr.tokamak.core.type.TypeRegistrant;
+import com.wrmsr.tokamak.core.type.TypeRegistration;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -28,7 +28,7 @@ public final class EnumType
         extends AbstractType
 {
     public static final String NAME = "Enum";
-    public static final TypeRegistrant REGISTRANT = new TypeRegistrant(NAME, EnumType.class, Enum.class, TypeConstructor.of(
+    public static final TypeRegistration REGISTRATION = new TypeRegistration(NAME, EnumType.class, Enum.class, TypeConstructor.of(
             (Map<String, Object> kwargs) -> new EnumType(immutableMapValues(kwargs, Long.class::cast))));
 
     public EnumType(Map<String, Long> values)
