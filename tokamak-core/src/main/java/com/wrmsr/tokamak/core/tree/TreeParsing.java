@@ -18,12 +18,14 @@ import com.wrmsr.tokamak.core.parse.SqlLexer;
 import com.wrmsr.tokamak.core.parse.SqlParser;
 import com.wrmsr.tokamak.core.tree.node.TAliasedRelation;
 import com.wrmsr.tokamak.core.tree.node.TAllSelectItem;
+import com.wrmsr.tokamak.core.tree.node.TBooleanExpression;
 import com.wrmsr.tokamak.core.tree.node.TComparisonExpression;
 import com.wrmsr.tokamak.core.tree.node.TExpression;
 import com.wrmsr.tokamak.core.tree.node.TExpressionSelectItem;
 import com.wrmsr.tokamak.core.tree.node.TFunctionCallExpression;
 import com.wrmsr.tokamak.core.tree.node.TIdentifier;
 import com.wrmsr.tokamak.core.tree.node.TNode;
+import com.wrmsr.tokamak.core.tree.node.TNotExpression;
 import com.wrmsr.tokamak.core.tree.node.TNullLiteral;
 import com.wrmsr.tokamak.core.tree.node.TNumberLiteral;
 import com.wrmsr.tokamak.core.tree.node.TQualifiedName;
@@ -101,12 +103,21 @@ public final class TreeParsing
             }
 
             @Override
+            public TNode visitBooleanExpression(SqlParser.BooleanExpressionContext ctx)
+            {
+                return new TBooleanExpression(
+                        (TExpression) visit(ctx.left),
+                        TBooleanExpression.Op.fromString(ctx.booleanOperator().getText()),
+                        (TExpression) visit(ctx.right));
+            }
+
+            @Override
             public TNode visitComparisonExpression(SqlParser.ComparisonExpressionContext ctx)
             {
                 return new TComparisonExpression(
-                        (TExpression) visit(ctx.expression(0)),
+                        (TExpression) visit(ctx.left),
                         TComparisonExpression.Op.fromString(ctx.comparisonOperator().getText()),
-                        (TExpression) visit(ctx.expression(1)));
+                        (TExpression) visit(ctx.right));
             }
 
             @Override
@@ -115,6 +126,13 @@ public final class TreeParsing
                 return new TFunctionCallExpression(
                         ((TIdentifier) visit(ctx.identifier())).getValue(),
                         visit(ctx.expression(), TExpression.class));
+            }
+
+            @Override
+            public TNode visitNotExpression(SqlParser.NotExpressionContext ctx)
+            {
+                return new TNotExpression(
+                        (TExpression) visit(ctx.expression()));
             }
 
             @Override
