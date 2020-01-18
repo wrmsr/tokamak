@@ -16,13 +16,20 @@ package com.wrmsr.tokamak.core.plan.transform;
 import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.core.plan.Plan;
+import com.wrmsr.tokamak.core.plan.node.PInvalidations;
+import com.wrmsr.tokamak.core.plan.node.PNode;
 import com.wrmsr.tokamak.core.plan.node.PScan;
+import com.wrmsr.tokamak.core.type.Type;
+import com.wrmsr.tokamak.core.util.annotation.AnnotationCollection;
+import com.wrmsr.tokamak.core.util.annotation.AnnotationCollectionMap;
 import com.wrmsr.tokamak.util.Pair;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.google.common.base.Preconditions.checkState;
 import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkSingle;
@@ -38,18 +45,48 @@ public final class MergeScansTransform
         Map<SchemaTable, List<PScan>> scanListsBySchemaTable = plan.getNodeTypeList(PScan.class).stream()
                 .collect(Collectors.groupingBy(PScan::getSchemaTable));
 
-        Map<PScan, PScan> newScans = scanListsBySchemaTable.entrySet().stream()
+        Map<PScan, PNode> newScans = scanListsBySchemaTable.entrySet().stream()
                 .flatMap(e -> {
                     SchemaTable schemaTable = e.getKey();
                     List<PScan> scans = checkNotEmpty(e.getValue());
 
                     if (scans.size() == 1) {
                         PScan scan = checkSingle(scans);
+                        checkState(scan.getSchemaTable().equals(schemaTable));
                         return ImmutableList.of(Pair.immutable(scan, scan)).stream();
                     }
+                    else {
+                        Map<String, Type> allFields = new LinkedHashMap<>();
+                        for (PScan scan : scans) {
+                            checkState(scan.getSchemaTable().equals(schemaTable));
+                            scan.getFields().getTypesByName().forEach((field, type) -> {
+                                // FIXME: normalize (de-sigil) + re-sigil
+                                if (allFields.containsKey(field)) {
+                                    checkState(type.equals(allFields.get(field)));
+                                }
+                                else {
+                                    allFields.put(field, type);
+                                }
+                            });
+                        }
 
-                    return scans.stream()
-                            .map(scan -> Pair.immutable(scan, scan));
+                        // FIXME: anns?
+                        PScan newScan = new PScan(
+                                plan.getNodeNameGenerator().get(schemaTable.toString() + "$merged"),
+                                AnnotationCollection.of(),
+                                AnnotationCollectionMap.of(),
+                                schemaTable,
+                                allFields,
+                                PInvalidations.empty());
+
+                        return scans.stream()
+                                .map(scan -> {
+                                    if (scan.getFields().getTypesByName().equals(allFields)) {
+
+                                    }
+                                    return Pair.<PScan, PNode>immutable(scan, newScan);
+                                });
+                    }
                 })
                 .collect(toImmutableMap());
 
