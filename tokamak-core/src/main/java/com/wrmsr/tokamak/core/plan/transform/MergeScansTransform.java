@@ -14,11 +14,16 @@
 package com.wrmsr.tokamak.core.plan.transform;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Sets;
 import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.core.plan.Plan;
 import com.wrmsr.tokamak.core.plan.node.PInvalidations;
 import com.wrmsr.tokamak.core.plan.node.PNode;
+import com.wrmsr.tokamak.core.plan.node.PProject;
+import com.wrmsr.tokamak.core.plan.node.PProjection;
 import com.wrmsr.tokamak.core.plan.node.PScan;
+import com.wrmsr.tokamak.core.plan.node.visitor.PNodeRewriters;
 import com.wrmsr.tokamak.core.type.Type;
 import com.wrmsr.tokamak.core.util.annotation.AnnotationCollection;
 import com.wrmsr.tokamak.core.util.annotation.AnnotationCollectionMap;
@@ -82,13 +87,20 @@ public final class MergeScansTransform
                     return scans.stream()
                             .map(scan -> {
                                 if (scan.getFields().getTypesByName().equals(allFields)) {
-
+                                    return Pair.<PScan, PNode>immutable(scan, newScan);
                                 }
-                                return Pair.<PScan, PNode>immutable(scan, newScan);
+
+                                PNode drop = new PProject(
+                                        plan.getNodeNameGenerator().get(schemaTable.toString() + "$merged$dropped"),
+                                        AnnotationCollection.of(),
+                                        AnnotationCollectionMap.of(),
+                                        newScan,
+                                        PProjection.only(Sets.difference(newScan.getFields().getNames(), scan.getFields().getNames())));
+                                return Pair.<PScan, PNode>immutable(scan, drop);
                             });
                 })
                 .collect(toImmutableMap());
 
-        return plan;
+        return Plan.of(PNodeRewriters.rewrite(plan.getRoot(), ImmutableMap.copyOf(newScans)));
     }
 }

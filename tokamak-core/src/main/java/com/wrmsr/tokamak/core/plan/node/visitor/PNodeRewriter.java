@@ -46,6 +46,15 @@ import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 public abstract class PNodeRewriter<C>
         extends CachingPNodeVisitor<PNode, C>
 {
+    protected PNodeRewriter()
+    {
+    }
+
+    protected PNodeRewriter(Map<PNode, PNode> cache)
+    {
+        super(cache);
+    }
+
     protected String visitNodeName(String name, C context)
     {
         return name;

@@ -59,6 +59,7 @@ import com.wrmsr.tokamak.core.plan.node.PProjection;
 import com.wrmsr.tokamak.core.plan.node.PScan;
 import com.wrmsr.tokamak.core.plan.node.PState;
 import com.wrmsr.tokamak.core.plan.node.PValue;
+import com.wrmsr.tokamak.core.plan.transform.MergeScansTransform;
 import com.wrmsr.tokamak.core.plan.transform.PropagateIdsTransform;
 import com.wrmsr.tokamak.core.plan.transform.SetInvalidationsTransform;
 import com.wrmsr.tokamak.core.tree.TreeParsing;
@@ -409,6 +410,7 @@ public class CoreTest
 
         plan = PropagateIdsTransform.propagateIds(plan, Optional.of(catalog));
         plan = SetInvalidationsTransform.setInvalidations(plan, Optional.of(catalog));
+        plan = MergeScansTransform.mergeScans(plan);
 
         Driver driver = new DriverImpl(catalog, plan);
 
