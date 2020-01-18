@@ -11,14 +11,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.wrmsr.tokamak.core.plan.transform;
 
 import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.core.plan.Plan;
 import com.wrmsr.tokamak.core.plan.node.PScan;
-import com.wrmsr.tokamak.core.plan.node.visitor.PNodeVisitors;
 import com.wrmsr.tokamak.util.Pair;
 
 import java.util.List;
