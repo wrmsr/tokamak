@@ -61,8 +61,13 @@ import com.wrmsr.tokamak.core.plan.node.PValue;
 import com.wrmsr.tokamak.core.plan.transform.PropagateIdsTransform;
 import com.wrmsr.tokamak.core.plan.transform.SetInvalidationsTransform;
 import com.wrmsr.tokamak.core.tree.TreeParsing;
+import com.wrmsr.tokamak.core.tree.TreePlanner;
 import com.wrmsr.tokamak.core.tree.TreeRendering;
+import com.wrmsr.tokamak.core.tree.analysis.SymbolAnalysis;
 import com.wrmsr.tokamak.core.tree.node.TNode;
+import com.wrmsr.tokamak.core.tree.transform.SelectExpansion;
+import com.wrmsr.tokamak.core.tree.transform.SymbolResolution;
+import com.wrmsr.tokamak.core.tree.transform.ViewInlining;
 import com.wrmsr.tokamak.core.type.Type;
 import com.wrmsr.tokamak.core.type.Types;
 import com.wrmsr.tokamak.core.util.ApiJson;
@@ -361,6 +366,53 @@ public class CoreTest
         // SqlParser parser = TreeParsing.parse(stmtStr);
         // TNode treeNode = TreeParsing.build(parser.statement());
         // System.out.println(TreeRendering.render(treeNode));
+    }
+
+    public void testParsed()
+        throws Throwable
+    {
+        String sql = "select N_NAME, N_REGIONKEY, N_COMMENT, R_NAME from NATION, REGION where N_REGIONKEY = R_REGIONKEY";
+
+        Path tempDir = createTempDirectory();
+        String url = "jdbc:h2:file:" + tempDir.toString() + "/test.db;USER=username;PASSWORD=password";
+        TpchUtils.buildDatabase(url);
+        Catalog catalog = TpchUtils.buildCatalog(url);
+        Optional<String> defaultSchema = Optional.of("PUBLIC");
+
+        CatalogRegistry cn = new CatalogRegistry();
+        BuiltinConnectors.register(cn);
+        BuiltinExecutors.register(cn);
+
+        SqlParser parser = TreeParsing.parse(sql);
+        TNode treeNode = TreeParsing.build(parser.statement());
+        System.out.println(TreeRendering.render(treeNode));
+
+        treeNode = ViewInlining.inlineViews(treeNode, catalog);
+        treeNode = SelectExpansion.expandSelects(treeNode, catalog, defaultSchema);
+        System.out.println(TreeRendering.render(treeNode));
+
+        treeNode = SymbolResolution.resolveSymbols(treeNode, Optional.of(catalog), defaultSchema);
+        System.out.println(TreeRendering.render(treeNode));
+
+        PNode node = new TreePlanner(Optional.of(catalog), defaultSchema).plan(treeNode);
+        Plan plan = Plan.of(node);
+
+        plan = PropagateIdsTransform.propagateIds(plan, Optional.of(catalog));
+        plan = SetInvalidationsTransform.setInvalidations(plan, Optional.of(catalog));
+
+        Driver driver = new DriverImpl(catalog, plan);
+
+        Driver.Context ctx = driver.createContext();
+        Collection<Row> buildRows = driver.build(
+                ctx,
+                plan.getRoot(),
+                Key.of("R_REGIONKEY", 1));
+
+        System.out.println(buildRows);
+
+        ctx.commit();
+
+        System.out.println(ctx);
     }
 
     public void testTxt()
