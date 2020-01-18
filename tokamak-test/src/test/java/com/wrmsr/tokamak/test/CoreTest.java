@@ -406,7 +406,7 @@ public class CoreTest
         Collection<Row> buildRows = driver.build(
                 ctx,
                 plan.getRoot(),
-                Key.of("R_REGIONKEY", 1));
+                Key.of("N_REGIONKEY", 1));
 
         System.out.println(buildRows);
 
