@@ -53,40 +53,39 @@ public final class MergeScansTransform
                     if (scans.size() == 1) {
                         PScan scan = checkSingle(scans);
                         checkState(scan.getSchemaTable().equals(schemaTable));
-                        return ImmutableList.of(Pair.immutable(scan, scan)).stream();
+                        return ImmutableList.of(Pair.<PScan, PNode>immutable(scan, scan)).stream();
                     }
-                    else {
-                        Map<String, Type> allFields = new LinkedHashMap<>();
-                        for (PScan scan : scans) {
-                            checkState(scan.getSchemaTable().equals(schemaTable));
-                            scan.getFields().getTypesByName().forEach((field, type) -> {
-                                // FIXME: normalize (de-sigil) + re-sigil
-                                if (allFields.containsKey(field)) {
-                                    checkState(type.equals(allFields.get(field)));
+
+                    Map<String, Type> allFields = new LinkedHashMap<>();
+                    for (PScan scan : scans) {
+                        checkState(scan.getSchemaTable().equals(schemaTable));
+                        scan.getFields().getTypesByName().forEach((field, type) -> {
+                            // FIXME: normalize (de-sigil) + re-sigil
+                            if (allFields.containsKey(field)) {
+                                checkState(type.equals(allFields.get(field)));
+                            }
+                            else {
+                                allFields.put(field, type);
+                            }
+                        });
+                    }
+
+                    // FIXME: anns?
+                    PScan newScan = new PScan(
+                            plan.getNodeNameGenerator().get(schemaTable.toString() + "$merged"),
+                            AnnotationCollection.of(),
+                            AnnotationCollectionMap.of(),
+                            schemaTable,
+                            allFields,
+                            PInvalidations.empty());
+
+                    return scans.stream()
+                            .map(scan -> {
+                                if (scan.getFields().getTypesByName().equals(allFields)) {
+
                                 }
-                                else {
-                                    allFields.put(field, type);
-                                }
+                                return Pair.<PScan, PNode>immutable(scan, newScan);
                             });
-                        }
-
-                        // FIXME: anns?
-                        PScan newScan = new PScan(
-                                plan.getNodeNameGenerator().get(schemaTable.toString() + "$merged"),
-                                AnnotationCollection.of(),
-                                AnnotationCollectionMap.of(),
-                                schemaTable,
-                                allFields,
-                                PInvalidations.empty());
-
-                        return scans.stream()
-                                .map(scan -> {
-                                    if (scan.getFields().getTypesByName().equals(allFields)) {
-
-                                    }
-                                    return Pair.<PScan, PNode>immutable(scan, newScan);
-                                });
-                    }
                 })
                 .collect(toImmutableMap());
 
