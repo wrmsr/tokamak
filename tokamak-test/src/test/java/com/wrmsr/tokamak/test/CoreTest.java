@@ -39,6 +39,7 @@ import com.wrmsr.tokamak.core.layout.RowLayout;
 import com.wrmsr.tokamak.core.layout.TableLayout;
 import com.wrmsr.tokamak.core.layout.field.FieldCollection;
 import com.wrmsr.tokamak.core.layout.field.annotation.FieldAnnotation;
+import com.wrmsr.tokamak.core.layout.field.annotation.FieldAnnotations;
 import com.wrmsr.tokamak.core.parse.SqlParser;
 import com.wrmsr.tokamak.core.plan.Plan;
 import com.wrmsr.tokamak.core.plan.analysis.id.IdAnalysis;
@@ -396,6 +397,15 @@ public class CoreTest
 
         PNode node = new TreePlanner(Optional.of(catalog), defaultSchema).plan(treeNode);
         Plan plan = Plan.of(node);
+
+        plan = Plan.of(
+                new PState(
+                        "persist0",
+                        AnnotationCollection.of(),
+                        AnnotationCollectionMap.of(),
+                        plan.getRoot(),
+                        PState.Denormalization.NONE,
+                        PInvalidations.empty()));
 
         plan = PropagateIdsTransform.propagateIds(plan, Optional.of(catalog));
         plan = SetInvalidationsTransform.setInvalidations(plan, Optional.of(catalog));
