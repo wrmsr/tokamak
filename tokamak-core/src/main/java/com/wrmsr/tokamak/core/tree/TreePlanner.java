@@ -213,14 +213,30 @@ public class TreePlanner
                         });
                     }
 
+                    List<PJoin.Branch> branches;
                     if (!unifiedJoinEqualities.isEmpty()) {
                         checkState(unifiedJoinEqualities.keySet().equals(sourcesSet));
                         checkUnique(unifiedJoinEqualities.values().stream().map(List::size));
-                    }
+                        branches = sources.stream()
+                                .map(joinSource -> {
+                                    Map<String, Set<String>> unifiedFields = checkNotNull(sourceFieldUnifications.get(joinSource));
 
-                    List<PJoin.Branch> branches = new ArrayList<>();
-                    for (PNode joinSource : sources) {
-                        branches.add(new PJoin.Branch(joinSource, ImmutableList.of()));
+                                    // FIXME: FILTER EQUAL
+                                    // FIXME: lol, uh, outer/full... null for unified field? hmmph..
+                                    // PNode unifiedJoinSource = new PUnify(
+                                    //
+                                    // )
+
+                                    PNode unifiedJoinSource = null;
+
+                                    return new PJoin.Branch(unifiedJoinSource, checkNotNull(unifiedJoinEqualities.get(joinSource)));
+                                })
+                                .collect(toImmutableList());
+                    }
+                    else {
+                        branches = sources.stream()
+                                .map(joinSource -> new PJoin.Branch(joinSource, ImmutableList.of()))
+                                .collect(toImmutableList());
                     }
 
                     source = new PJoin(
