@@ -65,6 +65,7 @@ import static com.wrmsr.tokamak.util.MoreCollections.immutableMapValues;
 import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkSingle;
+import static com.wrmsr.tokamak.util.MorePreconditions.checkUnique;
 import static java.util.function.Function.identity;
 
 public class TreePlanner
@@ -175,10 +176,14 @@ public class TreePlanner
                 else {
                     Set<PNode> sourcesSet = ImmutableSet.copyOf(sources);
                     List<Set<String>> joinEqualities = fieldEqualities.stream()
-                            .filter(s -> s.stream().map(f -> checkNotNull(sourcesByField.get(f))).collect(toImmutableSet()).equals(sourcesSet))
+                            .filter(s -> s.stream()
+                                    .map(f -> checkNotNull(sourcesByField.get(f)))
+                                    .collect(toImmutableSet())
+                                    .equals(sourcesSet))
                             .collect(toImmutableList());
 
-                    Map<PNode, List<Set<String>>> sourceFieldUnifications = new LinkedHashMap<>();
+                    Map<PNode, List<String>> unifiedJoinEqualities = new LinkedHashMap<>();
+                    Map<PNode, Map<String, Set<String>>> sourceFieldUnifications = new LinkedHashMap<>();
                     Set<String> seen = new LinkedHashSet<>();
                     for (Set<String> joinEquality : joinEqualities) {
                         Map<PNode, Set<String>> eqFieldSetsByNode = immutableMapValues(
@@ -192,10 +197,25 @@ public class TreePlanner
                                 checkState(!seen.contains(eqField));
                                 seen.add(eqField);
                             }
+
+                            String unifiedField;
                             if (eqFields.size() > 1) {
-                                sourceFieldUnifications
+                                unifiedField = nameGenerator.get("unified");
+                                sourceFieldUnifications.computeIfAbsent(eqNode, n -> new LinkedHashMap<>())
+                                        .put(unifiedField, eqFields);
                             }
+                            else {
+                                unifiedField = checkSingle(eqFields);
+                            }
+
+                            unifiedJoinEqualities.computeIfAbsent(eqNode, n -> new ArrayList<>())
+                                    .add(unifiedField);
                         });
+                    }
+
+                    if (!unifiedJoinEqualities.isEmpty()) {
+                        checkState(unifiedJoinEqualities.keySet().equals(sourcesSet));
+                        checkUnique(unifiedJoinEqualities.values().stream().map(List::size));
                     }
 
                     List<PJoin.Branch> branches = new ArrayList<>();

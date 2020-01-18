@@ -109,6 +109,8 @@ public class TpchParserTest
 
                 "select N_NAME, N_REGIONKEY, N_COMMENT, R_NAME from NATION, REGION where N_REGIONKEY = R_REGIONKEY",
 
+                // "select N_NAME, N_REGIONKEY, N_COMMENT, R_NAME from NATION, REGION where N_REGIONKEY = R_REGIONKEY and N_NATIONKEY = R_REGIONKEY",
+
                 "select * from NATION",
                 "select * from NATION, NATION",
                 "select N_NAME, N_COMMENT from NATION",
