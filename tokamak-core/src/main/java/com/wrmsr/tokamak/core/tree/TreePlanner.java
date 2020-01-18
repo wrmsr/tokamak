@@ -216,18 +216,22 @@ public class TreePlanner
                     List<PJoin.Branch> branches;
                     if (!unifiedJoinEqualities.isEmpty()) {
                         checkState(unifiedJoinEqualities.keySet().equals(sourcesSet));
-                        checkUnique(unifiedJoinEqualities.values().stream().map(List::size));
+                        checkSingle(unifiedJoinEqualities.values().stream().map(List::size).collect(toImmutableSet()));
                         branches = sources.stream()
                                 .map(joinSource -> {
-                                    Map<String, Set<String>> unifiedFields = checkNotNull(sourceFieldUnifications.get(joinSource));
-
-                                    // FIXME: FILTER EQUAL
-                                    // FIXME: lol, uh, outer/full... null for unified field? hmmph..
-                                    // PNode unifiedJoinSource = new PUnify(
-                                    //
-                                    // )
-
-                                    PNode unifiedJoinSource = null;
+                                    Map<String, Set<String>> unifiedFields = sourceFieldUnifications.get(joinSource);
+                                    PNode unifiedJoinSource;
+                                    if (unifiedFields != null) {
+                                        // FIXME: FILTER EQUAL
+                                        // FIXME: lol, uh, outer/full... null for unified field? hmmph..
+                                        // PNode unifiedJoinSource = new PUnify(
+                                        //
+                                        // )
+                                        throw new IllegalStateException();
+                                    }
+                                    else {
+                                        unifiedJoinSource = joinSource;
+                                    }
 
                                     return new PJoin.Branch(unifiedJoinSource, checkNotNull(unifiedJoinEqualities.get(joinSource)));
                                 })
