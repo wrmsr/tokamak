@@ -20,6 +20,7 @@ import com.wrmsr.tokamak.core.type.TypeRegistration;
 import com.wrmsr.tokamak.core.type.TypeUtils;
 import com.wrmsr.tokamak.core.type.hier.Type;
 import com.wrmsr.tokamak.core.type.hier.TypeAnnotation;
+import com.wrmsr.tokamak.core.type.hier.TypeLike;
 import com.wrmsr.tokamak.core.util.annotation.AnnotationCollection;
 
 import javax.annotation.concurrent.Immutable;
@@ -40,7 +41,7 @@ public final class AnnotatedType
 {
     public static final String NAME = "Annotated";
     public static final TypeRegistration REGISTRATION = new TypeRegistration(NAME, AnnotatedType.class, TypeConstructor.of(
-            (List<Object> args) -> unpack(TypeUtils.objectsToTypes(args))));
+            (List<Object> args) -> unpack(TypeUtils.objectsToTypeLikes(args))));
 
     private final AnnotationCollection<TypeAnnotation> annotations;
     private final Type item;
@@ -98,13 +99,13 @@ public final class AnnotatedType
         }
     }
 
-    public static Type unpack(List<Type> args)
+    public static Type unpack(List<TypeLike> args)
     {
         checkNotEmpty(args);
         return of(
                 args.subList(0, args.size() - 1).stream()
                         .map(TypeAnnotation.class::cast)
                         .collect(toImmutableList()),
-                args.get(args.size() - 1));
+                (Type) args.get(args.size() - 1));
     }
 }

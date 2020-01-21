@@ -43,6 +43,16 @@ public final class TypeUtils
         return a;
     }
 
+    public static List<TypeLike> objectsToTypeLikes(List<Object> objects)
+    {
+        return objects.stream().map(Preconditions::checkNotNull).map(TypeLike.class::cast).collect(toImmutableList());
+    }
+
+    public static Map<String, TypeLike> objectsToTypeLikes(Map<String, Object> objects)
+    {
+        return objects.entrySet().stream().map(e -> Pair.immutable(e.getKey(), (TypeLike) checkNotNull(e.getValue()))).collect(toImmutableMap());
+    }
+
     public static List<Type> objectsToTypes(List<Object> objects)
     {
         return objects.stream().map(Preconditions::checkNotNull).map(Type.class::cast).collect(toImmutableList());
