@@ -74,9 +74,6 @@ public class TreePlanner
     private Optional<Catalog> catalog;
     private Optional<String> defaultSchema;
 
-    // FIXME: ensure no collisions (node *and* field names)
-    private final NameGenerator nameGenerator = new NameGenerator(ImmutableSet.of(), Plan.NAME_GENERATOR_PREFIX);
-
     public TreePlanner(Optional<Catalog> catalog, Optional<String> defaultSchema)
     {
         this.catalog = checkNotNull(catalog);
@@ -91,6 +88,14 @@ public class TreePlanner
     public PNode plan(TNode treeNode)
     {
         SymbolAnalysis symbolAnalysis = SymbolAnalysis.analyze(treeNode, catalog, defaultSchema);
+
+        Set<String> allSymbolNames = symbolAnalysis.getSymbolScopes().stream()
+                .flatMap(ss -> ss.getSymbols().stream())
+                .map(SymbolAnalysis.Symbol::getName)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(toImmutableSet());
+        NameGenerator nameGenerator = new NameGenerator(allSymbolNames, Plan.NAME_GENERATOR_PREFIX);
 
         return treeNode.accept(new TNodeVisitor<PNode, SymbolAnalysis.SymbolScope>()
         {
