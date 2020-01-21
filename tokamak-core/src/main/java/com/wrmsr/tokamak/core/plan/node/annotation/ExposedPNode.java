@@ -13,18 +13,8 @@
  */
 package com.wrmsr.tokamak.core.plan.node.annotation;
 
-import com.wrmsr.tokamak.core.plan.node.PNode;
-import com.wrmsr.tokamak.core.plan.node.PState;
-
-import static com.google.common.base.Preconditions.checkState;
-
 public final class ExposedPNode
         implements PNodeAnnotation
 {
     static final ExposedPNode INSTANCE = new ExposedPNode();
-
-    public static void validate(PNode node)
-    {
-        checkState(node instanceof PState);
-    }
 }

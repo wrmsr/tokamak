@@ -13,6 +13,7 @@
  */
 package com.wrmsr.tokamak.core.type.hier;
 
+import com.wrmsr.tokamak.core.type.hier.special.AnnotatedType;
 import com.wrmsr.tokamak.core.util.annotation.Annotation;
 
 import javax.annotation.concurrent.Immutable;
@@ -21,4 +22,7 @@ import javax.annotation.concurrent.Immutable;
 public interface TypeAnnotation
         extends Annotation, TypeLike
 {
+    default void validate(AnnotatedType annotatedType)
+    {
+    }
 }

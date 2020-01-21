@@ -17,6 +17,7 @@ import com.wrmsr.tokamak.core.layout.field.Field;
 import com.wrmsr.tokamak.core.layout.field.annotation.FieldAnnotation;
 import com.wrmsr.tokamak.core.plan.Plan;
 import com.wrmsr.tokamak.core.plan.node.PNode;
+import com.wrmsr.tokamak.core.plan.node.annotation.PNodeAnnotation;
 import com.wrmsr.tokamak.util.Cell;
 
 import javax.annotation.Nullable;
@@ -85,6 +86,8 @@ class NodeRendering<T extends PNode>
 
         addHeaderId(ctx, section);
 
+        addHeaderAnnotations(ctx, section);
+
         addHeaderExtra(ctx, section);
 
         table.add(section);
@@ -98,6 +101,20 @@ class NodeRendering<T extends PNode>
     protected void addHeaderId(Context<T> ctx, DotUtils.Section section)
     {
         section.add(DotUtils.row(ctx.node.getId().toPrefixedString()));
+    }
+
+    protected void addHeaderAnnotations(Context<T> ctx, DotUtils.Section section)
+    {
+        if (!ctx.node.getAnnotations().isEmpty()) {
+            DotUtils.Table attsTable = DotUtils.table(
+                    DotUtils.section(
+                            ctx.node.getAnnotations().stream()
+                                    .map(PNodeAnnotation::toDisplayString)
+                                    .map(DotUtils::row)
+                                    .collect(toImmutableList())));
+
+            section.add(DotUtils.row((DotUtils.rawColumn(DotUtils.render(attsTable::renderInternal)))));
+        }
     }
 
     protected void addHeaderExtra(Context<T> ctx, DotUtils.Section section)

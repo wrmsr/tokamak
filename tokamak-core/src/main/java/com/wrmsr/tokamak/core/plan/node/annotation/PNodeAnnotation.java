@@ -29,6 +29,11 @@ import javax.annotation.concurrent.Immutable;
 public interface PNodeAnnotation
         extends Annotation
 {
+    default String toDisplayString()
+    {
+        return getClass().getSimpleName();
+    }
+
     static ExposedPNode exposed()
     {
         return ExposedPNode.INSTANCE;

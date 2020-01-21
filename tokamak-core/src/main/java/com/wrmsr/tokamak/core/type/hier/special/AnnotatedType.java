@@ -52,6 +52,7 @@ public final class AnnotatedType
         this.item = checkNotNull(item);
         checkNotEmpty(this.annotations);
         checkState(!(item instanceof AnnotatedType));
+        this.annotations.forEach(ann -> ann.validate(this));
     }
 
     @Override

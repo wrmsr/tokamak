@@ -28,6 +28,7 @@ import com.wrmsr.tokamak.core.plan.node.PProject;
 import com.wrmsr.tokamak.core.plan.node.PProjection;
 import com.wrmsr.tokamak.core.plan.node.PScan;
 import com.wrmsr.tokamak.core.plan.node.PValue;
+import com.wrmsr.tokamak.core.plan.node.annotation.PNodeAnnotation;
 import com.wrmsr.tokamak.core.tree.analysis.SymbolAnalysis;
 import com.wrmsr.tokamak.core.tree.node.TAliasedRelation;
 import com.wrmsr.tokamak.core.tree.node.TComparisonExpression;
@@ -66,7 +67,6 @@ import static com.wrmsr.tokamak.util.MoreCollections.immutableMapValues;
 import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkSingle;
-import static com.wrmsr.tokamak.util.MorePreconditions.checkUnique;
 import static java.util.function.Function.identity;
 
 public class TreePlanner
@@ -85,9 +85,9 @@ public class TreePlanner
         this(Optional.empty(), Optional.empty());
     }
 
-    public PNode plan(TNode treeNode)
+    public PNode plan(TNode rootTreeNode)
     {
-        SymbolAnalysis symbolAnalysis = SymbolAnalysis.analyze(treeNode, catalog, defaultSchema);
+        SymbolAnalysis symbolAnalysis = SymbolAnalysis.analyze(rootTreeNode, catalog, defaultSchema);
 
         Set<String> allSymbolNames = symbolAnalysis.getSymbolScopes().stream()
                 .flatMap(ss -> ss.getSymbols().stream())
@@ -97,7 +97,7 @@ public class TreePlanner
                 .collect(toImmutableSet());
         NameGenerator nameGenerator = new NameGenerator(allSymbolNames, Plan.NAME_GENERATOR_PREFIX);
 
-        return treeNode.accept(new TNodeVisitor<PNode, SymbolAnalysis.SymbolScope>()
+        return rootTreeNode.accept(new TNodeVisitor<PNode, SymbolAnalysis.SymbolScope>()
         {
             @Override
             public PNode visitAliasedRelation(TAliasedRelation treeNode, SymbolAnalysis.SymbolScope context)
@@ -259,7 +259,7 @@ public class TreePlanner
 
                 return new PProject(
                         nameGenerator.get("selectProject"),
-                        AnnotationCollection.of(),
+                        treeNode == rootTreeNode ? AnnotationCollection.of(PNodeAnnotation.exposed()) : AnnotationCollection.of(),
                         AnnotationCollectionMap.of(),
                         source,
                         new PProjection(projection));
