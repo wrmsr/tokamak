@@ -24,12 +24,14 @@ import com.wrmsr.tokamak.util.Pair;
 
 import javax.annotation.concurrent.Immutable;
 
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.wrmsr.tokamak.util.MoreCollections.sorted;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 
 @Immutable
@@ -48,7 +50,7 @@ public final class AnnotatedType
 
     public AnnotatedType(Iterable<TypeAnnotation> annotations, Type item)
     {
-        this.annotations = AnnotationCollection.copyOf(annotations);
+        this.annotations = AnnotationCollection.copyOf(sorted(annotations, Comparator.comparing(TypeAnnotation::getName)));
         this.item = checkNotNull(item);
     }
 
@@ -90,7 +92,7 @@ public final class AnnotatedType
                 }
                 anns.put(ann.getClass(), ann);
             }
-            type = (Type) args.get(args.size() - 1);
+            type = args.get(args.size() - 1);
             if (!(type instanceof AnnotatedType)) {
                 break;
             }
