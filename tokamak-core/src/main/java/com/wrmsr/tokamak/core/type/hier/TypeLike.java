@@ -15,6 +15,7 @@ package com.wrmsr.tokamak.core.type.hier;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.wrmsr.tokamak.core.type.TypeRendering;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -34,5 +35,10 @@ public interface TypeLike
     default Map<String, Object> getKwargs()
     {
         return ImmutableMap.of();
+    }
+
+    default String toSpec()
+    {
+        return TypeRendering.buildSpec(this);
     }
 }

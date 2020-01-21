@@ -158,10 +158,7 @@ public final class PJoin
 
         this.fields = FieldCollection.of(
                 this.branches.stream().flatMap(b -> b.getNode().getFields().getTypesByName().entrySet().stream()).collect(toImmutableMap()),
-                AnnotationCollectionMap.mergeOf(
-                        AnnotationCollectionMap.merge(
-                                this.branches.stream().map(b -> b.getNode().getFields().getTransitiveAnnotations()).collect(toImmutableList())),
-                        fieldAnnotations));
+                fieldAnnotations);
 
         keyLength = this.branches.stream().map(b -> b.getFields().size()).distinct().collect(toCheckSingle());
 

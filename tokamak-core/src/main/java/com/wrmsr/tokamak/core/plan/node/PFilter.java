@@ -69,11 +69,7 @@ public final class PFilter
         checkArgument(function.getType().getValue() instanceof BooleanType);
         checkArgument(function.getType().getParams().size() == this.args.size());
 
-        this.fields = FieldCollection.of(
-                source.getFields().getTypesByName(),
-                AnnotationCollectionMap.mergeOf(
-                        source.getFields().getTransitiveAnnotations(),
-                        fieldAnnotations));
+        this.fields = FieldCollection.of(source.getFields().getTypesByName(), fieldAnnotations);
 
         // FIXME: check
         // function.getSignature().getParams().forEach((f, t) -> {

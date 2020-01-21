@@ -18,6 +18,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Ordering;
 import com.google.common.primitives.Primitives;
 import com.wrmsr.tokamak.core.type.hier.Type;
+import com.wrmsr.tokamak.core.type.hier.special.UnknownType;
 import com.wrmsr.tokamak.util.Pair;
 
 import java.util.Comparator;
@@ -139,7 +140,7 @@ public final class TypeRegistry
     {
         checkNotNull(l);
         checkNotNull(r);
-        if (l == Types.UNKNOWN || r == Types.UNKNOWN) {
+        if (l instanceof UnknownType || r instanceof UnknownType) {
             return true;
         }
         // FIXME: structural, nominal, lolinal

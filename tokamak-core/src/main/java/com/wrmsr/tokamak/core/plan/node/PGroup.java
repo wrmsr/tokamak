@@ -80,7 +80,6 @@ public final class PGroup
                         .put(listField, new ListType(structType))
                         .build(),
                 AnnotationCollectionMap.mergeOf(
-                        source.getFields().getTransitiveAnnotations(),
                         fieldAnnotations,
                         keyFields.stream().collect(toImmutableMap(identity(), f -> AnnotationCollection.of(FieldAnnotation.id())))));
 

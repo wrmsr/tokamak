@@ -58,11 +58,7 @@ public final class PState
         this.denormalization = checkNotNull(denormalization);
         this.invalidations = checkNotNull(invalidations);
 
-        fields = FieldCollection.of(
-                source.getFields().getTypesByName(),
-                AnnotationCollectionMap.mergeOf(
-                        source.getFields().getTransitiveAnnotations(),
-                        fieldAnnotations));
+        fields = FieldCollection.of(source.getFields().getTypesByName(), fieldAnnotations);
 
         checkInvariants();
     }

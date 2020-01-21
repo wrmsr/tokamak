@@ -85,10 +85,10 @@ public final class Serdes
 
     @SuppressWarnings({"rawtypes"})
     public static final Map<Type, Serde> VALUE_SERDES_BY_TYPE = ImmutableMap.<Type, Serde>builder()
-            .put(Types.BOOLEAN, BOOLEAN_VALUE_SERDE)
-            .put(Types.LONG, LONG_VALUE_SERDE)
-            .put(Types.DOUBLE, DOUBLE_VALUE_SERDE)
-            .put(Types.BYTES, BYTES_VALUE_SERDE)
-            .put(Types.STRING, STRING_VALUE_SERDE)
+            .put(Types.Boolean(), BOOLEAN_VALUE_SERDE)
+            .put(Types.Long(), LONG_VALUE_SERDE)
+            .put(Types.Double(), DOUBLE_VALUE_SERDE)
+            .put(Types.Bytes(), BYTES_VALUE_SERDE)
+            .put(Types.String(), STRING_VALUE_SERDE)
             .build();
 }

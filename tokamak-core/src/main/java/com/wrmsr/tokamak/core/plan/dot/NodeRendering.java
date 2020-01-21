@@ -17,7 +17,6 @@ import com.wrmsr.tokamak.core.layout.field.Field;
 import com.wrmsr.tokamak.core.layout.field.annotation.FieldAnnotation;
 import com.wrmsr.tokamak.core.plan.Plan;
 import com.wrmsr.tokamak.core.plan.node.PNode;
-import com.wrmsr.tokamak.core.type.TypeRendering;
 import com.wrmsr.tokamak.util.Cell;
 
 import javax.annotation.Nullable;
@@ -121,7 +120,7 @@ class NodeRendering<T extends PNode>
 
     protected void addFieldType(Context<T> ctx, Field field, DotUtils.Row row)
     {
-        row.add(DotUtils.column(TypeRendering.buildSpec(field.getType())));
+        row.add(DotUtils.column(field.getType().toSpec()));
     }
 
     protected void addFieldAnnotations(Context<T> ctx, Field field, DotUtils.Row row)
