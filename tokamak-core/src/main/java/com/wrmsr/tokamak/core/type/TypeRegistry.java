@@ -97,41 +97,6 @@ public final class TypeRegistry
         }
     }
 
-    /*
-    public Object resigil(Object item)
-    {
-        if (item instanceof DesigiledType) {
-            DesigiledType desigiledType = (DesigiledType) item;
-            TypeRegistration registration = registrationsByName.get(desigiledType.getItem().getName());
-            Type type = registration.construct(
-                    immutableMapItems(desigiledType.getArgs(), this::resigil),
-                    immutableMapValues(desigiledType.getKwargs(), this::resigil));
-
-            List<Type.Sigil> sigils = newArrayList(desigiledType.getByName().values());
-            sigils.sort(Comparator.comparing(Type::getName, Ordering.natural()).reversed());
-            for (Type.Sigil sigil : sigils) {
-                TypeRegistration sigilRegistration = registrationsByName.get(sigil.getName());
-                type = sigilRegistration.construct(
-                        ImmutableList.builder()
-                                .add(type)
-                                .addAll(immutableMapItems(sigil.getArgs().subList(1, sigil.getArgs().size()), this::resigil))
-                                .build(),
-                        immutableMapValues(sigil.getKwargs(), this::resigil));
-            }
-
-            return type;
-        }
-
-        else if (item instanceof Type) {
-            throw new IllegalArgumentException(Objects.toString(item));
-        }
-
-        else {
-            return item;
-        }
-    }
-    */
-
     @SuppressWarnings({"rawtypes", "unchecked"})
     public Type fromReflect(java.lang.reflect.Type reflect)
     {
