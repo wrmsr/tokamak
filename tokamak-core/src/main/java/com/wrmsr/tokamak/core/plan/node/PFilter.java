@@ -20,7 +20,7 @@ import com.wrmsr.tokamak.core.layout.field.FieldCollection;
 import com.wrmsr.tokamak.core.layout.field.annotation.FieldAnnotation;
 import com.wrmsr.tokamak.core.plan.node.annotation.PNodeAnnotation;
 import com.wrmsr.tokamak.core.plan.node.visitor.PNodeVisitor;
-import com.wrmsr.tokamak.core.type.Types;
+import com.wrmsr.tokamak.core.type.hier.primitive.BooleanType;
 import com.wrmsr.tokamak.core.util.annotation.AnnotationCollection;
 import com.wrmsr.tokamak.core.util.annotation.AnnotationCollectionMap;
 
@@ -66,7 +66,7 @@ public final class PFilter
         this.args = ImmutableList.copyOf(args);
         this.linking = checkNotNull(linking);
 
-        checkArgument(function.getType().getReturn() == Types.BOOLEAN);
+        checkArgument(function.getType().getValue() instanceof BooleanType);
         checkArgument(function.getType().getParams().size() == this.args.size());
 
         this.fields = FieldCollection.of(
