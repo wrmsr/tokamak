@@ -13,36 +13,44 @@
  */
 package com.wrmsr.tokamak.core.type.hier.collection.item;
 
-import com.wrmsr.tokamak.core.type.hier.Type;
 import com.wrmsr.tokamak.core.type.TypeConstructor;
 import com.wrmsr.tokamak.core.type.TypeRegistration;
+import com.wrmsr.tokamak.core.type.hier.Type;
 import com.wrmsr.tokamak.core.type.hier.special.EnumType;
 
 import javax.annotation.concurrent.Immutable;
 
 import java.util.EnumSet;
+import java.util.Optional;
 
 @Immutable
 public final class EnumSetType
-        extends ItemType
+        extends AbstractItemType
 {
     public static final String NAME = "EnumSet";
     public static final TypeRegistration REGISTRATION = new TypeRegistration(NAME, EnumSetType.class, EnumSet.class, TypeConstructor.of(
             (Type enumType) -> new EnumSetType((EnumType) enumType)));
 
-    public EnumSetType(EnumType enumType)
+    public EnumSetType(EnumType item)
     {
-        super(NAME, enumType);
+        super(item);
     }
 
-    public EnumType getEnum()
+    @Override
+    public String getName()
+    {
+        return NAME;
+    }
+
+    @Override
+    public EnumType getItem()
     {
         return (EnumType) super.getItem();
     }
 
     @Override
-    public java.lang.reflect.Type toReflect()
+    public Optional<java.lang.reflect.Type> toReflect()
     {
-        return EnumSet.class;
+        return Optional.of(EnumSet.class);
     }
 }

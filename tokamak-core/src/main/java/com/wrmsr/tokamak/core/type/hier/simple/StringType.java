@@ -13,6 +13,6 @@
  */
 package com.wrmsr.tokamak.core.type.hier.simple;
 
-public class StringType
+public final class StringType
 {
 }

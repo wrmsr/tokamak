@@ -11,15 +11,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.core.type.hier.collection.keyvalue;
+package com.wrmsr.tokamak.core.type.hier.collection.item;
 
+import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.core.type.hier.Type;
-import com.wrmsr.tokamak.core.type.hier.collection.CollectionType;
 
-public interface KeyValueType
-        extends CollectionType
+import javax.annotation.concurrent.Immutable;
+
+import java.util.List;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+
+@Immutable
+public abstract class AbstractItemType
+        implements ItemType
 {
-    Type getKey();
+    private final Type item;
 
-    Type getValue();
+    public AbstractItemType(Type item)
+    {
+        this.item = checkNotNull(item);
+    }
+
+    @Override
+    public List<Object> getArgs()
+    {
+        return ImmutableList.of(item);
+    }
+
+    @Override
+    public Type getItem()
+    {
+        return item;
+    }
 }

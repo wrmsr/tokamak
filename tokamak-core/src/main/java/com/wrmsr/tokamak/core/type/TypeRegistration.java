@@ -14,17 +14,12 @@
 package com.wrmsr.tokamak.core.type;
 
 import com.google.common.primitives.Primitives;
-import com.wrmsr.tokamak.core.type.hier.PrimitiveType;
-import com.wrmsr.tokamak.core.type.hier.SimpleType;
-import com.wrmsr.tokamak.core.type.hier.SpecialType;
-import com.wrmsr.tokamak.core.type.hier.Type;
 import com.wrmsr.tokamak.core.type.hier.TypeLike;
 
 import javax.annotation.concurrent.Immutable;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -91,21 +86,8 @@ public final class TypeRegistration
     }
 
     @Override
-    public Type construct(List<Object> args, Map<String, Object> kwargs)
+    public TypeLike construct(List<Object> args, Map<String, Object> kwargs)
     {
         return constructor.construct(args, kwargs);
-    }
-
-    public static TypeRegistration standard(Type type)
-    {
-        if (type instanceof PrimitiveType || type instanceof SimpleType) {
-            return new TypeRegistration(type.getName(), type.getClass(), type.toReflect(), TypeConstructor.of(() -> type));
-        }
-        else if (type instanceof SpecialType) {
-            return new TypeRegistration(type.getName(), type.getClass(), TypeConstructor.of(() -> type));
-        }
-        else {
-            throw new IllegalArgumentException(Objects.toString(type));
-        }
     }
 }

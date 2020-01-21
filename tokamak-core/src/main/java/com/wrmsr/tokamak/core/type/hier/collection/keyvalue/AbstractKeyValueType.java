@@ -11,38 +11,45 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.core.type.hier.collection.item;
+package com.wrmsr.tokamak.core.type.hier.collection.keyvalue;
 
+import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.core.type.hier.Type;
-import com.wrmsr.tokamak.core.type.TypeConstructor;
-import com.wrmsr.tokamak.core.type.TypeRegistration;
 
 import javax.annotation.concurrent.Immutable;
 
-import java.util.Optional;
-import java.util.Set;
+import java.util.List;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
-public final class SetType
-        extends AbstractItemType
+public abstract class AbstractKeyValueType
+        implements KeyValueType
 {
-    public static final String NAME = "Set";
-    public static final TypeRegistration REGISTRATION = new TypeRegistration(NAME, SetType.class, Set.class, TypeConstructor.of(SetType::new));
+    private Type key;
+    private Type value;
 
-    public SetType(Type item)
+    public AbstractKeyValueType(Type key, Type value)
     {
-        super(item);
+        this.key = checkNotNull(key);
+        this.value = checkNotNull(value);
     }
 
     @Override
-    public String getName()
+    public List<Object> getArgs()
     {
-        return NAME;
+        return ImmutableList.of(key, value);
     }
 
     @Override
-    public Optional<java.lang.reflect.Type> toReflect()
+    public Type getKey()
     {
-        return Optional.of(Set.class);
+        return key;
+    }
+
+    @Override
+    public Type getValue()
+    {
+        return value;
     }
 }

@@ -11,15 +11,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.core.type.hier.collection.keyvalue;
+package com.wrmsr.tokamak.core.type.hier.collection;
 
 import com.wrmsr.tokamak.core.type.hier.Type;
-import com.wrmsr.tokamak.core.type.hier.collection.CollectionType;
 
-public interface KeyValueType
-        extends CollectionType
+public interface CollectionType
+        extends Type
 {
-    Type getKey();
-
-    Type getValue();
 }

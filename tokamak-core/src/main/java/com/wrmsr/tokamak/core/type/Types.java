@@ -79,6 +79,7 @@ public final class Types
     {
     }
 
+    /*
     public static final SimpleType<Void> VOID = new SimpleType<>("Void", Void.class);
     public static final SimpleType<Object> OBJECT = new SimpleType<>("Object", Object.class);
 
@@ -150,6 +151,7 @@ public final class Types
             .add(SizedType.REGISTRATION)
 
             .build();
+     */
 
     public static final TypeRegistry BUILTIN_REGISTRY = ((Supplier<TypeRegistry>) () -> {
         TypeRegistry registry = new TypeRegistry();

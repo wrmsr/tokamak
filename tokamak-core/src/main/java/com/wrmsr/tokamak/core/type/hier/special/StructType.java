@@ -14,12 +14,10 @@
 package com.wrmsr.tokamak.core.type.hier.special;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.wrmsr.tokamak.core.type.hier.Type;
 import com.wrmsr.tokamak.core.type.TypeConstructor;
 import com.wrmsr.tokamak.core.type.TypeRegistration;
 import com.wrmsr.tokamak.core.type.Types;
-import com.wrmsr.tokamak.core.type.hier.AbstractType;
+import com.wrmsr.tokamak.core.type.hier.Type;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -37,7 +35,7 @@ import static java.util.function.UnaryOperator.identity;
 
 @Immutable
 public final class StructType
-        extends AbstractType
+        implements Type
 {
     /*
     NOTE:
@@ -83,13 +81,24 @@ public final class StructType
 
     public StructType(Map<String, Type> memberTypes)
     {
-        super(NAME, ImmutableMap.copyOf(memberTypes));
         List<Map.Entry<String, Type>> entryList = ImmutableList.copyOf(
-                immutableMapValues(checkOrdered(this.kwargs), Type.class::cast).entrySet());
+                immutableMapValues(checkOrdered(memberTypes), Type.class::cast).entrySet());
         members = enumerate(entryList.stream())
                 .map(i -> new Member(i.getItem().getKey(), i.getItem().getValue(), i.getIndex()))
                 .collect(toImmutableList());
         membersByName = members.stream().collect(toImmutableMap(Member::getName, identity()));
+    }
+
+    @Override
+    public String getName()
+    {
+        return NAME;
+    }
+
+    @Override
+    public Map<String, Object> getKwargs()
+    {
+        return immutableMapValues(membersByName, Member::getType);
     }
 
     public List<Member> getMembers()

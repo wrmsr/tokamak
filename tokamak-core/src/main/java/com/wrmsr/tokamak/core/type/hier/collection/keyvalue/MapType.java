@@ -13,29 +13,36 @@
  */
 package com.wrmsr.tokamak.core.type.hier.collection.keyvalue;
 
-import com.wrmsr.tokamak.core.type.hier.Type;
 import com.wrmsr.tokamak.core.type.TypeConstructor;
 import com.wrmsr.tokamak.core.type.TypeRegistration;
+import com.wrmsr.tokamak.core.type.hier.Type;
 
 import javax.annotation.concurrent.Immutable;
 
 import java.util.Map;
+import java.util.Optional;
 
 @Immutable
 public final class MapType
-        extends KeyValueType
+        extends AbstractKeyValueType
 {
     public static final String NAME = "Map";
     public static final TypeRegistration REGISTRATION = new TypeRegistration(NAME, MapType.class, Map.class, TypeConstructor.of(MapType::new));
 
     public MapType(Type keyType, Type valueType)
     {
-        super(NAME, keyType, valueType);
+        super(keyType, valueType);
     }
 
     @Override
-    public java.lang.reflect.Type toReflect()
+    public String getName()
     {
-        return Map.class;
+        return NAME;
+    }
+
+    @Override
+    public Optional<java.lang.reflect.Type> toReflect()
+    {
+        return Optional.of(Map.class);
     }
 }

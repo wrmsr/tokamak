@@ -13,29 +13,36 @@
  */
 package com.wrmsr.tokamak.core.type.hier.collection.item;
 
-import com.wrmsr.tokamak.core.type.hier.Type;
 import com.wrmsr.tokamak.core.type.TypeConstructor;
 import com.wrmsr.tokamak.core.type.TypeRegistration;
+import com.wrmsr.tokamak.core.type.hier.Type;
 
 import javax.annotation.concurrent.Immutable;
 
 import java.util.List;
+import java.util.Optional;
 
 @Immutable
 public final class ListType
-        extends ItemType
+        extends AbstractItemType
 {
     public static final String NAME = "List";
     public static final TypeRegistration REGISTRATION = new TypeRegistration(NAME, ListType.class, List.class, TypeConstructor.of(ListType::new));
 
-    public ListType(Type itemType)
+    public ListType(Type item)
     {
-        super(NAME, itemType);
+        super(item);
     }
 
     @Override
-    public java.lang.reflect.Type toReflect()
+    public String getName()
     {
-        return List.class;
+        return NAME;
+    }
+
+    @Override
+    public Optional<java.lang.reflect.Type> toReflect()
+    {
+        return Optional.of(List.class);
     }
 }

@@ -16,7 +16,7 @@ package com.wrmsr.tokamak.core.type.hier.special;
 import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.core.type.TypeConstructor;
 import com.wrmsr.tokamak.core.type.TypeRegistration;
-import com.wrmsr.tokamak.core.type.hier.AbstractType;
+import com.wrmsr.tokamak.core.type.hier.Type;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -29,7 +29,7 @@ import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 
 @Immutable
 public final class EnumType
-        extends AbstractType
+        implements Type
 {
     public static final String NAME = "Enum";
     public static final TypeRegistration REGISTRATION = new TypeRegistration(NAME, EnumType.class, Enum.class, TypeConstructor.of(
