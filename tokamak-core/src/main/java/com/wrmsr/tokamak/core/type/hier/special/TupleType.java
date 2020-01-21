@@ -14,11 +14,10 @@
 package com.wrmsr.tokamak.core.type.hier.special;
 
 import com.google.common.collect.ImmutableList;
-import com.wrmsr.tokamak.core.type.hier.Type;
 import com.wrmsr.tokamak.core.type.TypeConstructor;
 import com.wrmsr.tokamak.core.type.TypeRegistration;
 import com.wrmsr.tokamak.core.type.Types;
-import com.wrmsr.tokamak.core.type.hier.AbstractType;
+import com.wrmsr.tokamak.core.type.hier.Type;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -26,14 +25,33 @@ import java.util.List;
 
 @Immutable
 public final class TupleType
-        extends AbstractType
+        implements SpecialType
 {
     public static final String NAME = "Tuple";
     public static final TypeRegistration REGISTRATION = new TypeRegistration(NAME, TupleType.class, TypeConstructor.of(
             (List<Object> args) -> new TupleType(Types.objectsToTypes(args))));
 
-    public TupleType(List<Type> itemTypes)
+    private final List<Type> items;
+
+    public TupleType(List<Type> items)
     {
-        super(NAME, ImmutableList.copyOf(itemTypes));
+        this.items = ImmutableList.copyOf(items);
+    }
+
+    public List<Type> getItems()
+    {
+        return items;
+    }
+
+    @Override
+    public String getName()
+    {
+        return NAME;
+    }
+
+    @Override
+    public List<Object> getArgs()
+    {
+        return ImmutableList.copyOf(items);
     }
 }

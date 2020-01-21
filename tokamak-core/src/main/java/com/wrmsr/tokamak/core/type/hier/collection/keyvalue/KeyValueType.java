@@ -16,6 +16,9 @@ package com.wrmsr.tokamak.core.type.hier.collection.keyvalue;
 import com.wrmsr.tokamak.core.type.hier.Type;
 import com.wrmsr.tokamak.core.type.hier.collection.CollectionType;
 
+import javax.annotation.concurrent.Immutable;
+
+@Immutable
 public interface KeyValueType
         extends CollectionType
 {

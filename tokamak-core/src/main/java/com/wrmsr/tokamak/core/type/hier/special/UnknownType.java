@@ -13,6 +13,19 @@
  */
 package com.wrmsr.tokamak.core.type.hier.special;
 
-public class UnknownType
+import javax.annotation.concurrent.Immutable;
+
+@Immutable
+public final class UnknownType
+        implements SpecialType
 {
+    public UnknownType()
+    {
+    }
+
+    @Override
+    public String getName()
+    {
+        return "?";
+    }
 }

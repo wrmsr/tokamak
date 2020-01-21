@@ -14,45 +14,60 @@
 package com.wrmsr.tokamak.core.type.hier.special;
 
 import com.google.common.collect.ImmutableList;
-import com.wrmsr.tokamak.core.type.hier.Type;
 import com.wrmsr.tokamak.core.type.TypeConstructor;
 import com.wrmsr.tokamak.core.type.TypeRegistration;
-import com.wrmsr.tokamak.core.type.hier.AbstractType;
+import com.wrmsr.tokamak.core.type.hier.Type;
 
 import javax.annotation.concurrent.Immutable;
 
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Optional;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static com.wrmsr.tokamak.util.MoreCollections.immutableMapItems;
 
 @Immutable
 public final class FunctionType
-        extends AbstractType
+        implements SpecialType
 {
     public static final String NAME = "Function";
     public static final TypeRegistration REGISTRATION = new TypeRegistration(NAME, FunctionType.class, Method.class, TypeConstructor.of(
             (List<Object> args) -> new FunctionType((Type) args.get(0), immutableMapItems(args.subList(1, args.size()), Type.class::cast))));
 
-    public FunctionType(Type returnType, List<Type> paramTypes)
+    private final Type value;
+    private final List<Type> params;
+
+    public FunctionType(Type value, List<Type> params)
     {
-        super(NAME, ImmutableList.builder().add(returnType).addAll(paramTypes).build());
+        this.value = value;
+        this.params = ImmutableList.copyOf(params);
     }
 
-    public Type getReturn()
+    public Type getValue()
     {
-        return (Type) checkNotNull(getArgs().get(0));
+        return value;
     }
 
     public List<Type> getParams()
     {
-        return immutableMapItems(getArgs().subList(1, getArgs().size()), Type.class::cast);
+        return params;
     }
 
     @Override
-    public java.lang.reflect.Type toReflect()
+    public String getName()
     {
-        return Method.class;
+        return NAME;
+    }
+
+    @Override
+    public List<Object> getArgs()
+    {
+        return ImmutableList.builder().add(value).addAll(params).build();
+    }
+
+    @Override
+    public Optional<java.lang.reflect.Type> toReflect()
+    {
+        return Optional.of(Method.class);
     }
 }

@@ -13,9 +13,12 @@
  */
 package com.wrmsr.tokamak.core.type.hier;
 
+import javax.annotation.concurrent.Immutable;
+
 import java.util.Optional;
 import java.util.OptionalInt;
 
+@Immutable
 public interface Type
         extends TypeLike
 {

@@ -11,14 +11,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.core.type.hier.special;
+package com.wrmsr.tokamak.core.type.hier.special.struct;
 
-import com.google.common.collect.ImmutableMap;
-import com.wrmsr.tokamak.core.type.hier.Type;
 import com.wrmsr.tokamak.core.type.TypeConstructor;
 import com.wrmsr.tokamak.core.type.TypeRegistration;
 import com.wrmsr.tokamak.core.type.Types;
-import com.wrmsr.tokamak.core.type.hier.AbstractType;
+import com.wrmsr.tokamak.core.type.hier.Type;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -26,14 +24,20 @@ import java.util.Map;
 
 @Immutable
 public final class StructuralType
-        extends AbstractType
+        extends AbstractStructType
 {
     public static final String NAME = "Structural";
     public static final TypeRegistration REGISTRATION = new TypeRegistration(NAME, StructuralType.class, TypeConstructor.of(
             (Map<String, Object> kwargs) -> new StructuralType(Types.objectsToTypes(kwargs))));
 
-    public StructuralType(Map<String, Type> memberTypes)
+    public StructuralType(Map<String, Type> members)
     {
-        super(NAME, ImmutableMap.copyOf(memberTypes));
+        super(members);
+    }
+
+    @Override
+    public String getName()
+    {
+        return NAME;
     }
 }

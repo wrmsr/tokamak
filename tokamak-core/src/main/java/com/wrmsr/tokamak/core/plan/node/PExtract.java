@@ -22,7 +22,7 @@ import com.wrmsr.tokamak.core.layout.field.annotation.FieldAnnotation;
 import com.wrmsr.tokamak.core.plan.node.annotation.PNodeAnnotation;
 import com.wrmsr.tokamak.core.plan.node.visitor.PNodeVisitor;
 import com.wrmsr.tokamak.core.type.hier.Type;
-import com.wrmsr.tokamak.core.type.hier.special.StructType;
+import com.wrmsr.tokamak.core.type.hier.special.struct.StructType;
 import com.wrmsr.tokamak.core.util.annotation.AnnotationCollection;
 import com.wrmsr.tokamak.core.util.annotation.AnnotationCollectionMap;
 

@@ -13,6 +13,24 @@
  */
 package com.wrmsr.tokamak.core.type.hier.special;
 
-public class ReferenceType
+import javax.annotation.concurrent.Immutable;
+
+import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
+
+@Immutable
+public final class ReferenceType
+        implements SpecialType
 {
+    private final String name;
+
+    public ReferenceType(String name)
+    {
+        this.name = checkNotEmpty(name);
+    }
+
+    @Override
+    public String getName()
+    {
+        return name;
+    }
 }

@@ -11,13 +11,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.core.type.hier.special;
+package com.wrmsr.tokamak.core.type.hier.special.struct;
 
 import com.google.common.collect.ImmutableList;
-import com.wrmsr.tokamak.core.type.TypeConstructor;
-import com.wrmsr.tokamak.core.type.TypeRegistration;
-import com.wrmsr.tokamak.core.type.Types;
 import com.wrmsr.tokamak.core.type.hier.Type;
+import com.wrmsr.tokamak.core.type.hier.special.SpecialType;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -25,7 +23,6 @@ import java.util.List;
 import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.wrmsr.tokamak.util.MoreCollections.checkOrdered;
 import static com.wrmsr.tokamak.util.MoreCollections.enumerate;
 import static com.wrmsr.tokamak.util.MoreCollections.immutableMapValues;
@@ -34,18 +31,9 @@ import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 import static java.util.function.UnaryOperator.identity;
 
 @Immutable
-public final class StructType
-        implements Type
+public abstract class AbstractStructType
+        implements SpecialType
 {
-    /*
-    NOTE:
-     - not 'record' to not clash with upcoming java keyword
-    */
-
-    public static final String NAME = "Struct";
-    public static final TypeRegistration REGISTRATION = new TypeRegistration(NAME, StructType.class, TypeConstructor.of(
-            (Map<String, Object> kwargs) -> new StructType(Types.objectsToTypes(kwargs))));
-
     @Immutable
     public static final class Member
     {
@@ -76,43 +64,30 @@ public final class StructType
         }
     }
 
-    private final List<Member> members;
-    private final Map<String, Member> membersByName;
+    private final Map<String, Member> members;
 
-    public StructType(Map<String, Type> memberTypes)
+    public AbstractStructType(Map<String, Type> members)
     {
         List<Map.Entry<String, Type>> entryList = ImmutableList.copyOf(
-                immutableMapValues(checkOrdered(memberTypes), Type.class::cast).entrySet());
-        members = enumerate(entryList.stream())
+                immutableMapValues(checkOrdered(members), Type.class::cast).entrySet());
+        this.members = enumerate(entryList.stream())
                 .map(i -> new Member(i.getItem().getKey(), i.getItem().getValue(), i.getIndex()))
-                .collect(toImmutableList());
-        membersByName = members.stream().collect(toImmutableMap(Member::getName, identity()));
-    }
-
-    @Override
-    public String getName()
-    {
-        return NAME;
+                .collect(toImmutableMap(Member::getName, identity()));
     }
 
     @Override
     public Map<String, Object> getKwargs()
     {
-        return immutableMapValues(membersByName, Member::getType);
+        return immutableMapValues(members, Member::getType);
     }
 
-    public List<Member> getMembers()
+    public Map<String, Member> getMembers()
     {
         return members;
     }
 
-    public Map<String, Member> getMembersByName()
-    {
-        return membersByName;
-    }
-
     public Member getMember(String name)
     {
-        return checkNotNull(membersByName.get(checkNotEmpty(name)));
+        return checkNotNull(members.get(checkNotEmpty(name)));
     }
 }

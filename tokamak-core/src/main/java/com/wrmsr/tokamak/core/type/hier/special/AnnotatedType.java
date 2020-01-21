@@ -34,12 +34,12 @@ import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 
 @Immutable
 public final class AnnotatedType
-        implements Type
+        implements SpecialType
 {
     public static final String NAME = "Annotated";
     public static final TypeRegistration REGISTRATION = new TypeRegistration(NAME, AnnotatedType.class, TypeConstructor.of(
             (List<Object> args) -> {
-                Pair<AnnotationCollection<TypeAnnotation>, Type> flattened = flatten(Types.objectsToTypes(args));
+                Pair<AnnotationCollection<TypeAnnotation>, Type> flattened = flattenArgs(Types.objectsToTypes(args));
                 return new AnnotatedType(flattened.first(), flattened.second());
             }));
 
@@ -74,7 +74,7 @@ public final class AnnotatedType
         return item;
     }
 
-    public static Pair<AnnotationCollection<TypeAnnotation>, Type> flatten(List<Type> args)
+    public static Pair<AnnotationCollection<TypeAnnotation>, Type> flattenArgs(List<Type> args)
     {
         Map<Class<? extends TypeAnnotation>, TypeAnnotation> anns = new LinkedHashMap<>();
         Type type;

@@ -14,39 +14,15 @@
 package com.wrmsr.tokamak.core.type;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.core.type.hier.Type;
 import com.wrmsr.tokamak.core.type.hier.TypeLike;
-import com.wrmsr.tokamak.core.type.hier.collection.keyvalue.BiMapType;
-import com.wrmsr.tokamak.core.type.hier.collection.item.EnumSetType;
-import com.wrmsr.tokamak.core.type.hier.special.EnumType;
-import com.wrmsr.tokamak.core.type.hier.special.FunctionType;
-import com.wrmsr.tokamak.core.type.hier.collection.item.ListType;
-import com.wrmsr.tokamak.core.type.hier.collection.keyvalue.MapType;
 import com.wrmsr.tokamak.core.type.hier.PrimitiveType;
-import com.wrmsr.tokamak.core.type.hier.collection.item.SetType;
 import com.wrmsr.tokamak.core.type.hier.SimpleType;
 import com.wrmsr.tokamak.core.type.hier.SpecialType;
-import com.wrmsr.tokamak.core.type.hier.special.StructType;
-import com.wrmsr.tokamak.core.type.hier.special.StructuralType;
-import com.wrmsr.tokamak.core.type.hier.special.TupleType;
-import com.wrmsr.tokamak.core.type.hier.special.UnionType;
-import com.wrmsr.tokamak.core.type.hier.annotation.InternalType;
-import com.wrmsr.tokamak.core.type.hier.annotation.NotNullType;
-import com.wrmsr.tokamak.core.type.hier.annotation.SizedType;
 import com.wrmsr.tokamak.util.Pair;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.time.Duration;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Supplier;
 
 import static com.google.common.base.Preconditions.checkArgument;

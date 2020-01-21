@@ -11,9 +11,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.core.type.hier.special;
+package com.wrmsr.tokamak.core.type.hier.special.struct;
 
-import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.core.type.TypeConstructor;
 import com.wrmsr.tokamak.core.type.TypeRegistration;
 import com.wrmsr.tokamak.core.type.Types;
@@ -21,37 +20,24 @@ import com.wrmsr.tokamak.core.type.hier.Type;
 
 import javax.annotation.concurrent.Immutable;
 
-import java.util.List;
+import java.util.Map;
 
 @Immutable
-public final class UnionType
-        implements SpecialType
+public final class StructType
+        extends AbstractStructType
 {
-    public static final String NAME = "Union";
-    public static final TypeRegistration REGISTRATION = new TypeRegistration(NAME, UnionType.class, TypeConstructor.of(
-            (List<Object> args) -> new UnionType(Types.objectsToTypes(args))));
+    public static final String NAME = "Struct";
+    public static final TypeRegistration REGISTRATION = new TypeRegistration(NAME, StructType.class, TypeConstructor.of(
+            (Map<String, Object> kwargs) -> new StructType(Types.objectsToTypes(kwargs))));
 
-    private final List<Type> items;
-
-    public UnionType(List<Type> items)
+    public StructType(Map<String, Type> members)
     {
-        this.items = ImmutableList.copyOf(items);
-    }
-
-    public List<Type> getItems()
-    {
-        return items;
+        super(members);
     }
 
     @Override
     public String getName()
     {
         return NAME;
-    }
-
-    @Override
-    public List<Object> getArgs()
-    {
-        return ImmutableList.copyOf(items);
     }
 }
