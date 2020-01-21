@@ -69,7 +69,7 @@ import com.wrmsr.tokamak.core.tree.node.TNode;
 import com.wrmsr.tokamak.core.tree.transform.SelectExpansion;
 import com.wrmsr.tokamak.core.tree.transform.SymbolResolution;
 import com.wrmsr.tokamak.core.tree.transform.ViewInlining;
-import com.wrmsr.tokamak.core.type.Type;
+import com.wrmsr.tokamak.core.type.hier.Type;
 import com.wrmsr.tokamak.core.type.Types;
 import com.wrmsr.tokamak.core.util.ApiJson;
 import com.wrmsr.tokamak.core.util.annotation.AnnotationCollection;

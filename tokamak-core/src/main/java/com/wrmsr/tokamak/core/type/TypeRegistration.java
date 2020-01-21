@@ -14,9 +14,11 @@
 package com.wrmsr.tokamak.core.type;
 
 import com.google.common.primitives.Primitives;
-import com.wrmsr.tokamak.core.type.impl.PrimitiveType;
-import com.wrmsr.tokamak.core.type.impl.SimpleType;
-import com.wrmsr.tokamak.core.type.impl.SpecialType;
+import com.wrmsr.tokamak.core.type.hier.PrimitiveType;
+import com.wrmsr.tokamak.core.type.hier.SimpleType;
+import com.wrmsr.tokamak.core.type.hier.SpecialType;
+import com.wrmsr.tokamak.core.type.hier.Type;
+import com.wrmsr.tokamak.core.type.hier.TypeLike;
 
 import javax.annotation.concurrent.Immutable;
 

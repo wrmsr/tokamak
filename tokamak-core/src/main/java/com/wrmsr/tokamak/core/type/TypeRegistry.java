@@ -17,6 +17,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Ordering;
 import com.google.common.primitives.Primitives;
+import com.wrmsr.tokamak.core.type.hier.Type;
 import com.wrmsr.tokamak.util.Pair;
 
 import java.util.Comparator;

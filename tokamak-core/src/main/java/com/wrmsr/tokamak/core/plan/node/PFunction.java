@@ -16,7 +16,7 @@ package com.wrmsr.tokamak.core.plan.node;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wrmsr.tokamak.core.exec.Executable;
-import com.wrmsr.tokamak.core.type.impl.FunctionType;
+import com.wrmsr.tokamak.core.type.hier.special.FunctionType;
 
 import javax.annotation.concurrent.Immutable;
 

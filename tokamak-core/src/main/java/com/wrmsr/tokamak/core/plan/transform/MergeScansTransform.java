@@ -24,7 +24,7 @@ import com.wrmsr.tokamak.core.plan.node.PProject;
 import com.wrmsr.tokamak.core.plan.node.PProjection;
 import com.wrmsr.tokamak.core.plan.node.PScan;
 import com.wrmsr.tokamak.core.plan.node.visitor.PNodeRewriters;
-import com.wrmsr.tokamak.core.type.Type;
+import com.wrmsr.tokamak.core.type.hier.Type;
 import com.wrmsr.tokamak.core.util.annotation.AnnotationCollection;
 import com.wrmsr.tokamak.core.util.annotation.AnnotationCollectionMap;
 import com.wrmsr.tokamak.util.Pair;

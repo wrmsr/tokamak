@@ -18,7 +18,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.google.common.collect.ImmutableList;
-import com.wrmsr.tokamak.core.type.Type;
+import com.wrmsr.tokamak.core.type.hier.Type;
 
 import javax.annotation.Nullable;
 

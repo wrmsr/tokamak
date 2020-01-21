@@ -18,7 +18,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 import com.wrmsr.tokamak.core.layout.field.FieldCollection;
-import com.wrmsr.tokamak.core.type.impl.StructType;
+import com.wrmsr.tokamak.core.type.hier.special.StructType;
 import com.wrmsr.tokamak.util.collect.ObjectArrayBackedMap;
 
 import javax.annotation.concurrent.Immutable;

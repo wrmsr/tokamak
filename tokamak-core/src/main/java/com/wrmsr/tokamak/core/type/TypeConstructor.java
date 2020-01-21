@@ -13,6 +13,9 @@
  */
 package com.wrmsr.tokamak.core.type;
 
+import com.wrmsr.tokamak.core.type.hier.Type;
+import com.wrmsr.tokamak.core.type.hier.TypeLike;
+
 import java.util.List;
 import java.util.Map;
 

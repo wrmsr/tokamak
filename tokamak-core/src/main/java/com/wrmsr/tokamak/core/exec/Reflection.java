@@ -14,7 +14,7 @@
 package com.wrmsr.tokamak.core.exec;
 
 import com.wrmsr.tokamak.core.type.Types;
-import com.wrmsr.tokamak.core.type.impl.FunctionType;
+import com.wrmsr.tokamak.core.type.hier.special.FunctionType;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;

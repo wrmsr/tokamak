@@ -13,8 +13,9 @@
  */
 package com.wrmsr.tokamak.core.type;
 
-import com.wrmsr.tokamak.core.type.impl.collection.item.ListType;
-import com.wrmsr.tokamak.core.type.annotation.NotNullType;
+import com.wrmsr.tokamak.core.type.hier.Type;
+import com.wrmsr.tokamak.core.type.hier.collection.item.ListType;
+import com.wrmsr.tokamak.core.type.hier.annotation.NotNullType;
 import com.wrmsr.tokamak.util.json.Json;
 import junit.framework.TestCase;
 

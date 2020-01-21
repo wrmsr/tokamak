@@ -19,7 +19,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.wrmsr.tokamak.core.exec.Executable;
 import com.wrmsr.tokamak.core.plan.node.PFunction;
-import com.wrmsr.tokamak.core.type.impl.FunctionType;
+import com.wrmsr.tokamak.core.type.hier.special.FunctionType;
 import com.wrmsr.tokamak.util.lazy.SupplierLazyValue;
 
 import static com.google.common.base.Preconditions.checkNotNull;

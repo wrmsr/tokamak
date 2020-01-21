@@ -15,6 +15,7 @@ package com.wrmsr.tokamak.core.type;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Streams;
+import com.wrmsr.tokamak.core.type.hier.Type;
 
 import java.util.List;
 import java.util.Map;

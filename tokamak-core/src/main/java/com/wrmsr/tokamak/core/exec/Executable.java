@@ -13,7 +13,7 @@
  */
 package com.wrmsr.tokamak.core.exec;
 
-import com.wrmsr.tokamak.core.type.impl.FunctionType;
+import com.wrmsr.tokamak.core.type.hier.special.FunctionType;
 
 public interface Executable
 {
