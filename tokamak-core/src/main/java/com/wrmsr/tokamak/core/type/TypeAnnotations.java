@@ -55,14 +55,7 @@ public final class TypeAnnotations
 
     public static Type set(Type type, Iterable<TypeAnnotation> anns)
     {
-        Type stripped = strip(type);
-        AnnotationCollection<TypeAnnotation> annColl = AnnotationCollection.copyOf(anns);
-        if (annColl.isEmpty()) {
-            return stripped;
-        }
-        else {
-            return new AnnotatedType(annColl, stripped);
-        }
+        return AnnotatedType.of(anns, type);
     }
 
     public static Type map(Type type, Function<AnnotationCollection<TypeAnnotation>, AnnotationCollection<TypeAnnotation>> fn)

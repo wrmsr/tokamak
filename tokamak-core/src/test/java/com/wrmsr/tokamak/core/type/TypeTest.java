@@ -52,6 +52,7 @@ public class TypeTest
 
         type = Types.Internal(Types.NotNull(Types.Map(Types.Sized(16, Types.Long()), Types.String())));
         System.out.println(type.toSpec());
+        Types.BUILTIN_REGISTRY.fromSpec(type.toSpec());
         // type.desigil();
 
         type = Types.NotNull(Types.NotNull((Types.Long())));

@@ -14,24 +14,23 @@
 package com.wrmsr.tokamak.core.type.hier.special;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.core.type.TypeConstructor;
 import com.wrmsr.tokamak.core.type.TypeRegistration;
 import com.wrmsr.tokamak.core.type.TypeUtils;
 import com.wrmsr.tokamak.core.type.hier.Type;
 import com.wrmsr.tokamak.core.type.hier.TypeAnnotation;
 import com.wrmsr.tokamak.core.util.annotation.AnnotationCollection;
-import com.wrmsr.tokamak.util.Pair;
 
 import javax.annotation.concurrent.Immutable;
 
 import java.util.Comparator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.wrmsr.tokamak.util.MoreCollections.sorted;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 
@@ -41,10 +40,7 @@ public final class AnnotatedType
 {
     public static final String NAME = "Annotated";
     public static final TypeRegistration REGISTRATION = new TypeRegistration(NAME, AnnotatedType.class, TypeConstructor.of(
-            (List<Object> args) -> {
-                Pair<AnnotationCollection<TypeAnnotation>, Type> flattened = flattenArgs(TypeUtils.objectsToTypes(args));
-                return new AnnotatedType(flattened.first(), flattened.second());
-            }));
+            (List<Object> args) -> unpack(TypeUtils.objectsToTypes(args))));
 
     private final AnnotationCollection<TypeAnnotation> annotations;
     private final Type item;
@@ -79,28 +75,36 @@ public final class AnnotatedType
         return item;
     }
 
-    public static Pair<AnnotationCollection<TypeAnnotation>, Type> flattenArgs(List<Type> args)
+    public static Type of(Iterable<TypeAnnotation> annotations, Type type)
     {
-        Map<Class<? extends TypeAnnotation>, TypeAnnotation> anns = new LinkedHashMap<>();
-        Type type;
-        args = ImmutableList.copyOf(args);
-        while (true) {
-            checkNotEmpty(args);
-            for (int i = 0; i < args.size() - 1; ++i) {
-                checkArgument(args.get(i) instanceof TypeAnnotation);
-                TypeAnnotation ann = (TypeAnnotation) args.get(i);
-                TypeAnnotation existing = anns.get(ann.getClass());
-                if (existing != null) {
-                    throw new IllegalArgumentException(String.format("Duplicate type annotation types: %s, %s", ann, existing));
-                }
-                anns.put(ann.getClass(), ann);
-            }
-            type = args.get(args.size() - 1);
-            if (!(type instanceof AnnotatedType)) {
-                break;
-            }
-            args = TypeUtils.objectsToTypes(type.getArgs());
+        return of(ImmutableList.copyOf(annotations), type);
+    }
+
+    public static Type of(List<TypeAnnotation> annotations, Type type)
+    {
+        ImmutableMap.Builder<Class<? extends TypeAnnotation>, TypeAnnotation> builder = ImmutableMap.builder();
+        annotations.forEach(ann -> builder.put(ann.getClass(), ann));
+        while (type instanceof AnnotatedType) {
+            AnnotatedType annotatedType = (AnnotatedType) type;
+            builder.putAll(annotatedType.annotations.getByCls());
+            type = annotatedType.item;
         }
-        return Pair.immutable(AnnotationCollection.copyOf(anns.values()), type);
+        Map<Class<? extends TypeAnnotation>, TypeAnnotation> map = builder.build();
+        if (map.isEmpty()) {
+            return new AnnotatedType(map.values(), type);
+        }
+        else {
+            return type;
+        }
+    }
+
+    public static Type unpack(List<Type> args)
+    {
+        checkNotEmpty(args);
+        return of(
+                args.subList(0, args.size() - 1).stream()
+                        .map(TypeAnnotation.class::cast)
+                        .collect(toImmutableList()),
+                args.get(args.size() - 1));
     }
 }
