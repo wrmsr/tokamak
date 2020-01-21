@@ -39,6 +39,6 @@ public interface TypeLike
 
     default String toSpec()
     {
-        return TypeRendering.buildSpec(this);
+        return TypeRendering.buildSpec((Object) this);
     }
 }

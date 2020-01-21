@@ -50,7 +50,7 @@ public class TypeTest
     {
         Type type;
 
-        type = Types.NotNull(Types.Long());
+        type = Types.Internal(Types.NotNull(Types.Map(Types.Sized(16, Types.Long()), Types.String())));
         System.out.println(type.toSpec());
         // type.desigil();
 
