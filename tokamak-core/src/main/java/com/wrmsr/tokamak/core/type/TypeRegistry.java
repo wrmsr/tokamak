@@ -15,17 +15,18 @@ package com.wrmsr.tokamak.core.type;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Ordering;
 import com.google.common.primitives.Primitives;
 import com.wrmsr.tokamak.core.type.hier.Type;
+import com.wrmsr.tokamak.core.type.hier.TypeAnnotation;
+import com.wrmsr.tokamak.core.type.hier.TypeLike;
+import com.wrmsr.tokamak.core.type.hier.special.AnnotatedType;
 import com.wrmsr.tokamak.core.type.hier.special.UnknownType;
 import com.wrmsr.tokamak.util.Pair;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.wrmsr.tokamak.util.MoreCollections.immutableMapItems;
 import static com.wrmsr.tokamak.util.MoreCollections.immutableMapValues;
@@ -40,6 +41,7 @@ public final class TypeRegistry
     private final Object lock = new Object();
 
     private volatile Map<String, TypeRegistration> registrationsByName = ImmutableMap.of();
+    private volatile Map<Class<? extends TypeLike>, TypeRegistration> registrationsByCls = ImmutableMap.of();
     private volatile Map<java.lang.reflect.Type, TypeRegistration> registrationsByReflect = ImmutableMap.of();
 
     public Map<String, TypeRegistration> getRegistrationsByName()
@@ -56,7 +58,10 @@ public final class TypeRegistry
     {
         synchronized (lock) {
             if (registrationsByName.containsKey(registration.getName())) {
-                throw new IllegalArgumentException(String.format("Type base name %s taken", registration.getName()));
+                throw new IllegalArgumentException(String.format("Type name %s taken", registration.getName()));
+            }
+            if (registrationsByCls.containsKey(registration.getCls())) {
+                throw new IllegalArgumentException(String.format("Type class %s taken", registration.getCls()));
             }
             if (registration.getReflect().isPresent() && registrationsByReflect.containsKey(registration.getReflect().get())) {
                 throw new IllegalArgumentException(String.format("Type reflect %s taken", registration.getReflect().get()));
@@ -65,6 +70,10 @@ public final class TypeRegistry
             registrationsByName = ImmutableMap.<String, TypeRegistration>builder()
                     .putAll(registrationsByName)
                     .put(registration.getName(), registration)
+                    .build();
+            registrationsByCls = ImmutableMap.<Class<? extends TypeLike>, TypeRegistration>builder()
+                    .putAll(registrationsByCls)
+                    .put(registration.getCls(), registration)
                     .build();
             registrationsByReflect = ImmutableMap.<java.lang.reflect.Type, TypeRegistration>builder()
                     .putAll(registrationsByReflect)
@@ -77,10 +86,7 @@ public final class TypeRegistry
     public Type fromSpec(String str)
     {
         TypeParsing.ParsedType parsedType = TypeParsing.parseType(str);
-        Type type = (Type) fromParsed(parsedType);
-        // DesigiledType desigiledType = new DesigiledType(type);
-        // return (Type) resigil(desigiledType);
-        return type;
+        return (Type) fromParsed(parsedType);
     }
 
     private Object fromParsed(Object item)
@@ -88,10 +94,30 @@ public final class TypeRegistry
         if (item instanceof TypeParsing.ParsedType) {
             TypeParsing.ParsedType parsedType = (TypeParsing.ParsedType) item;
             TypeRegistration registration = registrationsByName.get(parsedType.getName());
-            return registration.construct(
-                    immutableMapItems(parsedType.getArgs(), this::fromParsed),
-                    immutableMapValues(parsedType.getKwargs(), this::fromParsed));
+            List<Object> args = parsedType.getArgs();
+            Map<String, Object> kwargs = parsedType.getKwargs();
+
+            if (TypeAnnotation.class.isAssignableFrom(registration.getCls())) {
+                checkArgument(!args.isEmpty());
+                TypeRegistration annotatedReg = checkNotNull(registrationsByCls.get(AnnotatedType.class));
+
+                TypeAnnotation ann = (TypeAnnotation) registration.construct(
+                        immutableMapItems(args.subList(1, args.size()), this::fromParsed),
+                        immutableMapValues(kwargs, this::fromParsed));
+                Type annItem = (Type) fromParsed(args.get(0));
+
+                return annotatedReg.construct(
+                        ImmutableList.builder().add(ann).add(annItem).build(),
+                        ImmutableMap.of());
+            }
+
+            else {
+                return registration.construct(
+                        immutableMapItems(args, this::fromParsed),
+                        immutableMapValues(kwargs, this::fromParsed));
+            }
         }
+
         else {
             return item;
         }

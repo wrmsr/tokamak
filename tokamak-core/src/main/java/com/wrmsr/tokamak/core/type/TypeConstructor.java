@@ -119,41 +119,4 @@ public interface TypeConstructor
             return fn.construct(kwargs);
         };
     }
-
-    /*
-    public static Type supplyParsedType(Supplier supplier, TypeParsing.ParsedType parsedType)
-    {
-        checkNotNull(parsedType);
-        checkArgument(parsedType.getName().equals(supplier.name));
-        if (supplier instanceof BareSupplier) {
-            BareSupplier bareSupplier = (BareSupplier) supplier;
-            checkArgument(parsedType.getItems().isEmpty());
-            return bareSupplier.impl.get();
-        }
-        else if (supplier instanceof ArgsSupplier) {
-            ArgsSupplier argsSupplier = (ArgsSupplier) supplier;
-            List<Object> args = new ArrayList<>();
-            for (TypeParsing.ArgOrKwarg aok : parsedType.getItems()) {
-                checkArgument(!aok.getName().isPresent());
-                args.add(aok.getValue());
-            }
-            argsSupplier.arity.ifPresent(a -> checkArgument(a == args.size()));
-            return argsSupplier.impl.apply(args);
-        }
-        else if (supplier instanceof KwargsSupplier) {
-            KwargsSupplier kwargsSupplier = (KwargsSupplier) supplier;
-            Map<String, Object> kwargs = new HashMap<>();
-            for (TypeParsing.ArgOrKwarg aok : parsedType.getItems()) {
-                checkArgument(aok.getName().isPresent());
-                String name = checkNotEmpty(aok.getName().get());
-                checkArgument(!kwargs.containsKey(name));
-                kwargs.put(name, aok.getValue());
-            }
-            return kwargsSupplier.impl.apply(kwargs);
-        }
-        else {
-            throw new IllegalArgumentException(Objects.toString(supplier));
-        }
-    }
-    */
 }

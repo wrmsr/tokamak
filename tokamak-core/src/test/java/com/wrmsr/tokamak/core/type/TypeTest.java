@@ -14,6 +14,7 @@
 package com.wrmsr.tokamak.core.type;
 
 import com.wrmsr.tokamak.core.type.hier.Type;
+import com.wrmsr.tokamak.core.type.hier.annotation.NotNullType;
 import com.wrmsr.tokamak.util.json.Json;
 import junit.framework.TestCase;
 
@@ -55,8 +56,11 @@ public class TypeTest
         Types.BUILTIN_REGISTRY.fromSpec(type.toSpec());
         // type.desigil();
 
-        type = Types.NotNull(Types.NotNull((Types.Long())));
+        // type = Types.NotNull(Types.NotNull((Types.Long())));
         // type.desigil();
+
+        type = TypeAnnotations.drop(type, NotNullType.class);
+        System.out.println(type.toSpec());
     }
 
     public void testJson()

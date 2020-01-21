@@ -71,4 +71,9 @@ public final class TypeAnnotations
     {
         return set(type, fn.apply(from(type)));
     }
+
+    public static <T extends TypeAnnotation> Type drop(Type type, Class<T> cls)
+    {
+        return map(type, anns -> anns.dropped(cls));
+    }
 }
