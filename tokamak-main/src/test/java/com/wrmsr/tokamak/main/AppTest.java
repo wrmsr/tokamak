@@ -185,7 +185,7 @@ public class AppTest
                 AnnotationCollection.of(),
                 AnnotationCollectionMap.copyOf(ImmutableMap.of("id", AnnotationCollection.of(FieldAnnotation.id()))),
                 SchemaTable.of("a", "b"),
-                ImmutableMap.of("id", Types.LONG),
+                ImmutableMap.of("id", Types.Long()),
                 PInvalidations.empty());
     }
 }

@@ -66,7 +66,7 @@ public class NodesTest
                 AnnotationCollection.of(),
                 AnnotationCollectionMap.copyOf(ImmutableMap.of("id", AnnotationCollection.of(FieldAnnotation.id()))),
                 SchemaTable.of("public", "hi"),
-                ImmutableMap.of("id", Types.LONG, "thing", Types.STRING),
+                ImmutableMap.of("id", Types.Long(), "thing", Types.String()),
                 PInvalidations.empty());
 
         String json = Json.writeValuePretty(scanNode);

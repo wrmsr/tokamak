@@ -174,11 +174,11 @@ public class TpchParserTest
                         ImmutableList.<JDeclaration>of(
                                 new JMethod(
                                         immutableEnumSet(JAccess.PUBLIC, JAccess.STATIC),
-                                        JTypeSpecifier.of(retType.toReflect()),
+                                        JTypeSpecifier.of(retType.toReflect().get()),
                                         "invoke",
                                         enumerate(argTypes.stream())
                                                 .map(a -> new JParam(
-                                                        JTypeSpecifier.of(a.getItem().toReflect()),
+                                                        JTypeSpecifier.of(a.getItem().toReflect().get()),
                                                         "_" + a.getIndex()))
                                                 .collect(toImmutableList()),
                                         Optional.of(
@@ -211,11 +211,11 @@ public class TpchParserTest
         String src = "_0 + \"!\"";
         String stmt = "select java('String', '" + src + "', N_NAME) from NATION";
 
-        Method method = jitJavaExpr(src, Types.STRING, ImmutableList.of(Types.STRING));
+        Method method = jitJavaExpr(src, Types.String(), ImmutableList.of(Types.String()));
 
         FunctionType funcType = new FunctionType(
-                Types.STRING,
-                ImmutableList.of(Types.STRING));
+                Types.String(),
+                ImmutableList.of(Types.String()));
 
         Executable exe = new SimpleExecutable(
                 "AnonFunc0",

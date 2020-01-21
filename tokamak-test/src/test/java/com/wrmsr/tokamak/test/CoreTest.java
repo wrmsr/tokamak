@@ -174,9 +174,9 @@ public class CoreTest
                 SchemaTable.of("PUBLIC", "NATION"),
                 ImmutableMap.<String, Type>builder()
                         // .put("N_NATIONKEY", Types.LONG)
-                        .put("N_NAME", Types.STRING)
-                        .put("N_REGIONKEY", Types.LONG)
-                        .put("N_COMMENT", Types.STRING)
+                        .put("N_NAME", Types.String())
+                        .put("N_REGIONKEY", Types.Long())
+                        .put("N_COMMENT", Types.String())
                         .build(),
                 PInvalidations.empty());
 
@@ -226,8 +226,8 @@ public class CoreTest
                 AnnotationCollectionMap.copyOf(ImmutableMap.of("R_REGIONKEY", AnnotationCollection.of(FieldAnnotation.id()))),
                 SchemaTable.of("PUBLIC", "REGION"),
                 ImmutableMap.of(
-                        "R_REGIONKEY", Types.LONG,
-                        "R_NAME", Types.STRING
+                        "R_REGIONKEY", Types.Long(),
+                        "R_NAME", Types.String()
                 ),
                 PInvalidations.empty());
 
@@ -454,8 +454,8 @@ public class CoreTest
                 SchemaTable.of("stuff_schema", "stuff_table"),
                 new TableLayout(
                         new RowLayout(FieldCollection.of(ImmutableMap.of(
-                                "id", Types.LONG,
-                                "str", Types.STRING
+                                "id", Types.Long(),
+                                "str", Types.String()
                         ))),
                         new TableLayout.Key(ImmutableList.of("id")),
                         ImmutableList.of()));
@@ -491,8 +491,8 @@ public class CoreTest
                 AnnotationCollectionMap.copyOf(ImmutableMap.of("id", AnnotationCollection.of(FieldAnnotation.id()))),
                 SchemaTable.of("stuff_schema", "stuff_table"),
                 ImmutableMap.of(
-                        "id", Types.LONG,
-                        "str", Types.STRING
+                        "id", Types.Long(),
+                        "str", Types.String()
                 ),
                 PInvalidations.empty());
 

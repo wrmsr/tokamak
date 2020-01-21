@@ -14,8 +14,6 @@
 package com.wrmsr.tokamak.core.type;
 
 import com.wrmsr.tokamak.core.type.hier.Type;
-import com.wrmsr.tokamak.core.type.hier.collection.item.ListType;
-import com.wrmsr.tokamak.core.type.hier.annotation.NotNullType;
 import com.wrmsr.tokamak.util.json.Json;
 import junit.framework.TestCase;
 
@@ -48,20 +46,20 @@ public class TypeTest
     }
 
     public void testSigils()
-        throws Throwable
+            throws Throwable
     {
         Type type;
 
-        type = new NotNullType(Types.LONG);
-        type.desigil();
+        type = Types.NotNull(Types.Long());
+        // type.desigil();
 
-        type = new NotNullType(new NotNullType(Types.LONG));
-        type.desigil();
+        type = Types.NotNull(Types.NotNull((Types.Long())));
+        // type.desigil();
     }
 
     public void testJson()
             throws Throwable
     {
-        System.out.println(Json.writeValue(new ListType(Types.LONG)));
+        System.out.println(Json.writeValue(Types.List(Types.Long())));
     }
 }

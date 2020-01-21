@@ -29,7 +29,7 @@ public class FieldsTest
     public void testFieldsJson()
             throws Throwable
     {
-        Field fld = new Field("x", Types.LONG, ImmutableList.of(FieldAnnotation.id()));
+        Field fld = new Field("x", Types.Long(), ImmutableList.of(FieldAnnotation.id()));
 
         String json = Json.writeValue(fld);
 
@@ -45,10 +45,7 @@ public class FieldsTest
     {
         TypeReference<List<FieldAnnotation>> tr = new TypeReference<List<FieldAnnotation>>() {};
 
-        List<FieldAnnotation> anns = ImmutableList.of(
-                FieldAnnotation.id(),
-                FieldAnnotation.internal()
-        );
+        List<FieldAnnotation> anns = ImmutableList.of(FieldAnnotation.id());
 
         System.out.println(anns);
 

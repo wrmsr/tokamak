@@ -28,8 +28,8 @@ public class LayoutTest
             throws Throwable
     {
         FieldCollection fc = FieldCollection.builder()
-                .add(new Field("x", Types.LONG, ImmutableList.of(FieldAnnotation.id())))
-                .add(new Field("y", Types.LONG, ImmutableList.of(FieldAnnotation.internal())))
+                .add(new Field("x", Types.Long(), ImmutableList.of(FieldAnnotation.id())))
+                .add(new Field("y", Types.Long(), ImmutableList.of()))
                 .build();
         String src = Json.writeValue(fc);
         System.out.println(src);

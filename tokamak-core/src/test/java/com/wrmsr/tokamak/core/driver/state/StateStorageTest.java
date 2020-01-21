@@ -41,7 +41,7 @@ public class StateStorageTest
                 AnnotationCollection.of(),
                 AnnotationCollectionMap.copyOf(ImmutableMap.of("id", AnnotationCollection.of(FieldAnnotation.id()))),
                 SchemaTable.of("s", "t"),
-                ImmutableMap.of("id", Types.LONG),
+                ImmutableMap.of("id", Types.Long()),
                 PInvalidations.empty());
 
         PState stateNode = new PState(

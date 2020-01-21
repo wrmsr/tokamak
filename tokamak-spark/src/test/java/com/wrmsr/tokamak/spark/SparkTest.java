@@ -99,7 +99,7 @@ public class SparkTest
                             "values",
                             AnnotationCollection.of(),
                             AnnotationCollectionMap.of(),
-                            ImmutableMap.of("x", Types.LONG),
+                            ImmutableMap.of("x", Types.Long()),
                             ImmutableList.of(ImmutableList.of(420L)),
                             java.util.Optional.empty(),
                             PValues.Strictness.NON_STRICT));
