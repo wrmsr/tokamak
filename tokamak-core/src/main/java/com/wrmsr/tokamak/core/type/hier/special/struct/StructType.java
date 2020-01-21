@@ -15,7 +15,7 @@ package com.wrmsr.tokamak.core.type.hier.special.struct;
 
 import com.wrmsr.tokamak.core.type.TypeConstructor;
 import com.wrmsr.tokamak.core.type.TypeRegistration;
-import com.wrmsr.tokamak.core.type.Types;
+import com.wrmsr.tokamak.core.type.TypeUtils;
 import com.wrmsr.tokamak.core.type.hier.Type;
 
 import javax.annotation.concurrent.Immutable;
@@ -28,7 +28,7 @@ public final class StructType
 {
     public static final String NAME = "Struct";
     public static final TypeRegistration REGISTRATION = new TypeRegistration(NAME, StructType.class, TypeConstructor.of(
-            (Map<String, Object> kwargs) -> new StructType(Types.objectsToTypes(kwargs))));
+            (Map<String, Object> kwargs) -> new StructType(TypeUtils.objectsToTypes(kwargs))));
 
     public StructType(Map<String, Type> members)
     {

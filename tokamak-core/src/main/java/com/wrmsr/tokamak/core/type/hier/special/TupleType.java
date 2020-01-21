@@ -16,7 +16,7 @@ package com.wrmsr.tokamak.core.type.hier.special;
 import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.core.type.TypeConstructor;
 import com.wrmsr.tokamak.core.type.TypeRegistration;
-import com.wrmsr.tokamak.core.type.Types;
+import com.wrmsr.tokamak.core.type.TypeUtils;
 import com.wrmsr.tokamak.core.type.hier.Type;
 
 import javax.annotation.concurrent.Immutable;
@@ -29,7 +29,7 @@ public final class TupleType
 {
     public static final String NAME = "Tuple";
     public static final TypeRegistration REGISTRATION = new TypeRegistration(NAME, TupleType.class, TypeConstructor.of(
-            (List<Object> args) -> new TupleType(Types.objectsToTypes(args))));
+            (List<Object> args) -> new TupleType(TypeUtils.objectsToTypes(args))));
 
     private final List<Type> items;
 

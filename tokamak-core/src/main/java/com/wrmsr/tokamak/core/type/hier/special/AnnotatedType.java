@@ -16,7 +16,7 @@ package com.wrmsr.tokamak.core.type.hier.special;
 import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.core.type.TypeConstructor;
 import com.wrmsr.tokamak.core.type.TypeRegistration;
-import com.wrmsr.tokamak.core.type.Types;
+import com.wrmsr.tokamak.core.type.TypeUtils;
 import com.wrmsr.tokamak.core.type.hier.Type;
 import com.wrmsr.tokamak.core.type.hier.TypeAnnotation;
 import com.wrmsr.tokamak.core.util.annotation.AnnotationCollection;
@@ -42,7 +42,7 @@ public final class AnnotatedType
     public static final String NAME = "Annotated";
     public static final TypeRegistration REGISTRATION = new TypeRegistration(NAME, AnnotatedType.class, TypeConstructor.of(
             (List<Object> args) -> {
-                Pair<AnnotationCollection<TypeAnnotation>, Type> flattened = flattenArgs(Types.objectsToTypes(args));
+                Pair<AnnotationCollection<TypeAnnotation>, Type> flattened = flattenArgs(TypeUtils.objectsToTypes(args));
                 return new AnnotatedType(flattened.first(), flattened.second());
             }));
 
@@ -99,7 +99,7 @@ public final class AnnotatedType
             if (!(type instanceof AnnotatedType)) {
                 break;
             }
-            args = Types.objectsToTypes(type.getArgs());
+            args = TypeUtils.objectsToTypes(type.getArgs());
         }
         return Pair.immutable(AnnotationCollection.copyOf(anns.values()), type);
     }

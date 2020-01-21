@@ -13,11 +13,9 @@
  */
 package com.wrmsr.tokamak.core.type;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.core.type.hier.Type;
 import com.wrmsr.tokamak.core.type.hier.TypeAnnotation;
-import com.wrmsr.tokamak.core.type.hier.TypeLike;
 import com.wrmsr.tokamak.core.type.hier.annotation.EphemeralType;
 import com.wrmsr.tokamak.core.type.hier.annotation.InternalType;
 import com.wrmsr.tokamak.core.type.hier.annotation.NotNullType;
@@ -48,16 +46,10 @@ import com.wrmsr.tokamak.core.type.hier.special.TupleType;
 import com.wrmsr.tokamak.core.type.hier.special.UnionType;
 import com.wrmsr.tokamak.core.type.hier.special.struct.StructType;
 import com.wrmsr.tokamak.core.type.hier.special.struct.StructuralType;
-import com.wrmsr.tokamak.util.Pair;
 
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
-
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.collect.ImmutableList.toImmutableList;
-import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 
 public final class Types
 {
@@ -330,25 +322,4 @@ public final class Types
         BUILTIN_REGISTRATIONS.forEach(registry::register);
         return registry;
     }).get();
-
-    public static boolean isValidArg(Object a)
-    {
-        return a instanceof TypeLike || a instanceof Long;
-    }
-
-    public static <T> T checkValidArg(T a)
-    {
-        checkArgument(isValidArg(a));
-        return a;
-    }
-
-    public static List<Type> objectsToTypes(List<Object> objects)
-    {
-        return objects.stream().map(Preconditions::checkNotNull).map(Type.class::cast).collect(toImmutableList());
-    }
-
-    public static Map<String, Type> objectsToTypes(Map<String, Object> objects)
-    {
-        return objects.entrySet().stream().map(e -> Pair.immutable(e.getKey(), (Type) checkNotNull(e.getValue()))).collect(toImmutableMap());
-    }
 }
