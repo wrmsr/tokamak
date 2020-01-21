@@ -15,11 +15,11 @@ package com.wrmsr.tokamak.core.type.impl;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.wrmsr.tokamak.core.type.DesigiledType;
+import com.wrmsr.tokamak.core.type.AbstractTypeLike;
 import com.wrmsr.tokamak.core.type.Type;
+import com.wrmsr.tokamak.core.type.TypeAnnotation;
 import com.wrmsr.tokamak.core.type.TypeRendering;
-import com.wrmsr.tokamak.core.type.Types;
-import com.wrmsr.tokamak.util.lazy.SupplierLazyValue;
+import com.wrmsr.tokamak.core.util.annotation.AnnotationCollection;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -28,77 +28,48 @@ import java.util.Map;
 import java.util.OptionalInt;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.wrmsr.tokamak.core.type.Types.checkValidArg;
-import static com.wrmsr.tokamak.util.MoreCollections.checkOrdered;
-import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 
 @Immutable
 public abstract class AbstractType
+        extends AbstractTypeLike
         implements Type
 {
-    protected final String baseName;
     protected final OptionalInt fixedSize;
 
-    protected final List<Object> args;
-    protected final Map<String, Object> kwargs;
-
     public AbstractType(
-            String baseName,
-            OptionalInt fixedSize,
+            String name,
             List<Object> args,
-            Map<String, Object> kwargs)
+            Map<String, Object> kwargs,
+            OptionalInt fixedSize)
     {
-        this.baseName = checkNotEmpty(baseName);
+        super(name, args, kwargs);
+
         this.fixedSize = checkNotNull(fixedSize);
-
-        this.args = ImmutableList.copyOf(args);
-        this.args.forEach(Types::checkValidArg);
-
-        this.kwargs = ImmutableMap.copyOf(checkOrdered(kwargs));
-        this.kwargs.forEach((k, v) -> {
-            checkNotEmpty(k);
-            checkValidArg(v);
-        });
     }
 
-    public AbstractType(String baseName, OptionalInt fixedSize)
+    public AbstractType(String name, OptionalInt fixedSize)
     {
-        this(baseName, fixedSize, ImmutableList.of(), ImmutableMap.of());
+        this(name, ImmutableList.of(), ImmutableMap.of(), fixedSize);
     }
 
-    public AbstractType(String baseName, int fixedSize)
+    public AbstractType(String name, int fixedSize)
     {
-        this(baseName, OptionalInt.of(fixedSize));
+        this(name, OptionalInt.of(fixedSize));
     }
 
-    public AbstractType(String baseName)
+    public AbstractType(String name)
     {
-        this(baseName, OptionalInt.empty());
+        this(name, OptionalInt.empty());
     }
 
-    public AbstractType(String baseName, List<Object> args)
+    public AbstractType(String name, List<Object> args)
     {
-        this(baseName, OptionalInt.empty(), args, ImmutableMap.of());
+        this(name, args, ImmutableMap.of(), OptionalInt.empty());
     }
 
-    public AbstractType(String baseName, Map<String, Object> kwargs)
+    public AbstractType(String name, Map<String, Object> kwargs)
     {
-        this(baseName, OptionalInt.empty(), ImmutableList.of(), kwargs);
-    }
-
-    @Override
-    public String toString()
-    {
-        return getClass().getSimpleName() + "{" +
-                "args=" + args +
-                ", kwargs=" + kwargs +
-                '}';
-    }
-
-    @Override
-    public String getBaseName()
-    {
-        return baseName;
+        this(name, ImmutableList.of(), kwargs, OptionalInt.empty());
     }
 
     @Override
@@ -108,28 +79,8 @@ public abstract class AbstractType
     }
 
     @Override
-    public List<Object> getArgs()
-    {
-        return args;
-    }
-
-    @Override
-    public Map<String, Object> getKwargs()
-    {
-        return kwargs;
-    }
-
-    @Override
     public final String toSpec()
     {
-        return TypeRendering.buildSpec(baseName, args, kwargs);
-    }
-
-    private final SupplierLazyValue<DesigiledType> desigiled = new SupplierLazyValue<>();
-
-    @Override
-    public DesigiledType desigil()
-    {
-        return desigiled.get(() -> new DesigiledType(this));
+        return TypeRendering.buildSpec(name, args, kwargs);
     }
 }

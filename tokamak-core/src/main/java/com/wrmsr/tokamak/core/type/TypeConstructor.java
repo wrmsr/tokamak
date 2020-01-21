@@ -22,7 +22,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 @FunctionalInterface
 public interface TypeConstructor
 {
-    Type construct(List<Object> args, Map<String, Object> kwargs);
+    TypeLike construct(List<Object> args, Map<String, Object> kwargs);
 
     static TypeConstructor of(TypeConstructor fn)
     {
@@ -32,7 +32,7 @@ public interface TypeConstructor
     @FunctionalInterface
     interface Nullary
     {
-        Type construct();
+        TypeLike construct();
     }
 
     static TypeConstructor of(Nullary fn)
@@ -77,7 +77,7 @@ public interface TypeConstructor
     @FunctionalInterface
     interface Args
     {
-        Type construct(List<Object> args);
+        TypeLike construct(List<Object> args);
     }
 
     static TypeConstructor of(Args fn)
@@ -91,7 +91,7 @@ public interface TypeConstructor
     @FunctionalInterface
     interface Kwargs
     {
-        Type construct(Map<String, Object> kwargs);
+        TypeLike construct(Map<String, Object> kwargs);
     }
 
     static TypeConstructor of(Kwargs fn)
@@ -106,7 +106,7 @@ public interface TypeConstructor
     public static Type supplyParsedType(Supplier supplier, TypeParsing.ParsedType parsedType)
     {
         checkNotNull(parsedType);
-        checkArgument(parsedType.getName().equals(supplier.baseName));
+        checkArgument(parsedType.getName().equals(supplier.name));
         if (supplier instanceof BareSupplier) {
             BareSupplier bareSupplier = (BareSupplier) supplier;
             checkArgument(parsedType.getItems().isEmpty());

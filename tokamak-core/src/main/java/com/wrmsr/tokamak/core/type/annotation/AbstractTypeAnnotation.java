@@ -11,39 +11,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.core.type.impl;
+package com.wrmsr.tokamak.core.type.annotation;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.wrmsr.tokamak.core.type.Type;
+import com.wrmsr.tokamak.core.type.AbstractTypeLike;
+import com.wrmsr.tokamak.core.type.TypeAnnotation;
 
 import javax.annotation.concurrent.Immutable;
 
-import java.util.OptionalInt;
-
-import static com.google.common.base.Preconditions.checkNotNull;
+import java.util.List;
 
 @Immutable
-public abstract class ItemType
-        extends AbstractType
+public abstract class AbstractTypeAnnotation
+        extends AbstractTypeLike
+        implements TypeAnnotation
 {
-    public ItemType(String name, Type itemType, OptionalInt fixedSize)
+    public AbstractTypeAnnotation(
+            String name,
+            List<Object> args,
+            ImmutableMap<String, Object> kwargs)
     {
-        super(name, fixedSize, ImmutableList.of(itemType), ImmutableMap.of());
+        super(name, args, kwargs);
     }
 
-    public ItemType(String name, int fixedSize, Type itemType)
+    public AbstractTypeAnnotation(String name)
     {
-        this(name, OptionalInt.of(fixedSize), itemType);
-    }
-
-    public ItemType(String name, Type itemType)
-    {
-        this(name, OptionalInt.empty(), itemType);
-    }
-
-    public Type getItem()
-    {
-        return (Type) checkNotNull(getArgs().get(0));
+        this(name, ImmutableList.of(), ImmutableMap.of());
     }
 }

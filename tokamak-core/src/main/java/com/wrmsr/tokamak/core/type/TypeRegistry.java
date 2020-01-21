@@ -38,12 +38,12 @@ public final class TypeRegistry
 
     private final Object lock = new Object();
 
-    private volatile Map<String, TypeRegistration> registrationsByBaseName = ImmutableMap.of();
+    private volatile Map<String, TypeRegistration> registrationsByName = ImmutableMap.of();
     private volatile Map<java.lang.reflect.Type, TypeRegistration> registrationsByReflect = ImmutableMap.of();
 
-    public Map<String, TypeRegistration> getRegistrationsByBaseName()
+    public Map<String, TypeRegistration> getRegistrationsByName()
     {
-        return registrationsByBaseName;
+        return registrationsByName;
     }
 
     public Map<java.lang.reflect.Type, TypeRegistration> getRegistrationsByReflect()
@@ -54,16 +54,16 @@ public final class TypeRegistry
     public TypeRegistration register(TypeRegistration registration)
     {
         synchronized (lock) {
-            if (registrationsByBaseName.containsKey(registration.getBaseName())) {
-                throw new IllegalArgumentException(String.format("Type base name %s taken", registration.getBaseName()));
+            if (registrationsByName.containsKey(registration.getName())) {
+                throw new IllegalArgumentException(String.format("Type base name %s taken", registration.getName()));
             }
             if (registration.getReflect().isPresent() && registrationsByReflect.containsKey(registration.getReflect().get())) {
                 throw new IllegalArgumentException(String.format("Type reflect %s taken", registration.getReflect().get()));
             }
 
-            registrationsByBaseName = ImmutableMap.<String, TypeRegistration>builder()
-                    .putAll(registrationsByBaseName)
-                    .put(registration.getBaseName(), registration)
+            registrationsByName = ImmutableMap.<String, TypeRegistration>builder()
+                    .putAll(registrationsByName)
+                    .put(registration.getName(), registration)
                     .build();
             registrationsByReflect = ImmutableMap.<java.lang.reflect.Type, TypeRegistration>builder()
                     .putAll(registrationsByReflect)
@@ -85,7 +85,7 @@ public final class TypeRegistry
     {
         if (item instanceof TypeParsing.ParsedType) {
             TypeParsing.ParsedType parsedType = (TypeParsing.ParsedType) item;
-            TypeRegistration registration = registrationsByBaseName.get(parsedType.getName());
+            TypeRegistration registration = registrationsByName.get(parsedType.getName());
             return registration.construct(
                     immutableMapItems(parsedType.getArgs(), this::fromParsed),
                     immutableMapValues(parsedType.getKwargs(), this::fromParsed));
@@ -99,15 +99,15 @@ public final class TypeRegistry
     {
         if (item instanceof DesigiledType) {
             DesigiledType desigiledType = (DesigiledType) item;
-            TypeRegistration registration = registrationsByBaseName.get(desigiledType.getItem().getBaseName());
+            TypeRegistration registration = registrationsByName.get(desigiledType.getItem().getName());
             Type type = registration.construct(
                     immutableMapItems(desigiledType.getArgs(), this::resigil),
                     immutableMapValues(desigiledType.getKwargs(), this::resigil));
 
             List<Type.Sigil> sigils = newArrayList(desigiledType.getByName().values());
-            sigils.sort(Comparator.comparing(Type::getBaseName, Ordering.natural()).reversed());
+            sigils.sort(Comparator.comparing(Type::getName, Ordering.natural()).reversed());
             for (Type.Sigil sigil : sigils) {
-                TypeRegistration sigilRegistration = registrationsByBaseName.get(sigil.getBaseName());
+                TypeRegistration sigilRegistration = registrationsByName.get(sigil.getName());
                 type = sigilRegistration.construct(
                         ImmutableList.builder()
                                 .add(type)

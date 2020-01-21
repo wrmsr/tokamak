@@ -33,18 +33,18 @@ import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 public final class TypeRegistration
         implements TypeConstructor
 {
-    private final String baseName;
-    private final Class<? extends Type> cls;
+    private final String name;
+    private final Class<? extends TypeLike> cls;
     private final Optional<java.lang.reflect.Type> reflect;
     private final TypeConstructor constructor;
 
     public TypeRegistration(
-            String baseName,
-            Class<? extends Type> cls,
+            String name,
+            Class<? extends TypeLike> cls,
             Optional<java.lang.reflect.Type> reflect,
             TypeConstructor constructor)
     {
-        this.baseName = checkNotEmpty(baseName);
+        this.name = checkNotEmpty(name);
         this.cls = checkNotNull(cls);
         this.reflect = checkNotNull(reflect);
         reflect.ifPresent(rfl -> checkArgument(!Primitives.allPrimitiveTypes().contains(rfl)));
@@ -52,28 +52,28 @@ public final class TypeRegistration
     }
 
     public TypeRegistration(
-            String baseName,
-            Class<? extends Type> cls,
+            String name,
+            Class<? extends TypeLike> cls,
             java.lang.reflect.Type reflect,
             TypeConstructor constructor)
     {
-        this(baseName, cls, Optional.of(reflect), constructor);
+        this(name, cls, Optional.of(reflect), constructor);
     }
 
     public TypeRegistration(
-            String baseName,
-            Class<? extends Type> cls,
+            String name,
+            Class<? extends TypeLike> cls,
             TypeConstructor constructor)
     {
-        this(baseName, cls, Optional.empty(), constructor);
+        this(name, cls, Optional.empty(), constructor);
     }
 
-    public String getBaseName()
+    public String getName()
     {
-        return baseName;
+        return name;
     }
 
-    public Class<? extends Type> getCls()
+    public Class<? extends TypeLike> getCls()
     {
         return cls;
     }
@@ -97,10 +97,10 @@ public final class TypeRegistration
     public static TypeRegistration standard(Type type)
     {
         if (type instanceof PrimitiveType || type instanceof SimpleType) {
-            return new TypeRegistration(type.getBaseName(), type.getClass(), type.toReflect(), TypeConstructor.of(() -> type));
+            return new TypeRegistration(type.getName(), type.getClass(), type.toReflect(), TypeConstructor.of(() -> type));
         }
         else if (type instanceof SpecialType) {
-            return new TypeRegistration(type.getBaseName(), type.getClass(), TypeConstructor.of(() -> type));
+            return new TypeRegistration(type.getName(), type.getClass(), TypeConstructor.of(() -> type));
         }
         else {
             throw new IllegalArgumentException(Objects.toString(type));

@@ -11,24 +11,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.core.type.impl;
+package com.wrmsr.tokamak.core.type;
 
-import javax.annotation.concurrent.Immutable;
+import com.wrmsr.tokamak.core.util.annotation.Annotation;
 
-@Immutable
-public final class SpecialType
-        extends AbstractType
+public interface TypeAnnotation
+        extends Annotation, TypeLike
 {
-    public SpecialType(String name)
-    {
-        super(name);
-    }
-
-    @Override
-    public String toString()
-    {
-        return "SpecialType{" +
-                "name='" + name + '\'' +
-                '}';
-    }
 }

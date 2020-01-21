@@ -11,25 +11,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-/*
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-package com.wrmsr.tokamak.core.type.impl.sigil;
+package com.wrmsr.tokamak.core.type.annotation;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.wrmsr.tokamak.core.type.Type;
 import com.wrmsr.tokamak.core.type.TypeConstructor;
 import com.wrmsr.tokamak.core.type.TypeRegistration;
 
@@ -41,18 +26,18 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 @Immutable
 public final class SizedType
-        extends SigilType
+        extends AbstractTypeAnnotation
 {
     public static final String NAME = "Sized";
     public static final TypeRegistration REGISTRATION = new TypeRegistration(NAME, SizedType.class, TypeConstructor.of(
             (List<Object> args) -> {
-                checkArgument(args.size() == 2);
-                return new SizedType((Type) args.get(0), (long) args.get(1));
+                checkArgument(args.size() == 1);
+                return new SizedType((long) args.get(0));
             }));
 
-    public SizedType(Type itemType, long size)
+    public SizedType(long size)
     {
-        super(NAME, itemType, ImmutableList.of(size), ImmutableMap.of());
+        super(NAME, ImmutableList.of(size), ImmutableMap.of());
     }
 
     public long getSize()

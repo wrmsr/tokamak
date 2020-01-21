@@ -29,12 +29,12 @@ public final class TypeRendering
     }
 
     public static String buildSpec(
-            String baseName,
+            String name,
             List<Object> args,
             Map<String, Object> kwargs)
     {
         if (args.isEmpty() && kwargs.isEmpty()) {
-            return baseName;
+            return name;
         }
 
         List<String> parts = Streams.concat(
@@ -42,7 +42,7 @@ public final class TypeRendering
                 kwargs.entrySet().stream().map(e -> e.getKey() + "=" + buildArgSpec(e.getValue()))
         ).collect(toImmutableList());
 
-        return baseName + '<' + Joiner.on(", ").join(parts) + '>';
+        return name + '<' + Joiner.on(", ").join(parts) + '>';
     }
 
     private static String buildArgSpec(Object v)

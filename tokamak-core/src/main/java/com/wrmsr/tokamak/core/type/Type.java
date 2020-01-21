@@ -15,16 +15,11 @@ package com.wrmsr.tokamak.core.type;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
-import java.util.List;
-import java.util.Map;
 import java.util.OptionalInt;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 public interface Type
+        extends TypeLike
 {
-    String getBaseName();
-
     OptionalInt getFixedSize();
 
     default java.lang.reflect.Type toReflect()
@@ -32,27 +27,6 @@ public interface Type
         throw new IllegalStateException();
     }
 
-    List<Object> getArgs();
-
-    Map<String, Object> getKwargs();
-
     @JsonValue
     String toSpec();
-
-    DesigiledType desigil();
-
-    interface Sigil
-            extends Type
-    {
-        default Type getItem()
-        {
-            return (Type) checkNotNull(getArgs().get(0));
-        }
-
-        @Override
-        default java.lang.reflect.Type toReflect()
-        {
-            return getItem().toReflect();
-        }
-    }
 }

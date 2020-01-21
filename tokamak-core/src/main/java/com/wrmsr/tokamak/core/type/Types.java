@@ -30,9 +30,9 @@ import com.wrmsr.tokamak.core.type.impl.StructType;
 import com.wrmsr.tokamak.core.type.impl.StructuralType;
 import com.wrmsr.tokamak.core.type.impl.TupleType;
 import com.wrmsr.tokamak.core.type.impl.UnionType;
-import com.wrmsr.tokamak.core.type.impl.sigil.InternalType;
-import com.wrmsr.tokamak.core.type.impl.sigil.NotNullType;
-import com.wrmsr.tokamak.core.type.impl.sigil.SizedType;
+import com.wrmsr.tokamak.core.type.annotation.InternalType;
+import com.wrmsr.tokamak.core.type.annotation.NotNullType;
+import com.wrmsr.tokamak.core.type.annotation.SizedType;
 import com.wrmsr.tokamak.util.Pair;
 
 import java.math.BigDecimal;
@@ -157,7 +157,7 @@ public final class Types
 
     public static boolean isValidArg(Object a)
     {
-        return a instanceof Type || a instanceof Long;
+        return a instanceof TypeLike || a instanceof Long;
     }
 
     public static <T> T checkValidArg(T a)
