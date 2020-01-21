@@ -13,6 +13,12 @@
  */
 package com.wrmsr.tokamak.core.type;
 
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.primitives.Primitives;
@@ -23,6 +29,7 @@ import com.wrmsr.tokamak.core.type.hier.special.AnnotatedType;
 import com.wrmsr.tokamak.core.type.hier.special.UnknownType;
 import com.wrmsr.tokamak.util.Pair;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -49,6 +56,11 @@ public final class TypeRegistry
         return registrationsByName;
     }
 
+    public Map<Class<? extends TypeLike>, TypeRegistration> getRegistrationsByCls()
+    {
+        return registrationsByCls;
+    }
+
     public Map<java.lang.reflect.Type, TypeRegistration> getRegistrationsByReflect()
     {
         return registrationsByReflect;
@@ -63,6 +75,7 @@ public final class TypeRegistry
             if (registrationsByCls.containsKey(registration.getCls())) {
                 throw new IllegalArgumentException(String.format("Type class %s taken", registration.getCls()));
             }
+            checkArgument(!Types.INTERNAL_TYPE_INTERFACES.contains(registration.getCls()));
             if (registration.getReflect().isPresent() && registrationsByReflect.containsKey(registration.getReflect().get())) {
                 throw new IllegalArgumentException(String.format("Type reflect %s taken", registration.getReflect().get()));
             }
@@ -121,6 +134,39 @@ public final class TypeRegistry
         else {
             return item;
         }
+    }
+
+    private final class Deserializer<T extends Type>
+            extends JsonDeserializer<T>
+    {
+        private final Class<T> cls;
+
+        public Deserializer(Class<T> cls)
+        {
+            this.cls = checkNotNull(cls);
+        }
+
+        @Override
+        public T deserialize(JsonParser p, DeserializationContext ctxt)
+                throws IOException, JsonProcessingException
+        {
+            String spec = p.readValueAs(String.class);
+            return cls.cast(fromSpec(spec));
+        }
+    }
+
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    public ObjectMapper registerDeserializers(ObjectMapper objectMapper)
+    {
+        SimpleModule module = new SimpleModule();
+        for (Class<? extends TypeLike> cls : Types.INTERNAL_TYPE_INTERFACES) {
+            module.addDeserializer(cls, new Deserializer(cls));
+        }
+        for (Class<? extends TypeLike> cls : registrationsByCls.keySet()) {
+            module.addDeserializer(cls, new Deserializer(cls));
+        }
+        objectMapper.registerModule(module);
+        return objectMapper;
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})

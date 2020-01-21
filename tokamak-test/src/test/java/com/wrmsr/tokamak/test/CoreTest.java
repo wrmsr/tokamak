@@ -13,12 +13,7 @@
  */
 package com.wrmsr.tokamak.test;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.api.Key;
@@ -35,6 +30,7 @@ import com.wrmsr.tokamak.core.driver.DriverImpl;
 import com.wrmsr.tokamak.core.exec.BuiltinExecutors;
 import com.wrmsr.tokamak.core.exec.Reflection;
 import com.wrmsr.tokamak.core.exec.builtin.BuiltinExecutor;
+import com.wrmsr.tokamak.core.exec.builtin.BuiltinFunctions;
 import com.wrmsr.tokamak.core.layout.RowLayout;
 import com.wrmsr.tokamak.core.layout.TableLayout;
 import com.wrmsr.tokamak.core.layout.field.FieldCollection;
@@ -69,8 +65,8 @@ import com.wrmsr.tokamak.core.tree.node.TNode;
 import com.wrmsr.tokamak.core.tree.transform.SelectExpansion;
 import com.wrmsr.tokamak.core.tree.transform.SymbolResolution;
 import com.wrmsr.tokamak.core.tree.transform.ViewInlining;
-import com.wrmsr.tokamak.core.type.hier.Type;
 import com.wrmsr.tokamak.core.type.Types;
+import com.wrmsr.tokamak.core.type.hier.Type;
 import com.wrmsr.tokamak.core.util.ApiJson;
 import com.wrmsr.tokamak.core.util.annotation.AnnotationCollection;
 import com.wrmsr.tokamak.core.util.annotation.AnnotationCollectionMap;
@@ -78,7 +74,6 @@ import com.wrmsr.tokamak.util.json.Json;
 import com.wrmsr.tokamak.util.sql.SqlUtils;
 import junit.framework.TestCase;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -86,6 +81,7 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.Collection;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 import static com.wrmsr.tokamak.util.MoreFiles.createTempDirectory;
 
@@ -165,7 +161,7 @@ public class CoreTest
     private Plan buildPlan(Catalog catalog)
             throws Throwable
     {
-        BuiltinExecutor be = catalog.addExecutor(new BuiltinExecutor("builtin"));
+        BuiltinExecutor be = (BuiltinExecutor) catalog.getExecutorsByName().get("builtin");
 
         PNode scanNode0 = new PScan(
                 "scan0",
@@ -269,17 +265,6 @@ public class CoreTest
 
     // https://docs.oracle.com/javase/tutorial/jdbc/basics/prepared.html
 
-    public static final class TypeDeserializer extends JsonDeserializer<Type>
-    {
-        @Override
-        public Type deserialize(JsonParser p, DeserializationContext ctxt)
-                throws IOException, JsonProcessingException
-        {
-            String spec = p.readValueAs(String.class);
-            return Types.BUILTIN_REGISTRY.fromSpec(spec);
-        }
-    }
-
     public void testTpch()
             throws Throwable
     {
@@ -288,19 +273,24 @@ public class CoreTest
         TpchUtils.buildDatabase(url);
         Catalog catalog = TpchUtils.buildCatalog(url);
 
+        BuiltinExecutor be = catalog.addExecutor(new BuiltinExecutor("builtin"));
+        BuiltinFunctions.register(be);
+
+        ((Consumer<Catalog>) (c -> be.getExecutablesByName().keySet().forEach(n -> c.addFunction(n, be)))).accept(catalog);
+
         CatalogRegistry cn = new CatalogRegistry();
         BuiltinConnectors.register(cn);
         BuiltinExecutors.register(cn);
 
         ObjectMapper om = Json.newObjectMapper();
         cn.register(om);
-        om.registerModule(new SimpleModule().addDeserializer(Type.class, new TypeDeserializer()));
+        Types.BUILTIN_REGISTRY.registerDeserializers(om);
 
         String src = om.writerWithDefaultPrettyPrinter().writeValueAsString(catalog);
         System.out.println(src);
 
         om.readValue("null", Type.class);
-        catalog = om.readValue(src, Catalog.class);
+        // catalog = om.readValue(src, Catalog.class);
 
         Plan plan = buildPlan(catalog);
         // Dot.openDot(Dot.buildPlanDot(plan));
@@ -370,7 +360,7 @@ public class CoreTest
     }
 
     public void testParsed()
-        throws Throwable
+            throws Throwable
     {
         String sql = "select N_NAME, N_REGIONKEY, N_COMMENT, R_NAME from NATION, REGION where N_REGIONKEY = R_REGIONKEY";
 
@@ -378,6 +368,11 @@ public class CoreTest
         String url = "jdbc:h2:file:" + tempDir.toString() + "/test.db;USER=username;PASSWORD=password";
         TpchUtils.buildDatabase(url);
         Catalog catalog = TpchUtils.buildCatalog(url);
+
+        BuiltinExecutor be = catalog.addExecutor(new BuiltinExecutor("builtin"));
+        BuiltinFunctions.register(be);
+        be.getExecutablesByName().keySet().forEach(n -> catalog.addFunction(n, be));
+
         Optional<String> defaultSchema = Optional.of("PUBLIC");
 
         CatalogRegistry cn = new CatalogRegistry();
@@ -441,6 +436,10 @@ public class CoreTest
             throws Throwable
     {
         Catalog catalog = new Catalog();
+
+        BuiltinExecutor be = catalog.addExecutor(new BuiltinExecutor("builtin"));
+        BuiltinFunctions.register(be);
+        be.getExecutablesByName().keySet().forEach(n -> catalog.addFunction(n, be));
 
         Plan plan = buildPlan(catalog);
 

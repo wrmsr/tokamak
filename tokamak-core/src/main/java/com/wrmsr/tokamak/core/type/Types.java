@@ -14,34 +14,43 @@
 package com.wrmsr.tokamak.core.type;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.core.type.hier.Type;
 import com.wrmsr.tokamak.core.type.hier.TypeAnnotation;
+import com.wrmsr.tokamak.core.type.hier.TypeLike;
 import com.wrmsr.tokamak.core.type.hier.annotation.EphemeralType;
 import com.wrmsr.tokamak.core.type.hier.annotation.InternalType;
 import com.wrmsr.tokamak.core.type.hier.annotation.NotNullType;
 import com.wrmsr.tokamak.core.type.hier.annotation.SizedType;
+import com.wrmsr.tokamak.core.type.hier.collection.CollectionType;
 import com.wrmsr.tokamak.core.type.hier.collection.item.EnumSetType;
+import com.wrmsr.tokamak.core.type.hier.collection.item.ItemType;
 import com.wrmsr.tokamak.core.type.hier.collection.item.ListType;
 import com.wrmsr.tokamak.core.type.hier.collection.item.SetType;
 import com.wrmsr.tokamak.core.type.hier.collection.keyvalue.BiMapType;
+import com.wrmsr.tokamak.core.type.hier.collection.keyvalue.KeyValueType;
 import com.wrmsr.tokamak.core.type.hier.collection.keyvalue.MapType;
 import com.wrmsr.tokamak.core.type.hier.primitive.BooleanType;
 import com.wrmsr.tokamak.core.type.hier.primitive.DoubleType;
 import com.wrmsr.tokamak.core.type.hier.primitive.LongType;
+import com.wrmsr.tokamak.core.type.hier.primitive.PrimitiveType;
 import com.wrmsr.tokamak.core.type.hier.simple.BigDecimalType;
 import com.wrmsr.tokamak.core.type.hier.simple.BigIntegerType;
 import com.wrmsr.tokamak.core.type.hier.simple.BytesType;
 import com.wrmsr.tokamak.core.type.hier.simple.ObjectType;
+import com.wrmsr.tokamak.core.type.hier.simple.SimpleType;
 import com.wrmsr.tokamak.core.type.hier.simple.StringType;
 import com.wrmsr.tokamak.core.type.hier.simple.VoidType;
 import com.wrmsr.tokamak.core.type.hier.simple.time.DurationType;
 import com.wrmsr.tokamak.core.type.hier.simple.time.LocalDateTimeType;
 import com.wrmsr.tokamak.core.type.hier.simple.time.LocalDateType;
 import com.wrmsr.tokamak.core.type.hier.simple.time.LocalTimeType;
+import com.wrmsr.tokamak.core.type.hier.simple.time.TimeType;
 import com.wrmsr.tokamak.core.type.hier.simple.time.ZonedDateTimeType;
 import com.wrmsr.tokamak.core.type.hier.special.AnnotatedType;
 import com.wrmsr.tokamak.core.type.hier.special.EnumType;
 import com.wrmsr.tokamak.core.type.hier.special.FunctionType;
+import com.wrmsr.tokamak.core.type.hier.special.SpecialType;
 import com.wrmsr.tokamak.core.type.hier.special.TupleType;
 import com.wrmsr.tokamak.core.type.hier.special.UnionType;
 import com.wrmsr.tokamak.core.type.hier.special.struct.StructType;
@@ -49,6 +58,7 @@ import com.wrmsr.tokamak.core.type.hier.special.struct.StructuralType;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Supplier;
 
 public final class Types
@@ -76,7 +86,21 @@ public final class Types
     {
     }
 
+    //region Setup
+
+    private static final ImmutableSet.Builder<Class<? extends TypeLike>> INTERNAL_TYPE_INTERFACES_BUILDER = ImmutableSet.builder();
     private static final ImmutableList.Builder<TypeRegistration> TYPE_REGISTRATION_BUILDER = ImmutableList.builder();
+
+    static {
+        INTERNAL_TYPE_INTERFACES_BUILDER
+                .add(Type.class)
+                .add(TypeAnnotation.class)
+                .add(TypeLike.class);
+    }
+
+    //endregion
+
+    //region Annotation
 
     static {
         TYPE_REGISTRATION_BUILDER
@@ -106,7 +130,21 @@ public final class Types
         return TypeAnnotations.map(item, anns -> anns.appended(new SizedType(size)));
     }
 
+    //endregion
+
+    //region Collection
+
     static {
+        INTERNAL_TYPE_INTERFACES_BUILDER
+                .add(CollectionType.class);
+    }
+
+    //region Item
+
+    static {
+        INTERNAL_TYPE_INTERFACES_BUILDER
+                .add(ItemType.class);
+
         TYPE_REGISTRATION_BUILDER
                 .add(EnumSetType.REGISTRATION)
                 .add(ListType.REGISTRATION)
@@ -128,7 +166,14 @@ public final class Types
         return new SetType(item);
     }
 
+    //endregion
+
+    //region KeyValue
+
     static {
+        INTERNAL_TYPE_INTERFACES_BUILDER
+                .add(KeyValueType.class);
+
         TYPE_REGISTRATION_BUILDER
                 .add(BiMapType.REGISTRATION)
                 .add(MapType.REGISTRATION);
@@ -144,7 +189,16 @@ public final class Types
         return new MapType(key, value);
     }
 
+    //endregion
+
+    //endregion
+
+    //region Primitive
+
     static {
+        INTERNAL_TYPE_INTERFACES_BUILDER
+                .add(PrimitiveType.class);
+
         TYPE_REGISTRATION_BUILDER
                 .add(BooleanType.REGISTRATION)
                 .add(DoubleType.REGISTRATION)
@@ -166,41 +220,14 @@ public final class Types
         return LongType.INSTANCE;
     }
 
-    static {
-        TYPE_REGISTRATION_BUILDER
-                .add(DurationType.REGISTRATION)
-                .add(LocalDateTimeType.REGISTRATION)
-                .add(LocalDateType.REGISTRATION)
-                .add(LocalTimeType.REGISTRATION)
-                .add(ZonedDateTimeType.REGISTRATION);
-    }
+    //endregion
 
-    public static DurationType Duration()
-    {
-        return DurationType.INSTANCE;
-    }
-
-    public static LocalDateTimeType LocalDateTime()
-    {
-        return LocalDateTimeType.INSTANCE;
-    }
-
-    public static LocalDateType LocalDate()
-    {
-        return LocalDateType.INSTANCE;
-    }
-
-    public static LocalTimeType LocalTime()
-    {
-        return LocalTimeType.INSTANCE;
-    }
-
-    public static ZonedDateTimeType ZonedDateTime()
-    {
-        return ZonedDateTimeType.INSTANCE;
-    }
+    //region Simple
 
     static {
+        INTERNAL_TYPE_INTERFACES_BUILDER
+                .add(SimpleType.class);
+
         TYPE_REGISTRATION_BUILDER
                 .add(BigDecimalType.REGISTRATION)
                 .add(BigIntegerType.REGISTRATION)
@@ -240,6 +267,51 @@ public final class Types
         return VoidType.INSTANCE;
     }
 
+    //region Time
+
+    static {
+        INTERNAL_TYPE_INTERFACES_BUILDER
+                .add(TimeType.class);
+
+        TYPE_REGISTRATION_BUILDER
+                .add(DurationType.REGISTRATION)
+                .add(LocalDateTimeType.REGISTRATION)
+                .add(LocalDateType.REGISTRATION)
+                .add(LocalTimeType.REGISTRATION)
+                .add(ZonedDateTimeType.REGISTRATION);
+    }
+
+    public static DurationType Duration()
+    {
+        return DurationType.INSTANCE;
+    }
+
+    public static LocalDateTimeType LocalDateTime()
+    {
+        return LocalDateTimeType.INSTANCE;
+    }
+
+    public static LocalDateType LocalDate()
+    {
+        return LocalDateType.INSTANCE;
+    }
+
+    public static LocalTimeType LocalTime()
+    {
+        return LocalTimeType.INSTANCE;
+    }
+
+    public static ZonedDateTimeType ZonedDateTime()
+    {
+        return ZonedDateTimeType.INSTANCE;
+    }
+
+    //endregion
+
+    //endregion
+
+    //region Struct
+
     static {
         TYPE_REGISTRATION_BUILDER
                 .add(StructType.REGISTRATION)
@@ -256,7 +328,14 @@ public final class Types
         return new StructuralType(members);
     }
 
+    //endregion
+
+    //region Special
+
     static {
+        INTERNAL_TYPE_INTERFACES_BUILDER
+                .add(SpecialType.class);
+
         TYPE_REGISTRATION_BUILDER
                 .add(AnnotatedType.REGISTRATION)
                 .add(EnumType.REGISTRATION)
@@ -314,6 +393,10 @@ public final class Types
     {
         return new UnionType(ImmutableList.copyOf(items));
     }
+
+    //endregion
+
+    public static final Set<Class<? extends TypeLike>> INTERNAL_TYPE_INTERFACES = INTERNAL_TYPE_INTERFACES_BUILDER.build();
 
     public static final List<TypeRegistration> BUILTIN_REGISTRATIONS = TYPE_REGISTRATION_BUILDER.build();
 

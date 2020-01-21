@@ -54,6 +54,11 @@ public final class BuiltinExecutor
         return executable;
     }
 
+    public Map<String, Executable> getExecutablesByName()
+    {
+        return executablesByName;
+    }
+
     @Override
     public Executable getExecutable(String name)
     {

@@ -13,6 +13,7 @@
  */
 package com.wrmsr.tokamak.core.type.hier;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.core.type.TypeRendering;
@@ -37,6 +38,7 @@ public interface TypeLike
         return ImmutableMap.of();
     }
 
+    @JsonValue
     default String toSpec()
     {
         return TypeRendering.buildSpec((Object) this);

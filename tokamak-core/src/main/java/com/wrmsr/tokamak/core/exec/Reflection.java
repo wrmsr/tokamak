@@ -14,12 +14,15 @@
 package com.wrmsr.tokamak.core.exec;
 
 import com.wrmsr.tokamak.core.type.Types;
+import com.wrmsr.tokamak.core.type.hier.Type;
 import com.wrmsr.tokamak.core.type.hier.special.FunctionType;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
@@ -40,41 +43,71 @@ public final class Reflection
 
     private static final AtomicInteger reflectedCount = new AtomicInteger();
 
-    public static Executable reflectWithoutHandle(Method method, String name)
+    private static String getNextReflectedName(Method method)
+    {
+        return "$reflected$" + reflectedCount.getAndIncrement() + "$" + method.getName();
+    }
+
+    public static Type getValueType(Method method)
+    {
+        return Types.BUILTIN_REGISTRY.fromReflect(method.getReturnType());
+    }
+
+    public static List<Type> getParamTypes(Method method)
+    {
+        return Arrays.stream(method.getParameterTypes()).map(Types.BUILTIN_REGISTRY::fromReflect).collect(toImmutableList());
+    }
+
+    private static Executable reflectWithoutHandle(Method method, String name, FunctionType type)
     {
         return new SimpleExecutable(
                 name,
-                new FunctionType(
-                        Types.BUILTIN_REGISTRY.fromReflect(method.getReturnType()),
-                        Arrays.stream(method.getParameterTypes()).map(Types.BUILTIN_REGISTRY::fromReflect).collect(toImmutableList())),
+                type,
                 args -> rethrowingGet(() -> method.invoke(args)));
     }
 
-    public static Executable reflectWithHandle(Method method, String name)
+    private static Executable reflectWithHandle(Method method, String name, FunctionType type)
             throws IllegalAccessException
     {
         MethodHandle handle = MethodHandles.lookup().unreflect(method);
         return new SimpleExecutable(
                 name,
-                new FunctionType(
-                        Types.BUILTIN_REGISTRY.fromReflect(method.getReturnType()),
-                        Arrays.stream(method.getParameterTypes()).map(Types.BUILTIN_REGISTRY::fromReflect).collect(toImmutableList())),
+                type,
                 args -> throwableRethrowingGet(() -> handle.invokeWithArguments(args)));
+    }
+
+    public static Executable reflect(
+            Method method,
+            Optional<String> optName,
+            Optional<FunctionType> optType)
+    {
+        String name = optName.orElseGet(() -> getNextReflectedName(method));
+        FunctionType type = optType.orElseGet(() -> new FunctionType(getValueType(method), getParamTypes(method)));
+
+        try {
+            return reflectWithHandle(method, name, type);
+        }
+        catch (IllegalAccessException e) {
+            return reflectWithoutHandle(method, name, type);
+        }
+    }
+
+    public static Executable reflect(
+            Method method,
+            String name,
+            FunctionType type)
+    {
+        return reflect(method, Optional.of(name), Optional.of(type));
     }
 
     public static Executable reflect(Method method, String name)
     {
-        try {
-            return reflectWithHandle(method, name);
-        }
-        catch (IllegalAccessException e) {
-            return reflectWithoutHandle(method, name);
-        }
+        return reflect(method, Optional.of(name), Optional.empty());
     }
 
     public static Executable reflect(Method method)
     {
-        return reflect(method, "$reflected$" + reflectedCount.getAndIncrement() + "$" + method.getName());
+        return reflect(method, Optional.empty(), Optional.empty());
     }
 
     public static Executable reflect(Supplier<?> supplier)
