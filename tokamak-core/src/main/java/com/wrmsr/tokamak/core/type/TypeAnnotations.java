@@ -21,6 +21,8 @@ import com.wrmsr.tokamak.core.util.annotation.AnnotationCollection;
 import java.util.Optional;
 import java.util.function.Function;
 
+import static com.google.common.base.Preconditions.checkState;
+
 public final class TypeAnnotations
 {
     private TypeAnnotations()
@@ -29,7 +31,14 @@ public final class TypeAnnotations
 
     public static Type strip(Type type)
     {
-        throw new IllegalStateException();
+        if (type instanceof AnnotatedType) {
+            Type stripped = ((AnnotatedType) type).getItem();
+            checkState(!(stripped instanceof AnnotatedType));
+            return stripped;
+        }
+        else {
+            return type;
+        }
     }
 
     public static AnnotationCollection<TypeAnnotation> from(Type type)
@@ -55,7 +64,7 @@ public final class TypeAnnotations
 
     public static Type set(Type type, Iterable<TypeAnnotation> anns)
     {
-        return AnnotatedType.of(anns, type);
+        return AnnotatedType.of(anns, strip(type));
     }
 
     public static Type map(Type type, Function<AnnotationCollection<TypeAnnotation>, AnnotationCollection<TypeAnnotation>> fn)

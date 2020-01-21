@@ -91,7 +91,7 @@ public final class AnnotatedType
             type = annotatedType.item;
         }
         Map<Class<? extends TypeAnnotation>, TypeAnnotation> map = builder.build();
-        if (map.isEmpty()) {
+        if (!map.isEmpty()) {
             return new AnnotatedType(map.values(), type);
         }
         else {

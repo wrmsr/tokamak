@@ -86,24 +86,24 @@ public final class Types
                 .add(SizedType.REGISTRATION);
     }
 
-    public static AnnotatedType Ephemeral(Type item)
+    public static Type Ephemeral(Type item)
     {
-        return Annotated(EphemeralType.INSTANCE, item);
+        return TypeAnnotations.map(item, anns -> anns.appended(EphemeralType.INSTANCE));
     }
 
-    public static AnnotatedType Internal(Type item)
+    public static Type Internal(Type item)
     {
-        return Annotated(InternalType.INSTANCE, item);
+        return TypeAnnotations.map(item, anns -> anns.appended(InternalType.INSTANCE));
     }
 
-    public static AnnotatedType NotNull(Type item)
+    public static Type NotNull(Type item)
     {
-        return Annotated(NotNullType.INSTANCE, item);
+        return TypeAnnotations.map(item, anns -> anns.appended(NotNullType.INSTANCE));
     }
 
-    public static AnnotatedType Sized(long size, Type item)
+    public static Type Sized(long size, Type item)
     {
-        return Annotated(new SizedType(size), item);
+        return TypeAnnotations.map(item, anns -> anns.appended(new SizedType(size)));
     }
 
     static {
