@@ -117,7 +117,7 @@ public final class MorePreconditions
     public static <T> Iterable<T> checkNotEmpty(Iterable<T> iterable)
     {
         checkNotNull(iterable);
-        checkState(!iterable.iterator().hasNext());
+        checkState(iterable.iterator().hasNext());
         return iterable;
     }
 

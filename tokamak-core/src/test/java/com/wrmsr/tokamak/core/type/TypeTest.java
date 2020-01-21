@@ -51,6 +51,7 @@ public class TypeTest
         Type type;
 
         type = Types.NotNull(Types.Long());
+        System.out.println(type.toSpec());
         // type.desigil();
 
         type = Types.NotNull(Types.NotNull((Types.Long())));
