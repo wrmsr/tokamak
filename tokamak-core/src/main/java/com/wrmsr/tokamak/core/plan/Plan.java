@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -43,6 +44,7 @@ import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static com.wrmsr.tokamak.util.MoreCollections.buildListIndexMap;
+import static com.wrmsr.tokamak.util.MoreCollections.newImmutableSetMap;
 import static com.wrmsr.tokamak.util.MoreCollections.reversedImmutableListOf;
 import static com.wrmsr.tokamak.util.MoreCollections.sorted;
 import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
@@ -56,7 +58,7 @@ public final class Plan
 
     private final Set<PNode> nodes;
     private final Map<String, PNode> nodesByName;
-    private final Map<PNodeId, PNode> nodesByNodeId;
+    private final Map<PNodeId, PNode> nodesById;
 
     @JsonCreator
     private Plan(
@@ -85,7 +87,7 @@ public final class Plan
 
         this.nodes = ImmutableSet.copyOf(nodes);
         this.nodesByName = ImmutableMap.copyOf(nodesByName);
-        this.nodesByNodeId = ImmutableMap.copyOf(nodesById);
+        this.nodesById = ImmutableMap.copyOf(nodesById);
 
         PlanValidation.validatePlan(this);
     }
@@ -118,7 +120,7 @@ public final class Plan
 
     public Map<PNodeId, PNode> getNodesById()
     {
-        return nodesByNodeId;
+        return nodesById;
     }
 
     public PNode getNode(String name)
@@ -128,7 +130,7 @@ public final class Plan
 
     public PNode getNode(PNodeId id)
     {
-        return checkNotNull(nodesByNodeId.get(id));
+        return checkNotNull(nodesById.get(id));
     }
 
     private final SupplierLazyValue<List<PNode>> nameSortedNodes = new SupplierLazyValue<>();
@@ -263,5 +265,16 @@ public final class Plan
     public NameGenerator getFieldNameGenerator()
     {
         return fieldNameGenerator.get(() -> new NameGenerator(getFieldNames(), NAME_GENERATOR_PREFIX));
+    }
+
+    private final SupplierLazyValue<Map<PNode, Set<PNode>>> sinkSetsBySource = new SupplierLazyValue<>();
+
+    public Map<PNode, Set<PNode>> getSinkSetsBySource()
+    {
+        return sinkSetsBySource.get(() -> {
+            Map<PNode, Set<PNode>> nodeSinkSetsBySource = nodes.stream().collect(toImmutableMap(identity(), n -> new LinkedHashSet<>()));
+            nodes.forEach(sink -> sink.getSources().forEach(source -> nodeSinkSetsBySource.get(source).add(sink)));
+            return newImmutableSetMap(nodeSinkSetsBySource);
+        });
     }
 }

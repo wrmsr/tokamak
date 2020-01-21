@@ -60,6 +60,7 @@ import com.wrmsr.tokamak.core.plan.node.PScan;
 import com.wrmsr.tokamak.core.plan.node.PState;
 import com.wrmsr.tokamak.core.plan.node.PValue;
 import com.wrmsr.tokamak.core.plan.transform.MergeScansTransform;
+import com.wrmsr.tokamak.core.plan.transform.PersistScansTransform;
 import com.wrmsr.tokamak.core.plan.transform.PropagateIdsTransform;
 import com.wrmsr.tokamak.core.plan.transform.SetInvalidationsTransform;
 import com.wrmsr.tokamak.core.tree.TreeParsing;
@@ -408,9 +409,13 @@ public class CoreTest
                         PState.Denormalization.NONE,
                         PInvalidations.empty()));
 
+        plan = MergeScansTransform.mergeScans(plan);
+        plan = PersistScansTransform.persistScans(plan);
+        Dot.openDot(Dot.buildPlanDot(plan));
+
         plan = PropagateIdsTransform.propagateIds(plan, Optional.of(catalog));
         plan = SetInvalidationsTransform.setInvalidations(plan, Optional.of(catalog));
-        plan = MergeScansTransform.mergeScans(plan);
+        Dot.openDot(Dot.buildPlanDot(plan));
 
         Driver driver = new DriverImpl(catalog, plan);
 
@@ -420,7 +425,8 @@ public class CoreTest
                 plan.getRoot(),
                 Key.of("N_REGIONKEY", 1));
 
-        System.out.println(buildRows);
+        buildRows.forEach(System.out::println);
+        System.out.println();
 
         ctx.commit();
 
