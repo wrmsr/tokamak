@@ -77,8 +77,8 @@ public final class TypeRegistry
     {
         TypeParsing.ParsedType parsedType = TypeParsing.parseType(str);
         Type type = (Type) fromParsed(parsedType);
-        NormalizedType normalizedType = new NormalizedType(type);
-        return (Type) denormalize(normalizedType);
+        DesigiledType desigiledType = new DesigiledType(type);
+        return (Type) resigil(desigiledType);
     }
 
     private Object fromParsed(Object item)
@@ -95,25 +95,25 @@ public final class TypeRegistry
         }
     }
 
-    public Object denormalize(Object item)
+    public Object resigil(Object item)
     {
-        if (item instanceof NormalizedType) {
-            NormalizedType normalizedType = (NormalizedType) item;
-            TypeRegistration registration = registrationsByBaseName.get(normalizedType.getItem().getBaseName());
+        if (item instanceof DesigiledType) {
+            DesigiledType desigiledType = (DesigiledType) item;
+            TypeRegistration registration = registrationsByBaseName.get(desigiledType.getItem().getBaseName());
             Type type = registration.construct(
-                    immutableMapItems(normalizedType.getArgs(), this::denormalize),
-                    immutableMapValues(normalizedType.getKwargs(), this::denormalize));
+                    immutableMapItems(desigiledType.getArgs(), this::resigil),
+                    immutableMapValues(desigiledType.getKwargs(), this::resigil));
 
-            List<Type.Sigil> sigils = newArrayList(normalizedType.getSigilsByName().values());
+            List<Type.Sigil> sigils = newArrayList(desigiledType.getByName().values());
             sigils.sort(Comparator.comparing(Type::getBaseName, Ordering.natural()).reversed());
             for (Type.Sigil sigil : sigils) {
                 TypeRegistration sigilRegistration = registrationsByBaseName.get(sigil.getBaseName());
                 type = sigilRegistration.construct(
                         ImmutableList.builder()
                                 .add(type)
-                                .addAll(immutableMapItems(sigil.getArgs().subList(1, sigil.getArgs().size()), this::denormalize))
+                                .addAll(immutableMapItems(sigil.getArgs().subList(1, sigil.getArgs().size()), this::resigil))
                                 .build(),
-                        immutableMapValues(sigil.getKwargs(), this::denormalize));
+                        immutableMapValues(sigil.getKwargs(), this::resigil));
             }
 
             return type;

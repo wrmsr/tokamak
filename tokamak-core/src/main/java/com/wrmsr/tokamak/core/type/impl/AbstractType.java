@@ -15,7 +15,7 @@ package com.wrmsr.tokamak.core.type.impl;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.wrmsr.tokamak.core.type.NormalizedType;
+import com.wrmsr.tokamak.core.type.DesigiledType;
 import com.wrmsr.tokamak.core.type.Type;
 import com.wrmsr.tokamak.core.type.TypeRendering;
 import com.wrmsr.tokamak.core.type.Types;
@@ -125,11 +125,11 @@ public abstract class AbstractType
         return TypeRendering.buildSpec(baseName, args, kwargs);
     }
 
-    private final SupplierLazyValue<NormalizedType> normalized = new SupplierLazyValue<>();
+    private final SupplierLazyValue<DesigiledType> desigiled = new SupplierLazyValue<>();
 
     @Override
-    public NormalizedType getNormalized()
+    public DesigiledType desigil()
     {
-        return normalized.get(() -> new NormalizedType(this));
+        return desigiled.get(() -> new DesigiledType(this));
     }
 }

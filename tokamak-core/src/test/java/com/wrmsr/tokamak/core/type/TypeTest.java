@@ -14,6 +14,7 @@
 package com.wrmsr.tokamak.core.type;
 
 import com.wrmsr.tokamak.core.type.impl.ListType;
+import com.wrmsr.tokamak.core.type.impl.sigil.NotNullType;
 import com.wrmsr.tokamak.util.json.Json;
 import junit.framework.TestCase;
 
@@ -43,6 +44,18 @@ public class TypeTest
         type = Types.BUILTIN_REGISTRY.fromSpec("Struct<x=NotNull<Long>, y=Internal<Long>>");
         System.out.println(type);
         System.out.println(type.toSpec());
+    }
+
+    public void testSigils()
+        throws Throwable
+    {
+        Type type;
+
+        type = new NotNullType(Types.LONG);
+        type.desigil();
+
+        type = new NotNullType(new NotNullType(Types.LONG));
+        type.desigil();
     }
 
     public void testJson()

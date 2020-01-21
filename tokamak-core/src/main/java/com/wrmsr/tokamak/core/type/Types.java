@@ -20,19 +20,19 @@ import com.wrmsr.tokamak.core.type.impl.BiMapType;
 import com.wrmsr.tokamak.core.type.impl.EnumSetType;
 import com.wrmsr.tokamak.core.type.impl.EnumType;
 import com.wrmsr.tokamak.core.type.impl.FunctionType;
-import com.wrmsr.tokamak.core.type.impl.InternalType;
 import com.wrmsr.tokamak.core.type.impl.ListType;
 import com.wrmsr.tokamak.core.type.impl.MapType;
-import com.wrmsr.tokamak.core.type.impl.NotNullType;
 import com.wrmsr.tokamak.core.type.impl.PrimitiveType;
 import com.wrmsr.tokamak.core.type.impl.SetType;
 import com.wrmsr.tokamak.core.type.impl.SimpleType;
-import com.wrmsr.tokamak.core.type.impl.SizedType;
 import com.wrmsr.tokamak.core.type.impl.SpecialType;
 import com.wrmsr.tokamak.core.type.impl.StructType;
 import com.wrmsr.tokamak.core.type.impl.StructuralType;
 import com.wrmsr.tokamak.core.type.impl.TupleType;
 import com.wrmsr.tokamak.core.type.impl.UnionType;
+import com.wrmsr.tokamak.core.type.impl.sigil.InternalType;
+import com.wrmsr.tokamak.core.type.impl.sigil.NotNullType;
+import com.wrmsr.tokamak.core.type.impl.sigil.SizedType;
 import com.wrmsr.tokamak.util.Pair;
 
 import java.math.BigDecimal;
@@ -135,16 +135,17 @@ public final class Types
             .add(EnumSetType.REGISTRATION)
             .add(EnumType.REGISTRATION)
             .add(FunctionType.REGISTRATION)
-            .add(InternalType.REGISTRATION)
             .add(ListType.REGISTRATION)
             .add(MapType.REGISTRATION)
-            .add(NotNullType.REGISTRATION)
             .add(SetType.REGISTRATION)
-            .add(SizedType.REGISTRATION)
             .add(StructType.REGISTRATION)
             .add(StructuralType.REGISTRATION)
             .add(TupleType.REGISTRATION)
             .add(UnionType.REGISTRATION)
+
+            .add(InternalType.REGISTRATION)
+            .add(NotNullType.REGISTRATION)
+            .add(SizedType.REGISTRATION)
 
             .build();
 

@@ -39,7 +39,7 @@ public interface Type
     @JsonValue
     String toSpec();
 
-    NormalizedType getNormalized();
+    DesigiledType desigil();
 
     interface Sigil
             extends Type

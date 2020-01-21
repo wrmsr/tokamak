@@ -18,6 +18,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.wrmsr.tokamak.core.util.DerivableClassUniqueCollection;
 import com.wrmsr.tokamak.util.collect.AbstractUnmodifiableMap;
 import com.wrmsr.tokamak.util.lazy.SupplierLazyValue;
 
@@ -36,6 +37,7 @@ import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 @Immutable
 public final class AnnotationCollectionMap<K, T extends Annotation>
         extends AbstractUnmodifiableMap<K, AnnotationCollection<T>>
+        implements DerivableClassUniqueCollection<T, AnnotationCollectionMap<K, T>>
 {
     protected final Map<K, AnnotationCollection<T>> map;
 
@@ -144,18 +146,21 @@ public final class AnnotationCollectionMap<K, T extends Annotation>
         return new AnnotationCollectionMap<>(immutableMapValues(map, c -> c.filtered(predicate)));
     }
 
+    @Override
     @SafeVarargs
     public final AnnotationCollectionMap<K, T> appended(T... annotations)
     {
         return new AnnotationCollectionMap<>(immutableMapValues(map, e -> e.appended(annotations)));
     }
 
+    @Override
     @SafeVarargs
     public final AnnotationCollectionMap<K, T> dropped(Class<? extends T>... annotationClss)
     {
         return new AnnotationCollectionMap<>(immutableMapValues(map, e -> e.dropped(annotationClss)));
     }
 
+    @Override
     @SafeVarargs
     public final AnnotationCollectionMap<K, T> updated(T... annotations)
     {

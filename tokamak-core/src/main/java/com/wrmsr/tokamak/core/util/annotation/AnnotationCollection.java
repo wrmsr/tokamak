@@ -17,6 +17,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
+import com.wrmsr.tokamak.core.util.DerivableClassUniqueCollection;
 import com.wrmsr.tokamak.util.collect.StreamableIterable;
 
 import javax.annotation.concurrent.Immutable;
@@ -35,7 +36,7 @@ import static java.util.function.Function.identity;
 
 @Immutable
 public final class AnnotationCollection<T extends Annotation>
-        implements StreamableIterable<T>
+        implements DerivableClassUniqueCollection<T, AnnotationCollection<T>>, StreamableIterable<T>
 {
     private final List<T> list;
 
@@ -136,12 +137,14 @@ public final class AnnotationCollection<T extends Annotation>
         return new AnnotationCollection<>(stream().filter(predicate).collect(toImmutableList()));
     }
 
+    @Override
     @SafeVarargs
     public final AnnotationCollection<T> appended(T... annotations)
     {
         return new AnnotationCollection<>(Iterables.concat(this.list, Arrays.asList(annotations)));
     }
 
+    @Override
     @SafeVarargs
     public final AnnotationCollection<T> dropped(Class<? extends T>... annotationClss)
     {
@@ -149,6 +152,7 @@ public final class AnnotationCollection<T extends Annotation>
                 Iterables.filter(list, a -> Arrays.stream(annotationClss).noneMatch(ac -> ac.isInstance(a))));
     }
 
+    @Override
     @SafeVarargs
     public final AnnotationCollection<T> updated(T... annotations)
     {
@@ -156,11 +160,5 @@ public final class AnnotationCollection<T extends Annotation>
                 Iterables.concat(
                         Iterables.filter(this.list, a -> Arrays.stream(annotations).anyMatch(ac -> ac.getClass().isInstance(a))),
                         Arrays.asList(annotations)));
-    }
-
-    @SafeVarargs
-    public final AnnotationCollection<T> merged(Iterable<T>... annotationCollections)
-    {
-        return merge(ImmutableList.<Iterable<T>>builder().add(this).add(annotationCollections).build());
     }
 }
