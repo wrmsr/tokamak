@@ -19,6 +19,7 @@ import com.wrmsr.tokamak.core.type.hier.special.AnnotatedType;
 import com.wrmsr.tokamak.core.util.annotation.AnnotationCollection;
 
 import java.util.Optional;
+import java.util.function.Function;
 
 public final class TypeAnnotations
 {
@@ -26,7 +27,7 @@ public final class TypeAnnotations
     {
     }
 
-    public static Type item(Type type)
+    public static Type strip(Type type)
     {
         throw new IllegalStateException();
     }
@@ -50,5 +51,22 @@ public final class TypeAnnotations
     public static <T extends TypeAnnotation> boolean has(Type type, Class<T> cls)
     {
         return get(type, cls).isPresent();
+    }
+
+    public static Type set(Type type, Iterable<TypeAnnotation> anns)
+    {
+        Type stripped = strip(type);
+        AnnotationCollection<TypeAnnotation> annColl = AnnotationCollection.copyOf(anns);
+        if (annColl.isEmpty()) {
+            return stripped;
+        }
+        else {
+            return new AnnotatedType(annColl, stripped);
+        }
+    }
+
+    public static Type map(Type type, Function<AnnotationCollection<TypeAnnotation>, AnnotationCollection<TypeAnnotation>> fn)
+    {
+        return set(type, fn.apply(from(type)));
     }
 }

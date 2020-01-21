@@ -27,7 +27,6 @@ import java.util.Map;
 import java.util.Objects;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.collect.Lists.newArrayList;
 import static com.wrmsr.tokamak.util.MoreCollections.immutableMapItems;
 import static com.wrmsr.tokamak.util.MoreCollections.immutableMapValues;
 
@@ -79,8 +78,9 @@ public final class TypeRegistry
     {
         TypeParsing.ParsedType parsedType = TypeParsing.parseType(str);
         Type type = (Type) fromParsed(parsedType);
-        DesigiledType desigiledType = new DesigiledType(type);
-        return (Type) resigil(desigiledType);
+        // DesigiledType desigiledType = new DesigiledType(type);
+        // return (Type) resigil(desigiledType);
+        return type;
     }
 
     private Object fromParsed(Object item)
@@ -97,6 +97,7 @@ public final class TypeRegistry
         }
     }
 
+    /*
     public Object resigil(Object item)
     {
         if (item instanceof DesigiledType) {
@@ -129,11 +130,15 @@ public final class TypeRegistry
             return item;
         }
     }
+    */
 
     @SuppressWarnings({"rawtypes", "unchecked"})
     public Type fromReflect(java.lang.reflect.Type reflect)
     {
-        return registrationsByReflect.get(Primitives.wrap((Class) reflect)).getConstructor().construct(ImmutableList.of(), ImmutableMap.of());
+        return (Type) registrationsByReflect
+                .get(Primitives.wrap((Class) reflect))
+                .getConstructor()
+                .construct(ImmutableList.of(), ImmutableMap.of());
     }
 
     public boolean areEquivalent(Type l, Type r)

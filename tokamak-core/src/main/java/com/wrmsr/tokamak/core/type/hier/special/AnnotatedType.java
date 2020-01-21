@@ -53,6 +53,7 @@ public final class AnnotatedType
     {
         this.annotations = AnnotationCollection.copyOf(sorted(annotations, Comparator.comparing(TypeAnnotation::getName)));
         this.item = checkNotNull(item);
+        checkNotEmpty(this.annotations);
         checkState(!(item instanceof AnnotatedType));
     }
 

@@ -246,8 +246,8 @@ public final class PropagateIdsTransform
                         visitNodeName(node.getName(), context),
                         node.getAnnotations(),
                         node.getFieldAnnotations().dropped(IdField.class)
-                                .merged(immutableMapOfSame(idFields, AnnotationCollection.of(FieldAnnotation.id())))
-                                .merged(immutableMapOfSame(internalFields, AnnotationCollection.of(FieldAnnotation.internal()))),
+                                .merged(immutableMapOfSame(idFields, AnnotationCollection.of(FieldAnnotation.id()))),
+                        // .merged(immutableMapOfSame(internalFields, AnnotationCollection.of(FieldAnnotation.internal()))),
                         source,
                         new PProjection(newInputsByOutput));
             }
@@ -278,8 +278,8 @@ public final class PropagateIdsTransform
                         visitNodeName(node.getName(), context),
                         node.getAnnotations(),
                         node.getFieldAnnotations().dropped(IdField.class)
-                                .merged(immutableMapOfSame(table.getLayout().getPrimaryKeyFields(), AnnotationCollection.of(FieldAnnotation.id())))
-                                .merged(immutableMapOfSame(newScanInternalFields, AnnotationCollection.of(FieldAnnotation.internal()))),
+                                .merged(immutableMapOfSame(table.getLayout().getPrimaryKeyFields(), AnnotationCollection.of(FieldAnnotation.id()))),
+                        // .merged(immutableMapOfSame(newScanInternalFields, AnnotationCollection.of(FieldAnnotation.internal()))),
                         node.getSchemaTable(),
                         newScanFields,
                         PInvalidations.empty());
@@ -382,8 +382,8 @@ public final class PropagateIdsTransform
                 String indexField;
                 if (!node.getIndexField().isPresent()) {
                     indexField = plan.getFieldNameGenerator().get("index");
-                    fieldAnnotations = fieldAnnotations.merged(
-                            ImmutableMap.of(indexField, AnnotationCollection.of(FieldAnnotation.internal())));
+                    // fieldAnnotations = fieldAnnotations.merged(
+                    //         ImmutableMap.of(indexField, AnnotationCollection.of(FieldAnnotation.internal())));
                 }
                 else {
                     indexField = node.getIndexField().get();
@@ -423,8 +423,8 @@ public final class PropagateIdsTransform
                 String indexField;
                 if (!node.getIndexField().isPresent()) {
                     indexField = plan.getFieldNameGenerator().get("index");
-                    fieldAnnotations = fieldAnnotations.merged(
-                            ImmutableMap.of(indexField, AnnotationCollection.of(FieldAnnotation.internal())));
+                    // fieldAnnotations = fieldAnnotations.merged(
+                    //         ImmutableMap.of(indexField, AnnotationCollection.of(FieldAnnotation.internal())));
                 }
                 else {
                     indexField = node.getIndexField().get();
@@ -451,8 +451,8 @@ public final class PropagateIdsTransform
                 String indexField;
                 if (!node.getIndexField().isPresent()) {
                     indexField = plan.getFieldNameGenerator().get("index");
-                    fieldAnnotations = fieldAnnotations.merged(
-                            ImmutableMap.of(indexField, AnnotationCollection.of(FieldAnnotation.internal())));
+                    // fieldAnnotations = fieldAnnotations.merged(
+                    //         ImmutableMap.of(indexField, AnnotationCollection.of(FieldAnnotation.internal())));
                 }
                 else {
                     indexField = node.getIndexField().get();
