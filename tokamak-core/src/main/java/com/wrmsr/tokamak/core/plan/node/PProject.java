@@ -62,19 +62,8 @@ public final class PProject
 
         FieldCollection.Builder fields = FieldCollection.builder();
         projection.getInputsByOutput().forEach((field, input) -> {
-            AnnotationCollection<FieldAnnotation> fldAnns = AnnotationCollection.of();
-
-            if (input instanceof PValue.Field) {
-                String srcField = ((PValue.Field) input).getField();
-                AnnotationCollection<FieldAnnotation> srcFldAnns = source.getFields().getTransitiveAnnotations().getOrEmpty(srcField);
-                fldAnns = fldAnns.merged(srcFldAnns);
-            }
-
-            fldAnns = fldAnns.merged(fieldAnnotations.getOrEmpty(field));
-
-            fields.add(new Field(field, getValueType(input), fldAnns));
+            fields.add(new Field(field, getValueType(input), fieldAnnotations.getOrEmpty(field)));
         });
-
         this.fields = fields.build();
 
         checkInvariants();

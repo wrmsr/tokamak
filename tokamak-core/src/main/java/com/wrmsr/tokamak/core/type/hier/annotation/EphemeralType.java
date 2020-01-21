@@ -24,7 +24,7 @@ public final class EphemeralType
         implements TypeAnnotation
 {
     public static final String NAME = "Ephemeral";
-    public static final InternalType INSTANCE = new InternalType();
+    public static final EphemeralType INSTANCE = new EphemeralType();
     public static final TypeRegistration REGISTRATION = new TypeRegistration(NAME, EphemeralType.class, TypeConstructor.of(INSTANCE));
 
     public EphemeralType()

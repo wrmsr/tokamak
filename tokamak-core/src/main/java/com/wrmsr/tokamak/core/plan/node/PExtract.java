@@ -71,9 +71,7 @@ public final class PExtract
                         .putAll(source.getFields().getTypesByName())
                         .put(outputField, structMemberType)
                         .build(),
-                AnnotationCollectionMap.mergeOf(
-                        source.getFields().getTransitiveAnnotations(),
-                        fieldAnnotations));
+                fieldAnnotations);
 
         checkInvariants();
     }

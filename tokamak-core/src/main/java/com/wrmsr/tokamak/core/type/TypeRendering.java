@@ -14,8 +14,13 @@
 package com.wrmsr.tokamak.core.type;
 
 import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Streams;
-import com.wrmsr.tokamak.core.type.hier.Type;
+import com.wrmsr.tokamak.core.type.hier.TypeAnnotation;
+import com.wrmsr.tokamak.core.type.hier.TypeLike;
+import com.wrmsr.tokamak.core.type.hier.special.AnnotatedType;
+import com.wrmsr.tokamak.util.box.Box;
+import com.wrmsr.tokamak.util.func.RecursiveFunction;
 
 import java.util.List;
 import java.util.Map;
@@ -29,6 +34,62 @@ public final class TypeRendering
     {
     }
 
+    private static final class Literal
+            extends Box<String>
+    {
+        public Literal(String value)
+        {
+            super(value);
+        }
+    }
+
+    public static String buildSpec(Object object)
+    {
+        if (object instanceof AnnotatedType) {
+            return buildSpec((AnnotatedType) object);
+        }
+        else if (object instanceof TypeLike) {
+            return buildSpec((TypeLike) object);
+        }
+        else if (object instanceof Long) {
+            return Long.toString((Long) object);
+        }
+        else if (object instanceof Literal) {
+            return ((Literal) object).getValue();
+        }
+        else {
+            throw new IllegalStateException(Objects.toString(object));
+        }
+    }
+
+    public static String buildSpec(AnnotatedType annotatedType)
+    {
+        List<TypeAnnotation> annotations = annotatedType.getAnnotations().getList();
+        return RecursiveFunction.applyRecursive((rec, pos) -> {
+            if (pos < annotations.size()) {
+                TypeAnnotation ann = annotations.get(pos);
+                return buildSpec(
+                        ann.getName(),
+                        ImmutableList.builder()
+                                .add(new Literal(rec.apply(pos + 1)))
+                                .addAll(ann.getArgs())
+                                .build(),
+                        ann.getKwargs());
+            }
+            else {
+                return buildSpec(annotatedType.getItem());
+            }
+        }, 0);
+    }
+
+    public static String buildSpec(TypeLike type)
+    {
+        return buildSpec(
+                type.getName(),
+                type.getArgs(),
+                type.getKwargs());
+    }
+
     public static String buildSpec(
             String name,
             List<Object> args,
@@ -39,23 +100,10 @@ public final class TypeRendering
         }
 
         List<String> parts = Streams.concat(
-                args.stream().map(TypeRendering::buildArgSpec),
-                kwargs.entrySet().stream().map(e -> e.getKey() + "=" + buildArgSpec(e.getValue()))
+                args.stream().map(TypeRendering::buildSpec),
+                kwargs.entrySet().stream().map(e -> e.getKey() + "=" + buildSpec(e.getValue()))
         ).collect(toImmutableList());
 
         return name + '<' + Joiner.on(", ").join(parts) + '>';
-    }
-
-    private static String buildArgSpec(Object v)
-    {
-        if (v instanceof Type) {
-            return ((Type) v).toSpec();
-        }
-        else if (v instanceof Long) {
-            return Long.toString((Long) v);
-        }
-        else {
-            throw new IllegalStateException(Objects.toString(v));
-        }
     }
 }

@@ -16,6 +16,7 @@ package com.wrmsr.tokamak.core.type;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.core.type.hier.Type;
+import com.wrmsr.tokamak.core.type.hier.TypeAnnotation;
 import com.wrmsr.tokamak.core.type.hier.TypeLike;
 import com.wrmsr.tokamak.core.type.hier.annotation.EphemeralType;
 import com.wrmsr.tokamak.core.type.hier.annotation.InternalType;
@@ -83,47 +84,216 @@ public final class Types
     {
     }
 
-    public static final List<TypeRegistration> BUILTIN_REGISTRATIONS = ImmutableList.<TypeRegistration>builder()
+    private static final ImmutableList.Builder<TypeRegistration> TYPE_REGISTRATION_BUILDER = ImmutableList.builder();
 
-            .add(EphemeralType.REGISTRATION)
-            .add(InternalType.REGISTRATION)
-            .add(NotNullType.REGISTRATION)
-            .add(SizedType.REGISTRATION)
+    static {
+        TYPE_REGISTRATION_BUILDER
+                .add(EphemeralType.REGISTRATION)
+                .add(InternalType.REGISTRATION)
+                .add(NotNullType.REGISTRATION)
+                .add(SizedType.REGISTRATION);
+    }
 
-            .add(EnumSetType.REGISTRATION)
-            .add(ListType.REGISTRATION)
-            .add(SetType.REGISTRATION)
+    public static AnnotatedType Ephemeral(Type item)
+    {
+        return Annotated(EphemeralType.INSTANCE, item);
+    }
 
-            .add(BiMapType.REGISTRATION)
-            .add(MapType.REGISTRATION)
+    public static AnnotatedType Internal(Type item)
+    {
+        return Annotated(InternalType.INSTANCE, item);
+    }
 
-            .add(BooleanType.REGISTRATION)
-            .add(DoubleType.REGISTRATION)
-            .add(LongType.REGISTRATION)
+    public static AnnotatedType NotNull(Type item)
+    {
+        return Annotated(NotNullType.INSTANCE, item);
+    }
 
-            .add(DurationType.REGISTRATION)
-            .add(LocalDateTimeType.REGISTRATION)
-            .add(LocalDateType.REGISTRATION)
-            .add(LocalTimeType.REGISTRATION)
-            .add(ZonedDateTimeType.REGISTRATION)
+    public static AnnotatedType Sized(long size, Type item)
+    {
+        return Annotated(new SizedType(size), item);
+    }
 
-            .add(BigDecimalType.REGISTRATION)
-            .add(BigIntegerType.REGISTRATION)
-            .add(BytesType.REGISTRATION)
-            .add(ObjectType.REGISTRATION)
-            .add(StringType.REGISTRATION)
-            .add(VoidType.REGISTRATION)
+    static {
+        TYPE_REGISTRATION_BUILDER
+                .add(EnumSetType.REGISTRATION)
+                .add(ListType.REGISTRATION)
+                .add(SetType.REGISTRATION);
+    }
 
-            .add(StructType.REGISTRATION)
-            .add(StructuralType.REGISTRATION)
+    public static EnumSetType EnumSet(EnumType item)
+    {
+        return new EnumSetType(item);
+    }
 
-            .add(AnnotatedType.REGISTRATION)
-            .add(EnumType.REGISTRATION)
-            .add(FunctionType.REGISTRATION)
-            .add(TupleType.REGISTRATION)
-            .add(UnionType.REGISTRATION)
+    public static ListType List(Type item)
+    {
+        return new ListType(item);
+    }
 
-            .build();
+    public static SetType Set(Type item)
+    {
+        return new SetType(item);
+    }
+
+    static {
+        TYPE_REGISTRATION_BUILDER
+                .add(BiMapType.REGISTRATION)
+                .add(MapType.REGISTRATION);
+    }
+
+    public static BiMapType BiMap(Type key, Type value)
+    {
+        return new BiMapType(key, value);
+    }
+
+    public static MapType Map(Type key, Type value)
+    {
+        return new MapType(key, value);
+    }
+
+    static {
+        TYPE_REGISTRATION_BUILDER
+                .add(BooleanType.REGISTRATION)
+                .add(DoubleType.REGISTRATION)
+                .add(LongType.REGISTRATION);
+    }
+
+    public static BooleanType Boolean()
+    {
+        return BooleanType.INSTANCE;
+    }
+
+    public static DoubleType Double()
+    {
+        return DoubleType.INSTANCE;
+    }
+
+    public static LongType Long()
+    {
+        return LongType.INSTANCE;
+    }
+
+    static {
+        TYPE_REGISTRATION_BUILDER
+                .add(DurationType.REGISTRATION)
+                .add(LocalDateTimeType.REGISTRATION)
+                .add(LocalDateType.REGISTRATION)
+                .add(LocalTimeType.REGISTRATION)
+                .add(ZonedDateTimeType.REGISTRATION);
+    }
+
+    public static DurationType Duration()
+    {
+        return DurationType.INSTANCE;
+    }
+
+    public static LocalDateTimeType LocalDateTime()
+    {
+        return LocalDateTimeType.INSTANCE;
+    }
+
+    public static LocalDateType LocalDate()
+    {
+        return LocalDateType.INSTANCE;
+    }
+
+    public static LocalTimeType LocalTime()
+    {
+        return LocalTimeType.INSTANCE;
+    }
+
+    public static ZonedDateTimeType ZonedDateTime()
+    {
+        return ZonedDateTimeType.INSTANCE;
+    }
+
+    static {
+        TYPE_REGISTRATION_BUILDER
+                .add(BigDecimalType.REGISTRATION)
+                .add(BigIntegerType.REGISTRATION)
+                .add(BytesType.REGISTRATION)
+                .add(ObjectType.REGISTRATION)
+                .add(StringType.REGISTRATION)
+                .add(VoidType.REGISTRATION);
+    }
+
+    public static BigDecimalType BigDecimal()
+    {
+        return BigDecimalType.INSTANCE;
+    }
+
+    public static BigIntegerType BigInteger()
+    {
+        return BigIntegerType.INSTANCE;
+    }
+
+    public static BytesType Bytes()
+    {
+        return BytesType.INSTANCE;
+    }
+
+    public static ObjectType Object()
+    {
+        return ObjectType.INSTANCE;
+    }
+
+    public static StringType String()
+    {
+        return StringType.INSTANCE;
+    }
+
+    public static VoidType Void()
+    {
+        return VoidType.INSTANCE;
+    }
+
+    static {
+        TYPE_REGISTRATION_BUILDER
+                .add(StructType.REGISTRATION)
+                .add(StructuralType.REGISTRATION);
+    }
+
+    public static StructType Struct(Map<String, Type> members)
+    {
+        return new StructType(members);
+    }
+
+    public static StructuralType Structural(Map<String, Type> members)
+    {
+        return new StructuralType(members);
+    }
+
+    static {
+        TYPE_REGISTRATION_BUILDER
+                .add(AnnotatedType.REGISTRATION)
+                .add(EnumType.REGISTRATION)
+                .add(FunctionType.REGISTRATION)
+                .add(TupleType.REGISTRATION)
+                .add(UnionType.REGISTRATION);
+    }
+
+    public static AnnotatedType Annotated(TypeAnnotation annotation0, Type item)
+    {
+        return Annotated(ImmutableList.of(annotation0), item);
+    }
+
+    public static AnnotatedType Annotated(TypeAnnotation annotation0, TypeAnnotation annotation1, Type item)
+    {
+        return Annotated(ImmutableList.of(annotation0, annotation1), item);
+    }
+
+    public static AnnotatedType Annotated(TypeAnnotation annotation0, TypeAnnotation annotation1, TypeAnnotation annotation2, Type item)
+    {
+        return Annotated(ImmutableList.of(annotation0, annotation1, annotation2), item);
+    }
+
+    public static AnnotatedType Annotated(Iterable<TypeAnnotation> annotations, Type item)
+    {
+        return new AnnotatedType(annotations, item);
+    }
+
+    public static final List<TypeRegistration> BUILTIN_REGISTRATIONS = TYPE_REGISTRATION_BUILDER.build();
 
     public static final TypeRegistry BUILTIN_REGISTRY = ((Supplier<TypeRegistry>) () -> {
         TypeRegistry registry = new TypeRegistry();

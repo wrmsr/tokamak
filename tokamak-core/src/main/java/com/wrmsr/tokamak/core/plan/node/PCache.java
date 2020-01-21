@@ -44,11 +44,7 @@ public final class PCache
 
         this.source = checkNotNull(source);
 
-        this.fields = FieldCollection.of(
-                source.getFields().getTypesByName(),
-                AnnotationCollectionMap.mergeOf(
-                        source.getFields().getTransitiveAnnotations(),
-                        fieldAnnotations));
+        this.fields = FieldCollection.of(source.getFields().getTypesByName(), fieldAnnotations);
 
         checkInvariants();
     }
