@@ -11,31 +11,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.core.type.impl;
+package com.wrmsr.tokamak.core.type.impl.ref;
 
 import com.wrmsr.tokamak.core.type.Type;
-import com.wrmsr.tokamak.core.type.TypeConstructor;
-import com.wrmsr.tokamak.core.type.TypeRegistration;
 
 import javax.annotation.concurrent.Immutable;
 
-import java.util.Set;
-
 @Immutable
-public final class SetType
-        extends ItemType
+public final class AliasType
+        extends ReferenceType
 {
-    public static final String NAME = "Set";
-    public static final TypeRegistration REGISTRATION = new TypeRegistration(NAME, SetType.class, Set.class, TypeConstructor.of(SetType::new));
-
-    public SetType(Type itemType)
+    public AliasType(String name)
     {
-        super(NAME, itemType);
+        super(name);
     }
 
-    @Override
-    public java.lang.reflect.Type toReflect()
+    public AliasType(String name, Type targetType)
     {
-        return Set.class;
+        super(name, targetType);
     }
 }

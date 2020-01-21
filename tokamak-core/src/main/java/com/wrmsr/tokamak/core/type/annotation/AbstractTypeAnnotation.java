@@ -13,10 +13,12 @@
  */
 package com.wrmsr.tokamak.core.type.annotation;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.core.type.AbstractTypeLike;
 import com.wrmsr.tokamak.core.type.TypeAnnotation;
+import com.wrmsr.tokamak.core.type.TypeRendering;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -28,15 +30,21 @@ public abstract class AbstractTypeAnnotation
         implements TypeAnnotation
 {
     public AbstractTypeAnnotation(
-            String name,
             List<Object> args,
             ImmutableMap<String, Object> kwargs)
     {
-        super(name, args, kwargs);
+        super(args, kwargs);
     }
 
-    public AbstractTypeAnnotation(String name)
+    public AbstractTypeAnnotation()
     {
-        this(name, ImmutableList.of(), ImmutableMap.of());
+        this(ImmutableList.of(), ImmutableMap.of());
+    }
+
+    @Override
+    @JsonValue
+    public final String toSpec()
+    {
+        return TypeRendering.buildSpec(getName(), args, kwargs);
     }
 }

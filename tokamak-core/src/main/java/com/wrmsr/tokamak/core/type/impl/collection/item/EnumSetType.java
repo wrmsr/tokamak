@@ -11,31 +11,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.core.type.impl;
+package com.wrmsr.tokamak.core.type.impl.collection.item;
 
 import com.wrmsr.tokamak.core.type.Type;
 import com.wrmsr.tokamak.core.type.TypeConstructor;
 import com.wrmsr.tokamak.core.type.TypeRegistration;
+import com.wrmsr.tokamak.core.type.impl.EnumType;
 
 import javax.annotation.concurrent.Immutable;
 
-import java.util.Map;
+import java.util.EnumSet;
 
 @Immutable
-public final class MapType
-        extends KeyValueType
+public final class EnumSetType
+        extends ItemType
 {
-    public static final String NAME = "Map";
-    public static final TypeRegistration REGISTRATION = new TypeRegistration(NAME, MapType.class, Map.class, TypeConstructor.of(MapType::new));
+    public static final String NAME = "EnumSet";
+    public static final TypeRegistration REGISTRATION = new TypeRegistration(NAME, EnumSetType.class, EnumSet.class, TypeConstructor.of(
+            (Type enumType) -> new EnumSetType((EnumType) enumType)));
 
-    public MapType(Type keyType, Type valueType)
+    public EnumSetType(EnumType enumType)
     {
-        super(NAME, keyType, valueType);
+        super(NAME, enumType);
+    }
+
+    public EnumType getEnum()
+    {
+        return (EnumType) super.getItem();
     }
 
     @Override
     public java.lang.reflect.Type toReflect()
     {
-        return Map.class;
+        return EnumSet.class;
     }
 }

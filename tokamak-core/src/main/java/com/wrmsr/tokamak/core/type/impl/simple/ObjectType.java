@@ -11,29 +11,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.core.type;
+package com.wrmsr.tokamak.core.type.impl.simple;
 
-import com.fasterxml.jackson.annotation.JsonValue;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-
-import java.util.List;
-import java.util.Map;
-
-public interface TypeLike
+public class ObjectType
 {
-    String getName();
-
-    default List<Object> getArgs()
-    {
-        return ImmutableList.of();
-    }
-
-    default Map<String, Object> getKwargs()
-    {
-        return ImmutableMap.of();
-    }
-
-    @JsonValue
-    String toSpec();
 }

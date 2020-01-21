@@ -11,29 +11,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.core.type;
+package com.wrmsr.tokamak.core.type.impl.ref;
 
-import com.fasterxml.jackson.annotation.JsonValue;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
+import com.wrmsr.tokamak.core.type.Type;
 
-import java.util.List;
-import java.util.Map;
+import javax.annotation.concurrent.Immutable;
 
-public interface TypeLike
+@Immutable
+public final class NamedType
+        extends ReferenceType
 {
-    String getName();
-
-    default List<Object> getArgs()
+    public NamedType(String name)
     {
-        return ImmutableList.of();
+        super(name);
     }
 
-    default Map<String, Object> getKwargs()
+    public NamedType(String name, Type targetType)
     {
-        return ImmutableMap.of();
+        super(name, targetType);
     }
-
-    @JsonValue
-    String toSpec();
 }

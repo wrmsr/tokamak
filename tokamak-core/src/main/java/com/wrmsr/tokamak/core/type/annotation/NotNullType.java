@@ -27,6 +27,6 @@ public final class NotNullType
 
     public NotNullType()
     {
-        super(NAME);
+        super();
     }
 }

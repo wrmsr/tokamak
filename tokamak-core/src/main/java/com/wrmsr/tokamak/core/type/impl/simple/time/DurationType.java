@@ -11,23 +11,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.core.type.impl;
+package com.wrmsr.tokamak.core.type.impl.simple.time;
 
-import com.wrmsr.tokamak.core.type.Type;
-
-import javax.annotation.concurrent.Immutable;
-
-@Immutable
-public final class NamedType
-        extends ReferenceType
+public class DurationType
 {
-    public NamedType(String name)
-    {
-        super(name);
-    }
-
-    public NamedType(String name, Type targetType)
-    {
-        super(name, targetType);
-    }
 }

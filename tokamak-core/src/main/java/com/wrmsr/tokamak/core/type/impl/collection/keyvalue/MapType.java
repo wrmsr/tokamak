@@ -11,38 +11,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.core.type.impl;
+package com.wrmsr.tokamak.core.type.impl.collection.keyvalue;
+
+import com.wrmsr.tokamak.core.type.Type;
+import com.wrmsr.tokamak.core.type.TypeConstructor;
+import com.wrmsr.tokamak.core.type.TypeRegistration;
 
 import javax.annotation.concurrent.Immutable;
 
+import java.util.Map;
+
 @Immutable
-public final class SimpleType<T>
-        extends AbstractType
+public final class MapType
+        extends KeyValueType
 {
-    private final Class<T> cls;
+    public static final String NAME = "Map";
+    public static final TypeRegistration REGISTRATION = new TypeRegistration(NAME, MapType.class, Map.class, TypeConstructor.of(MapType::new));
 
-    public SimpleType(String name, Class<T> cls)
+    public MapType(Type keyType, Type valueType)
     {
-        super(name);
-        this.cls = cls;
-    }
-
-    @Override
-    public String toString()
-    {
-        return "SimpleType{" +
-                "cls=" + cls +
-                '}';
+        super(NAME, keyType, valueType);
     }
 
     @Override
     public java.lang.reflect.Type toReflect()
     {
-        return cls;
-    }
-
-    public Class<T> getCls()
-    {
-        return cls;
+        return Map.class;
     }
 }

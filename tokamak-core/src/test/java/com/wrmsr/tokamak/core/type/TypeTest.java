@@ -13,7 +13,7 @@
  */
 package com.wrmsr.tokamak.core.type;
 
-import com.wrmsr.tokamak.core.type.impl.ListType;
+import com.wrmsr.tokamak.core.type.impl.collection.item.ListType;
 import com.wrmsr.tokamak.core.type.annotation.NotNullType;
 import com.wrmsr.tokamak.util.json.Json;
 import junit.framework.TestCase;

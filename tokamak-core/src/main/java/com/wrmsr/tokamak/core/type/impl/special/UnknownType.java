@@ -11,23 +11,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.core.type.impl;
+package com.wrmsr.tokamak.core.type.impl.special;
 
-import com.wrmsr.tokamak.core.type.Type;
-
-import javax.annotation.concurrent.Immutable;
-
-@Immutable
-public final class AliasType
-        extends ReferenceType
+public class UnknownType
 {
-    public AliasType(String name)
-    {
-        super(name);
-    }
-
-    public AliasType(String name, Type targetType)
-    {
-        super(name, targetType);
-    }
 }

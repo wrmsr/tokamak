@@ -27,6 +27,11 @@ public final class InternalType
 
     public InternalType()
     {
-        super(NAME);
+    }
+
+    @Override
+    public String getName()
+    {
+        return NAME;
     }
 }

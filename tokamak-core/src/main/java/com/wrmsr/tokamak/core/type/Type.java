@@ -13,20 +13,26 @@
  */
 package com.wrmsr.tokamak.core.type;
 
-import com.fasterxml.jackson.annotation.JsonValue;
+import com.wrmsr.tokamak.core.util.annotation.AnnotationCollection;
 
+import java.util.Optional;
 import java.util.OptionalInt;
 
 public interface Type
         extends TypeLike
 {
-    OptionalInt getFixedSize();
-
-    default java.lang.reflect.Type toReflect()
+    default AnnotationCollection<TypeAnnotation> getAnnotations()
     {
-        throw new IllegalStateException();
+        return AnnotationCollection.of();
     }
 
-    @JsonValue
-    String toSpec();
+    default OptionalInt getFixedSize()
+    {
+        return OptionalInt.empty();
+    }
+
+    default Optional<java.lang.reflect.Type> toReflect()
+    {
+        return Optional.empty();
+    }
 }

@@ -29,18 +29,13 @@ import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 public abstract class AbstractTypeLike
         implements TypeLike
 {
-    protected final String name;
-
     protected final List<Object> args;
     protected final Map<String, Object> kwargs;
 
     public AbstractTypeLike(
-            String name,
             List<Object> args,
             Map<String, Object> kwargs)
     {
-        this.name = checkNotEmpty(name);
-
         this.args = ImmutableList.copyOf(args);
         this.args.forEach(Types::checkValidArg);
 
@@ -51,19 +46,19 @@ public abstract class AbstractTypeLike
         });
     }
 
-    public AbstractTypeLike(String name)
+    public AbstractTypeLike()
     {
-        this(name, ImmutableList.of(), ImmutableMap.of());
+        this(ImmutableList.of(), ImmutableMap.of());
     }
 
-    public AbstractTypeLike(String name, List<Object> args)
+    public AbstractTypeLike(List<Object> args)
     {
-        this(name, args, ImmutableMap.of());
+        this(args, ImmutableMap.of());
     }
 
-    public AbstractTypeLike(String name, Map<String, Object> kwargs)
+    public AbstractTypeLike(Map<String, Object> kwargs)
     {
-        this(name, ImmutableList.of(), kwargs);
+        this(ImmutableList.of(), kwargs);
     }
 
     @Override
@@ -73,12 +68,6 @@ public abstract class AbstractTypeLike
                 "args=" + args +
                 ", kwargs=" + kwargs +
                 '}';
-    }
-
-    @Override
-    public String getName()
-    {
-        return name;
     }
 
     @Override

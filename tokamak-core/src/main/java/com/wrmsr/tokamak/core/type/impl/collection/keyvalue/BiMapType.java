@@ -11,37 +11,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.core.type.impl;
+package com.wrmsr.tokamak.core.type.impl.collection.keyvalue;
 
+import com.google.common.collect.BiMap;
 import com.wrmsr.tokamak.core.type.Type;
 import com.wrmsr.tokamak.core.type.TypeConstructor;
 import com.wrmsr.tokamak.core.type.TypeRegistration;
 
 import javax.annotation.concurrent.Immutable;
 
-import java.util.EnumSet;
-
 @Immutable
-public final class EnumSetType
-        extends ItemType
+public final class BiMapType
+        extends KeyValueType
 {
-    public static final String NAME = "EnumSet";
-    public static final TypeRegistration REGISTRATION = new TypeRegistration(NAME, EnumSetType.class, EnumSet.class, TypeConstructor.of(
-            (Type enumType) -> new EnumSetType((EnumType) enumType)));
+    public static final String NAME = "BiMap";
+    public static final TypeRegistration REGISTRATION = new TypeRegistration(NAME, BiMapType.class, BiMap.class, TypeConstructor.of(BiMapType::new));
 
-    public EnumSetType(EnumType enumType)
+    public BiMapType(Type keyType, Type valueType)
     {
-        super(NAME, enumType);
-    }
-
-    public EnumType getEnum()
-    {
-        return (EnumType) super.getItem();
+        super(NAME, keyType, valueType);
     }
 
     @Override
     public java.lang.reflect.Type toReflect()
     {
-        return EnumSet.class;
+        return BiMap.class;
     }
 }

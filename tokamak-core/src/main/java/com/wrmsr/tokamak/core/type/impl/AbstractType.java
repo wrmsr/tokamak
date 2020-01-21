@@ -13,8 +13,7 @@
  */
 package com.wrmsr.tokamak.core.type.impl;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.wrmsr.tokamak.core.type.AbstractTypeLike;
 import com.wrmsr.tokamak.core.type.Type;
 import com.wrmsr.tokamak.core.type.TypeAnnotation;
@@ -25,62 +24,34 @@ import javax.annotation.concurrent.Immutable;
 
 import java.util.List;
 import java.util.Map;
-import java.util.OptionalInt;
-
-import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
 public abstract class AbstractType
         extends AbstractTypeLike
         implements Type
 {
-    protected final OptionalInt fixedSize;
+    private final AnnotationCollection<TypeAnnotation> annotations;
 
     public AbstractType(
-            String name,
             List<Object> args,
             Map<String, Object> kwargs,
-            OptionalInt fixedSize)
+            Iterable<TypeAnnotation> annotations)
     {
-        super(name, args, kwargs);
+        super(args, kwargs);
 
-        this.fixedSize = checkNotNull(fixedSize);
-    }
-
-    public AbstractType(String name, OptionalInt fixedSize)
-    {
-        this(name, ImmutableList.of(), ImmutableMap.of(), fixedSize);
-    }
-
-    public AbstractType(String name, int fixedSize)
-    {
-        this(name, OptionalInt.of(fixedSize));
-    }
-
-    public AbstractType(String name)
-    {
-        this(name, OptionalInt.empty());
-    }
-
-    public AbstractType(String name, List<Object> args)
-    {
-        this(name, args, ImmutableMap.of(), OptionalInt.empty());
-    }
-
-    public AbstractType(String name, Map<String, Object> kwargs)
-    {
-        this(name, ImmutableList.of(), kwargs, OptionalInt.empty());
+        this.annotations = AnnotationCollection.copyOf(annotations);
     }
 
     @Override
-    public OptionalInt getFixedSize()
+    public AnnotationCollection<TypeAnnotation> getAnnotations()
     {
-        return fixedSize;
+        return annotations;
     }
 
     @Override
+    @JsonValue
     public final String toSpec()
     {
-        return TypeRendering.buildSpec(name, args, kwargs);
+        return TypeRendering.buildSpec(getName(), args, kwargs);
     }
 }

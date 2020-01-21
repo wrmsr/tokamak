@@ -15,7 +15,7 @@ package com.wrmsr.tokamak.core.type;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.wrmsr.tokamak.core.type.impl.ReferenceType;
+import com.wrmsr.tokamak.core.type.impl.ref.ReferenceType;
 
 import java.util.Map;
 import java.util.Set;

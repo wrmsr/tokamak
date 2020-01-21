@@ -11,48 +11,40 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.core.type.impl;
+package com.wrmsr.tokamak.core.type.impl.collection.item;
+
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.wrmsr.tokamak.core.type.Type;
+import com.wrmsr.tokamak.core.type.impl.AbstractType;
 
 import javax.annotation.concurrent.Immutable;
+
+import java.util.OptionalInt;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
-public final class PrimitiveType<T>
+public abstract class ItemType
         extends AbstractType
 {
-    private final Class<T> cls;
-    private final Class<?> primCls;
-
-    public PrimitiveType(String name, Class<T> cls, Class<?> primCls, int fixedSize)
+    public ItemType(String name, Type itemType, OptionalInt fixedSize)
     {
-        super(name, fixedSize);
-        this.cls = checkNotNull(cls);
-        this.primCls = checkNotNull(primCls);
+        super(name, fixedSize, ImmutableList.of(itemType), ImmutableMap.of());
     }
 
-    @Override
-    public String toString()
+    public ItemType(String name, int fixedSize, Type itemType)
     {
-        return "PrimitiveType{" +
-                "cls=" + cls +
-                ", primCls=" + primCls +
-                '}';
+        this(name, OptionalInt.of(fixedSize), itemType);
     }
 
-    @Override
-    public java.lang.reflect.Type toReflect()
+    public ItemType(String name, Type itemType)
     {
-        return cls;
+        this(name, OptionalInt.empty(), itemType);
     }
 
-    public Class<T> getCls()
+    public Type getItem()
     {
-        return cls;
-    }
-
-    public Class<?> getPrimCls()
-    {
-        return primCls;
+        return (Type) checkNotNull(getArgs().get(0));
     }
 }

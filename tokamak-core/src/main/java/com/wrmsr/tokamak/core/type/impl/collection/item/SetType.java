@@ -11,30 +11,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.core.type.impl;
+package com.wrmsr.tokamak.core.type.impl.collection.item;
 
-import com.google.common.collect.BiMap;
 import com.wrmsr.tokamak.core.type.Type;
 import com.wrmsr.tokamak.core.type.TypeConstructor;
 import com.wrmsr.tokamak.core.type.TypeRegistration;
 
 import javax.annotation.concurrent.Immutable;
 
-@Immutable
-public final class BiMapType
-        extends KeyValueType
-{
-    public static final String NAME = "BiMap";
-    public static final TypeRegistration REGISTRATION = new TypeRegistration(NAME, BiMapType.class, BiMap.class, TypeConstructor.of(BiMapType::new));
+import java.util.Set;
 
-    public BiMapType(Type keyType, Type valueType)
+@Immutable
+public final class SetType
+        extends ItemType
+{
+    public static final String NAME = "Set";
+    public static final TypeRegistration REGISTRATION = new TypeRegistration(NAME, SetType.class, Set.class, TypeConstructor.of(SetType::new));
+
+    public SetType(Type itemType)
     {
-        super(NAME, keyType, valueType);
+        super(NAME, itemType);
     }
 
     @Override
     public java.lang.reflect.Type toReflect()
     {
-        return BiMap.class;
+        return Set.class;
     }
 }
