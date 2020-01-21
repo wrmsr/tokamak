@@ -20,6 +20,7 @@ import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.core.catalog.Catalog;
 import com.wrmsr.tokamak.core.catalog.Function;
 import com.wrmsr.tokamak.core.catalog.Table;
+import com.wrmsr.tokamak.core.plan.Plan;
 import com.wrmsr.tokamak.core.plan.node.PInvalidations;
 import com.wrmsr.tokamak.core.plan.node.PJoin;
 import com.wrmsr.tokamak.core.plan.node.PNode;
@@ -74,7 +75,7 @@ public class TreePlanner
     private Optional<String> defaultSchema;
 
     // FIXME: ensure no collisions (node *and* field names)
-    private final NameGenerator nameGenerator = new NameGenerator();
+    private final NameGenerator nameGenerator = new NameGenerator(ImmutableSet.of(), Plan.NAME_GENERATOR_PREFIX);
 
     public TreePlanner(Optional<Catalog> catalog, Optional<String> defaultSchema)
     {

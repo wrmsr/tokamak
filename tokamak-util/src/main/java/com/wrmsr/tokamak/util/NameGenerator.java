@@ -32,7 +32,6 @@ public final class NameGenerator
     private final String globalPrefix;
     private final boolean useGlobalPrefixIfPresent;
     private final boolean addGlobalPrefixBeforeNumber;
-    private final boolean useNumberIfPresent;
 
     private final Map<String, Integer> nameCounts = new HashMap<>();
     private final Object lock = new Object();
@@ -41,20 +40,18 @@ public final class NameGenerator
             Set<String> unavailableStrings,
             String globalPrefix,
             boolean useGlobalPrefixIfPresent,
-            boolean addGlobalPrefixBeforeNumber,
-            boolean useNumberIfPresent)
+            boolean addGlobalPrefixBeforeNumber)
     {
         this.names = new HashSet<>();
         names.addAll(unavailableStrings);
         this.globalPrefix = checkNotNull(globalPrefix);
         this.useGlobalPrefixIfPresent = useGlobalPrefixIfPresent;
         this.addGlobalPrefixBeforeNumber = addGlobalPrefixBeforeNumber;
-        this.useNumberIfPresent = useNumberIfPresent;
     }
 
     public NameGenerator(Set<String> names, String globalPrefix)
     {
-        this(names, globalPrefix, true, true, true);
+        this(names, globalPrefix, true, true);
     }
 
     public NameGenerator(Set<String> names)
