@@ -27,7 +27,8 @@ public final class ZonedDateTimeType
         implements TimeType
 {
     public static final String NAME = "ZonedDateTime";
-    public static final TypeRegistration REGISTRATION = new TypeRegistration(NAME, ZonedDateTimeType.class, ZonedDateTime.class, TypeConstructor.of(ZonedDateTimeType::new));
+    public static final ZonedDateTimeType INSTANCE = new ZonedDateTimeType();
+    public static final TypeRegistration REGISTRATION = new TypeRegistration(NAME, ZonedDateTimeType.class, ZonedDateTime.class, TypeConstructor.of(INSTANCE));
 
     public ZonedDateTimeType()
     {

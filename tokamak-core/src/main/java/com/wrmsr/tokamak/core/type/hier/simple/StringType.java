@@ -26,7 +26,8 @@ public final class StringType
         implements SimpleType
 {
     public static final String NAME = "String";
-    public static final TypeRegistration REGISTRATION = new TypeRegistration(NAME, StringType.class, String.class, TypeConstructor.of(StringType::new));
+    public static final StringType INSTANCE = new StringType();
+    public static final TypeRegistration REGISTRATION = new TypeRegistration(NAME, StringType.class, String.class, TypeConstructor.of(INSTANCE));
 
     public StringType()
     {

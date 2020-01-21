@@ -27,7 +27,8 @@ public final class LongType
         implements PrimitiveType
 {
     public static final String NAME = "Long";
-    public static final TypeRegistration REGISTRATION = new TypeRegistration(NAME, LongType.class, Long.class, TypeConstructor.of(LongType::new));
+    public static final LongType INSTANCE = new LongType();
+    public static final TypeRegistration REGISTRATION = new TypeRegistration(NAME, LongType.class, Long.class, TypeConstructor.of(INSTANCE));
 
     public LongType()
     {

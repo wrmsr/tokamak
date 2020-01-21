@@ -19,6 +19,8 @@ import javax.annotation.concurrent.Immutable;
 public final class UnknownType
         implements SpecialType
 {
+    public static UnknownType INSTANCE = new UnknownType();
+
     public UnknownType()
     {
     }

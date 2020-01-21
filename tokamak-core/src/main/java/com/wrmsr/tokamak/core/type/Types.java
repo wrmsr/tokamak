@@ -17,6 +17,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.core.type.hier.Type;
 import com.wrmsr.tokamak.core.type.hier.TypeLike;
+import com.wrmsr.tokamak.core.type.hier.annotation.EphemeralType;
 import com.wrmsr.tokamak.core.type.hier.annotation.InternalType;
 import com.wrmsr.tokamak.core.type.hier.annotation.NotNullType;
 import com.wrmsr.tokamak.core.type.hier.annotation.SizedType;
@@ -84,6 +85,7 @@ public final class Types
 
     public static final List<TypeRegistration> BUILTIN_REGISTRATIONS = ImmutableList.<TypeRegistration>builder()
 
+            .add(EphemeralType.REGISTRATION)
             .add(InternalType.REGISTRATION)
             .add(NotNullType.REGISTRATION)
             .add(SizedType.REGISTRATION)

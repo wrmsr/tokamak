@@ -13,9 +13,9 @@
  */
 package com.wrmsr.tokamak.core.type.hier.annotation;
 
-import com.wrmsr.tokamak.core.type.hier.TypeAnnotation;
 import com.wrmsr.tokamak.core.type.TypeConstructor;
 import com.wrmsr.tokamak.core.type.TypeRegistration;
+import com.wrmsr.tokamak.core.type.hier.TypeAnnotation;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -24,7 +24,8 @@ public final class InternalType
         implements TypeAnnotation
 {
     public static final String NAME = "Internal";
-    public static final TypeRegistration REGISTRATION = new TypeRegistration(NAME, InternalType.class, TypeConstructor.of(InternalType::new));
+    public static final InternalType INSTANCE = new InternalType();
+    public static final TypeRegistration REGISTRATION = new TypeRegistration(NAME, InternalType.class, TypeConstructor.of(INSTANCE));
 
     public InternalType()
     {

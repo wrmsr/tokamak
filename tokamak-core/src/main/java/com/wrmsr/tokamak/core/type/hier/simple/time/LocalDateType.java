@@ -27,7 +27,8 @@ public final class LocalDateType
         implements TimeType
 {
     public static final String NAME = "LocalDate";
-    public static final TypeRegistration REGISTRATION = new TypeRegistration(NAME, LocalDateType.class, LocalDate.class, TypeConstructor.of(LocalDateType::new));
+    public static final LocalDateType INSTANCE = new LocalDateType();
+    public static final TypeRegistration REGISTRATION = new TypeRegistration(NAME, LocalDateType.class, LocalDate.class, TypeConstructor.of(INSTANCE));
 
     public LocalDateType()
     {

@@ -27,7 +27,8 @@ public final class DurationType
         implements TimeType
 {
     public static final String NAME = "Duration";
-    public static final TypeRegistration REGISTRATION = new TypeRegistration(NAME, DurationType.class, Duration.class, TypeConstructor.of(DurationType::new));
+    public static final DurationType INSTANCE = new DurationType();
+    public static final TypeRegistration REGISTRATION = new TypeRegistration(NAME, DurationType.class, Duration.class, TypeConstructor.of(INSTANCE));
 
     public DurationType()
     {

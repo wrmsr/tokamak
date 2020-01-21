@@ -27,7 +27,8 @@ public final class BigDecimalType
         implements SimpleType
 {
     public static final String NAME = "BigDecimal";
-    public static final TypeRegistration REGISTRATION = new TypeRegistration(NAME, BigDecimalType.class, BigDecimal.class, TypeConstructor.of(BigDecimalType::new));
+    public static final BigDecimalType INSTANCE = new BigDecimalType();
+    public static final TypeRegistration REGISTRATION = new TypeRegistration(NAME, BigDecimalType.class, BigDecimal.class, TypeConstructor.of(INSTANCE));
 
     public BigDecimalType()
     {

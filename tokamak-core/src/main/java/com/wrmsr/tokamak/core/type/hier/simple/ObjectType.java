@@ -26,7 +26,8 @@ public final class ObjectType
         implements SimpleType
 {
     public static final String NAME = "Object";
-    public static final TypeRegistration REGISTRATION = new TypeRegistration(NAME, ObjectType.class, Object.class, TypeConstructor.of(ObjectType::new));
+    public static final ObjectType INSTANCE = new ObjectType();
+    public static final TypeRegistration REGISTRATION = new TypeRegistration(NAME, ObjectType.class, Object.class, TypeConstructor.of(INSTANCE));
 
     public ObjectType()
     {

@@ -27,7 +27,8 @@ public final class BooleanType
         implements PrimitiveType
 {
     public static final String NAME = "Boolean";
-    public static final TypeRegistration REGISTRATION = new TypeRegistration(NAME, BooleanType.class, Boolean.class, TypeConstructor.of(BooleanType::new));
+    public static final BooleanType INSTANCE = new BooleanType();
+    public static final TypeRegistration REGISTRATION = new TypeRegistration(NAME, BooleanType.class, Boolean.class, TypeConstructor.of(INSTANCE));
 
     public BooleanType()
     {

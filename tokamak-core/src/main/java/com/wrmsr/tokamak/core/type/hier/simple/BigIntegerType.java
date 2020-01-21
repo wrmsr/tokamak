@@ -27,7 +27,8 @@ public final class BigIntegerType
         implements SimpleType
 {
     public static final String NAME = "BigInteger";
-    public static final TypeRegistration REGISTRATION = new TypeRegistration(NAME, BigIntegerType.class, BigInteger.class, TypeConstructor.of(BigIntegerType::new));
+    public static final BigIntegerType INSTANCE = new BigIntegerType();
+    public static final TypeRegistration REGISTRATION = new TypeRegistration(NAME, BigIntegerType.class, BigInteger.class, TypeConstructor.of(INSTANCE));
 
     public BigIntegerType()
     {

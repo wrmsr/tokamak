@@ -26,7 +26,8 @@ public final class VoidType
         implements SimpleType
 {
     public static final String NAME = "Void";
-    public static final TypeRegistration REGISTRATION = new TypeRegistration(NAME, VoidType.class, Void.class, TypeConstructor.of(VoidType::new));
+    public static final VoidType INSTANCE = new VoidType();
+    public static final TypeRegistration REGISTRATION = new TypeRegistration(NAME, VoidType.class, Void.class, TypeConstructor.of(INSTANCE));
 
     public VoidType()
     {

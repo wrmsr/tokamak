@@ -11,19 +11,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.core.layout.field.annotation;
+
+package com.wrmsr.tokamak.core.type.hier.annotation;
+
+import com.wrmsr.tokamak.core.type.TypeConstructor;
+import com.wrmsr.tokamak.core.type.TypeRegistration;
+import com.wrmsr.tokamak.core.type.hier.TypeAnnotation;
 
 import javax.annotation.concurrent.Immutable;
 
 @Immutable
-public final class EphemeralField
-        implements FieldAnnotation
+public final class EphemeralType
+        implements TypeAnnotation
 {
-    static final EphemeralField INSTANCE = new EphemeralField();
+    public static final String NAME = "Ephemeral";
+    public static final InternalType INSTANCE = new InternalType();
+    public static final TypeRegistration REGISTRATION = new TypeRegistration(NAME, EphemeralType.class, TypeConstructor.of(INSTANCE));
+
+    public EphemeralType()
+    {
+    }
 
     @Override
-    public boolean isTransitive()
+    public String getName()
     {
-        return true;
+        return NAME;
     }
 }

@@ -33,6 +33,21 @@ public interface TypeConstructor
     }
 
     @FunctionalInterface
+    interface Singleton
+    {
+        TypeLike construct();
+    }
+
+    static TypeConstructor of(TypeLike singleton)
+    {
+        return (args, kwargs) -> {
+            checkArgument(args.isEmpty());
+            checkArgument(kwargs.isEmpty());
+            return singleton;
+        };
+    }
+
+    @FunctionalInterface
     interface Nullary
     {
         TypeLike construct();

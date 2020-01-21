@@ -23,31 +23,18 @@ import javax.annotation.concurrent.Immutable;
         use = JsonTypeInfo.Id.NAME,
         include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = EphemeralField.class, name = "ephemeral"),
         @JsonSubTypes.Type(value = IdField.class, name = "id"),
         @JsonSubTypes.Type(value = ImmutableField.class, name = "immutable"),
-        @JsonSubTypes.Type(value = InternalField.class, name = "internal"),
         @JsonSubTypes.Type(value = MonotonicField.class, name = "monotonic"),
-        @JsonSubTypes.Type(value = SealedField.class, name = "sealed"),
         @JsonSubTypes.Type(value = UniqueField.class, name = "unique"),
 })
 @Immutable
 public interface FieldAnnotation
         extends Annotation
 {
-    default boolean isTransitive()
-    {
-        return false;
-    }
-
     default String toDisplayString()
     {
         return getClass().getSimpleName();
-    }
-
-    static EphemeralField ephemeral()
-    {
-        return EphemeralField.INSTANCE;
     }
 
     static IdField id()
@@ -60,19 +47,9 @@ public interface FieldAnnotation
         return ImmutableField.INSTANCE;
     }
 
-    static InternalField internal()
-    {
-        return InternalField.INSTANCE;
-    }
-
     static MonotonicField monotonic()
     {
         return MonotonicField.INSTANCE;
-    }
-
-    static SealedField sealed()
-    {
-        return SealedField.INSTANCE;
     }
 
     static UniqueField unique()

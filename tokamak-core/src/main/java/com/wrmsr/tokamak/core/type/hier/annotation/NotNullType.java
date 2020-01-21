@@ -24,7 +24,8 @@ public final class NotNullType
         implements TypeAnnotation
 {
     public static final String NAME = "NotNull";
-    public static final TypeRegistration REGISTRATION = new TypeRegistration(NAME, NotNullType.class, TypeConstructor.of(NotNullType::new));
+    public static final NotNullType INSTANCE = new NotNullType();
+    public static final TypeRegistration REGISTRATION = new TypeRegistration(NAME, NotNullType.class, TypeConstructor.of(INSTANCE));
 
     public NotNullType()
     {

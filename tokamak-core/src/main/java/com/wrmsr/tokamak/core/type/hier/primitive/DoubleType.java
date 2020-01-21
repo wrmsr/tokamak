@@ -27,7 +27,8 @@ public final class DoubleType
         implements PrimitiveType
 {
     public static final String NAME = "Double";
-    public static final TypeRegistration REGISTRATION = new TypeRegistration(NAME, DoubleType.class, Double.class, TypeConstructor.of(DoubleType::new));
+    public static final DoubleType INSTANCE = new DoubleType();
+    public static final TypeRegistration REGISTRATION = new TypeRegistration(NAME, DoubleType.class, Double.class, TypeConstructor.of(INSTANCE));
 
     public DoubleType()
     {

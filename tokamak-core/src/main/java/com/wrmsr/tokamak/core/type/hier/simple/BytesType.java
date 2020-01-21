@@ -26,7 +26,8 @@ public final class BytesType
         implements SimpleType
 {
     public static final String NAME = "Bytes";
-    public static final TypeRegistration REGISTRATION = new TypeRegistration(NAME, BytesType.class, byte[].class, TypeConstructor.of(BytesType::new));
+    public static final BytesType INSTANCE = new BytesType();
+    public static final TypeRegistration REGISTRATION = new TypeRegistration(NAME, BytesType.class, byte[].class, TypeConstructor.of(INSTANCE));
 
     public BytesType()
     {
