@@ -13,37 +13,55 @@
  */
 package com.wrmsr.tokamak.core.type.hier.special;
 
-import com.wrmsr.tokamak.core.type.hier.Type;
-import com.wrmsr.tokamak.core.type.hier.TypeAnnotation;
+import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.core.type.TypeConstructor;
 import com.wrmsr.tokamak.core.type.TypeRegistration;
+import com.wrmsr.tokamak.core.type.Types;
+import com.wrmsr.tokamak.core.type.hier.Type;
+import com.wrmsr.tokamak.core.type.hier.TypeAnnotation;
 import com.wrmsr.tokamak.core.util.annotation.AnnotationCollection;
+import com.wrmsr.tokamak.util.Pair;
 
+import javax.annotation.concurrent.Immutable;
+
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 
+@Immutable
 public final class AnnotatedType
         implements Type
 {
     public static final String NAME = "Annotated";
-    public static final TypeRegistration REGISTRATION = new TypeRegistration(NAME, AnnotatedType.class, TypeConstructor.of(AnnotatedType::new));
+    public static final TypeRegistration REGISTRATION = new TypeRegistration(NAME, AnnotatedType.class, TypeConstructor.of(
+            (List<Object> args) -> {
+                Pair<AnnotationCollection<TypeAnnotation>, Type> flattened = flatten(Types.objectsToTypes(args));
+                return new AnnotatedType(flattened.first(), flattened.second());
+            }));
 
     private final AnnotationCollection<TypeAnnotation> annotations;
     private final Type item;
 
-    public AnnotatedType(List<Object> args)
+    public AnnotatedType(Iterable<TypeAnnotation> annotations, Type item)
     {
-        super(NAME, hoistArgs(args));
-        checkArgument(this.args.size() >= 1);
-        checkArgument(this.args.get(this.args.size() - 1) instanceof Type);
-        annotations = AnnotationCollection.copyOf(
-                this.args.subList(0, this.args.size() - 1).stream()
-                        .map(a -> {
-                            checkArgument(a instanceof TypeAnnotation);
-                            return (TypeAnnotation) a;
-                        })
-                        .collect(toImmutableList()));
+        this.annotations = AnnotationCollection.copyOf(annotations);
+        this.item = checkNotNull(item);
+    }
+
+    @Override
+    public String getName()
+    {
+        return NAME;
+    }
+
+    @Override
+    public List<Object> getArgs()
+    {
+        return ImmutableList.builder().addAll(annotations).add(item).build();
     }
 
     public AnnotationCollection<TypeAnnotation> getAnnotations()
@@ -51,7 +69,12 @@ public final class AnnotatedType
         return annotations;
     }
 
-    private static List<Object> hoistArgs(List<Object> args)
+    public Type getItem()
+    {
+        return item;
+    }
+
+    public static Pair<AnnotationCollection<TypeAnnotation>, Type> flatten(List<Type> args)
     {
         Map<Class<? extends TypeAnnotation>, TypeAnnotation> anns = new LinkedHashMap<>();
         Type type;
@@ -67,13 +90,12 @@ public final class AnnotatedType
                 }
                 anns.put(ann.getClass(), ann);
             }
-            checkArgument(args.get(args.size() - 1) instanceof Type);
             type = (Type) args.get(args.size() - 1);
             if (!(type instanceof AnnotatedType)) {
                 break;
             }
-            args = type.getArgs();
+            args = Types.objectsToTypes(type.getArgs());
         }
-        return ImmutableList.builder().addAll(anns.values()).add(type).build();
+        return Pair.immutable(AnnotationCollection.copyOf(anns.values()), type);
     }
 }
