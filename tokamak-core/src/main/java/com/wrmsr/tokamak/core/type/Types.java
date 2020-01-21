@@ -14,11 +14,38 @@
 package com.wrmsr.tokamak.core.type;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.core.type.hier.Type;
 import com.wrmsr.tokamak.core.type.hier.TypeLike;
-import com.wrmsr.tokamak.core.type.hier.PrimitiveType;
-import com.wrmsr.tokamak.core.type.hier.SimpleType;
-import com.wrmsr.tokamak.core.type.hier.SpecialType;
+import com.wrmsr.tokamak.core.type.hier.annotation.InternalType;
+import com.wrmsr.tokamak.core.type.hier.annotation.NotNullType;
+import com.wrmsr.tokamak.core.type.hier.annotation.SizedType;
+import com.wrmsr.tokamak.core.type.hier.collection.item.EnumSetType;
+import com.wrmsr.tokamak.core.type.hier.collection.item.ListType;
+import com.wrmsr.tokamak.core.type.hier.collection.item.SetType;
+import com.wrmsr.tokamak.core.type.hier.collection.keyvalue.BiMapType;
+import com.wrmsr.tokamak.core.type.hier.collection.keyvalue.MapType;
+import com.wrmsr.tokamak.core.type.hier.primitive.BooleanType;
+import com.wrmsr.tokamak.core.type.hier.primitive.DoubleType;
+import com.wrmsr.tokamak.core.type.hier.primitive.LongType;
+import com.wrmsr.tokamak.core.type.hier.simple.BigDecimalType;
+import com.wrmsr.tokamak.core.type.hier.simple.BigIntegerType;
+import com.wrmsr.tokamak.core.type.hier.simple.BytesType;
+import com.wrmsr.tokamak.core.type.hier.simple.ObjectType;
+import com.wrmsr.tokamak.core.type.hier.simple.StringType;
+import com.wrmsr.tokamak.core.type.hier.simple.VoidType;
+import com.wrmsr.tokamak.core.type.hier.simple.time.DurationType;
+import com.wrmsr.tokamak.core.type.hier.simple.time.LocalDateTimeType;
+import com.wrmsr.tokamak.core.type.hier.simple.time.LocalDateType;
+import com.wrmsr.tokamak.core.type.hier.simple.time.LocalTimeType;
+import com.wrmsr.tokamak.core.type.hier.simple.time.ZonedDateTimeType;
+import com.wrmsr.tokamak.core.type.hier.special.AnnotatedType;
+import com.wrmsr.tokamak.core.type.hier.special.EnumType;
+import com.wrmsr.tokamak.core.type.hier.special.FunctionType;
+import com.wrmsr.tokamak.core.type.hier.special.TupleType;
+import com.wrmsr.tokamak.core.type.hier.special.UnionType;
+import com.wrmsr.tokamak.core.type.hier.special.struct.StructType;
+import com.wrmsr.tokamak.core.type.hier.special.struct.StructuralType;
 import com.wrmsr.tokamak.util.Pair;
 
 import java.util.List;
@@ -55,79 +82,46 @@ public final class Types
     {
     }
 
-    /*
-    public static final SimpleType<Void> VOID = new SimpleType<>("Void", Void.class);
-    public static final SimpleType<Object> OBJECT = new SimpleType<>("Object", Object.class);
-
-    public static final PrimitiveType<Boolean> BOOLEAN = new PrimitiveType<>("Boolean", Boolean.class, boolean.class, 1);
-    public static final PrimitiveType<Long> LONG = new PrimitiveType<>("Long", Long.class, long.class, 8);
-    public static final PrimitiveType<Double> DOUBLE = new PrimitiveType<>("Double", Double.class, double.class, 8);
-
-    public static final SimpleType<String> STRING = new SimpleType<>("String", String.class);
-    public static final SimpleType<byte[]> BYTES = new SimpleType<>("Bytes", byte[].class);
-
-    public static final SimpleType<BigInteger> BIG_INTEGER = new SimpleType<>("BigInteger", BigInteger.class);
-    public static final SimpleType<BigDecimal> BIG_DECIMAL = new SimpleType<>("BigDecimal", BigDecimal.class);
-
-    public static final SimpleType<LocalDate> LOCAL_DATE = new SimpleType<>("LocalDate", LocalDate.class);
-    public static final SimpleType<LocalTime> LOCAL_TIME = new SimpleType<>("LocalTime", LocalTime.class);
-    public static final SimpleType<LocalDateTime> LOCAL_DATE_TIME = new SimpleType<>("LocalDateTime", LocalDateTime.class);
-    public static final SimpleType<ZonedDateTime> ZONED_DATE_TIME = new SimpleType<>("ZonedDateTime", ZonedDateTime.class);
-    public static final SimpleType<Duration> DURATION = new SimpleType<>("Duration", Duration.class);
-
-    public static final SpecialType UNKNOWN = new SpecialType("?");
-    public static final SpecialType ARGS = new SpecialType("Args");
-    public static final SpecialType JIT_FUNCTION = new SpecialType("JitFunction");
-
-    public static final Set<Type> BUILTIN_TYPES = ImmutableSet.<Type>builder()
-
-            .add(VOID)
-            .add(OBJECT)
-
-            .add(BOOLEAN)
-            .add(LONG)
-            .add(DOUBLE)
-
-            .add(STRING)
-            .add(BYTES)
-
-            .add(BIG_INTEGER)
-            .add(BIG_DECIMAL)
-
-            .add(LOCAL_DATE)
-            .add(LOCAL_TIME)
-            .add(LOCAL_DATE_TIME)
-            .add(ZONED_DATE_TIME)
-            .add(DURATION)
-
-            .add(UNKNOWN)
-            .add(ARGS)
-            .add(JIT_FUNCTION)
-
-            .build();
-
     public static final List<TypeRegistration> BUILTIN_REGISTRATIONS = ImmutableList.<TypeRegistration>builder()
-
-            .addAll(BUILTIN_TYPES.stream().map(TypeRegistration::standard).collect(toImmutableList()))
-
-            .add(BiMapType.REGISTRATION)
-            .add(EnumSetType.REGISTRATION)
-            .add(EnumType.REGISTRATION)
-            .add(FunctionType.REGISTRATION)
-            .add(ListType.REGISTRATION)
-            .add(MapType.REGISTRATION)
-            .add(SetType.REGISTRATION)
-            .add(StructType.REGISTRATION)
-            .add(StructuralType.REGISTRATION)
-            .add(TupleType.REGISTRATION)
-            .add(UnionType.REGISTRATION)
 
             .add(InternalType.REGISTRATION)
             .add(NotNullType.REGISTRATION)
             .add(SizedType.REGISTRATION)
 
+            .add(EnumSetType.REGISTRATION)
+            .add(ListType.REGISTRATION)
+            .add(SetType.REGISTRATION)
+
+            .add(BiMapType.REGISTRATION)
+            .add(MapType.REGISTRATION)
+
+            .add(BooleanType.REGISTRATION)
+            .add(DoubleType.REGISTRATION)
+            .add(LongType.REGISTRATION)
+
+            .add(DurationType.REGISTRATION)
+            .add(LocalDateTimeType.REGISTRATION)
+            .add(LocalDateType.REGISTRATION)
+            .add(LocalTimeType.REGISTRATION)
+            .add(ZonedDateTimeType.REGISTRATION)
+
+            .add(BigDecimalType.REGISTRATION)
+            .add(BigIntegerType.REGISTRATION)
+            .add(BytesType.REGISTRATION)
+            .add(ObjectType.REGISTRATION)
+            .add(StringType.REGISTRATION)
+            .add(VoidType.REGISTRATION)
+
+            .add(StructType.REGISTRATION)
+            .add(StructuralType.REGISTRATION)
+
+            .add(AnnotatedType.REGISTRATION)
+            .add(EnumType.REGISTRATION)
+            .add(FunctionType.REGISTRATION)
+            .add(TupleType.REGISTRATION)
+            .add(UnionType.REGISTRATION)
+
             .build();
-     */
 
     public static final TypeRegistry BUILTIN_REGISTRY = ((Supplier<TypeRegistry>) () -> {
         TypeRegistry registry = new TypeRegistry();
