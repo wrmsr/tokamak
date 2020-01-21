@@ -115,7 +115,16 @@ public final class NodeRenderings
                 }
             })
 
-            .add(new NodeRendering<>(PScan.class))
+            .add(new NodeRendering<PScan>(PScan.class)
+            {
+                @Override
+                protected void addHeaderSection(Context<PScan> ctx, DotUtils.Table table)
+                {
+                    super.addHeaderSection(ctx, table);
+
+                    table.add(DotUtils.section(DotUtils.row(ctx.node.getSchemaTable().toDotString())));
+                }
+            })
 
             .add(new NodeRendering<>(PScope.class))
 

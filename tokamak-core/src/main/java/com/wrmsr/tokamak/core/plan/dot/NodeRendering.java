@@ -64,7 +64,7 @@ class NodeRendering<T extends PNode>
     {
         DotUtils.Table table = DotUtils.table();
 
-        addHeader(ctx, table);
+        addHeaderSection(ctx, table);
 
         addFieldsSection(ctx, table);
 
@@ -77,12 +77,32 @@ class NodeRendering<T extends PNode>
                 label);
     }
 
-    protected void addHeader(Context<T> ctx, DotUtils.Table table)
+    protected void addHeaderSection(Context<T> ctx, DotUtils.Table table)
     {
-        table.add(
-                DotUtils.section(
-                        DotUtils.row(ctx.node.getClass().getSimpleName() + ": " + ctx.node.getName()),
-                        DotUtils.row(ctx.node.getId().toPrefixedString())));
+        DotUtils.Section section = DotUtils.section();
+
+        addHeaderName(ctx, section);
+
+        addHeaderId(ctx, section);
+
+        addHeaderExtra(ctx, section);
+
+        table.add(section);
+    }
+
+    protected void addHeaderName(Context<T> ctx, DotUtils.Section section)
+    {
+        section.add(DotUtils.row(ctx.node.getClass().getSimpleName() + ": " + ctx.node.getName()));
+    }
+
+    protected void addHeaderId(Context<T> ctx, DotUtils.Section section)
+    {
+        section.add(DotUtils.row(ctx.node.getId().toPrefixedString()));
+    }
+
+    protected void addHeaderExtra(Context<T> ctx, DotUtils.Section section)
+    {
+
     }
 
     protected void addFieldsSection(Context<T> ctx, DotUtils.Table table)
