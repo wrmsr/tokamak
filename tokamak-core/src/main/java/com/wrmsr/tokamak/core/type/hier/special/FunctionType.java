@@ -37,7 +37,7 @@ public final class FunctionType
     private final Type value;
     private final List<Type> params;
 
-    public FunctionType(Type value, List<Type> params)
+    public FunctionType(Type value, Iterable<Type> params)
     {
         this.value = value;
         this.params = ImmutableList.copyOf(params);

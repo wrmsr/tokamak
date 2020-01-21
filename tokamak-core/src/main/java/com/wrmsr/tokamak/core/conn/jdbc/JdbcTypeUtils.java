@@ -29,19 +29,19 @@ public final class JdbcTypeUtils
     {
         switch (cmd.getDataType()) {
             case Types.BIT:
-                return com.wrmsr.tokamak.core.type.Types.BOOLEAN;
+                return com.wrmsr.tokamak.core.type.Types.Boolean();
 
             case Types.TINYINT:
             case Types.SMALLINT:
             case Types.INTEGER:
             case Types.BIGINT:
-                return com.wrmsr.tokamak.core.type.Types.LONG;
+                return com.wrmsr.tokamak.core.type.Types.Long();
 
             case Types.FLOAT:
             case Types.REAL:
 
             case Types.DOUBLE:
-                return com.wrmsr.tokamak.core.type.Types.DOUBLE;
+                return com.wrmsr.tokamak.core.type.Types.Double();
 
             case Types.CHAR:
             case Types.VARCHAR:
@@ -54,14 +54,14 @@ public final class JdbcTypeUtils
             case Types.LONGNVARCHAR:
 
             case Types.NCLOB:
-                return com.wrmsr.tokamak.core.type.Types.STRING;
+                return com.wrmsr.tokamak.core.type.Types.String();
 
             case Types.BINARY:
             case Types.VARBINARY:
             case Types.LONGVARBINARY:
 
             case Types.BLOB:
-                return com.wrmsr.tokamak.core.type.Types.BYTES;
+                return com.wrmsr.tokamak.core.type.Types.Bytes();
 
             default:
                 throw new IllegalArgumentException(Objects.toString(cmd));

@@ -71,11 +71,11 @@ public final class PUnnest
         checkArgument(fields.containsKey(listField));
         if (indexField.isPresent()) {
             if (fields.containsKey(indexField.get())) {
-                checkArgument(fields.get(indexField.get()) == Types.LONG);
+                checkArgument(fields.get(indexField.get()) == Types.Long());
             }
             else {
                 fields = newLinkedHashMap(fields);
-                fields.put(indexField.get(), Types.LONG);
+                fields.put(indexField.get(), Types.Long());
             }
         }
         for (Map.Entry<String, Type> entry : this.unnestedFields.entrySet()) {

@@ -293,6 +293,36 @@ public final class Types
         return new AnnotatedType(annotations, item);
     }
 
+    public static EnumType Enum(Map<String, Long> values)
+    {
+        return new EnumType(values);
+    }
+
+    public static FunctionType Function(Type value)
+    {
+        return new FunctionType(value, ImmutableList.of());
+    }
+
+    public static FunctionType Function(Type value, Type... params)
+    {
+        return new FunctionType(value, ImmutableList.copyOf(params));
+    }
+
+    public static FunctionType Function(Type value, Iterable<Type> params)
+    {
+        return new FunctionType(value, params);
+    }
+
+    public static TupleType Tuple(Type... items)
+    {
+        return new TupleType(ImmutableList.copyOf(items));
+    }
+
+    public static UnionType Union(Type... items)
+    {
+        return new UnionType(ImmutableList.copyOf(items));
+    }
+
     public static final List<TypeRegistration> BUILTIN_REGISTRATIONS = TYPE_REGISTRATION_BUILDER.build();
 
     public static final TypeRegistry BUILTIN_REGISTRY = ((Supplier<TypeRegistry>) () -> {

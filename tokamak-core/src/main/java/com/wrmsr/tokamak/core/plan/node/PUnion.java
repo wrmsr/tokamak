@@ -21,8 +21,8 @@ import com.wrmsr.tokamak.core.layout.field.FieldCollection;
 import com.wrmsr.tokamak.core.layout.field.annotation.FieldAnnotation;
 import com.wrmsr.tokamak.core.plan.node.annotation.PNodeAnnotation;
 import com.wrmsr.tokamak.core.plan.node.visitor.PNodeVisitor;
-import com.wrmsr.tokamak.core.type.hier.Type;
 import com.wrmsr.tokamak.core.type.Types;
+import com.wrmsr.tokamak.core.type.hier.Type;
 import com.wrmsr.tokamak.core.util.annotation.AnnotationCollection;
 import com.wrmsr.tokamak.core.util.annotation.AnnotationCollectionMap;
 
@@ -65,7 +65,7 @@ public final class PUnion
 
         ImmutableMap.Builder<String, Type> fields = ImmutableMap.builder();
         fields.putAll(firstFields);
-        indexField.ifPresent(f -> fields.put(f, Types.LONG));
+        indexField.ifPresent(f -> fields.put(f, Types.Long()));
         this.fields = FieldCollection.of(fields.build());
 
         checkInvariants();

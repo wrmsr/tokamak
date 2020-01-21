@@ -76,7 +76,7 @@ public final class PValues
 
         ImmutableMap.Builder<String, Type> fieldsBuilder = ImmutableMap.builder();
         fieldsBuilder.putAll(this.declaredFields);
-        indexField.ifPresent(f -> fieldsBuilder.put(f, Types.LONG));
+        indexField.ifPresent(f -> fieldsBuilder.put(f, Types.Long()));
         this.fields = FieldCollection.of(fieldsBuilder.build());
         this.values.forEach(l -> checkArgument(l.size() == fields.size()));
 

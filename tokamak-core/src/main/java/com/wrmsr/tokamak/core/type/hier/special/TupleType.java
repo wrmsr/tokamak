@@ -33,7 +33,7 @@ public final class TupleType
 
     private final List<Type> items;
 
-    public TupleType(List<Type> items)
+    public TupleType(Iterable<Type> items)
     {
         this.items = ImmutableList.copyOf(items);
     }
