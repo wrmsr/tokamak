@@ -33,7 +33,7 @@ public final class UnionType
 
     private final List<Type> items;
 
-    public UnionType(List<Type> items)
+    public UnionType(Iterable<Type> items)
     {
         this.items = ImmutableList.copyOf(items);
     }

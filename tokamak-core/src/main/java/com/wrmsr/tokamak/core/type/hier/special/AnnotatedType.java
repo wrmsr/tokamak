@@ -31,6 +31,7 @@ import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 import static com.wrmsr.tokamak.util.MoreCollections.sorted;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 
@@ -52,6 +53,7 @@ public final class AnnotatedType
     {
         this.annotations = AnnotationCollection.copyOf(sorted(annotations, Comparator.comparing(TypeAnnotation::getName)));
         this.item = checkNotNull(item);
+        checkState(!(item instanceof AnnotatedType));
     }
 
     @Override
