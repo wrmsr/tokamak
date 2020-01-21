@@ -13,6 +13,34 @@
  */
 package com.wrmsr.tokamak.core.type.hier.simple;
 
-public class BytesType
+import com.wrmsr.tokamak.core.type.TypeConstructor;
+import com.wrmsr.tokamak.core.type.TypeRegistration;
+
+import javax.annotation.concurrent.Immutable;
+
+import java.lang.reflect.Type;
+import java.util.Optional;
+
+@Immutable
+public final class BytesType
+        implements SimpleType
 {
+    public static final String NAME = "Bytes";
+    public static final TypeRegistration REGISTRATION = new TypeRegistration(NAME, BytesType.class, byte[].class, TypeConstructor.of(BytesType::new));
+
+    public BytesType()
+    {
+    }
+
+    @Override
+    public String getName()
+    {
+        return NAME;
+    }
+
+    @Override
+    public Optional<Type> toReflect()
+    {
+        return Optional.of(byte[].class);
+    }
 }

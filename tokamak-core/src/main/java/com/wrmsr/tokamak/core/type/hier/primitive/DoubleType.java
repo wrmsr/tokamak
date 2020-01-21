@@ -16,9 +16,13 @@ package com.wrmsr.tokamak.core.type.hier.primitive;
 import com.wrmsr.tokamak.core.type.TypeConstructor;
 import com.wrmsr.tokamak.core.type.TypeRegistration;
 
+import javax.annotation.concurrent.Immutable;
+
 import java.lang.reflect.Type;
 import java.util.Optional;
+import java.util.OptionalInt;
 
+@Immutable
 public final class DoubleType
         implements PrimitiveType
 {
@@ -33,6 +37,12 @@ public final class DoubleType
     public String getName()
     {
         return NAME;
+    }
+
+    @Override
+    public OptionalInt getFixedSize()
+    {
+        return OptionalInt.of(8);
     }
 
     @Override

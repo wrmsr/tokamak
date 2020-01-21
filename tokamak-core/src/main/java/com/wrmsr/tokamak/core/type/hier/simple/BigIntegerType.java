@@ -13,6 +13,35 @@
  */
 package com.wrmsr.tokamak.core.type.hier.simple;
 
-public class BigIntegerType
+import com.wrmsr.tokamak.core.type.TypeConstructor;
+import com.wrmsr.tokamak.core.type.TypeRegistration;
+
+import javax.annotation.concurrent.Immutable;
+
+import java.lang.reflect.Type;
+import java.math.BigInteger;
+import java.util.Optional;
+
+@Immutable
+public final class BigIntegerType
+        implements SimpleType
 {
+    public static final String NAME = "BigInteger";
+    public static final TypeRegistration REGISTRATION = new TypeRegistration(NAME, BigIntegerType.class, BigInteger.class, TypeConstructor.of(BigIntegerType::new));
+
+    public BigIntegerType()
+    {
+    }
+
+    @Override
+    public String getName()
+    {
+        return NAME;
+    }
+
+    @Override
+    public Optional<Type> toReflect()
+    {
+        return Optional.of(BigInteger.class);
+    }
 }

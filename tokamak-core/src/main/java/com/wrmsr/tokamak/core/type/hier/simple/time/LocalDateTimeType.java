@@ -13,6 +13,35 @@
  */
 package com.wrmsr.tokamak.core.type.hier.simple.time;
 
-public class LocalDateTimeType
+import com.wrmsr.tokamak.core.type.TypeConstructor;
+import com.wrmsr.tokamak.core.type.TypeRegistration;
+
+import javax.annotation.concurrent.Immutable;
+
+import java.lang.reflect.Type;
+import java.time.LocalDateTime;
+import java.util.Optional;
+
+@Immutable
+public final class LocalDateTimeType
+        implements TimeType
 {
+    public static final String NAME = "LocalDateTime";
+    public static final TypeRegistration REGISTRATION = new TypeRegistration(NAME, LocalDateTimeType.class, LocalDateTime.class, TypeConstructor.of(LocalDateTimeType::new));
+
+    public LocalDateTimeType()
+    {
+    }
+
+    @Override
+    public String getName()
+    {
+        return NAME;
+    }
+
+    @Override
+    public Optional<Type> toReflect()
+    {
+        return Optional.of(LocalDateTime.class);
+    }
 }

@@ -13,6 +13,35 @@
  */
 package com.wrmsr.tokamak.core.type.hier.simple.time;
 
-public class DurationType
+import com.wrmsr.tokamak.core.type.TypeConstructor;
+import com.wrmsr.tokamak.core.type.TypeRegistration;
+
+import javax.annotation.concurrent.Immutable;
+
+import java.lang.reflect.Type;
+import java.time.Duration;
+import java.util.Optional;
+
+@Immutable
+public final class DurationType
+        implements TimeType
 {
+    public static final String NAME = "Duration";
+    public static final TypeRegistration REGISTRATION = new TypeRegistration(NAME, DurationType.class, Duration.class, TypeConstructor.of(DurationType::new));
+
+    public DurationType()
+    {
+    }
+
+    @Override
+    public String getName()
+    {
+        return NAME;
+    }
+
+    @Override
+    public Optional<Type> toReflect()
+    {
+        return Optional.of(Duration.class);
+    }
 }

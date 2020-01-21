@@ -13,6 +13,35 @@
  */
 package com.wrmsr.tokamak.core.type.hier.simple;
 
-public class BigDecimalType
+import com.wrmsr.tokamak.core.type.TypeConstructor;
+import com.wrmsr.tokamak.core.type.TypeRegistration;
+
+import javax.annotation.concurrent.Immutable;
+
+import java.lang.reflect.Type;
+import java.math.BigDecimal;
+import java.util.Optional;
+
+@Immutable
+public final class BigDecimalType
+        implements SimpleType
 {
+    public static final String NAME = "BigDecimal";
+    public static final TypeRegistration REGISTRATION = new TypeRegistration(NAME, BigDecimalType.class, BigDecimal.class, TypeConstructor.of(BigDecimalType::new));
+
+    public BigDecimalType()
+    {
+    }
+
+    @Override
+    public String getName()
+    {
+        return NAME;
+    }
+
+    @Override
+    public Optional<Type> toReflect()
+    {
+        return Optional.of(BigDecimal.class);
+    }
 }

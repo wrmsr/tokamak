@@ -15,6 +15,9 @@ package com.wrmsr.tokamak.core.type.hier.simple;
 
 import com.wrmsr.tokamak.core.type.hier.Type;
 
+import javax.annotation.concurrent.Immutable;
+
+@Immutable
 public interface SimpleType
         extends Type
 {

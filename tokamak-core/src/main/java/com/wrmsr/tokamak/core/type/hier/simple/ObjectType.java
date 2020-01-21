@@ -13,6 +13,34 @@
  */
 package com.wrmsr.tokamak.core.type.hier.simple;
 
-public class ObjectType
+import com.wrmsr.tokamak.core.type.TypeConstructor;
+import com.wrmsr.tokamak.core.type.TypeRegistration;
+
+import javax.annotation.concurrent.Immutable;
+
+import java.lang.reflect.Type;
+import java.util.Optional;
+
+@Immutable
+public final class ObjectType
+        implements SimpleType
 {
+    public static final String NAME = "Object";
+    public static final TypeRegistration REGISTRATION = new TypeRegistration(NAME, ObjectType.class, Object.class, TypeConstructor.of(ObjectType::new));
+
+    public ObjectType()
+    {
+    }
+
+    @Override
+    public String getName()
+    {
+        return NAME;
+    }
+
+    @Override
+    public Optional<Type> toReflect()
+    {
+        return Optional.of(Object.class);
+    }
 }

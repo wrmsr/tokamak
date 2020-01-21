@@ -11,20 +11,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.core.type.hier.primitive;
+package com.wrmsr.tokamak.core.type.hier.simple.time;
 
-import com.wrmsr.tokamak.core.type.hier.Type;
+import com.wrmsr.tokamak.core.type.hier.simple.SimpleType;
 
-import javax.annotation.concurrent.Immutable;
-
-import java.util.Optional;
-import java.util.OptionalInt;
-
-@Immutable
-public interface PrimitiveType
-        extends Type
+public interface TimeType
+        extends SimpleType
 {
-    OptionalInt getFixedSize();
-
-    Optional<java.lang.reflect.Type> toReflect();
 }
