@@ -15,9 +15,12 @@ package com.wrmsr.tokamak.core.util;
 
 public interface DerivableClassUniqueCollection<T, Self extends DerivableClassUniqueCollection<T, Self>>
 {
+    @SuppressWarnings("unchecked")
     Self appended(T... items);
 
+    @SuppressWarnings("unchecked")
     Self dropped(Class<? extends T>... clss);
 
+    @SuppressWarnings("unchecked")
     Self updated(T... items);
 }
