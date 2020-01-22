@@ -108,6 +108,8 @@ public class TpchParserTest
         for (String str : new String[] {
                 // "select * where from",
 
+                "select N_NAME, N_REGIONKEY, N_COMMENT, R_NAME from NATION, REGION where N_REGIONKEY = R_REGIONKEY and N_NATIONKEY = 420",
+
                 "select N_NAME, N_REGIONKEY, N_COMMENT, R_NAME from NATION, REGION where N_REGIONKEY = R_REGIONKEY",
 
                 // "select N_NAME, N_REGIONKEY, N_COMMENT, R_NAME from NATION, REGION where N_REGIONKEY = R_REGIONKEY and N_NATIONKEY = R_REGIONKEY",
