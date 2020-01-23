@@ -23,8 +23,8 @@ select
     ;
 
 selectItem
-    : expression (AS? identifier)?  #selectExpression
-    | '*'                           #selectAll
+    : expression (AS? identifier)?  #expressionSelectItem
+    | '*'                           #allSelectItem
     ;
 
 aliasedRelation
@@ -32,62 +32,42 @@ aliasedRelation
     ;
 
 relation
-    : qualifiedName   #tableName
+    : qualifiedName   #tableNameRelation
     | '(' select ')'  #subqueryRelation
     ;
-
-/*
-expression
-    : '(' expression ')'                                   #parenthesizedExpression
-    | NOT expression                                       #notExpression
-    | left=expression booleanOperator right=expression     #booleanExpression
-    | left=expression comparisonOperator right=expression  #comparisonExpression
-    | valueExpression                                      #valueExpressionLabel
-    ;
-
-valueExpression
-    : qualifiedName                                        #qualifiedNameExpression
-    | literal                                              #literalExpression
-    | identifier '(' (expression (',' expression)*)? ')'   #functionCallExpression
-    | parameter                                            #parameterExpression
-    ;
-*/
 
 expression
     : booleanExpression
     ;
 
 booleanExpression
-    : valueExpression predicate[$valueExpression.ctx]?                         #predicated
-    | NOT booleanExpression                                                    #logicalNot
-    | left=booleanExpression operator=booleanOperator right=booleanExpression  #logicalBinary
+    : valueExpression predicate[$valueExpression.ctx]?                         #predicateBooleanExpression
+    | NOT booleanExpression                                                    #logicalNotBooleanExpression
+    | left=booleanExpression operator=booleanOperator right=booleanExpression  #logicalBinaryBooleanExpression
     ;
 
 // workaround for https://github.com/antlr/antlr4/issues/780
 predicate[ParserRuleContext value]
-    : comparisonOperator right=valueExpression                      #comparison
-    | NOT? BETWEEN lower=valueExpression AND upper=valueExpression  #between
-    | NOT? IN '(' expression (',' expression)* ')'                  #inList
-    | IS NOT? NULL                                                  #nullPredicate
+    : comparisonOperator right=valueExpression                      #comparisonOperatorPredicate
+    | NOT? BETWEEN lower=valueExpression AND upper=valueExpression  #betweenPredicate
+    | NOT? IN '(' expression (',' expression)* ')'                  #inPredicate
+    | IS NOT? NULL                                                  #isNullPredicate
     ;
 
 valueExpression
-    : primaryExpression                                                      #valueExpressionDefault
-    | operator=('-' | '+') valueExpression                                   #arithmeticUnary
-    | left=valueExpression operator=('*' | '/' | '%') right=valueExpression  #arithmeticBinary
-    | left=valueExpression operator=('+' | '-') right=valueExpression        #arithmeticBinary
-    | left=valueExpression '||' right=valueExpression                        #concatenation
+    : primaryExpression                                                             #primaryExpressionValueExpression
+    | operator=arithmeticUnaryOperator valueExpression                              #arithmeticUnaryValueExpression
+    | left=valueExpression operator=arithmeticBinaryOperator right=valueExpression  #arithmeticBinaryValueExpression
+    | left=valueExpression '||' right=valueExpression                               #concatenationValueExpression
     ;
 
 primaryExpression
-    : NULL                                                   #nullLiteralPrimaryExpression
-    | literal                                                #literalPrimaryExpression
-    | parameter                                              #parameterPrimaryExpression
-    | qualifiedName '(' (expression (',' expression)*)? ')'  #functionCall
-    | value=primaryExpression '[' index=valueExpression ']'  #subscript
-    | identifier                                             #identifierPrimaryExpression
-    | base=primaryExpression '.' fieldName=identifier        #dereference
-    | '(' expression ')'                                     #parenthesizedExpression
+    : NULL                                                #nullPrimaryExpression
+    | literal                                             #literalPrimaryExpression
+    | parameter                                           #parameterPrimaryExpression
+    | identifier '(' (expression (',' expression)*)? ')'  #functionCallPrimaryExpression
+    | qualifiedName                                       #qualifiedNamePrimaryExpression
+    | '(' expression ')'                                  #parenthesizedPrimaryExpression
     ;
 
 parameter
@@ -117,6 +97,14 @@ booleanOperator
 
 comparisonOperator
     : '=' | '!=' | '<>' | '<' | '<=' | '>' | '>='
+    ;
+
+arithmeticUnaryOperator
+    : '-' | '+'
+    ;
+
+arithmeticBinaryOperator
+    : '*' | '/' | '%' | '+' | '-'
     ;
 
 AND: 'AND';

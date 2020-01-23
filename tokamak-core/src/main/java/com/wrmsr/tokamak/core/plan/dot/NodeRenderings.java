@@ -47,7 +47,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 import static java.util.function.Function.identity;
 
-public final class NodeRenderings
+final class NodeRenderings
 {
     private NodeRenderings()
     {

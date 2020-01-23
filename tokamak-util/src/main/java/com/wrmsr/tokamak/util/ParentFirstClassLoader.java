@@ -35,7 +35,8 @@ public class ParentFirstClassLoader
     private final List<String> hiddenResources;
     private final List<String> parentFirstResources;
 
-    public ParentFirstClassLoader(List<URL> urls,
+    public ParentFirstClassLoader(
+            List<URL> urls,
             ClassLoader parent,
             Iterable<String> hiddenClasses,
             Iterable<String> parentFirstClasses)
@@ -48,7 +49,8 @@ public class ParentFirstClassLoader
                 Iterables.transform(parentFirstClasses, ParentFirstClassLoader::classNameToResource));
     }
 
-    public ParentFirstClassLoader(List<URL> urls,
+    public ParentFirstClassLoader(
+            List<URL> urls,
             ClassLoader parent,
             Iterable<String> hiddenClasses,
             Iterable<String> parentFirstClasses,

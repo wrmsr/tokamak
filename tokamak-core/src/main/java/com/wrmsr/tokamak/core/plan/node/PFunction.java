@@ -28,14 +28,17 @@ public final class PFunction
 {
     private final String name;
     private final FunctionType type;
+    private final Executable.Purity purity;
 
     @JsonCreator
     public PFunction(
             @JsonProperty("name") String name,
-            @JsonProperty("type") FunctionType type)
+            @JsonProperty("type") FunctionType type,
+            @JsonProperty("purity") Executable.Purity purity)
     {
         this.name = checkNotEmpty(name);
         this.type = checkNotNull(type);
+        this.purity = checkNotNull(purity);
     }
 
     @JsonProperty("name")
@@ -50,8 +53,14 @@ public final class PFunction
         return type;
     }
 
+    @JsonProperty("purity")
+    public Executable.Purity getPurity()
+    {
+        return purity;
+    }
+
     public static PFunction of(Executable exe)
     {
-        return new PFunction(exe.getName(), exe.getType());
+        return new PFunction(exe.getName(), exe.getType(), Executable.Purity.IMPURE);
     }
 }

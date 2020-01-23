@@ -16,22 +16,28 @@ package com.wrmsr.tokamak.main.server;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import javax.annotation.concurrent.Immutable;
+
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+@Immutable
 public final class Status
 {
     private float uptime;
     private final Optional<String> revision;
+    private final Optional<String> javaVersion;
 
     @JsonCreator
     public Status(
             @JsonProperty("uptime") float uptime,
-            @JsonProperty("revision") Optional<String> revision)
+            @JsonProperty("revision") Optional<String> revision,
+            @JsonProperty("javaVersion") Optional<String> javaVersion)
     {
         this.uptime = uptime;
         this.revision = checkNotNull(revision);
+        this.javaVersion = checkNotNull(javaVersion);
     }
 
     @JsonProperty("uptime")
@@ -44,5 +50,11 @@ public final class Status
     public Optional<String> getRevision()
     {
         return revision;
+    }
+
+    @JsonProperty("javaVersion")
+    public Optional<String> getJavaVersion()
+    {
+        return javaVersion;
     }
 }

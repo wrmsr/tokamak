@@ -18,14 +18,14 @@ import com.wrmsr.tokamak.core.plan.node.PNode;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public final class Dot
+public final class PlanDot
 {
-    private Dot()
+    private PlanDot()
     {
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
-    public static String buildPlanDot(Plan plan)
+    public static String build(Plan plan)
     {
         StringBuilder sb = new StringBuilder();
         sb.append("digraph G {\n");

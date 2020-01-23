@@ -25,6 +25,8 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 
+import java.util.Optional;
+
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
 
@@ -47,7 +49,8 @@ public class RootResource
     {
         return new Status(
                 uptimeService.getUptimeMillis() / 1000.0f,
-                GitRevision.get());
+                GitRevision.get(),
+                Optional.ofNullable(System.getProperty("java.version")));
     }
 
     @POST

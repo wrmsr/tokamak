@@ -22,7 +22,7 @@ import com.wrmsr.tokamak.core.exec.SimpleExecutable;
 import com.wrmsr.tokamak.core.exec.builtin.BuiltinExecutor;
 import com.wrmsr.tokamak.core.parse.SqlParser;
 import com.wrmsr.tokamak.core.plan.Plan;
-import com.wrmsr.tokamak.core.plan.dot.Dot;
+import com.wrmsr.tokamak.core.plan.dot.PlanDot;
 import com.wrmsr.tokamak.core.plan.node.PNode;
 import com.wrmsr.tokamak.core.plan.transform.PropagateIdsTransform;
 import com.wrmsr.tokamak.core.tree.TreeParsing;
@@ -37,6 +37,7 @@ import com.wrmsr.tokamak.core.type.hier.Type;
 import com.wrmsr.tokamak.core.type.Types;
 import com.wrmsr.tokamak.core.type.hier.special.FunctionType;
 import com.wrmsr.tokamak.core.util.ApiJson;
+import com.wrmsr.tokamak.core.util.dot.DotUtils;
 import com.wrmsr.tokamak.test.TpchUtils;
 import com.wrmsr.tokamak.util.Jdk;
 import com.wrmsr.tokamak.util.java.compile.javac.InProcJavaCompiler;
@@ -148,12 +149,12 @@ public class TpchParserTest
             PNode node = new TreePlanner(Optional.of(catalog), defaultSchema).plan(treeNode);
             Plan plan = Plan.of(node);
 
-            Dot.openDot(Dot.buildPlanDot(plan));
+            DotUtils.openDot(PlanDot.build(plan));
 
             plan = PropagateIdsTransform.propagateIds(plan, Optional.of(catalog));
             System.out.println(Json.writeValuePretty(plan));
 
-            Dot.openDot(Dot.buildPlanDot(plan));
+            DotUtils.openDot(PlanDot.build(plan));
 
             System.out.println();
         }

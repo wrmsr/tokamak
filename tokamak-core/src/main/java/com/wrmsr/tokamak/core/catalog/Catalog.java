@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.api.SchemaTable;
+import com.wrmsr.tokamak.core.exec.Executable;
 import com.wrmsr.tokamak.core.type.hier.special.FunctionType;
 
 import java.util.Collection;
@@ -36,13 +37,88 @@ public final class Catalog
 {
     private final List<Catalog> parents;
 
-    private final Object lock = new Object();
+    private static final class State
+    {
+        private final Map<String, Connector> connectorsByName;
+        private final Map<String, Schema> schemasByName;
+        private final Map<String, Executor> executorsByName;
+        private final Map<String, Function> functionsByName;
+        private final Map<String, View> viewsByName;
 
-    private volatile Map<String, Connector> connectorsByName = ImmutableMap.of();
-    private volatile Map<String, Schema> schemasByName = ImmutableMap.of();
-    private volatile Map<String, Executor> executorsByName = ImmutableMap.of();
-    private volatile Map<String, Function> functionsByName = ImmutableMap.of();
-    private volatile Map<String, View> viewsByName = ImmutableMap.of();
+        private State(Builder builder)
+        {
+            connectorsByName = ImmutableMap.copyOf(builder.connectorsByName);
+            schemasByName = ImmutableMap.copyOf(builder.schemasByName);
+            executorsByName = ImmutableMap.copyOf(builder.executorsByName);
+            functionsByName = ImmutableMap.copyOf(builder.functionsByName);
+            viewsByName = ImmutableMap.copyOf(builder.viewsByName);
+        }
+
+        public static final class Builder
+        {
+            private Map<String, Connector> connectorsByName = ImmutableMap.of();
+            private Map<String, Schema> schemasByName = ImmutableMap.of();
+            private Map<String, Executor> executorsByName = ImmutableMap.of();
+            private Map<String, Function> functionsByName = ImmutableMap.of();
+            private Map<String, View> viewsByName = ImmutableMap.of();
+
+            public Builder()
+            {
+            }
+
+            public Builder(State state)
+            {
+                connectorsByName = state.connectorsByName;
+                schemasByName = state.schemasByName;
+                executorsByName = state.executorsByName;
+                functionsByName = state.functionsByName;
+                viewsByName = state.viewsByName;
+            }
+
+            public Builder connectorsByName(Map<String, Connector> val)
+            {
+                connectorsByName = val;
+                return this;
+            }
+
+            public Builder schemasByName(Map<String, Schema> val)
+            {
+                schemasByName = val;
+                return this;
+            }
+
+            public Builder executorsByName(Map<String, Executor> val)
+            {
+                executorsByName = val;
+                return this;
+            }
+
+            public Builder functionsByName(Map<String, Function> val)
+            {
+                functionsByName = val;
+                return this;
+            }
+
+            public Builder viewsByName(Map<String, View> val)
+            {
+                viewsByName = val;
+                return this;
+            }
+
+            public State build()
+            {
+                return new State(this);
+            }
+        }
+
+        public Builder rebuild()
+        {
+            return new Builder(this);
+        }
+    }
+
+    private final Object lock = new Object();
+    private volatile State state = new State.Builder().build();
 
     public Catalog(List<Catalog> parents)
     {
@@ -73,7 +149,9 @@ public final class Catalog
             s.setCatalog(this);
             schemasByName.put(s.getName(), s);
         });
-        this.schemasByName = ImmutableMap.copyOf(schemasByName);
+        state = state.rebuild().schemasByName(
+                ImmutableMap.<String, Schema>builder().putAll(state.schemasByName).putAll(schemasByName).build()
+        ).build();
 
         checkNotNull(executors).forEach(this::addExecutor);
         Map<String, Function> functionsByName = new LinkedHashMap<>();
@@ -83,7 +161,9 @@ public final class Catalog
             f.setCatalog(this);
             functionsByName.put(f.getName(), f);
         });
-        this.functionsByName = ImmutableMap.copyOf(functionsByName);
+        state = state.rebuild().functionsByName(
+                ImmutableMap.<String, Function>builder().putAll(state.functionsByName).putAll(functionsByName).build()
+        ).build();
 
         views.forEach(this::addView);
     }
@@ -97,65 +177,67 @@ public final class Catalog
     @JsonProperty("connectors")
     public Collection<Connector> getConnectors()
     {
-        return connectorsByName.values();
+        return state.connectorsByName.values();
     }
 
     public Map<String, Connector> getConnectorsByName()
     {
-        return connectorsByName;
+        return state.connectorsByName;
     }
 
     @JsonProperty("schemas")
     public Collection<Schema> getSchemas()
     {
-        return schemasByName.values();
+        return state.schemasByName.values();
     }
 
     public Map<String, Schema> getSchemasByName()
     {
-        return schemasByName;
+        return state.schemasByName;
     }
 
     @JsonProperty("executors")
     public Collection<Executor> getExecutors()
     {
-        return executorsByName.values();
+        return state.executorsByName.values();
     }
 
     public Map<String, Executor> getExecutorsByName()
     {
-        return executorsByName;
+        return state.executorsByName;
     }
 
     @JsonProperty("functions")
     public Collection<Function> getFunctions()
     {
-        return functionsByName.values();
+        return state.functionsByName.values();
     }
 
     public Map<String, Function> getFunctionsByName()
     {
-        return functionsByName;
+        return state.functionsByName;
     }
 
     @JsonProperty("views")
     public Collection<View> getViews()
     {
-        return viewsByName.values();
+        return state.viewsByName.values();
     }
 
     public Map<String, View> getViewsByName()
     {
-        return viewsByName;
+        return state.viewsByName;
     }
 
     public <T extends Connector> T addConnector(T connector)
     {
         synchronized (lock) {
-            if (connectorsByName.get(connector.getName()) != null) {
+            if (state.connectorsByName.get(connector.getName()) != null) {
                 throw new IllegalArgumentException("Connector name taken: " + connector.getName());
             }
-            connectorsByName = ImmutableMap.<String, Connector>builder().putAll(connectorsByName).put(connector.getName(), connector).build();
+            state = state.rebuild().connectorsByName(
+                    ImmutableMap.<String, Connector>builder().putAll(state.connectorsByName).put(connector.getName(), connector).build()
+            ).build();
             return connector;
         }
     }
@@ -163,11 +245,11 @@ public final class Catalog
     public Schema addSchema(String name, Connector connector)
     {
         synchronized (lock) {
-            Schema schema = schemasByName.get(name);
+            Schema schema = state.schemasByName.get(name);
             if (schema != null) {
                 throw new IllegalArgumentException(String.format("Schema name %s taken under connector %s", name, schema.getConnector()));
             }
-            Connector existingConnector = connectorsByName.get(connector.getName());
+            Connector existingConnector = state.connectorsByName.get(connector.getName());
             if (existingConnector == null) {
                 addConnector(connector);
             }
@@ -175,7 +257,9 @@ public final class Catalog
                 throw new IllegalArgumentException("Connector name taken: " + connector.getName());
             }
             schema = new Schema(this, name, connector);
-            schemasByName = ImmutableMap.<String, Schema>builder().putAll(schemasByName).put(name, schema).build();
+            state = state.rebuild().schemasByName(
+                    ImmutableMap.<String, Schema>builder().putAll(state.schemasByName).put(name, schema).build()
+            ).build();
             return schema;
         }
     }
@@ -183,17 +267,19 @@ public final class Catalog
     public <T extends Executor> T addExecutor(T executor)
     {
         synchronized (lock) {
-            if (executorsByName.get(executor.getName()) != null) {
+            if (state.executorsByName.get(executor.getName()) != null) {
                 throw new IllegalArgumentException("Executor name taken: " + executor.getName());
             }
-            executorsByName = ImmutableMap.<String, Executor>builder().putAll(executorsByName).put(executor.getName(), executor).build();
+            state = state.rebuild().executorsByName(
+                    ImmutableMap.<String, Executor>builder().putAll(state.executorsByName).put(executor.getName(), executor).build()
+            ).build();
             return executor;
         }
     }
 
     public Optional<Schema> getSchemaOptional(String name)
     {
-        Schema schema = schemasByName.get(name);
+        Schema schema = state.schemasByName.get(name);
         if (schema != null) {
             return Optional.of(schema);
         }
@@ -219,27 +305,34 @@ public final class Catalog
     public Function addFunction(String name, Executor executor)
     {
         synchronized (lock) {
-            Function function = functionsByName.get(name);
+            Function function = state.functionsByName.get(name);
             if (function != null) {
                 throw new IllegalArgumentException(String.format("Function name %s taken under executor %s", name, function.getExecutor()));
             }
-            Executor existingExecutor = executorsByName.get(executor.getName());
+            Executor existingExecutor = state.executorsByName.get(executor.getName());
             if (existingExecutor == null) {
                 addExecutor(executor);
             }
             else if (existingExecutor != executor) {
                 throw new IllegalArgumentException("Executor name taken: " + executor.getName());
             }
-            FunctionType type = checkNotNull(executor.getExecutable(name)).getType();
-            function = new Function(this, name, type, executor);
-            functionsByName = ImmutableMap.<String, Function>builder().putAll(functionsByName).put(name, function).build();
+            Executable executable = checkNotNull(executor.getExecutable(name));
+            function = new Function(
+                    this,
+                    name,
+                    executable.getType(),
+                    executable.getPurity(),
+                    executor);
+            state = state.rebuild().functionsByName(
+                    ImmutableMap.<String, Function>builder().putAll(state.functionsByName).put(name, function).build()
+            ).build();
             return function;
         }
     }
 
     public Optional<Function> getFunctionOptional(String name)
     {
-        Function function = functionsByName.get(name);
+        Function function = state.functionsByName.get(name);
         if (function != null) {
             return Optional.of(function);
         }
@@ -260,18 +353,20 @@ public final class Catalog
     public View addView(View view)
     {
         synchronized (lock) {
-            View existingView = viewsByName.get(view.getName());
+            View existingView = state.viewsByName.get(view.getName());
             if (existingView != null) {
                 throw new IllegalArgumentException(String.format("Schema name %s taken under connector %s", view.getName(), existingView));
             }
-            viewsByName = ImmutableMap.<String, View>builder().putAll(viewsByName).put(view.getName(), view).build();
+            state = state.rebuild().viewsByName(
+                    ImmutableMap.<String, View>builder().putAll(state.viewsByName).put(view.getName(), view).build()
+            ).build();
             return view;
         }
     }
 
     public Optional<View> getViewOptional(String name)
     {
-        View view = viewsByName.get(name);
+        View view = state.viewsByName.get(name);
         if (view != null) {
             return Optional.of(view);
         }

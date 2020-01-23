@@ -20,6 +20,11 @@ import com.wrmsr.tokamak.core.type.hier.special.FunctionType;
 
 public final class BuiltinFunctions
 {
+    /*
+    TODO:
+     - generalized 'transmute' (not internalize) -> identity (not nop), opto out
+    */
+
     private BuiltinFunctions()
     {
     }

@@ -1,6 +1,5 @@
 grammar Type;
 
-
 type
     : NAME ('<' argOrKwarg (',' argOrKwarg)* '>')?
     ;

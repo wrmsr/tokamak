@@ -11,26 +11,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.core.exec;
+package com.wrmsr.tokamak.core.tree;
 
-import com.wrmsr.tokamak.core.type.hier.special.FunctionType;
+import com.wrmsr.tokamak.core.tree.node.TNode;
 
-public interface Executable
+public final class TreeDot
 {
-    enum Purity
+    private TreeDot()
     {
-        PURE,
-        IMPURE;
     }
 
-    String getName();
-
-    FunctionType getType();
-
-    default Purity getPurity()
+    public static String build(TNode root)
     {
-        return Purity.IMPURE;
+        throw new IllegalStateException();
     }
-
-    Object invoke(Object... args);
 }

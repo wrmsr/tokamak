@@ -103,7 +103,38 @@ public final class TreeParsing
             }
 
             @Override
-            public TNode visitBooleanExpression(SqlParser.BooleanExpressionContext ctx)
+            public TNode visitAllSelectItem(SqlParser.AllSelectItemContext ctx)
+            {
+                return new TAllSelectItem();
+            }
+
+            @Override
+            public TNode visitComparisonOperatorPredicate(SqlParser.ComparisonOperatorPredicateContext ctx)
+            {
+                return new TComparisonExpression(
+                        (TExpression) visit(ctx.value),
+                        TComparisonExpression.Op.fromString(ctx.comparisonOperator().getText()),
+                        (TExpression) visit(ctx.right));
+            }
+
+            @Override
+            public TNode visitExpressionSelectItem(SqlParser.ExpressionSelectItemContext ctx)
+            {
+                return new TExpressionSelectItem(
+                        (TExpression) visit(ctx.expression()),
+                        ctx.identifier() != null ? Optional.of(ctx.identifier().getText()) : Optional.empty());
+            }
+
+            @Override
+            public TNode visitFunctionCallPrimaryExpression(SqlParser.FunctionCallPrimaryExpressionContext ctx)
+            {
+                return new TFunctionCallExpression(
+                        ((TIdentifier) visit(ctx.identifier())).getValue(),
+                        visit(ctx.expression(), TExpression.class));
+            }
+
+            @Override
+            public TNode visitLogicalBinaryBooleanExpression(SqlParser.LogicalBinaryBooleanExpressionContext ctx)
             {
                 return new TBooleanExpression(
                         (TExpression) visit(ctx.left),
@@ -112,33 +143,10 @@ public final class TreeParsing
             }
 
             @Override
-            public TNode visitComparisonExpression(SqlParser.ComparisonExpressionContext ctx)
-            {
-                return new TComparisonExpression(
-                        (TExpression) visit(ctx.left),
-                        TComparisonExpression.Op.fromString(ctx.comparisonOperator().getText()),
-                        (TExpression) visit(ctx.right));
-            }
-
-            @Override
-            public TNode visitFunctionCallExpression(SqlParser.FunctionCallExpressionContext ctx)
-            {
-                return new TFunctionCallExpression(
-                        ((TIdentifier) visit(ctx.identifier())).getValue(),
-                        visit(ctx.expression(), TExpression.class));
-            }
-
-            @Override
-            public TNode visitNotExpression(SqlParser.NotExpressionContext ctx)
+            public TNode visitLogicalNotBooleanExpression(SqlParser.LogicalNotBooleanExpressionContext ctx)
             {
                 return new TNotExpression(
-                        (TExpression) visit(ctx.expression()));
-            }
-
-            @Override
-            public TNode visitNumberLiteral(SqlParser.NumberLiteralContext ctx)
-            {
-                return new TNumberLiteral(Long.parseLong(ctx.getText()));
+                        (TExpression) visit(ctx.booleanExpression()));
             }
 
             @Override
@@ -148,9 +156,25 @@ public final class TreeParsing
             }
 
             @Override
-            public TNode visitParenthesizedExpression(SqlParser.ParenthesizedExpressionContext ctx)
+            public TNode visitNumberLiteral(SqlParser.NumberLiteralContext ctx)
+            {
+                return new TNumberLiteral(Long.parseLong(ctx.getText()));
+            }
+
+            @Override
+            public TNode visitParenthesizedPrimaryExpression(SqlParser.ParenthesizedPrimaryExpressionContext ctx)
             {
                 return (TExpression) visit(ctx.expression());
+            }
+
+            @Override
+            public TNode visitPredicateBooleanExpression(SqlParser.PredicateBooleanExpressionContext ctx)
+            {
+                if (ctx.predicate() != null) {
+                    return visit(ctx.predicate());
+                }
+
+                return visit(ctx.valueExpression);
             }
 
             @Override
@@ -163,7 +187,7 @@ public final class TreeParsing
             }
 
             @Override
-            public TNode visitQualifiedNameExpression(SqlParser.QualifiedNameExpressionContext ctx)
+            public TNode visitQualifiedNamePrimaryExpression(SqlParser.QualifiedNamePrimaryExpressionContext ctx)
             {
                 return new TQualifiedNameExpression(
                         (TQualifiedName) visit(ctx.qualifiedName()));
@@ -177,12 +201,6 @@ public final class TreeParsing
             }
 
             @Override
-            public TNode visitUnquotedIdentifier(SqlParser.UnquotedIdentifierContext ctx)
-            {
-                return new TIdentifier(ctx.getText());
-            }
-
-            @Override
             public TNode visitSelect(SqlParser.SelectContext ctx)
             {
                 List<TSelectItem> selectItems = visit(ctx.selectItem(), TSelectItem.class);
@@ -192,20 +210,6 @@ public final class TreeParsing
                         selectItems,
                         relations,
                         where);
-            }
-
-            @Override
-            public TNode visitSelectAll(SqlParser.SelectAllContext ctx)
-            {
-                return new TAllSelectItem();
-            }
-
-            @Override
-            public TNode visitSelectExpression(SqlParser.SelectExpressionContext ctx)
-            {
-                return new TExpressionSelectItem(
-                        (TExpression) visit(ctx.expression()),
-                        ctx.identifier() != null ? Optional.of(ctx.identifier().getText()) : Optional.empty());
             }
 
             @Override
@@ -238,7 +242,7 @@ public final class TreeParsing
             }
 
             @Override
-            public TNode visitTableName(SqlParser.TableNameContext ctx)
+            public TNode visitTableNameRelation(SqlParser.TableNameRelationContext ctx)
             {
                 return new TTableName((TQualifiedName) visit(ctx.qualifiedName()));
             }
@@ -250,6 +254,12 @@ public final class TreeParsing
                 checkState(raw.length() >= 6 && raw.startsWith("'''") && raw.endsWith("'''"));
                 raw = raw.substring(3, raw.length() - 3);
                 return new TStringLiteral(TreeStrings.escaped(raw));
+            }
+
+            @Override
+            public TNode visitUnquotedIdentifier(SqlParser.UnquotedIdentifierContext ctx)
+            {
+                return new TIdentifier(ctx.getText());
             }
         });
     }

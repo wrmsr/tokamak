@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
@@ -58,38 +59,40 @@ public final class Reflection
         return Arrays.stream(method.getParameterTypes()).map(Types.BUILTIN_REGISTRY::fromReflect).collect(toImmutableList());
     }
 
-    private static Executable reflectWithoutHandle(Method method, String name, FunctionType type)
+    private static Function<Object[], Object> reflectWithoutHandle(Method method, String name, FunctionType type)
     {
-        return new SimpleExecutable(
-                name,
-                type,
-                args -> rethrowingGet(() -> method.invoke(args)));
+        return args -> rethrowingGet(() -> method.invoke(args));
     }
 
-    private static Executable reflectWithHandle(Method method, String name, FunctionType type)
+    private static Function<Object[], Object> reflectWithHandle(Method method, String name, FunctionType type)
             throws IllegalAccessException
     {
         MethodHandle handle = MethodHandles.lookup().unreflect(method);
-        return new SimpleExecutable(
-                name,
-                type,
-                args -> throwableRethrowingGet(() -> handle.invokeWithArguments(args)));
+        return args -> throwableRethrowingGet(() -> handle.invokeWithArguments(args));
     }
 
     public static Executable reflect(
             Method method,
             Optional<String> optName,
-            Optional<FunctionType> optType)
+            Optional<FunctionType> optType,
+            Executable.Purity purity)
     {
         String name = optName.orElseGet(() -> getNextReflectedName(method));
         FunctionType type = optType.orElseGet(() -> new FunctionType(getValueType(method), getParamTypes(method)));
 
+        Function<Object[], Object> function;
         try {
-            return reflectWithHandle(method, name, type);
+            function = reflectWithHandle(method, name, type);
         }
         catch (IllegalAccessException e) {
-            return reflectWithoutHandle(method, name, type);
+            function = reflectWithoutHandle(method, name, type);
         }
+
+        return new SimpleExecutable(
+                name,
+                type,
+                purity,
+                function);
     }
 
     public static Executable reflect(
@@ -97,17 +100,17 @@ public final class Reflection
             String name,
             FunctionType type)
     {
-        return reflect(method, Optional.of(name), Optional.of(type));
+        return reflect(method, Optional.of(name), Optional.of(type), Executable.Purity.IMPURE);
     }
 
     public static Executable reflect(Method method, String name)
     {
-        return reflect(method, Optional.of(name), Optional.empty());
+        return reflect(method, Optional.of(name), Optional.empty(), Executable.Purity.IMPURE);
     }
 
     public static Executable reflect(Method method)
     {
-        return reflect(method, Optional.empty(), Optional.empty());
+        return reflect(method, Optional.empty(), Optional.empty(), Executable.Purity.IMPURE);
     }
 
     public static Executable reflect(Supplier<?> supplier)

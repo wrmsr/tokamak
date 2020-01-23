@@ -31,17 +31,22 @@ public final class Function
 {
     private final String name;
     private final FunctionType type;
+    private final Executable.Purity purity;
     private final Executor executor;
 
     private Catalog catalog;
 
-    private final Object lock = new Object();
-
-    public Function(Catalog catalog, String name, FunctionType type, Executor executor)
+    public Function(
+            Catalog catalog,
+            String name,
+            FunctionType type,
+            Executable.Purity purity,
+            Executor executor)
     {
         this.catalog = checkNotNull(catalog);
         this.name = checkNotEmpty(name);
         this.type = checkNotNull(type);
+        this.purity = checkNotNull(purity);
         this.executor = checkNotNull(executor);
     }
 
@@ -49,10 +54,12 @@ public final class Function
     private Function(
             @JsonProperty("name") String name,
             @JsonProperty("type") FunctionType type,
+            @JsonProperty("purity") Executable.Purity purity,
             @JsonProperty("executor") Executor executor)
     {
         this.name = checkNotNull(name);
         this.type = checkNotNull(type);
+        this.purity = checkNotNull(purity);
         this.executor = checkNotNull(executor);
     }
 
@@ -96,6 +103,6 @@ public final class Function
 
     public PFunction asNodeFunction()
     {
-        return nodeFunction.get(() -> new PFunction(name, type));
+        return nodeFunction.get(() -> new PFunction(name, type, purity));
     }
 }

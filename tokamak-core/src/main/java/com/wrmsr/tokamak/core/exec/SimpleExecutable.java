@@ -28,13 +28,27 @@ public final class SimpleExecutable
 {
     private final String name;
     private final FunctionType type;
+    private final Purity purity;
     private final Function<Object[], Object> function;
 
-    public SimpleExecutable(String name, FunctionType type, Function<Object[], Object> function)
+    public SimpleExecutable(
+            String name,
+            FunctionType type,
+            Purity purity,
+            Function<Object[], Object> function)
     {
         this.name = checkNotEmpty(name);
         this.type = checkNotNull(type);
+        this.purity = checkNotNull(purity);
         this.function = checkNotNull(function);
+    }
+
+    public SimpleExecutable(
+            String name,
+            FunctionType type,
+            Function<Object[], Object> function)
+    {
+        this(name, type, Purity.IMPURE, function);
     }
 
     @Override
@@ -43,6 +57,7 @@ public final class SimpleExecutable
         return "SimpleExecutable{" +
                 "name='" + name + '\'' +
                 ", type=" + type +
+                ", purity=" + purity +
                 ", function=" + function +
                 '}';
     }
@@ -57,6 +72,12 @@ public final class SimpleExecutable
     public FunctionType getType()
     {
         return type;
+    }
+
+    @Override
+    public Purity getPurity()
+    {
+        return purity;
     }
 
     public Function<Object[], Object> getFunction()

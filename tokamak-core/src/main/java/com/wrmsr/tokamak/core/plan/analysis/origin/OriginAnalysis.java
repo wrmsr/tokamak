@@ -294,6 +294,7 @@ public final class OriginAnalysis
                                 PNodeField.of(node, o), PNodeField.of(node.getSource(), ((PValue.Field) i).getField()), Genesis.DIRECT, OriginNesting.none()));
                     }
                     else if (i instanceof PValue.Function) {
+                        // FIXME: well, if 'pure', then its all inputs..
                         originations.add(new Origination(
                                 PNodeField.of(node, o), Genesis.OPAQUE));
                     }
