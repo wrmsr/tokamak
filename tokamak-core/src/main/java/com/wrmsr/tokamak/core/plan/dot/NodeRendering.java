@@ -18,6 +18,8 @@ import com.wrmsr.tokamak.core.layout.field.annotation.FieldAnnotation;
 import com.wrmsr.tokamak.core.plan.Plan;
 import com.wrmsr.tokamak.core.plan.node.PNode;
 import com.wrmsr.tokamak.core.plan.node.annotation.PNodeAnnotation;
+import com.wrmsr.tokamak.core.util.dot.Color;
+import com.wrmsr.tokamak.core.util.dot.DotUtils;
 import com.wrmsr.tokamak.util.Cell;
 
 import javax.annotation.Nullable;

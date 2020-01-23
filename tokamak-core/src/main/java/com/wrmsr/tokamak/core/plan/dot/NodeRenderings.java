@@ -35,6 +35,8 @@ import com.wrmsr.tokamak.core.plan.node.PUnion;
 import com.wrmsr.tokamak.core.plan.node.PUnnest;
 import com.wrmsr.tokamak.core.plan.node.PValue;
 import com.wrmsr.tokamak.core.plan.node.PValues;
+import com.wrmsr.tokamak.core.util.dot.Color;
+import com.wrmsr.tokamak.core.util.dot.DotUtils;
 import com.wrmsr.tokamak.util.lazy.CtorLazyValue;
 
 import java.util.List;

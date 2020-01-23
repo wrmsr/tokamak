@@ -11,20 +11,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.core.plan.dot;
+
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.wrmsr.tokamak.core.util.dot;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.escape.Escaper;
 import com.google.common.html.HtmlEscapers;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.wrmsr.tokamak.util.MoreCollections.delimitedForEach;
+import static com.wrmsr.tokamak.util.MoreFiles.createTempDirectory;
 
 public final class DotUtils
 {
@@ -249,5 +267,31 @@ public final class DotUtils
     public static Table table(Iterable<Section> sections)
     {
         return new Table().addAll(sections);
+    }
+
+    public static void openDot(String gv)
+            throws Exception
+    {
+        Path tempDir = createTempDirectory("tokamak-dot");
+        Path outGv = tempDir.resolve("out.gv");
+        Files.write(outGv, gv.getBytes());
+        Path outPng = tempDir.resolve("out.pdf");
+
+        Process p = new ProcessBuilder()
+                .directory(tempDir.toFile())
+                .command("dot", "-Tpdf", "out.gv")
+                .redirectOutput(outPng.toFile())
+                .start();
+        if (!p.waitFor(3600, TimeUnit.SECONDS)) {
+            p.destroyForcibly();
+            throw new IllegalStateException();
+        }
+
+        new ProcessBuilder()
+                .directory(tempDir.toFile())
+                .command("open", "out.pdf")
+                .start()
+                .waitFor(30, TimeUnit.SECONDS);
+        Thread.sleep(500);
     }
 }
