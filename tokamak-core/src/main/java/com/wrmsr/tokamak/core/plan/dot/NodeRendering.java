@@ -19,7 +19,7 @@ import com.wrmsr.tokamak.core.plan.Plan;
 import com.wrmsr.tokamak.core.plan.node.PNode;
 import com.wrmsr.tokamak.core.plan.node.annotation.PNodeAnnotation;
 import com.wrmsr.tokamak.core.util.dot.Color;
-import com.wrmsr.tokamak.core.util.dot.DotUtils;
+import com.wrmsr.tokamak.core.util.dot.Dot;
 import com.wrmsr.tokamak.util.Cell;
 
 import javax.annotation.Nullable;
@@ -65,7 +65,7 @@ class NodeRendering<T extends PNode>
 
     public String render(Context<T> ctx)
     {
-        DotUtils.Table table = DotUtils.table();
+        Dot.Table table = Dot.table();
 
         addHeaderSection(ctx, table);
 
@@ -80,9 +80,9 @@ class NodeRendering<T extends PNode>
                 label);
     }
 
-    protected void addHeaderSection(Context<T> ctx, DotUtils.Table table)
+    protected void addHeaderSection(Context<T> ctx, Dot.Table table)
     {
-        DotUtils.Section section = DotUtils.section();
+        Dot.Section section = Dot.section();
 
         addHeaderName(ctx, section);
 
@@ -95,47 +95,47 @@ class NodeRendering<T extends PNode>
         table.add(section);
     }
 
-    protected void addHeaderName(Context<T> ctx, DotUtils.Section section)
+    protected void addHeaderName(Context<T> ctx, Dot.Section section)
     {
-        section.add(DotUtils.row(ctx.node.getClass().getSimpleName() + ": " + ctx.node.getName()));
+        section.add(Dot.row(ctx.node.getClass().getSimpleName() + ": " + ctx.node.getName()));
     }
 
-    protected void addHeaderId(Context<T> ctx, DotUtils.Section section)
+    protected void addHeaderId(Context<T> ctx, Dot.Section section)
     {
-        section.add(DotUtils.row(ctx.node.getId().toPrefixedString()));
+        section.add(Dot.row(ctx.node.getId().toPrefixedString()));
     }
 
-    protected void addHeaderAnnotations(Context<T> ctx, DotUtils.Section section)
+    protected void addHeaderAnnotations(Context<T> ctx, Dot.Section section)
     {
         if (!ctx.node.getAnnotations().isEmpty()) {
-            DotUtils.Table attsTable = DotUtils.table(
-                    DotUtils.section(
+            Dot.Table attsTable = Dot.table(
+                    Dot.section(
                             ctx.node.getAnnotations().stream()
                                     .map(PNodeAnnotation::toDisplayString)
-                                    .map(DotUtils::row)
+                                    .map(Dot::row)
                                     .collect(toImmutableList())));
 
-            section.add(DotUtils.row((DotUtils.rawColumn(DotUtils.render(attsTable::renderInternal)))));
+            section.add(Dot.row((Dot.rawColumn(Dot.render(attsTable::renderInternal)))));
         }
     }
 
-    protected void addHeaderExtra(Context<T> ctx, DotUtils.Section section)
+    protected void addHeaderExtra(Context<T> ctx, Dot.Section section)
     {
 
     }
 
-    protected void addFieldsSection(Context<T> ctx, DotUtils.Table table)
+    protected void addFieldsSection(Context<T> ctx, Dot.Table table)
     {
-        DotUtils.Section section = DotUtils.section();
+        Dot.Section section = Dot.section();
 
         ctx.node.getFields().forEach(field -> addFieldRow(ctx, field, section));
 
         table.add(section);
     }
 
-    protected void addFieldRow(Context<T> ctx, Field field, DotUtils.Section section)
+    protected void addFieldRow(Context<T> ctx, Field field, Dot.Section section)
     {
-        DotUtils.Row row = DotUtils.row();
+        Dot.Row row = Dot.row();
 
         addFieldName(ctx, field, row);
 
@@ -148,31 +148,31 @@ class NodeRendering<T extends PNode>
         section.add(row);
     }
 
-    protected void addFieldName(Context<T> ctx, Field field, DotUtils.Row row)
+    protected void addFieldName(Context<T> ctx, Field field, Dot.Row row)
     {
-        row.add(DotUtils.column(field.getName()));
+        row.add(Dot.column(field.getName()));
     }
 
-    protected void addFieldExtra(Context<T> ctx, Field field, DotUtils.Row row)
+    protected void addFieldExtra(Context<T> ctx, Field field, Dot.Row row)
     {
     }
 
-    protected void addFieldType(Context<T> ctx, Field field, DotUtils.Row row)
+    protected void addFieldType(Context<T> ctx, Field field, Dot.Row row)
     {
-        row.add(DotUtils.column(field.getType().toSpec()));
+        row.add(Dot.column(field.getType().toSpec()));
     }
 
-    protected void addFieldAnnotations(Context<T> ctx, Field field, DotUtils.Row row)
+    protected void addFieldAnnotations(Context<T> ctx, Field field, Dot.Row row)
     {
         if (!field.getAnnotations().isEmpty()) {
-            DotUtils.Table attsTable = DotUtils.table(
-                    DotUtils.section(
+            Dot.Table attsTable = Dot.table(
+                    Dot.section(
                             field.getAnnotations().stream()
                                     .map(FieldAnnotation::toDisplayString)
-                                    .map(DotUtils::row)
+                                    .map(Dot::row)
                                     .collect(toImmutableList())));
 
-            row.add(DotUtils.rawColumn(DotUtils.render(attsTable::renderInternal)));
+            row.add(Dot.rawColumn(Dot.render(attsTable::renderInternal)));
         }
     }
 }

@@ -70,7 +70,7 @@ import com.wrmsr.tokamak.core.type.hier.Type;
 import com.wrmsr.tokamak.core.util.ApiJson;
 import com.wrmsr.tokamak.core.util.annotation.AnnotationCollection;
 import com.wrmsr.tokamak.core.util.annotation.AnnotationCollectionMap;
-import com.wrmsr.tokamak.core.util.dot.DotUtils;
+import com.wrmsr.tokamak.core.util.dot.Dot;
 import com.wrmsr.tokamak.util.json.Json;
 import com.wrmsr.tokamak.util.sql.SqlUtils;
 import junit.framework.TestCase;
@@ -297,16 +297,16 @@ public class CoreTest
         // catalog = om.readValue(src, Catalog.class);
 
         Plan plan = buildPlan(catalog);
-        // DotUtils.openDot(Dot.buildPlanDot(plan));
+        Dot.open(PlanDot.build(plan));
 
         // plan = SetIdFieldsTransform.setIdFields(plan, Optional.of(catalog));
         // Dot.openDot(Dot.buildPlanDot(plan));
 
         plan = PropagateIdsTransform.propagateIds(plan, Optional.of(catalog));
-        // DotUtils.openDot(Dot.buildPlanDot(plan));
+        Dot.open(PlanDot.build(plan));
 
         plan = SetInvalidationsTransform.setInvalidations(plan, Optional.of(catalog));
-        DotUtils.openDot(PlanDot.build(plan));
+        Dot.open(PlanDot.build(plan));
 
         OriginAnalysis oa = OriginAnalysis.analyze(plan);
         oa.getLeafChainAnalysis().getSinkSetsByFirstSource();
@@ -408,11 +408,11 @@ public class CoreTest
 
         plan = MergeScansTransform.mergeScans(plan);
         plan = PersistScansTransform.persistScans(plan);
-        DotUtils.openDot(PlanDot.build(plan));
+        Dot.open(PlanDot.build(plan));
 
         plan = PropagateIdsTransform.propagateIds(plan, Optional.of(catalog));
         plan = SetInvalidationsTransform.setInvalidations(plan, Optional.of(catalog));
-        DotUtils.openDot(PlanDot.build(plan));
+        Dot.open(PlanDot.build(plan));
 
         Driver driver = new DriverImpl(catalog, plan);
 
@@ -447,7 +447,7 @@ public class CoreTest
 
         Plan plan = buildPlan(catalog);
 
-        DotUtils.openDot(PlanDot.build(plan));
+        Dot.open(PlanDot.build(plan));
     }
 
     public void testHeapTable()

@@ -37,7 +37,7 @@ import com.wrmsr.tokamak.core.type.hier.Type;
 import com.wrmsr.tokamak.core.type.Types;
 import com.wrmsr.tokamak.core.type.hier.special.FunctionType;
 import com.wrmsr.tokamak.core.util.ApiJson;
-import com.wrmsr.tokamak.core.util.dot.DotUtils;
+import com.wrmsr.tokamak.core.util.dot.Dot;
 import com.wrmsr.tokamak.test.TpchUtils;
 import com.wrmsr.tokamak.util.Jdk;
 import com.wrmsr.tokamak.util.java.compile.javac.InProcJavaCompiler;
@@ -149,12 +149,12 @@ public class TpchParserTest
             PNode node = new TreePlanner(Optional.of(catalog), defaultSchema).plan(treeNode);
             Plan plan = Plan.of(node);
 
-            DotUtils.openDot(PlanDot.build(plan));
+            Dot.open(PlanDot.build(plan));
 
             plan = PropagateIdsTransform.propagateIds(plan, Optional.of(catalog));
             System.out.println(Json.writeValuePretty(plan));
 
-            DotUtils.openDot(PlanDot.build(plan));
+            Dot.open(PlanDot.build(plan));
 
             System.out.println();
         }

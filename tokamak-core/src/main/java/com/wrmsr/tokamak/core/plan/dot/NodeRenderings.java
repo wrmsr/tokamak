@@ -36,7 +36,7 @@ import com.wrmsr.tokamak.core.plan.node.PUnnest;
 import com.wrmsr.tokamak.core.plan.node.PValue;
 import com.wrmsr.tokamak.core.plan.node.PValues;
 import com.wrmsr.tokamak.core.util.dot.Color;
-import com.wrmsr.tokamak.core.util.dot.DotUtils;
+import com.wrmsr.tokamak.core.util.dot.Dot;
 import com.wrmsr.tokamak.util.lazy.CtorLazyValue;
 
 import java.util.List;
@@ -59,7 +59,20 @@ final class NodeRenderings
 
             .add(new NodeRendering<>(PExtract.class))
 
-            .add(new NodeRendering<>(PFilter.class))
+            .add(new NodeRendering<PFilter>(PFilter.class)
+            {
+                @Override
+                protected void addFieldsSection(Context<PFilter> ctx, Dot.Table table)
+                {
+                    Dot.Section section = Dot.section();
+
+                    section.add(Dot.row(ctx.node.getFunction().getName()));
+
+                    ctx.node.getArgs().forEach(arg -> section.add(Dot.row(Dot.rawColumn(" &lt;- " + Dot.escape(arg)))));
+
+                    table.add(section);
+                }
+            })
 
             .add(new NodeRendering<>(PGroup.class))
 
@@ -72,16 +85,16 @@ final class NodeRenderings
             .add(new NodeRendering<PProject>(PProject.class)
             {
                 @Override
-                protected void addFieldsSection(Context<PProject> ctx, DotUtils.Table table)
+                protected void addFieldsSection(Context<PProject> ctx, Dot.Table table)
                 {
                     if (ctx.node.getAddedFields().isEmpty() && !ctx.node.getDroppedFields().isEmpty() && ctx.node.getProjection().isForward()) {
-                        DotUtils.Section section = DotUtils.section();
+                        Dot.Section section = Dot.section();
 
                         ctx.node.getDroppedFields().forEach(field -> {
-                            DotUtils.Row row = DotUtils.row();
+                            Dot.Row row = Dot.row();
 
-                            row.add(DotUtils.column(field));
-                            row.add(DotUtils.rawColumn(" &lt;- ∅"));
+                            row.add(Dot.column(field));
+                            row.add(Dot.rawColumn(" &lt;- ∅"));
 
                             section.add(row);
                         });
@@ -94,37 +107,37 @@ final class NodeRenderings
                 }
 
                 @Override
-                protected void addFieldExtra(Context<PProject> ctx, Field field, DotUtils.Row row)
+                protected void addFieldExtra(Context<PProject> ctx, Field field, Dot.Row row)
                 {
                     StringBuilder sb = new StringBuilder();
                     sb.append(" &lt;- ");
 
                     PValue value = checkNotNull(ctx.node.getProjection().getInputsByOutput().get(field.getName()));
                     if (value instanceof PValue.Constant) {
-                        sb.append(DotUtils.escape(Objects.toString(((PValue.Constant) value).getValue())));
+                        sb.append(Dot.escape(Objects.toString(((PValue.Constant) value).getValue())));
                     }
                     else if (value instanceof PValue.Field) {
-                        sb.append(DotUtils.escape(((PValue.Field) value).getField()));
+                        sb.append(Dot.escape(((PValue.Field) value).getField()));
                     }
                     else if (value instanceof PValue.Function) {
-                        sb.append("λ ").append(DotUtils.escape(((PValue.Function) value).getFunction().getName()));
+                        sb.append("λ ").append(Dot.escape(((PValue.Function) value).getFunction().getName()));
                     }
                     else {
                         sb.append("?");
                     }
 
-                    row.add(DotUtils.rawColumn(sb.toString()));
+                    row.add(Dot.rawColumn(sb.toString()));
                 }
             })
 
             .add(new NodeRendering<PScan>(PScan.class)
             {
                 @Override
-                protected void addHeaderSection(Context<PScan> ctx, DotUtils.Table table)
+                protected void addHeaderSection(Context<PScan> ctx, Dot.Table table)
                 {
                     super.addHeaderSection(ctx, table);
 
-                    table.add(DotUtils.section(DotUtils.row(ctx.node.getSchemaTable().toDotString())));
+                    table.add(Dot.section(Dot.row(ctx.node.getSchemaTable().toDotString())));
                 }
             })
 

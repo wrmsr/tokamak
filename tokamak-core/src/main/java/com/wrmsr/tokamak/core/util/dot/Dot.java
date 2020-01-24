@@ -30,9 +30,9 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.wrmsr.tokamak.util.MoreCollections.delimitedForEach;
 import static com.wrmsr.tokamak.util.MoreFiles.createTempDirectory;
 
-public final class DotUtils
+public final class Dot
 {
-    private DotUtils()
+    private Dot()
     {
     }
 
@@ -58,7 +58,7 @@ public final class DotUtils
 
         default String render()
         {
-            return DotUtils.render(this::render);
+            return Dot.render(this::render);
         }
     }
 
@@ -232,7 +232,7 @@ public final class DotUtils
 
     public static Row row(String... columns)
     {
-        return new Row().addAll(Arrays.stream(columns).map(DotUtils::column).collect(toImmutableList()));
+        return new Row().addAll(Arrays.stream(columns).map(Dot::column).collect(toImmutableList()));
     }
 
     public static Section section(Row... rows)
@@ -255,7 +255,7 @@ public final class DotUtils
         return new Table().addAll(sections);
     }
 
-    public static void openDot(String gv)
+    public static void open(String gv)
             throws Exception
     {
         Path tempDir = createTempDirectory("tokamak-dot");
