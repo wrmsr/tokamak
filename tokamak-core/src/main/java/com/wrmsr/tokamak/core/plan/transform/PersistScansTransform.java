@@ -59,6 +59,10 @@ public final class PersistScansTransform
                 })
                 .collect(toImmutableMap());
 
+        if (newScans.isEmpty()) {
+            return plan;
+        }
+
         return Plan.of(PNodeRewriters.rewrite(plan.getRoot(), ImmutableMap.copyOf(newScans)));
     }
 }

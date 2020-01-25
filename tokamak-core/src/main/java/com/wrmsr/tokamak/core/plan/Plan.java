@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.core.plan.node.PNode;
 import com.wrmsr.tokamak.core.plan.node.PNodeField;
 import com.wrmsr.tokamak.core.plan.node.PNodeId;
+import com.wrmsr.tokamak.core.plan.node.annotation.PNodeAnnotation;
 import com.wrmsr.tokamak.util.NameGenerator;
 import com.wrmsr.tokamak.util.collect.Toposort;
 import com.wrmsr.tokamak.util.lazy.SupplierLazyValue;
@@ -276,5 +277,15 @@ public final class Plan
             nodes.forEach(sink -> sink.getSources().forEach(source -> nodeSinkSetsBySource.get(source).add(sink)));
             return newImmutableSetMap(nodeSinkSetsBySource);
         });
+    }
+
+    private final Map<Class<? extends PNodeAnnotation>, List<PNode>> nodeListsByAnnotationType = new HashMap<>();
+
+    public List<PNode> getNodeListsByAnnotationType(Class<? extends PNodeAnnotation> annType)
+    {
+        return nodeListsByAnnotationType.computeIfAbsent(annType, ant ->
+                nodes.stream()
+                        .filter(n -> n.getAnnotations().contains(ant))
+                        .collect(toImmutableList()));
     }
 }
