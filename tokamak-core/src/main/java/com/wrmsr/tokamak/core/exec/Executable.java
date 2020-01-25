@@ -17,10 +17,16 @@ import com.wrmsr.tokamak.core.type.hier.special.FunctionType;
 
 public interface Executable
 {
+    /*
+    TODO:
+     - bijection
+    */
+
     enum Purity
     {
+        IMPURE,
         PURE,
-        IMPURE;
+        IDENTITY,
     }
 
     String getName();

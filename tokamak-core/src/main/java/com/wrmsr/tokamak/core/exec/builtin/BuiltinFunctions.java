@@ -51,7 +51,7 @@ public final class BuiltinFunctions
                                             Types.Long()
                                     )
                             )),
-                            Executable.Purity.PURE)
+                            Executable.Purity.IDENTITY)
                     );
         }
         catch (ReflectiveOperationException e) {

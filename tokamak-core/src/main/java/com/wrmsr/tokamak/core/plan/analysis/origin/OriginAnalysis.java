@@ -16,6 +16,7 @@ package com.wrmsr.tokamak.core.plan.analysis.origin;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
+import com.wrmsr.tokamak.core.exec.Executable;
 import com.wrmsr.tokamak.core.plan.Plan;
 import com.wrmsr.tokamak.core.plan.node.PCache;
 import com.wrmsr.tokamak.core.plan.node.PExtract;
@@ -58,6 +59,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static com.wrmsr.tokamak.util.MoreCollections.newImmutableSetMap;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
@@ -281,6 +283,18 @@ public final class OriginAnalysis
                 return null;
             }
 
+            private Optional<String> getIdentityFunctionDirectValueField(PValue.Function fn)
+            {
+                if (fn.getFunction().getPurity() != Executable.Purity.IDENTITY) {
+                    return Optional.empty();
+                }
+                PValue arg = checkSingle(fn.getArgs());
+                if (!(arg instanceof PValue.Field)) {
+                    return Optional.empty();
+                }
+                return Optional.of(((PValue.Field) arg).getField());
+            }
+
             private void addValueOriginations(
                     PNodeField sink,
                     PNode source,
@@ -299,8 +313,16 @@ public final class OriginAnalysis
                 else if (value instanceof PValue.Function) {
                     PValue.Function fn = (PValue.Function) value;
                     switch (fn.getFunction().getPurity()) {
+                        case IDENTITY:
                         case PURE: {
-                            fn.getArgs().forEach(arg -> addValueOriginations(sink, source, arg, originations, Optional.of(Genesis.FUNCTION_ARG)));
+                            Optional<String> identArg = getIdentityFunctionDirectValueField(fn);
+                            if (identArg.isPresent()) {
+                                originations.add(new Origination(
+                                        sink, PNodeField.of(source, identArg.get()), genesis.orElse(Genesis.DIRECT), OriginNesting.none()));
+                            }
+                            else {
+                                fn.getArgs().forEach(arg -> addValueOriginations(sink, source, arg, originations, Optional.of(Genesis.FUNCTION_ARG)));
+                            }
                             break;
                         }
                         case IMPURE: {
