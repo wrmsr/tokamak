@@ -44,7 +44,7 @@ public final class SimpleExecutable
         this.function = checkNotNull(function);
 
         if (purity == Purity.IDENTITY) {
-            checkArgument(type.getArgs().size() == 1);
+            checkArgument(type.getParams().size() == 1);
             // FIXME: checkArgument(TypeAnnotations.strip(type.getValue())).equals(TypeAnnotations.strip(type.getArgs().get(0)));
         }
     }
