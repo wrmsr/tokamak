@@ -18,6 +18,7 @@ import com.wrmsr.tokamak.core.exec.Reflection;
 import com.wrmsr.tokamak.core.type.Types;
 import com.wrmsr.tokamak.core.type.hier.special.FunctionType;
 
+
 public final class BuiltinFunctions
 {
     /*
@@ -29,7 +30,7 @@ public final class BuiltinFunctions
     {
     }
 
-    private static long internalize(long value)
+    private static long transmuteInternal(long value)
     {
         return value;
     }
@@ -39,8 +40,8 @@ public final class BuiltinFunctions
         try {
             executor.register(
                     Reflection.reflect(
-                            BuiltinFunctions.class.getDeclaredMethod("internalize", long.class),
-                            "internalize",
+                            BuiltinFunctions.class.getDeclaredMethod("transmuteInternal", long.class),
+                            "transmuteInternal",
                             new FunctionType(
                                     Types.Internal(Types.Long()),
                                     ImmutableList.of(

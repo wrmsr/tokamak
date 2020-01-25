@@ -44,6 +44,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 import static java.util.function.Function.identity;
 
@@ -106,27 +107,37 @@ final class NodeRenderings
                     }
                 }
 
+                private static final String LEFT_ARROW = " &lt;- ";
+
                 @Override
                 protected void addFieldExtra(Context<PProject> ctx, Field field, Dot.Row row)
                 {
-                    StringBuilder sb = new StringBuilder();
-                    sb.append(" &lt;- ");
-
                     PValue value = checkNotNull(ctx.node.getProjection().getInputsByOutput().get(field.getName()));
                     if (value instanceof PValue.Constant) {
-                        sb.append(Dot.escape(Objects.toString(((PValue.Constant) value).getValue())));
+                        row.add(Dot.rawColumn(LEFT_ARROW + Dot.escape(Objects.toString(((PValue.Constant) value).getValue()))));
                     }
                     else if (value instanceof PValue.Field) {
-                        sb.append(Dot.escape(((PValue.Field) value).getField()));
+                        row.add(Dot.rawColumn(LEFT_ARROW + Dot.escape(((PValue.Field) value).getField())));
                     }
                     else if (value instanceof PValue.Function) {
-                        sb.append("λ ").append(Dot.escape(((PValue.Function) value).getFunction().getName()));
+                        PValue.Function functionValue = (PValue.Function) value;
+                        // FIXME: recursive PValue render
+                        Dot.Table table = Dot.table(
+                                Dot.section(
+                                        Dot.row("λ " + Dot.escape(functionValue.getFunction().getName()))),
+                                Dot.section(
+                                        functionValue.getArgs().stream()
+                                                .map(arg -> LEFT_ARROW + (
+                                                        (arg instanceof PValue.Field) ? Dot.escape(((PValue.Field) arg).getField()) : "?"))
+                                                .map(Dot::rawColumn)
+                                                .map(Dot::row)
+                                                .collect(toImmutableList())));
+
+                        row.add(Dot.rawColumn(Dot.render(table::renderInternal)));
                     }
                     else {
-                        sb.append("?");
+                        row.add(Dot.rawColumn(LEFT_ARROW + "?"));
                     }
-
-                    row.add(Dot.rawColumn(sb.toString()));
                 }
             })
 

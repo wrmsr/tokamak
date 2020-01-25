@@ -163,10 +163,16 @@ public final class SetInvalidationsTransform
                         .map(o -> o.getSource().get())
                         .collect(toImmutableSet()) :
                 ImmutableSet.of(sinkNodeField);
-        Map<PInvalidator, Set<Origination>> invalidatorOriginationsByInvalidatorNode = searchNodeFields.stream()
-                .map(originAnalysis.getStateChainAnalysis().getFirstOriginationSetsBySink()::get)
-                .flatMap(Set::stream)
-                .collect(groupingByImmutableSet(o -> (PInvalidator) o.getSink().getNode()));
+        Map<PInvalidator, Set<Origination>> invalidatorOriginationsByInvalidatorNode;
+        try {
+            invalidatorOriginationsByInvalidatorNode = searchNodeFields.stream()
+                    .map(originAnalysis.getStateChainAnalysis().getFirstOriginationSetsBySink()::get)
+                    .flatMap(Set::stream)
+                    .collect(groupingByImmutableSet(o -> (PInvalidator) o.getSink().getNode()));
+        }
+        catch (Exception e) {
+            throw e;
+        }
 
         invalidatorOriginationsByInvalidatorNode.forEach((invalidator, invalidatorOriginations) -> {
             InvalidationsBuilder builder = builders

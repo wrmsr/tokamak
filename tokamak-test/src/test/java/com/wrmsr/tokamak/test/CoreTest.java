@@ -216,7 +216,7 @@ public class CoreTest
                                 PValue.field("N_NAME")),
                         // "N_REGIONKEY", PValue.field("N_REGIONKEY")
                         "N_REGIONKEY", PValue.function(
-                                PFunction.of(be.getExecutable("internalize")),
+                                PFunction.of(be.getExecutable("transmuteInternal")),
                                 PValue.field("N_REGIONKEY"))
                 )));
 
@@ -297,16 +297,16 @@ public class CoreTest
         // catalog = om.readValue(src, Catalog.class);
 
         Plan plan = buildPlan(catalog);
-        Dot.open(PlanDot.build(plan));
+        // Dot.open(PlanDot.build(plan));
 
         // plan = SetIdFieldsTransform.setIdFields(plan, Optional.of(catalog));
         // Dot.openDot(Dot.buildPlanDot(plan));
 
         plan = PropagateIdsTransform.propagateIds(plan, Optional.of(catalog));
-        Dot.open(PlanDot.build(plan));
+        // Dot.open(PlanDot.build(plan));
 
         plan = SetInvalidationsTransform.setInvalidations(plan, Optional.of(catalog));
-        Dot.open(PlanDot.build(plan));
+        // Dot.open(PlanDot.build(plan));
 
         OriginAnalysis oa = OriginAnalysis.analyze(plan);
         oa.getLeafChainAnalysis().getSinkSetsByFirstSource();
@@ -408,11 +408,11 @@ public class CoreTest
 
         plan = MergeScansTransform.mergeScans(plan);
         plan = PersistScansTransform.persistScans(plan);
-        Dot.open(PlanDot.build(plan));
+        // Dot.open(PlanDot.build(plan));
 
         plan = PropagateIdsTransform.propagateIds(plan, Optional.of(catalog));
         plan = SetInvalidationsTransform.setInvalidations(plan, Optional.of(catalog));
-        Dot.open(PlanDot.build(plan));
+        // Dot.open(PlanDot.build(plan));
 
         Driver driver = new DriverImpl(catalog, plan);
 
