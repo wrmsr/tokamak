@@ -281,26 +281,44 @@ public final class OriginAnalysis
                 return null;
             }
 
+            private void addValueOriginations(PNodeField sink, PNode source, PValue value, List<Origination> out)
+            {
+                if (value instanceof PValue.Constant) {
+                    originations.add(new Origination(
+                            sink, Genesis.DIRECT));
+                }
+                else if (value instanceof PValue.Field) {
+                    originations.add(new Origination(
+                            sink, PNodeField.of(source, ((PValue.Field) value).getField()), Genesis.DIRECT, OriginNesting.none()));
+                }
+                else if (value instanceof PValue.Function) {
+                    PValue.Function fn = (PValue.Function) value;
+                    switch (fn.getFunction().getPurity())
+                    {
+                        case PURE: {
+
+                            break;
+                        }
+                        case IMPURE: {
+                            originations.add(new Origination(
+                                    sink, Genesis.OPAQUE));
+                            break;
+                        }
+                        default: {
+                            throw new IllegalStateException(Objects.toString(value));
+                        }
+                    }
+                }
+                else {
+                    throw new IllegalStateException(Objects.toString(value));
+                }
+            }
+
             @Override
             public Void visitProject(PProject node, Void context)
             {
                 node.getProjection().getInputsByOutput().forEach((o, i) -> {
-                    if (i instanceof PValue.Constant) {
-                        originations.add(new Origination(
-                                PNodeField.of(node, o), Genesis.DIRECT));
-                    }
-                    else if (i instanceof PValue.Field) {
-                        originations.add(new Origination(
-                                PNodeField.of(node, o), PNodeField.of(node.getSource(), ((PValue.Field) i).getField()), Genesis.DIRECT, OriginNesting.none()));
-                    }
-                    else if (i instanceof PValue.Function) {
-                        // FIXME: well, if 'pure', then its all inputs..
-                        originations.add(new Origination(
-                                PNodeField.of(node, o), Genesis.OPAQUE));
-                    }
-                    else {
-                        throw new IllegalStateException(Objects.toString(i));
-                    }
+                    addValueOriginations(PNodeField.of(node, o), node.getSource(), i, originations);
                 });
 
                 return null;

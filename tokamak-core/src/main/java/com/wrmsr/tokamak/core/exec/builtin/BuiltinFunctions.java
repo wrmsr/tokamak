@@ -14,10 +14,12 @@
 package com.wrmsr.tokamak.core.exec.builtin;
 
 import com.google.common.collect.ImmutableList;
+import com.wrmsr.tokamak.core.exec.Executable;
 import com.wrmsr.tokamak.core.exec.Reflection;
 import com.wrmsr.tokamak.core.type.Types;
 import com.wrmsr.tokamak.core.type.hier.special.FunctionType;
 
+import java.util.Optional;
 
 public final class BuiltinFunctions
 {
@@ -41,13 +43,16 @@ public final class BuiltinFunctions
             executor.register(
                     Reflection.reflect(
                             BuiltinFunctions.class.getDeclaredMethod("transmuteInternal", long.class),
-                            "transmuteInternal",
-                            new FunctionType(
+                            Optional.of("transmuteInternal"),
+                            Optional.of(
+                                    new FunctionType(
                                     Types.Internal(Types.Long()),
                                     ImmutableList.of(
                                             Types.Long()
                                     )
-                            )));
+                            )),
+                            Executable.Purity.PURE)
+                    );
         }
         catch (ReflectiveOperationException e) {
             throw new RuntimeException(e);
