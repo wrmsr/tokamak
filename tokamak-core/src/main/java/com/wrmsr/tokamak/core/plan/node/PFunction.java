@@ -61,6 +61,6 @@ public final class PFunction
 
     public static PFunction of(Executable exe)
     {
-        return new PFunction(exe.getName(), exe.getType(), Executable.Purity.IMPURE);
+        return new PFunction(exe.getName(), exe.getType(), exe.getPurity());
     }
 }
