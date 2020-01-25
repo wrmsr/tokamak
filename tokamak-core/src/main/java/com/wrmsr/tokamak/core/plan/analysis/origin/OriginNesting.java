@@ -17,8 +17,12 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 public interface OriginNesting
 {
-    // Group, Unnest, Struct, Extract
-    //  public Nesting inverse()
+    /*
+    TODO:
+     - Group, Unnest, Struct, Extract
+       - public Nesting inverse()
+     - FUNCTION[_ARG]? generalized?
+    */
 
     final class Nested
             implements OriginNesting

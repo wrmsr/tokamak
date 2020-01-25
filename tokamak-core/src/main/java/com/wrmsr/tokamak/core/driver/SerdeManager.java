@@ -24,6 +24,7 @@ import com.wrmsr.tokamak.core.serde.Serdes;
 import com.wrmsr.tokamak.core.serde.impl.NullableSerde;
 import com.wrmsr.tokamak.core.serde.impl.TupleSerde;
 import com.wrmsr.tokamak.core.serde.impl.VariableLengthSerde;
+import com.wrmsr.tokamak.core.type.TypeAnnotations;
 import com.wrmsr.tokamak.util.lazy.SupplierLazyValue;
 
 import java.util.List;
@@ -63,7 +64,7 @@ public final class SerdeManager
             for (PState node : plan.getNodeTypeList(PState.class)) {
                 List<Serde> parts = node.getFields().getTypesByName().values().stream()
                         .map(t -> {
-                            Serde serde = checkNotNull(Serdes.VALUE_SERDES_BY_TYPE.get(t));
+                            Serde serde = checkNotNull(Serdes.VALUE_SERDES_BY_TYPE.get(TypeAnnotations.strip(t)));
                             if (!t.getFixedSize().isPresent()) {
                                 serde = new VariableLengthSerde(serde, MAX_ATTRIBUTES_SIZE);
                             }

@@ -17,6 +17,8 @@ public enum Genesis
 {
     DIRECT(false),
 
+    FUNCTION_ARG(false),
+
     INNER_JOIN(false),
     LEFT_JOIN_PRIMARY(false),
     LEFT_JOIN_SECONDARY(false),

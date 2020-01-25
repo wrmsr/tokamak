@@ -281,21 +281,26 @@ public final class OriginAnalysis
                 return null;
             }
 
-            private void addValueOriginations(PNodeField sink, PNode source, PValue value, List<Origination> originations)
+            private void addValueOriginations(
+                    PNodeField sink,
+                    PNode source,
+                    PValue value,
+                    List<Origination> originations,
+                    Optional<Genesis> genesis)
             {
                 if (value instanceof PValue.Constant) {
                     originations.add(new Origination(
-                            sink, Genesis.DIRECT));
+                            sink, genesis.orElse(Genesis.DIRECT)));
                 }
                 else if (value instanceof PValue.Field) {
                     originations.add(new Origination(
-                            sink, PNodeField.of(source, ((PValue.Field) value).getField()), Genesis.DIRECT, OriginNesting.none()));
+                            sink, PNodeField.of(source, ((PValue.Field) value).getField()), genesis.orElse(Genesis.DIRECT), OriginNesting.none()));
                 }
                 else if (value instanceof PValue.Function) {
                     PValue.Function fn = (PValue.Function) value;
                     switch (fn.getFunction().getPurity()) {
                         case PURE: {
-                            fn.getArgs().forEach(arg -> addValueOriginations(sink, source, value, originations));
+                            fn.getArgs().forEach(arg -> addValueOriginations(sink, source, arg, originations, Optional.of(Genesis.FUNCTION_ARG)));
                             break;
                         }
                         case IMPURE: {
@@ -319,7 +324,7 @@ public final class OriginAnalysis
                 node.getProjection().getInputsByOutput().forEach((o, i) -> {
                     PNodeField sink = PNodeField.of(node, o);
                     List<Origination> valueOriginations = new ArrayList<>();
-                    addValueOriginations(sink, node.getSource(), i, valueOriginations);
+                    addValueOriginations(sink, node.getSource(), i, valueOriginations, Optional.empty());
                     if (valueOriginations.stream().anyMatch(vo -> vo.genesis == Genesis.OPAQUE)) {
                         originations.add(new Origination(
                                 sink, Genesis.OPAQUE));
