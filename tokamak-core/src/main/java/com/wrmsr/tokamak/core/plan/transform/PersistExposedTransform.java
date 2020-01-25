@@ -14,7 +14,15 @@
 package com.wrmsr.tokamak.core.plan.transform;
 
 import com.wrmsr.tokamak.core.plan.Plan;
+import com.wrmsr.tokamak.core.plan.node.PNode;
+import com.wrmsr.tokamak.core.plan.node.PSingleSource;
+import com.wrmsr.tokamak.core.plan.node.PState;
 import com.wrmsr.tokamak.core.plan.node.annotation.ExposedPNode;
+
+import java.util.List;
+import java.util.Map;
+
+import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 
 public final class PersistExposedTransform
 {
@@ -24,9 +32,26 @@ public final class PersistExposedTransform
 
     public static Plan persistExposed(Plan plan)
     {
-        if (plan.getNodeListsByAnnotationType(ExposedPNode.class).isEmpty()) {
+        List<PNode> exposedNodes = plan.getNodeListsByAnnotationType(ExposedPNode.class);
+        if (exposedNodes.isEmpty()) {
             return plan;
         }
+
+        Map<PNode, PNode> newNodes = exposedNodes.stream()
+                .map(node -> {
+                    if (node instanceof PSingleSource) {
+                        PNode source = ((PSingleSource) node).getSource();
+                        if (source instanceof PState) {
+                            return node;
+                        }
+
+                    }
+                    else {
+
+                    }
+                })
+                .collect(toImmutableMap());
+
         throw new IllegalStateException();
     }
 }
