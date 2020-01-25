@@ -32,7 +32,7 @@ public final class BuiltinFunctions
     {
     }
 
-    private static long transmuteInternal(long value)
+    private static long longIdentity(long value)
     {
         return value;
     }
@@ -42,7 +42,7 @@ public final class BuiltinFunctions
         try {
             executor.register(
                     Reflection.reflect(
-                            BuiltinFunctions.class.getDeclaredMethod("transmuteInternal", long.class),
+                            BuiltinFunctions.class.getDeclaredMethod("longIdentity", long.class),
                             Optional.of("transmuteInternal"),
                             Optional.of(
                                     new FunctionType(

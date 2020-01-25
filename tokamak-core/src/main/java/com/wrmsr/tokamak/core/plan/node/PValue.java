@@ -18,16 +18,19 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.google.common.collect.ImmutableList;
+import com.wrmsr.tokamak.core.exec.Executable;
 import com.wrmsr.tokamak.core.type.hier.Type;
 
 import javax.annotation.Nullable;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
+import static com.wrmsr.tokamak.util.MorePreconditions.checkSingle;
 
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
@@ -207,5 +210,17 @@ public interface PValue
     static Function function(PFunction function, PValue... args)
     {
         return new Function(function, ImmutableList.copyOf(args));
+    }
+
+    static Optional<String> getIdentityFunctionDirectValueField(PValue.Function fn)
+    {
+        if (fn.getFunction().getPurity() != Executable.Purity.IDENTITY) {
+            return Optional.empty();
+        }
+        PValue arg = checkSingle(fn.getArgs());
+        if (!(arg instanceof PValue.Field)) {
+            return Optional.empty();
+        }
+        return Optional.of(((PValue.Field) arg).getField());
     }
 }

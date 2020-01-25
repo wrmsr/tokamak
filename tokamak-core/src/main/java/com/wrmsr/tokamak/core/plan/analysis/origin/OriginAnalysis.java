@@ -283,18 +283,6 @@ public final class OriginAnalysis
                 return null;
             }
 
-            private Optional<String> getIdentityFunctionDirectValueField(PValue.Function fn)
-            {
-                if (fn.getFunction().getPurity() != Executable.Purity.IDENTITY) {
-                    return Optional.empty();
-                }
-                PValue arg = checkSingle(fn.getArgs());
-                if (!(arg instanceof PValue.Field)) {
-                    return Optional.empty();
-                }
-                return Optional.of(((PValue.Field) arg).getField());
-            }
-
             private void addValueOriginations(
                     PNodeField sink,
                     PNode source,
@@ -315,7 +303,7 @@ public final class OriginAnalysis
                     switch (fn.getFunction().getPurity()) {
                         case IDENTITY:
                         case PURE: {
-                            Optional<String> identArg = getIdentityFunctionDirectValueField(fn);
+                            Optional<String> identArg = PValue.getIdentityFunctionDirectValueField(fn);
                             if (identArg.isPresent()) {
                                 originations.add(new Origination(
                                         sink, PNodeField.of(source, identArg.get()), genesis.orElse(Genesis.DIRECT), OriginNesting.none()));
