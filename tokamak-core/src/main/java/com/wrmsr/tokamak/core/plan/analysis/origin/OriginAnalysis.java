@@ -281,7 +281,7 @@ public final class OriginAnalysis
                 return null;
             }
 
-            private void addValueOriginations(PNodeField sink, PNode source, PValue value, List<Origination> out)
+            private void addValueOriginations(PNodeField sink, PNode source, PValue value, List<Origination> originations)
             {
                 if (value instanceof PValue.Constant) {
                     originations.add(new Origination(
@@ -293,10 +293,9 @@ public final class OriginAnalysis
                 }
                 else if (value instanceof PValue.Function) {
                     PValue.Function fn = (PValue.Function) value;
-                    switch (fn.getFunction().getPurity())
-                    {
+                    switch (fn.getFunction().getPurity()) {
                         case PURE: {
-
+                            fn.getArgs().forEach(arg -> addValueOriginations(sink, source, value, originations));
                             break;
                         }
                         case IMPURE: {
@@ -318,7 +317,16 @@ public final class OriginAnalysis
             public Void visitProject(PProject node, Void context)
             {
                 node.getProjection().getInputsByOutput().forEach((o, i) -> {
-                    addValueOriginations(PNodeField.of(node, o), node.getSource(), i, originations);
+                    PNodeField sink = PNodeField.of(node, o);
+                    List<Origination> valueOriginations = new ArrayList<>();
+                    addValueOriginations(sink, node.getSource(), i, valueOriginations);
+                    if (valueOriginations.stream().anyMatch(vo -> vo.genesis == Genesis.OPAQUE)) {
+                        originations.add(new Origination(
+                                sink, Genesis.OPAQUE));
+                    }
+                    else {
+                        originations.addAll(valueOriginations);
+                    }
                 });
 
                 return null;
