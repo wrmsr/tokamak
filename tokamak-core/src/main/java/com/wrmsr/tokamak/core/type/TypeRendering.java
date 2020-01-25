@@ -72,9 +72,9 @@ public final class TypeRendering
                         ann.getName(),
                         ImmutableList.builder()
                                 .add(new Literal(rec.apply(pos + 1)))
-                                .addAll(ann.getArgs())
+                                .addAll(ann.getTypeArgs())
                                 .build(),
-                        ann.getKwargs());
+                        ann.getTypeKwargs());
             }
             else {
                 return buildSpec(annotatedType.getItem());
@@ -86,8 +86,8 @@ public final class TypeRendering
     {
         return buildSpec(
                 type.getName(),
-                type.getArgs(),
-                type.getKwargs());
+                type.getTypeArgs(),
+                type.getTypeKwargs());
     }
 
     public static String buildSpec(

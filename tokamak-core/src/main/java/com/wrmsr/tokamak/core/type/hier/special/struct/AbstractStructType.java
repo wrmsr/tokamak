@@ -76,7 +76,7 @@ public abstract class AbstractStructType
     }
 
     @Override
-    public Map<String, Object> getKwargs()
+    public Map<String, Object> getTypeKwargs()
     {
         return immutableMapValues(members, Member::getType);
     }

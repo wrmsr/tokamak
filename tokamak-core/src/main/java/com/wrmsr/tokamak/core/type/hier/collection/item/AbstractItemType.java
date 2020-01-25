@@ -34,7 +34,7 @@ public abstract class AbstractItemType
     }
 
     @Override
-    public List<Object> getArgs()
+    public List<Object> getTypeArgs()
     {
         return ImmutableList.of(item);
     }

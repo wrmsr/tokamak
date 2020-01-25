@@ -62,7 +62,7 @@ public final class AnnotatedType
     }
 
     @Override
-    public List<Object> getArgs()
+    public List<Object> getTypeArgs()
     {
         return ImmutableList.builder().addAll(annotations).add(item).build();
     }

@@ -50,7 +50,7 @@ public final class TupleType
     }
 
     @Override
-    public List<Object> getArgs()
+    public List<Object> getTypeArgs()
     {
         return ImmutableList.copyOf(items);
     }

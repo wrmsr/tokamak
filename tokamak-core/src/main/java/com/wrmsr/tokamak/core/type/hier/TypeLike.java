@@ -28,12 +28,12 @@ public interface TypeLike
 {
     String getName();
 
-    default List<Object> getArgs()
+    default List<Object> getTypeArgs()
     {
         return ImmutableList.of();
     }
 
-    default Map<String, Object> getKwargs()
+    default Map<String, Object> getTypeKwargs()
     {
         return ImmutableMap.of();
     }

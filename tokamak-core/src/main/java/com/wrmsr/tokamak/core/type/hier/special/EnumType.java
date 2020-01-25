@@ -49,7 +49,7 @@ public final class EnumType
     }
 
     @Override
-    public Map<String, Object> getKwargs()
+    public Map<String, Object> getTypeKwargs()
     {
         return ImmutableMap.copyOf(values);
     }

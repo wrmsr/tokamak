@@ -60,7 +60,7 @@ public final class FunctionType
     }
 
     @Override
-    public List<Object> getArgs()
+    public List<Object> getTypeArgs()
     {
         return ImmutableList.builder().add(value).addAll(params).build();
     }
