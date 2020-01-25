@@ -14,6 +14,7 @@
 package com.wrmsr.tokamak.core.driver.build.impl;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.core.catalog.Catalog;
 import com.wrmsr.tokamak.core.catalog.Function;
@@ -33,14 +34,28 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
 
 public final class ProjectBuilder
         extends SingleSourceBuilder<PProject>
 {
+    private final Map<String, String> sourceKeyExtractionMap;
+
     public ProjectBuilder(DriverImpl driver, PProject node, Map<PNode, Builder<?>> sources)
     {
         super(driver, node, sources);
+
+        ImmutableMap.Builder<String, String> sourceKeyExtractionMap = ImmutableMap.builder();
+        node.getProjection().getInputsByOutput().forEach((o, i) -> {
+            if (i instanceof PValue.Field) {
+                sourceKeyExtractionMap.put(o, ((PValue.Field) i).getField());
+            }
+            else if (i instanceof PValue.Function) {
+                PValue.getIdentityFunctionDirectValueField((PValue.Function) i).ifPresent(f -> sourceKeyExtractionMap.put(o, f));
+            }
+        });
+        this.sourceKeyExtractionMap = sourceKeyExtractionMap.build();
     }
 
     private static Object getRowValue(Catalog catalog, Map<String, Object> rowMap, PValue value)
@@ -75,7 +90,7 @@ public final class ProjectBuilder
         sourceKey = Key.of(
                 key.stream()
                         .collect(toImmutableMap(
-                                e -> node.getProjection().getInputFieldsByOutput().get(e.getKey()),
+                                e -> checkNotNull(sourceKeyExtractionMap.get(e.getKey())),
                                 Map.Entry::getValue)));
 
         opConsumer.accept(new RequestBuildOp(this, source, sourceKey, srows -> {

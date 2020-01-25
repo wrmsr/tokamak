@@ -32,7 +32,7 @@ public final class BuiltinFunctions
     {
     }
 
-    private static long longIdentity(long value)
+    public static long longIdentity(long value)
     {
         return value;
     }
