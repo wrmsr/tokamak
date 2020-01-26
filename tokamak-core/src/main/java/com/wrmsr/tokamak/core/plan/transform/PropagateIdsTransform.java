@@ -293,6 +293,8 @@ public final class PropagateIdsTransform
             {
                 Table table = catalog.get().getSchemaTable(node.getSchemaTable());
 
+                BuiltinExecutor be = (BuiltinExecutor) checkNotNull(catalog.get().getExecutorsByName().get("builtin"));
+
                 // FIXME: *do* have to add projection - have to generate unique field names to prevent upstream clashing :/
                 ImmutableMap.Builder<String, Type> newScanFieldsBuilder = ImmutableMap.builder();
                 ImmutableSet.Builder<String> newScanInternalFieldsBuilder = ImmutableSet.builder();
@@ -315,7 +317,6 @@ public final class PropagateIdsTransform
                         node.getAnnotations(),
                         node.getFieldAnnotations().dropped(IdField.class)
                                 .merged(immutableMapOfSame(table.getLayout().getPrimaryKeyFields(), AnnotationCollection.of(FieldAnnotation.id()))),
-                        // .merged(immutableMapOfSame(newScanInternalFields, AnnotationCollection.of(FieldAnnotation.internal()))),
                         node.getSchemaTable(),
                         newScanFields,
                         PInvalidations.empty());
@@ -329,7 +330,11 @@ public final class PropagateIdsTransform
                             .build();
                     Map<String, PValue> inputsByOutput = ImmutableMap.<String, PValue>builder()
                             .putAll(node.getFields().getNameList().stream().collect(toImmutableMap(identity(), f -> PValue.field(f))))
-                            .putAll(immutableMapValues(remapProjectionMap, f -> PValue.field(f)))
+                            .putAll(immutableMapValues(remapProjectionMap, f -> {
+                                return PValue.function(
+                                        PFunction.of(be.getExecutable("transmuteInternal")),
+                                        PValue.field(f));
+                            }))
                             .build();
                     ret = new PProject(
                             plan.getNodeNameGenerator().get("propagateIdsScanRemap"),
