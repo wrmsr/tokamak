@@ -20,12 +20,14 @@ import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
 import com.wrmsr.tokamak.core.catalog.Catalog;
 import com.wrmsr.tokamak.core.catalog.Table;
+import com.wrmsr.tokamak.core.exec.builtin.BuiltinExecutor;
 import com.wrmsr.tokamak.core.layout.field.annotation.FieldAnnotation;
 import com.wrmsr.tokamak.core.layout.field.annotation.IdField;
 import com.wrmsr.tokamak.core.plan.Plan;
 import com.wrmsr.tokamak.core.plan.node.PCache;
 import com.wrmsr.tokamak.core.plan.node.PExtract;
 import com.wrmsr.tokamak.core.plan.node.PFilter;
+import com.wrmsr.tokamak.core.plan.node.PFunction;
 import com.wrmsr.tokamak.core.plan.node.PGroup;
 import com.wrmsr.tokamak.core.plan.node.PInvalidations;
 import com.wrmsr.tokamak.core.plan.node.PJoin;
@@ -47,7 +49,9 @@ import com.wrmsr.tokamak.core.plan.node.PUnnest;
 import com.wrmsr.tokamak.core.plan.node.PValue;
 import com.wrmsr.tokamak.core.plan.node.PValues;
 import com.wrmsr.tokamak.core.plan.node.visitor.PNodeRewriter;
+import com.wrmsr.tokamak.core.type.TypeAnnotations;
 import com.wrmsr.tokamak.core.type.hier.Type;
+import com.wrmsr.tokamak.core.type.hier.annotation.InternalType;
 import com.wrmsr.tokamak.core.util.annotation.AnnotationCollection;
 import com.wrmsr.tokamak.core.util.annotation.AnnotationCollectionMap;
 
@@ -57,12 +61,14 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiFunction;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableList.sortedCopyOf;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static com.wrmsr.tokamak.util.MoreCollections.immutableMapOfSame;
 import static com.wrmsr.tokamak.util.MoreCollections.immutableMapValues;
 import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
+import static com.wrmsr.tokamak.util.MorePreconditions.checkContains;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 import static java.util.function.Function.identity;
 
@@ -102,6 +108,30 @@ public final class PropagateIdsTransform
                                             .collect(toImmutableMap(identity(), f -> AnnotationCollection.of(FieldAnnotation.id())))),
                             source);
                 }
+            }
+
+            private PProject internalize(PNode node, Iterable<String> internalFields)
+            {
+                BuiltinExecutor be = (BuiltinExecutor) checkNotNull(catalog.get().getExecutorsByName().get("builtin"));
+                Set<String> internalFieldSet = ImmutableSet.copyOf(internalFields);
+                internalFieldSet.forEach(f -> checkContains(f, node.getFields().getNames()));
+                return new PProject(
+                        plan.getNodeNameGenerator().get(node.getName() + "$internalize"),
+                        AnnotationCollection.of(),
+                        AnnotationCollectionMap.of(),
+                        node,
+                        new PProjection(
+                                node.getFields().getNames().stream()
+                                        .collect(toImmutableMap(identity(), f -> {
+                                            if (!internalFieldSet.contains(f)) {
+                                                return PValue.field(f);
+                                            }
+                                            else {
+                                                return PValue.function(
+                                                        PFunction.of(be.getExecutable("transmuteInternal")),
+                                                        PValue.field(f));
+                                            }
+                                        }))));
             }
 
             @Override
@@ -216,9 +246,10 @@ public final class PropagateIdsTransform
                             node.getProjection());
                 }
 
+                BuiltinExecutor be = (BuiltinExecutor) checkNotNull(catalog.get().getExecutorsByName().get("builtin"));
+
                 ImmutableMap.Builder<String, PValue> newInputsByOutputBuilder = ImmutableMap.builder();
                 ImmutableSet.Builder<String> idFieldsBuilder = ImmutableSet.builder();
-                ImmutableSet.Builder<String> internalFieldsBuilder = ImmutableSet.builder();
                 newInputsByOutputBuilder.putAll(node.getProjection());
                 checkNotEmpty(source.getFieldAnnotations().getKeySetsByAnnotationCls().get(IdField.class)).forEach(inputField -> {
                     String idField;
@@ -233,21 +264,26 @@ public final class PropagateIdsTransform
                     }
                     else {
                         idField = plan.getFieldNameGenerator().get(inputField);
-                        internalFieldsBuilder.add(idField);
-                        newInputsByOutputBuilder.put(idField, PValue.field(inputField));
+                        Type ty = node.getSource().getFields().getType(inputField);
+                        if (TypeAnnotations.has(ty, InternalType.class)) {
+                            newInputsByOutputBuilder.put(idField, PValue.field(inputField));
+                        }
+                        else {
+                            newInputsByOutputBuilder.put(idField, PValue.function(
+                                    PFunction.of(be.getExecutable("transmuteInternal")),
+                                    PValue.field(inputField)));
+                        }
                     }
                     idFieldsBuilder.add(idField);
                 });
                 Map<String, PValue> newInputsByOutput = newInputsByOutputBuilder.build();
                 Set<String> idFields = idFieldsBuilder.build();
-                Set<String> internalFields = internalFieldsBuilder.build();
 
                 return new PProject(
                         visitNodeName(node.getName(), context),
                         node.getAnnotations(),
                         node.getFieldAnnotations().dropped(IdField.class)
                                 .merged(immutableMapOfSame(idFields, AnnotationCollection.of(FieldAnnotation.id()))),
-                        // .merged(immutableMapOfSame(internalFields, AnnotationCollection.of(FieldAnnotation.internal()))),
                         source,
                         new PProjection(newInputsByOutput));
             }

@@ -61,6 +61,42 @@ public final class MorePreconditions
         return list;
     }
 
+    public static <T> T checkContains(T item, Iterable<T> iterable)
+    {
+        for (T itItem : iterable) {
+            if (item.equals(itItem)) {
+                return item;
+            }
+        }
+        throw new IllegalStateException(String.format("%s not in %s", item, iterable));
+    }
+
+    public static <T> T checkContains(T item, Collection<T> collection)
+    {
+        if (!collection.contains(item)) {
+            throw new IllegalStateException(String.format("%s not in %s", item, collection));
+        }
+        return item;
+    }
+
+    public static <T> T checkNotContains(T item, Iterable<T> iterable)
+    {
+        for (T itItem : iterable) {
+            if (item.equals(itItem)) {
+                throw new IllegalStateException(String.format("%s in %s", item, iterable));
+            }
+        }
+        return item;
+    }
+
+    public static <T> T checkNotContains(T item, Collection<T> collection)
+    {
+        if (collection.contains(item)) {
+            throw new IllegalStateException(String.format("%s in %s", item, collection));
+        }
+        return item;
+    }
+
     public static <T> T checkSingle(Iterator<T> iterator)
     {
         checkState(iterator.hasNext());
