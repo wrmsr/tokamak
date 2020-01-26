@@ -307,7 +307,7 @@ public class CoreTest
         // Dot.open(PlanDot.build(plan));
 
         plan = SetInvalidationsTransform.setInvalidations(plan, Optional.of(catalog));
-        // Dot.open(PlanDot.build(plan));
+        Dot.open(PlanDot.build(plan));
 
         OriginAnalysis oa = OriginAnalysis.analyze(plan);
         oa.getLeafChainAnalysis().getSinkSetsByFirstSource();
@@ -397,9 +397,9 @@ public class CoreTest
 
         PNode node = new TreePlanner(Optional.of(catalog), defaultSchema).plan(treeNode);
         Plan plan = Plan.of(node);
+        Dot.open(PlanDot.build(plan));
 
         plan = MergeScansTransform.mergeScans(plan);
-
         plan = PropagateIdsTransform.propagateIds(plan, Optional.of(catalog));
         plan = SetInvalidationsTransform.setInvalidations(plan, Optional.of(catalog));
         Dot.open(PlanDot.build(plan));
