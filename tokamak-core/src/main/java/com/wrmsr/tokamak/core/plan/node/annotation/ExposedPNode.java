@@ -13,8 +13,45 @@
  */
 package com.wrmsr.tokamak.core.plan.node.annotation;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import javax.annotation.concurrent.Immutable;
+
+import java.util.Optional;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+
+@Immutable
 public final class ExposedPNode
         implements PNodeAnnotation
 {
-    static final ExposedPNode INSTANCE = new ExposedPNode();
+    private final Optional<String> name;
+
+    @JsonCreator
+    public ExposedPNode(
+            @JsonProperty("name") Optional<String> name)
+    {
+        this.name = checkNotNull(name);
+    }
+
+    @JsonProperty("name")
+    public Optional<String> getName()
+    {
+        return name;
+    }
+
+    @Override
+    public String toDisplayString()
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.append(getClass().getSimpleName());
+        if (name.isPresent()) {
+            sb.append("" +
+                    '{' +
+                    "name=" + name +
+                    '}');
+        }
+        return sb.toString();
+    }
 }

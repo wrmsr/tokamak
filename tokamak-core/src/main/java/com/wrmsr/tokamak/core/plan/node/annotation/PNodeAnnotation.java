@@ -19,6 +19,8 @@ import com.wrmsr.tokamak.core.util.annotation.Annotation;
 
 import javax.annotation.concurrent.Immutable;
 
+import java.util.Optional;
+
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
         include = JsonTypeInfo.As.WRAPPER_OBJECT)
@@ -36,6 +38,11 @@ public interface PNodeAnnotation
 
     static ExposedPNode exposed()
     {
-        return ExposedPNode.INSTANCE;
+        return new ExposedPNode(Optional.empty());
+    }
+
+    static ExposedPNode exposed(Optional<String> name)
+    {
+        return new ExposedPNode(name);
     }
 }

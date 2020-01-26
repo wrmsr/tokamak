@@ -103,7 +103,7 @@ public final class AnnotationCollection<T extends Annotation>
     }
 
     @SuppressWarnings({"unchecked"})
-    public <U extends T> Optional<T> get(Class<U> cls)
+    public <U extends T> Optional<U> get(Class<U> cls)
     {
         return Optional.ofNullable((U) annotationsByCls.get(cls));
     }

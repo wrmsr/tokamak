@@ -55,6 +55,7 @@ import com.wrmsr.tokamak.core.plan.node.PScan;
 import com.wrmsr.tokamak.core.plan.node.PState;
 import com.wrmsr.tokamak.core.plan.node.PValue;
 import com.wrmsr.tokamak.core.plan.transform.MergeScansTransform;
+import com.wrmsr.tokamak.core.plan.transform.PersistExposedTransform;
 import com.wrmsr.tokamak.core.plan.transform.PersistScansTransform;
 import com.wrmsr.tokamak.core.plan.transform.PropagateIdsTransform;
 import com.wrmsr.tokamak.core.plan.transform.SetInvalidationsTransform;
@@ -397,18 +398,11 @@ public class CoreTest
         PNode node = new TreePlanner(Optional.of(catalog), defaultSchema).plan(treeNode);
         Plan plan = Plan.of(node);
 
-        plan = Plan.of(
-                new PState(
-                        "persist0",
-                        AnnotationCollection.of(),
-                        AnnotationCollectionMap.of(),
-                        plan.getRoot(),
-                        PState.Denormalization.NONE,
-                        PInvalidations.empty()));
-
         plan = MergeScansTransform.mergeScans(plan);
         plan = PersistScansTransform.persistScans(plan);
         // Dot.open(PlanDot.build(plan));
+
+        plan = PersistExposedTransform.persistExposed(plan);
 
         plan = PropagateIdsTransform.propagateIds(plan, Optional.of(catalog));
         plan = SetInvalidationsTransform.setInvalidations(plan, Optional.of(catalog));

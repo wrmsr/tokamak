@@ -13,11 +13,20 @@
  */
 package com.wrmsr.tokamak.core.plan.transform;
 
+import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.core.plan.Plan;
+import com.wrmsr.tokamak.core.plan.node.PInvalidations;
 import com.wrmsr.tokamak.core.plan.node.PNode;
+import com.wrmsr.tokamak.core.plan.node.PState;
 import com.wrmsr.tokamak.core.plan.node.annotation.ExposedPNode;
+import com.wrmsr.tokamak.core.util.annotation.AnnotationCollection;
+import com.wrmsr.tokamak.core.util.annotation.AnnotationCollectionMap;
+import com.wrmsr.tokamak.util.Pair;
 
 import java.util.List;
+import java.util.Map;
+
+import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 
 public final class PersistExposedTransform
 {
@@ -32,22 +41,25 @@ public final class PersistExposedTransform
             return plan;
         }
 
-        /*
         Map<PNode, PNode> newNodes = exposedNodes.stream()
-                .map(node -> {
-                    if (node instanceof PSingleSource) {
-                        PNode source = ((PSingleSource) node).getSource();
-                        if (source instanceof PState) {
-                            return node;
-                        }
-
+                .flatMap(node -> {
+                    if (node instanceof PState) {
+                        return ImmutableList.of(Pair.immutable(node, node)).stream();
                     }
-                    else {
 
-                    }
+                    ExposedPNode ann = node.getAnnotations().get(ExposedPNode.class).get();
+
+                    PNode newNode =
+
+                    PState state = new PState(
+                            plan.getNodeNameGenerator().get(node.getName() + "$persist"),
+                            AnnotationCollection.of(ann),
+                            AnnotationCollectionMap.of(),
+                            node,
+                            PState.Denormalization.NONE,
+                            PInvalidations.empty());
                 })
                 .collect(toImmutableMap());
-        */
 
         throw new IllegalStateException();
     }
