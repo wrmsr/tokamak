@@ -259,7 +259,7 @@ public class TreePlanner
 
                 return new PProject(
                         nameGenerator.get("selectProject"),
-                        treeNode == rootTreeNode ? AnnotationCollection.of(PNodeAnnotation.exposed()) : AnnotationCollection.of(),
+                        treeNode == rootTreeNode ? AnnotationCollection.of(PNodeAnnotation.exposed("$")) : AnnotationCollection.of(),
                         AnnotationCollectionMap.of(),
                         source,
                         new PProjection(projection));

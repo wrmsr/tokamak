@@ -46,9 +46,7 @@ public final class ExposedPNode
     {
         StringBuilder sb = new StringBuilder();
         sb.append(getClass().getSimpleName());
-        if (name.isPresent()) {
-            sb.append(": " + name);
-        }
+        name.ifPresent(name -> sb.append(": " + name));
         return sb.toString();
     }
 }

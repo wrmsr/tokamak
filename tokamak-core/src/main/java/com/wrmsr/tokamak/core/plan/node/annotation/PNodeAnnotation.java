@@ -41,8 +41,8 @@ public interface PNodeAnnotation
         return new ExposedPNode(Optional.empty());
     }
 
-    static ExposedPNode exposed(Optional<String> name)
+    static ExposedPNode exposed(String name)
     {
-        return new ExposedPNode(name);
+        return new ExposedPNode(Optional.of(name));
     }
 }
