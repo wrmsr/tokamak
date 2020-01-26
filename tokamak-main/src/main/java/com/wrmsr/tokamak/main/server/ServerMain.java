@@ -16,6 +16,8 @@ package com.wrmsr.tokamak.main.server;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.wrmsr.tokamak.main.boot.Bootstrap;
+import com.wrmsr.tokamak.main.jna.JnaPidGetter;
+import com.wrmsr.tokamak.main.util.pid.PidGetter;
 import com.wrmsr.tokamak.util.Logger;
 import com.wrmsr.tokamak.util.lifecycle.LifecycleManager;
 
@@ -29,6 +31,10 @@ public class ServerMain
             throws Exception
     {
         args = Bootstrap.bootstrap(ServerMain.class, args);
+
+        PidGetter pidGetter = new JnaPidGetter();
+        long pid = pidGetter.get();
+        log.info(String.format("Server starting on pid %d", pid));
 
         Runtime.getRuntime().addShutdownHook(new Thread(new Runnable()
         {
