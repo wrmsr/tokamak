@@ -13,18 +13,20 @@
  */
 package com.wrmsr.tokamak.core.plan.transform;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.core.plan.Plan;
 import com.wrmsr.tokamak.core.plan.node.PInvalidations;
 import com.wrmsr.tokamak.core.plan.node.PNode;
 import com.wrmsr.tokamak.core.plan.node.PState;
 import com.wrmsr.tokamak.core.plan.node.annotation.ExposedPNode;
+import com.wrmsr.tokamak.core.plan.node.visitor.PNodeRewriters;
 import com.wrmsr.tokamak.core.util.annotation.AnnotationCollection;
 import com.wrmsr.tokamak.core.util.annotation.AnnotationCollectionMap;
 import com.wrmsr.tokamak.util.Pair;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 
@@ -42,25 +44,31 @@ public final class PersistExposedTransform
         }
 
         Map<PNode, PNode> newNodes = exposedNodes.stream()
-                .flatMap(node -> {
+                .map(node -> {
                     if (node instanceof PState) {
-                        return ImmutableList.of(Pair.immutable(node, node)).stream();
+                        return Pair.immutable(node, node);
                     }
 
                     ExposedPNode ann = node.getAnnotations().get(ExposedPNode.class).get();
 
-                    PNode newNode =
+                    PNode newNode = PNodeRewriters.rewriteOne(
+                            node,
+                            Optional.empty(),
+                            Optional.of(node.getAnnotations().dropped(ExposedPNode.class)),
+                            Optional.empty());
 
                     PState state = new PState(
                             plan.getNodeNameGenerator().get(node.getName() + "$persist"),
                             AnnotationCollection.of(ann),
                             AnnotationCollectionMap.of(),
-                            node,
+                            newNode,
                             PState.Denormalization.NONE,
                             PInvalidations.empty());
+
+                    return Pair.<PNode, PNode>immutable(node, state);
                 })
                 .collect(toImmutableMap());
 
-        throw new IllegalStateException();
+        return Plan.of(PNodeRewriters.rewrite(plan.getRoot(), ImmutableMap.copyOf(newNodes)));
     }
 }

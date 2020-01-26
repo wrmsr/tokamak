@@ -399,14 +399,14 @@ public class CoreTest
         Plan plan = Plan.of(node);
 
         plan = MergeScansTransform.mergeScans(plan);
-        plan = PersistScansTransform.persistScans(plan);
-        // Dot.open(PlanDot.build(plan));
-
-        plan = PersistExposedTransform.persistExposed(plan);
 
         plan = PropagateIdsTransform.propagateIds(plan, Optional.of(catalog));
         plan = SetInvalidationsTransform.setInvalidations(plan, Optional.of(catalog));
-        // Dot.open(PlanDot.build(plan));
+        Dot.open(PlanDot.build(plan));
+
+        plan = PersistScansTransform.persistScans(plan);
+        plan = PersistExposedTransform.persistExposed(plan);
+        Dot.open(PlanDot.build(plan));
 
         Driver driver = new DriverImpl(catalog, plan);
 
