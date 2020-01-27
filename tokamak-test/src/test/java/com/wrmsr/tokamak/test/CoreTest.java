@@ -91,6 +91,10 @@ import static com.wrmsr.tokamak.util.MoreFiles.createTempDirectory;
 public class CoreTest
         extends TestCase
 {
+    private static final boolean DOT =
+            // true;
+            false;
+
     @Override
     protected void setUp()
     {
@@ -308,7 +312,7 @@ public class CoreTest
         // Dot.open(PlanDot.build(plan));
 
         plan = SetInvalidationsTransform.setInvalidations(plan, Optional.of(catalog));
-        Dot.open(PlanDot.build(plan));
+        if (DOT) { Dot.open(PlanDot.build(plan)); }
 
         OriginAnalysis oa = OriginAnalysis.analyze(plan);
         oa.getLeafChainAnalysis().getSinkSetsByFirstSource();
@@ -398,19 +402,17 @@ public class CoreTest
 
         PNode node = new TreePlanner(Optional.of(catalog), defaultSchema).plan(treeNode);
         Plan plan = Plan.of(node);
-        Dot.open(PlanDot.build(plan));
+        if (DOT) { Dot.open(PlanDot.build(plan)); }
 
         plan = MergeScansTransform.mergeScans(plan);
-        Dot.open(PlanDot.build(plan));
-
         plan = PersistScansTransform.persistScans(plan);
         plan = PersistExposedTransform.persistExposed(plan);
-        Dot.open(PlanDot.build(plan));
+        if (DOT) { Dot.open(PlanDot.build(plan)); }
 
         plan = PropagateIdsTransform.propagateIds(plan, Optional.of(catalog));
         plan = SetInvalidationsTransform.setInvalidations(plan, Optional.of(catalog));
         plan = DropExposedInternalFieldsTransform.dropExposedInternalFields(plan, Optional.of(catalog));
-        Dot.open(PlanDot.build(plan));
+        if (DOT) { Dot.open(PlanDot.build(plan)); }
 
         Driver driver = new DriverImpl(catalog, plan);
 
@@ -445,7 +447,7 @@ public class CoreTest
 
         Plan plan = buildPlan(catalog);
 
-        Dot.open(PlanDot.build(plan));
+        if (DOT) { Dot.open(PlanDot.build(plan)); }
     }
 
     public void testHeapTable()
