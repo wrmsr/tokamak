@@ -1,4 +1,4 @@
-FROM openjdk:8u222-slim-buster AS build
+FROM openjdk:8u242-slim-buster AS build
 COPY .dockertimestamp /
 
 RUN mkdir /build
