@@ -98,6 +98,15 @@ public final class Reflection
     public static Executable reflect(
             Method method,
             String name,
+            FunctionType type,
+            Executable.Purity purity)
+    {
+        return reflect(method, Optional.of(name), Optional.of(type), purity);
+    }
+
+    public static Executable reflect(
+            Method method,
+            String name,
             FunctionType type)
     {
         return reflect(method, Optional.of(name), Optional.of(type), Executable.Purity.IMPURE);

@@ -15,6 +15,9 @@ package com.wrmsr.tokamak.core.type.hier.special;
 
 import com.wrmsr.tokamak.core.type.hier.Type;
 
+import javax.annotation.concurrent.Immutable;
+
+@Immutable
 public interface SpecialType
         extends Type
 {

@@ -19,8 +19,6 @@ import com.wrmsr.tokamak.core.exec.Reflection;
 import com.wrmsr.tokamak.core.type.Types;
 import com.wrmsr.tokamak.core.type.hier.special.FunctionType;
 
-import java.util.Optional;
-
 public final class BuiltinFunctions
 {
     /*
@@ -37,22 +35,77 @@ public final class BuiltinFunctions
         return value;
     }
 
+    public static boolean logicalAnd(boolean left, boolean right)
+    {
+        return left && right;
+    }
+
+    public static boolean logicalOr(boolean left, boolean right)
+    {
+        return left || right;
+    }
+
+    public static boolean logicalNot(boolean value)
+    {
+        return !value;
+    }
+
     public static BuiltinExecutor register(BuiltinExecutor executor)
     {
         try {
             executor.register(
                     Reflection.reflect(
                             BuiltinFunctions.class.getDeclaredMethod("longIdentity", long.class),
-                            Optional.of("transmuteInternal"),
-                            Optional.of(
-                                    new FunctionType(
+                            "transmuteInternal",
+                            new FunctionType(
                                     Types.Internal(Types.Long()),
                                     ImmutableList.of(
                                             Types.Long()
                                     )
-                            )),
+                            ),
                             Executable.Purity.IDENTITY)
-                    );
+            );
+
+            executor.register(
+                    Reflection.reflect(
+                            BuiltinFunctions.class.getDeclaredMethod("logicalAnd", boolean.class, boolean.class),
+                            "logicalAnd",
+                            new FunctionType(
+                                    Types.Boolean(),
+                                    ImmutableList.of(
+                                            Types.Boolean(),
+                                            Types.Boolean()
+                                    )
+                            ),
+                            Executable.Purity.PURE)
+            );
+
+            executor.register(
+                    Reflection.reflect(
+                            BuiltinFunctions.class.getDeclaredMethod("logicalOr", boolean.class, boolean.class),
+                            "logicalOr",
+                            new FunctionType(
+                                    Types.Boolean(),
+                                    ImmutableList.of(
+                                            Types.Boolean(),
+                                            Types.Boolean()
+                                    )
+                            ),
+                            Executable.Purity.PURE)
+            );
+
+            executor.register(
+                    Reflection.reflect(
+                            BuiltinFunctions.class.getDeclaredMethod("logicalNot", boolean.class),
+                            "logicalNot",
+                            new FunctionType(
+                                    Types.Boolean(),
+                                    ImmutableList.of(
+                                            Types.Boolean()
+                                    )
+                            ),
+                            Executable.Purity.PURE)
+            );
         }
         catch (ReflectiveOperationException e) {
             throw new RuntimeException(e);

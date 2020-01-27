@@ -15,58 +15,25 @@ package com.wrmsr.tokamak.core.type.hier.special.struct;
 
 import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.core.type.hier.Type;
-import com.wrmsr.tokamak.core.type.hier.special.SpecialType;
 
 import javax.annotation.concurrent.Immutable;
 
 import java.util.List;
 import java.util.Map;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static com.wrmsr.tokamak.util.MoreCollections.checkOrdered;
 import static com.wrmsr.tokamak.util.MoreCollections.enumerate;
 import static com.wrmsr.tokamak.util.MoreCollections.immutableMapValues;
 import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
-import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 import static java.util.function.UnaryOperator.identity;
 
 @Immutable
-public abstract class AbstractStructType
-        implements SpecialType
+public abstract class AbstractStructLikeType
+        implements StructLikeType
 {
-    @Immutable
-    public static final class Member
-    {
-        private final String name;
-        private final Type type;
-        private final int position;
-
-        public Member(String name, Type type, int position)
-        {
-            this.name = checkNotEmpty(name);
-            this.type = checkNotNull(type);
-            this.position = position;
-        }
-
-        public String getName()
-        {
-            return name;
-        }
-
-        public Type getType()
-        {
-            return type;
-        }
-
-        public int getPosition()
-        {
-            return position;
-        }
-    }
-
     private final Map<String, Member> members;
 
-    public AbstractStructType(Map<String, Type> members)
+    public AbstractStructLikeType(Map<String, Type> members)
     {
         List<Map.Entry<String, Type>> entryList = ImmutableList.copyOf(
                 immutableMapValues(checkOrdered(members), Type.class::cast).entrySet());
@@ -81,13 +48,9 @@ public abstract class AbstractStructType
         return immutableMapValues(members, Member::getType);
     }
 
+    @Override
     public Map<String, Member> getMembers()
     {
         return members;
-    }
-
-    public Member getMember(String name)
-    {
-        return checkNotNull(members.get(checkNotEmpty(name)));
     }
 }

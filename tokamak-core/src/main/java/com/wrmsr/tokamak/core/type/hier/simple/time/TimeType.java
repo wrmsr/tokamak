@@ -15,6 +15,9 @@ package com.wrmsr.tokamak.core.type.hier.simple.time;
 
 import com.wrmsr.tokamak.core.type.hier.simple.SimpleType;
 
+import javax.annotation.concurrent.Immutable;
+
+@Immutable
 public interface TimeType
         extends SimpleType
 {

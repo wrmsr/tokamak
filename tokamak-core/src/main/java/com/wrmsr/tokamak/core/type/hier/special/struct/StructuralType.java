@@ -24,7 +24,7 @@ import java.util.Map;
 
 @Immutable
 public final class StructuralType
-        extends AbstractStructType
+        extends AbstractStructLikeType
 {
     public static final String NAME = "Structural";
     public static final TypeRegistration REGISTRATION = new TypeRegistration(NAME, StructuralType.class, TypeConstructor.of(
