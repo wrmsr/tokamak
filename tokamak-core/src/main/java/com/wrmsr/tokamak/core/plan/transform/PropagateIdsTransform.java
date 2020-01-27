@@ -68,7 +68,6 @@ import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static com.wrmsr.tokamak.util.MoreCollections.immutableMapOfSame;
 import static com.wrmsr.tokamak.util.MoreCollections.immutableMapValues;
 import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
-import static com.wrmsr.tokamak.util.MorePreconditions.checkContains;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 import static java.util.function.Function.identity;
 
@@ -108,30 +107,6 @@ public final class PropagateIdsTransform
                                             .collect(toImmutableMap(identity(), f -> AnnotationCollection.of(FieldAnnotation.id())))),
                             source);
                 }
-            }
-
-            private PProject internalize(PNode node, Iterable<String> internalFields)
-            {
-                BuiltinExecutor be = (BuiltinExecutor) checkNotNull(catalog.get().getExecutorsByName().get("builtin"));
-                Set<String> internalFieldSet = ImmutableSet.copyOf(internalFields);
-                internalFieldSet.forEach(f -> checkContains(f, node.getFields().getNames()));
-                return new PProject(
-                        plan.getNodeNameGenerator().get(node.getName() + "$internalize"),
-                        AnnotationCollection.of(),
-                        AnnotationCollectionMap.of(),
-                        node,
-                        new PProjection(
-                                node.getFields().getNames().stream()
-                                        .collect(toImmutableMap(identity(), f -> {
-                                            if (!internalFieldSet.contains(f)) {
-                                                return PValue.field(f);
-                                            }
-                                            else {
-                                                return PValue.function(
-                                                        PFunction.of(be.getExecutable("transmuteInternal")),
-                                                        PValue.field(f));
-                                            }
-                                        }))));
             }
 
             @Override
@@ -423,8 +398,6 @@ public final class PropagateIdsTransform
                 String indexField;
                 if (!node.getIndexField().isPresent()) {
                     indexField = plan.getFieldNameGenerator().get("index");
-                    // fieldAnnotations = fieldAnnotations.merged(
-                    //         ImmutableMap.of(indexField, AnnotationCollection.of(FieldAnnotation.internal())));
                 }
                 else {
                     indexField = node.getIndexField().get();
@@ -464,8 +437,6 @@ public final class PropagateIdsTransform
                 String indexField;
                 if (!node.getIndexField().isPresent()) {
                     indexField = plan.getFieldNameGenerator().get("index");
-                    // fieldAnnotations = fieldAnnotations.merged(
-                    //         ImmutableMap.of(indexField, AnnotationCollection.of(FieldAnnotation.internal())));
                 }
                 else {
                     indexField = node.getIndexField().get();
@@ -492,8 +463,6 @@ public final class PropagateIdsTransform
                 String indexField;
                 if (!node.getIndexField().isPresent()) {
                     indexField = plan.getFieldNameGenerator().get("index");
-                    // fieldAnnotations = fieldAnnotations.merged(
-                    //         ImmutableMap.of(indexField, AnnotationCollection.of(FieldAnnotation.internal())));
                 }
                 else {
                     indexField = node.getIndexField().get();
