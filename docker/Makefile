@@ -31,7 +31,7 @@ DOCKER_COMPOSE_SERVICES:= \
 	tokamak-dev \
 
 .PHONY: all
-all: clean dev_images
+all: clean dev-images
 
 .PHONY: pull
 pull:

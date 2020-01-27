@@ -89,16 +89,12 @@ endif
 docker:
 	docker build -t wrmsr/tokamak .
 
-.PHONY: docker_test
-docker_test: docker
-	docker run --rm wrmsr/tokamak make test
+.PHONY: docker-bash
+docker-bash:
+	docker run --rm --entrypoint bash --detach-keys 'ctrl-o,ctrl-d' -it wrmsr/tokamak
 
-.PHONY: docker_bash
-docker_bash:
-	docker run --detach-keys 'ctrl-o,ctrl-d' -it wrmsr/tokamak bash
-
-.PHONY: docker_invalidate
-docker_invalidate:
+.PHONY: docker-invalidate
+docker-invalidate:
 	date +%s > .dockertimestamp
 
 
