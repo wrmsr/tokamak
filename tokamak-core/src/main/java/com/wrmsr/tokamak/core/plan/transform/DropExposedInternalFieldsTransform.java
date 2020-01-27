@@ -14,12 +14,17 @@
 package com.wrmsr.tokamak.core.plan.transform;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Sets;
+import com.wrmsr.tokamak.core.catalog.Catalog;
+import com.wrmsr.tokamak.core.layout.field.Field;
 import com.wrmsr.tokamak.core.plan.Plan;
-import com.wrmsr.tokamak.core.plan.node.PInvalidations;
 import com.wrmsr.tokamak.core.plan.node.PNode;
-import com.wrmsr.tokamak.core.plan.node.PState;
+import com.wrmsr.tokamak.core.plan.node.PProject;
+import com.wrmsr.tokamak.core.plan.node.PProjection;
 import com.wrmsr.tokamak.core.plan.node.annotation.ExposedPNode;
 import com.wrmsr.tokamak.core.plan.node.visitor.PNodeRewriters;
+import com.wrmsr.tokamak.core.type.TypeAnnotations;
+import com.wrmsr.tokamak.core.type.hier.annotation.InternalType;
 import com.wrmsr.tokamak.core.util.annotation.AnnotationCollection;
 import com.wrmsr.tokamak.core.util.annotation.AnnotationCollectionMap;
 import com.wrmsr.tokamak.util.Pair;
@@ -27,16 +32,18 @@ import com.wrmsr.tokamak.util.Pair;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
+import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 
-public final class PersistExposedTransform
+public final class DropExposedInternalFieldsTransform
 {
-    private PersistExposedTransform()
+    private DropExposedInternalFieldsTransform()
     {
     }
 
-    public static Plan persistExposed(Plan plan)
+    public static Plan dropExposedInternalFields(Plan plan, Optional<Catalog> catalog)
     {
         List<PNode> exposedNodes = plan.getNodeListsByAnnotationType(ExposedPNode.class);
         if (exposedNodes.isEmpty()) {
@@ -45,7 +52,11 @@ public final class PersistExposedTransform
 
         Map<PNode, PNode> newNodes = exposedNodes.stream()
                 .map(node -> {
-                    if (node instanceof PState) {
+                    Set<String> internalFields = node.getFields().stream()
+                            .filter(f -> TypeAnnotations.has(f.getType(), InternalType.class))
+                            .map(Field::getName)
+                            .collect(toImmutableSet());
+                    if (internalFields.isEmpty()) {
                         return Pair.immutable(node, node);
                     }
 
@@ -56,15 +67,14 @@ public final class PersistExposedTransform
                             Optional.of(node.getAnnotations().dropped(ExposedPNode.class)),
                             Optional.empty());
 
-                    PState state = new PState(
-                            plan.getNodeNameGenerator().get(node.getName() + "$persist"),
+                    PNode drop = new PProject(
+                            plan.getNodeNameGenerator().get(node.getName() + "$dropExposedInternal"),
                             AnnotationCollection.of(ann),
                             AnnotationCollectionMap.of(),
                             newNode,
-                            PState.Denormalization.NONE,
-                            PInvalidations.empty());
+                            PProjection.only(Sets.difference(node.getFields().getNames(), internalFields)));
 
-                    return Pair.<PNode, PNode>immutable(node, state);
+                    return Pair.immutable(node, drop);
                 })
                 .collect(toImmutableMap());
 

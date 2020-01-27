@@ -54,6 +54,7 @@ import com.wrmsr.tokamak.core.plan.node.PProjection;
 import com.wrmsr.tokamak.core.plan.node.PScan;
 import com.wrmsr.tokamak.core.plan.node.PState;
 import com.wrmsr.tokamak.core.plan.node.PValue;
+import com.wrmsr.tokamak.core.plan.transform.DropExposedInternalFieldsTransform;
 import com.wrmsr.tokamak.core.plan.transform.MergeScansTransform;
 import com.wrmsr.tokamak.core.plan.transform.PersistExposedTransform;
 import com.wrmsr.tokamak.core.plan.transform.PersistScansTransform;
@@ -408,6 +409,7 @@ public class CoreTest
 
         plan = PropagateIdsTransform.propagateIds(plan, Optional.of(catalog));
         plan = SetInvalidationsTransform.setInvalidations(plan, Optional.of(catalog));
+        plan = DropExposedInternalFieldsTransform.dropExposedInternalFields(plan, Optional.of(catalog));
         Dot.open(PlanDot.build(plan));
 
         Driver driver = new DriverImpl(catalog, plan);
