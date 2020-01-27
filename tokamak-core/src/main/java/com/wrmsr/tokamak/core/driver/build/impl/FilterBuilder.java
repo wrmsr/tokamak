@@ -36,15 +36,9 @@ import java.util.function.Consumer;
 public final class FilterBuilder
         extends SingleSourceBuilder<PFilter>
 {
-    private final Executable executable;
-
     public FilterBuilder(DriverImpl driver, PFilter node, Map<PNode, Builder<?>> sources)
     {
         super(driver, node, sources);
-
-        Function function = driver.getCatalog().getFunctionsByName()
-                .get(node.getFunction().getName());
-        executable = function.getExecutable();
     }
 
     @Override
@@ -53,14 +47,10 @@ public final class FilterBuilder
         opConsumer.accept(new RequestBuildOp(this, source, key, srows -> {
             ImmutableList.Builder<DriverRow> ret = ImmutableList.builder();
             for (DriverRow row : srows) {
-                Object[] args = new Object[node.getArgs().size()];
-                for (int i = 0; i < args.length; ++i) {
-                    args[i] = row.getMap().get(node.getArgs().get(i));
-                }
-                Object res = executable.invoke(args);
+                boolean res = (boolean) row.getMap().get(node.getField());
 
                 Object[] attributes;
-                if ((boolean) res) {
+                if (res) {
                     attributes = row.getAttributes();
                 }
                 else {

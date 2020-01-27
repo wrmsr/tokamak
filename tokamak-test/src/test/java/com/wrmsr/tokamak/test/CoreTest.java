@@ -61,9 +61,9 @@ import com.wrmsr.tokamak.core.plan.transform.PersistScansTransform;
 import com.wrmsr.tokamak.core.plan.transform.PropagateIdsTransform;
 import com.wrmsr.tokamak.core.plan.transform.SetInvalidationsTransform;
 import com.wrmsr.tokamak.core.tree.TreeParsing;
-import com.wrmsr.tokamak.core.tree.plan.TreePlanner;
 import com.wrmsr.tokamak.core.tree.TreeRendering;
 import com.wrmsr.tokamak.core.tree.node.TNode;
+import com.wrmsr.tokamak.core.tree.plan.TreePlanner;
 import com.wrmsr.tokamak.core.tree.transform.SelectExpansion;
 import com.wrmsr.tokamak.core.tree.transform.SymbolResolution;
 import com.wrmsr.tokamak.core.tree.transform.ViewInlining;
@@ -86,14 +86,16 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.function.Consumer;
 
+import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 import static com.wrmsr.tokamak.util.MoreFiles.createTempDirectory;
+import static java.util.function.Function.identity;
 
 public class CoreTest
         extends TestCase
 {
     private static final boolean DOT =
-            // true;
-            false;
+            true;
+            // false;
 
     @Override
     protected void setUp()
@@ -198,14 +200,32 @@ public class CoreTest
                 PState.Denormalization.NONE,
                 PInvalidations.empty());
 
+        PNode filterPrjNode0 = new PProject(
+                "filterPrjNode0",
+                AnnotationCollection.of(),
+                AnnotationCollectionMap.of(),
+                stateNode0,
+                new PProjection(ImmutableMap.<String, PValue>builder()
+                        .putAll(stateNode0.getFields().getNames().stream().collect(toImmutableMap(identity(), PValue::field)))
+                        .put("isStringNotNull", PValue.function(
+                                catalog.addFunction(be.register(Reflection.reflect(getClass().getDeclaredMethod("isStringNotNull", String.class))).getName(), be).asNodeFunction(),
+                                PValue.field("N_NAME")))
+                        .build()));
+
         PNode filterNode0 = new PFilter(
                 "filter0",
                 AnnotationCollection.of(),
                 AnnotationCollectionMap.of(),
-                stateNode0,
-                catalog.addFunction(be.register(Reflection.reflect(getClass().getDeclaredMethod("isStringNotNull", String.class))).getName(), be).asNodeFunction(),
-                ImmutableList.of("N_NAME"),
+                filterPrjNode0,
+                "isStringNotNull",
                 PFilter.Linking.LINKED);
+
+        PNode droppedFilterNode0 = new PProject(
+                "droppedFilterNode0",
+                AnnotationCollection.of(),
+                AnnotationCollectionMap.of(),
+                filterNode0,
+                PProjection.only(stateNode0.getFields().getNames()));
 
         com.wrmsr.tokamak.core.catalog.Function func = catalog.addFunction(
                 be.register(Reflection.reflect(getClass().getDeclaredMethod("addExclamationMark", String.class))).getName(), be);
@@ -214,7 +234,7 @@ public class CoreTest
                 "project0",
                 AnnotationCollection.of(),
                 AnnotationCollectionMap.of(),
-                filterNode0,
+                droppedFilterNode0,
                 new PProjection(ImmutableMap.of(
                         // "N_NATIONKEY", PValue.field("N_NATIONKEY"),
                         "N_NAME", PValue.function(

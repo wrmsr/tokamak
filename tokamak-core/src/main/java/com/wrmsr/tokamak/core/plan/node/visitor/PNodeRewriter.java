@@ -114,8 +114,7 @@ public abstract class PNodeRewriter<C>
                 visitNodeAnnotations(node, node.getAnnotations(), context),
                 visitNodeFieldAnnotations(node, node.getFieldAnnotations(), context),
                 process(node.getSource(), context),
-                node.getFunction(),
-                node.getArgs(),
+                node.getField(),
                 node.getLinking());
     }
 

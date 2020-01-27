@@ -67,9 +67,7 @@ final class NodeRenderings
                 {
                     Dot.Section section = Dot.section();
 
-                    section.add(Dot.row(ctx.node.getFunction().getName()));
-
-                    ctx.node.getArgs().forEach(arg -> section.add(Dot.row(Dot.rawColumn(" &lt;- " + Dot.escape(arg)))));
+                    section.add(Dot.row(Dot.rawColumn(" &lt;- " + Dot.escape(ctx.node.getField()))));
 
                     table.add(section);
                 }

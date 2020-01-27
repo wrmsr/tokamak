@@ -143,8 +143,7 @@ public final class PropagateIdsTransform
                                 node.getAnnotations(),
                                 annotations,
                                 source,
-                                node.getFunction(),
-                                node.getArgs(),
+                                node.getField(),
                                 node.getLinking()));
             }
 

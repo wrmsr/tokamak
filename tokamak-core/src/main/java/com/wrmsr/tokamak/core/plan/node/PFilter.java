@@ -20,6 +20,7 @@ import com.wrmsr.tokamak.core.layout.field.FieldCollection;
 import com.wrmsr.tokamak.core.layout.field.annotation.FieldAnnotation;
 import com.wrmsr.tokamak.core.plan.node.annotation.PNodeAnnotation;
 import com.wrmsr.tokamak.core.plan.node.visitor.PNodeVisitor;
+import com.wrmsr.tokamak.core.type.TypeAnnotations;
 import com.wrmsr.tokamak.core.type.hier.primitive.BooleanType;
 import com.wrmsr.tokamak.core.util.annotation.AnnotationCollection;
 import com.wrmsr.tokamak.core.util.annotation.AnnotationCollectionMap;
@@ -43,8 +44,7 @@ public final class PFilter
     }
 
     private final PNode source;
-    private final PFunction function;
-    private final List<String> args;
+    private final String field;
     private final Linking linking;
 
     private final FieldCollection fields;
@@ -55,28 +55,18 @@ public final class PFilter
             @JsonProperty("annotations") AnnotationCollection<PNodeAnnotation> annotations,
             @JsonProperty("fieldAnnotations") AnnotationCollectionMap<String, FieldAnnotation> fieldAnnotations,
             @JsonProperty("source") PNode source,
-            @JsonProperty("function") PFunction function,
-            @JsonProperty("args") List<String> args,
+            @JsonProperty("field") String field,
             @JsonProperty("linking") Linking linking)
     {
         super(name, annotations, fieldAnnotations);
 
         this.source = checkNotNull(source);
-        this.function = checkNotNull(function);
-        this.args = ImmutableList.copyOf(args);
+        this.field = checkNotNull(field);
         this.linking = checkNotNull(linking);
 
-        checkArgument(function.getType().getValue() instanceof BooleanType);
-        checkArgument(function.getType().getParams().size() == this.args.size());
+        checkArgument(TypeAnnotations.strip(source.getFields().getType(field)) instanceof BooleanType);
 
         this.fields = FieldCollection.of(source.getFields().getTypesByName(), fieldAnnotations);
-
-        // FIXME: check
-        // function.getSignature().getParams().forEach((f, t) -> {
-        //     Type st = source.getFields().get(f);
-        //     checkNotNull(st);
-        //     checkArgument(st.equals(t));
-        // });
 
         checkInvariants();
     }
@@ -88,16 +78,10 @@ public final class PFilter
         return source;
     }
 
-    @JsonProperty("function")
-    public PFunction getFunction()
+    @JsonProperty("field")
+    public String getField()
     {
-        return function;
-    }
-
-    @JsonProperty("args")
-    public List<String> getArgs()
-    {
-        return args;
+        return field;
     }
 
     @JsonProperty("linking")
