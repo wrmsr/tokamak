@@ -134,7 +134,7 @@ RUN ( \
 # jp
 
 RUN ( \
-    sudo wget https://github.com/jmespath/jp/releases/download/0.1.2/jp-linux-amd64 -O /usr/local/bin/jp && \
+    sudo wget https://github.com/jmespath/jp/releases/download/0.1.3/jp-linux-amd64 -O /usr/local/bin/jp && \
     sudo chmod +x /usr/local/bin/jp \
 )
 
