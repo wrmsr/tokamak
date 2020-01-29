@@ -53,13 +53,14 @@ import com.wrmsr.tokamak.core.plan.node.PProject;
 import com.wrmsr.tokamak.core.plan.node.PProjection;
 import com.wrmsr.tokamak.core.plan.node.PScan;
 import com.wrmsr.tokamak.core.plan.node.PState;
-import com.wrmsr.tokamak.core.plan.value.PValue;
 import com.wrmsr.tokamak.core.plan.transform.DropExposedInternalFieldsTransform;
 import com.wrmsr.tokamak.core.plan.transform.MergeScansTransform;
 import com.wrmsr.tokamak.core.plan.transform.PersistExposedTransform;
 import com.wrmsr.tokamak.core.plan.transform.PersistScansTransform;
 import com.wrmsr.tokamak.core.plan.transform.PropagateIdsTransform;
 import com.wrmsr.tokamak.core.plan.transform.SetInvalidationsTransform;
+import com.wrmsr.tokamak.core.plan.value.VNode;
+import com.wrmsr.tokamak.core.plan.value.VNodes;
 import com.wrmsr.tokamak.core.tree.TreeParsing;
 import com.wrmsr.tokamak.core.tree.TreeRendering;
 import com.wrmsr.tokamak.core.tree.node.TNode;
@@ -94,8 +95,8 @@ public class CoreTest
         extends TestCase
 {
     private static final boolean DOT =
-            true;
-            // false;
+            // true;
+            false;
 
     @Override
     protected void setUp()
@@ -205,11 +206,11 @@ public class CoreTest
                 AnnotationCollection.of(),
                 AnnotationCollectionMap.of(),
                 stateNode0,
-                new PProjection(ImmutableMap.<String, PValue>builder()
-                        .putAll(stateNode0.getFields().getNames().stream().collect(toImmutableMap(identity(), PValue::field)))
-                        .put("isStringNotNull", PValue.function(
+                new PProjection(ImmutableMap.<String, VNode>builder()
+                        .putAll(stateNode0.getFields().getNames().stream().collect(toImmutableMap(identity(), VNodes::field)))
+                        .put("isStringNotNull", VNodes.function(
                                 catalog.addFunction(be.register(Reflection.reflect(getClass().getDeclaredMethod("isStringNotNull", String.class))).getName(), be).asNodeFunction(),
-                                PValue.field("N_NAME")))
+                                VNodes.field("N_NAME")))
                         .build()));
 
         PNode filterNode0 = new PFilter(
@@ -237,13 +238,13 @@ public class CoreTest
                 droppedFilterNode0,
                 new PProjection(ImmutableMap.of(
                         // "N_NATIONKEY", PValue.field("N_NATIONKEY"),
-                        "N_NAME", PValue.function(
+                        "N_NAME", VNodes.function(
                                 PFunction.of(func.getExecutable()),
-                                PValue.field("N_NAME")),
+                                VNodes.field("N_NAME")),
                         // "N_REGIONKEY", PValue.field("N_REGIONKEY")
-                        "N_REGIONKEY", PValue.function(
+                        "N_REGIONKEY", VNodes.function(
                                 PFunction.of(be.getExecutable("transmuteInternal")),
-                                PValue.field("N_REGIONKEY"))
+                                VNodes.field("N_REGIONKEY"))
                 )));
 
         PNode scanNode1 = new PScan(

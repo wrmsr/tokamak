@@ -33,8 +33,11 @@ import com.wrmsr.tokamak.core.plan.node.PStruct;
 import com.wrmsr.tokamak.core.plan.node.PUnify;
 import com.wrmsr.tokamak.core.plan.node.PUnion;
 import com.wrmsr.tokamak.core.plan.node.PUnnest;
-import com.wrmsr.tokamak.core.plan.value.PValue;
 import com.wrmsr.tokamak.core.plan.node.PValues;
+import com.wrmsr.tokamak.core.plan.value.VConstant;
+import com.wrmsr.tokamak.core.plan.value.VField;
+import com.wrmsr.tokamak.core.plan.value.VFunction;
+import com.wrmsr.tokamak.core.plan.value.VNode;
 import com.wrmsr.tokamak.core.util.dot.Color;
 import com.wrmsr.tokamak.core.util.dot.Dot;
 import com.wrmsr.tokamak.util.lazy.CtorLazyValue;
@@ -110,15 +113,15 @@ final class NodeRenderings
                 @Override
                 protected void addFieldExtra(Context<PProject> ctx, Field field, Dot.Row row)
                 {
-                    PValue value = checkNotNull(ctx.node.getProjection().getInputsByOutput().get(field.getName()));
-                    if (value instanceof PValue.Constant) {
-                        row.add(Dot.rawColumn(LEFT_ARROW + Dot.escape(Objects.toString(((PValue.Constant) value).getValue()))));
+                    VNode value = checkNotNull(ctx.node.getProjection().getInputsByOutput().get(field.getName()));
+                    if (value instanceof VConstant) {
+                        row.add(Dot.rawColumn(LEFT_ARROW + Dot.escape(Objects.toString(((VConstant) value).getValue()))));
                     }
-                    else if (value instanceof PValue.Field) {
-                        row.add(Dot.rawColumn(LEFT_ARROW + Dot.escape(((PValue.Field) value).getField())));
+                    else if (value instanceof VField) {
+                        row.add(Dot.rawColumn(LEFT_ARROW + Dot.escape(((VField) value).getField())));
                     }
-                    else if (value instanceof PValue.Function) {
-                        PValue.Function functionValue = (PValue.Function) value;
+                    else if (value instanceof VFunction) {
+                        VFunction functionValue = (VFunction) value;
                         // FIXME: recursive PValue render
                         Dot.Table table = Dot.table(
                                 Dot.section(
@@ -126,7 +129,7 @@ final class NodeRenderings
                                 Dot.section(
                                         functionValue.getArgs().stream()
                                                 .map(arg -> LEFT_ARROW + (
-                                                        (arg instanceof PValue.Field) ? Dot.escape(((PValue.Field) arg).getField()) : "?"))
+                                                        (arg instanceof VField) ? Dot.escape(((VField) arg).getField()) : "?"))
                                                 .map(Dot::rawColumn)
                                                 .map(Dot::row)
                                                 .collect(toImmutableList())));

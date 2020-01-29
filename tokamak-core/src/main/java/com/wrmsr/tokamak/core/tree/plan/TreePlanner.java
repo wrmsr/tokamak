@@ -27,8 +27,9 @@ import com.wrmsr.tokamak.core.plan.node.PNode;
 import com.wrmsr.tokamak.core.plan.node.PProject;
 import com.wrmsr.tokamak.core.plan.node.PProjection;
 import com.wrmsr.tokamak.core.plan.node.PScan;
-import com.wrmsr.tokamak.core.plan.value.PValue;
 import com.wrmsr.tokamak.core.plan.node.annotation.PNodeAnnotation;
+import com.wrmsr.tokamak.core.plan.value.VNode;
+import com.wrmsr.tokamak.core.plan.value.VNodes;
 import com.wrmsr.tokamak.core.tree.analysis.SymbolAnalysis;
 import com.wrmsr.tokamak.core.tree.node.TAliasedRelation;
 import com.wrmsr.tokamak.core.tree.node.TComparisonExpression;
@@ -110,13 +111,13 @@ public class TreePlanner
                         scanNode,
                         new PProjection(
                                 scanNode.getFields().getNames().stream()
-                                        .collect(toImmutableMap(f -> treeNode.getAlias().get() + "." + f, PValue::field))));
+                                        .collect(toImmutableMap(f -> treeNode.getAlias().get() + "." + f, VNodes::field))));
             }
 
             @Override
             public PNode visitSelect(TSelect treeNode, SymbolAnalysis.SymbolScope context)
             {
-                Map<String, PValue> projection = new LinkedHashMap<>();
+                Map<String, VNode> projection = new LinkedHashMap<>();
 
                 for (TSelectItem item : treeNode.getItems()) {
                     TExpressionSelectItem exprItem = (TExpressionSelectItem) item;
@@ -125,20 +126,20 @@ public class TreePlanner
 
                     if (expr instanceof TQualifiedNameExpression) {
                         TQualifiedName qname = ((TQualifiedNameExpression) expr).getQualifiedName();
-                        projection.put(label, PValue.field(Joiner.on(".").join(qname.getParts())));
+                        projection.put(label, VNodes.field(Joiner.on(".").join(qname.getParts())));
                     }
 
                     else if (expr instanceof TFunctionCallExpression) {
                         TFunctionCallExpression fcExpr = (TFunctionCallExpression) expr;
                         Function func = catalog.get().getFunction(fcExpr.getName());
-                        List<PValue> args = fcExpr.getArgs().stream()
+                        List<VNode> args = fcExpr.getArgs().stream()
                                 .map(TQualifiedNameExpression.class::cast)
                                 .map(TQualifiedNameExpression::getQualifiedName)
                                 .map(TQualifiedName::getParts)
                                 .map(Joiner.on(".")::join)
-                                .map(PValue::field)
+                                .map(VNodes::field)
                                 .collect(toImmutableList());
-                        projection.put(label, PValue.function(func.asNodeFunction(), args));
+                        projection.put(label, VNodes.function(func.asNodeFunction(), args));
                     }
 
                     else {

@@ -28,7 +28,11 @@ import com.wrmsr.tokamak.core.driver.context.DriverContextImpl;
 import com.wrmsr.tokamak.core.exec.Executable;
 import com.wrmsr.tokamak.core.plan.node.PNode;
 import com.wrmsr.tokamak.core.plan.node.PProject;
-import com.wrmsr.tokamak.core.plan.value.PValue;
+import com.wrmsr.tokamak.core.plan.value.VConstant;
+import com.wrmsr.tokamak.core.plan.value.VField;
+import com.wrmsr.tokamak.core.plan.value.VFunction;
+import com.wrmsr.tokamak.core.plan.value.VNode;
+import com.wrmsr.tokamak.core.plan.value.VNodes;
 
 import java.util.Map;
 import java.util.Objects;
@@ -48,26 +52,26 @@ public final class ProjectBuilder
 
         ImmutableMap.Builder<String, String> sourceKeyExtractionMap = ImmutableMap.builder();
         node.getProjection().getInputsByOutput().forEach((o, i) -> {
-            if (i instanceof PValue.Field) {
-                sourceKeyExtractionMap.put(o, ((PValue.Field) i).getField());
+            if (i instanceof VField) {
+                sourceKeyExtractionMap.put(o, ((VField) i).getField());
             }
-            else if (i instanceof PValue.Function) {
-                PValue.getIdentityFunctionDirectValueField((PValue.Function) i).ifPresent(f -> sourceKeyExtractionMap.put(o, f));
+            else if (i instanceof VFunction) {
+                VNodes.getIdentityFunctionDirectValueField((VFunction) i).ifPresent(f -> sourceKeyExtractionMap.put(o, f));
             }
         });
         this.sourceKeyExtractionMap = sourceKeyExtractionMap.build();
     }
 
-    private static Object getRowValue(Catalog catalog, Map<String, Object> rowMap, PValue value)
+    private static Object getRowValue(Catalog catalog, Map<String, Object> rowMap, VNode value)
     {
-        if (value instanceof PValue.Constant) {
-            return ((PValue.Constant) value).getValue();
+        if (value instanceof VConstant) {
+            return ((VConstant) value).getValue();
         }
-        else if (value instanceof PValue.Field) {
-            return rowMap.get(((PValue.Field) value).getField());
+        else if (value instanceof VField) {
+            return rowMap.get(((VField) value).getField());
         }
-        else if (value instanceof PValue.Function) {
-            PValue.Function functionInput = (PValue.Function) value;
+        else if (value instanceof VFunction) {
+            VFunction functionInput = (VFunction) value;
             // FIXME: check lol
             Function function = catalog.getFunctionsByName().get(functionInput.getFunction().getName());
             Executable executable = function.getExecutable();
@@ -99,7 +103,7 @@ public final class ProjectBuilder
                 Map<String, Object> rowMap = row.getMap();
                 Object[] attributes = new Object[node.getFields().size()];
                 int pos = 0;
-                for (Map.Entry<String, PValue> entry : node.getProjection()) {
+                for (Map.Entry<String, VNode> entry : node.getProjection()) {
                     attributes[pos++] = getRowValue(driver.getCatalog(), rowMap, entry.getValue());
                 }
 

@@ -46,9 +46,10 @@ import com.wrmsr.tokamak.core.plan.node.PStruct;
 import com.wrmsr.tokamak.core.plan.node.PUnify;
 import com.wrmsr.tokamak.core.plan.node.PUnion;
 import com.wrmsr.tokamak.core.plan.node.PUnnest;
-import com.wrmsr.tokamak.core.plan.value.PValue;
 import com.wrmsr.tokamak.core.plan.node.PValues;
 import com.wrmsr.tokamak.core.plan.node.visitor.PNodeRewriter;
+import com.wrmsr.tokamak.core.plan.value.VNode;
+import com.wrmsr.tokamak.core.plan.value.VNodes;
 import com.wrmsr.tokamak.core.type.TypeAnnotations;
 import com.wrmsr.tokamak.core.type.hier.Type;
 import com.wrmsr.tokamak.core.type.hier.annotation.InternalType;
@@ -222,7 +223,7 @@ public final class PropagateIdsTransform
 
                 BuiltinExecutor be = (BuiltinExecutor) checkNotNull(catalog.get().getExecutorsByName().get("builtin"));
 
-                ImmutableMap.Builder<String, PValue> newInputsByOutputBuilder = ImmutableMap.builder();
+                ImmutableMap.Builder<String, VNode> newInputsByOutputBuilder = ImmutableMap.builder();
                 ImmutableSet.Builder<String> idFieldsBuilder = ImmutableSet.builder();
                 newInputsByOutputBuilder.putAll(node.getProjection());
                 checkNotEmpty(source.getFieldAnnotations().getKeySetsByAnnotationCls().get(IdField.class)).forEach(inputField -> {
@@ -233,24 +234,24 @@ public final class PropagateIdsTransform
                         idField = sortedCopyOf(Ordering.natural(), checkNotEmpty(outputSet)).get(0);
                     }
                     else if (!plan.getFieldNames().contains(inputField)) {
-                        newInputsByOutputBuilder.put(inputField, PValue.field(inputField));
+                        newInputsByOutputBuilder.put(inputField, VNodes.field(inputField));
                         idField = inputField;
                     }
                     else {
                         idField = plan.getFieldNameGenerator().get(inputField);
                         Type ty = node.getSource().getFields().getType(inputField);
                         if (TypeAnnotations.has(ty, InternalType.class)) {
-                            newInputsByOutputBuilder.put(idField, PValue.field(inputField));
+                            newInputsByOutputBuilder.put(idField,VNodes.field(inputField));
                         }
                         else {
-                            newInputsByOutputBuilder.put(idField, PValue.function(
+                            newInputsByOutputBuilder.put(idField, VNodes.function(
                                     PFunction.of(be.getExecutable("transmuteInternal")),
-                                    PValue.field(inputField)));
+                                    VNodes.field(inputField)));
                         }
                     }
                     idFieldsBuilder.add(idField);
                 });
-                Map<String, PValue> newInputsByOutput = newInputsByOutputBuilder.build();
+                Map<String, VNode> newInputsByOutput = newInputsByOutputBuilder.build();
                 Set<String> idFields = idFieldsBuilder.build();
 
                 return new PProject(
@@ -302,12 +303,12 @@ public final class PropagateIdsTransform
                             .addAll(Sets.intersection(table.getLayout().getPrimaryKeyFields(), node.getFields().getNames()))
                             .addAll(remapProjectionMap.keySet())
                             .build();
-                    Map<String, PValue> inputsByOutput = ImmutableMap.<String, PValue>builder()
-                            .putAll(node.getFields().getNameList().stream().collect(toImmutableMap(identity(), f -> PValue.field(f))))
+                    Map<String, VNode> inputsByOutput = ImmutableMap.<String, VNode>builder()
+                            .putAll(node.getFields().getNameList().stream().collect(toImmutableMap(identity(), f -> VNodes.field(f))))
                             .putAll(immutableMapValues(remapProjectionMap, f -> {
-                                return PValue.function(
+                                return VNodes.function(
                                         PFunction.of(be.getExecutable("transmuteInternal")),
-                                        PValue.field(f));
+                                        VNodes.field(f));
                             }))
                             .build();
                     ret = new PProject(

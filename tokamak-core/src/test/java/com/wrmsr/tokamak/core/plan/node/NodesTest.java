@@ -18,7 +18,7 @@ import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.core.exec.Reflection;
 import com.wrmsr.tokamak.core.layout.field.annotation.FieldAnnotation;
-import com.wrmsr.tokamak.core.plan.value.PValue;
+import com.wrmsr.tokamak.core.plan.value.VNodes;
 import com.wrmsr.tokamak.core.type.Types;
 import com.wrmsr.tokamak.core.util.ApiJson;
 import com.wrmsr.tokamak.core.util.annotation.AnnotationCollection;
@@ -82,8 +82,8 @@ public class NodesTest
                 AnnotationCollectionMap.of(),
                 scanNode,
                 new PProjection(ImmutableMap.of(
-                        "id", PValue.field("id"),
-                        "fn", PValue.function(PFunction.of(Reflection.reflect(NodesTest.class.getDeclaredMethod("zero"))))
+                        "id", VNodes.field("id"),
+                        "fn", VNodes.function(PFunction.of(Reflection.reflect(NodesTest.class.getDeclaredMethod("zero"))))
                 )));
 
         json = Json.writeValuePretty(projectNode);

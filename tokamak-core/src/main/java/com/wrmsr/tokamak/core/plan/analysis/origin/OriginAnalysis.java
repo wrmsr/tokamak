@@ -37,10 +37,14 @@ import com.wrmsr.tokamak.core.plan.node.PStruct;
 import com.wrmsr.tokamak.core.plan.node.PUnify;
 import com.wrmsr.tokamak.core.plan.node.PUnion;
 import com.wrmsr.tokamak.core.plan.node.PUnnest;
-import com.wrmsr.tokamak.core.plan.value.PValue;
 import com.wrmsr.tokamak.core.plan.node.PValues;
 import com.wrmsr.tokamak.core.plan.node.visitor.CachingPNodeVisitor;
 import com.wrmsr.tokamak.core.plan.node.visitor.PNodeVisitors;
+import com.wrmsr.tokamak.core.plan.value.VConstant;
+import com.wrmsr.tokamak.core.plan.value.VField;
+import com.wrmsr.tokamak.core.plan.value.VFunction;
+import com.wrmsr.tokamak.core.plan.value.VNode;
+import com.wrmsr.tokamak.core.plan.value.VNodes;
 import com.wrmsr.tokamak.util.Pair;
 import com.wrmsr.tokamak.util.collect.StreamableIterable;
 import com.wrmsr.tokamak.util.lazy.SupplierLazyValue;
@@ -58,7 +62,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static com.wrmsr.tokamak.util.MoreCollections.newImmutableSetMap;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
@@ -285,24 +288,24 @@ public final class OriginAnalysis
             private void addValueOriginations(
                     PNodeField sink,
                     PNode source,
-                    PValue value,
+                    VNode value,
                     List<Origination> originations,
                     Optional<Genesis> genesis)
             {
-                if (value instanceof PValue.Constant) {
+                if (value instanceof VConstant) {
                     originations.add(new Origination(
                             sink, genesis.orElse(Genesis.DIRECT)));
                 }
-                else if (value instanceof PValue.Field) {
+                else if (value instanceof VField) {
                     originations.add(new Origination(
-                            sink, PNodeField.of(source, ((PValue.Field) value).getField()), genesis.orElse(Genesis.DIRECT), OriginNesting.none()));
+                            sink, PNodeField.of(source, ((VField) value).getField()), genesis.orElse(Genesis.DIRECT), OriginNesting.none()));
                 }
-                else if (value instanceof PValue.Function) {
-                    PValue.Function fn = (PValue.Function) value;
+                else if (value instanceof VFunction) {
+                    VFunction fn = (VFunction) value;
                     switch (fn.getFunction().getPurity()) {
                         case IDENTITY:
                         case PURE: {
-                            Optional<String> identArg = PValue.getIdentityFunctionDirectValueField(fn);
+                            Optional<String> identArg = VNodes.getIdentityFunctionDirectValueField(fn);
                             if (identArg.isPresent()) {
                                 originations.add(new Origination(
                                         sink, PNodeField.of(source, identArg.get()), genesis.orElse(Genesis.DIRECT), OriginNesting.none()));
