@@ -22,6 +22,10 @@ import com.wrmsr.tokamak.core.layout.field.FieldCollection;
 import com.wrmsr.tokamak.core.layout.field.annotation.FieldAnnotation;
 import com.wrmsr.tokamak.core.plan.node.annotation.PNodeAnnotation;
 import com.wrmsr.tokamak.core.plan.node.visitor.PNodeVisitor;
+import com.wrmsr.tokamak.core.plan.value.VConstant;
+import com.wrmsr.tokamak.core.plan.value.VField;
+import com.wrmsr.tokamak.core.plan.value.VFunction;
+import com.wrmsr.tokamak.core.plan.value.VNode;
 import com.wrmsr.tokamak.core.type.hier.Type;
 import com.wrmsr.tokamak.core.util.annotation.AnnotationCollection;
 import com.wrmsr.tokamak.core.util.annotation.AnnotationCollectionMap;
@@ -69,32 +73,32 @@ public final class PProject
         checkInvariants();
     }
 
-    private Type getValueType(PValue value)
+    private Type getValueType(VNode value)
     {
-        if (value instanceof PValue.Constant) {
-            return ((PValue.Constant) value).getType();
+        if (value instanceof VConstant) {
+            return ((VConstant) value).getType();
         }
-        else if (value instanceof PValue.Field) {
-            return source.getFields().getType(((PValue.Field) value).getField());
+        else if (value instanceof VField) {
+            return source.getFields().getType(((VField) value).getField());
         }
-        else if (value instanceof PValue.Function) {
-            return ((PValue.Function) value).getFunction().getType().getValue();
+        else if (value instanceof VFunction) {
+            return ((VFunction) value).getFunction().getType().getValue();
         }
         else {
             throw new IllegalArgumentException(Objects.toString(value));
         }
     }
 
-    private void checkValue(PValue value)
+    private void checkValue(VNode value)
     {
-        if (value instanceof PValue.Constant) {
+        if (value instanceof VConstant) {
             // pass
         }
-        else if (value instanceof PValue.Field) {
-            checkState(source.getFields().contains(((PValue.Field) value).getField()));
+        else if (value instanceof VField) {
+            checkState(source.getFields().contains(((VField) value).getField()));
         }
-        else if (value instanceof PValue.Function) {
-            ((PValue.Function) value).getArgs().forEach(this::checkValue);
+        else if (value instanceof VFunction) {
+            ((VFunction) value).getArgs().forEach(this::checkValue);
         }
         else {
             throw new IllegalArgumentException(Objects.toString(value));

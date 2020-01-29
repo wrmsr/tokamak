@@ -29,27 +29,27 @@ public final class VNodes
     {
     }
 
-    static VConstant constant(Object value, Type type)
+    public static VConstant constant(Object value, Type type)
     {
         return new VConstant(value, type);
     }
 
-    static VField field(String field)
+    public static VField field(String field)
     {
         return new VField(field);
     }
 
-    static VFunction function(PFunction function, Iterable<VNode> args)
+    public static VFunction function(PFunction function, Iterable<VNode> args)
     {
         return new VFunction(function, ImmutableList.copyOf(args));
     }
 
-    static VFunction function(PFunction function, VNode... args)
+    public static VFunction function(PFunction function, VNode... args)
     {
         return new VFunction(function, ImmutableList.copyOf(args));
     }
 
-    static Optional<String> getIdentityFunctionDirectValueField(VFunction fn)
+    public static Optional<String> getIdentityFunctionDirectValueField(VFunction fn)
     {
         if (fn.getFunction().getPurity() != Executable.Purity.IDENTITY) {
             return Optional.empty();

@@ -18,7 +18,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.wrmsr.tokamak.core.plan.value.PValue;
+import com.wrmsr.tokamak.core.plan.value.VField;
+import com.wrmsr.tokamak.core.plan.value.VNode;
+import com.wrmsr.tokamak.core.plan.value.VNodes;
 import com.wrmsr.tokamak.util.collect.OrderPreservingImmutableMap;
 import com.wrmsr.tokamak.util.collect.StreamableIterable;
 
@@ -37,9 +39,9 @@ import static java.util.function.Function.identity;
 
 @Immutable
 public final class PProjection
-        implements StreamableIterable<Map.Entry<String, PValue>>
+        implements StreamableIterable<Map.Entry<String, VNode>>
 {
-    private final OrderPreservingImmutableMap<String, PValue> inputsByOutput;
+    private final OrderPreservingImmutableMap<String, VNode> inputsByOutput;
 
     private final Map<String, String> inputFieldsByOutput;
     private final Map<String, Set<String>> outputSetsByInputField;
@@ -48,7 +50,7 @@ public final class PProjection
 
     @JsonCreator
     public PProjection(
-            @JsonProperty("inputsByOutput") OrderPreservingImmutableMap<String, PValue> inputsByOutput)
+            @JsonProperty("inputsByOutput") OrderPreservingImmutableMap<String, VNode> inputsByOutput)
     {
         this.inputsByOutput = checkNotNull(inputsByOutput);
 
@@ -56,9 +58,9 @@ public final class PProjection
         Map<String, ImmutableSet.Builder<String>> outputSetsByInputField = new HashMap<>();
         ImmutableSet.Builder<String> forwardedFields = ImmutableSet.builder();
 
-        for (Map.Entry<String, PValue> entry : this.inputsByOutput.entrySet()) {
-            if (entry.getValue() instanceof PValue.Field) {
-                String field = ((PValue.Field) entry.getValue()).getField();
+        for (Map.Entry<String, VNode> entry : this.inputsByOutput.entrySet()) {
+            if (entry.getValue() instanceof VField) {
+                String field = ((VField) entry.getValue()).getField();
                 inputFieldsByOutput.put(entry.getKey(), field);
                 outputSetsByInputField.computeIfAbsent(field, v -> ImmutableSet.builder()).add(entry.getKey());
                 if (entry.getKey().equals(field)) {
@@ -75,19 +77,19 @@ public final class PProjection
         isForward = this.forwardedFields.equals(inputsByOutput.keySet());
     }
 
-    public PProjection(Map<String, PValue> inputsByOutput)
+    public PProjection(Map<String, VNode> inputsByOutput)
     {
         this(new OrderPreservingImmutableMap<>(checkOrdered(inputsByOutput)));
     }
 
     @Override
-    public Iterator<Map.Entry<String, PValue>> iterator()
+    public Iterator<Map.Entry<String, VNode>> iterator()
     {
         return inputsByOutput.entrySet().iterator();
     }
 
     @JsonProperty("inputsByOutput")
-    public OrderPreservingImmutableMap<String, PValue> getInputsByOutput()
+    public OrderPreservingImmutableMap<String, VNode> getInputsByOutput()
     {
         return inputsByOutput;
     }
@@ -116,7 +118,7 @@ public final class PProjection
     {
         return new PProjection(
                 StreamSupport.stream(fields.spliterator(), false)
-                        .collect(toImmutableMap(identity(), PValue::field)));
+                        .collect(toImmutableMap(identity(), VNodes::field)));
     }
 
     public static PProjection only(String... fields)
