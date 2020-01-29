@@ -33,9 +33,9 @@ import com.wrmsr.tokamak.core.plan.value.VField;
 import com.wrmsr.tokamak.core.plan.value.VFunction;
 import com.wrmsr.tokamak.core.plan.value.VNode;
 import com.wrmsr.tokamak.core.plan.value.VNodes;
+import com.wrmsr.tokamak.core.plan.value.visitor.VNodeVisitor;
 
 import java.util.Map;
-import java.util.Objects;
 import java.util.function.Consumer;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -51,40 +51,61 @@ public final class ProjectBuilder
         super(driver, node, sources);
 
         ImmutableMap.Builder<String, String> sourceKeyExtractionMap = ImmutableMap.builder();
-        node.getProjection().getInputsByOutput().forEach((o, i) -> {
-            if (i instanceof VField) {
-                sourceKeyExtractionMap.put(o, ((VField) i).getField());
+        node.getProjection().getInputsByOutput().forEach((o, i) -> new VNodeVisitor<Void, Void>()
+        {
+            @Override
+            public Void visitConstant(VConstant node, Void context)
+            {
+                return null;
             }
-            else if (i instanceof VFunction) {
-                VNodes.getIdentityFunctionDirectValueField((VFunction) i).ifPresent(f -> sourceKeyExtractionMap.put(o, f));
+
+            @Override
+            public Void visitField(VField field, Void context)
+            {
+                sourceKeyExtractionMap.put(o, field.getField());
+                return null;
             }
-        });
+
+            @Override
+            public Void visitFunction(VFunction function, Void context)
+            {
+                VNodes.getIdentityFunctionDirectValueField(function).ifPresent(f -> sourceKeyExtractionMap.put(o, f));
+                return null;
+            }
+        }.process(i, null));
         this.sourceKeyExtractionMap = sourceKeyExtractionMap.build();
     }
 
     private static Object getRowValue(Catalog catalog, Map<String, Object> rowMap, VNode value)
     {
-        if (value instanceof VConstant) {
-            return ((VConstant) value).getValue();
-        }
-        else if (value instanceof VField) {
-            return rowMap.get(((VField) value).getField());
-        }
-        else if (value instanceof VFunction) {
-            VFunction functionInput = (VFunction) value;
-            // FIXME: check lol
-            Function function = catalog.getFunctionsByName().get(functionInput.getFunction().getName());
-            Executable executable = function.getExecutable();
-            // checkState(executable.getType().equals(functionInput.getType()));
-            Object[] args = new Object[functionInput.getArgs().size()];
-            for (int i = 0; i < args.length; ++i) {
-                args[i] = getRowValue(catalog, rowMap, functionInput.getArgs().get(i));
+        return new VNodeVisitor<Object, Void>()
+        {
+            @Override
+            public Object visitConstant(VConstant node, Void context)
+            {
+                return node.getValue();
             }
-            return executable.invoke(args);
-        }
-        else {
-            throw new IllegalStateException(Objects.toString(value));
-        }
+
+            @Override
+            public Object visitField(VField node, Void context)
+            {
+                return rowMap.get(node.getField());
+            }
+
+            @Override
+            public Object visitFunction(VFunction node, Void context)
+            {
+                // FIXME: check lol
+                Function function = catalog.getFunctionsByName().get(node.getFunction().getName());
+                Executable executable = function.getExecutable();
+                // checkState(executable.getType().equals(functionInput.getType()));
+                Object[] args = new Object[node.getArgs().size()];
+                for (int i = 0; i < args.length; ++i) {
+                    args[i] = getRowValue(catalog, rowMap, node.getArgs().get(i));
+                }
+                return executable.invoke(args);
+            }
+        }.process(value, null);
     }
 
     @Override
