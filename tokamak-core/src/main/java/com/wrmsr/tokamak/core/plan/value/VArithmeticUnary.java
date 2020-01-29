@@ -14,20 +14,14 @@
 
 package com.wrmsr.tokamak.core.plan.value;
 
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.wrmsr.tokamak.core.plan.value.visitor.VNodeVisitor;
 
-@JsonTypeInfo(
-        use = JsonTypeInfo.Id.NAME,
-        include = JsonTypeInfo.As.WRAPPER_OBJECT)
-@JsonSubTypes({
-        @JsonSubTypes.Type(value = VArithmeticBinary.class, name = "constant"),
-        @JsonSubTypes.Type(value = VConstant.class, name = "constant"),
-        @JsonSubTypes.Type(value = VField.class, name = "field"),
-        @JsonSubTypes.Type(value = VFunction.class, name = "function"),
-})
-public interface VNode
+public final class VArithmeticUnary
+        implements VNode
 {
-    <R, C> R accept(VNodeVisitor<R, C> visitor, C context);
+    @Override
+    public <R, C> R accept(VNodeVisitor<R, C> visitor, C context)
+    {
+        return visitor.visitArithmeticUnary(this, context);
+    }
 }
