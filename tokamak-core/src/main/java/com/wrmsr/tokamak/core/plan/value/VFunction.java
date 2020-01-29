@@ -11,7 +11,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.wrmsr.tokamak.core.plan.value;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -85,5 +84,3 @@ public final class VFunction
         return visitor.visitFunction(this, context);
     }
 }
-
-
