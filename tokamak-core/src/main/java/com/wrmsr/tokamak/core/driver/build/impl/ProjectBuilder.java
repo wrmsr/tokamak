@@ -28,7 +28,7 @@ import com.wrmsr.tokamak.core.driver.context.DriverContextImpl;
 import com.wrmsr.tokamak.core.exec.Executable;
 import com.wrmsr.tokamak.core.plan.node.PNode;
 import com.wrmsr.tokamak.core.plan.node.PProject;
-import com.wrmsr.tokamak.core.plan.node.PValue;
+import com.wrmsr.tokamak.core.plan.value.PValue;
 
 import java.util.Map;
 import java.util.Objects;

@@ -18,6 +18,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.wrmsr.tokamak.core.plan.value.PValue;
 import com.wrmsr.tokamak.util.collect.OrderPreservingImmutableMap;
 import com.wrmsr.tokamak.util.collect.StreamableIterable;
 

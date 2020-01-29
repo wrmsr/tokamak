@@ -53,7 +53,7 @@ import com.wrmsr.tokamak.core.plan.node.PProject;
 import com.wrmsr.tokamak.core.plan.node.PProjection;
 import com.wrmsr.tokamak.core.plan.node.PScan;
 import com.wrmsr.tokamak.core.plan.node.PState;
-import com.wrmsr.tokamak.core.plan.node.PValue;
+import com.wrmsr.tokamak.core.plan.value.PValue;
 import com.wrmsr.tokamak.core.plan.transform.DropExposedInternalFieldsTransform;
 import com.wrmsr.tokamak.core.plan.transform.MergeScansTransform;
 import com.wrmsr.tokamak.core.plan.transform.PersistExposedTransform;
