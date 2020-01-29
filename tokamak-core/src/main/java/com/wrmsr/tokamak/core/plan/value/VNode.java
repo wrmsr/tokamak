@@ -22,10 +22,14 @@ import com.wrmsr.tokamak.core.plan.value.visitor.VNodeVisitor;
         use = JsonTypeInfo.Id.NAME,
         include = JsonTypeInfo.As.WRAPPER_OBJECT)
 @JsonSubTypes({
+        @JsonSubTypes.Type(value = VArithmeticBinary.class, name = "arithmeticBinary"),
+        @JsonSubTypes.Type(value = VArithmeticUnary.class, name = "arithmeticUnary"),
         @JsonSubTypes.Type(value = VArithmeticBinary.class, name = "constant"),
         @JsonSubTypes.Type(value = VConstant.class, name = "constant"),
         @JsonSubTypes.Type(value = VField.class, name = "field"),
         @JsonSubTypes.Type(value = VFunction.class, name = "function"),
+        @JsonSubTypes.Type(value = VLogicalBinary.class, name = "logicalBinary"),
+        @JsonSubTypes.Type(value = VLogicalNot.class, name = "logicalNot"),
 })
 public interface VNode
 {
