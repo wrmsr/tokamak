@@ -13,11 +13,88 @@
  */
 package com.wrmsr.tokamak.core.plan.value;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.core.plan.value.visitor.VNodeVisitor;
+import com.wrmsr.tokamak.util.Pair;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
+import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 
 public final class VLogicalBinary
         implements VNode
 {
+    public enum Op
+    {
+        AND("and"),
+        OR("or");
+
+        private final List<String> strings;
+
+        Op(String... strings)
+        {
+            this.strings = checkNotEmpty(ImmutableList.copyOf(strings));
+        }
+
+        public String getString()
+        {
+            return strings.get(0);
+        }
+
+        public List<String> getStrings()
+        {
+            return strings;
+        }
+
+        public static final Map<String, Op> STRING_MAP = Arrays.stream(Op.values())
+                .flatMap(o -> o.strings.stream().map(s -> Pair.immutable(s, o)))
+                .collect(toImmutableMap());
+
+        public static Op fromString(String str)
+        {
+            return checkNotNull(STRING_MAP.get(checkNotEmpty(str)));
+        }
+    }
+
+    private final VNode left;
+    private final Op op;
+    private final VNode right;
+
+    @JsonCreator
+    public VLogicalBinary(
+            @JsonProperty("left") VNode left,
+            @JsonProperty("op") Op op,
+            @JsonProperty("right") VNode right)
+    {
+        this.left = checkNotNull(left);
+        this.op = checkNotNull(op);
+        this.right = checkNotNull(right);
+    }
+
+    @JsonProperty("left")
+    public VNode getLeft()
+    {
+        return left;
+    }
+
+    @JsonProperty("op")
+    public Op getOp()
+    {
+        return op;
+    }
+
+    @JsonProperty("right")
+    public VNode getRight()
+    {
+        return right;
+    }
+
     @Override
     public <R, C> R accept(VNodeVisitor<R, C> visitor, C context)
     {

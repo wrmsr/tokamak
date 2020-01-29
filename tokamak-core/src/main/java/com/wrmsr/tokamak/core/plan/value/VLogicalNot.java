@@ -13,11 +13,30 @@
  */
 package com.wrmsr.tokamak.core.plan.value;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wrmsr.tokamak.core.plan.value.visitor.VNodeVisitor;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public final class VLogicalNot
         implements VNode
 {
+    private final VNode item;
+
+    @JsonCreator
+    public VLogicalNot(
+            @JsonProperty("item") VNode item)
+    {
+        this.item = checkNotNull(item);
+    }
+
+    @JsonProperty("item")
+    public VNode getItem()
+    {
+        return item;
+    }
+
     @Override
     public <R, C> R accept(VNodeVisitor<R, C> visitor, C context)
     {
