@@ -13,14 +13,11 @@
  */
 package com.wrmsr.tokamak.core.plan.value.visitor;
 
-import com.wrmsr.tokamak.core.plan.value.VArithmeticBinary;
-import com.wrmsr.tokamak.core.plan.value.VArithmeticUnary;
 import com.wrmsr.tokamak.core.plan.value.VConstant;
 import com.wrmsr.tokamak.core.plan.value.VField;
 import com.wrmsr.tokamak.core.plan.value.VFunction;
-import com.wrmsr.tokamak.core.plan.value.VLogicalBinary;
-import com.wrmsr.tokamak.core.plan.value.VLogicalNot;
 import com.wrmsr.tokamak.core.plan.value.VNode;
+import com.wrmsr.tokamak.core.plan.value.VSpecial;
 
 import java.util.Objects;
 
@@ -34,16 +31,6 @@ public abstract class VNodeVisitor<R, C>
     protected R visitNode(VNode node, C context)
     {
         throw new IllegalStateException(Objects.toString(node));
-    }
-
-    public R visitArithmeticBinary(VArithmeticBinary node, C context)
-    {
-        return visitNode(node, context);
-    }
-
-    public R visitArithmeticUnary(VArithmeticUnary node, C context)
-    {
-        return visitNode(node, context);
     }
 
     public R visitConstant(VConstant node, C context)
@@ -61,12 +48,7 @@ public abstract class VNodeVisitor<R, C>
         return visitNode(node, context);
     }
 
-    public R visitLogicalBinary(VLogicalBinary node, C context)
-    {
-        return visitNode(node, context);
-    }
-
-    public R visitLogicalNot(VLogicalNot node, C context)
+    public R visitSpecial(VSpecial node, C context)
     {
         return visitNode(node, context);
     }

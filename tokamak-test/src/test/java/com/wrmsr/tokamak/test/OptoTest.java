@@ -117,14 +117,14 @@ public final class OptoTest
         boolean specialize = true;
         // boolean specialize = false;
 
-        try (InputStreamReader isr = new InputStreamReader(System.in)) {
-            while (isr.read() != '\n') {}
-        }
+        // try (InputStreamReader isr = new InputStreamReader(System.in)) {
+        //     while (isr.read() != '\n') {}
+        // }
 
         long start = System.currentTimeMillis();
 
-        int depth = 4;
-        long iterations = 2_000_000_000L;
+        int depth = 8;
+        long iterations = 500_000_000L;
 
         run(depth, iterations, specialize);
 

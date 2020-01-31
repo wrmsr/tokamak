@@ -11,6 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.wrmsr.tokamak.core.plan.value;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -27,7 +28,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 
-public final class VArithmeticBinary
+public final class VSpecial
         implements VNode
 {
     public enum Op
@@ -62,25 +63,16 @@ public final class VArithmeticBinary
         }
     }
 
-    private final VNode left;
     private final Op op;
-    private final VNode right;
+    private final List<VNode> args;
 
     @JsonCreator
-    public VArithmeticBinary(
-            @JsonProperty("left") VNode left,
+    public VSpecial(
             @JsonProperty("op") Op op,
-            @JsonProperty("right") VNode right)
+            @JsonProperty("args") List<VNode> args)
     {
-        this.left = checkNotNull(left);
         this.op = checkNotNull(op);
-        this.right = checkNotNull(right);
-    }
-
-    @JsonProperty("left")
-    public VNode getLeft()
-    {
-        return left;
+        this.args = ImmutableList.copyOf(args);
     }
 
     @JsonProperty("op")
@@ -89,15 +81,15 @@ public final class VArithmeticBinary
         return op;
     }
 
-    @JsonProperty("right")
-    public VNode getRight()
+    @JsonProperty("args")
+    public List<VNode> getArgs()
     {
-        return right;
+        return args;
     }
 
     @Override
     public <R, C> R accept(VNodeVisitor<R, C> visitor, C context)
     {
-        return visitor.visitArithmeticBinary(this, context);
+        return visitor.visitSpecial(this, context);
     }
 }
