@@ -25,17 +25,22 @@ import com.wrmsr.tokamak.core.parse.SqlParser;
 import com.wrmsr.tokamak.core.plan.Plan;
 import com.wrmsr.tokamak.core.plan.dot.PlanDot;
 import com.wrmsr.tokamak.core.plan.node.PNode;
+import com.wrmsr.tokamak.core.plan.transform.DropExposedInternalFieldsTransform;
+import com.wrmsr.tokamak.core.plan.transform.MergeScansTransform;
+import com.wrmsr.tokamak.core.plan.transform.PersistExposedTransform;
+import com.wrmsr.tokamak.core.plan.transform.PersistScansTransform;
 import com.wrmsr.tokamak.core.plan.transform.PropagateIdsTransform;
+import com.wrmsr.tokamak.core.plan.transform.SetInvalidationsTransform;
 import com.wrmsr.tokamak.core.tree.TreeParsing;
-import com.wrmsr.tokamak.core.tree.plan.TreePlanner;
 import com.wrmsr.tokamak.core.tree.TreeRendering;
 import com.wrmsr.tokamak.core.tree.analysis.SymbolAnalysis;
 import com.wrmsr.tokamak.core.tree.node.TNode;
+import com.wrmsr.tokamak.core.tree.plan.TreePlanner;
 import com.wrmsr.tokamak.core.tree.transform.SelectExpansion;
 import com.wrmsr.tokamak.core.tree.transform.SymbolResolution;
 import com.wrmsr.tokamak.core.tree.transform.ViewInlining;
-import com.wrmsr.tokamak.core.type.hier.Type;
 import com.wrmsr.tokamak.core.type.Types;
+import com.wrmsr.tokamak.core.type.hier.Type;
 import com.wrmsr.tokamak.core.type.hier.special.FunctionType;
 import com.wrmsr.tokamak.core.util.ApiJson;
 import com.wrmsr.tokamak.core.util.dot.Dot;
@@ -54,7 +59,6 @@ import com.wrmsr.tokamak.util.java.lang.tree.expression.JRawExpression;
 import com.wrmsr.tokamak.util.java.lang.tree.statement.JReturn;
 import com.wrmsr.tokamak.util.java.lang.unit.JCompilationUnit;
 import com.wrmsr.tokamak.util.java.lang.unit.JPackageSpec;
-import com.wrmsr.tokamak.util.json.Json;
 import junit.framework.TestCase;
 
 import java.lang.reflect.Method;
@@ -72,6 +76,10 @@ import static com.wrmsr.tokamak.util.java.lang.tree.JTrees.jblockify;
 public class TpchParserTest
         extends TestCase
 {
+    private static final boolean DOT =
+            // true;
+            false;
+
     public static String exclaim(String s)
     {
         return s + "!";
@@ -153,13 +161,17 @@ public class TpchParserTest
 
             PNode node = new TreePlanner(Optional.of(catalog), defaultSchema).plan(treeNode);
             Plan plan = Plan.of(node);
+            if (DOT) { Dot.open(PlanDot.build(plan)); }
 
-            Dot.open(PlanDot.build(plan));
+            plan = MergeScansTransform.mergeScans(plan);
+            plan = PersistScansTransform.persistScans(plan);
+            plan = PersistExposedTransform.persistExposed(plan);
+            if (DOT) { Dot.open(PlanDot.build(plan)); }
 
             plan = PropagateIdsTransform.propagateIds(plan, Optional.of(catalog));
-            System.out.println(Json.writeValuePretty(plan));
-
-            Dot.open(PlanDot.build(plan));
+            plan = SetInvalidationsTransform.setInvalidations(plan, Optional.of(catalog));
+            plan = DropExposedInternalFieldsTransform.dropExposedInternalFields(plan, Optional.of(catalog));
+            if (DOT) { Dot.open(PlanDot.build(plan)); }
 
             System.out.println();
         }
