@@ -77,8 +77,8 @@ public class TpchParserTest
         extends TestCase
 {
     private static final boolean DOT =
-            // true;
-            false;
+            true;
+            // false;
 
     public static String exclaim(String s)
     {
