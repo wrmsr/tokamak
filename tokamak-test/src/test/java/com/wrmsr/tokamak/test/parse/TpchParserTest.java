@@ -169,8 +169,8 @@ public class TpchParserTest
             if (DOT) { Dot.open(PlanDot.build(plan)); }
 
             plan = PropagateIdsTransform.propagateIds(plan, Optional.of(catalog));
-            plan = SetInvalidationsTransform.setInvalidations(plan, Optional.of(catalog));
             plan = DropExposedInternalFieldsTransform.dropExposedInternalFields(plan, Optional.of(catalog));
+            plan = SetInvalidationsTransform.setInvalidations(plan, Optional.of(catalog));
             if (DOT) { Dot.open(PlanDot.build(plan)); }
 
             System.out.println();
