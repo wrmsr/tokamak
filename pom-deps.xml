@@ -450,7 +450,7 @@
             <dependency>
                 <groupId>org.jboss.narayana.stm</groupId>
                 <artifactId>stm</artifactId>
-                <version>5.10.1.Final</version>
+                <version>5.10.3.Final</version>
             </dependency>
 
             <dependency>
@@ -504,7 +504,7 @@
             <dependency>
                 <groupId>io.airlift.resolver</groupId>
                 <artifactId>resolver</artifactId>
-                <version>1.5</version>
+                <version>1.6</version>
             </dependency>
 
             <dependency>
@@ -538,7 +538,7 @@
             <dependency>
                 <groupId>com.github.luben</groupId>
                 <artifactId>zstd-jni</artifactId>
-                <version>1.4.4-6</version>
+                <version>1.4.4-7</version>
             </dependency>
 
             <dependency>

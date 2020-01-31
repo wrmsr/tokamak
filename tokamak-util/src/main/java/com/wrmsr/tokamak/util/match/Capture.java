@@ -13,6 +13,14 @@
  */
 package com.wrmsr.tokamak.util.match;
 
-public interface Pattern
+public final class Capture<T>
 {
+    private Capture()
+    {
+    }
+
+    public static <T> Capture<T> newCapture()
+    {
+        return new Capture<>();
+    }
 }

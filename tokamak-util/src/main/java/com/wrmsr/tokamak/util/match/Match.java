@@ -13,6 +13,121 @@
  */
 package com.wrmsr.tokamak.util.match;
 
-public interface Match
+import java.util.function.Function;
+import java.util.function.Predicate;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+
+public abstract class Match<T>
 {
+    public abstract boolean isPresent();
+
+    public abstract T getValue();
+
+    public abstract Captures getCaptures();
+
+    public abstract Match<T> filter(Predicate<? super T> predicate);
+
+    public abstract <U> Match<U> map(Function<? super T, ? extends U> mapper);
+
+    public abstract <U> Match<U> flatMap(Function<? super T, Match<U>> mapper);
+
+    public static <T> Match<T> of(T value, Captures captures)
+    {
+        return new Present<>(value, captures);
+    }
+
+    public static <T> Match<T> empty()
+    {
+        return new Empty<>();
+    }
+
+    private static final class Present<T>
+            extends Match<T>
+    {
+        private final T value;
+        private final Captures captures;
+
+        public Present(T value, Captures captures)
+        {
+            this.value = checkNotNull(value);
+            this.captures = checkNotNull(captures);
+        }
+
+        @Override
+        public boolean isPresent()
+        {
+            return true;
+        }
+
+        @Override
+        public T getValue()
+        {
+            return value;
+        }
+
+        @Override
+        public Captures getCaptures()
+        {
+            return captures;
+        }
+
+        @Override
+        public Match<T> filter(Predicate<? super T> predicate)
+        {
+            return predicate.test(value) ? this : empty();
+        }
+
+        @Override
+        public <U> Match<U> map(Function<? super T, ? extends U> mapper)
+        {
+            return of(mapper.apply(value), captures);
+        }
+
+        @Override
+        public <U> Match<U> flatMap(Function<? super T, Match<U>> mapper)
+        {
+            return mapper.apply(value);
+        }
+    }
+
+    private static final class Empty<T>
+            extends Match<T>
+    {
+        @Override
+        public boolean isPresent()
+        {
+            return false;
+        }
+
+        @Override
+        public T getValue()
+        {
+            throw new IllegalStateException();
+        }
+
+        @Override
+        public Captures getCaptures()
+        {
+            throw new IllegalStateException();
+        }
+
+        @Override
+        public Match<T> filter(Predicate<? super T> predicate)
+        {
+            return this;
+        }
+
+        @Override
+        public <U> Match<U> map(Function<? super T, ? extends U> mapper)
+        {
+            return empty();
+        }
+
+        @Override
+        public <U> Match<U> flatMap(Function<? super T, Match<U>> mapper)
+        {
+            return empty();
+        }
+    }
 }
