@@ -306,7 +306,6 @@ public class CoreTest
 
         BuiltinExecutor be = catalog.addExecutor(new BuiltinExecutor("builtin"));
         BuiltinFunctions.register(be);
-
         ((Consumer<Catalog>) (c -> be.getExecutablesByName().keySet().forEach(n -> c.addFunction(n, be)))).accept(catalog);
 
         CatalogRegistry cn = new CatalogRegistry();

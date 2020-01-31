@@ -20,6 +20,7 @@ import com.wrmsr.tokamak.core.exec.Executable;
 import com.wrmsr.tokamak.core.exec.Reflection;
 import com.wrmsr.tokamak.core.exec.SimpleExecutable;
 import com.wrmsr.tokamak.core.exec.builtin.BuiltinExecutor;
+import com.wrmsr.tokamak.core.exec.builtin.BuiltinFunctions;
 import com.wrmsr.tokamak.core.parse.SqlParser;
 import com.wrmsr.tokamak.core.plan.Plan;
 import com.wrmsr.tokamak.core.plan.dot.PlanDot;
@@ -60,6 +61,7 @@ import java.lang.reflect.Method;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.Sets.immutableEnumSet;
@@ -91,6 +93,9 @@ public class TpchParserTest
         ApiJson.installStatics();
 
         BuiltinExecutor be = rootCatalog.addExecutor(new BuiltinExecutor("builtin"));
+        BuiltinFunctions.register(be);
+        ((Consumer<Catalog>) (c -> be.getExecutablesByName().keySet().forEach(n -> c.addFunction(n, be)))).accept(rootCatalog);
+
         rootCatalog.addFunction(
                 be.register(
                         Reflection.reflect(

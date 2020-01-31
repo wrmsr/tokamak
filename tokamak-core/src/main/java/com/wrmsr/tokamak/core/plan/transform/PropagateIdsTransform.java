@@ -221,8 +221,6 @@ public final class PropagateIdsTransform
                             node.getProjection());
                 }
 
-                BuiltinExecutor be = (BuiltinExecutor) checkNotNull(catalog.get().getExecutorsByName().get("builtin"));
-
                 ImmutableMap.Builder<String, VNode> newInputsByOutputBuilder = ImmutableMap.builder();
                 ImmutableSet.Builder<String> idFieldsBuilder = ImmutableSet.builder();
                 newInputsByOutputBuilder.putAll(node.getProjection());
@@ -245,7 +243,7 @@ public final class PropagateIdsTransform
                         }
                         else {
                             newInputsByOutputBuilder.put(idField, VNodes.function(
-                                    PFunction.of(be.getExecutable("transmuteInternal")),
+                                    PFunction.of(catalog.get().getFunction("transmuteInternal").getExecutable()),
                                     VNodes.field(inputField)));
                         }
                     }
@@ -267,8 +265,6 @@ public final class PropagateIdsTransform
             public PNode visitScan(PScan node, Void context)
             {
                 Table table = catalog.get().getSchemaTable(node.getSchemaTable());
-
-                BuiltinExecutor be = (BuiltinExecutor) checkNotNull(catalog.get().getExecutorsByName().get("builtin"));
 
                 // FIXME: *do* have to add projection - have to generate unique field names to prevent upstream clashing :/
                 ImmutableMap.Builder<String, Type> newScanFieldsBuilder = ImmutableMap.builder();
@@ -307,7 +303,7 @@ public final class PropagateIdsTransform
                             .putAll(node.getFields().getNameList().stream().collect(toImmutableMap(identity(), f -> VNodes.field(f))))
                             .putAll(immutableMapValues(remapProjectionMap, f -> {
                                 return VNodes.function(
-                                        PFunction.of(be.getExecutable("transmuteInternal")),
+                                        PFunction.of(catalog.get().getFunction("transmuteInternal").getExecutable()),
                                         VNodes.field(f));
                             }))
                             .build();
