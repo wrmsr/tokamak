@@ -32,17 +32,22 @@ import com.wrmsr.tokamak.core.plan.value.VNode;
 import com.wrmsr.tokamak.core.plan.value.VNodes;
 import com.wrmsr.tokamak.core.tree.analysis.SymbolAnalysis;
 import com.wrmsr.tokamak.core.tree.node.TAliasedRelation;
+import com.wrmsr.tokamak.core.tree.node.TBooleanExpression;
 import com.wrmsr.tokamak.core.tree.node.TComparisonExpression;
 import com.wrmsr.tokamak.core.tree.node.TExpression;
 import com.wrmsr.tokamak.core.tree.node.TExpressionSelectItem;
 import com.wrmsr.tokamak.core.tree.node.TFunctionCallExpression;
 import com.wrmsr.tokamak.core.tree.node.TNode;
+import com.wrmsr.tokamak.core.tree.node.TNotExpression;
+import com.wrmsr.tokamak.core.tree.node.TNullLiteral;
 import com.wrmsr.tokamak.core.tree.node.TQualifiedName;
 import com.wrmsr.tokamak.core.tree.node.TQualifiedNameExpression;
 import com.wrmsr.tokamak.core.tree.node.TSelect;
 import com.wrmsr.tokamak.core.tree.node.TSelectItem;
+import com.wrmsr.tokamak.core.tree.node.TStringLiteral;
 import com.wrmsr.tokamak.core.tree.node.TTableName;
 import com.wrmsr.tokamak.core.tree.node.visitor.TNodeVisitor;
+import com.wrmsr.tokamak.core.tree.node.visitor.TraversalTNodeVisitor;
 import com.wrmsr.tokamak.core.util.annotation.AnnotationCollection;
 import com.wrmsr.tokamak.core.util.annotation.AnnotationCollectionMap;
 import com.wrmsr.tokamak.util.MoreCollections;
@@ -150,24 +155,63 @@ public class TreePlanner
                 Set<Set<String>> fieldEqualitiesSet = new LinkedHashSet<>();
                 if (treeNode.getWhere().isPresent()) {
                     TNode where = treeNode.getWhere().get();
-                    if (where instanceof TComparisonExpression) {
-                        TComparisonExpression cmp = (TComparisonExpression) where;
-                        if (cmp.getLeft() instanceof TQualifiedNameExpression && cmp.getRight() instanceof TQualifiedNameExpression) {
-                            Set<String> set = ImmutableList.of(cmp.getLeft(), cmp.getRight()).stream()
-                                    .map(TQualifiedNameExpression.class::cast)
-                                    .map(TQualifiedNameExpression::getQualifiedName)
-                                    .map(TQualifiedName::getParts)
-                                    .map(Joiner.on(".")::join)
-                                    .collect(toImmutableSet());
-                            fieldEqualitiesSet.add(set);
+
+                    new TraversalTNodeVisitor<Void, Void>()
+                    {
+                        @Override
+                        public Void visitBooleanExpression(TBooleanExpression node, Void context)
+                        {
+                            return super.visitBooleanExpression(node, context);
                         }
-                        else {
-                            throw new IllegalStateException(Objects.toString(cmp));
+
+                        @Override
+                        public Void visitComparisonExpression(TComparisonExpression cmp, Void context)
+                        {
+                            if (cmp.getLeft() instanceof TQualifiedNameExpression && cmp.getRight() instanceof TQualifiedNameExpression) {
+                                Set<String> set = ImmutableList.of(cmp.getLeft(), cmp.getRight()).stream()
+                                        .map(TQualifiedNameExpression.class::cast)
+                                        .map(TQualifiedNameExpression::getQualifiedName)
+                                        .map(TQualifiedName::getParts)
+                                        .map(Joiner.on(".")::join)
+                                        .collect(toImmutableSet());
+                                fieldEqualitiesSet.add(set);
+                                return null;
+                            }
+                            else {
+                                return super.visitComparisonExpression(cmp, context);
+                            }
                         }
-                    }
-                    else {
-                        throw new IllegalStateException(Objects.toString(where));
-                    }
+
+                        @Override
+                        public Void visitFunctionCallExpression(TFunctionCallExpression node, Void context)
+                        {
+                            return super.visitFunctionCallExpression(node, context);
+                        }
+
+                        @Override
+                        public Void visitNotExpression(TNotExpression node, Void context)
+                        {
+                            return super.visitNotExpression(node, context);
+                        }
+
+                        @Override
+                        public Void visitNullLiteral(TNullLiteral node, Void context)
+                        {
+                            return super.visitNullLiteral(node, context);
+                        }
+
+                        @Override
+                        public Void visitQualifiedNameExpression(TQualifiedNameExpression node, Void context)
+                        {
+                            return super.visitQualifiedNameExpression(node, context);
+                        }
+
+                        @Override
+                        public Void visitStringLiteral(TStringLiteral node, Void context)
+                        {
+                            return super.visitStringLiteral(node, context);
+                        }
+                    }.process(where, null);
                 }
                 List<Set<String>> fieldEqualities = MoreCollections.unify(fieldEqualitiesSet);
 
