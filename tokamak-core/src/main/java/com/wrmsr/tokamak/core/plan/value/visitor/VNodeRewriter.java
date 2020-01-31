@@ -13,173 +13,62 @@
  */
 package com.wrmsr.tokamak.core.plan.value.visitor;
 
-import com.wrmsr.tokamak.core.tree.node.TAliasedRelation;
-import com.wrmsr.tokamak.core.tree.node.TAllSelectItem;
-import com.wrmsr.tokamak.core.tree.node.TBooleanExpression;
-import com.wrmsr.tokamak.core.tree.node.TComparisonExpression;
-import com.wrmsr.tokamak.core.tree.node.TExpression;
-import com.wrmsr.tokamak.core.tree.node.TExpressionSelectItem;
-import com.wrmsr.tokamak.core.tree.node.TFunctionCallExpression;
-import com.wrmsr.tokamak.core.tree.node.TIdentifier;
-import com.wrmsr.tokamak.core.tree.node.TNode;
-import com.wrmsr.tokamak.core.tree.node.TNotExpression;
-import com.wrmsr.tokamak.core.tree.node.TNullLiteral;
-import com.wrmsr.tokamak.core.tree.node.TNumberLiteral;
-import com.wrmsr.tokamak.core.tree.node.TQualifiedName;
-import com.wrmsr.tokamak.core.tree.node.TQualifiedNameExpression;
-import com.wrmsr.tokamak.core.tree.node.TRelation;
-import com.wrmsr.tokamak.core.tree.node.TSearch;
-import com.wrmsr.tokamak.core.tree.node.TSelect;
-import com.wrmsr.tokamak.core.tree.node.TSelectItem;
-import com.wrmsr.tokamak.core.tree.node.TStringLiteral;
-import com.wrmsr.tokamak.core.tree.node.TSubqueryRelation;
-import com.wrmsr.tokamak.core.tree.node.TTableName;
+import com.wrmsr.tokamak.core.plan.value.VConstant;
+import com.wrmsr.tokamak.core.plan.value.VField;
+import com.wrmsr.tokamak.core.plan.value.VFunction;
+import com.wrmsr.tokamak.core.plan.value.VNode;
+import com.wrmsr.tokamak.core.plan.value.VSpecial;
 
 import java.util.Map;
 
 import static com.wrmsr.tokamak.util.MoreCollections.immutableMapItems;
 
 public class VNodeRewriter<C>
-        extends CachingTNodeVisitor<TNode, C>
+        extends CachingVNodeVisitor<VNode, C>
 {
     public VNodeRewriter()
     {
     }
 
-    public VNodeRewriter(Map<TNode, TNode> cache)
+    public VNodeRewriter(Map<VNode, VNode> cache)
     {
         super(cache);
     }
 
     @Override
-    protected TNode visitNode(TNode node, C context)
+    protected VNode visitNode(VNode node, C context)
     {
         throw new IllegalStateException();
     }
 
     @Override
-    public TNode visitAliasedRelation(TAliasedRelation node, C context)
+    public VNode visitConstant(VConstant node, C context)
     {
-        return new TAliasedRelation(
-                (TRelation) process(node.getRelation(), context),
-                node.getAlias());
+        return new VConstant(
+                node.getValue(),
+                node.getType());
     }
 
     @Override
-    public TNode visitAllSelectItem(TAllSelectItem node, C context)
+    public VNode visitField(VField node, C context)
     {
-        return new TAllSelectItem();
+        return new VField(
+                node.getField());
     }
 
     @Override
-    public TNode visitBooleanExpression(TBooleanExpression node, C context)
+    public VNode visitFunction(VFunction node, C context)
     {
-        return new TBooleanExpression(
-                (TExpression) process(node.getLeft(), context),
+        return new VFunction(
+                node.getFunction(),
+                immutableMapItems(node.getArgs(), a -> process(a, context)));
+    }
+
+    @Override
+    public VNode visitSpecial(VSpecial node, C context)
+    {
+        return new VSpecial(
                 node.getOp(),
-                (TExpression) process(node.getRight(), context));
-    }
-
-    @Override
-    public TNode visitComparisonExpression(TComparisonExpression node, C context)
-    {
-        return new TComparisonExpression(
-                (TExpression) process(node.getLeft(), context),
-                node.getOp(),
-                (TExpression) process(node.getRight(), context));
-    }
-
-    @Override
-    public TNode visitExpressionSelectItem(TExpressionSelectItem node, C context)
-    {
-        return new TExpressionSelectItem(
-                (TExpression) process(node.getExpression(), context),
-                node.getLabel());
-    }
-
-    @Override
-    public TNode visitFunctionCallExpression(TFunctionCallExpression node, C context)
-    {
-        return new TFunctionCallExpression(
-                node.getName(),
-                immutableMapItems(node.getArgs(), a -> (TExpression) process(a, context)));
-    }
-
-    @Override
-    public TNode visitIdentifier(TIdentifier node, C context)
-    {
-        return new TIdentifier(
-                node.getValue());
-    }
-
-    @Override
-    public TNode visitNotExpression(TNotExpression node, C context)
-    {
-        return new TNotExpression(
-                (TExpression) process(node.getExpression(), context));
-    }
-
-    @Override
-    public TNode visitNullLiteral(TNullLiteral node, C context)
-    {
-        return new TNullLiteral();
-    }
-
-    @Override
-    public TNode visitNumberLiteral(TNumberLiteral node, C context)
-    {
-        return new TNumberLiteral(
-                node.getValue());
-    }
-
-    @Override
-    public TNode visitQualifiedName(TQualifiedName node, C context)
-    {
-        return new TQualifiedName(
-                node.getParts());
-    }
-
-    @Override
-    public TNode visitQualifiedNameExpression(TQualifiedNameExpression node, C context)
-    {
-        return new TQualifiedNameExpression(
-                (TQualifiedName) process(node.getQualifiedName(), context));
-    }
-
-    @Override
-    public TNode visitSearch(TSearch node, C context)
-    {
-        return new TSearch(
-                node.getSearch());
-    }
-
-    @Override
-    public TNode visitSelect(TSelect node, C context)
-    {
-        return new TSelect(
-                immutableMapItems(node.getItems(), i -> (TSelectItem) process(i, context)),
-                immutableMapItems(node.getRelations(), r -> (TAliasedRelation) process(r, context)),
-                node.getWhere().map(w -> (TExpression) process(w, context)));
-    }
-
-    @Override
-    public TNode visitStringLiteral(TStringLiteral node, C context)
-    {
-        return new TStringLiteral(
-                node.getValue());
-    }
-
-    @Override
-    public TNode visitSubqueryRelation(TSubqueryRelation node, C context)
-    {
-        return new TSubqueryRelation(
-                (TSelect) process(node.getSelect(), context));
-    }
-
-    @Override
-    public TNode visitTableName(TTableName node, C context)
-    {
-        return new TTableName(
-                (TQualifiedName) process(node.getQualifiedName(), context));
+                immutableMapItems(node.getArgs(), a -> process(a, context)));
     }
 }
