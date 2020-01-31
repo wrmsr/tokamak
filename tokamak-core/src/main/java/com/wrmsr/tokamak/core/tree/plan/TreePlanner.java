@@ -38,16 +38,12 @@ import com.wrmsr.tokamak.core.tree.node.TExpression;
 import com.wrmsr.tokamak.core.tree.node.TExpressionSelectItem;
 import com.wrmsr.tokamak.core.tree.node.TFunctionCallExpression;
 import com.wrmsr.tokamak.core.tree.node.TNode;
-import com.wrmsr.tokamak.core.tree.node.TNotExpression;
-import com.wrmsr.tokamak.core.tree.node.TNullLiteral;
 import com.wrmsr.tokamak.core.tree.node.TQualifiedName;
 import com.wrmsr.tokamak.core.tree.node.TQualifiedNameExpression;
 import com.wrmsr.tokamak.core.tree.node.TSelect;
 import com.wrmsr.tokamak.core.tree.node.TSelectItem;
-import com.wrmsr.tokamak.core.tree.node.TStringLiteral;
 import com.wrmsr.tokamak.core.tree.node.TTableName;
 import com.wrmsr.tokamak.core.tree.node.visitor.TNodeVisitor;
-import com.wrmsr.tokamak.core.tree.node.visitor.TraversalTNodeVisitor;
 import com.wrmsr.tokamak.core.util.annotation.AnnotationCollection;
 import com.wrmsr.tokamak.core.util.annotation.AnnotationCollectionMap;
 import com.wrmsr.tokamak.util.MoreCollections;
@@ -59,7 +55,6 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -156,12 +151,22 @@ public class TreePlanner
                 if (treeNode.getWhere().isPresent()) {
                     TNode where = treeNode.getWhere().get();
 
-                    new TraversalTNodeVisitor<Void, Void>()
+                    new TNodeVisitor<Void, Void>()
                     {
+                        @Override
+                        public Void visitExpression(TExpression node, Void context)
+                        {
+                            return null;
+                        }
+
                         @Override
                         public Void visitBooleanExpression(TBooleanExpression node, Void context)
                         {
-                            return super.visitBooleanExpression(node, context);
+                            if (node.getOp() == TBooleanExpression.Op.AND) {
+                                process(node.getLeft(), context);
+                                process(node.getRight(), context);
+                            }
+                            return null;
                         }
 
                         @Override
@@ -175,41 +180,8 @@ public class TreePlanner
                                         .map(Joiner.on(".")::join)
                                         .collect(toImmutableSet());
                                 fieldEqualitiesSet.add(set);
-                                return null;
                             }
-                            else {
-                                return super.visitComparisonExpression(cmp, context);
-                            }
-                        }
-
-                        @Override
-                        public Void visitFunctionCallExpression(TFunctionCallExpression node, Void context)
-                        {
-                            return super.visitFunctionCallExpression(node, context);
-                        }
-
-                        @Override
-                        public Void visitNotExpression(TNotExpression node, Void context)
-                        {
-                            return super.visitNotExpression(node, context);
-                        }
-
-                        @Override
-                        public Void visitNullLiteral(TNullLiteral node, Void context)
-                        {
-                            return super.visitNullLiteral(node, context);
-                        }
-
-                        @Override
-                        public Void visitQualifiedNameExpression(TQualifiedNameExpression node, Void context)
-                        {
-                            return super.visitQualifiedNameExpression(node, context);
-                        }
-
-                        @Override
-                        public Void visitStringLiteral(TStringLiteral node, Void context)
-                        {
-                            return super.visitStringLiteral(node, context);
+                            return null;
                         }
                     }.process(where, null);
                 }
