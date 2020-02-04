@@ -13,6 +13,47 @@
  */
 package com.wrmsr.tokamak.util.match;
 
-public interface Matcher
+import com.wrmsr.tokamak.util.match.pattern.CapturePattern;
+import com.wrmsr.tokamak.util.match.pattern.EqualsPattern;
+import com.wrmsr.tokamak.util.match.pattern.FilterPattern;
+import com.wrmsr.tokamak.util.match.pattern.TypeOfPattern;
+import com.wrmsr.tokamak.util.match.pattern.WithPattern;
+import com.wrmsr.tokamak.util.match.pattern.visitor.PatternVisitor;
+
+public class Matcher<M> extends PatternVisitor<Match<M>, Matcher<M>.Context>
 {
+    public final class Context
+    {
+
+    }
+
+    @Override
+    public <T> Match<M> visitCapture(CapturePattern<T> pattern, Context context)
+    {
+        return super.visitCapture(pattern, context);
+    }
+
+    @Override
+    public <T> Match<M> visitEquals(EqualsPattern<T> pattern, Context context)
+    {
+        return super.visitEquals(pattern, context);
+    }
+
+    @Override
+    public <T> Match<M> visitFilter(FilterPattern<T> pattern, Context context)
+    {
+        return super.visitFilter(pattern, context);
+    }
+
+    @Override
+    public <T> Match<M> visitTypeOf(TypeOfPattern<T> pattern, Context context)
+    {
+        return super.visitTypeOf(pattern, context);
+    }
+
+    @Override
+    public <T> Match<M> visitWith(WithPattern<T> pattern, Context context)
+    {
+        return super.visitWith(pattern, context);
+    }
 }
