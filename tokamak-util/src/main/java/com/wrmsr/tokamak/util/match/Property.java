@@ -25,24 +25,24 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 public final class Property<F, T>
 {
-    private final Function<F, Optional<T>> function;
+    private final Function<? super F, Optional<? extends T>> function;
 
-    private Property(Function<F, Optional<T>> function)
+    private Property(Function<? super F, Optional<? extends T>> function)
     {
         this.function = checkNotNull(function);
     }
 
-    public static <F, T> Property<F, T> of(Function<F, T> function)
+    public static <F, T> Property<F, T> of(Function<? super F, ? extends T> function)
     {
         return new Property<>(v -> Optional.of(function.apply(v)));
     }
 
-    public static <F, T> Property<F, T> ofOptional(Function<F, Optional<T>> function)
+    public static <F, T> Property<F, T> ofOptional(Function<? super F, Optional<? extends T>> function)
     {
         return new Property<>(function);
     }
 
-    public Function<F, Optional<T>> getFunction()
+    public Function<? super F, Optional<? extends T>> getFunction()
     {
         return function;
     }

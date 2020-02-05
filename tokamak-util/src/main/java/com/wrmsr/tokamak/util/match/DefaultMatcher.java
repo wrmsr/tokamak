@@ -24,6 +24,7 @@ import com.wrmsr.tokamak.util.match.pattern.matcher.PatternMatcher;
 import java.util.Optional;
 import java.util.function.Function;
 
+@SuppressWarnings({"unchecked"})
 public class DefaultMatcher
         extends PatternMatcher
 {
@@ -54,7 +55,7 @@ public class DefaultMatcher
     @Override
     public <T> Match<T> matchWith(WithPattern<T> withPattern, Object object, Captures captures)
     {
-        Function<? super T, Optional<?>> property = withPattern.getProperty().getFunction();
+        Function<? super T, Optional<?>> property = (Function<? super T, Optional<?>>) withPattern.getProperty().getFunction();
         Optional<?> propertyValue = property.apply((T) object);
         Match<?> propertyMatch = propertyValue
                 .map(value -> match(withPattern.getPattern(), value, captures))
@@ -65,7 +66,7 @@ public class DefaultMatcher
     @Override
     public <T> Match<T> matchCapture(CapturePattern<T> capturePattern, Object object, Captures captures)
     {
-        return Match.of((T) object, captures.addAll(Captures.ofNullable(capturePattern.capture(), (T) object)));
+        return Match.of((T) object, captures.addAll(Captures.ofNullable(capturePattern.getCapture(), (T) object)));
     }
 
     @Override
