@@ -24,37 +24,37 @@ import java.util.Objects;
 
 public abstract class PatternVisitor<R, C>
 {
-    public <T> R process(Pattern<T> pattern, C context)
+    public R process(Pattern<?> pattern, C context)
     {
         return pattern.accept(this, context);
     }
 
-    protected <T> R visitPattern(Pattern<T> pattern, C context)
+    protected R visitPattern(Pattern<?> pattern, C context)
     {
         throw new IllegalStateException(Objects.toString(pattern));
     }
 
-    public <T> R visitCapture(CapturePattern<T> pattern, C context)
+    public R visitCapture(CapturePattern<?> pattern, C context)
     {
         return visitPattern(pattern, context);
     }
 
-    public <T> R visitEquals(EqualsPattern<T> pattern, C context)
+    public R visitEquals(EqualsPattern<?> pattern, C context)
     {
         return visitPattern(pattern, context);
     }
 
-    public <T> R visitFilter(FilterPattern<T> pattern, C context)
+    public R visitFilter(FilterPattern<?> pattern, C context)
     {
         return visitPattern(pattern, context);
     }
 
-    public <T> R visitTypeOf(TypeOfPattern<T> pattern, C context)
+    public R visitTypeOf(TypeOfPattern<?> pattern, C context)
     {
         return visitPattern(pattern, context);
     }
 
-    public <T> R visitWith(WithPattern<T> pattern, C context)
+    public R visitWith(WithPattern<?> pattern, C context)
     {
         return visitPattern(pattern, context);
     }

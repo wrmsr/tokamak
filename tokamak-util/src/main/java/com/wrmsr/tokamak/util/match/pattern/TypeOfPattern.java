@@ -13,6 +13,9 @@
  */
 package com.wrmsr.tokamak.util.match.pattern;
 
+import com.wrmsr.tokamak.util.match.Captures;
+import com.wrmsr.tokamak.util.match.Match;
+import com.wrmsr.tokamak.util.match.pattern.matcher.PatternMatcher;
 import com.wrmsr.tokamak.util.match.pattern.visitor.PatternVisitor;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -36,5 +39,11 @@ public final class TypeOfPattern<T>
     public <R, C> R accept(PatternVisitor<R, C> visitor, C context)
     {
         return visitor.visitTypeOf(this, context);
+    }
+
+    @Override
+    public Match<T> accept(PatternMatcher matcher, Object object, Captures captures)
+    {
+        return matcher.matchTypeOf(this, object, captures);
     }
 }

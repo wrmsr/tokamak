@@ -14,7 +14,10 @@
 package com.wrmsr.tokamak.util.match.pattern;
 
 import com.wrmsr.tokamak.util.match.Capture;
+import com.wrmsr.tokamak.util.match.Captures;
+import com.wrmsr.tokamak.util.match.Match;
 import com.wrmsr.tokamak.util.match.PropertyPatternPair;
+import com.wrmsr.tokamak.util.match.pattern.matcher.PatternMatcher;
 import com.wrmsr.tokamak.util.match.pattern.visitor.PatternVisitor;
 
 import java.util.Optional;
@@ -65,4 +68,6 @@ public abstract class Pattern<T>
     }
 
     public abstract <R, C> R accept(PatternVisitor<R, C> visitor, C context);
+
+    public abstract Match<T> accept(PatternMatcher matcher, Object object, Captures captures);
 }

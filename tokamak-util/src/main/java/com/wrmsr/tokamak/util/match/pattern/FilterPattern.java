@@ -13,6 +13,9 @@
  */
 package com.wrmsr.tokamak.util.match.pattern;
 
+import com.wrmsr.tokamak.util.match.Captures;
+import com.wrmsr.tokamak.util.match.Match;
+import com.wrmsr.tokamak.util.match.pattern.matcher.PatternMatcher;
 import com.wrmsr.tokamak.util.match.pattern.visitor.PatternVisitor;
 
 import java.util.function.Predicate;
@@ -39,5 +42,11 @@ public final class FilterPattern<T>
     public <R, C> R accept(PatternVisitor<R, C> visitor, C context)
     {
         return visitor.visitFilter(this, context);
+    }
+
+    @Override
+    public Match<T> accept(PatternMatcher matcher, Object object, Captures captures)
+    {
+        return matcher.matchFilter(this, object, captures);
     }
 }
