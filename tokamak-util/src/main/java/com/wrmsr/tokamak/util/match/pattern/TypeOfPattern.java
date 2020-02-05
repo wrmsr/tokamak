@@ -23,16 +23,16 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public final class TypeOfPattern<T>
         extends Pattern<T>
 {
-    private final Class<?> cls;
+    private final Class<? extends T> expectedClass;
 
-    public TypeOfPattern(Class<?> cls)
+    public TypeOfPattern(Class<? extends T> expectedClass)
     {
-        this.cls = checkNotNull(cls);
+        this.expectedClass = checkNotNull(expectedClass);
     }
 
-    public Class<?> getCls()
+    public Class<? extends T> getExpectedClass()
     {
-        return cls;
+        return expectedClass;
     }
 
     @Override

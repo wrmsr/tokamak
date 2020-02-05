@@ -21,48 +21,62 @@ import com.wrmsr.tokamak.util.match.pattern.TypeOfPattern;
 import com.wrmsr.tokamak.util.match.pattern.WithPattern;
 import com.wrmsr.tokamak.util.match.pattern.matcher.PatternMatcher;
 
+import java.util.Optional;
+import java.util.function.Function;
+
 public class DefaultMatcher
         extends PatternMatcher
 {
     @Override
-    public <T> Match<T> match(Pattern<T> pattern, Object object)
-    {
-        return super.match(pattern, object);
-    }
-
-    @Override
     public <T> Match<T> match(Pattern<T> pattern, Object object, Captures captures)
     {
-        return super.match(pattern, object, captures);
+        if (pattern.getNext().isPresent()) {
+            Match<?> match = match(pattern.getNext().get(), object, captures);
+            return match.flatMap((value) -> pattern.accept(this, value, match.getCaptures()));
+        }
+        else {
+            return pattern.accept(this, object, captures);
+        }
     }
 
     @Override
-    public <T> Match<T> matchTypeOf(TypeOfPattern<T> pattern, Object object, Captures captures)
+    public <T> Match<T> matchTypeOf(TypeOfPattern<T> typeOfPattern, Object object, Captures captures)
     {
-        return super.matchTypeOf(pattern, object, captures);
+        Class<? extends T> expectedClass = typeOfPattern.getExpectedClass();
+        if (expectedClass.isInstance(object)) {
+            return Match.of(expectedClass.cast(object), captures);
+        }
+        else {
+            return Match.empty();
+        }
     }
 
     @Override
-    public <T> Match<T> matchWith(WithPattern<T> pattern, Object object, Captures captures)
+    public <T> Match<T> matchWith(WithPattern<T> withPattern, Object object, Captures captures)
     {
-        return super.matchWith(pattern, object, captures);
+        Function<? super T, Optional<?>> property = withPattern.getProperty().getFunction();
+        Optional<?> propertyValue = property.apply((T) object);
+        Match<?> propertyMatch = propertyValue
+                .map(value -> match(withPattern.getPattern(), value, captures))
+                .orElse(Match.empty());
+        return propertyMatch.map(ignored -> (T) object);
     }
 
     @Override
-    public <T> Match<T> matchCapture(CapturePattern<T> pattern, Object object, Captures captures)
+    public <T> Match<T> matchCapture(CapturePattern<T> capturePattern, Object object, Captures captures)
     {
-        return super.matchCapture(pattern, object, captures);
+        return Match.of((T) object, captures.addAll(Captures.ofNullable(capturePattern.capture(), (T) object)));
     }
 
     @Override
-    public <T> Match<T> matchEquals(EqualsPattern<T> pattern, Object object, Captures captures)
+    public <T> Match<T> matchEquals(EqualsPattern<T> equalsPattern, Object object, Captures captures)
     {
-        return super.matchEquals(pattern, object, captures);
+        return Match.of((T) object, captures).filter(equalsPattern.getValue()::equals);
     }
 
     @Override
-    public <T> Match<T> matchFilter(FilterPattern<T> pattern, Object object, Captures captures)
+    public <T> Match<T> matchFilter(FilterPattern<T> filterPattern, Object object, Captures captures)
     {
-        return super.matchFilter(pattern, object, captures);
+        return Match.of((T) object, captures).filter(filterPattern.getPredicate());
     }
 }
