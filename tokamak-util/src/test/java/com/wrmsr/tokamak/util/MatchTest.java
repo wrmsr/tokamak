@@ -13,9 +13,21 @@
  */
 package com.wrmsr.tokamak.util;
 
+import com.wrmsr.tokamak.util.match.Capture;
+import com.wrmsr.tokamak.util.match.DefaultMatcher;
+import com.wrmsr.tokamak.util.match.Match;
+import com.wrmsr.tokamak.util.match.pattern.Pattern;
 import junit.framework.TestCase;
 
 public class MatchTest
         extends TestCase
 {
+    public void testMatch()
+            throws Exception
+    {
+        Capture<Integer> capture = Capture.newCapture();
+        Pattern<Integer> pattern = Pattern.typeOf(Integer.class).capturedAs(capture);
+        Match<Integer> match = new DefaultMatcher().match(pattern, 5);
+        System.out.println(match);
+    }
 }
