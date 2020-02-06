@@ -18,6 +18,7 @@ import com.wrmsr.tokamak.util.match.Match;
 import com.wrmsr.tokamak.util.match.pattern.matcher.PatternMatcher;
 import com.wrmsr.tokamak.util.match.pattern.visitor.PatternVisitor;
 
+import java.util.Optional;
 import java.util.function.Predicate;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -27,7 +28,7 @@ public final class FilterPattern<T>
 {
     private final Predicate<? super T> predicate;
 
-    public FilterPattern(Predicate<? super T> predicate, Pattern<?> next)
+    public FilterPattern(Predicate<? super T> predicate, Optional<Pattern<?>> next)
     {
         super(next);
         this.predicate = checkNotNull(predicate);

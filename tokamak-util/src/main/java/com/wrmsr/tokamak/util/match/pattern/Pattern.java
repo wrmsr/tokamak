@@ -23,18 +23,25 @@ import com.wrmsr.tokamak.util.match.pattern.visitor.PatternVisitor;
 import java.util.Optional;
 import java.util.function.Predicate;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 public abstract class Pattern<T>
 {
     private final Optional<Pattern<?>> next;
 
+    protected Pattern(Optional<Pattern<?>> next)
+    {
+        this.next = checkNotNull(next);
+    }
+
     protected Pattern()
     {
-        this.next = Optional.empty();
+        this(Optional.empty());
     }
 
     protected Pattern(Pattern<?> next)
     {
-        this.next = Optional.of(next);
+        this(Optional.of(next));
     }
 
     public Optional<Pattern<?>> getNext()
@@ -59,12 +66,12 @@ public abstract class Pattern<T>
 
     public Pattern<T> matching(Predicate<? super T> predicate)
     {
-        return new FilterPattern<>(predicate, this);
+        return new FilterPattern<>(predicate, Optional.of(this));
     }
 
     public Pattern<T> with(PropertyPatternPair<? super T, ?> pattern)
     {
-        return new WithPattern<>(pattern, this);
+        return new WithPattern<>(pattern, Optional.of(this));
     }
 
     public abstract <R, C> R accept(PatternVisitor<R, C> visitor, C context);

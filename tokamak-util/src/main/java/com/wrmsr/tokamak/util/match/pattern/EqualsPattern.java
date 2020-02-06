@@ -18,6 +18,8 @@ import com.wrmsr.tokamak.util.match.Match;
 import com.wrmsr.tokamak.util.match.pattern.matcher.PatternMatcher;
 import com.wrmsr.tokamak.util.match.pattern.visitor.PatternVisitor;
 
+import java.util.Optional;
+
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public final class EqualsPattern<T>
@@ -25,7 +27,7 @@ public final class EqualsPattern<T>
 {
     private final T value;
 
-    public EqualsPattern(T value, Pattern<?> next)
+    public EqualsPattern(T value, Optional<Pattern<?>> next)
     {
         super(next);
         this.value = checkNotNull(value);

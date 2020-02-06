@@ -20,6 +20,8 @@ import com.wrmsr.tokamak.util.match.PropertyPatternPair;
 import com.wrmsr.tokamak.util.match.pattern.matcher.PatternMatcher;
 import com.wrmsr.tokamak.util.match.pattern.visitor.PatternVisitor;
 
+import java.util.Optional;
+
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public final class WithPattern<T>
@@ -27,7 +29,7 @@ public final class WithPattern<T>
 {
     private final PropertyPatternPair<? super T, ?> propertyPatternPair;
 
-    public WithPattern(PropertyPatternPair<? super T, ?> propertyPatternPair, Pattern<T> next)
+    public WithPattern(PropertyPatternPair<? super T, ?> propertyPatternPair, Optional<Pattern<?>> next)
     {
         super(next);
         this.propertyPatternPair = checkNotNull(propertyPatternPair);

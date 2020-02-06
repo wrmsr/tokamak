@@ -59,17 +59,32 @@ public class MatchTest
     {
         Capture<IntLink> capture0 = Capture.newCapture();
         Capture<IntLink> capture1 = Capture.newCapture();
-        Pattern<IntLink> pattern = Pattern
-                .typeOf(IntLink.class)
-                .capturedAs(capture0)
-                .with(IntLink.next().matching(
-                        Pattern
-                        .typeOf(IntLink.class)
-                        .capturedAs(capture1)));
+        Capture<Integer> capture2 = Capture.newCapture();
+        Capture<Integer> capture3 = Capture.newCapture();
 
         IntLink link = new IntLink(4, Optional.of(new IntLink(5, Optional.empty())));
-        Match<IntLink> match = new DefaultMatcher().match(pattern, link);
 
+        Pattern<IntLink> pattern = Pattern.typeOf(IntLink.class).capturedAs(capture0)
+                .with(IntLink.next().matching(
+                        Pattern.typeOf(IntLink.class).capturedAs(capture1)));
+
+        Match<IntLink> match = new DefaultMatcher().match(pattern, link);
+        System.out.println(match);
+
+        pattern = Pattern.typeOf(IntLink.class).capturedAs(capture0)
+                .with(IntLink.next().matching(
+                        Pattern.typeOf(IntLink.class).capturedAs(capture1).with(
+                                Property.<IntLink, Integer>of(l -> l.value).matching(v -> v >= 5))));
+
+        match = new DefaultMatcher().match(pattern, link);
+        System.out.println(match);
+
+        pattern = Pattern.typeOf(IntLink.class).capturedAs(capture0)
+                .with(IntLink.next().matching(
+                        Pattern.typeOf(IntLink.class).capturedAs(capture1).with(
+                                Property.<IntLink, Integer>of(l -> l.value).matching(v -> v >= 6))));
+
+        match = new DefaultMatcher().match(pattern, link);
         System.out.println(match);
     }
 }
