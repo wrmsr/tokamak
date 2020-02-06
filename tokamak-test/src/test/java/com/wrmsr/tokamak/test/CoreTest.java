@@ -62,6 +62,8 @@ import com.wrmsr.tokamak.core.plan.transform.PropagateIdsTransform;
 import com.wrmsr.tokamak.core.plan.transform.SetInvalidationsTransform;
 import com.wrmsr.tokamak.core.plan.value.VNode;
 import com.wrmsr.tokamak.core.plan.value.VNodes;
+import com.wrmsr.tokamak.core.shell.ShellSession;
+import com.wrmsr.tokamak.core.shell.TokamakShell;
 import com.wrmsr.tokamak.core.tree.ParseOptions;
 import com.wrmsr.tokamak.core.tree.ParsingContext;
 import com.wrmsr.tokamak.core.tree.TreeParsing;
@@ -440,6 +442,44 @@ public class CoreTest
         plan = PropagateIdsTransform.propagateIds(plan, planningContext);
         plan = SetInvalidationsTransform.setInvalidations(plan, planningContext);
         plan = DropExposedInternalFieldsTransform.dropExposedInternalFields(plan);
+        if (DOT) { Dot.open(PlanDot.build(plan)); }
+
+        Driver driver = new DriverImpl(catalog, plan);
+
+        Driver.Context ctx = driver.createContext();
+        Collection<Row> buildRows = driver.build(
+                ctx,
+                plan.getRoot(),
+                Key.of("N_REGIONKEY", 1));
+
+        buildRows.forEach(System.out::println);
+        System.out.println();
+
+        ctx.commit();
+
+        System.out.println(ctx);
+    }
+
+    public void testShell()
+            throws Throwable
+    {
+        String sql = "select N_NAME, N_REGIONKEY, N_COMMENT, R_NAME from NATION, REGION where N_REGIONKEY = R_REGIONKEY";
+
+        Path tempDir = createTempDirectory();
+        String url = "jdbc:h2:file:" + tempDir.toString() + "/test.db;USER=username;PASSWORD=password";
+        TpchUtils.buildDatabase(url);
+        Catalog catalog = TpchUtils.buildCatalog(url);
+
+        BuiltinExecutor be = catalog.addExecutor(new BuiltinExecutor("builtin"));
+        BuiltinFunctions.register(be);
+        be.getExecutablesByName().keySet().forEach(n -> catalog.addFunction(n, be));
+
+        CatalogRegistry cn = new CatalogRegistry();
+        BuiltinConnectors.register(cn);
+        BuiltinExecutors.register(cn);
+
+        TokamakShell shell = new TokamakShell(catalog);
+        Plan plan = shell.plan(sql, new ShellSession(Optional.of("PUBLIC")));
         if (DOT) { Dot.open(PlanDot.build(plan)); }
 
         Driver driver = new DriverImpl(catalog, plan);
