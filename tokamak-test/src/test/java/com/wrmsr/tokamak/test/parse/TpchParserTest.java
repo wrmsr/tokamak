@@ -23,6 +23,7 @@ import com.wrmsr.tokamak.core.exec.builtin.BuiltinExecutor;
 import com.wrmsr.tokamak.core.exec.builtin.BuiltinFunctions;
 import com.wrmsr.tokamak.core.parse.SqlParser;
 import com.wrmsr.tokamak.core.plan.Plan;
+import com.wrmsr.tokamak.core.plan.PlanningContext;
 import com.wrmsr.tokamak.core.plan.dot.PlanDot;
 import com.wrmsr.tokamak.core.plan.node.PNode;
 import com.wrmsr.tokamak.core.plan.transform.DropExposedInternalFieldsTransform;
@@ -80,7 +81,7 @@ public class TpchParserTest
 {
     private static final boolean DOT =
             true;
-            // false;
+    // false;
 
     public static String exclaim(String s)
     {
@@ -174,14 +175,16 @@ public class TpchParserTest
             Plan plan = Plan.of(node);
             if (DOT) { Dot.open(PlanDot.build(plan)); }
 
+            PlanningContext planningContext = new PlanningContext(Optional.of(catalog), Optional.empty());
+
             plan = MergeScansTransform.mergeScans(plan);
             plan = PersistScansTransform.persistScans(plan);
             plan = PersistExposedTransform.persistExposed(plan);
             if (DOT) { Dot.open(PlanDot.build(plan)); }
 
-            plan = PropagateIdsTransform.propagateIds(plan, Optional.of(catalog));
-            plan = DropExposedInternalFieldsTransform.dropExposedInternalFields(plan, Optional.of(catalog));
-            plan = SetInvalidationsTransform.setInvalidations(plan, Optional.of(catalog));
+            plan = PropagateIdsTransform.propagateIds(plan, planningContext);
+            plan = DropExposedInternalFieldsTransform.dropExposedInternalFields(plan);
+            plan = SetInvalidationsTransform.setInvalidations(plan, planningContext);
             if (DOT) { Dot.open(PlanDot.build(plan)); }
 
             System.out.println();

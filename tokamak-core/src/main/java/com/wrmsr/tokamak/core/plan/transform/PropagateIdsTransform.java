@@ -18,9 +18,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
-import com.wrmsr.tokamak.core.catalog.Catalog;
 import com.wrmsr.tokamak.core.catalog.Table;
-import com.wrmsr.tokamak.core.exec.builtin.BuiltinExecutor;
 import com.wrmsr.tokamak.core.layout.field.annotation.FieldAnnotation;
 import com.wrmsr.tokamak.core.layout.field.annotation.IdField;
 import com.wrmsr.tokamak.core.plan.Plan;
@@ -63,7 +61,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiFunction;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableList.sortedCopyOf;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
@@ -240,7 +237,7 @@ public final class PropagateIdsTransform
                         idField = plan.getFieldNameGenerator().get(inputField);
                         Type ty = node.getSource().getFields().getType(inputField);
                         if (TypeAnnotations.has(ty, InternalType.class)) {
-                            newInputsByOutputBuilder.put(idField,VNodes.field(inputField));
+                            newInputsByOutputBuilder.put(idField, VNodes.field(inputField));
                         }
                         else {
                             newInputsByOutputBuilder.put(idField, VNodes.function(

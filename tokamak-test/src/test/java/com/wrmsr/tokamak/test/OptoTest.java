@@ -15,7 +15,6 @@ package com.wrmsr.tokamak.test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.function.Function;
 
 public final class OptoTest

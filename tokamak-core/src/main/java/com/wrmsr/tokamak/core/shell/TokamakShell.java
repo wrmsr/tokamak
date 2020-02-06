@@ -11,7 +11,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.wrmsr.tokamak.core.shell;
 
 import com.wrmsr.tokamak.core.catalog.Catalog;
@@ -54,7 +53,7 @@ public class TokamakShell
 
         SqlParser parser = buildParser(sql, parsingContext);
 
-        TNode treeNode =  buildTree(parser, parsingContext);
+        TNode treeNode = buildTree(parser, parsingContext);
         treeNode = rewriteTree(treeNode, parsingContext);
 
         Plan plan = buildPlan(treeNode, parsingContext);

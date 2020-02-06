@@ -33,7 +33,7 @@ public interface Row
 
     default boolean isEmpty()
     {
-        if(getAttributes() == null) {
+        if (getAttributes() == null) {
             checkState(isAnon());
             return true;
         }

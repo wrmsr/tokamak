@@ -33,7 +33,6 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.stream.IntStream;
 
-import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.wrmsr.tokamak.util.sql.SqlUtils.executeUpdate;
 

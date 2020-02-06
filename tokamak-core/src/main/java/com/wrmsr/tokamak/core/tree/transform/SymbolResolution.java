@@ -14,7 +14,6 @@
 package com.wrmsr.tokamak.core.tree.transform;
 
 import com.google.common.collect.ImmutableList;
-import com.wrmsr.tokamak.core.catalog.Catalog;
 import com.wrmsr.tokamak.core.tree.ParsingContext;
 import com.wrmsr.tokamak.core.tree.analysis.SymbolAnalysis;
 import com.wrmsr.tokamak.core.tree.node.TAllSelectItem;
@@ -25,7 +24,6 @@ import com.wrmsr.tokamak.core.tree.node.visitor.TNodeRewriter;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 

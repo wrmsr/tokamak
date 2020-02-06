@@ -37,6 +37,7 @@ import com.wrmsr.tokamak.core.layout.field.FieldCollection;
 import com.wrmsr.tokamak.core.layout.field.annotation.FieldAnnotation;
 import com.wrmsr.tokamak.core.parse.SqlParser;
 import com.wrmsr.tokamak.core.plan.Plan;
+import com.wrmsr.tokamak.core.plan.PlanningContext;
 import com.wrmsr.tokamak.core.plan.analysis.id.IdAnalysis;
 import com.wrmsr.tokamak.core.plan.analysis.id.part.IdAnalysisPart;
 import com.wrmsr.tokamak.core.plan.analysis.origin.OriginAnalysis;
@@ -330,10 +331,10 @@ public class CoreTest
         // plan = SetIdFieldsTransform.setIdFields(plan, Optional.of(catalog));
         // Dot.openDot(Dot.buildPlanDot(plan));
 
-        plan = PropagateIdsTransform.propagateIds(plan, Optional.of(catalog));
+        plan = PropagateIdsTransform.propagateIds(plan, new PlanningContext(Optional.of(catalog), Optional.empty()));
         // Dot.open(PlanDot.build(plan));
 
-        plan = SetInvalidationsTransform.setInvalidations(plan, Optional.of(catalog));
+        plan = SetInvalidationsTransform.setInvalidations(plan, new PlanningContext(Optional.of(catalog), Optional.empty()));
         if (DOT) { Dot.open(PlanDot.build(plan)); }
 
         OriginAnalysis oa = OriginAnalysis.analyze(plan);
@@ -429,14 +430,16 @@ public class CoreTest
         Plan plan = Plan.of(node);
         if (DOT) { Dot.open(PlanDot.build(plan)); }
 
+        PlanningContext planningContext = new PlanningContext(Optional.of(catalog), Optional.empty());
+
         plan = MergeScansTransform.mergeScans(plan);
         plan = PersistScansTransform.persistScans(plan);
         plan = PersistExposedTransform.persistExposed(plan);
         if (DOT) { Dot.open(PlanDot.build(plan)); }
 
-        plan = PropagateIdsTransform.propagateIds(plan, Optional.of(catalog));
-        plan = SetInvalidationsTransform.setInvalidations(plan, Optional.of(catalog));
-        plan = DropExposedInternalFieldsTransform.dropExposedInternalFields(plan, Optional.of(catalog));
+        plan = PropagateIdsTransform.propagateIds(plan, planningContext);
+        plan = SetInvalidationsTransform.setInvalidations(plan, planningContext);
+        plan = DropExposedInternalFieldsTransform.dropExposedInternalFields(plan);
         if (DOT) { Dot.open(PlanDot.build(plan)); }
 
         Driver driver = new DriverImpl(catalog, plan);

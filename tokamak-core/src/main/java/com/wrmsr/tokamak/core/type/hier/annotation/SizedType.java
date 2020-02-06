@@ -14,9 +14,9 @@
 package com.wrmsr.tokamak.core.type.hier.annotation;
 
 import com.google.common.collect.ImmutableList;
-import com.wrmsr.tokamak.core.type.hier.TypeAnnotation;
 import com.wrmsr.tokamak.core.type.TypeConstructor;
 import com.wrmsr.tokamak.core.type.TypeRegistration;
+import com.wrmsr.tokamak.core.type.hier.TypeAnnotation;
 
 import javax.annotation.concurrent.Immutable;
 

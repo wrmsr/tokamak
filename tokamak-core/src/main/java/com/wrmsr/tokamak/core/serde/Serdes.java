@@ -16,8 +16,8 @@ package com.wrmsr.tokamak.core.serde;
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.core.serde.impl.FunctionPairSerde;
-import com.wrmsr.tokamak.core.type.hier.Type;
 import com.wrmsr.tokamak.core.type.Types;
+import com.wrmsr.tokamak.core.type.hier.Type;
 
 import java.util.Map;
 import java.util.OptionalInt;

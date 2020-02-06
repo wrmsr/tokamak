@@ -16,7 +16,7 @@
 
     <dependencySets>
         <dependencySet>
-             <useProjectArtifact>false</useProjectArtifact>
+            <useProjectArtifact>false</useProjectArtifact>
             <outputDirectory>lib</outputDirectory>
             <useTransitiveDependencies>true</useTransitiveDependencies>
         </dependencySet>
