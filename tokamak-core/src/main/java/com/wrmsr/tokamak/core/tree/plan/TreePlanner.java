@@ -15,11 +15,15 @@ package com.wrmsr.tokamak.core.tree.plan;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.core.catalog.Function;
 import com.wrmsr.tokamak.core.catalog.Table;
+import com.wrmsr.tokamak.core.exec.builtin.BuiltinExecutor;
 import com.wrmsr.tokamak.core.plan.Plan;
+import com.wrmsr.tokamak.core.plan.node.PFilter;
+import com.wrmsr.tokamak.core.plan.node.PFunction;
 import com.wrmsr.tokamak.core.plan.node.PInvalidations;
 import com.wrmsr.tokamak.core.plan.node.PJoin;
 import com.wrmsr.tokamak.core.plan.node.PNode;
@@ -38,12 +42,14 @@ import com.wrmsr.tokamak.core.tree.node.TExpression;
 import com.wrmsr.tokamak.core.tree.node.TExpressionSelectItem;
 import com.wrmsr.tokamak.core.tree.node.TFunctionCallExpression;
 import com.wrmsr.tokamak.core.tree.node.TNode;
+import com.wrmsr.tokamak.core.tree.node.TNumberLiteral;
 import com.wrmsr.tokamak.core.tree.node.TQualifiedName;
 import com.wrmsr.tokamak.core.tree.node.TQualifiedNameExpression;
 import com.wrmsr.tokamak.core.tree.node.TSelect;
 import com.wrmsr.tokamak.core.tree.node.TSelectItem;
 import com.wrmsr.tokamak.core.tree.node.TTableName;
 import com.wrmsr.tokamak.core.tree.node.visitor.TNodeVisitor;
+import com.wrmsr.tokamak.core.type.Types;
 import com.wrmsr.tokamak.core.util.annotation.AnnotationCollection;
 import com.wrmsr.tokamak.core.util.annotation.AnnotationCollectionMap;
 import com.wrmsr.tokamak.util.MoreCollections;
@@ -83,6 +89,20 @@ public class TreePlanner
     {
         this(new ParsingContext());
     }
+
+    private static final Map<TBooleanExpression.Op, String> BUILTIN_NAMES_BY_BOOLEAN_OP = ImmutableMap.<TBooleanExpression.Op, String>builder()
+            .put(TBooleanExpression.Op.AND, "logicalAnd")
+            .put(TBooleanExpression.Op.OR, "logicalOr")
+            .build();
+
+    private static final Map<TComparisonExpression.Op, String> BUILTIN_NAMES_BY_COMPARISON_OP = ImmutableMap.<TComparisonExpression.Op, String>builder()
+            .put(TComparisonExpression.Op.EQ, "eq")
+            .put(TComparisonExpression.Op.NE, "ne")
+            .put(TComparisonExpression.Op.GT, "gt")
+            .put(TComparisonExpression.Op.GE, "ge")
+            .put(TComparisonExpression.Op.LT, "lt")
+            .put(TComparisonExpression.Op.LE, "le")
+            .build();
 
     public PNode plan(TNode rootTreeNode)
     {
@@ -145,6 +165,7 @@ public class TreePlanner
                     }
                 }
 
+                Optional<VNode> condition = Optional.empty();
                 Set<Set<String>> fieldEqualitiesSet = new LinkedHashSet<>();
                 if (treeNode.getWhere().isPresent()) {
                     TNode where = treeNode.getWhere().get();
@@ -174,14 +195,47 @@ public class TreePlanner
                                 Set<String> set = ImmutableList.of(cmp.getLeft(), cmp.getRight()).stream()
                                         .map(TQualifiedNameExpression.class::cast)
                                         .map(TQualifiedNameExpression::getQualifiedName)
-                                        .map(TQualifiedName::getParts)
-                                        .map(Joiner.on(".")::join)
+                                        .map(TQualifiedName::toDotString)
                                         .collect(toImmutableSet());
                                 fieldEqualitiesSet.add(set);
                             }
                             return null;
                         }
                     }.process(where, null);
+
+                    BuiltinExecutor be = (BuiltinExecutor) checkNotNull(parsingContext.getCatalog().get().getExecutorsByName().get("builtin"));
+                    condition = Optional.of(new TNodeVisitor<VNode, Void>()
+                    {
+                        @Override
+                        public VNode visitBooleanExpression(TBooleanExpression node, Void context)
+                        {
+                            return VNodes.function(
+                                    PFunction.of(be.getExecutable(BUILTIN_NAMES_BY_BOOLEAN_OP.get(node.getOp()))),
+                                    process(node.getLeft(), context),
+                                    process(node.getRight(), context));
+                        }
+
+                        @Override
+                        public VNode visitComparisonExpression(TComparisonExpression node, Void context)
+                        {
+                            return VNodes.function(
+                                    PFunction.of(be.getExecutable(BUILTIN_NAMES_BY_COMPARISON_OP.get(node.getOp()))),
+                                    process(node.getLeft(), context),
+                                    process(node.getRight(), context));
+                        }
+
+                        @Override
+                        public VNode visitNumberLiteral(TNumberLiteral node, Void context)
+                        {
+                            return VNodes.constant(node.getValue(), Types.Long());
+                        }
+
+                        @Override
+                        public VNode visitQualifiedNameExpression(TQualifiedNameExpression node, Void context)
+                        {
+                            return VNodes.field(node.getQualifiedName().toDotString());
+                        }
+                    }.process(where, null));
                 }
                 List<Set<String>> fieldEqualities = MoreCollections.unify(fieldEqualitiesSet);
 
@@ -203,6 +257,8 @@ public class TreePlanner
                                     .equals(sourcesSet))
                             .collect(toImmutableList());
 
+                    // FIXME: JOINS FOR ANY EQUALITIES - does NOT have to be full equality to be a join
+                    //   - (winds up being cartesian and iteratiely filtering lol)
                     Map<PNode, List<String>> unifiedJoinEqualities = new LinkedHashMap<>();
                     Map<PNode, Map<String, Set<String>>> sourceFieldUnifications = new LinkedHashMap<>();
                     Set<String> seen = new LinkedHashSet<>();
@@ -270,6 +326,36 @@ public class TreePlanner
                             AnnotationCollectionMap.of(),
                             branches,
                             PJoin.Mode.FULL);
+
+                    if (condition.isPresent()) {
+                        String filterField = nameGenerator.get("selectJoinFilterProject");
+                        List<String> originalFields = source.getFields().getNameList();
+
+                        source = new PProject(
+                                nameGenerator.get("selectJoinFilterProject"),
+                                AnnotationCollection.of(),
+                                AnnotationCollectionMap.of(),
+                                source,
+                                new PProjection(ImmutableMap.<String, VNode>builder()
+                                        .putAll(source.getFields().getNameList().stream().collect(toImmutableMap(identity(), VNodes::field)))
+                                        .put(filterField, condition.get())
+                                        .build()));
+
+                        source = new PFilter(
+                                nameGenerator.get("selectJoinFilter"),
+                                AnnotationCollection.of(),
+                                AnnotationCollectionMap.of(),
+                                source,
+                                filterField,
+                                PFilter.Linking.LINKED);
+
+                        source = new PProject(
+                                nameGenerator.get("selectJoinFilterProject"),
+                                AnnotationCollection.of(),
+                                AnnotationCollectionMap.of(),
+                                source,
+                                PProjection.only(originalFields));
+                    }
                 }
 
                 return new PProject(

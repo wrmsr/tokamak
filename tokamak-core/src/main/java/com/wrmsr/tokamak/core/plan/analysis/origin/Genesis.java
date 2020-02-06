@@ -13,34 +13,235 @@
  */
 package com.wrmsr.tokamak.core.plan.analysis.origin;
 
-public enum Genesis
+import static com.google.common.base.Preconditions.checkNotNull;
+
+public abstract class Genesis
 {
-    DIRECT(false),
-
-    FUNCTION_ARG(false),
-
-    INNER_JOIN(false),
-    LEFT_JOIN_PRIMARY(false),
-    LEFT_JOIN_SECONDARY(false),
-    FULL_JOIN(false),
-    LOOKUP_JOIN(false),
-
-    SCAN(true),
-    VALUES(true),
-
-    GROUP(true),
-
-    OPAQUE(true);
-
-    final boolean leaf;
-
-    Genesis(boolean leaf)
+    private Genesis()
     {
-        this.leaf = leaf;
     }
 
     public boolean isLeaf()
     {
-        return leaf;
+        return false;
+    }
+
+    public boolean isOpaque()
+    {
+        return false;
+    }
+
+    public static final class Direct
+            extends Genesis
+    {
+        private static final Direct INSTANCE = new Direct();
+
+        private Direct()
+        {
+        }
+    }
+
+    public static Direct direct()
+    {
+        return Direct.INSTANCE;
+    }
+
+    public static final class Constant
+            extends Genesis
+    {
+        private static final Constant INSTANCE = new Constant();
+
+        private Constant()
+        {
+        }
+
+        @Override
+        public boolean isLeaf()
+        {
+            return true;
+        }
+    }
+
+    public static Constant constant()
+    {
+        return Constant.INSTANCE;
+    }
+
+    public static final class External
+            extends Genesis
+    {
+        private static final External INSTANCE = new External();
+
+        private External()
+        {
+        }
+
+        @Override
+        public boolean isLeaf()
+        {
+            return true;
+        }
+
+        @Override
+        public boolean isOpaque()
+        {
+            return true;
+        }
+    }
+
+    public static External external()
+    {
+        return External.INSTANCE;
+    }
+
+    public static final class Scan
+            extends Genesis
+    {
+        private static final Scan INSTANCE = new Scan();
+
+        private Scan()
+        {
+        }
+
+        @Override
+        public boolean isLeaf()
+        {
+            return true;
+        }
+    }
+
+    public static Scan scan()
+    {
+        return Scan.INSTANCE;
+    }
+
+    public static final class Values
+            extends Genesis
+    {
+        private static final Values INSTANCE = new Values();
+
+        private Values()
+        {
+        }
+
+        @Override
+        public boolean isLeaf()
+        {
+            return true;
+        }
+    }
+
+    public static Values values()
+    {
+        return Values.INSTANCE;
+    }
+
+    public static final class Join
+            extends Genesis
+    {
+        public enum Mode
+        {
+            INNER,
+            LEFT_PRIMARY,
+            LEFT_SECONDARY,
+            FULL,
+            LOOKUP,
+        }
+
+        private final Mode mode;
+
+        public Join(Mode mode)
+        {
+            this.mode = checkNotNull(mode);
+        }
+
+        public Mode getMode()
+        {
+            return mode;
+        }
+    }
+
+    public static Join join(Join.Mode mode)
+    {
+        return new Join(mode);
+    }
+
+    public static final class Group
+            extends Genesis
+    {
+        private static final Group INSTANCE = new Group();
+
+        private Group()
+        {
+        }
+    }
+
+    public static Group group()
+    {
+        return Group.INSTANCE;
+    }
+
+    public static final class Nested
+            extends Genesis
+    {
+        private final String sinkSubfield;
+
+        private Nested(String sinkSubfield)
+        {
+            this.sinkSubfield = checkNotNull(sinkSubfield);
+        }
+
+        public String getSinkSubfield()
+        {
+            return sinkSubfield;
+        }
+    }
+
+    public static Nested nested(String sinkSubfield)
+    {
+        return new Nested(sinkSubfield);
+    }
+
+    public static final class Unnested
+            extends Genesis
+    {
+        private final String sourceSubfield;
+
+        private Unnested(String sourceSubfield)
+        {
+            this.sourceSubfield = checkNotNull(sourceSubfield);
+        }
+
+        public String getSourceSubfield()
+        {
+            return sourceSubfield;
+        }
+    }
+
+    public static Unnested unnested(String sourceSubfield)
+    {
+        return new Unnested(sourceSubfield);
+    }
+
+    public static final class Function
+            extends Genesis
+    {
+        private final boolean isOpaque;
+
+        public Function(boolean isOpaque)
+        {
+            this.isOpaque = isOpaque;
+        }
+
+        @Override
+        public boolean isOpaque()
+        {
+            return isOpaque;
+        }
+    }
+
+    public static Function function(boolean isOpaque)
+    {
+        return new Function(isOpaque);
     }
 }

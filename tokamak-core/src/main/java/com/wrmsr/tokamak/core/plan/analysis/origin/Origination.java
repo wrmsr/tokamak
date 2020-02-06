@@ -29,34 +29,31 @@ public final class Origination
     final PNodeField sink;
     final Optional<PNodeField> source;
     final Genesis genesis;
-    final OriginNesting nesting;
 
-    Origination(PNodeField sink, Optional<PNodeField> source, Genesis genesis, OriginNesting nesting)
+    Origination(PNodeField sink, Optional<PNodeField> source, Genesis genesis)
     {
         this.sink = checkNotNull(sink);
         this.source = checkNotNull(source);
         this.genesis = checkNotNull(genesis);
-        this.nesting = checkNotNull(nesting);
         if (source.isPresent()) {
             PNodeField src = source.get();
             checkState(src != sink);
             checkState(sink.getNode().getSources().contains(src.getNode()));
-            checkArgument(!genesis.leaf);
+            checkArgument(!genesis.isLeaf());
         }
         else {
-            checkArgument(genesis.leaf);
-            checkArgument(nesting instanceof OriginNesting.None);
+            checkArgument(genesis.isLeaf());
         }
     }
 
-    Origination(PNodeField sink, PNodeField source, Genesis genesis, OriginNesting nesting)
+    Origination(PNodeField sink, PNodeField source, Genesis genesis)
     {
-        this(sink, Optional.of(source), genesis, nesting);
+        this(sink, Optional.of(source), genesis);
     }
 
     Origination(PNodeField sink, Genesis genesis)
     {
-        this(sink, Optional.empty(), genesis, OriginNesting.none());
+        this(sink, Optional.empty(), genesis);
     }
 
     @Override
@@ -66,7 +63,6 @@ public final class Origination
                 "sink=" + sink +
                 ", source=" + source +
                 ", genesis=" + genesis +
-                ", nesting=" + nesting +
                 '}';
     }
 

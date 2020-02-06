@@ -14,9 +14,12 @@
 package com.wrmsr.tokamak.core.shell;
 
 import com.wrmsr.tokamak.core.catalog.Catalog;
+import com.wrmsr.tokamak.core.exec.builtin.BuiltinExecutor;
+import com.wrmsr.tokamak.core.exec.builtin.BuiltinFunctions;
 import com.wrmsr.tokamak.core.parse.SqlParser;
 import com.wrmsr.tokamak.core.plan.Plan;
 import com.wrmsr.tokamak.core.plan.PlanningContext;
+import com.wrmsr.tokamak.core.plan.dot.PlanDot;
 import com.wrmsr.tokamak.core.plan.node.PNode;
 import com.wrmsr.tokamak.core.plan.transform.DropExposedInternalFieldsTransform;
 import com.wrmsr.tokamak.core.plan.transform.MergeScansTransform;
@@ -24,7 +27,7 @@ import com.wrmsr.tokamak.core.plan.transform.PersistExposedTransform;
 import com.wrmsr.tokamak.core.plan.transform.PersistScansTransform;
 import com.wrmsr.tokamak.core.plan.transform.PropagateIdsTransform;
 import com.wrmsr.tokamak.core.plan.transform.SetInvalidationsTransform;
-import com.wrmsr.tokamak.core.tree.ParseOptions;
+import com.wrmsr.tokamak.core.tree.ParsingOptions;
 import com.wrmsr.tokamak.core.tree.ParsingContext;
 import com.wrmsr.tokamak.core.tree.TreeParsing;
 import com.wrmsr.tokamak.core.tree.node.TNode;
@@ -32,35 +35,68 @@ import com.wrmsr.tokamak.core.tree.plan.TreePlanner;
 import com.wrmsr.tokamak.core.tree.transform.SelectExpansion;
 import com.wrmsr.tokamak.core.tree.transform.SymbolResolution;
 import com.wrmsr.tokamak.core.tree.transform.ViewInlining;
+import com.wrmsr.tokamak.core.util.dot.Dot;
 
 import java.util.Optional;
 
 public class TokamakShell
 {
-    private Catalog catalog;
+    private Catalog rootCatalog;
 
-    public TokamakShell(Catalog catalog)
+    public TokamakShell(Catalog rootCatalog)
     {
-        this.catalog = catalog;
+        this.rootCatalog = rootCatalog;
+    }
+
+    public TokamakShell()
+    {
+        this(buildRootCatalog());
+    }
+
+    public static Catalog buildRootCatalog()
+    {
+        Catalog catalog = new Catalog();
+
+        BuiltinExecutor be = catalog.addExecutor(new BuiltinExecutor("builtin"));
+        BuiltinFunctions.register(be);
+        be.getExecutablesByName().keySet().forEach(n -> catalog.addFunction(n, be));
+
+        return catalog;
+    }
+
+    public Catalog getRootCatalog()
+    {
+        return rootCatalog;
+    }
+
+    public ShellSession newSession()
+    {
+        return new ShellSession(
+                this,
+                rootCatalog,
+                Optional.empty());
     }
 
     public Plan plan(String sql, ShellSession session)
     {
         ParsingContext parsingContext = new ParsingContext(
-                new ParseOptions(),
-                Optional.of(catalog),
+                new ParsingOptions(),
+                Optional.of(session.getCatalog()),
                 session.getDefaultSchema());
 
         SqlParser parser = buildParser(sql, parsingContext);
 
-        TNode treeNode = buildTree(parser, parsingContext);
+        TNode treeNode = buildTree(parser);
+        parsingContext.setOriginalTreeNode(treeNode);
+
         treeNode = rewriteTree(treeNode, parsingContext);
 
-        Plan plan = buildPlan(treeNode, parsingContext);
-
         PlanningContext planningContext = new PlanningContext(
-                Optional.of(catalog),
+                Optional.of(session.getCatalog()),
                 Optional.of(parsingContext));
+
+        Plan plan = buildPlan(treeNode, parsingContext);
+        planningContext.setOriginalPlan(plan);
 
         plan = rewritePlan(plan, planningContext);
 
@@ -75,18 +111,17 @@ public class TokamakShell
         return parser;
     }
 
-    public TNode buildTree(SqlParser parser, ParsingContext parsingContext)
+    public TNode buildTree(SqlParser parser)
     {
-        TNode treeNode = TreeParsing.build(parser.statement());
-        parsingContext.setOriginalTreeNode(treeNode);
-
-        return treeNode;
+        return TreeParsing.build(parser.singleStatement());
     }
 
     public TNode rewriteTree(TNode treeNode, ParsingContext parsingContext)
     {
         treeNode = ViewInlining.inlineViews(treeNode, parsingContext);
+
         treeNode = SelectExpansion.expandSelects(treeNode, parsingContext);
+
         treeNode = SymbolResolution.resolveSymbols(treeNode, parsingContext);
 
         return treeNode;
@@ -101,12 +136,29 @@ public class TokamakShell
     public Plan rewritePlan(Plan plan, PlanningContext planningContext)
     {
         plan = MergeScansTransform.mergeScans(plan);
+
         plan = PersistScansTransform.persistScans(plan);
+
         plan = PersistExposedTransform.persistExposed(plan);
+
+        openDot(plan);
         plan = PropagateIdsTransform.propagateIds(plan, planningContext);
+        openDot(plan);
+
         plan = DropExposedInternalFieldsTransform.dropExposedInternalFields(plan);
+
         plan = SetInvalidationsTransform.setInvalidations(plan, planningContext);
 
         return plan;
+    }
+
+    private static void openDot(Plan plan)
+    {
+        try {
+            Dot.open(PlanDot.build(plan));
+        }
+        catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

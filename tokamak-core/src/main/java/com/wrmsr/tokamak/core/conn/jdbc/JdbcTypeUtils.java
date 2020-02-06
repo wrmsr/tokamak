@@ -43,6 +43,12 @@ public final class JdbcTypeUtils
             case Types.DOUBLE:
                 return com.wrmsr.tokamak.core.type.Types.Double();
 
+            case Types.DECIMAL:
+                return com.wrmsr.tokamak.core.type.Types.BigDecimal();
+
+            case Types.DATE:
+                return com.wrmsr.tokamak.core.type.Types.LocalDateTime();
+
             case Types.CHAR:
             case Types.VARCHAR:
             case Types.LONGVARCHAR:

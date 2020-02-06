@@ -98,7 +98,7 @@ public final class KvConnector
     }
 
     @Override
-    public Scanner createScanner(Table table, Set<String> fields)
+    public Scanner newScanner(Table table, Set<String> fields)
     {
         return new KvScanner(this, checkNotNull(tablesBySchemaTable.get(table.getSchemaTable())), fields);
     }

@@ -15,7 +15,6 @@ package com.wrmsr.tokamak.core.plan.transform;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Sets;
 import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.core.plan.Plan;
 import com.wrmsr.tokamak.core.plan.node.PInvalidations;
@@ -77,7 +76,7 @@ public final class MergeScansTransform
 
                     // FIXME: anns?
                     PScan newScan = new PScan(
-                            plan.getNodeNameGenerator().get(schemaTable.toString() + "$merged"),
+                            plan.getNodeNameGenerator().get(schemaTable.toDotString() + "$merged"),
                             AnnotationCollection.of(),
                             AnnotationCollectionMap.of(),
                             schemaTable,
@@ -91,11 +90,11 @@ public final class MergeScansTransform
                                 }
 
                                 PNode drop = new PProject(
-                                        plan.getNodeNameGenerator().get(schemaTable.toString() + "$merged$dropped"),
+                                        plan.getNodeNameGenerator().get(schemaTable.toDotString() + "$merged$dropped"),
                                         AnnotationCollection.of(),
                                         AnnotationCollectionMap.of(),
                                         newScan,
-                                        PProjection.only(Sets.difference(newScan.getFields().getNames(), scan.getFields().getNames())));
+                                        PProjection.only(scan.getFields().getNames()));
                                 return Pair.<PScan, PNode>immutable(scan, drop);
                             });
                 })

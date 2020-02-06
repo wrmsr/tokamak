@@ -52,7 +52,7 @@ public final class SystemConnector
     }
 
     @Override
-    public Scanner createScanner(Table table, Set<String> fields)
+    public Scanner newScanner(Table table, Set<String> fields)
     {
         throw new IllegalStateException();
     }

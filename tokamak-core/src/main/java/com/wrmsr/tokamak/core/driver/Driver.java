@@ -55,7 +55,7 @@ public interface Driver
         void commit();
     }
 
-    Context createContext()
+    Context newContext()
             throws IOException;
 
     Collection<Row> build(Context context, PNode node, Key key)

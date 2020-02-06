@@ -36,12 +36,6 @@ public final class PlanDot
             sb.append("\n");
         }
 
-        for (PNode node : plan.getToposortedNodes()) {
-            for (PNode source : node.getSources()) {
-                sb.append(String.format("\"%s\" -> \"%s\" [dir=back];\n", node.getName(), source.getName()));
-            }
-        }
-
         sb.append("}\n");
         return sb.toString();
     }

@@ -36,10 +36,13 @@ import com.wrmsr.tokamak.core.tree.node.TSelectItem;
 import com.wrmsr.tokamak.core.tree.node.TStringLiteral;
 import com.wrmsr.tokamak.core.tree.node.TSubqueryRelation;
 import com.wrmsr.tokamak.core.tree.node.TTableName;
+import org.antlr.v4.runtime.BaseErrorListener;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.RecognitionException;
+import org.antlr.v4.runtime.Recognizer;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 import java.util.List;
@@ -56,12 +59,81 @@ public final class TreeParsing
     {
     }
 
+    public static final class SyntaxException
+            extends RuntimeException
+    {
+        private static final long serialVersionUID = -3583167795725488534L;
+
+        private final Object offendingSymbol;
+        private final int line;
+        private final int charPositionInLine;
+        private final String msg;
+        private final RecognitionException e;
+
+        public SyntaxException(
+                Object offendingSymbol,
+                int line,
+                int charPositionInLine,
+                String msg,
+                RecognitionException e)
+        {
+            this.offendingSymbol = offendingSymbol;
+            this.line = line;
+            this.charPositionInLine = charPositionInLine;
+            this.msg = msg;
+            this.e = e;
+        }
+
+        @Override
+        public String toString()
+        {
+            return "SyntaxException{" +
+                    "offendingSymbol=" + offendingSymbol +
+                    ", line=" + line +
+                    ", charPositionInLine=" + charPositionInLine +
+                    ", msg='" + msg + '\'' +
+                    ", e=" + e +
+                    '}';
+        }
+    }
+
+    private static final class ErrorListener
+            extends BaseErrorListener
+    {
+        private static final ErrorListener INSTANCE = new ErrorListener();
+
+        @Override
+        public void syntaxError(
+                Recognizer<?, ?> recognizer,
+                Object offendingSymbol,
+                int line,
+                int charPositionInLine,
+                String msg,
+                RecognitionException e)
+        {
+            throw new SyntaxException(
+                    offendingSymbol,
+                    line,
+                    charPositionInLine,
+                    msg,
+                    e);
+        }
+    }
+
     public static SqlParser parse(String str)
     {
         CharStream input = new CaseInsensitiveCharStream(CharStreams.fromString(str));
         SqlLexer lexer = new SqlLexer(input);
         CommonTokenStream tokens = new CommonTokenStream(lexer);
-        return new SqlParser(tokens);
+        SqlParser parser = new SqlParser(tokens);
+
+        lexer.removeErrorListeners();
+        lexer.addErrorListener(ErrorListener.INSTANCE);
+
+        parser.removeErrorListeners();
+        parser.addErrorListener(ErrorListener.INSTANCE);
+
+        return parser;
     }
 
     public static TNode build(ParseTree tree)
@@ -215,7 +287,7 @@ public final class TreeParsing
             @Override
             public TNode visitSingleQuotedStringLiteral(SqlParser.SingleQuotedStringLiteralContext ctx)
             {
-                ParseOptions opts = parsingContext.getParseOptions();
+                ParsingOptions opts = parsingContext.getParsingOptions();
                 String raw = ctx.getText();
                 checkState(raw.length() >= 2 && raw.startsWith("'") && raw.endsWith("'"));
                 if (!opts.isTwoQuotesAsEscapedQuote() && raw.length() >= 6 && raw.startsWith("'''") && raw.endsWith("'''")) {

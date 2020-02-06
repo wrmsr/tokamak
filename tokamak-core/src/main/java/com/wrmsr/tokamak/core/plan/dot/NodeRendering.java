@@ -73,11 +73,33 @@ class NodeRendering<T extends PNode>
 
         String label = table.render();
 
-        return String.format(
-                "\"%s\" [shape=box, style=filled, fillcolor=\"%s\", label=%s];",
+        StringBuilder sb = new StringBuilder();
+
+        sb.append(String.format(
+                "\"%s\" [shape=box, style=filled, fillcolor=\"%s\", label=%s];\n",
                 ctx.node.getName(),
-                getColor().toString(),
-                label);
+                checkNotNull(getColor()).toString(),
+                label));
+
+        sb.append(renderSources(ctx));
+
+        return sb.toString();
+    }
+
+    protected String renderSources(Context<T> ctx)
+    {
+        StringBuilder sb = new StringBuilder();
+
+        for (PNode source : ctx.node.getSources()) {
+            sb.append(renderSource(ctx, source));
+        }
+
+        return sb.toString();
+    }
+
+    protected String renderSource(Context<T> ctx, PNode source)
+    {
+        return String.format("\"%s\" -> \"%s\" [dir=back];\n", ctx.node.getName(), source.getName());
     }
 
     protected void addHeaderSection(Context<T> ctx, Dot.Table table)

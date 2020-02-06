@@ -20,6 +20,7 @@ import com.wrmsr.tokamak.core.type.hier.special.FunctionType;
 
 import javax.annotation.concurrent.Immutable;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 
@@ -39,6 +40,9 @@ public final class PFunction
         this.name = checkNotEmpty(name);
         this.type = checkNotNull(type);
         this.purity = checkNotNull(purity);
+        if (purity == Executable.Purity.IDENTITY) {
+            checkArgument(type.getParams().size() == 2);
+        }
     }
 
     @JsonProperty("name")

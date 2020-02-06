@@ -32,8 +32,8 @@ import com.wrmsr.tokamak.core.plan.transform.PersistExposedTransform;
 import com.wrmsr.tokamak.core.plan.transform.PersistScansTransform;
 import com.wrmsr.tokamak.core.plan.transform.PropagateIdsTransform;
 import com.wrmsr.tokamak.core.plan.transform.SetInvalidationsTransform;
-import com.wrmsr.tokamak.core.tree.ParseOptions;
 import com.wrmsr.tokamak.core.tree.ParsingContext;
+import com.wrmsr.tokamak.core.tree.ParsingOptions;
 import com.wrmsr.tokamak.core.tree.TreeParsing;
 import com.wrmsr.tokamak.core.tree.TreeRendering;
 import com.wrmsr.tokamak.core.tree.analysis.SymbolAnalysis;
@@ -80,8 +80,8 @@ public class TpchParserTest
         extends TestCase
 {
     private static final boolean DOT =
-            true;
-    // false;
+            // true;
+            false;
 
     public static String exclaim(String s)
     {
@@ -125,6 +125,8 @@ public class TpchParserTest
         for (String str : new String[] {
                 // "select * where from",
 
+                "select N2.N_NATIONKEY, R_REGIONKEY, NATION.N_COMMENT from NATION, REGION, NATION as N2",
+
                 "select N_NAME, N_REGIONKEY, N_COMMENT, R_NAME from NATION, REGION where N_REGIONKEY = R_REGIONKEY and N_NATIONKEY = 420",
                 "select N_NAME, N_REGIONKEY, N_COMMENT, R_NAME from NATION, REGION where N_REGIONKEY = R_REGIONKEY",
 
@@ -149,7 +151,7 @@ public class TpchParserTest
             Catalog catalog = new Catalog(ImmutableList.of(rootCatalog));
 
             ParsingContext parsingContext = new ParsingContext(
-                    new ParseOptions(),
+                    new ParsingOptions(),
                     Optional.of(catalog),
                     defaultSchema);
 

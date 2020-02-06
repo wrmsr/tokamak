@@ -24,24 +24,24 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 public final class ParsingContext
 {
-    private final ParseOptions parseOptions;
+    private final ParsingOptions parsingOptions;
     private final Optional<Catalog> catalog;
     private final Optional<String> defaultSchema;
 
     public ParsingContext(
-            ParseOptions parseOptions,
+            ParsingOptions parsingOptions,
             Optional<Catalog> catalog,
             Optional<String> defaultSchema)
     {
-        this.parseOptions = checkNotNull(parseOptions);
+        this.parsingOptions = checkNotNull(parsingOptions);
         this.catalog = checkNotNull(catalog);
         this.defaultSchema = checkNotNull(defaultSchema);
     }
 
-    public ParsingContext(ParseOptions parseOptions)
+    public ParsingContext(ParsingOptions parsingOptions)
     {
         this(
-                parseOptions,
+                parsingOptions,
                 Optional.empty(),
                 Optional.empty());
     }
@@ -49,14 +49,14 @@ public final class ParsingContext
     public ParsingContext()
     {
         this(
-                new ParseOptions(),
+                new ParsingOptions(),
                 Optional.empty(),
                 Optional.empty());
     }
 
-    public ParseOptions getParseOptions()
+    public ParsingOptions getParsingOptions()
     {
-        return parseOptions;
+        return parsingOptions;
     }
 
     public Optional<Catalog> getCatalog()

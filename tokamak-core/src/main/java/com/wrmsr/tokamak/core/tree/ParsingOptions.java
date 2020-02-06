@@ -13,9 +13,9 @@
  */
 package com.wrmsr.tokamak.core.tree;
 
-public final class ParseOptions
+public final class ParsingOptions
 {
-    public ParseOptions()
+    public ParsingOptions()
     {
         this(builder());
     }
@@ -32,7 +32,7 @@ public final class ParseOptions
         return twoQuotesAsEscapedQuote;
     }
 
-    private ParseOptions(Builder builder)
+    private ParsingOptions(Builder builder)
     {
         twoQuotesAsEscapedQuote = builder.twoQuotesAsEscapedQuote;
     }
@@ -49,9 +49,9 @@ public final class ParseOptions
             return this;
         }
 
-        public ParseOptions build()
+        public ParsingOptions build()
         {
-            return new ParseOptions(this);
+            return new ParsingOptions(this);
         }
     }
 }

@@ -14,6 +14,7 @@
 package com.wrmsr.tokamak.test;
 
 import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableList;
 import com.google.common.io.CharStreams;
 import com.wrmsr.tokamak.core.catalog.Catalog;
 import com.wrmsr.tokamak.core.catalog.Schema;
@@ -100,13 +101,23 @@ public final class TpchUtils
         }
     }
 
-    public static Catalog buildCatalog(String url)
+    public static Catalog setupCatalog(Catalog catalog, String url)
     {
-        Catalog catalog = new Catalog();
         JdbcConnector jdbcConnector = new JdbcConnector("jdbc", new SqlEngine(url));
         Schema schema = catalog.addSchema("PUBLIC", jdbcConnector);
-        schema.addTable("NATION");
-        schema.addTable("REGION");
+        ImmutableList.of(
+                "NATION",
+                "REGION",
+                "ORDERS",
+                "PART",
+                "SUPPLIER",
+                "LINEITEM"
+        ).forEach(schema::addTable);
         return catalog;
+    }
+
+    public static Catalog buildCatalog(String url)
+    {
+        return setupCatalog(new Catalog(), url);
     }
 }

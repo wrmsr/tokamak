@@ -35,6 +35,11 @@ public final class BuiltinFunctions
         return value;
     }
 
+    public static boolean longEq(long left, long right)
+    {
+        return left == right;
+    }
+
     public static boolean logicalAnd(boolean left, boolean right)
     {
         return left && right;
@@ -64,6 +69,20 @@ public final class BuiltinFunctions
                                     )
                             ),
                             Executable.Purity.IDENTITY)
+            );
+
+            executor.register(
+                    Reflection.reflect(
+                            BuiltinFunctions.class.getDeclaredMethod("longEq", long.class, long.class),
+                            "eq",
+                            new FunctionType(
+                                    Types.Boolean(),
+                                    ImmutableList.of(
+                                            Types.Long(),
+                                            Types.Long()
+                                    )
+                            ),
+                            Executable.Purity.PURE)
             );
 
             executor.register(

@@ -132,7 +132,7 @@ public final class JdbcConnector
     }
 
     @Override
-    public Scanner createScanner(Table table, Set<String> fields)
+    public Scanner newScanner(Table table, Set<String> fields)
     {
         checkArgument(table.getSchema().getConnector() == this);
         return new JdbcScanner(

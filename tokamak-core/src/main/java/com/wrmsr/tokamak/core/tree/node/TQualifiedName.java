@@ -13,6 +13,7 @@
  */
 package com.wrmsr.tokamak.core.tree.node;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.core.tree.node.visitor.TNodeVisitor;
@@ -48,6 +49,11 @@ public final class TQualifiedName
     public String getLast()
     {
         return parts.get(parts.size() - 1);
+    }
+
+    public String toDotString()
+    {
+        return Joiner.on(".").join(parts);
     }
 
     public SchemaTable toSchemaTable(Optional<String> defaultSchema)

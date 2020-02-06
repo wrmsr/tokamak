@@ -19,7 +19,12 @@ public interface Executable
 {
     /*
     TODO:
-     - bijection
+     - types:
+      - bijection?
+      - const? opaque?
+      - transmutation?
+     - determinism as an iface method rather than 'pure' enum value?
+      - with a validate(fn) method..
     */
 
     enum Purity

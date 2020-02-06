@@ -101,7 +101,7 @@ public class DriverImpl
                 plan.getNodeTypeList(PScan.class).stream()
                         .collect(toImmutableMap(identity(), scanNode -> {
                             Table table = catalog.getSchemaTable(scanNode.getSchemaTable());
-                            return table.getSchema().getConnector().createScanner(table, scanNode.getFields().getNames());
+                            return table.getSchema().getConnector().newScanner(table, scanNode.getFields().getNames());
                         })));
     }
 
@@ -127,7 +127,7 @@ public class DriverImpl
     }
 
     @Override
-    public Context createContext()
+    public Context newContext()
     {
         return new DriverContextImpl(this);
     }

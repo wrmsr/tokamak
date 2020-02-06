@@ -15,6 +15,7 @@ package com.wrmsr.tokamak.core.plan;
 
 import com.wrmsr.tokamak.core.catalog.Catalog;
 import com.wrmsr.tokamak.core.tree.ParsingContext;
+import com.wrmsr.tokamak.util.Cell;
 
 import java.util.Optional;
 
@@ -41,5 +42,18 @@ public final class PlanningContext
     public Optional<ParsingContext> getParsingContext()
     {
         return parsingContext;
+    }
+
+    private final Cell<Plan> originalPlan = Cell.setOnce();
+
+    public Optional<Plan> getOriginalPlan()
+    {
+        return originalPlan.getOptional();
+    }
+
+    public PlanningContext setOriginalPlan(Plan originalPlan)
+    {
+        this.originalPlan.set(originalPlan);
+        return this;
     }
 }

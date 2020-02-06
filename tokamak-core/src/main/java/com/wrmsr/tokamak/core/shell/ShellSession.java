@@ -13,18 +13,37 @@
  */
 package com.wrmsr.tokamak.core.shell;
 
+import com.wrmsr.tokamak.core.catalog.Catalog;
+
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public class ShellSession
 {
+    private final TokamakShell shell;
+
+    private Catalog catalog;
     private Optional<String> defaultSchema;
 
-    public ShellSession(
+    ShellSession(
+            TokamakShell shell,
+            Catalog catalog,
             Optional<String> defaultSchema)
     {
+        this.shell = checkNotNull(shell);
+        this.catalog = checkNotNull(catalog);
         this.defaultSchema = checkNotNull(defaultSchema);
+    }
+
+    public TokamakShell getShell()
+    {
+        return shell;
+    }
+
+    public Catalog getCatalog()
+    {
+        return catalog;
     }
 
     public Optional<String> getDefaultSchema()

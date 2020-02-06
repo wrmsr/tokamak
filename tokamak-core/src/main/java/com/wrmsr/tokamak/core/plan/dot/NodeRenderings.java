@@ -13,6 +13,7 @@
  */
 package com.wrmsr.tokamak.core.plan.dot;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.core.layout.field.Field;
 import com.wrmsr.tokamak.core.plan.node.PCache;
@@ -49,6 +50,7 @@ import java.util.Objects;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
+import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 import static java.util.function.Function.identity;
 
 final class NodeRenderings
@@ -78,7 +80,23 @@ final class NodeRenderings
 
             .add(new NodeRendering<>(PGroup.class))
 
-            .add(new NodeRendering<>(PJoin.class))
+            .add(new NodeRendering<PJoin>(PJoin.class)
+            {
+                protected String renderSource(Context<PJoin> ctx, PNode source)
+                {
+                    StringBuilder sb = new StringBuilder();
+
+                    for (PJoin.Branch branch : checkNotEmpty(ctx.node.getBranchSetsByNode().get(source))) {
+                        sb.append(String.format(
+                                "\"%s\" -> \"%s\" [dir=back, label=\"&nbsp;&nbsp;%s\"];\n",
+                                ctx.node.getName(),
+                                source.getName(),
+                                Dot.escape(Joiner.on(", ").join(branch.getFields()))));
+                    }
+
+                    return sb.toString();
+                }
+            })
 
             .add(new NodeRendering<>(PLookup.class))
 

@@ -35,7 +35,6 @@ import com.wrmsr.tokamak.core.layout.RowLayout;
 import com.wrmsr.tokamak.core.layout.TableLayout;
 import com.wrmsr.tokamak.core.layout.field.FieldCollection;
 import com.wrmsr.tokamak.core.layout.field.annotation.FieldAnnotation;
-import com.wrmsr.tokamak.core.parse.SqlParser;
 import com.wrmsr.tokamak.core.plan.Plan;
 import com.wrmsr.tokamak.core.plan.PlanningContext;
 import com.wrmsr.tokamak.core.plan.analysis.id.IdAnalysis;
@@ -54,25 +53,12 @@ import com.wrmsr.tokamak.core.plan.node.PProject;
 import com.wrmsr.tokamak.core.plan.node.PProjection;
 import com.wrmsr.tokamak.core.plan.node.PScan;
 import com.wrmsr.tokamak.core.plan.node.PState;
-import com.wrmsr.tokamak.core.plan.transform.DropExposedInternalFieldsTransform;
-import com.wrmsr.tokamak.core.plan.transform.MergeScansTransform;
-import com.wrmsr.tokamak.core.plan.transform.PersistExposedTransform;
-import com.wrmsr.tokamak.core.plan.transform.PersistScansTransform;
 import com.wrmsr.tokamak.core.plan.transform.PropagateIdsTransform;
 import com.wrmsr.tokamak.core.plan.transform.SetInvalidationsTransform;
 import com.wrmsr.tokamak.core.plan.value.VNode;
 import com.wrmsr.tokamak.core.plan.value.VNodes;
 import com.wrmsr.tokamak.core.shell.ShellSession;
 import com.wrmsr.tokamak.core.shell.TokamakShell;
-import com.wrmsr.tokamak.core.tree.ParseOptions;
-import com.wrmsr.tokamak.core.tree.ParsingContext;
-import com.wrmsr.tokamak.core.tree.TreeParsing;
-import com.wrmsr.tokamak.core.tree.TreeRendering;
-import com.wrmsr.tokamak.core.tree.node.TNode;
-import com.wrmsr.tokamak.core.tree.plan.TreePlanner;
-import com.wrmsr.tokamak.core.tree.transform.SelectExpansion;
-import com.wrmsr.tokamak.core.tree.transform.SymbolResolution;
-import com.wrmsr.tokamak.core.tree.transform.ViewInlining;
 import com.wrmsr.tokamak.core.type.Types;
 import com.wrmsr.tokamak.core.type.hier.Type;
 import com.wrmsr.tokamak.core.util.ApiJson;
@@ -362,7 +348,7 @@ public class CoreTest
 
         Driver driver = new DriverImpl(catalog, plan);
 
-        Driver.Context ctx = driver.createContext();
+        Driver.Context ctx = driver.newContext();
         Collection<Row> buildRows = driver.build(
                 ctx,
                 plan.getRoot(),
@@ -376,7 +362,7 @@ public class CoreTest
 
         System.out.println(ctx);
 
-        ctx = driver.createContext();
+        ctx = driver.newContext();
         buildRows = driver.build(
                 ctx,
                 plan.getRoot(),
@@ -394,128 +380,49 @@ public class CoreTest
         // System.out.println(TreeRendering.render(treeNode));
     }
 
-    public void testParsed()
-            throws Throwable
-    {
-        String sql = "select N_NAME, N_REGIONKEY, N_COMMENT, R_NAME from NATION, REGION where N_REGIONKEY = R_REGIONKEY";
-
-        Path tempDir = createTempDirectory();
-        String url = "jdbc:h2:file:" + tempDir.toString() + "/test.db;USER=username;PASSWORD=password";
-        TpchUtils.buildDatabase(url);
-        Catalog catalog = TpchUtils.buildCatalog(url);
-
-        ParsingContext parsingContext = new ParsingContext(
-                new ParseOptions(),
-                Optional.of(catalog),
-                Optional.of("PUBLIC"));
-
-        BuiltinExecutor be = catalog.addExecutor(new BuiltinExecutor("builtin"));
-        BuiltinFunctions.register(be);
-        be.getExecutablesByName().keySet().forEach(n -> catalog.addFunction(n, be));
-
-        CatalogRegistry cn = new CatalogRegistry();
-        BuiltinConnectors.register(cn);
-        BuiltinExecutors.register(cn);
-
-        SqlParser parser = TreeParsing.parse(sql);
-        TNode treeNode = TreeParsing.build(parser.statement());
-        System.out.println(TreeRendering.render(treeNode));
-
-        treeNode = ViewInlining.inlineViews(treeNode, parsingContext);
-        treeNode = SelectExpansion.expandSelects(treeNode, parsingContext);
-        System.out.println(TreeRendering.render(treeNode));
-
-        treeNode = SymbolResolution.resolveSymbols(treeNode, parsingContext);
-        System.out.println(TreeRendering.render(treeNode));
-
-        PNode node = new TreePlanner(parsingContext).plan(treeNode);
-        Plan plan = Plan.of(node);
-        if (DOT) { Dot.open(PlanDot.build(plan)); }
-
-        PlanningContext planningContext = new PlanningContext(Optional.of(catalog), Optional.empty());
-
-        plan = MergeScansTransform.mergeScans(plan);
-        plan = PersistScansTransform.persistScans(plan);
-        plan = PersistExposedTransform.persistExposed(plan);
-        if (DOT) { Dot.open(PlanDot.build(plan)); }
-
-        plan = PropagateIdsTransform.propagateIds(plan, planningContext);
-        plan = SetInvalidationsTransform.setInvalidations(plan, planningContext);
-        plan = DropExposedInternalFieldsTransform.dropExposedInternalFields(plan);
-        if (DOT) { Dot.open(PlanDot.build(plan)); }
-
-        Driver driver = new DriverImpl(catalog, plan);
-
-        Driver.Context ctx = driver.createContext();
-        Collection<Row> buildRows = driver.build(
-                ctx,
-                plan.getRoot(),
-                Key.of("N_REGIONKEY", 1));
-
-        buildRows.forEach(System.out::println);
-        System.out.println();
-
-        ctx.commit();
-
-        System.out.println(ctx);
-    }
-
     public void testShell()
             throws Throwable
     {
-        String sql = "select N_NAME, N_REGIONKEY, N_COMMENT, R_NAME from NATION, REGION where N_REGIONKEY = R_REGIONKEY";
-
         Path tempDir = createTempDirectory();
         String url = "jdbc:h2:file:" + tempDir.toString() + "/test.db;USER=username;PASSWORD=password";
         TpchUtils.buildDatabase(url);
-        Catalog catalog = TpchUtils.buildCatalog(url);
 
-        BuiltinExecutor be = catalog.addExecutor(new BuiltinExecutor("builtin"));
-        BuiltinFunctions.register(be);
-        be.getExecutablesByName().keySet().forEach(n -> catalog.addFunction(n, be));
+        TokamakShell shell = new TokamakShell();
+        TpchUtils.setupCatalog(shell.getRootCatalog(), url);
 
-        CatalogRegistry cn = new CatalogRegistry();
-        BuiltinConnectors.register(cn);
-        BuiltinExecutors.register(cn);
+        for (String sql : new String[]{
+                "select L_QUANTITY, O_ORDERSTATUS, P_NAME, S_NAME " +
+                        "from LINEITEM, ORDERS, PART, SUPPLIER where L_ORDERKEY = O_ORDERKEY and L_PARTKEY = P_PARTKEY and L_SUPPKEY = S_SUPPKEY",
 
-        TokamakShell shell = new TokamakShell(catalog);
-        Plan plan = shell.plan(sql, new ShellSession(Optional.of("PUBLIC")));
-        if (DOT) { Dot.open(PlanDot.build(plan)); }
+                "select N_NAME, N_REGIONKEY, N_COMMENT from NATION",
 
-        Driver driver = new DriverImpl(catalog, plan);
+                "select N_NAME, N_REGIONKEY, N_COMMENT, R_NAME from NATION, REGION where N_REGIONKEY = R_REGIONKEY",
 
-        Driver.Context ctx = driver.createContext();
-        Collection<Row> buildRows = driver.build(
-                ctx,
-                plan.getRoot(),
-                Key.of("N_REGIONKEY", 1));
+                "select L_QUANTITY, O_ORDERSTATUS, P_NAME, S_NAME " +
+                        "from LINEITEM, ORDERS, PART, SUPPLIER where L_ORDERKEY = O_ORDERKEY and L_PARTKEY = P_PARTKEY and L_SUPPKEY = S_SUPPKEY",
+        }) {
+            System.out.println(sql);
 
-        buildRows.forEach(System.out::println);
-        System.out.println();
+            ShellSession session = shell.newSession()
+                    .setDefaultSchema(Optional.of("PUBLIC"));
+            Plan plan = shell.plan(sql, session);
+            if (DOT) { Dot.open(PlanDot.build(plan)); }
 
-        ctx.commit();
+            Driver driver = new DriverImpl(session.getCatalog(), plan);
 
-        System.out.println(ctx);
-    }
+            for (int i = 1; i < 4; ++i) {
+                Driver.Context ctx = driver.newContext();
+                Collection<Row> buildRows = driver.build(
+                        ctx,
+                        plan.getRoot(),
+                        Key.of(sql.contains("N_REGIONKEY") ? "N_REGIONKEY" : "L_ORDERKEY", i));
+                buildRows.forEach(System.out::println);
 
-    public void testTxt()
-            throws Throwable
-    {
-
-    }
-
-    public void testDot()
-            throws Throwable
-    {
-        Catalog catalog = new Catalog();
-
-        BuiltinExecutor be = catalog.addExecutor(new BuiltinExecutor("builtin"));
-        BuiltinFunctions.register(be);
-        be.getExecutablesByName().keySet().forEach(n -> catalog.addFunction(n, be));
-
-        Plan plan = buildPlan(catalog);
-
-        if (DOT) { Dot.open(PlanDot.build(plan)); }
+                ctx.commit();
+                System.out.println(ctx);
+                System.out.println();
+            }
+        }
     }
 
     public void testHeapTable()
@@ -572,7 +479,7 @@ public class CoreTest
         Driver driver = new DriverImpl(catalog, plan);
 
         Collection<Row> buildRows = driver.build(
-                driver.createContext(),
+                driver.newContext(),
                 plan.getRoot(),
                 Key.of("id", 1));
 

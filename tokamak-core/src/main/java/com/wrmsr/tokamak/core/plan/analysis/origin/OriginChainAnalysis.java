@@ -69,7 +69,7 @@ public final class OriginChainAnalysis
 
                 Set<Origination> snkFirstOriginationSet;
                 Set<OriginationLink> originationLinkSet;
-                if (snkOris.stream().anyMatch(o -> o.genesis.leaf)) {
+                if (snkOris.stream().anyMatch(o -> o.genesis.isLeaf())) {
                     Origination snkOri = checkSingle(snkOris);
                     firstOriginations.add(snkOri);
                     snkFirstOriginationSet = ImmutableSet.of(snkOri);

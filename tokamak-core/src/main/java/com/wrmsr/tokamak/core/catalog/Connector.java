@@ -36,5 +36,5 @@ public interface Connector
 
     TableLayout getTableLayout(SchemaTable schemaTable);
 
-    Scanner createScanner(Table table, Set<String> fields);
+    Scanner newScanner(Table table, Set<String> fields);
 }
