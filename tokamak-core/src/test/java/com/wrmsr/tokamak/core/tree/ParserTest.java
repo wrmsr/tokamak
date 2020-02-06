@@ -120,7 +120,7 @@ public class ParserTest
             for (boolean mode : new boolean[] {false, true}) {
                 System.out.println(mode);
                 SqlParser parser = TreeParsing.parse(str);
-                TNode node = TreeParsing.build(parser.statement(), ParseOptions.builder().twoQuotesAsEscapedQuote(mode).build());
+                TNode node = TreeParsing.build(parser.statement(), new ParsingContext(ParseOptions.builder().twoQuotesAsEscapedQuote(mode).build()));
                 System.out.println(getSelectItemText(node));
             }
             System.out.println();

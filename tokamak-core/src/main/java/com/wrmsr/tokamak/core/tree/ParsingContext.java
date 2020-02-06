@@ -14,6 +14,9 @@
 package com.wrmsr.tokamak.core.tree;
 
 import com.wrmsr.tokamak.core.catalog.Catalog;
+import com.wrmsr.tokamak.core.parse.SqlParser;
+import com.wrmsr.tokamak.core.tree.node.TNode;
+import com.wrmsr.tokamak.util.Cell;
 
 import java.util.Optional;
 
@@ -33,6 +36,14 @@ public final class ParsingContext
         this.parseOptions = checkNotNull(parseOptions);
         this.catalog = checkNotNull(catalog);
         this.defaultSchema = checkNotNull(defaultSchema);
+    }
+
+    public ParsingContext(ParseOptions parseOptions)
+    {
+        this(
+                parseOptions,
+                Optional.empty(),
+                Optional.empty());
     }
 
     public ParsingContext()
@@ -56,5 +67,29 @@ public final class ParsingContext
     public Optional<String> getDefaultSchema()
     {
         return defaultSchema;
+    }
+
+    private final Cell<SqlParser> parser = Cell.setOnce();
+
+    public Optional<SqlParser> getParser()
+    {
+        return parser.getOptional();
+    }
+
+    public void setParser(SqlParser parser)
+    {
+        this.parser.set(parser);
+    }
+
+    private final Cell<TNode> originalTreeNode = Cell.setOnce();
+
+    public Optional<TNode> getOriginalTreeNode()
+    {
+        return originalTreeNode.getOptional();
+    }
+
+    public void setOriginalTreeNode(TNode originalTreeNode)
+    {
+        this.originalTreeNode.set(originalTreeNode);
     }
 }

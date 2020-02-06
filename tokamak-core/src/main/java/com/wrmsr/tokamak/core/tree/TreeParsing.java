@@ -66,10 +66,10 @@ public final class TreeParsing
 
     public static TNode build(ParseTree tree)
     {
-        return build(tree, new ParseOptions());
+        return build(tree, new ParsingContext());
     }
 
-    public static TNode build(ParseTree tree, ParseOptions options)
+    public static TNode build(ParseTree tree, ParsingContext parsingContext)
     {
         return tree.accept(new SqlBaseVisitor<TNode>()
         {
@@ -215,15 +215,16 @@ public final class TreeParsing
             @Override
             public TNode visitSingleQuotedStringLiteral(SqlParser.SingleQuotedStringLiteralContext ctx)
             {
+                ParseOptions opts = parsingContext.getParseOptions();
                 String raw = ctx.getText();
                 checkState(raw.length() >= 2 && raw.startsWith("'") && raw.endsWith("'"));
-                if (!options.isTwoQuotesAsEscapedQuote() && raw.length() >= 6 && raw.startsWith("'''") && raw.endsWith("'''")) {
+                if (!opts.isTwoQuotesAsEscapedQuote() && raw.length() >= 6 && raw.startsWith("'''") && raw.endsWith("'''")) {
                     raw = raw.substring(3, raw.length() - 3);
                 }
                 else {
                     raw = raw.substring(1, raw.length() - 1);
                 }
-                if (options.isTwoQuotesAsEscapedQuote()) {
+                if (opts.isTwoQuotesAsEscapedQuote()) {
                     raw = raw.replaceAll("''", "'");
                 }
                 return new TStringLiteral(TreeStrings.escaped(raw));

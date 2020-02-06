@@ -147,14 +147,18 @@ public class TpchParserTest
         }) {
             Catalog catalog = new Catalog(ImmutableList.of(rootCatalog));
 
-            SqlParser parser = TreeParsing.parse(str);
-            TNode treeNode = TreeParsing.build(parser.statement());
-            System.out.println(TreeRendering.render(treeNode));
-
             ParsingContext parsingContext = new ParsingContext(
                     new ParseOptions(),
                     Optional.of(catalog),
                     defaultSchema);
+
+            SqlParser parser = TreeParsing.parse(str);
+            parsingContext.setParser(parser);
+
+            TNode treeNode = TreeParsing.build(parser.statement());
+            parsingContext.setOriginalTreeNode(treeNode);
+
+            System.out.println(TreeRendering.render(treeNode));
 
             treeNode = ViewInlining.inlineViews(treeNode, catalog);
             treeNode = SelectExpansion.expandSelects(treeNode, parsingContext);

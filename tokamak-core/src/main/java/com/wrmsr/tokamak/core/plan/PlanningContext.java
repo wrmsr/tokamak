@@ -15,7 +15,6 @@ package com.wrmsr.tokamak.core.plan;
 
 import com.wrmsr.tokamak.core.catalog.Catalog;
 import com.wrmsr.tokamak.core.tree.ParsingContext;
-import com.wrmsr.tokamak.core.tree.node.TNode;
 
 import java.util.Optional;
 
@@ -25,16 +24,13 @@ public final class PlanningContext
 {
     private final Optional<Catalog> catalog;
     private final Optional<ParsingContext> parsingContext;
-    private final Optional<TNode> treeNode;
 
     public PlanningContext(
             Optional<Catalog> catalog,
-            Optional<ParsingContext> parsingContext,
-            Optional<TNode> treeNode)
+            Optional<ParsingContext> parsingContext)
     {
         this.catalog = checkNotNull(catalog);
         this.parsingContext = checkNotNull(parsingContext);
-        this.treeNode = checkNotNull(treeNode);
     }
 
     public Optional<Catalog> getCatalog()
@@ -45,10 +41,5 @@ public final class PlanningContext
     public Optional<ParsingContext> getParsingContext()
     {
         return parsingContext;
-    }
-
-    public Optional<TNode> getTreeNode()
-    {
-        return treeNode;
     }
 }
