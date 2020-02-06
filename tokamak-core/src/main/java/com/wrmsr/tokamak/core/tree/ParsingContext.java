@@ -76,9 +76,10 @@ public final class ParsingContext
         return parser.getOptional();
     }
 
-    public void setParser(SqlParser parser)
+    public ParsingContext setParser(SqlParser parser)
     {
         this.parser.set(parser);
+        return this;
     }
 
     private final Cell<TNode> originalTreeNode = Cell.setOnce();
@@ -88,8 +89,9 @@ public final class ParsingContext
         return originalTreeNode.getOptional();
     }
 
-    public void setOriginalTreeNode(TNode originalTreeNode)
+    public ParsingContext setOriginalTreeNode(TNode originalTreeNode)
     {
         this.originalTreeNode.set(originalTreeNode);
+        return this;
     }
 }

@@ -160,7 +160,7 @@ public class TpchParserTest
 
             System.out.println(TreeRendering.render(treeNode));
 
-            treeNode = ViewInlining.inlineViews(treeNode, catalog);
+            treeNode = ViewInlining.inlineViews(treeNode, parsingContext);
             treeNode = SelectExpansion.expandSelects(treeNode, parsingContext);
             System.out.println(TreeRendering.render(treeNode));
 

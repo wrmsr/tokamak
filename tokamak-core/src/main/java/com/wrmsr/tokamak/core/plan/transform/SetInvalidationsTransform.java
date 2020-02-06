@@ -16,8 +16,8 @@ package com.wrmsr.tokamak.core.plan.transform;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.wrmsr.tokamak.core.catalog.Catalog;
 import com.wrmsr.tokamak.core.plan.Plan;
+import com.wrmsr.tokamak.core.plan.PlanningContext;
 import com.wrmsr.tokamak.core.plan.analysis.id.IdAnalysis;
 import com.wrmsr.tokamak.core.plan.analysis.id.part.IdAnalysisPart;
 import com.wrmsr.tokamak.core.plan.analysis.origin.OriginAnalysis;
@@ -241,10 +241,10 @@ public final class SetInvalidationsTransform
                 Optional.of(updateMask));
     }
 
-    public static Plan setInvalidations(Plan plan, Optional<Catalog> catalog)
+    public static Plan setInvalidations(Plan plan, PlanningContext planningContext)
     {
         OriginAnalysis originAnalysis = OriginAnalysis.analyze(plan);
-        IdAnalysis idAnalysis = IdAnalysis.analyze(plan, catalog);
+        IdAnalysis idAnalysis = IdAnalysis.analyze(plan, planningContext.getCatalog());
 
         Map<PInvalidator, InvalidationsBuilder> builders = new HashMap<>();
 

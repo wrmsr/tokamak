@@ -18,6 +18,7 @@ import com.google.common.collect.Sets;
 import com.wrmsr.tokamak.core.catalog.Catalog;
 import com.wrmsr.tokamak.core.layout.field.Field;
 import com.wrmsr.tokamak.core.plan.Plan;
+import com.wrmsr.tokamak.core.plan.PlanningContext;
 import com.wrmsr.tokamak.core.plan.node.PNode;
 import com.wrmsr.tokamak.core.plan.node.PProject;
 import com.wrmsr.tokamak.core.plan.node.PProjection;
@@ -43,7 +44,7 @@ public final class DropExposedInternalFieldsTransform
     {
     }
 
-    public static Plan dropExposedInternalFields(Plan plan, Optional<Catalog> catalog)
+    public static Plan dropExposedInternalFields(Plan plan)
     {
         List<PNode> exposedNodes = plan.getNodeListsByAnnotationType(ExposedPNode.class);
         if (exposedNodes.isEmpty()) {

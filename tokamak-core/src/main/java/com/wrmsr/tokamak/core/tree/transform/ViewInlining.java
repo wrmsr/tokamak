@@ -13,9 +13,9 @@
  */
 package com.wrmsr.tokamak.core.tree.transform;
 
-import com.wrmsr.tokamak.core.catalog.Catalog;
 import com.wrmsr.tokamak.core.catalog.View;
 import com.wrmsr.tokamak.core.parse.SqlParser;
+import com.wrmsr.tokamak.core.tree.ParsingContext;
 import com.wrmsr.tokamak.core.tree.TreeParsing;
 import com.wrmsr.tokamak.core.tree.node.TNode;
 import com.wrmsr.tokamak.core.tree.node.TSelect;
@@ -31,7 +31,7 @@ public final class ViewInlining
     {
     }
 
-    public static TNode inlineViews(TNode root, Catalog catalog)
+    public static TNode inlineViews(TNode root, ParsingContext parsingContext)
     {
         return root.accept(new TNodeRewriter<Void>()
         {
@@ -40,7 +40,7 @@ public final class ViewInlining
             {
                 if (treeNode.getQualifiedName().getParts().size() == 1) {
                     String name = treeNode.getQualifiedName().getParts().get(0);
-                    Optional<View> viewOpt = catalog.getViewOptional(name);
+                    Optional<View> viewOpt = parsingContext.getCatalog().get().getViewOptional(name);
                     if (viewOpt.isPresent()) {
                         View view = viewOpt.get();
                         SqlParser viewParser = TreeParsing.parse(view.getSql());
