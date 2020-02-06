@@ -19,12 +19,11 @@ import com.google.common.io.CharStreams;
 import com.google.inject.Injector;
 import com.wrmsr.tokamak.util.Logger;
 import com.wrmsr.tokamak.util.lifecycle.AbstractLifecycle;
-import org.apache.sshd.common.NamedFactory;
 import org.apache.sshd.common.PropertyResolverUtils;
 import org.apache.sshd.common.session.Session;
 import org.apache.sshd.common.session.SessionListener;
 import org.apache.sshd.server.SshServer;
-import org.apache.sshd.server.auth.UserAuth;
+import org.apache.sshd.server.auth.UserAuthFactory;
 import org.apache.sshd.server.auth.UserAuthNoneFactory;
 import org.apache.sshd.server.auth.password.PasswordAuthenticator;
 import org.apache.sshd.server.auth.password.UserAuthPasswordFactory;
@@ -151,7 +150,7 @@ public class GshService
 
     private void configureAuthentication(SshServer sshd)
     {
-        NamedFactory<UserAuth> auth;
+        UserAuthFactory auth;
         if (this.passwordAuthenticator != null) {
             sshd.setPasswordAuthenticator(this.passwordAuthenticator);
             auth = new UserAuthPasswordFactory();

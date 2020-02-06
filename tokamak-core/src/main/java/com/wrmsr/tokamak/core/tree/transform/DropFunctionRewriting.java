@@ -13,7 +13,7 @@
  */
 package com.wrmsr.tokamak.core.tree.transform;
 
-import com.wrmsr.tokamak.core.catalog.Catalog;
+import com.wrmsr.tokamak.core.tree.ParsingContext;
 import com.wrmsr.tokamak.core.tree.analysis.SymbolAnalysis;
 import com.wrmsr.tokamak.core.tree.node.TAliasedRelation;
 import com.wrmsr.tokamak.core.tree.node.TExpression;
@@ -26,7 +26,6 @@ import com.wrmsr.tokamak.core.tree.node.visitor.TNodeRewriter;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkState;
 import static com.wrmsr.tokamak.util.MoreCollections.immutableMapItems;
@@ -37,9 +36,9 @@ public final class DropFunctionRewriting
     {
     }
 
-    public static TNode rewriteDropFunctions(TNode node, Catalog catalog, Optional<String> defaultSchema)
+    public static TNode rewriteDropFunctions(TNode node, ParsingContext parsingContext)
     {
-        SymbolAnalysis symbolAnalysis = SymbolAnalysis.analyze(node, Optional.of(catalog), defaultSchema);
+        SymbolAnalysis symbolAnalysis = SymbolAnalysis.analyze(node, parsingContext);
 
         return node.accept(new TNodeRewriter<Void>()
         {

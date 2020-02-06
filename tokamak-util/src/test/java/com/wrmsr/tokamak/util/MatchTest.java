@@ -16,8 +16,13 @@ package com.wrmsr.tokamak.util;
 import com.wrmsr.tokamak.util.match.Capture;
 import com.wrmsr.tokamak.util.match.DefaultMatcher;
 import com.wrmsr.tokamak.util.match.Match;
+import com.wrmsr.tokamak.util.match.Property;
 import com.wrmsr.tokamak.util.match.pattern.Pattern;
 import junit.framework.TestCase;
+
+import java.util.Optional;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public class MatchTest
         extends TestCase
@@ -28,6 +33,43 @@ public class MatchTest
         Capture<Integer> capture = Capture.newCapture();
         Pattern<Integer> pattern = Pattern.typeOf(Integer.class).capturedAs(capture);
         Match<Integer> match = new DefaultMatcher().match(pattern, 5);
+
+        System.out.println(match);
+    }
+
+    private static final class IntLink
+    {
+        private final int value;
+        private final Optional<IntLink> next;
+
+        public IntLink(int value, Optional<IntLink> next)
+        {
+            this.value = value;
+            this.next = checkNotNull(next);
+        }
+
+        public static Property<IntLink, IntLink> next()
+        {
+            return Property.ofOptional(l -> l.next);
+        }
+    }
+
+    public void testLinkMatch()
+            throws Exception
+    {
+        Capture<IntLink> capture0 = Capture.newCapture();
+        Capture<IntLink> capture1 = Capture.newCapture();
+        Pattern<IntLink> pattern = Pattern
+                .typeOf(IntLink.class)
+                .capturedAs(capture0)
+                .with(IntLink.next().matching(
+                        Pattern
+                        .typeOf(IntLink.class)
+                        .capturedAs(capture1)));
+
+        IntLink link = new IntLink(4, Optional.of(new IntLink(5, Optional.empty())));
+        Match<IntLink> match = new DefaultMatcher().match(pattern, link);
+
         System.out.println(match);
     }
 }

@@ -30,6 +30,7 @@ import com.wrmsr.tokamak.core.plan.node.PScan;
 import com.wrmsr.tokamak.core.plan.node.annotation.PNodeAnnotation;
 import com.wrmsr.tokamak.core.plan.value.VNode;
 import com.wrmsr.tokamak.core.plan.value.VNodes;
+import com.wrmsr.tokamak.core.tree.ParsingContext;
 import com.wrmsr.tokamak.core.tree.analysis.SymbolAnalysis;
 import com.wrmsr.tokamak.core.tree.node.TAliasedRelation;
 import com.wrmsr.tokamak.core.tree.node.TBooleanExpression;
@@ -72,23 +73,21 @@ import static java.util.function.Function.identity;
 
 public class TreePlanner
 {
-    private Optional<Catalog> catalog;
-    private Optional<String> defaultSchema;
+    private final ParsingContext parsingContext;
 
-    public TreePlanner(Optional<Catalog> catalog, Optional<String> defaultSchema)
+    public TreePlanner(ParsingContext parsingContext)
     {
-        this.catalog = checkNotNull(catalog);
-        this.defaultSchema = checkNotNull(defaultSchema);
+        this.parsingContext = checkNotNull(parsingContext);
     }
 
     public TreePlanner()
     {
-        this(Optional.empty(), Optional.empty());
+        this(new ParsingContext());
     }
 
     public PNode plan(TNode rootTreeNode)
     {
-        SymbolAnalysis symbolAnalysis = SymbolAnalysis.analyze(rootTreeNode, catalog, defaultSchema);
+        SymbolAnalysis symbolAnalysis = SymbolAnalysis.analyze(rootTreeNode, parsingContext);
 
         Set<String> allSymbolNames = symbolAnalysis.getSymbolScopes().stream()
                 .flatMap(ss -> ss.getSymbols().stream())
@@ -131,7 +130,7 @@ public class TreePlanner
 
                     else if (expr instanceof TFunctionCallExpression) {
                         TFunctionCallExpression fcExpr = (TFunctionCallExpression) expr;
-                        Function func = catalog.get().getFunction(fcExpr.getName());
+                        Function func = parsingContext.getCatalog().get().getFunction(fcExpr.getName());
                         List<VNode> args = fcExpr.getArgs().stream()
                                 .map(TQualifiedNameExpression.class::cast)
                                 .map(TQualifiedNameExpression::getQualifiedName)
@@ -285,9 +284,9 @@ public class TreePlanner
             @Override
             public PNode visitTableName(TTableName treeNode, SymbolAnalysis.SymbolScope context)
             {
-                SchemaTable schemaTable = treeNode.getQualifiedName().toSchemaTable(defaultSchema);
+                SchemaTable schemaTable = treeNode.getQualifiedName().toSchemaTable(parsingContext.getDefaultSchema());
 
-                Table table = catalog.get().getSchemaTable(schemaTable);
+                Table table = parsingContext.getCatalog().get().getSchemaTable(schemaTable);
 
                 Set<String> columns = new LinkedHashSet<>();
 

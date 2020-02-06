@@ -19,6 +19,7 @@ import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.core.catalog.Catalog;
 import com.wrmsr.tokamak.core.catalog.Table;
+import com.wrmsr.tokamak.core.tree.ParsingContext;
 import com.wrmsr.tokamak.core.tree.node.TAllSelectItem;
 import com.wrmsr.tokamak.core.tree.node.TBooleanExpression;
 import com.wrmsr.tokamak.core.tree.node.TComparisonExpression;
@@ -346,7 +347,7 @@ public final class SymbolAnalysis
         });
     }
 
-    public static SymbolAnalysis analyze(TNode statement, Optional<Catalog> catalog, Optional<String> defaultSchema)
+    public static SymbolAnalysis analyze(TNode statement, ParsingContext parsingContext)
     {
         SymbolScope symbolScope = statement.accept(new TraversalTNodeVisitor<SymbolScope, SymbolScope>()
         {
@@ -444,8 +445,8 @@ public final class SymbolAnalysis
             public SymbolScope visitTableName(TTableName treeNode, SymbolScope context)
             {
                 context.enclosedNodes.add(treeNode);
-                SchemaTable schemaTable = treeNode.getQualifiedName().toSchemaTable(defaultSchema);
-                Table table = catalog.get().getSchemaTable(schemaTable);
+                SchemaTable schemaTable = treeNode.getQualifiedName().toSchemaTable(parsingContext.getDefaultSchema());
+                Table table = parsingContext.getCatalog().get().getSchemaTable(schemaTable);
                 table.getRowLayout().getFields().getNames().forEach(f -> new Symbol(Optional.of(f), treeNode, Optional.empty(), context));
                 return null;
             }

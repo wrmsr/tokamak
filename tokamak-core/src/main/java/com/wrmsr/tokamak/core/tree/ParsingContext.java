@@ -19,15 +19,33 @@ import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public final class ParseContext
+public final class ParsingContext
 {
+    private final ParseOptions parseOptions;
     private final Optional<Catalog> catalog;
     private final Optional<String> defaultSchema;
 
-    public ParseContext(Optional<Catalog> catalog, Optional<String> defaultSchema)
+    public ParsingContext(
+            ParseOptions parseOptions,
+            Optional<Catalog> catalog,
+            Optional<String> defaultSchema)
     {
+        this.parseOptions = checkNotNull(parseOptions);
         this.catalog = checkNotNull(catalog);
         this.defaultSchema = checkNotNull(defaultSchema);
+    }
+
+    public ParsingContext()
+    {
+        this(
+                new ParseOptions(),
+                Optional.empty(),
+                Optional.empty());
+    }
+
+    public ParseOptions getParseOptions()
+    {
+        return parseOptions;
     }
 
     public Optional<Catalog> getCatalog()

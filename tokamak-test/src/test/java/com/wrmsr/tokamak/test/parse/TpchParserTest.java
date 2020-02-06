@@ -31,6 +31,8 @@ import com.wrmsr.tokamak.core.plan.transform.PersistExposedTransform;
 import com.wrmsr.tokamak.core.plan.transform.PersistScansTransform;
 import com.wrmsr.tokamak.core.plan.transform.PropagateIdsTransform;
 import com.wrmsr.tokamak.core.plan.transform.SetInvalidationsTransform;
+import com.wrmsr.tokamak.core.tree.ParseOptions;
+import com.wrmsr.tokamak.core.tree.ParsingContext;
 import com.wrmsr.tokamak.core.tree.TreeParsing;
 import com.wrmsr.tokamak.core.tree.TreeRendering;
 import com.wrmsr.tokamak.core.tree.analysis.SymbolAnalysis;
@@ -149,17 +151,22 @@ public class TpchParserTest
             TNode treeNode = TreeParsing.build(parser.statement());
             System.out.println(TreeRendering.render(treeNode));
 
+            ParsingContext parsingContext = new ParsingContext(
+                    new ParseOptions(),
+                    Optional.of(catalog),
+                    defaultSchema);
+
             treeNode = ViewInlining.inlineViews(treeNode, catalog);
-            treeNode = SelectExpansion.expandSelects(treeNode, catalog, defaultSchema);
+            treeNode = SelectExpansion.expandSelects(treeNode, parsingContext);
             System.out.println(TreeRendering.render(treeNode));
 
-            treeNode = SymbolResolution.resolveSymbols(treeNode, Optional.of(catalog), defaultSchema);
+            treeNode = SymbolResolution.resolveSymbols(treeNode, parsingContext);
             System.out.println(TreeRendering.render(treeNode));
 
-            SymbolAnalysis sa = SymbolAnalysis.analyze(treeNode, Optional.of(catalog), defaultSchema);
+            SymbolAnalysis sa = SymbolAnalysis.analyze(treeNode, parsingContext);
             SymbolAnalysis.Resolutions sar = sa.getResolutions();
 
-            PNode node = new TreePlanner(Optional.of(catalog), defaultSchema).plan(treeNode);
+            PNode node = new TreePlanner(parsingContext).plan(treeNode);
             Plan plan = Plan.of(node);
             if (DOT) { Dot.open(PlanDot.build(plan)); }
 

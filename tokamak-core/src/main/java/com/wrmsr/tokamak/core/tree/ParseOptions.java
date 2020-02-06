@@ -13,7 +13,7 @@
  */
 package com.wrmsr.tokamak.core.tree;
 
-public class ParseOptions
+public final class ParseOptions
 {
     public ParseOptions()
     {

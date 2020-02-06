@@ -15,8 +15,8 @@ package com.wrmsr.tokamak.core.tree.transform;
 
 import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.api.SchemaTable;
-import com.wrmsr.tokamak.core.catalog.Catalog;
 import com.wrmsr.tokamak.core.catalog.Table;
+import com.wrmsr.tokamak.core.tree.ParsingContext;
 import com.wrmsr.tokamak.core.tree.node.TAliasedRelation;
 import com.wrmsr.tokamak.core.tree.node.TAllSelectItem;
 import com.wrmsr.tokamak.core.tree.node.TExpression;
@@ -176,7 +176,7 @@ public final class SelectExpansion
         return ret;
     }
 
-    public static TNode expandSelects(TNode node, Catalog catalog, Optional<String> defaultSchema)
+    public static TNode expandSelects(TNode node, ParsingContext parsingContext)
     {
         return node.accept(new TNodeRewriter<Void>()
         {
@@ -221,8 +221,8 @@ public final class SelectExpansion
             public TNode visitTableName(TTableName treeNode, Void context)
             {
                 TTableName ret = (TTableName) super.visitTableName(treeNode, context);
-                SchemaTable schemaTable = treeNode.getQualifiedName().toSchemaTable(defaultSchema);
-                Table table = catalog.getSchemaTable(schemaTable);
+                SchemaTable schemaTable = treeNode.getQualifiedName().toSchemaTable(parsingContext.getDefaultSchema());
+                Table table = parsingContext.getCatalog().get().getSchemaTable(schemaTable);
                 fieldSetsByNode.put(ret, table.getRowLayout().getFields().getNames());
                 return ret;
             }

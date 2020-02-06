@@ -15,6 +15,7 @@ package com.wrmsr.tokamak.core.tree.transform;
 
 import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.core.catalog.Catalog;
+import com.wrmsr.tokamak.core.tree.ParsingContext;
 import com.wrmsr.tokamak.core.tree.analysis.SymbolAnalysis;
 import com.wrmsr.tokamak.core.tree.node.TAllSelectItem;
 import com.wrmsr.tokamak.core.tree.node.TNode;
@@ -34,9 +35,9 @@ public final class SymbolResolution
     {
     }
 
-    public static TNode resolveSymbols(TNode node, Optional<Catalog> catalog, Optional<String> defaultSchema)
+    public static TNode resolveSymbols(TNode node, ParsingContext parsingContext)
     {
-        SymbolAnalysis sa = SymbolAnalysis.analyze(node, catalog, defaultSchema);
+        SymbolAnalysis sa = SymbolAnalysis.analyze(node, parsingContext);
 
         return node.accept(new TNodeRewriter<Void>()
         {

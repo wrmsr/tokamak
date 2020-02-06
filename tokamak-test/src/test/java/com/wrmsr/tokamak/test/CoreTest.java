@@ -61,6 +61,8 @@ import com.wrmsr.tokamak.core.plan.transform.PropagateIdsTransform;
 import com.wrmsr.tokamak.core.plan.transform.SetInvalidationsTransform;
 import com.wrmsr.tokamak.core.plan.value.VNode;
 import com.wrmsr.tokamak.core.plan.value.VNodes;
+import com.wrmsr.tokamak.core.tree.ParseOptions;
+import com.wrmsr.tokamak.core.tree.ParsingContext;
 import com.wrmsr.tokamak.core.tree.TreeParsing;
 import com.wrmsr.tokamak.core.tree.TreeRendering;
 import com.wrmsr.tokamak.core.tree.node.TNode;
@@ -399,11 +401,14 @@ public class CoreTest
         TpchUtils.buildDatabase(url);
         Catalog catalog = TpchUtils.buildCatalog(url);
 
+        ParsingContext parsingContext = new ParsingContext(
+                new ParseOptions(),
+                Optional.of(catalog),
+                Optional.of("PUBLIC"));
+
         BuiltinExecutor be = catalog.addExecutor(new BuiltinExecutor("builtin"));
         BuiltinFunctions.register(be);
         be.getExecutablesByName().keySet().forEach(n -> catalog.addFunction(n, be));
-
-        Optional<String> defaultSchema = Optional.of("PUBLIC");
 
         CatalogRegistry cn = new CatalogRegistry();
         BuiltinConnectors.register(cn);
@@ -414,13 +419,13 @@ public class CoreTest
         System.out.println(TreeRendering.render(treeNode));
 
         treeNode = ViewInlining.inlineViews(treeNode, catalog);
-        treeNode = SelectExpansion.expandSelects(treeNode, catalog, defaultSchema);
+        treeNode = SelectExpansion.expandSelects(treeNode, parsingContext);
         System.out.println(TreeRendering.render(treeNode));
 
-        treeNode = SymbolResolution.resolveSymbols(treeNode, Optional.of(catalog), defaultSchema);
+        treeNode = SymbolResolution.resolveSymbols(treeNode, parsingContext);
         System.out.println(TreeRendering.render(treeNode));
 
-        PNode node = new TreePlanner(Optional.of(catalog), defaultSchema).plan(treeNode);
+        PNode node = new TreePlanner(parsingContext).plan(treeNode);
         Plan plan = Plan.of(node);
         if (DOT) { Dot.open(PlanDot.build(plan)); }
 
