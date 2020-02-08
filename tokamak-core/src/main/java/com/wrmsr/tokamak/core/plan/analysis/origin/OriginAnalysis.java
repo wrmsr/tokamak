@@ -337,6 +337,7 @@ public final class OriginAnalysis
                                 .collect(toImmutableList());
                     }
                 }
+
                 else {
                     throw new IllegalStateException(Objects.toString(value));
                 }
