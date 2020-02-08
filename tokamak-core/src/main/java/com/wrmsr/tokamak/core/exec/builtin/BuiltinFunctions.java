@@ -14,7 +14,7 @@
 package com.wrmsr.tokamak.core.exec.builtin;
 
 import com.google.common.collect.ImmutableList;
-import com.wrmsr.tokamak.core.exec.Executable;
+import com.wrmsr.tokamak.core.exec.Purity;
 import com.wrmsr.tokamak.core.exec.Reflection;
 import com.wrmsr.tokamak.core.type.Types;
 import com.wrmsr.tokamak.core.type.hier.special.FunctionType;
@@ -68,7 +68,7 @@ public final class BuiltinFunctions
                                             Types.Long()
                                     )
                             ),
-                            Executable.Purity.IDENTITY)
+                            Purity.TRANSMUTATION)
             );
 
             executor.register(
@@ -82,7 +82,7 @@ public final class BuiltinFunctions
                                             Types.Long()
                                     )
                             ),
-                            Executable.Purity.PURE)
+                            Purity.PURE)
             );
 
             executor.register(
@@ -96,7 +96,7 @@ public final class BuiltinFunctions
                                             Types.Boolean()
                                     )
                             ),
-                            Executable.Purity.PURE)
+                            Purity.PURE)
             );
 
             executor.register(
@@ -110,7 +110,7 @@ public final class BuiltinFunctions
                                             Types.Boolean()
                                     )
                             ),
-                            Executable.Purity.PURE)
+                            Purity.PURE)
             );
 
             executor.register(
@@ -123,7 +123,7 @@ public final class BuiltinFunctions
                                             Types.Boolean()
                                     )
                             ),
-                            Executable.Purity.PURE)
+                            Purity.PURE)
             );
         }
         catch (ReflectiveOperationException e) {

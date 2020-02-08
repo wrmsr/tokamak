@@ -17,23 +17,6 @@ import com.wrmsr.tokamak.core.type.hier.special.FunctionType;
 
 public interface Executable
 {
-    /*
-    TODO:
-     - types:
-      - bijection?
-      - const? opaque?
-      - transmutation?
-     - determinism as an iface method rather than 'pure' enum value?
-      - with a validate(fn) method..
-    */
-
-    enum Purity
-    {
-        IMPURE,
-        PURE,
-        IDENTITY,
-    }
-
     String getName();
 
     FunctionType getType();

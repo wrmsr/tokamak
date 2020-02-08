@@ -14,7 +14,7 @@
 package com.wrmsr.tokamak.core.plan.value;
 
 import com.google.common.collect.ImmutableList;
-import com.wrmsr.tokamak.core.exec.Executable;
+import com.wrmsr.tokamak.core.exec.Purity;
 import com.wrmsr.tokamak.core.plan.node.PFunction;
 import com.wrmsr.tokamak.core.type.hier.Type;
 
@@ -50,7 +50,7 @@ public final class VNodes
 
     public static Optional<String> getIdentityFunctionDirectValueField(VFunction fn)
     {
-        if (fn.getFunction().getPurity() != Executable.Purity.IDENTITY) {
+        if (fn.getFunction().getPurity() != Purity.IDENTITY) {
             return Optional.empty();
         }
         VNode arg = checkSingle(fn.getArgs());

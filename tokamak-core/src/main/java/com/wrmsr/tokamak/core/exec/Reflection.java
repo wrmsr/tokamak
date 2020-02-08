@@ -75,7 +75,7 @@ public final class Reflection
             Method method,
             Optional<String> optName,
             Optional<FunctionType> optType,
-            Executable.Purity purity)
+            Purity purity)
     {
         String name = optName.orElseGet(() -> getNextReflectedName(method));
         FunctionType type = optType.orElseGet(() -> new FunctionType(getValueType(method), getParamTypes(method)));
@@ -99,7 +99,7 @@ public final class Reflection
             Method method,
             String name,
             FunctionType type,
-            Executable.Purity purity)
+            Purity purity)
     {
         return reflect(method, Optional.of(name), Optional.of(type), purity);
     }
@@ -109,17 +109,17 @@ public final class Reflection
             String name,
             FunctionType type)
     {
-        return reflect(method, Optional.of(name), Optional.of(type), Executable.Purity.IMPURE);
+        return reflect(method, Optional.of(name), Optional.of(type), Purity.IMPURE);
     }
 
     public static Executable reflect(Method method, String name)
     {
-        return reflect(method, Optional.of(name), Optional.empty(), Executable.Purity.IMPURE);
+        return reflect(method, Optional.of(name), Optional.empty(), Purity.IMPURE);
     }
 
     public static Executable reflect(Method method)
     {
-        return reflect(method, Optional.empty(), Optional.empty(), Executable.Purity.IMPURE);
+        return reflect(method, Optional.empty(), Optional.empty(), Purity.IMPURE);
     }
 
     public static Executable reflect(Supplier<?> supplier)

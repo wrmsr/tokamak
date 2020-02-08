@@ -45,7 +45,6 @@ import com.wrmsr.tokamak.core.plan.value.VConstant;
 import com.wrmsr.tokamak.core.plan.value.VField;
 import com.wrmsr.tokamak.core.plan.value.VFunction;
 import com.wrmsr.tokamak.core.plan.value.VNode;
-import com.wrmsr.tokamak.core.plan.value.VNodes;
 import com.wrmsr.tokamak.util.Pair;
 import com.wrmsr.tokamak.util.collect.StreamableIterable;
 import com.wrmsr.tokamak.util.lazy.SupplierLazyValue;
@@ -326,14 +325,14 @@ public final class OriginAnalysis
                     argOriginations.forEach(o -> checkState(o.sink == sink));
                     argOriginations.forEach(o -> o.source.ifPresent(osource -> checkState(osource.getNode() == source)));
 
-                    boolean isOpaque = fn.getFunction().getPurity() != Executable.Purity.IMPURE;
+                    boolean isDeterministic = fn.getFunction().getPurity().isDeterministic();
                     if (argOriginations.isEmpty()) {
                         return ImmutableList.of(new Origination(
-                                sink, isOpaque ? Genesis.external() : Genesis.constant()));
+                                sink, isDeterministic ? Genesis.external() : Genesis.constant()));
                     }
                     else {
                         return argOriginations.stream()
-                                .map(o -> new Origination(sink, o.source, Genesis.function(isOpaque)))
+                                .map(o -> new Origination(sink, o.source, Genesis.function(isDeterministic)))
                                 .collect(toImmutableList());
                     }
                 }

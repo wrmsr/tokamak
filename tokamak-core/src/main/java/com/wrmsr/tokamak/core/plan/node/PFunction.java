@@ -16,6 +16,7 @@ package com.wrmsr.tokamak.core.plan.node;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wrmsr.tokamak.core.exec.Executable;
+import com.wrmsr.tokamak.core.exec.Purity;
 import com.wrmsr.tokamak.core.type.hier.special.FunctionType;
 
 import javax.annotation.concurrent.Immutable;
@@ -29,18 +30,18 @@ public final class PFunction
 {
     private final String name;
     private final FunctionType type;
-    private final Executable.Purity purity;
+    private final Purity purity;
 
     @JsonCreator
     public PFunction(
             @JsonProperty("name") String name,
             @JsonProperty("type") FunctionType type,
-            @JsonProperty("purity") Executable.Purity purity)
+            @JsonProperty("purity") Purity purity)
     {
         this.name = checkNotEmpty(name);
         this.type = checkNotNull(type);
         this.purity = checkNotNull(purity);
-        if (purity == Executable.Purity.IDENTITY) {
+        if (purity == Purity.IDENTITY) {
             checkArgument(type.getParams().size() == 1);
         }
     }
@@ -58,7 +59,7 @@ public final class PFunction
     }
 
     @JsonProperty("purity")
-    public Executable.Purity getPurity()
+    public Purity getPurity()
     {
         return purity;
     }

@@ -26,7 +26,7 @@ public abstract class Genesis
         return false;
     }
 
-    public boolean isOpaque()
+    public boolean isDeterministic()
     {
         return false;
     }
@@ -83,7 +83,7 @@ public abstract class Genesis
         }
 
         @Override
-        public boolean isOpaque()
+        public boolean isDeterministic()
         {
             return true;
         }
@@ -226,22 +226,22 @@ public abstract class Genesis
     public static final class Function
             extends Genesis
     {
-        private final boolean isOpaque;
+        private final boolean isDeterministic;
 
-        public Function(boolean isOpaque)
+        public Function(boolean isDeterministic)
         {
-            this.isOpaque = isOpaque;
+            this.isDeterministic = isDeterministic;
         }
 
         @Override
-        public boolean isOpaque()
+        public boolean isDeterministic()
         {
-            return isOpaque;
+            return isDeterministic;
         }
     }
 
-    public static Function function(boolean isOpaque)
+    public static Function function(boolean isDeterministic)
     {
-        return new Function(isOpaque);
+        return new Function(isDeterministic);
     }
 }

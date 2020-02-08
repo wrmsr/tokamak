@@ -18,6 +18,7 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.wrmsr.tokamak.core.exec.Executable;
+import com.wrmsr.tokamak.core.exec.Purity;
 import com.wrmsr.tokamak.core.plan.node.PFunction;
 import com.wrmsr.tokamak.core.type.hier.special.FunctionType;
 import com.wrmsr.tokamak.util.lazy.SupplierLazyValue;
@@ -31,7 +32,7 @@ public final class Function
 {
     private final String name;
     private final FunctionType type;
-    private final Executable.Purity purity;
+    private final Purity purity;
     private final Executor executor;
 
     private Catalog catalog;
@@ -40,7 +41,7 @@ public final class Function
             Catalog catalog,
             String name,
             FunctionType type,
-            Executable.Purity purity,
+            Purity purity,
             Executor executor)
     {
         this.catalog = checkNotNull(catalog);
@@ -54,7 +55,7 @@ public final class Function
     private Function(
             @JsonProperty("name") String name,
             @JsonProperty("type") FunctionType type,
-            @JsonProperty("purity") Executable.Purity purity,
+            @JsonProperty("purity") Purity purity,
             @JsonProperty("executor") Executor executor)
     {
         this.name = checkNotNull(name);

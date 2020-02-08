@@ -19,7 +19,6 @@ import javax.annotation.concurrent.Immutable;
 
 import java.util.function.Function;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 
@@ -43,10 +42,7 @@ public final class SimpleExecutable
         this.purity = checkNotNull(purity);
         this.function = checkNotNull(function);
 
-        if (purity == Purity.IDENTITY) {
-            checkArgument(type.getParams().size() == 1);
-            // FIXME: checkArgument(TypeAnnotations.strip(type.getValue())).equals(TypeAnnotations.strip(type.getArgs().get(0)));
-        }
+        purity.validate(this);
     }
 
     public SimpleExecutable(
