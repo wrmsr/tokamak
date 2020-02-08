@@ -391,7 +391,7 @@ public class CoreTest
         TpchUtils.setupCatalog(shell.getRootCatalog(), url);
 
         for (String sql : new String[]{
-                "select L_QUANTITY, O_ORDERSTATUS, P_NAME, S_NAME " +
+                "select L_LINENUMBER, O_ORDERKEY, O_ORDERSTATUS, P_NAME, S_NAME " +
                         "from LINEITEM, ORDERS, PART, SUPPLIER where L_ORDERKEY = O_ORDERKEY and L_PARTKEY = P_PARTKEY and L_SUPPKEY = S_SUPPKEY",
 
                 "select N_NAME, N_REGIONKEY, N_COMMENT from NATION",
