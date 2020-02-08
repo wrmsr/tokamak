@@ -141,9 +141,7 @@ public class TokamakShell
 
         plan = PersistExposedTransform.persistExposed(plan);
 
-        openDot(plan);
         plan = PropagateIdsTransform.propagateIds(plan, planningContext);
-        openDot(plan);
 
         plan = DropExposedInternalFieldsTransform.dropExposedInternalFields(plan);
 
