@@ -41,7 +41,7 @@ public final class PFunction
         this.type = checkNotNull(type);
         this.purity = checkNotNull(purity);
         if (purity == Executable.Purity.IDENTITY) {
-            checkArgument(type.getParams().size() == 2);
+            checkArgument(type.getParams().size() == 1);
         }
     }
 

@@ -348,6 +348,7 @@ public final class OriginAnalysis
                 node.getProjection().getInputsByOutput().forEach((o, i) -> {
                     PNodeField sink = PNodeField.of(node, o);
                     List<Origination> valueOriginations = buildValueOriginations(sink, node.getSource(), i);
+                    checkNotEmpty(valueOriginations);
                     originations.addAll(valueOriginations);
                 });
 
