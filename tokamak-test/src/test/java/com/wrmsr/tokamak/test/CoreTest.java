@@ -398,7 +398,7 @@ public class CoreTest
 
                 "select N_NAME, N_REGIONKEY, N_COMMENT, R_NAME from NATION, REGION where N_REGIONKEY = R_REGIONKEY",
 
-                "select L_QUANTITY, O_ORDERSTATUS, P_NAME, S_NAME " +
+                "select L_QUANTITY, O_ORDERKEY, O_ORDERSTATUS, P_NAME, S_NAME " +
                         "from LINEITEM, ORDERS, PART, SUPPLIER where L_ORDERKEY = O_ORDERKEY and L_PARTKEY = P_PARTKEY and L_SUPPKEY = S_SUPPKEY",
         }) {
             System.out.println(sql);
@@ -415,7 +415,7 @@ public class CoreTest
                 Collection<Row> buildRows = driver.build(
                         ctx,
                         plan.getRoot(),
-                        Key.of(sql.contains("N_REGIONKEY") ? "N_REGIONKEY" : "L_ORDERKEY", i));
+                        Key.of(sql.contains("N_REGIONKEY") ? "N_REGIONKEY" : "O_ORDERKEY", i));
                 buildRows.forEach(System.out::println);
 
                 ctx.commit();
