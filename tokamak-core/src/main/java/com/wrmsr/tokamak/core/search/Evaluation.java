@@ -230,7 +230,29 @@ public final class Evaluation
         @Override
         public Object compare(SCompare.Op op, Object left, Object right)
         {
-            throw new UnsupportedOperationException();
+            ValueType leftType = getType(left);
+            ValueType rightType = getType(right);
+            if (leftType == rightType) {
+                switch (leftType) {
+                    case NULL:
+                        return 0;
+                    case BOOLEAN:
+                        return isTruthy(left) == isTruthy(right) ? 0 : -1;
+                    case NUMBER:
+                        return Double.compare(((Number) left).doubleValue(), ((Number) right).doubleValue());
+                    case STRING:
+                        return ((String) left).compareTo((String) right);
+                    case ARRAY:
+                    case OBJECT:
+                        // FIXME:
+                        throw new UnsupportedOperationException();
+                    default:
+                        throw new IllegalArgumentException();
+                }
+            }
+            else {
+                return -1;
+            }
         }
 
         @Override

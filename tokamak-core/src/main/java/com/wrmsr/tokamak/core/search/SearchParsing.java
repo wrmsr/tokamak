@@ -317,6 +317,7 @@ public final class SearchParsing
             @Override
             public SNode visitIdentifier(SearchParser.IdentifierContext ctx)
             {
+                // FIXME: unquote
                 return createSequenceIfChained(new SProperty(ctx.getText()));
             }
 
