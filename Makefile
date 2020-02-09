@@ -103,3 +103,8 @@ docker-invalidate:
 .PHONY: fix-copyright
 fix-copyright: venv
 	.venv/bin/python python/fix_copyright.py
+
+.PHONY: h2
+h2-shell: java-home
+	$(eval H2_VER=$(shell bash -c "grep -A2 '<groupId>com.h2database</groupId>' pom.xml | tail -n1 | egrep -o '>[^<]+' | cut -c2-"))
+	JAVA_HOME=$(JAVA_HOME) java -cp ~/.m2/repository/com/h2database/h2/$(H2_VER)/h2-$(H2_VER).jar org.h2.tools.Shell -url 'jdbc:h2:file:./temp/test.db' -user username -password password
