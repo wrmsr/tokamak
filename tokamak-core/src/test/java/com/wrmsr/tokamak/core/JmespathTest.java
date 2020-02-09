@@ -13,30 +13,9 @@
  */
 package com.wrmsr.tokamak.core;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import io.burt.jmespath.Adapter;
-import io.burt.jmespath.JmesPath;
-import io.burt.jmespath.JmesPathType;
-import io.burt.jmespath.RuntimeConfiguration;
-import io.burt.jmespath.function.ArgumentConstraint;
-import io.burt.jmespath.function.ArgumentConstraints;
-import io.burt.jmespath.function.BaseFunction;
-import io.burt.jmespath.function.FunctionArgument;
-import io.burt.jmespath.function.FunctionRegistry;
-import io.burt.jmespath.jcf.JcfRuntime;
-import org.junit.Test;
-
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
-
-@SuppressWarnings({"serial"})
 public class JmespathTest
 {
+    /*
     public static class ConcatFunction
             extends BaseFunction
     {
@@ -93,11 +72,9 @@ public class JmespathTest
     public static class NormalizeSpaceFunction
             extends BaseFunction
     {
-        /**
-         * The zero-argument form of this function is not supported
-         * since it is just a shorthand of using the current context
-         * ('.' in XPath and '@' in JmesPath)
-         */
+         // The zero-argument form of this function is not supported
+         // since it is just a shorthand of using the current context
+         // ('.' in XPath and '@' in JmesPath)
         public NormalizeSpaceFunction()
         {
             super(ArgumentConstraints.typeOf(JmesPathType.STRING));
@@ -147,9 +124,7 @@ public class JmespathTest
             return runtime.toString(arguments.get(i).value());
         }
 
-        /**
-         * Subclasses may override these methods if parameter positions are different than usual.
-         */
+         // Subclasses may override these methods if parameter positions are different than usual.
         protected int inputArgumentPosition()
         {
             return 0;
@@ -460,4 +435,5 @@ public class JmespathTest
             System.out.println(result);
         }
     }
+    */
 }
