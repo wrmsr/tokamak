@@ -20,13 +20,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.CharStreams;
+import com.wrmsr.tokamak.core.search.analysis.PropertyAnalysis;
+import com.wrmsr.tokamak.core.search.node.SNode;
 import com.wrmsr.tokamak.util.json.Json;
 import junit.framework.TestCase;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
-import java.util.Map;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
 
@@ -99,6 +100,13 @@ public class JsonTest
         for (String file : files) {
             List<Suite> suites = om.readValue(readResource("json/" + file), new TypeReference<List<Suite>>() {});
             System.out.println(suites);
+
+            for (Suite suite : suites) {
+                for (Case scase : suite.cases) {
+                    SNode node = SearchParsing.build(SearchParsing.parse(scase.expression).expression());
+                    System.out.println(node);
+                }
+            }
         }
     }
 }
