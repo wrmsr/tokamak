@@ -108,8 +108,12 @@ public class JsonTest
                     if (scase.error == null) {
                         try {
                             System.out.println(scase.expression);
-                            SNode node = SearchParsing.build(SearchParsing.parse(scase.expression).singleExpression());
-                            System.out.println(node);
+                            SNode search = SearchParsing.build(SearchParsing.parse(scase.expression).singleExpression());
+                            System.out.println(search);
+
+                             Evaluation.HeapRuntime runtime = new Evaluation.HeapRuntime();
+                             Object ret = Evaluation.evaluate(search, runtime, suite.given);
+                             System.out.println(ret);
                         }
                         catch (RuntimeException e) {
                             System.err.println(e);

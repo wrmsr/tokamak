@@ -168,9 +168,122 @@ public final class Evaluation
         T getVariable(String name);
     }
 
-    public static <T> void evaluate(SNode search, Runtime<T> runtime, T object)
+    public static class HeapRuntime
+            implements Runtime<Object>
     {
-        search.accept(new SNodeVisitor<T, T>()
+        @Override
+        public boolean isTruthy(Object object)
+        {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public ValueType getType(Object object)
+        {
+            if (object == null) {
+                return ValueType.NULL;
+            }
+            else if (object instanceof Number) {
+                return ValueType.NUMBER;
+            }
+            else if (object instanceof String) {
+                return ValueType.STRING;
+            }
+            else if (object instanceof Boolean) {
+                return ValueType.BOOLEAN;
+            }
+            else if (object instanceof List) {
+                return ValueType.ARRAY;
+            }
+            else if (object instanceof Map) {
+                return ValueType.OBJECT;
+            }
+            else {
+                throw new IllegalArgumentException(Objects.toString(object));
+            }
+        }
+
+        @Override
+        public Object createNull()
+        {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public Object compare(SCompare.Op op, Object left, Object right)
+        {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public Object createArray(List<Object> items)
+        {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public Object createObject(Map<String, Object> fields)
+        {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public Iterable<Object> toIterable(Object object)
+        {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public Object invokeFunction(String name, List<Arg> args)
+        {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public Object createBoolean(boolean value)
+        {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public Object getProperty(Object object, String field)
+        {
+            if (object instanceof Map) {
+                return ((Map) object).get(field);
+            }
+            else {
+                return null;
+            }
+        }
+
+        @Override
+        public Object parseString(String string)
+        {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public Object createString(String value)
+        {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public Object getVariable(int number)
+        {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public Object getVariable(String name)
+        {
+            throw new UnsupportedOperationException();
+        }
+    }
+
+    public static <T> T evaluate(SNode search, Runtime<T> runtime, T object)
+    {
+        return search.accept(new SNodeVisitor<T, T>()
         {
             @Override
             public T visitAnd(SAnd node, T context)
