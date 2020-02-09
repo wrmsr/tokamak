@@ -43,6 +43,8 @@ import java.util.Objects;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableList.toImmutableList;
+import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Maps.newLinkedHashMap;
 import static com.wrmsr.tokamak.util.MoreCollections.immutableMapItems;
 import static com.wrmsr.tokamak.util.MoreCollections.immutableMapValues;
 import static com.wrmsr.tokamak.util.MoreCollections.streamIterator;
@@ -168,13 +170,29 @@ public final class Evaluation
         T getVariable(String name);
     }
 
+    @SuppressWarnings({"rawtypes"})
     public static class HeapRuntime
             implements Runtime<Object>
     {
         @Override
         public boolean isTruthy(Object object)
         {
-            throw new UnsupportedOperationException();
+            switch (getType(object)) {
+                case NULL:
+                    return false;
+                case NUMBER:
+                    return true;
+                case STRING:
+                    return !((String) object).isEmpty();
+                case BOOLEAN:
+                    return ((Boolean) object);
+                case ARRAY:
+                    return !((List) object).isEmpty();
+                case OBJECT:
+                    return !((Map) object).isEmpty();
+                default:
+                    throw new IllegalArgumentException(Objects.toString(object));
+            }
         }
 
         @Override
@@ -206,7 +224,7 @@ public final class Evaluation
         @Override
         public Object createNull()
         {
-            throw new UnsupportedOperationException();
+            return null;
         }
 
         @Override
@@ -218,13 +236,13 @@ public final class Evaluation
         @Override
         public Object createArray(List<Object> items)
         {
-            throw new UnsupportedOperationException();
+            return newArrayList(items);
         }
 
         @Override
         public Object createObject(Map<String, Object> fields)
         {
-            throw new UnsupportedOperationException();
+            return newLinkedHashMap(fields);
         }
 
         @Override
@@ -242,7 +260,7 @@ public final class Evaluation
         @Override
         public Object createBoolean(boolean value)
         {
-            throw new UnsupportedOperationException();
+            return value;
         }
 
         @Override
@@ -265,7 +283,7 @@ public final class Evaluation
         @Override
         public Object createString(String value)
         {
-            throw new UnsupportedOperationException();
+            return value;
         }
 
         @Override

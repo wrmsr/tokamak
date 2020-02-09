@@ -99,11 +99,14 @@ public class JsonTest
 
         for (String file : files) {
             System.out.println(file);
+            System.out.println();
 
             List<Suite> suites = om.readValue(readResource("json/" + file), new TypeReference<List<Suite>>() {});
-            System.out.println(suites);
 
             for (Suite suite : suites) {
+                System.out.println(suite.given);
+                System.out.println();
+
                 for (Case scase : suite.cases) {
                     if (scase.error == null) {
                         try {
@@ -111,16 +114,25 @@ public class JsonTest
                             SNode search = SearchParsing.build(SearchParsing.parse(scase.expression).singleExpression());
                             System.out.println(search);
 
-                             Evaluation.HeapRuntime runtime = new Evaluation.HeapRuntime();
+                            System.out.println(scase.result);
+
+                            Evaluation.HeapRuntime runtime = new Evaluation.HeapRuntime();
                              Object ret = Evaluation.evaluate(search, runtime, suite.given);
                              System.out.println(ret);
+
+                             System.out.println();
                         }
                         catch (RuntimeException e) {
                             System.err.println(e);
                         }
                     }
                 }
+
+                System.out.println();
             }
+
+            System.out.println();
+            System.out.println();
         }
     }
 }
