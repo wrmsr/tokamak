@@ -170,7 +170,7 @@ public final class Evaluation
         T getVariable(String name);
     }
 
-    @SuppressWarnings({"rawtypes"})
+    @SuppressWarnings({"rawtypes", "unchecked"})
     public static class HeapRuntime
             implements Runtime<Object>
     {
@@ -270,7 +270,15 @@ public final class Evaluation
         @Override
         public Iterable<Object> toIterable(Object object)
         {
-            throw new UnsupportedOperationException();
+            if (object instanceof List) {
+                return newArrayList((List) object);
+            }
+            else if (object instanceof Map) {
+                return newArrayList(((Map) object).values());
+            }
+            else {
+                return newArrayList();
+            }
         }
 
         @Override
