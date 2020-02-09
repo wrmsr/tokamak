@@ -97,7 +97,10 @@ public class JsonTest
         List<String> files = splitLines(readResource("json")).stream()
                 .filter(f -> f.endsWith(".json") && !f.equals("schema.json"))
                 .collect(toImmutableList());
+
         for (String file : files) {
+            System.out.println(file);
+
             List<Suite> suites = om.readValue(readResource("json/" + file), new TypeReference<List<Suite>>() {});
             System.out.println(suites);
 
