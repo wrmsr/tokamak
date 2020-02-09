@@ -104,12 +104,14 @@ public class JsonTest
             List<Suite> suites = om.readValue(readResource("json/" + file), new TypeReference<List<Suite>>() {});
 
             for (Suite suite : suites) {
+                System.out.println(suite.comment);
                 System.out.println(suite.given);
                 System.out.println();
 
                 for (Case scase : suite.cases) {
                     if (scase.error == null) {
                         try {
+                            System.out.println(scase.comment);
                             System.out.println(scase.expression);
                             SNode search = SearchParsing.build(SearchParsing.parse(scase.expression).singleExpression());
                             System.out.println(search);
