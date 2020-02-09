@@ -43,7 +43,7 @@ public final class SearchFunctionParsing
                     TNode arg = checkSingle(node.getArgs());
                     checkState(arg instanceof TStringLiteral);
                     String src = ((TStringLiteral) arg).getValue().getValue();
-                    SNode search = SearchParsing.build(SearchParsing.parse(src).expression());
+                    SNode search = SearchParsing.build(SearchParsing.parse(src).singleExpression());
                     search = STransforms.inlineSequences(search);
                     return new TSearch(search);
                 }

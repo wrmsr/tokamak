@@ -39,10 +39,13 @@ import com.wrmsr.tokamak.core.search.node.SSelection;
 import com.wrmsr.tokamak.core.search.node.SSequence;
 import com.wrmsr.tokamak.core.search.node.SSlice;
 import com.wrmsr.tokamak.core.search.node.SString;
+import org.antlr.v4.runtime.BaseErrorListener;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.RecognitionException;
+import org.antlr.v4.runtime.Recognizer;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 import java.util.ArrayList;
@@ -59,12 +62,81 @@ public final class SearchParsing
     {
     }
 
+    public static final class SyntaxException
+            extends RuntimeException
+    {
+        private static final long serialVersionUID = -3583167795725488534L;
+
+        private final Object offendingSymbol;
+        private final int line;
+        private final int charPositionInLine;
+        private final String msg;
+        private final RecognitionException e;
+
+        public SyntaxException(
+                Object offendingSymbol,
+                int line,
+                int charPositionInLine,
+                String msg,
+                RecognitionException e)
+        {
+            this.offendingSymbol = offendingSymbol;
+            this.line = line;
+            this.charPositionInLine = charPositionInLine;
+            this.msg = msg;
+            this.e = e;
+        }
+
+        @Override
+        public String toString()
+        {
+            return "SyntaxException{" +
+                    "offendingSymbol=" + offendingSymbol +
+                    ", line=" + line +
+                    ", charPositionInLine=" + charPositionInLine +
+                    ", msg='" + msg + '\'' +
+                    ", e=" + e +
+                    '}';
+        }
+    }
+
+    private static final class ErrorListener
+            extends BaseErrorListener
+    {
+        private static final ErrorListener INSTANCE = new ErrorListener();
+
+        @Override
+        public void syntaxError(
+                Recognizer<?, ?> recognizer,
+                Object offendingSymbol,
+                int line,
+                int charPositionInLine,
+                String msg,
+                RecognitionException e)
+        {
+            throw new SyntaxException(
+                    offendingSymbol,
+                    line,
+                    charPositionInLine,
+                    msg,
+                    e);
+        }
+    }
+
     public static SearchParser parse(String str)
     {
         CharStream input = CharStreams.fromString(str);
         SearchLexer lexer = new SearchLexer(input);
         CommonTokenStream tokens = new CommonTokenStream(lexer);
-        return new SearchParser(tokens);
+        SearchParser parser = new SearchParser(tokens);
+
+        lexer.removeErrorListeners();
+        lexer.addErrorListener(ErrorListener.INSTANCE);
+
+        parser.removeErrorListeners();
+        parser.addErrorListener(ErrorListener.INSTANCE);
+
+        return parser;
     }
 
     public static SNode build(ParseTree tree)
@@ -341,6 +413,12 @@ public final class SearchParsing
             {
                 chainedNode = createProjectionIfChained(new SSelection(nonChainingVisit(ctx.expression())));
                 return null;
+            }
+
+            @Override
+            public SNode visitSingleExpression(SearchParser.SingleExpressionContext ctx)
+            {
+                return visit(ctx.expression());
             }
 
             @Override

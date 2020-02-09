@@ -106,7 +106,7 @@ public class JsonTest
 
             for (Suite suite : suites) {
                 for (Case scase : suite.cases) {
-                    SNode node = SearchParsing.build(SearchParsing.parse(scase.expression).expression());
+                    SNode node = SearchParsing.build(SearchParsing.parse(scase.expression).singleExpression());
                     System.out.println(node);
                 }
             }

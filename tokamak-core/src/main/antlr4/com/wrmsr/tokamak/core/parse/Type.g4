@@ -1,5 +1,9 @@
 grammar Type;
 
+singleType
+    : type EOF
+    ;
+
 type
     : NAME ('<' argOrKwarg (',' argOrKwarg)* '>')?
     ;

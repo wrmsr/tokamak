@@ -1,6 +1,6 @@
 grammar Search;
 
-searchExpression
+singleExpression
     : expression EOF
     ;
 
