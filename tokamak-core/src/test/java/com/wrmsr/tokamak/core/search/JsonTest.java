@@ -20,7 +20,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.CharStreams;
-import com.wrmsr.tokamak.core.search.analysis.PropertyAnalysis;
 import com.wrmsr.tokamak.core.search.node.SNode;
 import com.wrmsr.tokamak.util.json.Json;
 import junit.framework.TestCase;
@@ -106,8 +105,16 @@ public class JsonTest
 
             for (Suite suite : suites) {
                 for (Case scase : suite.cases) {
-                    SNode node = SearchParsing.build(SearchParsing.parse(scase.expression).singleExpression());
-                    System.out.println(node);
+                    if (scase.error == null) {
+                        try {
+                            System.out.println(scase.expression);
+                            SNode node = SearchParsing.build(SearchParsing.parse(scase.expression).singleExpression());
+                            System.out.println(node);
+                        }
+                        catch (RuntimeException e) {
+                            System.err.println(e);
+                        }
+                    }
                 }
             }
         }
