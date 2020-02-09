@@ -33,16 +33,6 @@
         </dependency>
 
         <dependency>
-            <groupId>io.burt</groupId>
-            <artifactId>jmespath-core</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>io.burt</groupId>
-            <artifactId>jmespath-jackson</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>org.antlr</groupId>
             <artifactId>antlr4-runtime</artifactId>
         </dependency>
