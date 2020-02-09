@@ -329,7 +329,7 @@ public final class SearchParsing
             @Override
             public SNode visitLiteral(SearchParser.LiteralContext ctx)
             {
-                visit(ctx.jsonValue());
+                // visit(ctx.jsonValue());
                 // FIXME: unescape
                 String string = ctx.jsonValue().getText();
                 return new SJsonLiteral(string);
