@@ -97,6 +97,17 @@ public final class MorePreconditions
         return item;
     }
 
+    public static <T> void checkEmpty(Iterator<T> iterator)
+    {
+        checkState(!iterator.hasNext());
+    }
+
+    public static <I extends Iterable<?>> I checkEmpty(I iterable)
+    {
+        checkEmpty(iterable.iterator());
+        return iterable;
+    }
+
     public static <T> T checkSingle(Iterator<T> iterator)
     {
         checkState(iterator.hasNext());

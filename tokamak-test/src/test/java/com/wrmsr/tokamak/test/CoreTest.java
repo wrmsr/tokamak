@@ -396,7 +396,7 @@ public class CoreTest
         TpchUtils.setupCatalog(shell.getRootCatalog(), url);
 
         for (String sql : new String[]{
-                "select N_NAME, N_REGIONKEY, N_COMMENT from NATION where N_REGIONKEY = 1",
+                "select N_NAME, N_REGIONKEY, N_NATIONKEY, N_COMMENT from NATION where N_REGIONKEY = 1",
 
                 "select N_NAME, N_REGIONKEY, N_COMMENT from NATION",
 
@@ -419,7 +419,9 @@ public class CoreTest
                 Collection<Row> buildRows = driver.build(
                         ctx,
                         plan.getRoot(),
-                        Key.of(sql.contains("N_REGIONKEY") ? "N_REGIONKEY" : "O_ORDERKEY", i));
+                        // Key.of(sql.contains("N_REGIONKEY") ? "N_REGIONKEY" : "O_ORDERKEY", i)
+                        Key.of("N_NATIONKEY", i)
+                );
                 buildRows.forEach(System.out::println);
 
                 ctx.commit();

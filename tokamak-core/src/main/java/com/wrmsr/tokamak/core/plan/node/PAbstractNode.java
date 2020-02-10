@@ -30,6 +30,7 @@ import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
+import static com.wrmsr.tokamak.util.MorePreconditions.checkEmpty;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkUnique;
 
@@ -56,11 +57,14 @@ public abstract class PAbstractNode
     protected void checkInvariants()
     {
         checkNotNull(getFields());
+
         checkUnique(getSources());
         checkState(getSources().isEmpty() == (this instanceof PLeaf));
+
         annotations.forEach(ann ->
                 Optional.ofNullable(PNodeAnnotations.getValidatorsByAnnotationType().get(ann.getClass()))
                         .ifPresent(validator -> validator.accept(this)));
+
         fieldAnnotations.forEach((fld, anns) -> {
             checkState(getFields().getNames().contains(fld));
             Field field = checkNotNull(getFields().get(fld));
@@ -70,6 +74,10 @@ public abstract class PAbstractNode
 
         if (this instanceof PInvalidator) {
             PInvalidator.checkInvariants((PInvalidator) this);
+        }
+
+        if (this instanceof PLeaf) {
+            checkEmpty(getSources());
         }
     }
 

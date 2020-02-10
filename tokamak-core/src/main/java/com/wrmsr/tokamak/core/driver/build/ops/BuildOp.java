@@ -20,5 +20,10 @@ import javax.annotation.concurrent.Immutable;
 @Immutable
 public interface BuildOp
 {
+    /*
+    TODO:
+     - either all bulk or none bulk. do builders efficiently but complexly countdownlatch themselves or does ctx do it at expense of mem efficiency
+    */
+
     Builder<?> getOrigin();
 }
