@@ -74,7 +74,7 @@ public class DriverContextImpl
     public DriverContextImpl(
             DriverImpl driver)
     {
-        this.driver = driver;
+        this.driver = checkNotNull(driver);
 
         this.stateCache = new DefaultStateCache(
                 driver.getPlan(),
