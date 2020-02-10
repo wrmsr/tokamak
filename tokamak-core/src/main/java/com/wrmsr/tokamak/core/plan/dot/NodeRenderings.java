@@ -128,10 +128,9 @@ final class NodeRenderings
 
                 private static final String LEFT_ARROW = " &lt;- ";
 
-                @Override
-                protected void addFieldExtra(Context<PProject> ctx, Field field, Dot.Row row)
+                private void addFieldExtra(VNode value, Dot.Row row)
                 {
-                    VNode value = checkNotNull(ctx.node.getProjection().getInputsByOutput().get(field.getName()));
+                    checkNotNull(value);
                     if (value instanceof VConstant) {
                         row.add(Dot.rawColumn(LEFT_ARROW + Dot.escape(Objects.toString(((VConstant) value).getValue()))));
                     }
@@ -140,23 +139,31 @@ final class NodeRenderings
                     }
                     else if (value instanceof VFunction) {
                         VFunction functionValue = (VFunction) value;
-                        // FIXME: recursive PValue render
+
+                        Dot.Table argsTable = Dot.table(Dot.section(
+                                functionValue.getArgs().stream()
+                                        .map(arg -> {
+                                            Dot.Row argRow = Dot.row();
+                                            addFieldExtra(arg, argRow);
+                                            return argRow;
+                                        })
+                                        .collect(toImmutableList())));
+
                         Dot.Table table = Dot.table(
-                                Dot.section(
-                                        Dot.row("λ " + Dot.escape(functionValue.getFunction().getName()))),
-                                Dot.section(
-                                        functionValue.getArgs().stream()
-                                                .map(arg -> LEFT_ARROW + (
-                                                        (arg instanceof VField) ? Dot.escape(((VField) arg).getField()) : "?"))
-                                                .map(Dot::rawColumn)
-                                                .map(Dot::row)
-                                                .collect(toImmutableList())));
+                                Dot.section(Dot.row("λ " + Dot.escape(functionValue.getFunction().getName()))),
+                                Dot.section(Dot.row(Dot.rawColumn(Dot.render(argsTable::renderInternal)))));
 
                         row.add(Dot.rawColumn(Dot.render(table::renderInternal)));
                     }
                     else {
                         row.add(Dot.rawColumn(LEFT_ARROW + "?"));
                     }
+                }
+
+                @Override
+                protected void addFieldExtra(Context<PProject> ctx, Field field, Dot.Row row)
+                {
+                    addFieldExtra(ctx.node.getProjection().getInputsByOutput().get(field.getName()), row);
                 }
             })
 
