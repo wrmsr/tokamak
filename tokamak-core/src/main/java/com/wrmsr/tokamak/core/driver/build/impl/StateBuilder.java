@@ -14,6 +14,7 @@
 package com.wrmsr.tokamak.core.driver.build.impl;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.core.driver.DriverImpl;
 import com.wrmsr.tokamak.core.driver.DriverRow;
@@ -24,50 +25,46 @@ import com.wrmsr.tokamak.core.driver.build.ops.ResponseBuildOp;
 import com.wrmsr.tokamak.core.driver.context.DriverContextImpl;
 import com.wrmsr.tokamak.core.driver.context.state.StateCache;
 import com.wrmsr.tokamak.core.driver.state.State;
+import com.wrmsr.tokamak.core.layout.field.annotation.IdField;
 import com.wrmsr.tokamak.core.plan.node.PNode;
 import com.wrmsr.tokamak.core.plan.node.PState;
 
 import java.util.EnumSet;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Consumer;
 
 import static com.google.common.base.Preconditions.checkState;
+import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 
 public final class StateBuilder
         extends SingleSourceBuilder<PState>
+        implements IdNodeBuilder<PState>
 {
+    private final Set<String> idFields;
+
     public StateBuilder(DriverImpl driver, PState node, Map<PNode, Builder<?>> sources)
     {
         super(driver, node, sources);
+
+        idFields = ImmutableSet.copyOf(checkNotEmpty(node.getFields().getFieldNameSetsByAnnotationCls().get(IdField.class)));
     }
 
     @Override
     protected void innerBuild(DriverContextImpl context, Key key, Consumer<BuildOp> opConsumer)
     {
-        /*
-        if (builder.getNode() instanceof StateNode && key instanceof IdKey) {
-            StateNode statefulNode = (StateNode) builder.getNode();
-            IdKey idKey = (IdKey) key;
-            Optional<State> stateOpt = stateCache.get(statefulNode, idKey.getId(), EnumSet.of(StateCache.GetFlag.CREATE));
-            if (stateOpt.isPresent()) {
-                State state = stateOpt.get();
-                checkState(state.getId().equals(idKey.getId()));
-                checkState(!state.getMode().isStorageMode());
-                if (state.getMode() != State.Mode.INVALID) {
-                    DriverRow row = new DriverRow(
-                            statefulNode,
-                            driver.getLineagePolicy().build(),
-                            state.getId(),
-                            state.getAttributes());
-                    if (journaling) {
-                        addJournalEntry(new JournalEntry.StateCachedBuildOutput(node, key, ImmutableList.of(row), state));
-                    }
-                }
-            }
-        }
-        */
+        // FIXME: supersets
+        if (key.getFields().equals(idFields)) {
 
+        }
+        else {
+            innerBuildMiss(context, key, opConsumer);
+        }
+    }
+
+    protected void innerBuildMiss(DriverContextImpl context, Key key, Consumer<BuildOp> opConsumer)
+    {
         opConsumer.accept(new RequestBuildOp(this, source, key, srows -> {
             ImmutableList.Builder<DriverRow> builder = ImmutableList.builder();
 

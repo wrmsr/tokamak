@@ -43,6 +43,7 @@ import static com.wrmsr.tokamak.util.MoreCollections.immutableMapItems;
 
 public final class ScanBuilder
         extends AbstractBuilder<PScan>
+        implements IdNodeBuilder<PScan>
 {
     private final Set<String> idFields;
     private final List<String> orderedIdFields;
@@ -78,7 +79,6 @@ public final class ScanBuilder
                     for (int i = 0; i < idAtts.length; ++i) {
                         idAtts[i] = key.get(orderedIdFields.get(i));
                     }
-
                     id = Id.of(idSerde.writeBytes(idAtts));
                 }
                 else {
