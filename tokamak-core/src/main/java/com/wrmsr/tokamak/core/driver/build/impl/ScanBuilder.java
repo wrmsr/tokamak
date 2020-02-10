@@ -14,7 +14,6 @@
 package com.wrmsr.tokamak.core.driver.build.impl;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.core.catalog.Scanner;
@@ -25,21 +24,14 @@ import com.wrmsr.tokamak.core.driver.build.ops.BuildOp;
 import com.wrmsr.tokamak.core.driver.build.ops.ResponseBuildOp;
 import com.wrmsr.tokamak.core.driver.build.ops.ScanBuildOp;
 import com.wrmsr.tokamak.core.driver.context.DriverContextImpl;
-import com.wrmsr.tokamak.core.layout.field.Field;
-import com.wrmsr.tokamak.core.layout.field.annotation.IdField;
 import com.wrmsr.tokamak.core.plan.node.PNode;
 import com.wrmsr.tokamak.core.plan.node.PScan;
 import com.wrmsr.tokamak.core.serde.Serde;
-import com.wrmsr.tokamak.core.serde.Serdes;
-import com.wrmsr.tokamak.core.serde.impl.TupleSerde;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
-
-import static com.google.common.collect.ImmutableList.toImmutableList;
-import static com.wrmsr.tokamak.util.MoreCollections.immutableMapItems;
 
 public final class ScanBuilder
         extends AbstractBuilder<PScan>
@@ -53,14 +45,9 @@ public final class ScanBuilder
     {
         super(driver, node, sources);
 
-        orderedIdFields = immutableMapItems(node.getFields().getFieldListsByAnnotationCls().get(IdField.class), Field::getName);
-        idFields = ImmutableSet.copyOf(orderedIdFields);
-
-        idSerde = new TupleSerde(
-                orderedIdFields.stream()
-                        .map(node.getFields()::getType)
-                        .map(Serdes.VALUE_SERDES_BY_TYPE::get)
-                        .collect(toImmutableList()));
+        orderedIdFields = getOrderedIdFields();
+        idFields = getIdFields();
+        idSerde = getIdSerde();
     }
 
     @Override
@@ -73,17 +60,7 @@ public final class ScanBuilder
 
             // FIXME: scanners can return empty, driver compensates
             if (scanRows.isEmpty()) {
-                Id id;
-                if (key.getFields().equals(idFields)) {
-                    Object[] idAtts = new Object[orderedIdFields.size()];
-                    for (int i = 0; i < idAtts.length; ++i) {
-                        idAtts[i] = key.get(orderedIdFields.get(i));
-                    }
-                    id = Id.of(idSerde.writeBytes(idAtts));
-                }
-                else {
-                    id = null;
-                }
+                Id id = IdNodeBuilder.newId(key, idFields, orderedIdFields, idSerde);
 
                 DriverRow row = new DriverRow(
                         node,
@@ -96,12 +73,7 @@ public final class ScanBuilder
 
             else {
                 for (Map<String, Object> scanRow : scanRows) {
-                    Object[] idAtts = new Object[orderedIdFields.size()];
-                    for (int i = 0; i < idAtts.length; ++i) {
-                        idAtts[i] = scanRow.get(orderedIdFields.get(i));
-                    }
-
-                    Id id = Id.of(idSerde.writeBytes(idAtts));
+                    Id id = IdNodeBuilder.newId(scanRow, orderedIdFields, idSerde);
 
                     Object[] attributes = scanRow.values().toArray();
                     DriverRow row = new DriverRow(

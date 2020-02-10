@@ -14,7 +14,7 @@
 package com.wrmsr.tokamak.core.driver.build.impl;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
+import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.core.driver.DriverImpl;
 import com.wrmsr.tokamak.core.driver.DriverRow;
@@ -25,30 +25,34 @@ import com.wrmsr.tokamak.core.driver.build.ops.ResponseBuildOp;
 import com.wrmsr.tokamak.core.driver.context.DriverContextImpl;
 import com.wrmsr.tokamak.core.driver.context.state.StateCache;
 import com.wrmsr.tokamak.core.driver.state.State;
-import com.wrmsr.tokamak.core.layout.field.annotation.IdField;
 import com.wrmsr.tokamak.core.plan.node.PNode;
 import com.wrmsr.tokamak.core.plan.node.PState;
+import com.wrmsr.tokamak.core.serde.Serde;
 
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 
 import static com.google.common.base.Preconditions.checkState;
-import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 
 public final class StateBuilder
         extends SingleSourceBuilder<PState>
         implements IdNodeBuilder<PState>
 {
     private final Set<String> idFields;
+    private final List<String> orderedIdFields;
+    private final Serde<Object[]> idSerde;
 
     public StateBuilder(DriverImpl driver, PState node, Map<PNode, Builder<?>> sources)
     {
         super(driver, node, sources);
 
-        idFields = ImmutableSet.copyOf(checkNotEmpty(node.getFields().getFieldNameSetsByAnnotationCls().get(IdField.class)));
+        orderedIdFields = getOrderedIdFields();
+        idFields = getIdFields();
+        idSerde = getIdSerde();
     }
 
     @Override
@@ -56,6 +60,7 @@ public final class StateBuilder
     {
         // FIXME: supersets
         if (key.getFields().equals(idFields)) {
+            Id id = IdNodeBuilder.newId(key, idFields, orderedIdFields, idSerde);
 
         }
         else {

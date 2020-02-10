@@ -68,11 +68,11 @@ public interface IdNodeBuilder<T extends PNode>
         }
     }
 
-    static Id newId(Map<String, Object> map, List<String> orderedIdFields, Serde<Object[]> idSerde)
+    static Id newId(Map<String, Object> rowMap, List<String> orderedIdFields, Serde<Object[]> idSerde)
     {
         Object[] idAtts = new Object[orderedIdFields.size()];
         for (int i = 0; i < idAtts.length; ++i) {
-            idAtts[i] = map.get(orderedIdFields.get(i));
+            idAtts[i] = rowMap.get(orderedIdFields.get(i));
         }
         return Id.of(idSerde.writeBytes(idAtts));
     }
