@@ -415,18 +415,20 @@ public class CoreTest
             Driver driver = new DriverImpl(session.getCatalog(), plan);
 
             for (int i = 1; i < 4; ++i) {
-                Driver.Context ctx = driver.newContext();
-                Collection<Row> buildRows = driver.build(
-                        ctx,
-                        plan.getRoot(),
-                        // Key.of(sql.contains("N_REGIONKEY") ? "N_REGIONKEY" : "O_ORDERKEY", i)
-                        Key.of("N_NATIONKEY", i)
-                );
-                buildRows.forEach(System.out::println);
+                for (int j = 0; j < 3; ++j) {
+                    Driver.Context ctx = driver.newContext();
+                    Collection<Row> buildRows = driver.build(
+                            ctx,
+                            plan.getRoot(),
+                            // Key.of(sql.contains("N_REGIONKEY") ? "N_REGIONKEY" : "O_ORDERKEY", i)
+                            Key.of("N_NATIONKEY", i)
+                    );
+                    buildRows.forEach(System.out::println);
 
-                ctx.commit();
-                System.out.println(ctx);
-                System.out.println();
+                    ctx.commit();
+                    System.out.println(ctx);
+                    System.out.println();
+                }
             }
         }
     }
