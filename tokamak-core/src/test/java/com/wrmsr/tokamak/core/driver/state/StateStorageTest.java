@@ -54,7 +54,7 @@ public class StateStorageTest
 
         StateStorage ss = new MapHeapStateStorage();
         Map<PState, Map<Id, StorageState>> map = ss.get(
-                ss.createContext(),
+                ss.newContext(),
                 ImmutableMap.of(stateNode, ImmutableSet.of(Id.of(420))),
                 EnumSet.of(StateStorage.GetFlag.CREATE));
 

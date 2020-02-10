@@ -26,7 +26,7 @@ public interface QueueStorage
     {
     }
 
-    Context createContext();
+    Context newContext();
 
     Optional<List<QueueEntry>> enqueue(Context context, Iterable<QueueInsertion> insertions, boolean returnEntries, boolean coalesce)
             throws IOException;

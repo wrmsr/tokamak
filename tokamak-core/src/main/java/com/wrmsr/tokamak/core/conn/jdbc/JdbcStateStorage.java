@@ -70,7 +70,7 @@ public class JdbcStateStorage
     }
 
     @Override
-    public Context createContext()
+    public Context newContext()
     {
         return new ContextImpl(sqlEngine.connect());
     }

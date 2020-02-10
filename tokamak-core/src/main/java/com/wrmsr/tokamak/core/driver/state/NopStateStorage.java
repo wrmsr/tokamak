@@ -29,7 +29,7 @@ public final class NopStateStorage
         implements StateStorage
 {
     @Override
-    public Context createContext()
+    public Context newContext()
     {
         return new Context() {};
     }

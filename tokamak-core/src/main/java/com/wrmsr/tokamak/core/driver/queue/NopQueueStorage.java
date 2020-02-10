@@ -24,7 +24,7 @@ public final class NopQueueStorage
         implements QueueStorage
 {
     @Override
-    public Context createContext()
+    public Context newContext()
     {
         return new Context() {};
     }

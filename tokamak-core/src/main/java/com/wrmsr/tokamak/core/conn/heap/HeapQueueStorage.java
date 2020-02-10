@@ -30,7 +30,7 @@ public class HeapQueueStorage
     */
 
     @Override
-    public Context createContext()
+    public Context newContext()
     {
         return new Context() {};
     }

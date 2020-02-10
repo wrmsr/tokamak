@@ -49,7 +49,7 @@ public class MapHeapStateStorage
     }
 
     @Override
-    public Context createContext()
+    public Context newContext()
     {
         return new Context() {};
     }

@@ -122,7 +122,7 @@ public class DefaultStateCache
         }
 
         long startTime = System.currentTimeMillis();
-        try (StateStorage.Context storageContext = storage.createContext()) {
+        try (StateStorage.Context storageContext = storage.newContext()) {
             EnumSet<StateStorage.GetFlag> storageFlags = EnumSet.of(StateStorage.GetFlag.LINKAGE, StateStorage.GetFlag.ATTRIBUTES);
             if (flags.contains(GetFlag.CREATE)) {
                 storageFlags.add(StateStorage.GetFlag.CREATE);
@@ -340,7 +340,7 @@ public class DefaultStateCache
                 storageStates.add(storageState);
             }
         }
-        try (StateStorage.Context storageContext = storage.createContext()) {
+        try (StateStorage.Context storageContext = storage.newContext()) {
             storage.put(storageContext, storageStates.build(), true);
         }
         catch (IOException e) {

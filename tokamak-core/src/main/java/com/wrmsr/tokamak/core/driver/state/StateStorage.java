@@ -32,7 +32,7 @@ public interface StateStorage
     {
     }
 
-    Context createContext();
+    Context newContext();
 
     void setup()
             throws IOException;
