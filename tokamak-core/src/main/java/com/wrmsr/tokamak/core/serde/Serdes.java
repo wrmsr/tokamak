@@ -19,6 +19,8 @@ import com.wrmsr.tokamak.core.serde.impl.FunctionPairSerde;
 import com.wrmsr.tokamak.core.type.Types;
 import com.wrmsr.tokamak.core.type.hier.Type;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Map;
 import java.util.OptionalInt;
 
@@ -83,6 +85,20 @@ public final class Serdes
 
     public static final FunctionPairSerde<String> STRING_VALUE_SERDE = buildString(OptionalInt.empty());
 
+    public static final FunctionPairSerde<BigInteger> BIG_INTEGER_VALUE_SERDE = FunctionPairSerde.of(
+            (v, o) -> o.putBytes(v.toString().getBytes(Charsets.UTF_8)),
+            i -> new BigInteger(new String(i.getBytes(), Charsets.UTF_8)),
+            Width.of(0, OptionalInt.empty()),
+            false
+    );
+
+    public static final FunctionPairSerde<BigDecimal> BIG_DECIMAL_VALUE_SERDE = FunctionPairSerde.of(
+            (v, o) -> o.putBytes(v.toString().getBytes(Charsets.UTF_8)),
+            i -> new BigDecimal(new String(i.getBytes(), Charsets.UTF_8)),
+            Width.of(0, OptionalInt.empty()),
+            false
+    );
+
     @SuppressWarnings({"rawtypes"})
     public static final Map<Type, Serde> VALUE_SERDES_BY_TYPE = ImmutableMap.<Type, Serde>builder()
             .put(Types.Boolean(), BOOLEAN_VALUE_SERDE)
@@ -90,5 +106,7 @@ public final class Serdes
             .put(Types.Double(), DOUBLE_VALUE_SERDE)
             .put(Types.Bytes(), BYTES_VALUE_SERDE)
             .put(Types.String(), STRING_VALUE_SERDE)
+            .put(Types.BigInteger(), BIG_INTEGER_VALUE_SERDE)
+            .put(Types.BigDecimal(), BIG_DECIMAL_VALUE_SERDE)
             .build();
 }
