@@ -13,7 +13,10 @@
  */
 package com.wrmsr.tokamak.core;
 
+import junit.framework.TestCase;
+
 public class JmespathTest
+        extends TestCase
 {
     /*
     public static class ConcatFunction
@@ -397,7 +400,6 @@ public class JmespathTest
         }
     }
 
-    @Test
     public void testJmespath()
             throws Throwable
     {

@@ -18,7 +18,7 @@ import com.google.common.io.CharStreams;
 import com.wrmsr.tokamak.util.json.Json;
 import com.wrmsr.tokamak.util.subprocess.FinalizedProcess;
 import com.wrmsr.tokamak.util.subprocess.FinalizedProcessBuilder;
-import org.junit.Test;
+import junit.framework.TestCase;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -30,8 +30,8 @@ import java.util.concurrent.TimeUnit;
 import static com.wrmsr.tokamak.util.MoreFiles.writeTempFile;
 
 public class SubprocessTest
+        extends TestCase
 {
-    @Test
     public void testSubprocess()
             throws Throwable
     {
@@ -53,7 +53,6 @@ public class SubprocessTest
         }
     }
 
-    @Test
     public void testPythonSubprocess()
             throws Throwable
     {

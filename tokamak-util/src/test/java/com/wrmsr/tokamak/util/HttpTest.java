@@ -15,11 +15,11 @@ package com.wrmsr.tokamak.util;
 
 import com.wrmsr.tokamak.util.io.HttpClient;
 import com.wrmsr.tokamak.util.io.JdkHttpClient;
-import org.junit.Test;
+import junit.framework.TestCase;
 
 public class HttpTest
+        extends TestCase
 {
-    @Test
     public void testHttp()
             throws Exception
     {

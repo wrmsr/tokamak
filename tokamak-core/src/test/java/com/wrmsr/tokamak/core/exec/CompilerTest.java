@@ -13,7 +13,7 @@
  */
 package com.wrmsr.tokamak.core.exec;
 
-import org.junit.Test;
+import junit.framework.TestCase;
 
 import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
@@ -31,8 +31,8 @@ import static com.google.common.collect.Lists.newArrayList;
 return (switch (x) { case 1: return 1; default: return 0; }) + (
 */
 public class CompilerTest
+        extends TestCase
 {
-    @Test
     public void testJavac()
             throws Throwable
     {

@@ -13,11 +13,11 @@
  */
 package com.wrmsr.tokamak.api;
 
-import org.junit.Test;
+import junit.framework.TestCase;
 
 public class ApiTest
+        extends TestCase
 {
-    @Test
     public void testApi()
             throws Throwable
     {

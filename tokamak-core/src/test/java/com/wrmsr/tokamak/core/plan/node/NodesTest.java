@@ -24,10 +24,12 @@ import com.wrmsr.tokamak.core.util.ApiJson;
 import com.wrmsr.tokamak.core.util.annotation.AnnotationCollection;
 import com.wrmsr.tokamak.core.util.annotation.AnnotationCollectionMap;
 import com.wrmsr.tokamak.util.json.Json;
+import junit.framework.TestCase;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class NodesTest
+        extends TestCase
 {
     @BeforeClass
     public static void beforeClass()
@@ -36,7 +38,6 @@ public class NodesTest
         ApiJson.installStatics();
     }
 
-    @Test
     public void testJsonStuff()
             throws Throwable
     {
@@ -58,7 +59,6 @@ public class NodesTest
         return 0L;
     }
 
-    @Test
     public void testNodes()
             throws Throwable
     {
