@@ -13,6 +13,7 @@
  */
 package com.wrmsr.tokamak.core.driver.build.ops;
 
+import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.core.driver.build.Builder;
 import com.wrmsr.tokamak.core.driver.context.state.StateCache;
@@ -22,7 +23,8 @@ import com.wrmsr.tokamak.core.plan.node.PState;
 import javax.annotation.concurrent.Immutable;
 
 import java.util.EnumSet;
-import java.util.Optional;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -32,15 +34,15 @@ public final class GetStateBuildOp
         extends AbstractBuildOp
 {
     private final PState node;
-    private final Id id;
+    private final Set<Id> ids;
     private final EnumSet<StateCache.GetFlag> flags;
-    private final Consumer<Optional<State>> callback;
+    private final Consumer<Map<Id, State>> callback;
 
-    public GetStateBuildOp(Builder<?> origin, PState node, Id id, EnumSet<StateCache.GetFlag> flags, Consumer<Optional<State>> callback)
+    public GetStateBuildOp(Builder<?> origin, PState node, Set<Id> ids, EnumSet<StateCache.GetFlag> flags, Consumer<Map<Id, State>> callback)
     {
         super(origin);
         this.node = checkNotNull(node);
-        this.id = checkNotNull(id);
+        this.ids = ImmutableSet.copyOf(ids);
         this.flags = checkNotNull(flags);
         this.callback = checkNotNull(callback);
     }
@@ -51,7 +53,7 @@ public final class GetStateBuildOp
         return "GetStateBuildOp{" +
                 "origin=" + origin +
                 ", node=" + node +
-                ", id=" + id +
+                ", ids=" + ids +
                 ", flags=" + flags +
                 '}';
     }
@@ -61,9 +63,9 @@ public final class GetStateBuildOp
         return node;
     }
 
-    public Id getId()
+    public Set<Id> getIds()
     {
-        return id;
+        return ids;
     }
 
     public EnumSet<StateCache.GetFlag> getFlags()
@@ -71,7 +73,7 @@ public final class GetStateBuildOp
         return flags;
     }
 
-    public Consumer<Optional<State>> getCallback()
+    public Consumer<Map<Id, State>> getCallback()
     {
         return callback;
     }
