@@ -236,7 +236,6 @@ public class TreePlanner
                     }
                 }
 
-                Optional<VNode> joinCondition = Optional.empty();
                 Set<Set<String>> fieldEqualitiesSet = new LinkedHashSet<>();
                 if (treeNode.getWhere().isPresent()) {
                     TNode where = treeNode.getWhere().get();
@@ -273,8 +272,6 @@ public class TreePlanner
                             return null;
                         }
                     }.process(where, null);
-
-                    joinCondition = Optional.of(buildValueNode(where));
                 }
                 List<Set<String>> fieldEqualities = MoreCollections.unify(fieldEqualitiesSet);
 
@@ -365,10 +362,6 @@ public class TreePlanner
                             AnnotationCollectionMap.of(),
                             branches,
                             PJoin.Mode.FULL);
-
-                    if (joinCondition.isPresent()) {
-                        source = buildFilter(source, joinCondition.get(), nameGenerator, "selectJoinCondition");
-                    }
                 }
 
                 if (treeNode.getWhere().isPresent()) {
