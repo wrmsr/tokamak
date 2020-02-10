@@ -104,6 +104,77 @@ public class TreePlanner
             .put(TComparisonExpression.Op.LE, "le")
             .build();
 
+    private VNode buildValueNode(TNode treeNode)
+    {
+        BuiltinExecutor be = (BuiltinExecutor) checkNotNull(parsingContext.getCatalog().get().getExecutorsByName().get("builtin"));
+
+        return new TNodeVisitor<VNode, Void>()
+        {
+            @Override
+            public VNode visitBooleanExpression(TBooleanExpression node, Void context)
+            {
+                return VNodes.function(
+                        PFunction.of(be.getExecutable(BUILTIN_NAMES_BY_BOOLEAN_OP.get(node.getOp()))),
+                        process(node.getLeft(), context),
+                        process(node.getRight(), context));
+            }
+
+            @Override
+            public VNode visitComparisonExpression(TComparisonExpression node, Void context)
+            {
+                return VNodes.function(
+                        PFunction.of(be.getExecutable(BUILTIN_NAMES_BY_COMPARISON_OP.get(node.getOp()))),
+                        process(node.getLeft(), context),
+                        process(node.getRight(), context));
+            }
+
+            @Override
+            public VNode visitNumberLiteral(TNumberLiteral node, Void context)
+            {
+                return VNodes.constant(node.getValue(), Types.Long());
+            }
+
+            @Override
+            public VNode visitQualifiedNameExpression(TQualifiedNameExpression node, Void context)
+            {
+                return VNodes.field(node.getQualifiedName().toDotString());
+            }
+        }.process(treeNode, null);
+    }
+
+    private PNode buildFilter(PNode source, VNode condition, NameGenerator nameGenerator, String namePrefix)
+    {
+        String filterField = nameGenerator.get(namePrefix + "FilterProjectField");
+        List<String> originalFields = source.getFields().getNameList();
+
+        source = new PProject(
+                nameGenerator.get(namePrefix + "FilterFieldProject"),
+                AnnotationCollection.of(),
+                AnnotationCollectionMap.of(),
+                source,
+                new PProjection(ImmutableMap.<String, VNode>builder()
+                        .putAll(source.getFields().getNameList().stream().collect(toImmutableMap(identity(), VNodes::field)))
+                        .put(filterField, condition)
+                        .build()));
+
+        source = new PFilter(
+                nameGenerator.get(namePrefix + "Filter"),
+                AnnotationCollection.of(),
+                AnnotationCollectionMap.of(),
+                source,
+                filterField,
+                PFilter.Linking.LINKED);
+
+        source = new PProject(
+                nameGenerator.get(namePrefix + "FilterFieldDrop"),
+                AnnotationCollection.of(),
+                AnnotationCollectionMap.of(),
+                source,
+                PProjection.only(originalFields));
+
+        return source;
+    }
+
     public PNode plan(TNode rootTreeNode)
     {
         SymbolAnalysis symbolAnalysis = SymbolAnalysis.analyze(rootTreeNode, parsingContext);
@@ -165,7 +236,7 @@ public class TreePlanner
                     }
                 }
 
-                Optional<VNode> condition = Optional.empty();
+                Optional<VNode> joinCondition = Optional.empty();
                 Set<Set<String>> fieldEqualitiesSet = new LinkedHashSet<>();
                 if (treeNode.getWhere().isPresent()) {
                     TNode where = treeNode.getWhere().get();
@@ -203,39 +274,7 @@ public class TreePlanner
                         }
                     }.process(where, null);
 
-                    BuiltinExecutor be = (BuiltinExecutor) checkNotNull(parsingContext.getCatalog().get().getExecutorsByName().get("builtin"));
-                    condition = Optional.of(new TNodeVisitor<VNode, Void>()
-                    {
-                        @Override
-                        public VNode visitBooleanExpression(TBooleanExpression node, Void context)
-                        {
-                            return VNodes.function(
-                                    PFunction.of(be.getExecutable(BUILTIN_NAMES_BY_BOOLEAN_OP.get(node.getOp()))),
-                                    process(node.getLeft(), context),
-                                    process(node.getRight(), context));
-                        }
-
-                        @Override
-                        public VNode visitComparisonExpression(TComparisonExpression node, Void context)
-                        {
-                            return VNodes.function(
-                                    PFunction.of(be.getExecutable(BUILTIN_NAMES_BY_COMPARISON_OP.get(node.getOp()))),
-                                    process(node.getLeft(), context),
-                                    process(node.getRight(), context));
-                        }
-
-                        @Override
-                        public VNode visitNumberLiteral(TNumberLiteral node, Void context)
-                        {
-                            return VNodes.constant(node.getValue(), Types.Long());
-                        }
-
-                        @Override
-                        public VNode visitQualifiedNameExpression(TQualifiedNameExpression node, Void context)
-                        {
-                            return VNodes.field(node.getQualifiedName().toDotString());
-                        }
-                    }.process(where, null));
+                    joinCondition = Optional.of(buildValueNode(where));
                 }
                 List<Set<String>> fieldEqualities = MoreCollections.unify(fieldEqualitiesSet);
 
@@ -327,34 +366,12 @@ public class TreePlanner
                             branches,
                             PJoin.Mode.FULL);
 
-                    if (condition.isPresent()) {
-                        String filterField = nameGenerator.get("selectJoinFilterProject");
-                        List<String> originalFields = source.getFields().getNameList();
+                    if (joinCondition.isPresent()) {
+                        source = buildFilter(source, joinCondition.get(), nameGenerator, "selectJoinCondition");
+                    }
 
-                        source = new PProject(
-                                nameGenerator.get("selectJoinFilterProject"),
-                                AnnotationCollection.of(),
-                                AnnotationCollectionMap.of(),
-                                source,
-                                new PProjection(ImmutableMap.<String, VNode>builder()
-                                        .putAll(source.getFields().getNameList().stream().collect(toImmutableMap(identity(), VNodes::field)))
-                                        .put(filterField, condition.get())
-                                        .build()));
-
-                        source = new PFilter(
-                                nameGenerator.get("selectJoinFilter"),
-                                AnnotationCollection.of(),
-                                AnnotationCollectionMap.of(),
-                                source,
-                                filterField,
-                                PFilter.Linking.LINKED);
-
-                        source = new PProject(
-                                nameGenerator.get("selectJoinFilterProject"),
-                                AnnotationCollection.of(),
-                                AnnotationCollectionMap.of(),
-                                source,
-                                PProjection.only(originalFields));
+                    if (treeNode.getWhere().isPresent()) {
+                        source = buildFilter(source, buildValueNode(treeNode.getWhere().get()), nameGenerator, "selectWhere");
                     }
                 }
 
