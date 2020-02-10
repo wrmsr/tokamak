@@ -121,11 +121,18 @@ public final class ProjectBuilder
         opConsumer.accept(new RequestBuildOp(this, source, sourceKey, srows -> {
             ImmutableList.Builder<DriverRow> ret = ImmutableList.builder();
             for (DriverRow row : srows) {
-                Map<String, Object> rowMap = row.getMap();
-                Object[] attributes = new Object[node.getFields().size()];
-                int pos = 0;
-                for (Map.Entry<String, VNode> entry : node.getProjection()) {
-                    attributes[pos++] = getRowValue(driver.getCatalog(), rowMap, entry.getValue());
+                Object[] attributes;
+
+                if (!row.isEmpty()) {
+                    Map<String, Object> rowMap = row.getMap();
+                    attributes = new Object[node.getFields().size()];
+                    int pos = 0;
+                    for (Map.Entry<String, VNode> entry : node.getProjection()) {
+                        attributes[pos++] = getRowValue(driver.getCatalog(), rowMap, entry.getValue());
+                    }
+                }
+                else {
+                    attributes = null;
                 }
 
                 ret.add(

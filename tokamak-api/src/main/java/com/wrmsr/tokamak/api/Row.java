@@ -13,8 +13,6 @@
  */
 package com.wrmsr.tokamak.api;
 
-import static com.wrmsr.tokamak.api.Util.checkState;
-
 public interface Row
 {
     // Null id implies an anonymous row (one with no id) which may or may not be an empty row.
@@ -28,17 +26,11 @@ public interface Row
 
     default boolean isAnon()
     {
-        return getId() != null;
+        return getId() == null;
     }
 
     default boolean isEmpty()
     {
-        if (getAttributes() == null) {
-            checkState(isAnon());
-            return true;
-        }
-        else {
-            return false;
-        }
+        return getAttributes() == null;
     }
 }
