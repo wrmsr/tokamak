@@ -173,26 +173,42 @@ public class DriverContextImpl
 
         builder.build(this, key, op -> {
             checkState(op.getOrigin() == builder);
+            if (journaling) {
+                addJournalEntry(new JournalEntry.ContextBuildOp(op));
+            }
 
             if (op instanceof GetStateBuildOp) {
                 GetStateBuildOp gsop = (GetStateBuildOp) op;
-                ImmutableMap.Builder<Id, State> map = ImmutableMap.builder();
+                ImmutableMap.Builder<Id, State> mapBuilder = ImmutableMap.builder();
                 gsop.getIds().forEach(id -> {
                     Optional<State> state = stateCache.get(gsop.getNode(), id, gsop.getFlags());
-                    state.ifPresent(st -> map.put(st.getId(), st));
+                    state.ifPresent(st -> mapBuilder.put(st.getId(), st));
                 });
-                gsop.getCallback().accept(map.build());
+                Map<Id, State> map = mapBuilder.build();
+
+                if (journaling) {
+                    addJournalEntry(new JournalEntry.ContextBuildOpCallback(op, map));
+                }
+                gsop.getCallback().accept(map);
             }
 
             else if (op instanceof RequestBuildOp) {
                 RequestBuildOp rop = (RequestBuildOp) op;
                 Collection<DriverRow> rows = buildSync(rop.getBuilder(), rop.getKey());
+
+                if (journaling) {
+                    addJournalEntry(new JournalEntry.ContextBuildOpCallback(op, rows));
+                }
                 rop.getCallback().accept(rows);
             }
 
             else if (op instanceof ResponseBuildOp) {
                 ResponseBuildOp rop = (ResponseBuildOp) op;
                 checkState(rop.getKey().equals(key));
+
+                if (journaling) {
+                    addJournalEntry(new JournalEntry.ContextBuildOpCallback(op, rop.getRows()));
+                }
                 rowsCell.set(rop.getRows());
             }
 
@@ -204,6 +220,10 @@ public class DriverContextImpl
                 List<Map<String, Object>> orderedScanRows = scanRows.stream().map(r ->
                         builder.getNode().getFields().stream().map(Field::getName).collect(toLinkedMap(identity(), r::get)))
                         .collect(toImmutableList());
+
+                if (journaling) {
+                    addJournalEntry(new JournalEntry.ContextBuildOpCallback(op, orderedScanRows));
+                }
                 sop.getCallback().accept(orderedScanRows);
             }
 

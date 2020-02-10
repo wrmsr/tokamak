@@ -17,8 +17,10 @@ import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.core.driver.DriverRow;
+import com.wrmsr.tokamak.core.driver.build.ops.BuildOp;
 import com.wrmsr.tokamak.core.plan.node.PNode;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Set;
 
@@ -103,6 +105,47 @@ public abstract class JournalEntry
                     "node=" + node +
                     ", key=" + key +
                     ", rows=" + rows +
+                    '}';
+        }
+    }
+
+    public static final class ContextBuildOp
+            extends JournalEntry
+    {
+        private final BuildOp op;
+
+        public ContextBuildOp(BuildOp op)
+        {
+            this.op = checkNotNull(op);
+        }
+
+        @Override
+        public String toString()
+        {
+            return "ContextBuildOp{" +
+                    "op=" + op +
+                    '}';
+        }
+    }
+
+    public static final class ContextBuildOpCallback
+            extends JournalEntry
+    {
+        private final BuildOp op;
+        private final Object[] args;
+
+        public ContextBuildOpCallback(BuildOp op, Object... args)
+        {
+            this.op = checkNotNull(op);
+            this.args = checkNotNull(args);
+        }
+
+        @Override
+        public String toString()
+        {
+            return "ContextBuildOpCallback{" +
+                    "op=" + op +
+                    ", args=" + Arrays.toString(args) +
                     '}';
         }
     }
