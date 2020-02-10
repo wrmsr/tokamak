@@ -23,6 +23,7 @@ import com.wrmsr.tokamak.core.plan.node.PNode;
 import com.wrmsr.tokamak.core.serde.Serde;
 import com.wrmsr.tokamak.core.serde.Serdes;
 import com.wrmsr.tokamak.core.serde.impl.TupleSerde;
+import com.wrmsr.tokamak.core.type.TypeAnnotations;
 
 import java.util.List;
 import java.util.Map;
@@ -30,13 +31,16 @@ import java.util.Set;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.wrmsr.tokamak.util.MoreCollections.immutableMapItems;
+import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 
 public interface IdNodeBuilder<T extends PNode>
         extends Builder<T>
 {
     default List<String> getOrderedIdFields()
     {
-        return immutableMapItems(getNode().getFields().getFieldListsByAnnotationCls().get(IdField.class), Field::getName);
+        return immutableMapItems(
+                checkNotEmpty(getNode().getFields().getFieldListsByAnnotationCls().get(IdField.class)),
+                Field::getName);
     }
 
     default Set<String> getIdFields()
@@ -49,6 +53,7 @@ public interface IdNodeBuilder<T extends PNode>
         return new TupleSerde(
                 getOrderedIdFields().stream()
                         .map(getNode().getFields()::getType)
+                        .map(TypeAnnotations::strip)
                         .map(Serdes.VALUE_SERDES_BY_TYPE::get)
                         .collect(toImmutableList()));
     }
