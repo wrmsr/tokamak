@@ -19,24 +19,25 @@ import com.wrmsr.tokamak.core.driver.build.Builder;
 
 import javax.annotation.concurrent.Immutable;
 
-import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.wrmsr.tokamak.util.MoreCollections.newImmutableSetMap;
 
 @Immutable
 public final class RequestBuildOp
         extends AbstractBuildOp
 {
-    private final Builder<?> builder;
-    private final Key key;
-    private final Consumer<Collection<DriverRow>> callback;
+    private final Map<Builder<?>, Set<Key>> keysSetsByBuilder;
+    private final Consumer<Map<Builder<?>, Map<Key, List<DriverRow>>>> callback;
 
-    public RequestBuildOp(Builder<?> origin, Builder<?> builder, Key key, Consumer<Collection<DriverRow>> callback)
+    public RequestBuildOp(Builder<?> origin, Map<Builder<?>, Set<Key>> keysSetsByBuilder, Consumer<Map<Builder<?>, Map<Key, List<DriverRow>>>> callback)
     {
         super(origin);
-        this.builder = checkNotNull(builder);
-        this.key = checkNotNull(key);
+        this.keysSetsByBuilder = newImmutableSetMap(keysSetsByBuilder);
         this.callback = checkNotNull(callback);
     }
 
@@ -44,23 +45,17 @@ public final class RequestBuildOp
     public String toString()
     {
         return "RequestBuildOp{" +
-                "origin=" + origin +
-                ", builder=" + builder +
+                "keysSetsByBuilder=" + keysSetsByBuilder +
                 ", callback=" + callback +
                 '}';
     }
 
-    public Builder<?> getBuilder()
+    public Map<Builder<?>, Set<Key>> getKeysSetsByBuilder()
     {
-        return builder;
+        return keysSetsByBuilder;
     }
 
-    public Key getKey()
-    {
-        return key;
-    }
-
-    public Consumer<Collection<DriverRow>> getCallback()
+    public Consumer<Map<Builder<?>, Map<Key, List<DriverRow>>>> getCallback()
     {
         return callback;
     }

@@ -194,12 +194,20 @@ public class DriverContextImpl
 
             else if (op instanceof RequestBuildOp) {
                 RequestBuildOp rop = (RequestBuildOp) op;
-                Collection<DriverRow> rows = buildSync(rop.getBuilder(), rop.getKey());
+                ImmutableMap.Builder<Builder<?>, Map<Key, List<DriverRow>>> outBuilder = ImmutableMap.builder();
+                rop.getKeysSetsByBuilder().forEach((kb, ks) -> {
+                    ImmutableMap.Builder<Key, List<DriverRow>> boutBuilder = ImmutableMap.builder();
+                    ks.forEach(k -> {
+                        boutBuilder.put(k, ImmutableList.copyOf(buildSync(kb, k)));
+                    });
+                    outBuilder.put(kb, boutBuilder.build());
+                });
+                Map<Builder<?>, Map<Key, List<DriverRow>>> out = outBuilder.build();
 
                 if (journaling) {
-                    addJournalEntry(new JournalEntry.ContextBuildOpCallback(op, rows));
+                    addJournalEntry(new JournalEntry.ContextBuildOpCallback(op, out));
                 }
-                rop.getCallback().accept(rows);
+                rop.getCallback().accept(out);
             }
 
             else if (op instanceof ResponseBuildOp) {
