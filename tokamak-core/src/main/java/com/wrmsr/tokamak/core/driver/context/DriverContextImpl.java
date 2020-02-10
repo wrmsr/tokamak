@@ -24,6 +24,7 @@ import com.wrmsr.tokamak.core.driver.DriverRow;
 import com.wrmsr.tokamak.core.driver.build.Builder;
 import com.wrmsr.tokamak.core.driver.build.BuilderContext;
 import com.wrmsr.tokamak.core.driver.build.ContextualBuilder;
+import com.wrmsr.tokamak.core.driver.build.ops.GetStateBuildOp;
 import com.wrmsr.tokamak.core.driver.build.ops.RequestBuildOp;
 import com.wrmsr.tokamak.core.driver.build.ops.ResponseBuildOp;
 import com.wrmsr.tokamak.core.driver.build.ops.ScanBuildOp;
@@ -169,7 +170,10 @@ public class DriverContextImpl
 
         builder.build(this, key, op -> {
             checkState(op.getOrigin() == builder);
-            if (op instanceof RequestBuildOp) {
+            if (op instanceof GetStateBuildOp) {
+                throw new IllegalStateException(Objects.toString(op));
+            }
+            else if (op instanceof RequestBuildOp) {
                 RequestBuildOp rop = (RequestBuildOp) op;
                 Collection<DriverRow> rows = buildSync(rop.getBuilder(), rop.getKey());
                 rop.getCallback().accept(rows);
