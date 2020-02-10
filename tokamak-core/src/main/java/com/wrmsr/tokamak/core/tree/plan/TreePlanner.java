@@ -369,10 +369,10 @@ public class TreePlanner
                     if (joinCondition.isPresent()) {
                         source = buildFilter(source, joinCondition.get(), nameGenerator, "selectJoinCondition");
                     }
+                }
 
-                    if (treeNode.getWhere().isPresent()) {
-                        source = buildFilter(source, buildValueNode(treeNode.getWhere().get()), nameGenerator, "selectWhere");
-                    }
+                if (treeNode.getWhere().isPresent()) {
+                    source = buildFilter(source, buildValueNode(treeNode.getWhere().get()), nameGenerator, "selectWhere");
                 }
 
                 return new PProject(
