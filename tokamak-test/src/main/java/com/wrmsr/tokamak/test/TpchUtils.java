@@ -21,10 +21,10 @@ import com.wrmsr.tokamak.core.catalog.Schema;
 import com.wrmsr.tokamak.core.conn.jdbc.JdbcConnector;
 import com.wrmsr.tokamak.util.sql.SqlEngine;
 import com.wrmsr.tokamak.util.sql.SqlUtils;
-import io.airlift.tpch.GenerateUtils;
-import io.airlift.tpch.TpchColumn;
-import io.airlift.tpch.TpchEntity;
-import io.airlift.tpch.TpchTable;
+import io.prestosql.tpch.GenerateUtils;
+import io.prestosql.tpch.TpchColumn;
+import io.prestosql.tpch.TpchEntity;
+import io.prestosql.tpch.TpchTable;
 
 import java.io.IOException;
 import java.io.InputStreamReader;

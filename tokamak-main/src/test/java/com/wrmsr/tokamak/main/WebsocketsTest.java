@@ -86,7 +86,7 @@ public class WebsocketsTest
                     @Override
                     public void operationComplete(ChannelFuture future)
                     {
-                        System.out.println("Disconnected");
+                        System.out.println("Disconnected websocket");
                     }
                 });
             }
