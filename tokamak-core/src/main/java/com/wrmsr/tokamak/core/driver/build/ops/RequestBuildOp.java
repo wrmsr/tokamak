@@ -13,6 +13,8 @@
  */
 package com.wrmsr.tokamak.core.driver.build.ops;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.core.driver.DriverRow;
 import com.wrmsr.tokamak.core.driver.build.Builder;
@@ -39,6 +41,16 @@ public final class RequestBuildOp
         super(origin);
         this.keysSetsByBuilder = newImmutableSetMap(keysSetsByBuilder);
         this.callback = checkNotNull(callback);
+    }
+
+    public RequestBuildOp(Builder<?> origin, Builder<?> builder, Set<Key> keys, Consumer<Map<Builder<?>, Map<Key, List<DriverRow>>>> callback)
+    {
+        this(origin, ImmutableMap.of(builder, keys), callback);
+    }
+
+    public RequestBuildOp(Builder<?> origin, Builder<?> builder, Key key, Consumer<Map<Builder<?>, Map<Key, List<DriverRow>>>> callback)
+    {
+        this(origin, builder, ImmutableSet.of(key), callback);
     }
 
     @Override

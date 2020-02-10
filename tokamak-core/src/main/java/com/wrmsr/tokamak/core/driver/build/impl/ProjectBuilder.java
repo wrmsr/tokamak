@@ -40,6 +40,7 @@ import java.util.function.Consumer;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
+import static com.wrmsr.tokamak.util.MorePreconditions.checkSingle;
 
 public final class ProjectBuilder
         extends SingleSourceBuilder<PProject>
@@ -118,9 +119,9 @@ public final class ProjectBuilder
                                 e -> checkNotNull(sourceKeyExtractionMap.get(e.getKey())),
                                 Map.Entry::getValue)));
 
-        opConsumer.accept(new RequestBuildOp(this, source, sourceKey, srows -> {
+        opConsumer.accept(new RequestBuildOp(this, source, sourceKey, map -> {
             ImmutableList.Builder<DriverRow> ret = ImmutableList.builder();
-            for (DriverRow row : srows) {
+            for (DriverRow row : checkSingle(checkSingle(map.values()).values())) {
                 Object[] attributes;
 
                 if (!row.isEmpty()) {

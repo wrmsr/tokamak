@@ -91,7 +91,8 @@ public final class StateBuilder
 
     protected void innerBuildMiss(DriverContextImpl context, Key key, Consumer<BuildOp> opConsumer)
     {
-        opConsumer.accept(new RequestBuildOp(this, source, key, srows -> {
+        opConsumer.accept(new RequestBuildOp(this, source, key, map -> {
+            List<DriverRow> srows = checkSingle(checkSingle(map.values()).values());
             checkNotEmpty(srows);
             DriverRow firstRow = srows.iterator().next();
             if (firstRow.getId() == null) {

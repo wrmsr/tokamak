@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
+import static com.wrmsr.tokamak.util.MorePreconditions.checkSingle;
 
 public final class OutputBuilder
         extends SingleSourceBuilder<POutput>
@@ -41,8 +42,8 @@ public final class OutputBuilder
     @Override
     protected void innerBuild(DriverContextImpl dctx, Key key, Consumer<BuildOp> opConsumer)
     {
-        opConsumer.accept(new RequestBuildOp(this, source, key, srows -> {
-            List<DriverRow> rows = srows.stream()
+        opConsumer.accept(new RequestBuildOp(this, source, key, map -> {
+            List<DriverRow> rows = checkSingle(checkSingle(map.values()).values()).stream()
                     .map(srow -> new DriverRow(
                             node,
                             dctx.getDriver().getLineagePolicy().build(srow),

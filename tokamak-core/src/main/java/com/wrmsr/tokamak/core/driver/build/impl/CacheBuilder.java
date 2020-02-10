@@ -33,6 +33,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import static com.wrmsr.tokamak.util.MorePreconditions.checkSingle;
+
 public final class CacheBuilder
         extends SingleSourceBuilder<PCache>
         implements ContextualBuilder<PCache>
@@ -66,10 +68,10 @@ public final class CacheBuilder
             return;
         }
 
-        opConsumer.accept(new RequestBuildOp(this, source, key, srows -> {
+        opConsumer.accept(new RequestBuildOp(this, source, key, map -> {
             ImmutableList.Builder<DriverRow> rows = ImmutableList.builder();
 
-            for (DriverRow row : srows) {
+            for (DriverRow row : checkSingle(checkSingle(map.values()).values())) {
                 if (row.getId() != null) {
                     DriverRow cacheRow = ctx.rowsById.get(row.getId());
                     if (cacheRow == null) {

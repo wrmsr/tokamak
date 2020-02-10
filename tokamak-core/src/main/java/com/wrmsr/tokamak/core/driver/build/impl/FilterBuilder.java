@@ -31,6 +31,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 
+import static com.wrmsr.tokamak.util.MorePreconditions.checkSingle;
+
 public final class FilterBuilder
         extends SingleSourceBuilder<PFilter>
 {
@@ -42,9 +44,9 @@ public final class FilterBuilder
     @Override
     protected void innerBuild(DriverContextImpl context, Key key, Consumer<BuildOp> opConsumer)
     {
-        opConsumer.accept(new RequestBuildOp(this, source, key, srows -> {
+        opConsumer.accept(new RequestBuildOp(this, source, key, map -> {
             ImmutableList.Builder<DriverRow> ret = ImmutableList.builder();
-            for (DriverRow row : srows) {
+            for (DriverRow row : checkSingle(checkSingle(map.values()).values())) {
                 boolean res = (boolean) row.getMap().get(node.getField());
 
                 Object[] attributes;

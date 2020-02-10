@@ -47,6 +47,7 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static com.wrmsr.tokamak.util.MoreCollections.immutableMapItems;
 import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
+import static com.wrmsr.tokamak.util.MorePreconditions.checkSingle;
 
 public final class JoinBuilder
         extends AbstractBuilder<PJoin>
@@ -129,8 +130,8 @@ public final class JoinBuilder
 
             int branchIdx = node.getIndicesByBranch().get(lookup.first());
 
-            opConsumer.accept(new RequestBuildOp(this, context.getDriver().getBuildersByNode().get(lookup.first().getNode()), key, rows -> {
-                for (DriverRow row : rows) {
+            opConsumer.accept(new RequestBuildOp(this, context.getDriver().getBuildersByNode().get(lookup.first().getNode()), key, map -> {
+                for (DriverRow row : checkSingle(checkSingle(map.values()).values())) {
                     ImmutableMap.Builder<String, Object> nextProto = ImmutableMap.<String, Object>builder()
                             .putAll(proto);
                     for (Map.Entry<String, Object> e : row.getMap().entrySet()) {
@@ -209,8 +210,8 @@ public final class JoinBuilder
 
             int branchIdx = node.getIndicesByBranch().get(branch);
 
-            opConsumer.accept(new RequestBuildOp(this, context.getDriver().getBuildersByNode().get(branch.getNode()), key, rows -> {
-                for (DriverRow row : rows) {
+            opConsumer.accept(new RequestBuildOp(this, context.getDriver().getBuildersByNode().get(branch.getNode()), key, map -> {
+                for (DriverRow row : checkSingle(checkSingle(map.values()).values())) {
                     ImmutableMap.Builder<String, Object> nextProto = ImmutableMap.<String, Object>builder()
                             .putAll(proto);
                     for (Map.Entry<String, Object> e : row.getMap().entrySet()) {
