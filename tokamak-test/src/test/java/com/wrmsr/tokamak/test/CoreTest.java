@@ -420,8 +420,8 @@ public class CoreTest
                     Collection<Row> buildRows = driver.build(
                             ctx,
                             plan.getRoot(),
-                            // Key.of(sql.contains("N_REGIONKEY") ? "N_REGIONKEY" : "O_ORDERKEY", i)
-                            Key.of("N_NATIONKEY", i)
+                            Key.of(sql.contains("N_REGIONKEY") ? "N_REGIONKEY" : "O_ORDERKEY", i)
+                            // Key.of("N_NATIONKEY", i)
                     );
                     buildRows.forEach(System.out::println);
 
