@@ -38,6 +38,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -56,14 +57,29 @@ public class DriverImpl
     private final StateStorage stateStorage;
     private final LineagePolicy lineagePolicy;
 
-    public DriverImpl(Catalog catalog, Plan plan)
+    public DriverImpl(
+            Catalog catalog,
+            Plan plan,
+            Optional<SerdeManager> serdeManager,
+            Optional<StateStorage> stateStorage,
+            Optional<LineagePolicy> lineagePolicy)
     {
         this.catalog = checkNotNull(catalog);
         this.plan = checkNotNull(plan);
 
-        serdeManager = new SerdeManager(plan);
-        stateStorage = new MapHeapStateStorage();
-        lineagePolicy = new LineagePolicyImpl(LineageRetention.MINIMAL, LineageGranularity.ID);
+        this.serdeManager = serdeManager.orElseGet(() -> new SerdeManager(plan));
+        this.stateStorage = stateStorage.orElseGet(() -> new MapHeapStateStorage());
+        this.lineagePolicy = lineagePolicy.orElseGet(() -> new LineagePolicyImpl(LineageRetention.MINIMAL, LineageGranularity.ID));
+    }
+
+    public DriverImpl(Catalog catalog, Plan plan)
+    {
+        this(
+                catalog,
+                plan,
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty());
     }
 
     @Override

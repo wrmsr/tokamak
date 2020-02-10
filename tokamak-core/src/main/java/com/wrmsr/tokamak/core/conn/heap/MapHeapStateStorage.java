@@ -36,7 +36,17 @@ public class MapHeapStateStorage
      - locks
     */
 
-    private final Map<PState, Map<Id, StorageState>> statesByIdByNode = new HashMap<>();
+    private final Map<PState, Map<Id, StorageState>> statesByIdByNode;
+
+    public MapHeapStateStorage(Map<PState, Map<Id, StorageState>> statesByIdByNode)
+    {
+        this.statesByIdByNode = statesByIdByNode;
+    }
+
+    public MapHeapStateStorage()
+    {
+        this(new LinkedHashMap<>());
+    }
 
     @Override
     public Context createContext()
