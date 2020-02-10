@@ -14,6 +14,8 @@
 package com.wrmsr.tokamak.core.driver.context;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.core.catalog.Connection;
 import com.wrmsr.tokamak.core.catalog.Connector;
@@ -43,6 +45,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
@@ -170,19 +173,29 @@ public class DriverContextImpl
 
         builder.build(this, key, op -> {
             checkState(op.getOrigin() == builder);
+
             if (op instanceof GetStateBuildOp) {
-                throw new IllegalStateException(Objects.toString(op));
+                GetStateBuildOp gsop = (GetStateBuildOp) op;
+                ImmutableMap.Builder<Id, State> map = ImmutableMap.builder();
+                gsop.getIds().forEach(id -> {
+                    Optional<State> state = stateCache.get(gsop.getNode(), id, gsop.getFlags());
+                    state.ifPresent(st -> map.put(st.getId(), st));
+                });
+                gsop.getCallback().accept(map.build());
             }
+
             else if (op instanceof RequestBuildOp) {
                 RequestBuildOp rop = (RequestBuildOp) op;
                 Collection<DriverRow> rows = buildSync(rop.getBuilder(), rop.getKey());
                 rop.getCallback().accept(rows);
             }
+
             else if (op instanceof ResponseBuildOp) {
                 ResponseBuildOp rop = (ResponseBuildOp) op;
                 checkState(rop.getKey().equals(key));
                 rowsCell.set(rop.getRows());
             }
+
             else if (op instanceof ScanBuildOp) {
                 ScanBuildOp sop = (ScanBuildOp) op;
                 Schema schema = driver.getCatalog().getSchemasByName().get(((PScan) builder.getNode()).getSchemaTable().getSchema());
@@ -193,6 +206,7 @@ public class DriverContextImpl
                         .collect(toImmutableList());
                 sop.getCallback().accept(orderedScanRows);
             }
+
             else {
                 throw new IllegalStateException(Objects.toString(op));
             }
