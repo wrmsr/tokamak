@@ -51,24 +51,23 @@ public final class SelectExpansion
     {
     }
 
-    private static List<TAliasedRelation> addRelationAliases(List<TAliasedRelation> aliasedRelations)
+    private static List<TAliasedRelation> addRelationAliases(List<TRelation> relations)
     {
         Set<String> seen = new HashSet<>();
         List<TAliasedRelation> ret = new ArrayList<>();
         int numAnon = 0;
 
-        Map<String, Long> tableNameCounts = histogram(aliasedRelations.stream()
-                .filter(r -> !r.getAlias().isPresent())
-                .map(TAliasedRelation::getRelation)
+        Map<String, Long> tableNameCounts = histogram(relations.stream()
+                .filter(r -> !(r instanceof TAliasedRelation))
                 .filter(TTableNameRelation.class::isInstance)
                 .map(TTableNameRelation.class::cast)
                 .map(TTableNameRelation::getQualifiedName)
                 .map(TQualifiedName::getLast));
         Map<String, Integer> dupeTableNameCounts = new HashMap<>();
 
-        for (TAliasedRelation ar : aliasedRelations) {
-            if (!ar.getAlias().isPresent()) {
-                TRelation r = ar.getRelation();
+        for (TRelation r : relations) {
+            TAliasedRelation ar;
+            if (!(r instanceof TAliasedRelation)) {
                 String alias;
 
                 if (r instanceof TSubqueryRelation) {
@@ -93,12 +92,15 @@ public final class SelectExpansion
                 }
 
                 ar = new TAliasedRelation(
-                        ar.getRelation(),
-                        Optional.of(alias));
+                        r,
+                        alias);
+            }
+            else {
+                ar = (TAliasedRelation) r;
             }
 
-            checkState(!seen.contains(ar.getAlias().get()));
-            seen.add(ar.getAlias().get());
+            checkState(!seen.contains(ar.getAlias()));
+            seen.add(ar.getAlias());
             ret.add(ar);
         }
 
