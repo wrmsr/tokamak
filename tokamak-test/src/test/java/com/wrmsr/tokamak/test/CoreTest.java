@@ -16,7 +16,6 @@ package com.wrmsr.tokamak.test;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.wrmsr.tokamak.api.Id;
 import com.wrmsr.tokamak.api.Key;
 import com.wrmsr.tokamak.api.Row;
 import com.wrmsr.tokamak.api.SchemaTable;
@@ -25,11 +24,9 @@ import com.wrmsr.tokamak.core.catalog.CatalogRegistry;
 import com.wrmsr.tokamak.core.catalog.Table;
 import com.wrmsr.tokamak.core.conn.BuiltinConnectors;
 import com.wrmsr.tokamak.core.conn.heap.HeapConnector;
-import com.wrmsr.tokamak.core.conn.heap.MapHeapStateStorage;
 import com.wrmsr.tokamak.core.conn.heap.table.ListHeapTable;
 import com.wrmsr.tokamak.core.driver.Driver;
 import com.wrmsr.tokamak.core.driver.DriverImpl;
-import com.wrmsr.tokamak.core.driver.state.StorageState;
 import com.wrmsr.tokamak.core.exec.BuiltinExecutors;
 import com.wrmsr.tokamak.core.exec.Reflection;
 import com.wrmsr.tokamak.core.exec.builtin.BuiltinExecutor;
@@ -78,8 +75,6 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -395,15 +390,15 @@ public class CoreTest
         TokamakShell shell = new TokamakShell();
         TpchUtils.setupCatalog(shell.getRootCatalog(), url);
 
-        for (String sql : new String[]{
+        for (String sql : new String[] {
+                "select L_QUANTITY, O_ORDERKEY, O_ORDERSTATUS, P_NAME, S_NAME " +
+                        "from LINEITEM, ORDERS, PART, SUPPLIER where L_ORDERKEY = O_ORDERKEY and L_PARTKEY = P_PARTKEY and L_SUPPKEY = S_SUPPKEY",
+
                 "select N_NAME, N_REGIONKEY, N_NATIONKEY, N_COMMENT from NATION as barf where N_REGIONKEY = 1",
 
                 "select N_NAME, N_REGIONKEY, N_COMMENT from NATION",
 
                 "select N_NAME, N_REGIONKEY, N_COMMENT, R_NAME from NATION, REGION where N_REGIONKEY = R_REGIONKEY",
-
-                "select L_QUANTITY, O_ORDERKEY, O_ORDERSTATUS, P_NAME, S_NAME " +
-                        "from LINEITEM, ORDERS, PART, SUPPLIER where L_ORDERKEY = O_ORDERKEY and L_PARTKEY = P_PARTKEY and L_SUPPKEY = S_SUPPKEY",
         }) {
             System.out.println(sql);
 

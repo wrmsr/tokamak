@@ -22,13 +22,14 @@ import com.wrmsr.tokamak.core.plan.PlanningContext;
 import com.wrmsr.tokamak.core.plan.dot.PlanDot;
 import com.wrmsr.tokamak.core.plan.node.PNode;
 import com.wrmsr.tokamak.core.plan.transform.DropExposedInternalFieldsTransform;
+import com.wrmsr.tokamak.core.plan.transform.JoinTransform;
 import com.wrmsr.tokamak.core.plan.transform.MergeScansTransform;
 import com.wrmsr.tokamak.core.plan.transform.PersistExposedTransform;
 import com.wrmsr.tokamak.core.plan.transform.PersistScansTransform;
 import com.wrmsr.tokamak.core.plan.transform.PropagateIdsTransform;
 import com.wrmsr.tokamak.core.plan.transform.SetInvalidationsTransform;
-import com.wrmsr.tokamak.core.tree.ParsingOptions;
 import com.wrmsr.tokamak.core.tree.ParsingContext;
+import com.wrmsr.tokamak.core.tree.ParsingOptions;
 import com.wrmsr.tokamak.core.tree.TreeParsing;
 import com.wrmsr.tokamak.core.tree.node.TNode;
 import com.wrmsr.tokamak.core.tree.plan.TreePlanner;
@@ -140,6 +141,8 @@ public class TokamakShell
         plan = PersistScansTransform.persistScans(plan);
 
         plan = PersistExposedTransform.persistExposed(plan);
+
+        plan = JoinTransform.joinTransform(plan, planningContext);
 
         plan = PropagateIdsTransform.propagateIds(plan, planningContext);
 
