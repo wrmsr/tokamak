@@ -140,9 +140,16 @@ public final class TreeRendering
             }
 
             @Override
-            public Void visitJoinRelation(TJoinRelation node, Void context)
+            public Void visitJoinRelation(TJoinRelation treeNode, Void context)
             {
-                throw new IllegalStateException();
+                process(treeNode.getLeft(), context);
+                sb.append(" join ");
+                process(treeNode.getRight(), context);
+                treeNode.getCondition().ifPresent(c -> {
+                    sb.append(" on ");
+                    process(c, context);
+                });
+                return null;
             }
 
             @Override
