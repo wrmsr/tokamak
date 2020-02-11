@@ -64,6 +64,12 @@ public final class JoinTransform
 
                 ...
 
+                Map<String, PNode> sourcesByField = sources.stream()
+                        .flatMap(s -> s.getFields().getNames().stream().map(f -> Pair.immutable(f, s)))
+                        .collect(toImmutableMap());
+
+                ...
+
                     Set<PNode> sourcesSet = ImmutableSet.copyOf(sources);
                     List<Set<String>> joinEqualities = fieldEqualities.stream()
                             .filter(s -> s.stream()

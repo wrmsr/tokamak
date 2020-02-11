@@ -234,6 +234,8 @@ public class TreePlanner
                 }
 
                 List<PNode> sources = immutableMapItems(treeNode.getRelations(), r -> process(r, null));
+
+                // checks unique
                 Map<String, PNode> sourcesByField = sources.stream()
                         .flatMap(s -> s.getFields().getNames().stream().map(f -> Pair.immutable(f, s)))
                         .collect(toImmutableMap());
