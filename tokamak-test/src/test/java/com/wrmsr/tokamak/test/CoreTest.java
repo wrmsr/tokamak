@@ -69,6 +69,7 @@ import com.wrmsr.tokamak.util.json.Json;
 import com.wrmsr.tokamak.util.sql.SqlUtils;
 import junit.framework.TestCase;
 
+import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -391,14 +392,15 @@ public class CoreTest
         TpchUtils.setupCatalog(shell.getRootCatalog(), url);
 
         for (String sql : new String[] {
-                "select L_QUANTITY, O_ORDERKEY, O_ORDERSTATUS, P_NAME, S_NAME " +
-                        "from LINEITEM, ORDERS, PART, SUPPLIER where L_ORDERKEY = O_ORDERKEY and L_PARTKEY = P_PARTKEY and L_SUPPKEY = S_SUPPKEY",
+                "select N_NAME, N_REGIONKEY, N_COMMENT, R_NAME from NATION, REGION where N_REGIONKEY = R_REGIONKEY",
 
                 "select N_NAME, N_REGIONKEY, N_NATIONKEY, N_COMMENT from NATION as barf where N_REGIONKEY = 1",
 
                 "select N_NAME, N_REGIONKEY, N_COMMENT from NATION",
 
-                "select N_NAME, N_REGIONKEY, N_COMMENT, R_NAME from NATION, REGION where N_REGIONKEY = R_REGIONKEY",
+                "select L_QUANTITY, O_ORDERKEY, O_ORDERSTATUS, P_NAME, S_NAME " +
+                        "from LINEITEM, ORDERS, PART, SUPPLIER where L_ORDERKEY = O_ORDERKEY and L_PARTKEY = P_PARTKEY and L_SUPPKEY = S_SUPPKEY",
+
         }) {
             System.out.println(sql);
 
