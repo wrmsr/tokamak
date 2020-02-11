@@ -396,7 +396,7 @@ public class CoreTest
         TpchUtils.setupCatalog(shell.getRootCatalog(), url);
 
         for (String sql : new String[]{
-                "select N_NAME, N_REGIONKEY, N_NATIONKEY, N_COMMENT from NATION where N_REGIONKEY = 1",
+                "select N_NAME, N_REGIONKEY, N_NATIONKEY, N_COMMENT from NATION as barf where N_REGIONKEY = 1",
 
                 "select N_NAME, N_REGIONKEY, N_COMMENT from NATION",
 

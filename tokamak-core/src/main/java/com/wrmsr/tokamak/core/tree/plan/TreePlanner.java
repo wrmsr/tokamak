@@ -16,7 +16,6 @@ package com.wrmsr.tokamak.core.tree.plan;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.core.catalog.Function;
 import com.wrmsr.tokamak.core.catalog.Table;
@@ -55,27 +54,22 @@ import com.wrmsr.tokamak.core.tree.node.visitor.TNodeVisitor;
 import com.wrmsr.tokamak.core.type.Types;
 import com.wrmsr.tokamak.core.util.annotation.AnnotationCollection;
 import com.wrmsr.tokamak.core.util.annotation.AnnotationCollectionMap;
-import com.wrmsr.tokamak.util.MoreCollections;
 import com.wrmsr.tokamak.util.NameGenerator;
 import com.wrmsr.tokamak.util.Pair;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static com.wrmsr.tokamak.util.MoreCollections.immutableMapItems;
-import static com.wrmsr.tokamak.util.MoreCollections.immutableMapValues;
 import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
-import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkSingle;
 import static java.util.function.Function.identity;
 
@@ -239,45 +233,6 @@ public class TreePlanner
                     }
                 }
 
-                Set<Set<String>> fieldEqualitiesSet = new LinkedHashSet<>();
-                if (treeNode.getWhere().isPresent()) {
-                    TNode where = treeNode.getWhere().get();
-
-                    new TNodeVisitor<Void, Void>()
-                    {
-                        @Override
-                        public Void visitExpression(TExpression node, Void context)
-                        {
-                            return null;
-                        }
-
-                        @Override
-                        public Void visitBooleanExpression(TBooleanExpression node, Void context)
-                        {
-                            if (node.getOp() == TBooleanExpression.Op.AND) {
-                                process(node.getLeft(), context);
-                                process(node.getRight(), context);
-                            }
-                            return null;
-                        }
-
-                        @Override
-                        public Void visitComparisonExpression(TComparisonExpression cmp, Void context)
-                        {
-                            if (cmp.getLeft() instanceof TQualifiedNameExpression && cmp.getRight() instanceof TQualifiedNameExpression) {
-                                Set<String> set = ImmutableList.of(cmp.getLeft(), cmp.getRight()).stream()
-                                        .map(TQualifiedNameExpression.class::cast)
-                                        .map(TQualifiedNameExpression::getQualifiedName)
-                                        .map(TQualifiedName::toDotString)
-                                        .collect(toImmutableSet());
-                                fieldEqualitiesSet.add(set);
-                            }
-                            return null;
-                        }
-                    }.process(where, null);
-                }
-                List<Set<String>> fieldEqualities = MoreCollections.unify(fieldEqualitiesSet);
-
                 List<PNode> sources = immutableMapItems(treeNode.getRelations(), r -> process(r, null));
                 Map<String, PNode> sourcesByField = sources.stream()
                         .flatMap(s -> s.getFields().getNames().stream().map(f -> Pair.immutable(f, s)))
@@ -288,76 +243,9 @@ public class TreePlanner
                     source = checkSingle(sources);
                 }
                 else {
-                    Set<PNode> sourcesSet = ImmutableSet.copyOf(sources);
-                    List<Set<String>> joinEqualities = fieldEqualities.stream()
-                            .filter(s -> s.stream()
-                                    .map(f -> checkNotNull(sourcesByField.get(f)))
-                                    .collect(toImmutableSet())
-                                    .equals(sourcesSet))
+                    List<PJoin.Branch> branches = sources.stream()
+                            .map(joinSource -> new PJoin.Branch(joinSource, ImmutableList.of()))
                             .collect(toImmutableList());
-
-                    // FIXME: JOINS FOR ANY EQUALITIES - does NOT have to be full equality to be a join
-                    //   - (winds up being cartesian and iteratiely filtering lol)
-                    Map<PNode, List<String>> unifiedJoinEqualities = new LinkedHashMap<>();
-                    Map<PNode, Map<String, Set<String>>> sourceFieldUnifications = new LinkedHashMap<>();
-                    Set<String> seen = new LinkedHashSet<>();
-                    for (Set<String> joinEquality : joinEqualities) {
-                        Map<PNode, Set<String>> eqFieldSetsByNode = immutableMapValues(
-                                joinEquality.stream()
-                                        .collect(Collectors.groupingBy(sourcesByField::get)),
-                                ImmutableSet::copyOf);
-                        checkState(eqFieldSetsByNode.keySet().equals(sourcesSet));
-
-                        eqFieldSetsByNode.forEach((eqNode, eqFields) -> {
-                            for (String eqField : checkNotEmpty(eqFields)) {
-                                checkState(!seen.contains(eqField));
-                                seen.add(eqField);
-                            }
-
-                            String unifiedField;
-                            if (eqFields.size() > 1) {
-                                unifiedField = nameGenerator.get("unified");
-                                sourceFieldUnifications.computeIfAbsent(eqNode, n -> new LinkedHashMap<>())
-                                        .put(unifiedField, eqFields);
-                            }
-                            else {
-                                unifiedField = checkSingle(eqFields);
-                            }
-
-                            unifiedJoinEqualities.computeIfAbsent(eqNode, n -> new ArrayList<>())
-                                    .add(unifiedField);
-                        });
-                    }
-
-                    List<PJoin.Branch> branches;
-                    if (!unifiedJoinEqualities.isEmpty()) {
-                        checkState(unifiedJoinEqualities.keySet().equals(sourcesSet));
-                        checkSingle(unifiedJoinEqualities.values().stream().map(List::size).collect(toImmutableSet()));
-                        branches = sources.stream()
-                                .map(joinSource -> {
-                                    Map<String, Set<String>> unifiedFields = sourceFieldUnifications.get(joinSource);
-                                    PNode unifiedJoinSource;
-                                    if (unifiedFields != null) {
-                                        // FIXME: FILTER EQUAL
-                                        // FIXME: lol, uh, outer/full... null for unified field? hmmph..
-                                        // PNode unifiedJoinSource = new PUnify(
-                                        //
-                                        // )
-                                        throw new IllegalStateException();
-                                    }
-                                    else {
-                                        unifiedJoinSource = joinSource;
-                                    }
-
-                                    return new PJoin.Branch(unifiedJoinSource, checkNotNull(unifiedJoinEqualities.get(joinSource)));
-                                })
-                                .collect(toImmutableList());
-                    }
-                    else {
-                        branches = sources.stream()
-                                .map(joinSource -> new PJoin.Branch(joinSource, ImmutableList.of()))
-                                .collect(toImmutableList());
-                    }
 
                     source = new PJoin(
                             nameGenerator.get("projectJoin"),
