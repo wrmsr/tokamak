@@ -22,6 +22,7 @@ import com.wrmsr.tokamak.core.tree.node.TExpression;
 import com.wrmsr.tokamak.core.tree.node.TExpressionSelectItem;
 import com.wrmsr.tokamak.core.tree.node.TFunctionCallExpression;
 import com.wrmsr.tokamak.core.tree.node.TIdentifier;
+import com.wrmsr.tokamak.core.tree.node.TJoinRelation;
 import com.wrmsr.tokamak.core.tree.node.TNode;
 import com.wrmsr.tokamak.core.tree.node.TNotExpression;
 import com.wrmsr.tokamak.core.tree.node.TNullLiteral;
@@ -136,6 +137,12 @@ public final class TreeRendering
             {
                 sb.append(treeNode.getValue());
                 return null;
+            }
+
+            @Override
+            public Void visitJoinRelation(TJoinRelation node, Void context)
+            {
+                throw new IllegalStateException();
             }
 
             @Override
