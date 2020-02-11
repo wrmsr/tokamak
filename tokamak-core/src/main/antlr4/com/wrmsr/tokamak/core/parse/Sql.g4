@@ -18,7 +18,7 @@ statement
 
 select
     : SELECT selectItem (',' selectItem)*
-      (FROM aliasedRelation (',' aliasedRelation)*)?
+      (FROM relation (',' relation)*)?
       (WHERE where=expression)?
     ;
 
@@ -27,13 +27,18 @@ selectItem
     | '*'                           #allSelectItem
     ;
 
-aliasedRelation
-    : relation (AS? identifier)?
+relation
+    : left=aliasedRelation JOIN right=aliasedRelation (ON criteria=booleanExpression)  #joinRelation
+    | aliasedRelation                                                                  #singleRelation
     ;
 
-relation
-    : qualifiedName   #tableNameRelation
-    | '(' select ')'  #subqueryRelation
+aliasedRelation
+    : baseRelation (AS? identifier)?
+    ;
+
+baseRelation
+    : qualifiedName   #tableNameBaseRelation
+    | '(' select ')'  #subqueryBaseRelation
     ;
 
 expression
@@ -115,10 +120,12 @@ FROM: 'FROM';
 ILIKE: 'ILIKE';
 IN: 'IN';
 IS: 'IS';
+JOIN: 'JOIN';
 LIKE: 'LIKE';
 NOT: 'NOT';
 NULL: 'NULL';
 OR: 'OR';
+ON: 'ON';
 SELECT: 'SELECT';
 TRUE: 'TRUE';
 WHERE: 'WHERE';

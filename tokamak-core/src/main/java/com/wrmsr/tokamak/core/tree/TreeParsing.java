@@ -35,7 +35,7 @@ import com.wrmsr.tokamak.core.tree.node.TSelect;
 import com.wrmsr.tokamak.core.tree.node.TSelectItem;
 import com.wrmsr.tokamak.core.tree.node.TStringLiteral;
 import com.wrmsr.tokamak.core.tree.node.TSubqueryRelation;
-import com.wrmsr.tokamak.core.tree.node.TTableName;
+import com.wrmsr.tokamak.core.tree.node.TTableNameRelation;
 import org.antlr.v4.runtime.BaseErrorListener;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
@@ -169,9 +169,13 @@ public final class TreeParsing
             @Override
             public TNode visitAliasedRelation(SqlParser.AliasedRelationContext ctx)
             {
-                return new TAliasedRelation(
-                        (TRelation) visit(ctx.relation()),
-                        ctx.identifier() != null ? Optional.of(ctx.identifier().getText()) : Optional.empty());
+                TRelation relation = (TRelation) visit(ctx.baseRelation());
+                if (ctx.identifier() != null) {
+                    relation = new TAliasedRelation(
+                            relation,
+                            ctx.identifier().getText());
+                }
+                return relation;
             }
 
             @Override
@@ -250,6 +254,12 @@ public final class TreeParsing
             }
 
             @Override
+            public TNode visitJoinRelation(SqlParser.JoinRelationContext ctx)
+            {
+                throw new IllegalStateException();
+            }
+
+            @Override
             public TNode visitQualifiedName(SqlParser.QualifiedNameContext ctx)
             {
                 List<String> parts = visit(ctx.identifier(), TIdentifier.class).stream()
@@ -276,7 +286,7 @@ public final class TreeParsing
             public TNode visitSelect(SqlParser.SelectContext ctx)
             {
                 List<TSelectItem> selectItems = visit(ctx.selectItem(), TSelectItem.class);
-                List<TAliasedRelation> relations = visit(ctx.aliasedRelation(), TAliasedRelation.class);
+                List<TRelation> relations = visit(ctx.relation(), TRelation.class);
                 Optional<TExpression> where = ctx.where != null ? Optional.of((TExpression) visit(ctx.where)) : Optional.empty();
                 return new TSelect(
                         selectItems,
@@ -309,15 +319,15 @@ public final class TreeParsing
             }
 
             @Override
-            public TNode visitSubqueryRelation(SqlParser.SubqueryRelationContext ctx)
+            public TNode visitSubqueryBaseRelation(SqlParser.SubqueryBaseRelationContext ctx)
             {
                 return new TSubqueryRelation((TSelect) visit(ctx.select()));
             }
 
             @Override
-            public TNode visitTableNameRelation(SqlParser.TableNameRelationContext ctx)
+            public TNode visitTableNameBaseRelation(SqlParser.TableNameBaseRelationContext ctx)
             {
-                return new TTableName((TQualifiedName) visit(ctx.qualifiedName()));
+                return new TTableNameRelation((TQualifiedName) visit(ctx.qualifiedName()));
             }
 
             @Override

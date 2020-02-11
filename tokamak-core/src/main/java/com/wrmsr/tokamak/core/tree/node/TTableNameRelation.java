@@ -17,12 +17,12 @@ import com.wrmsr.tokamak.core.tree.node.visitor.TNodeVisitor;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public final class TTableName
+public final class TTableNameRelation
         extends TRelation
 {
     private final TQualifiedName qualifiedName;
 
-    public TTableName(TQualifiedName qualifiedName)
+    public TTableNameRelation(TQualifiedName qualifiedName)
     {
         this.qualifiedName = checkNotNull(qualifiedName);
     }
@@ -35,6 +35,6 @@ public final class TTableName
     @Override
     public <R, C> R accept(TNodeVisitor<R, C> visitor, C context)
     {
-        return visitor.visitTableName(this, context);
+        return visitor.visitTableNameRelation(this, context);
     }
 }

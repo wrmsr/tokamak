@@ -15,9 +15,9 @@ package com.wrmsr.tokamak.core.plan.analysis.origin;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public abstract class Genesis
+public abstract class OriginGenesis
 {
-    private Genesis()
+    private OriginGenesis()
     {
     }
 
@@ -32,7 +32,7 @@ public abstract class Genesis
     }
 
     public static final class Direct
-            extends Genesis
+            extends OriginGenesis
     {
         private static final Direct INSTANCE = new Direct();
 
@@ -47,7 +47,7 @@ public abstract class Genesis
     }
 
     public static final class Constant
-            extends Genesis
+            extends OriginGenesis
     {
         private static final Constant INSTANCE = new Constant();
 
@@ -68,7 +68,7 @@ public abstract class Genesis
     }
 
     public static final class External
-            extends Genesis
+            extends OriginGenesis
     {
         private static final External INSTANCE = new External();
 
@@ -95,7 +95,7 @@ public abstract class Genesis
     }
 
     public static final class Scan
-            extends Genesis
+            extends OriginGenesis
     {
         private static final Scan INSTANCE = new Scan();
 
@@ -116,7 +116,7 @@ public abstract class Genesis
     }
 
     public static final class Values
-            extends Genesis
+            extends OriginGenesis
     {
         private static final Values INSTANCE = new Values();
 
@@ -137,7 +137,7 @@ public abstract class Genesis
     }
 
     public static final class Join
-            extends Genesis
+            extends OriginGenesis
     {
         public enum Mode
         {
@@ -167,7 +167,7 @@ public abstract class Genesis
     }
 
     public static final class Group
-            extends Genesis
+            extends OriginGenesis
     {
         private static final Group INSTANCE = new Group();
 
@@ -182,7 +182,7 @@ public abstract class Genesis
     }
 
     public static final class Nested
-            extends Genesis
+            extends OriginGenesis
     {
         private final String sinkSubfield;
 
@@ -203,7 +203,7 @@ public abstract class Genesis
     }
 
     public static final class Unnested
-            extends Genesis
+            extends OriginGenesis
     {
         private final String sourceSubfield;
 
@@ -224,7 +224,7 @@ public abstract class Genesis
     }
 
     public static final class Function
-            extends Genesis
+            extends OriginGenesis
     {
         private final boolean isDeterministic;
 

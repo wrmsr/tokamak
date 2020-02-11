@@ -36,7 +36,8 @@ import com.wrmsr.tokamak.core.tree.ParsingContext;
 import com.wrmsr.tokamak.core.tree.ParsingOptions;
 import com.wrmsr.tokamak.core.tree.TreeParsing;
 import com.wrmsr.tokamak.core.tree.TreeRendering;
-import com.wrmsr.tokamak.core.tree.analysis.SymbolAnalysis;
+import com.wrmsr.tokamak.core.tree.analysis.symbol.SymbolAnalysis;
+import com.wrmsr.tokamak.core.tree.analysis.symbol.SymbolResolutions;
 import com.wrmsr.tokamak.core.tree.node.TNode;
 import com.wrmsr.tokamak.core.tree.plan.TreePlanner;
 import com.wrmsr.tokamak.core.tree.transform.SelectExpansion;
@@ -171,7 +172,7 @@ public class TpchParserTest
             System.out.println(TreeRendering.render(treeNode));
 
             SymbolAnalysis sa = SymbolAnalysis.analyze(treeNode, parsingContext);
-            SymbolAnalysis.Resolutions sar = sa.getResolutions();
+            SymbolResolutions sar = sa.getResolutions();
 
             PNode node = new TreePlanner(parsingContext).plan(treeNode);
             Plan plan = Plan.of(node);

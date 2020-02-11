@@ -25,10 +25,10 @@ public final class TSelect
         extends TStatement
 {
     private final List<TSelectItem> items;
-    private final List<TAliasedRelation> relations;
+    private final List<TRelation> relations;
     private final Optional<TExpression> where;
 
-    public TSelect(List<TSelectItem> items, List<TAliasedRelation> relations, Optional<TExpression> where)
+    public TSelect(List<TSelectItem> items, List<TRelation> relations, Optional<TExpression> where)
     {
         this.items = ImmutableList.copyOf(items);
         this.relations = checkNotNull(relations);
@@ -40,7 +40,7 @@ public final class TSelect
         return items;
     }
 
-    public List<TAliasedRelation> getRelations()
+    public List<TRelation> getRelations()
     {
         return relations;
     }

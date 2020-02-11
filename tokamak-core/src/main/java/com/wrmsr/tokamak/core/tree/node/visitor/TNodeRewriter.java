@@ -21,6 +21,7 @@ import com.wrmsr.tokamak.core.tree.node.TExpression;
 import com.wrmsr.tokamak.core.tree.node.TExpressionSelectItem;
 import com.wrmsr.tokamak.core.tree.node.TFunctionCallExpression;
 import com.wrmsr.tokamak.core.tree.node.TIdentifier;
+import com.wrmsr.tokamak.core.tree.node.TJoinRelation;
 import com.wrmsr.tokamak.core.tree.node.TNode;
 import com.wrmsr.tokamak.core.tree.node.TNotExpression;
 import com.wrmsr.tokamak.core.tree.node.TNullLiteral;
@@ -33,7 +34,7 @@ import com.wrmsr.tokamak.core.tree.node.TSelect;
 import com.wrmsr.tokamak.core.tree.node.TSelectItem;
 import com.wrmsr.tokamak.core.tree.node.TStringLiteral;
 import com.wrmsr.tokamak.core.tree.node.TSubqueryRelation;
-import com.wrmsr.tokamak.core.tree.node.TTableName;
+import com.wrmsr.tokamak.core.tree.node.TTableNameRelation;
 
 import java.util.Map;
 
@@ -113,6 +114,14 @@ public class TNodeRewriter<C>
     }
 
     @Override
+    public TNode visitJoinRelation(TJoinRelation node, C context)
+    {
+        return new TJoinRelation(
+                (TRelation) process(node.getLeft(), context),
+                (TRelation) process(node.getRight(), context));
+    }
+
+    @Override
     public TNode visitNotExpression(TNotExpression node, C context)
     {
         return new TNotExpression(
@@ -177,9 +186,9 @@ public class TNodeRewriter<C>
     }
 
     @Override
-    public TNode visitTableName(TTableName node, C context)
+    public TNode visitTableNameRelation(TTableNameRelation node, C context)
     {
-        return new TTableName(
+        return new TTableNameRelation(
                 (TQualifiedName) process(node.getQualifiedName(), context));
     }
 }

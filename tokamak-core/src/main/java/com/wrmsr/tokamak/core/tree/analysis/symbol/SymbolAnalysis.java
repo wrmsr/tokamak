@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.wrmsr.tokamak.core.tree.analysis;
+package com.wrmsr.tokamak.core.tree.analysis.symbol;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -19,21 +19,22 @@ import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.core.catalog.Table;
 import com.wrmsr.tokamak.core.tree.ParsingContext;
+import com.wrmsr.tokamak.core.tree.node.TAliasedRelation;
 import com.wrmsr.tokamak.core.tree.node.TAllSelectItem;
 import com.wrmsr.tokamak.core.tree.node.TBooleanExpression;
 import com.wrmsr.tokamak.core.tree.node.TComparisonExpression;
 import com.wrmsr.tokamak.core.tree.node.TExpressionSelectItem;
+import com.wrmsr.tokamak.core.tree.node.TJoinRelation;
 import com.wrmsr.tokamak.core.tree.node.TNode;
 import com.wrmsr.tokamak.core.tree.node.TNotExpression;
 import com.wrmsr.tokamak.core.tree.node.TQualifiedNameExpression;
 import com.wrmsr.tokamak.core.tree.node.TSelect;
 import com.wrmsr.tokamak.core.tree.node.TSubqueryRelation;
-import com.wrmsr.tokamak.core.tree.node.TTableName;
+import com.wrmsr.tokamak.core.tree.node.TTableNameRelation;
 import com.wrmsr.tokamak.core.tree.node.visitor.TraversalTNodeVisitor;
 import com.wrmsr.tokamak.util.lazy.SupplierLazyValue;
 
 import java.util.ArrayDeque;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -52,194 +53,12 @@ import static com.wrmsr.tokamak.util.MoreOptionals.optionalTest;
 
 public final class SymbolAnalysis
 {
-    public static final class Symbol
-    {
-        private final Optional<String> name;
-        private final SymbolScope symbolScope;
-        private final Optional<Symbol> origin;
-        private final TNode node;
+    final SymbolScope rootSymbolScope;
 
-        public Symbol(Optional<String> name, TNode node, Optional<Symbol> origin, SymbolScope symbolScope)
-        {
-            this.name = checkNotNull(name);
-            this.symbolScope = checkNotNull(symbolScope);
-            this.origin = checkNotNull(origin);
-            this.node = checkNotNull(node);
-
-            symbolScope.symbols.add(this);
-        }
-
-        @Override
-        public String toString()
-        {
-            return "Symbol{" +
-                    "name=" + name +
-                    '}';
-        }
-
-        public Optional<String> getName()
-        {
-            return name;
-        }
-
-        public SymbolScope getSymbolScope()
-        {
-            return symbolScope;
-        }
-
-        public Optional<Symbol> getOrigin()
-        {
-            return origin;
-        }
-
-        public TNode getNode()
-        {
-            return node;
-        }
-    }
-
-    public static final class SymbolRef
-    {
-        private final Optional<List<String>> nameParts;
-        private final TNode node;
-        private final Optional<Symbol> binding;
-        private final SymbolScope symbolScope;
-
-        public SymbolRef(Optional<List<String>> nameParts, TNode node, Optional<Symbol> binding, SymbolScope symbolScope)
-        {
-            this.nameParts = checkNotNull(nameParts).map(ImmutableList::copyOf);
-            this.node = checkNotNull(node);
-            this.binding = checkNotNull(binding);
-            this.symbolScope = checkNotNull(symbolScope);
-
-            symbolScope.symbolRefs.add(this);
-        }
-
-        @Override
-        public String toString()
-        {
-            return "SymbolRef{" +
-                    "nameParts=" + nameParts +
-                    '}';
-        }
-
-        public Optional<List<String>> getNameParts()
-        {
-            return nameParts;
-        }
-
-        public TNode getNode()
-        {
-            return node;
-        }
-
-        public Optional<Symbol> getBinding()
-        {
-            return binding;
-        }
-
-        public SymbolScope getSymbolScope()
-        {
-            return symbolScope;
-        }
-    }
-
-    public static final class SymbolScope
-    {
-        private final TNode node;
-        private final Set<TNode> enclosedNodes = new LinkedHashSet<>();
-
-        private final Optional<SymbolScope> parent;
-        private final Set<SymbolScope> children = new LinkedHashSet<>();
-
-        private final Optional<String> name;
-
-        private final Set<Symbol> symbols = new LinkedHashSet<>();
-        private final Set<SymbolRef> symbolRefs = new LinkedHashSet<>();
-
-        public SymbolScope(TNode node, Optional<SymbolScope> parent, Optional<String> name)
-        {
-            this.node = checkNotNull(node);
-            this.parent = checkNotNull(parent);
-            this.name = checkNotNull(name);
-
-            parent.ifPresent(p -> p.children.add(this));
-            enclosedNodes.add(node);
-        }
-
-        @Override
-        public String toString()
-        {
-            return "Scope{" +
-                    "node=" + node +
-                    ", name=" + name +
-                    '}';
-        }
-
-        public TNode getNode()
-        {
-            return node;
-        }
-
-        public Set<TNode> getEnclosedNodes()
-        {
-            return Collections.unmodifiableSet(enclosedNodes);
-        }
-
-        public Optional<SymbolScope> getParent()
-        {
-            return parent;
-        }
-
-        public Set<SymbolScope> getChildren()
-        {
-            return Collections.unmodifiableSet(children);
-        }
-
-        public Optional<String> getName()
-        {
-            return name;
-        }
-
-        public Set<Symbol> getSymbols()
-        {
-            return Collections.unmodifiableSet(symbols);
-        }
-
-        public Set<SymbolRef> getSymbolRefs()
-        {
-            return Collections.unmodifiableSet(symbolRefs);
-        }
-    }
-
-    public static final class Resolutions
-    {
-        private final Map<SymbolRef, Symbol> symbols;
-        private final Map<Symbol, Set<SymbolRef>> symbolRefs;
-
-        public Resolutions(Map<SymbolRef, Symbol> symbols, Map<Symbol, Set<SymbolRef>> symbolRefs)
-        {
-            this.symbols = ImmutableMap.copyOf(symbols);
-            this.symbolRefs = newImmutableSetMap(symbolRefs);
-        }
-
-        public Map<SymbolRef, Symbol> getSymbols()
-        {
-            return symbols;
-        }
-
-        public Map<Symbol, Set<SymbolRef>> getSymbolRefs()
-        {
-            return symbolRefs;
-        }
-    }
-
-    private final SymbolScope rootSymbolScope;
-
-    private final Set<SymbolScope> symbolScopes;
-    private final Map<TNode, SymbolScope> symbolScopesByNode;
-    private final Map<TNode, Set<Symbol>> symbolSetsByNode;
-    private final Map<TNode, SymbolRef> symbolRefsByNode;
+    final Set<SymbolScope> symbolScopes;
+    final Map<TNode, SymbolScope> symbolScopesByNode;
+    final Map<TNode, Set<Symbol>> symbolSetsByNode;
+    final Map<TNode, SymbolRef> symbolRefsByNode;
 
     private SymbolAnalysis(SymbolScope rootSymbolScope)
     {
@@ -317,9 +136,9 @@ public final class SymbolAnalysis
         return symbolRefsByNode;
     }
 
-    private final SupplierLazyValue<Resolutions> resolutions = new SupplierLazyValue<>();
+    private final SupplierLazyValue<SymbolResolutions> resolutions = new SupplierLazyValue<>();
 
-    public Resolutions getResolutions()
+    public SymbolResolutions getResolutions()
     {
         return resolutions.get(() -> {
             ImmutableMap.Builder<SymbolRef, Symbol> symbolResolutions = ImmutableMap.builder();
@@ -340,7 +159,7 @@ public final class SymbolAnalysis
                 });
             });
 
-            return new Resolutions(
+            return new SymbolResolutions(
                     symbolResolutions.build(),
                     symbolRefResolutions);
         });
@@ -356,6 +175,14 @@ public final class SymbolAnalysis
                 if (context != null) {
                     context.enclosedNodes.add(treeNode);
                 }
+                return null;
+            }
+
+            @Override
+            public SymbolScope visitAliasedRelation(TAliasedRelation node, SymbolScope context)
+            {
+                SymbolScope relationSymbolScope = new SymbolScope(node, Optional.of(context), Optional.of(node.getAlias()));
+                process(node.getRelation(), relationSymbolScope);
                 return null;
             }
 
@@ -402,6 +229,12 @@ public final class SymbolAnalysis
             }
 
             @Override
+            public SymbolScope visitJoinRelation(TJoinRelation node, SymbolScope context)
+            {
+                throw new IllegalStateException();
+            }
+
+            @Override
             public SymbolScope visitNotExpression(TNotExpression treeNode, SymbolScope context)
             {
                 context.enclosedNodes.add(treeNode);
@@ -422,11 +255,7 @@ public final class SymbolAnalysis
             {
                 SymbolScope symbolScope = new SymbolScope(treeNode, Optional.ofNullable(context), Optional.empty());
 
-                treeNode.getRelations().forEach(aliasedRelation -> {
-                    SymbolScope relationSymbolScope = new SymbolScope(aliasedRelation, Optional.of(symbolScope), aliasedRelation.getAlias());
-                    process(aliasedRelation.getRelation(), relationSymbolScope);
-                });
-
+                treeNode.getRelations().forEach(relation -> process(relation, symbolScope));
                 treeNode.getWhere().ifPresent(where -> process(where, symbolScope));
                 treeNode.getItems().forEach(item -> process(item, symbolScope));
 
@@ -441,7 +270,7 @@ public final class SymbolAnalysis
             }
 
             @Override
-            public SymbolScope visitTableName(TTableName treeNode, SymbolScope context)
+            public SymbolScope visitTableNameRelation(TTableNameRelation treeNode, SymbolScope context)
             {
                 context.enclosedNodes.add(treeNode);
                 SchemaTable schemaTable = treeNode.getQualifiedName().toSchemaTable(parsingContext.getDefaultSchema());

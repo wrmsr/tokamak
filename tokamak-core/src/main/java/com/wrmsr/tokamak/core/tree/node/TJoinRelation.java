@@ -15,35 +15,33 @@ package com.wrmsr.tokamak.core.tree.node;
 
 import com.wrmsr.tokamak.core.tree.node.visitor.TNodeVisitor;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public final class TAliasedRelation
+public final class TJoinRelation
         extends TRelation
 {
-    private final TRelation relation;
-    private final String alias;
+    private final TRelation left;
+    private final TRelation right;
 
-    public TAliasedRelation(TRelation relation, String alias)
+    public TJoinRelation(TRelation left, TRelation right)
     {
-        this.relation = checkNotNull(relation);
-        this.alias = checkNotNull(alias);
-        checkArgument(!(relation instanceof TAliasedRelation));
+        this.left = checkNotNull(left);
+        this.right = checkNotNull(right);
     }
 
-    public TRelation getRelation()
+    public TRelation getLeft()
     {
-        return relation;
+        return left;
     }
 
-    public String getAlias()
+    public TRelation getRight()
     {
-        return alias;
+        return right;
     }
 
     @Override
     public <R, C> R accept(TNodeVisitor<R, C> visitor, C context)
     {
-        return visitor.visitAliasedRelation(this, context);
+        return visitor.visitJoinRelation(this, context);
     }
 }

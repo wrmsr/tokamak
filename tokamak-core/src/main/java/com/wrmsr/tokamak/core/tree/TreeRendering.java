@@ -32,7 +32,7 @@ import com.wrmsr.tokamak.core.tree.node.TSearch;
 import com.wrmsr.tokamak.core.tree.node.TSelect;
 import com.wrmsr.tokamak.core.tree.node.TStringLiteral;
 import com.wrmsr.tokamak.core.tree.node.TSubqueryRelation;
-import com.wrmsr.tokamak.core.tree.node.TTableName;
+import com.wrmsr.tokamak.core.tree.node.TTableNameRelation;
 import com.wrmsr.tokamak.core.tree.node.visitor.TNodeVisitor;
 
 import java.util.function.Consumer;
@@ -80,7 +80,7 @@ public final class TreeRendering
             public Void visitAliasedRelation(TAliasedRelation treeNode, Void context)
             {
                 process(treeNode.getRelation(), context);
-                treeNode.getAlias().ifPresent(a -> sb.append(" as ").append(a));
+                sb.append(" as ").append(treeNode.getAlias());
                 return null;
             }
 
@@ -214,7 +214,7 @@ public final class TreeRendering
             }
 
             @Override
-            public Void visitTableName(TTableName treeNode, Void context)
+            public Void visitTableNameRelation(TTableNameRelation treeNode, Void context)
             {
                 process(treeNode.getQualifiedName(), context);
                 return null;

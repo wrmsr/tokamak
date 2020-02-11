@@ -20,7 +20,7 @@ import com.wrmsr.tokamak.core.tree.TreeParsing;
 import com.wrmsr.tokamak.core.tree.node.TNode;
 import com.wrmsr.tokamak.core.tree.node.TSelect;
 import com.wrmsr.tokamak.core.tree.node.TSubqueryRelation;
-import com.wrmsr.tokamak.core.tree.node.TTableName;
+import com.wrmsr.tokamak.core.tree.node.TTableNameRelation;
 import com.wrmsr.tokamak.core.tree.node.visitor.TNodeRewriter;
 
 import java.util.Optional;
@@ -36,7 +36,7 @@ public final class ViewInlining
         return root.accept(new TNodeRewriter<Void>()
         {
             @Override
-            public TNode visitTableName(TTableName treeNode, Void context)
+            public TNode visitTableNameRelation(TTableNameRelation treeNode, Void context)
             {
                 if (treeNode.getQualifiedName().getParts().size() == 1) {
                     String name = treeNode.getQualifiedName().getParts().get(0);
@@ -49,7 +49,7 @@ public final class ViewInlining
                         return new TSubqueryRelation(processedSelect);
                     }
                 }
-                return super.visitTableName(treeNode, context);
+                return super.visitTableNameRelation(treeNode, context);
             }
         }, null);
     }

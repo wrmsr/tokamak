@@ -21,6 +21,7 @@ import com.wrmsr.tokamak.core.tree.node.TExpression;
 import com.wrmsr.tokamak.core.tree.node.TExpressionSelectItem;
 import com.wrmsr.tokamak.core.tree.node.TFunctionCallExpression;
 import com.wrmsr.tokamak.core.tree.node.TIdentifier;
+import com.wrmsr.tokamak.core.tree.node.TJoinRelation;
 import com.wrmsr.tokamak.core.tree.node.TLiteral;
 import com.wrmsr.tokamak.core.tree.node.TNode;
 import com.wrmsr.tokamak.core.tree.node.TNotExpression;
@@ -35,7 +36,7 @@ import com.wrmsr.tokamak.core.tree.node.TSelectItem;
 import com.wrmsr.tokamak.core.tree.node.TStatement;
 import com.wrmsr.tokamak.core.tree.node.TStringLiteral;
 import com.wrmsr.tokamak.core.tree.node.TSubqueryRelation;
-import com.wrmsr.tokamak.core.tree.node.TTableName;
+import com.wrmsr.tokamak.core.tree.node.TTableNameRelation;
 
 import java.util.Objects;
 
@@ -53,7 +54,7 @@ public abstract class TNodeVisitor<R, C>
 
     public R visitAliasedRelation(TAliasedRelation node, C context)
     {
-        return visitNode(node, context);
+        return visitRelation(node, context);
     }
 
     public R visitAllSelectItem(TAllSelectItem node, C context)
@@ -89,6 +90,11 @@ public abstract class TNodeVisitor<R, C>
     public R visitIdentifier(TIdentifier node, C context)
     {
         return visitNode(node, context);
+    }
+
+    public R visitJoinRelation(TJoinRelation node, C context)
+    {
+        return visitRelation(node, context);
     }
 
     public R visitLiteral(TLiteral node, C context)
@@ -156,7 +162,7 @@ public abstract class TNodeVisitor<R, C>
         return visitRelation(node, context);
     }
 
-    public R visitTableName(TTableName node, C context)
+    public R visitTableNameRelation(TTableNameRelation node, C context)
     {
         return visitRelation(node, context);
     }

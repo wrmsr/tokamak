@@ -15,7 +15,9 @@ package com.wrmsr.tokamak.core.tree.transform;
 
 import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.core.tree.ParsingContext;
-import com.wrmsr.tokamak.core.tree.analysis.SymbolAnalysis;
+import com.wrmsr.tokamak.core.tree.analysis.symbol.Symbol;
+import com.wrmsr.tokamak.core.tree.analysis.symbol.SymbolAnalysis;
+import com.wrmsr.tokamak.core.tree.analysis.symbol.SymbolRef;
 import com.wrmsr.tokamak.core.tree.node.TAllSelectItem;
 import com.wrmsr.tokamak.core.tree.node.TNode;
 import com.wrmsr.tokamak.core.tree.node.TQualifiedName;
@@ -48,10 +50,10 @@ public final class SymbolResolution
             @Override
             public TNode visitQualifiedNameExpression(TQualifiedNameExpression treeNode, Void context)
             {
-                SymbolAnalysis.SymbolRef sr = checkNotNull(sa.getSymbolRefsByNode().get(treeNode));
+                SymbolRef sr = checkNotNull(sa.getSymbolRefsByNode().get(treeNode));
                 List<String> parts = treeNode.getQualifiedName().getParts();
 
-                List<SymbolAnalysis.Symbol> hits = new ArrayList<>();
+                List<Symbol> hits = new ArrayList<>();
                 hits.addAll(SymbolAnalysis.getSymbolScopeMatches(sr));
                 if (parts.size() > 1) {
                     hits.addAll(SymbolAnalysis.getSymbolMatches(sr));
@@ -64,7 +66,7 @@ public final class SymbolResolution
                     throw new IllegalStateException(String.format("Unresolved reference: %s", parts));
                 }
 
-                SymbolAnalysis.Symbol hit = hits.get(0);
+                Symbol hit = hits.get(0);
 
                 return new TQualifiedNameExpression(
                         new TQualifiedName(

@@ -16,7 +16,6 @@ package com.wrmsr.tokamak.core.plan.analysis.origin;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
-import com.wrmsr.tokamak.core.exec.Executable;
 import com.wrmsr.tokamak.core.plan.Plan;
 import com.wrmsr.tokamak.core.plan.node.PCache;
 import com.wrmsr.tokamak.core.plan.node.PExtract;
@@ -190,7 +189,7 @@ public final class OriginAnalysis
             {
                 node.getFields().getNames().forEach(f ->
                         originations.add(new Origination(
-                                PNodeField.of(node, f), PNodeField.of(node.getSource(), f), Genesis.direct())));
+                                PNodeField.of(node, f), PNodeField.of(node.getSource(), f), OriginGenesis.direct())));
             }
 
             @Override
@@ -222,9 +221,9 @@ public final class OriginAnalysis
             public Void visitGroup(PGroup node, Void context)
             {
                 originations.add(new Origination(
-                        PNodeField.of(node, node.getListField()), Genesis.group()));
+                        PNodeField.of(node, node.getListField()), OriginGenesis.group()));
                 node.getKeyFields().forEach(gf -> originations.add(new Origination(
-                        PNodeField.of(node, gf), PNodeField.of(node.getSource(), gf), Genesis.direct())));
+                        PNodeField.of(node, gf), PNodeField.of(node.getSource(), gf), OriginGenesis.direct())));
 
                 return null;
             }
@@ -233,16 +232,16 @@ public final class OriginAnalysis
             public Void visitJoin(PJoin node, Void context)
             {
                 node.getBranches().forEach(b -> {
-                    Genesis gen;
+                    OriginGenesis gen;
                     switch (node.getMode()) {
                         case INNER:
-                            gen = Genesis.join(Genesis.Join.Mode.INNER);
+                            gen = OriginGenesis.join(OriginGenesis.Join.Mode.INNER);
                             break;
                         case LEFT:
-                            gen = b == node.getBranches().get(0) ? Genesis.join(Genesis.Join.Mode.LEFT_PRIMARY) : Genesis.join(Genesis.Join.Mode.LEFT_SECONDARY);
+                            gen = b == node.getBranches().get(0) ? OriginGenesis.join(OriginGenesis.Join.Mode.LEFT_PRIMARY) : OriginGenesis.join(OriginGenesis.Join.Mode.LEFT_SECONDARY);
                             break;
                         case FULL:
-                            gen = Genesis.join(Genesis.Join.Mode.FULL);
+                            gen = OriginGenesis.join(OriginGenesis.Join.Mode.FULL);
                             break;
                         default:
                             throw new IllegalStateException(Objects.toString(node.getMode()));
@@ -271,9 +270,9 @@ public final class OriginAnalysis
             public Void visitLookup(PLookup node, Void context)
             {
                 node.getSource().getFields().getNames().forEach(f -> originations.add(new Origination(
-                        PNodeField.of(node, f), PNodeField.of(node.getSource(), f), Genesis.direct())));
+                        PNodeField.of(node, f), PNodeField.of(node.getSource(), f), OriginGenesis.direct())));
                 node.getBranches().forEach(b -> b.getFields().forEach(f -> originations.add(new Origination(
-                        PNodeField.of(node, f), PNodeField.of(b.getNode(), f), Genesis.join(Genesis.Join.Mode.LOOKUP)))));
+                        PNodeField.of(node, f), PNodeField.of(b.getNode(), f), OriginGenesis.join(OriginGenesis.Join.Mode.LOOKUP)))));
 
                 return null;
             }
@@ -305,12 +304,12 @@ public final class OriginAnalysis
             {
                 if (value instanceof VConstant) {
                     return ImmutableList.of(new Origination(
-                            sink, Genesis.constant()));
+                            sink, OriginGenesis.constant()));
                 }
 
                 else if (value instanceof VField) {
                     return ImmutableList.of(new Origination(
-                            sink, PNodeField.of(source, ((VField) value).getField()), Genesis.direct()));
+                            sink, PNodeField.of(source, ((VField) value).getField()), OriginGenesis.direct()));
                 }
 
                 else if (value instanceof VFunction) {
@@ -328,11 +327,11 @@ public final class OriginAnalysis
                     boolean isDeterministic = fn.getFunction().getPurity().isDeterministic();
                     if (argOriginations.isEmpty()) {
                         return ImmutableList.of(new Origination(
-                                sink, isDeterministic ? Genesis.external() : Genesis.constant()));
+                                sink, isDeterministic ? OriginGenesis.external() : OriginGenesis.constant()));
                     }
                     else {
                         return argOriginations.stream()
-                                .map(o -> new Origination(sink, o.source, Genesis.function(isDeterministic)))
+                                .map(o -> new Origination(sink, o.source, OriginGenesis.function(isDeterministic)))
                                 .collect(toImmutableList());
                     }
                 }
@@ -359,7 +358,7 @@ public final class OriginAnalysis
             public Void visitScan(PScan node, Void context)
             {
                 node.getFields().getNames().forEach(f ->
-                        originations.add(new Origination(PNodeField.of(node, f), Genesis.scan())));
+                        originations.add(new Origination(PNodeField.of(node, f), OriginGenesis.scan())));
                 return null;
             }
 
@@ -438,7 +437,7 @@ public final class OriginAnalysis
             public Void visitValues(PValues node, Void context)
             {
                 node.getFields().getNames().forEach(f ->
-                        originations.add(new Origination(PNodeField.of(node, f), Genesis.values())));
+                        originations.add(new Origination(PNodeField.of(node, f), OriginGenesis.values())));
 
                 return null;
             }

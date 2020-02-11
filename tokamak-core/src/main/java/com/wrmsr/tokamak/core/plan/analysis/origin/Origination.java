@@ -28,9 +28,9 @@ public final class Origination
 {
     final PNodeField sink;
     final Optional<PNodeField> source;
-    final Genesis genesis;
+    final OriginGenesis genesis;
 
-    Origination(PNodeField sink, Optional<PNodeField> source, Genesis genesis)
+    Origination(PNodeField sink, Optional<PNodeField> source, OriginGenesis genesis)
     {
         this.sink = checkNotNull(sink);
         this.source = checkNotNull(source);
@@ -46,12 +46,12 @@ public final class Origination
         }
     }
 
-    Origination(PNodeField sink, PNodeField source, Genesis genesis)
+    Origination(PNodeField sink, PNodeField source, OriginGenesis genesis)
     {
         this(sink, Optional.of(source), genesis);
     }
 
-    Origination(PNodeField sink, Genesis genesis)
+    Origination(PNodeField sink, OriginGenesis genesis)
     {
         this(sink, Optional.empty(), genesis);
     }
@@ -76,7 +76,7 @@ public final class Origination
         return source;
     }
 
-    public Genesis getGenesis()
+    public OriginGenesis getGenesis()
     {
         return genesis;
     }

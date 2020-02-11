@@ -34,7 +34,10 @@ import com.wrmsr.tokamak.core.plan.node.annotation.PNodeAnnotation;
 import com.wrmsr.tokamak.core.plan.value.VNode;
 import com.wrmsr.tokamak.core.plan.value.VNodes;
 import com.wrmsr.tokamak.core.tree.ParsingContext;
-import com.wrmsr.tokamak.core.tree.analysis.SymbolAnalysis;
+import com.wrmsr.tokamak.core.tree.analysis.symbol.Symbol;
+import com.wrmsr.tokamak.core.tree.analysis.symbol.SymbolAnalysis;
+import com.wrmsr.tokamak.core.tree.analysis.symbol.SymbolRef;
+import com.wrmsr.tokamak.core.tree.analysis.symbol.SymbolScope;
 import com.wrmsr.tokamak.core.tree.node.TAliasedRelation;
 import com.wrmsr.tokamak.core.tree.node.TBooleanExpression;
 import com.wrmsr.tokamak.core.tree.node.TComparisonExpression;
@@ -47,7 +50,7 @@ import com.wrmsr.tokamak.core.tree.node.TQualifiedName;
 import com.wrmsr.tokamak.core.tree.node.TQualifiedNameExpression;
 import com.wrmsr.tokamak.core.tree.node.TSelect;
 import com.wrmsr.tokamak.core.tree.node.TSelectItem;
-import com.wrmsr.tokamak.core.tree.node.TTableName;
+import com.wrmsr.tokamak.core.tree.node.TTableNameRelation;
 import com.wrmsr.tokamak.core.tree.node.visitor.TNodeVisitor;
 import com.wrmsr.tokamak.core.type.Types;
 import com.wrmsr.tokamak.core.util.annotation.AnnotationCollection;
@@ -181,16 +184,16 @@ public class TreePlanner
 
         Set<String> allSymbolNames = symbolAnalysis.getSymbolScopes().stream()
                 .flatMap(ss -> ss.getSymbols().stream())
-                .map(SymbolAnalysis.Symbol::getName)
+                .map(Symbol::getName)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .collect(toImmutableSet());
         NameGenerator nameGenerator = new NameGenerator(allSymbolNames, Plan.NAME_GENERATOR_PREFIX);
 
-        return rootTreeNode.accept(new TNodeVisitor<PNode, SymbolAnalysis.SymbolScope>()
+        return rootTreeNode.accept(new TNodeVisitor<PNode, SymbolScope>()
         {
             @Override
-            public PNode visitAliasedRelation(TAliasedRelation treeNode, SymbolAnalysis.SymbolScope context)
+            public PNode visitAliasedRelation(TAliasedRelation treeNode, SymbolScope context)
             {
                 PNode scanNode = process(treeNode.getRelation(), symbolAnalysis.getSymbolScope(treeNode).get());
                 return new PProject(
@@ -204,7 +207,7 @@ public class TreePlanner
             }
 
             @Override
-            public PNode visitSelect(TSelect treeNode, SymbolAnalysis.SymbolScope context)
+            public PNode visitSelect(TSelect treeNode, SymbolScope context)
             {
                 Map<String, VNode> projection = new LinkedHashMap<>();
 
@@ -377,7 +380,7 @@ public class TreePlanner
             }
 
             @Override
-            public PNode visitTableName(TTableName treeNode, SymbolAnalysis.SymbolScope context)
+            public PNode visitTableNameRelation(TTableNameRelation treeNode, SymbolScope context)
             {
                 SchemaTable schemaTable = treeNode.getQualifiedName().toSchemaTable(parsingContext.getDefaultSchema());
 
@@ -387,7 +390,7 @@ public class TreePlanner
 
                 context.getSymbols().forEach(s -> {
                     checkState(table.getRowLayout().getFields().contains(s.getName().get()));
-                    Set<SymbolAnalysis.SymbolRef> srs = symbolAnalysis.getResolutions().getSymbolRefs().get(s);
+                    Set<SymbolRef> srs = symbolAnalysis.getResolutions().getSymbolRefs().get(s);
                     if (srs != null) {
                         columns.add(s.getName().get());
                     }

@@ -28,7 +28,7 @@ import com.wrmsr.tokamak.core.tree.node.TRelation;
 import com.wrmsr.tokamak.core.tree.node.TSelect;
 import com.wrmsr.tokamak.core.tree.node.TSelectItem;
 import com.wrmsr.tokamak.core.tree.node.TSubqueryRelation;
-import com.wrmsr.tokamak.core.tree.node.TTableName;
+import com.wrmsr.tokamak.core.tree.node.TTableNameRelation;
 import com.wrmsr.tokamak.core.tree.node.visitor.TNodeRewriter;
 
 import java.util.ArrayList;
@@ -60,9 +60,9 @@ public final class SelectExpansion
         Map<String, Long> tableNameCounts = histogram(aliasedRelations.stream()
                 .filter(r -> !r.getAlias().isPresent())
                 .map(TAliasedRelation::getRelation)
-                .filter(TTableName.class::isInstance)
-                .map(TTableName.class::cast)
-                .map(TTableName::getQualifiedName)
+                .filter(TTableNameRelation.class::isInstance)
+                .map(TTableNameRelation.class::cast)
+                .map(TTableNameRelation::getQualifiedName)
                 .map(TQualifiedName::getLast));
         Map<String, Integer> dupeTableNameCounts = new HashMap<>();
 
@@ -75,8 +75,8 @@ public final class SelectExpansion
                     alias = "_" + (numAnon++);
                 }
 
-                else if (r instanceof TTableName) {
-                    TTableName tn = (TTableName) r;
+                else if (r instanceof TTableNameRelation) {
+                    TTableNameRelation tn = (TTableNameRelation) r;
                     String name = tn.getQualifiedName().getLast();
                     if (tableNameCounts.get(name) > 1) {
                         int num = dupeTableNameCounts.getOrDefault(name, 0);
@@ -218,9 +218,9 @@ public final class SelectExpansion
             }
 
             @Override
-            public TNode visitTableName(TTableName treeNode, Void context)
+            public TNode visitTableNameRelation(TTableNameRelation treeNode, Void context)
             {
-                TTableName ret = (TTableName) super.visitTableName(treeNode, context);
+                TTableNameRelation ret = (TTableNameRelation) super.visitTableNameRelation(treeNode, context);
                 SchemaTable schemaTable = treeNode.getQualifiedName().toSchemaTable(parsingContext.getDefaultSchema());
                 Table table = parsingContext.getCatalog().get().getSchemaTable(schemaTable);
                 fieldSetsByNode.put(ret, table.getRowLayout().getFields().getNames());

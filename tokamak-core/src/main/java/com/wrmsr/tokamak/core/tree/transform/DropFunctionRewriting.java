@@ -14,7 +14,8 @@
 package com.wrmsr.tokamak.core.tree.transform;
 
 import com.wrmsr.tokamak.core.tree.ParsingContext;
-import com.wrmsr.tokamak.core.tree.analysis.SymbolAnalysis;
+import com.wrmsr.tokamak.core.tree.analysis.symbol.SymbolAnalysis;
+import com.wrmsr.tokamak.core.tree.analysis.symbol.SymbolScope;
 import com.wrmsr.tokamak.core.tree.node.TAliasedRelation;
 import com.wrmsr.tokamak.core.tree.node.TExpression;
 import com.wrmsr.tokamak.core.tree.node.TExpressionSelectItem;
@@ -52,7 +53,7 @@ public final class DropFunctionRewriting
             @Override
             public TNode visitSelect(TSelect node, Void context)
             {
-                SymbolAnalysis.SymbolScope symScope = symbolAnalysis.getSymbolScope(node).get();
+                SymbolScope symScope = symbolAnalysis.getSymbolScope(node).get();
 
                 List<TSelectItem> items = new ArrayList<>();
                 node.getItems().forEach(i -> {
