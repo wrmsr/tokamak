@@ -203,7 +203,7 @@ public class TreePlanner
                         scanNode,
                         new PProjection(
                                 scanNode.getFields().getNames().stream()
-                                        .collect(toImmutableMap(f -> treeNode.getAlias().get() + "." + f, VNodes::field))));
+                                        .collect(toImmutableMap(f -> treeNode.getAlias() + "." + f, VNodes::field))));
             }
 
             @Override

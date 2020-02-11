@@ -143,7 +143,7 @@ public final class SelectExpansion
                                 new TExpressionSelectItem(
                                         new TQualifiedNameExpression(
                                                 new TQualifiedName(
-                                                        ImmutableList.of(relation.getAlias().get(), relationField))),
+                                                        ImmutableList.of(relation.getAlias(), relationField))),
                                         Optional.of(label)));
                     }
                 }
@@ -189,7 +189,7 @@ public final class SelectExpansion
             {
                 List<TAliasedRelation> relations = addRelationAliases(
                         treeNode.getRelations().stream()
-                                .map(r -> (TAliasedRelation) process(r, context))
+                                .map(r -> (TRelation) process(r, context))
                                 .collect(toImmutableList()));
 
                 List<TSelectItem> items = addItemLabels(
@@ -205,7 +205,7 @@ public final class SelectExpansion
 
                 TSelect ret = new TSelect(
                         items,
-                        relations,
+                        relations.stream().map(TAliasedRelation.class::cast).collect(toImmutableList()),
                         treeNode.getWhere().map(w -> (TExpression) process(w, context)));
 
                 fieldSetsByNode.put(ret, fields);
