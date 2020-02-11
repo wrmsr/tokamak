@@ -167,7 +167,7 @@ public class TNodeRewriter<C>
     {
         return new TSelect(
                 immutableMapItems(node.getItems(), i -> (TSelectItem) process(i, context)),
-                immutableMapItems(node.getRelations(), r -> (TAliasedRelation) process(r, context)),
+                immutableMapItems(node.getRelations(), r -> (TRelation) process(r, context)),
                 node.getWhere().map(w -> (TExpression) process(w, context)));
     }
 
