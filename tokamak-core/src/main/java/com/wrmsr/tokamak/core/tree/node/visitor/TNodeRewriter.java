@@ -118,7 +118,8 @@ public class TNodeRewriter<C>
     {
         return new TJoinRelation(
                 (TRelation) process(node.getLeft(), context),
-                (TRelation) process(node.getRight(), context));
+                (TRelation) process(node.getRight(), context),
+                node.getCondition().map(c -> (TExpression) process(c, context)));
     }
 
     @Override

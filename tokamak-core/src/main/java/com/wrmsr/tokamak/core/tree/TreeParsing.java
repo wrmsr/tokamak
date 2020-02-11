@@ -24,6 +24,7 @@ import com.wrmsr.tokamak.core.tree.node.TExpression;
 import com.wrmsr.tokamak.core.tree.node.TExpressionSelectItem;
 import com.wrmsr.tokamak.core.tree.node.TFunctionCallExpression;
 import com.wrmsr.tokamak.core.tree.node.TIdentifier;
+import com.wrmsr.tokamak.core.tree.node.TJoinRelation;
 import com.wrmsr.tokamak.core.tree.node.TNode;
 import com.wrmsr.tokamak.core.tree.node.TNotExpression;
 import com.wrmsr.tokamak.core.tree.node.TNullLiteral;
@@ -256,7 +257,10 @@ public final class TreeParsing
             @Override
             public TNode visitJoinRelation(SqlParser.JoinRelationContext ctx)
             {
-                throw new IllegalStateException();
+                return new TJoinRelation(
+                        (TRelation) visit(ctx.left),
+                        (TRelation) visit(ctx.right),
+                        ctx.criteria != null ? Optional.of((TExpression) visit(ctx.criteria)) : Optional.empty());
             }
 
             @Override

@@ -15,6 +15,8 @@ package com.wrmsr.tokamak.core.tree.node;
 
 import com.wrmsr.tokamak.core.tree.node.visitor.TNodeVisitor;
 
+import java.util.Optional;
+
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public final class TJoinRelation
@@ -22,11 +24,13 @@ public final class TJoinRelation
 {
     private final TRelation left;
     private final TRelation right;
+    private final Optional<TExpression> condition;
 
-    public TJoinRelation(TRelation left, TRelation right)
+    public TJoinRelation(TRelation left, TRelation right, Optional<TExpression> condition)
     {
         this.left = checkNotNull(left);
         this.right = checkNotNull(right);
+        this.condition = checkNotNull(condition);
     }
 
     public TRelation getLeft()
@@ -37,6 +41,11 @@ public final class TJoinRelation
     public TRelation getRight()
     {
         return right;
+    }
+
+    public Optional<TExpression> getCondition()
+    {
+        return condition;
     }
 
     @Override
