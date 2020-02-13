@@ -392,11 +392,6 @@ public class CoreTest
         TpchUtils.setupCatalog(shell.getRootCatalog(), url);
 
         for (String sql : new String[] {
-                "select L_QUANTITY, O_ORDERKEY, O_ORDERSTATUS, P_NAME, S_NAME " +
-                        "from LINEITEM, ORDERS, PART, SUPPLIER where L_ORDERKEY = O_ORDERKEY and L_PARTKEY = P_PARTKEY and L_SUPPKEY = S_SUPPKEY",
-
-                "select * from NATION, NATION",
-
                 "select N_NAME, N_REGIONKEY, N_COMMENT, R_NAME from NATION, REGION where N_REGIONKEY = R_REGIONKEY",
 
                 "select N_NAME, N_REGIONKEY, N_NATIONKEY, N_COMMENT from NATION as barf where N_REGIONKEY = 1",
@@ -405,6 +400,10 @@ public class CoreTest
 
                 "select N_NAME, N_REGIONKEY, N_COMMENT from NATION",
 
+                "select L_QUANTITY, O_ORDERKEY, O_ORDERSTATUS, P_NAME, S_NAME " +
+                        "from LINEITEM, ORDERS, PART, SUPPLIER where L_ORDERKEY = O_ORDERKEY and L_PARTKEY = P_PARTKEY and L_SUPPKEY = S_SUPPKEY",
+
+                "select * from NATION, NATION",
 
         }) {
             System.out.println(sql);
@@ -419,10 +418,12 @@ public class CoreTest
             for (int i = 1; i < 4; ++i) {
                 for (int j = 0; j < 3; ++j) {
                     Driver.Context ctx = driver.newContext();
+                    Key key = Key.of(sql.contains("N_REGIONKEY") ? "N_REGIONKEY" : "O_ORDERKEY", i);
+                    System.out.println(key);
                     Collection<Row> buildRows = driver.build(
                             ctx,
                             plan.getRoot(),
-                            Key.of(sql.contains("N_REGIONKEY") ? "N_REGIONKEY" : "O_ORDERKEY", i)
+                            key
                             // Key.of("N_NATIONKEY", i)
                     );
                     buildRows.forEach(System.out::println);
