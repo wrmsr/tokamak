@@ -21,6 +21,7 @@ import com.wrmsr.tokamak.core.tree.node.TAliasedRelation;
 import com.wrmsr.tokamak.core.tree.node.TAllSelectItem;
 import com.wrmsr.tokamak.core.tree.node.TExpression;
 import com.wrmsr.tokamak.core.tree.node.TExpressionSelectItem;
+import com.wrmsr.tokamak.core.tree.node.TJoinRelation;
 import com.wrmsr.tokamak.core.tree.node.TNode;
 import com.wrmsr.tokamak.core.tree.node.TQualifiedName;
 import com.wrmsr.tokamak.core.tree.node.TQualifiedNameExpression;
@@ -30,6 +31,7 @@ import com.wrmsr.tokamak.core.tree.node.TSelectItem;
 import com.wrmsr.tokamak.core.tree.node.TSubqueryRelation;
 import com.wrmsr.tokamak.core.tree.node.TTableNameRelation;
 import com.wrmsr.tokamak.core.tree.node.visitor.TNodeRewriter;
+import com.wrmsr.tokamak.core.tree.node.visitor.TNodeVisitor;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -39,6 +41,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
@@ -55,7 +58,7 @@ public final class SelectExpansion
     {
         Set<String> seen = new HashSet<>();
         List<TAliasedRelation> ret = new ArrayList<>();
-        int numAnon = 0;
+        AtomicInteger numAnon = new AtomicInteger(0);
 
         Map<String, Long> tableNameCounts = histogram(relations.stream()
                 .filter(r -> !(r instanceof TAliasedRelation))
@@ -65,44 +68,58 @@ public final class SelectExpansion
                 .map(TQualifiedName::getLast));
         Map<String, Integer> dupeTableNameCounts = new HashMap<>();
 
-        for (TRelation r : relations) {
-            TAliasedRelation ar;
-            if (!(r instanceof TAliasedRelation)) {
+        TNodeVisitor<Void, Void> visitor = new TNodeVisitor<Void, Void>()
+        {
+            private void add(TAliasedRelation ar)
+            {
+                checkState(!seen.contains(ar.getAlias()));
+                seen.add(ar.getAlias());
+                ret.add(ar);
+            }
+
+            private void add(TRelation r, String alias)
+            {
+                add(new TAliasedRelation( r, alias));
+            }
+
+            @Override
+            public Void visitAliasedRelation(TAliasedRelation node, Void context)
+            {
+                add(node);
+                return null;
+            }
+
+            @Override
+            public Void visitJoinRelation(TJoinRelation node, Void context)
+            {
+                throw new IllegalStateException();
+            }
+
+            @Override
+            public Void visitSubqueryRelation(TSubqueryRelation node, Void context)
+            {
+                add(node,  "_" + numAnon.getAndIncrement());
+                return null;
+            }
+
+            @Override
+            public Void visitTableNameRelation(TTableNameRelation node, Void context)
+            {
+                String name = node.getQualifiedName().getLast();
                 String alias;
-
-                if (r instanceof TSubqueryRelation) {
-                    alias = "_" + (numAnon++);
+                if (tableNameCounts.get(name) > 1) {
+                    int num = dupeTableNameCounts.getOrDefault(name, 0);
+                    dupeTableNameCounts.put(name, num + 1);
+                    alias = name + "_" + num;
                 }
-
-                else if (r instanceof TTableNameRelation) {
-                    TTableNameRelation tn = (TTableNameRelation) r;
-                    String name = tn.getQualifiedName().getLast();
-                    if (tableNameCounts.get(name) > 1) {
-                        int num = dupeTableNameCounts.getOrDefault(name, 0);
-                        dupeTableNameCounts.put(name, num + 1);
-                        alias = name + "_" + num;
-                    }
-                    else {
-                        alias = name;
-                    }
-                }
-
                 else {
-                    throw new IllegalStateException(Objects.toString(r));
+                    alias = name;
                 }
-
-                ar = new TAliasedRelation(
-                        r,
-                        alias);
+                add(node, alias);
+                return null;
             }
-            else {
-                ar = (TAliasedRelation) r;
-            }
-
-            checkState(!seen.contains(ar.getAlias()));
-            seen.add(ar.getAlias());
-            ret.add(ar);
-        }
+        };
+        relations.forEach(r -> r.accept(visitor, null));
 
         return ImmutableList.copyOf(ret);
     }
@@ -216,7 +233,7 @@ public final class SelectExpansion
             @Override
             public TNode visitSubqueryRelation(TSubqueryRelation treeNode, Void context)
             {
-                return super.visitSubqueryRelation(treeNode, context);
+                throw new IllegalStateException();
             }
 
             @Override
