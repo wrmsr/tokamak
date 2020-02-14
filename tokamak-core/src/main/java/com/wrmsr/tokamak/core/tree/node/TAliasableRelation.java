@@ -13,28 +13,7 @@
  */
 package com.wrmsr.tokamak.core.tree.node;
 
-import com.wrmsr.tokamak.core.tree.node.visitor.TNodeVisitor;
-
-import static com.google.common.base.Preconditions.checkNotNull;
-
-public final class TSubqueryRelation
-        extends TAliasableRelation
+public abstract class TAliasableRelation
+        extends TRelation
 {
-    private final TSelect select;
-
-    public TSubqueryRelation(TSelect select)
-    {
-        this.select = checkNotNull(select);
-    }
-
-    public TSelect getSelect()
-    {
-        return select;
-    }
-
-    @Override
-    public <R, C> R accept(TNodeVisitor<R, C> visitor, C context)
-    {
-        return visitor.visitSubqueryRelation(this, context);
-    }
 }

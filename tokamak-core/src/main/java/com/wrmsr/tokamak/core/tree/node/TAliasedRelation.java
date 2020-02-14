@@ -15,23 +15,21 @@ package com.wrmsr.tokamak.core.tree.node;
 
 import com.wrmsr.tokamak.core.tree.node.visitor.TNodeVisitor;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public final class TAliasedRelation
         extends TRelation
 {
-    private final TRelation relation;
+    private final TAliasableRelation relation;
     private final String alias;
 
-    public TAliasedRelation(TRelation relation, String alias)
+    public TAliasedRelation(TAliasableRelation relation, String alias)
     {
         this.relation = checkNotNull(relation);
         this.alias = checkNotNull(alias);
-        checkArgument(!(relation instanceof TAliasedRelation));
     }
 
-    public TRelation getRelation()
+    public TAliasableRelation getRelation()
     {
         return relation;
     }

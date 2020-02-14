@@ -18,6 +18,7 @@ import com.wrmsr.tokamak.core.tree.node.TBooleanExpression;
 import com.wrmsr.tokamak.core.tree.node.TComparisonExpression;
 import com.wrmsr.tokamak.core.tree.node.TExpressionSelectItem;
 import com.wrmsr.tokamak.core.tree.node.TFunctionCallExpression;
+import com.wrmsr.tokamak.core.tree.node.TJoinRelation;
 import com.wrmsr.tokamak.core.tree.node.TNode;
 import com.wrmsr.tokamak.core.tree.node.TNotExpression;
 import com.wrmsr.tokamak.core.tree.node.TQualifiedNameExpression;
@@ -83,6 +84,16 @@ public class TraversalTNodeVisitor<R, C>
         node.getArgs().forEach(a -> process(a, traversedContext));
 
         return super.visitFunctionCallExpression(node, context);
+    }
+
+    @Override
+    public R visitJoinRelation(TJoinRelation node, C context)
+    {
+        C traversedContext = traverseContext(node, context);
+        process(node.getLeft(), traversedContext);
+        process(node.getRight(), traversedContext);
+
+        return super.visitJoinRelation(node, context);
     }
 
     @Override

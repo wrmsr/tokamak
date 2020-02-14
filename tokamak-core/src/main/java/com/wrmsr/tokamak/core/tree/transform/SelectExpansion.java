@@ -17,6 +17,7 @@ import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.core.catalog.Table;
 import com.wrmsr.tokamak.core.tree.ParsingContext;
+import com.wrmsr.tokamak.core.tree.node.TAliasableRelation;
 import com.wrmsr.tokamak.core.tree.node.TAliasedRelation;
 import com.wrmsr.tokamak.core.tree.node.TAllSelectItem;
 import com.wrmsr.tokamak.core.tree.node.TExpression;
@@ -61,7 +62,6 @@ public final class SelectExpansion
         AtomicInteger numAnon = new AtomicInteger(0);
 
         Map<String, Long> tableNameCounts = histogram(relations.stream()
-                .filter(r -> !(r instanceof TAliasedRelation))
                 .filter(TTableNameRelation.class::isInstance)
                 .map(TTableNameRelation.class::cast)
                 .map(TTableNameRelation::getQualifiedName)
@@ -77,9 +77,9 @@ public final class SelectExpansion
                 ret.add(ar);
             }
 
-            private void add(TRelation r, String alias)
+            private void add(TAliasableRelation r, String alias)
             {
-                add(new TAliasedRelation( r, alias));
+                add(new TAliasedRelation(r, alias));
             }
 
             @Override
@@ -228,6 +228,12 @@ public final class SelectExpansion
                 fieldSetsByNode.put(ret, fields);
 
                 return ret;
+            }
+
+            @Override
+            public TNode visitJoinRelation(TJoinRelation node, Void context)
+            {
+                return super.visitJoinRelation(node, context);
             }
 
             @Override

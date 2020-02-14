@@ -13,6 +13,7 @@
  */
 package com.wrmsr.tokamak.core.tree.node.visitor;
 
+import com.wrmsr.tokamak.core.tree.node.TAliasableRelation;
 import com.wrmsr.tokamak.core.tree.node.TAliasedRelation;
 import com.wrmsr.tokamak.core.tree.node.TAllSelectItem;
 import com.wrmsr.tokamak.core.tree.node.TBooleanExpression;
@@ -62,7 +63,7 @@ public class TNodeRewriter<C>
     public TNode visitAliasedRelation(TAliasedRelation node, C context)
     {
         return new TAliasedRelation(
-                (TRelation) process(node.getRelation(), context),
+                (TAliasableRelation) process(node.getRelation(), context),
                 node.getAlias());
     }
 

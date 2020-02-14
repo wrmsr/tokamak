@@ -18,7 +18,7 @@ import com.wrmsr.tokamak.core.tree.node.visitor.TNodeVisitor;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public final class TTableNameRelation
-        extends TRelation
+        extends TAliasableRelation
 {
     private final TQualifiedName qualifiedName;
 

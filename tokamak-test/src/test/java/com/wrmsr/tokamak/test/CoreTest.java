@@ -392,6 +392,15 @@ public class CoreTest
         TpchUtils.setupCatalog(shell.getRootCatalog(), url);
 
         for (String sql : new String[] {
+                "select * from NATION, NATION",
+
+                "select L_QUANTITY, O_ORDERKEY, O_ORDERSTATUS, P_NAME, S_NAME " +
+                        "from LINEITEM " +
+                        "join ORDERS on L_ORDERKEY = O_ORDERKEY " +
+                        "join PART on L_PARTKEY = P_PARTKEY " +
+                        "join SUPPLIER on L_SUPPKEY = S_SUPPKEY",
+                        // "",
+
                 "select N_NAME, N_REGIONKEY, N_COMMENT, R_NAME from NATION, REGION where N_REGIONKEY = R_REGIONKEY",
 
                 "select N_NAME, N_REGIONKEY, N_NATIONKEY, N_COMMENT from NATION as barf where N_REGIONKEY = 1",
@@ -402,8 +411,6 @@ public class CoreTest
 
                 "select L_QUANTITY, O_ORDERKEY, O_ORDERSTATUS, P_NAME, S_NAME " +
                         "from LINEITEM, ORDERS, PART, SUPPLIER where L_ORDERKEY = O_ORDERKEY and L_PARTKEY = P_PARTKEY and L_SUPPKEY = S_SUPPKEY",
-
-                "select * from NATION, NATION",
 
         }) {
             System.out.println(sql);

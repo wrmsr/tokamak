@@ -16,6 +16,7 @@ package com.wrmsr.tokamak.core.tree;
 import com.wrmsr.tokamak.core.parse.SqlBaseVisitor;
 import com.wrmsr.tokamak.core.parse.SqlLexer;
 import com.wrmsr.tokamak.core.parse.SqlParser;
+import com.wrmsr.tokamak.core.tree.node.TAliasableRelation;
 import com.wrmsr.tokamak.core.tree.node.TAliasedRelation;
 import com.wrmsr.tokamak.core.tree.node.TAllSelectItem;
 import com.wrmsr.tokamak.core.tree.node.TBooleanExpression;
@@ -173,7 +174,7 @@ public final class TreeParsing
                 TRelation relation = (TRelation) visit(ctx.baseRelation());
                 if (ctx.identifier() != null) {
                     relation = new TAliasedRelation(
-                            relation,
+                            (TAliasableRelation) relation,
                             ctx.identifier().getText());
                 }
                 return relation;

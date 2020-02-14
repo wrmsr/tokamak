@@ -13,6 +13,7 @@
  */
 package com.wrmsr.tokamak.core.tree.node.visitor;
 
+import com.wrmsr.tokamak.core.tree.node.TAliasableRelation;
 import com.wrmsr.tokamak.core.tree.node.TAliasedRelation;
 import com.wrmsr.tokamak.core.tree.node.TAllSelectItem;
 import com.wrmsr.tokamak.core.tree.node.TBooleanExpression;
@@ -50,6 +51,11 @@ public abstract class TNodeVisitor<R, C>
     protected R visitNode(TNode node, C context)
     {
         throw new IllegalArgumentException(Objects.toString(node));
+    }
+
+    public R visitAliasableRelation(TAliasableRelation node, C context)
+    {
+        return visitRelation(node, context);
     }
 
     public R visitAliasedRelation(TAliasedRelation node, C context)
@@ -159,11 +165,11 @@ public abstract class TNodeVisitor<R, C>
 
     public R visitSubqueryRelation(TSubqueryRelation node, C context)
     {
-        return visitRelation(node, context);
+        return visitAliasableRelation(node, context);
     }
 
     public R visitTableNameRelation(TTableNameRelation node, C context)
     {
-        return visitRelation(node, context);
+        return visitAliasableRelation(node, context);
     }
 }
