@@ -30,7 +30,7 @@
         <dep.guice.version>4.2.2</dep.guice.version>
         <dep.jackson.version>2.10.2</dep.jackson.version>
         <dep.jersey.version>2.30</dep.jersey.version>
-        <dep.protobuf.version>3.11.3</dep.protobuf.version>
+        <dep.protobuf.version>3.11.4</dep.protobuf.version>
 
     </properties>
 
@@ -352,7 +352,7 @@
             <dependency>
                 <groupId>info.picocli</groupId>
                 <artifactId>picocli</artifactId>
-                <version>4.1.4</version>
+                <version>4.2.0</version>
             </dependency>
 
             <dependency>
@@ -364,7 +364,7 @@
             <dependency>
                 <groupId>org.codehaus.groovy</groupId>
                 <artifactId>groovy</artifactId>
-                <version>2.5.9</version>
+                <version>3.0.1</version>
             </dependency>
 
             <dependency>
@@ -454,7 +454,7 @@
             <dependency>
                 <groupId>it.unimi.dsi</groupId>
                 <artifactId>fastutil</artifactId>
-                <version>8.3.0</version>
+                <version>8.3.1</version>
             </dependency>
 
             <!-- Other -->
@@ -474,7 +474,7 @@
             <dependency>
                 <groupId>org.rocksdb</groupId>
                 <artifactId>rocksdbjni</artifactId>
-                <version>6.5.3</version>
+                <version>6.6.4</version>
             </dependency>
 
             <dependency>
@@ -574,7 +574,7 @@
             <dependency>
                 <groupId>org.apache.zookeeper</groupId>
                 <artifactId>zookeeper</artifactId>
-                <version>3.5.6</version>
+                <version>3.5.7</version>
                 <exclusions>
                     <exclusion>
                         <artifactId>jline</artifactId>
@@ -630,7 +630,7 @@
             <dependency>
                 <groupId>io.reactivex.rxjava3</groupId>
                 <artifactId>rxjava</artifactId>
-                <version>3.0.0-RC9</version>
+                <version>3.0.0</version>
             </dependency>
 
             <dependency>
