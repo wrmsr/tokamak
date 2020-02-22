@@ -14,6 +14,7 @@
 package com.wrmsr.tokamak.core.tree.transform;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.core.catalog.Table;
 import com.wrmsr.tokamak.core.tree.ParsingContext;
@@ -115,6 +116,27 @@ public final class SelectExpansion
                     }
                 }, null))
                 .collect(toImmutableList());
+    }
+
+    private static Map<TNode, Set<String>> buildFieldSetsByNode(
+            List<TRelation> relations,
+            ParsingContext parsingContext)
+    {
+        Map<TNode, Set<String>> fieldSetsByNode = new HashMap<>();
+
+        relations.forEach(r -> r.accept(new TraversalTNodeVisitor<Void, Void>()
+        {
+            @Override
+            public TNode visitTableNameRelation(TTableNameRelation treeNode, Void context)
+            {
+                SchemaTable schemaTable = treeNode.getQualifiedName().toSchemaTable(parsingContext.getDefaultSchema());
+                Table table = parsingContext.getCatalog().get().getSchemaTable(schemaTable);
+                fieldSetsByNode.put(treeNode, table.getRowLayout().getFields().getNames());
+                return null;
+            }
+        }, null));
+
+        return ImmutableMap.copyOf(fieldSetsByNode);
     }
 
     private static List<TSelectItem> addItemLabels(
