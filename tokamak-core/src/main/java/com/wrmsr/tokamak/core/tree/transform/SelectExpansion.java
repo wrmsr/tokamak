@@ -17,7 +17,6 @@ import com.google.common.collect.ImmutableList;
 import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.core.catalog.Table;
 import com.wrmsr.tokamak.core.tree.ParsingContext;
-import com.wrmsr.tokamak.core.tree.node.TAliasableRelation;
 import com.wrmsr.tokamak.core.tree.node.TAliasedRelation;
 import com.wrmsr.tokamak.core.tree.node.TAllSelectItem;
 import com.wrmsr.tokamak.core.tree.node.TExpression;
@@ -75,48 +74,47 @@ public final class SelectExpansion
 
         Map<String, Integer> dupeTableNameCounts = new HashMap<>();
 
-        TNodeVisitor<TRelation, Void> rewriter = new TNodeVisitor<TRelation, Void>()
-        {
-            @Override
-            public TRelation visitAliasedRelation(TAliasedRelation node, Void context)
-            {
-                return node;
-            }
+        return relations.stream()
+                .map(r -> r.accept(new TNodeVisitor<TRelation, Void>()
+                {
+                    @Override
+                    public TRelation visitAliasedRelation(TAliasedRelation node, Void context)
+                    {
+                        return node;
+                    }
 
-            @Override
-            public TRelation visitJoinRelation(TJoinRelation node, Void context)
-            {
-                return new TJoinRelation(
-                        process(node.getLeft(), context),
-                        process(node.getRight(), context),
-                        node.getCondition());
-            }
+                    @Override
+                    public TRelation visitJoinRelation(TJoinRelation node, Void context)
+                    {
+                        return new TJoinRelation(
+                                process(node.getLeft(), context),
+                                process(node.getRight(), context),
+                                node.getCondition());
+                    }
 
-            @Override
-            public TRelation visitSubqueryRelation(TSubqueryRelation node, Void context)
-            {
-                return new TAliasedRelation(node, "_" + numAnon.getAndIncrement());
-            }
+                    @Override
+                    public TRelation visitSubqueryRelation(TSubqueryRelation node, Void context)
+                    {
+                        return new TAliasedRelation(node, "_" + numAnon.getAndIncrement());
+                    }
 
-            @Override
-            public TRelation visitTableNameRelation(TTableNameRelation node, Void context)
-            {
-                String name = node.getQualifiedName().getLast();
-                String alias;
-                if (tableNameCounts.get(name) > 1) {
-                    int num = dupeTableNameCounts.getOrDefault(name, 0);
-                    dupeTableNameCounts.put(name, num + 1);
-                    alias = name + "_" + num;
-                }
-                else {
-                    alias = name;
-                }
-                return new TAliasedRelation(node, alias);
-            }
-        };
-        relations.forEach(r -> r.accept(rewriter, null));
-
-        return ImmutableList.copyOf(ret);
+                    @Override
+                    public TRelation visitTableNameRelation(TTableNameRelation node, Void context)
+                    {
+                        String name = node.getQualifiedName().getLast();
+                        String alias;
+                        if (tableNameCounts.get(name) > 1) {
+                            int num = dupeTableNameCounts.getOrDefault(name, 0);
+                            dupeTableNameCounts.put(name, num + 1);
+                            alias = name + "_" + num;
+                        }
+                        else {
+                            alias = name;
+                        }
+                        return new TAliasedRelation(node, alias);
+                    }
+                }, null))
+                .collect(toImmutableList());
     }
 
     private static List<TSelectItem> addItemLabels(
@@ -134,9 +132,9 @@ public final class SelectExpansion
 
         }, null));
 
-            // .map(TAliasedRelation::getRelation)
-            // .map(fieldSetsByNode::get)
-            // .flatMap(Set::stream));
+        // .map(TAliasedRelation::getRelation)
+        // .map(fieldSetsByNode::get)
+        // .flatMap(Set::stream));
 
         for (TSelectItem item : items) {
             if (item instanceof TAllSelectItem) {
