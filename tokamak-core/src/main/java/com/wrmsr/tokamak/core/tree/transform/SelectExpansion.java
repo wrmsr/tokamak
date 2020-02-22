@@ -52,6 +52,7 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static com.wrmsr.tokamak.util.MoreCollections.histogram;
 import static com.wrmsr.tokamak.util.MoreCollections.immutableMapOfSame;
+import static java.util.stream.Collectors.groupingBy;
 
 public final class SelectExpansion
 {
@@ -166,13 +167,16 @@ public final class SelectExpansion
     private static List<TSelectItem> addItemLabels(
             List<TSelectItem> items,
             List<TRelation> relations,
-            Map<TNode, Set<String>> fieldSetsByNode)
+            ParsingContext parsingContext)
     {
         Set<String> seen = new HashSet<>();
         List<TSelectItem> ret = new ArrayList<>();
         int numAnon = 0;
 
-        Map<String, Long> relationFieldCounts = histogram(fieldSetsByNode.values().stream().flatMap(Set::stream));
+        Set<String> uniqueFields = buildFieldHistogramsByNode(relations, parsingContext).values().stream()
+                .map(Map::entrySet)
+                .flatMap(Set::stream)
+                .collect(groupingBy(Map.Entry::getKey)).entrySet().stream()
 
         for (TSelectItem item : items) {
             if (item instanceof TAllSelectItem) {
