@@ -31,6 +31,7 @@ import com.wrmsr.tokamak.core.tree.node.TSelect;
 import com.wrmsr.tokamak.core.tree.node.TSelectItem;
 import com.wrmsr.tokamak.core.tree.node.TSubqueryRelation;
 import com.wrmsr.tokamak.core.tree.node.TTableNameRelation;
+import com.wrmsr.tokamak.core.tree.node.visitor.CachingTNodeVisitor;
 import com.wrmsr.tokamak.core.tree.node.visitor.TNodeRewriter;
 import com.wrmsr.tokamak.core.tree.node.visitor.TNodeVisitor;
 import com.wrmsr.tokamak.core.tree.node.visitor.TraversalTNodeVisitor;
@@ -49,6 +50,7 @@ import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static com.wrmsr.tokamak.util.MoreCollections.histogram;
+import static com.wrmsr.tokamak.util.MoreCollections.immutableMapValues;
 
 public final class SelectExpansion
 {
@@ -119,16 +121,35 @@ public final class SelectExpansion
                 .collect(toImmutableList());
     }
 
-    private static Map<TNode, Set<String>> buildFieldSetsByNode(
+    private static Map<TNode, Map<String, Integer>> buildFieldHistogramsByNode(
             List<TRelation> relations,
             ParsingContext parsingContext)
     {
-        Map<TNode, Set<String>> fieldSetsByNode = new HashMap<>();
+        Map<TNode, Map<String, Integer>> ret = new HashMap<>();
 
-        relations.forEach(r -> r.accept(new TraversalTNodeVisitor<Void, Void>()
+        relations.forEach(r -> r.accept(new CachingTNodeVisitor<Map<String, Integer>, Void>(ret)
         {
+
             @Override
-            public Void visitTableNameRelation(TTableNameRelation treeNode, Void context)
+            public Map<String, Integer> visitAliasedRelation(TAliasedRelation node, Void context)
+            {
+                return super.visitAliasedRelation(node, context);
+            }
+
+            @Override
+            public Map<String, Integer> visitJoinRelation(TJoinRelation node, Void context)
+            {
+                return super.visitJoinRelation(node, context);
+            }
+
+            @Override
+            public Map<String, Integer> visitSubqueryRelation(TSubqueryRelation node, Void context)
+            {
+                return super.visitSubqueryRelation(node, context);
+            }
+
+            @Override
+            public Map<String, Integer> visitTableNameRelation(TTableNameRelation treeNode, Void context)
             {
                 SchemaTable schemaTable = treeNode.getQualifiedName().toSchemaTable(parsingContext.getDefaultSchema());
                 Table table = parsingContext.getCatalog().get().getSchemaTable(schemaTable);
@@ -137,7 +158,7 @@ public final class SelectExpansion
             }
         }, null));
 
-        return ImmutableMap.copyOf(fieldSetsByNode);
+        return ImmutableMap.copyOf(ret);
     }
 
     private static List<TSelectItem> addItemLabels(
@@ -154,8 +175,8 @@ public final class SelectExpansion
         for (TSelectItem item : items) {
             if (item instanceof TAllSelectItem) {
                 Map<String, Integer> dupeCounts = new HashMap<>();
-                for (TAliasedRelation relation : relations) {
-                    Set<String> relationFields = fieldSetsByNode.get(relation.getRelation());
+                for (TRelation relation : relations) {
+                    Set<String> relationFields = fieldSetsByNode.get(relation);
                     for (String relationField : relationFields) {
                         String label;
                         if (relationFieldCounts.get(relationField) > 1) {
@@ -254,16 +275,6 @@ public final class SelectExpansion
             {
                 throw new IllegalStateException();
             }
-
-            @Override
-            public TNode visitTableNameRelation(TTableNameRelation treeNode, Void context)
-            {
-                TTableNameRelation ret = (TTableNameRelation) super.visitTableNameRelation(treeNode, context);
-                SchemaTable schemaTable = treeNode.getQualifiedName().toSchemaTable(parsingContext.getDefaultSchema());
-                Table table = parsingContext.getCatalog().get().getSchemaTable(schemaTable);
-                fieldSetsByNode.put(ret, table.getRowLayout().getFields().getNames());
-                return ret;
-            }
         }, null);
     }
-}
+
