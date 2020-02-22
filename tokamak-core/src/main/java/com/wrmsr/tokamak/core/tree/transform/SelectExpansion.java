@@ -177,6 +177,9 @@ public final class SelectExpansion
                 .map(Map::entrySet)
                 .flatMap(Set::stream)
                 .collect(groupingBy(Map.Entry::getKey)).entrySet().stream()
+                .filter(e -> e.getValue().size() == 1 && e.getValue().get(0).getValue() == 1)
+                .map(Map.Entry::getKey)
+                .collect(toImmutableSet());
 
         for (TSelectItem item : items) {
             if (item instanceof TAllSelectItem) {
