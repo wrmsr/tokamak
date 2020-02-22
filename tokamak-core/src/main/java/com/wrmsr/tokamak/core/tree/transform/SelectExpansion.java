@@ -48,6 +48,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
+import static com.wrmsr.tokamak.util.MoreCollections.histogram;
 
 public final class SelectExpansion
 {
@@ -127,7 +128,7 @@ public final class SelectExpansion
         relations.forEach(r -> r.accept(new TraversalTNodeVisitor<Void, Void>()
         {
             @Override
-            public TNode visitTableNameRelation(TTableNameRelation treeNode, Void context)
+            public Void visitTableNameRelation(TTableNameRelation treeNode, Void context)
             {
                 SchemaTable schemaTable = treeNode.getQualifiedName().toSchemaTable(parsingContext.getDefaultSchema());
                 Table table = parsingContext.getCatalog().get().getSchemaTable(schemaTable);
@@ -148,15 +149,7 @@ public final class SelectExpansion
         List<TSelectItem> ret = new ArrayList<>();
         int numAnon = 0;
 
-        Map<String, Long> relationFieldCounts = new HashMap<>();
-        relations.forEach(r -> r.accept(new TraversalTNodeVisitor<Void, Void>()
-        {
-
-        }, null));
-
-        // .map(TAliasedRelation::getRelation)
-        // .map(fieldSetsByNode::get)
-        // .flatMap(Set::stream));
+        Map<String, Long> relationFieldCounts = histogram(fieldSetsByNode.values().stream().flatMap(Set::stream));
 
         for (TSelectItem item : items) {
             if (item instanceof TAllSelectItem) {
