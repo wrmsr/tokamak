@@ -45,6 +45,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Stream;
 
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
@@ -132,19 +133,22 @@ public final class SelectExpansion
             @Override
             public Map<String, Integer> visitAliasedRelation(TAliasedRelation node, Void context)
             {
-                return super.visitAliasedRelation(node, context);
+                return process(node.getRelation(), context);
             }
 
             @Override
             public Map<String, Integer> visitJoinRelation(TJoinRelation node, Void context)
             {
-                return super.visitJoinRelation(node, context);
+                Map<String, Integer> ret = new HashMap<>();
+                Stream.of(node.getLeft(), node.getRight())
+                        .forEach(r -> process(r, context).forEach((f, c) -> ret.put(f, ret.getOrDefault(f, 0) + 1)));
+                return ret;
             }
 
             @Override
             public Map<String, Integer> visitSubqueryRelation(TSubqueryRelation node, Void context)
             {
-                return super.visitSubqueryRelation(node, context);
+                throw new IllegalStateException();
             }
 
             @Override
