@@ -50,7 +50,7 @@ import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static com.wrmsr.tokamak.util.MoreCollections.histogram;
-import static com.wrmsr.tokamak.util.MoreCollections.immutableMapValues;
+import static com.wrmsr.tokamak.util.MoreCollections.immutableMapOfSame;
 
 public final class SelectExpansion
 {
@@ -129,7 +129,6 @@ public final class SelectExpansion
 
         relations.forEach(r -> r.accept(new CachingTNodeVisitor<Map<String, Integer>, Void>(ret)
         {
-
             @Override
             public Map<String, Integer> visitAliasedRelation(TAliasedRelation node, Void context)
             {
@@ -153,8 +152,7 @@ public final class SelectExpansion
             {
                 SchemaTable schemaTable = treeNode.getQualifiedName().toSchemaTable(parsingContext.getDefaultSchema());
                 Table table = parsingContext.getCatalog().get().getSchemaTable(schemaTable);
-                fieldSetsByNode.put(treeNode, table.getRowLayout().getFields().getNames());
-                return null;
+                return immutableMapOfSame(table.getRowLayout().getFields().getNames(), 1);
             }
         }, null));
 
