@@ -14,7 +14,6 @@
 package com.wrmsr.tokamak.core.tree.transform;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.core.catalog.Table;
 import com.wrmsr.tokamak.core.tree.ParsingContext;
@@ -33,6 +32,7 @@ import com.wrmsr.tokamak.core.tree.node.TSelectItem;
 import com.wrmsr.tokamak.core.tree.node.TSubqueryRelation;
 import com.wrmsr.tokamak.core.tree.node.TTableNameRelation;
 import com.wrmsr.tokamak.core.tree.node.visitor.TNodeRewriter;
+import com.wrmsr.tokamak.core.tree.node.visitor.TNodeVisitor;
 import com.wrmsr.tokamak.core.tree.node.visitor.TraversalTNodeVisitor;
 
 import java.util.ArrayList;
@@ -48,7 +48,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
-import static com.wrmsr.tokamak.util.MoreCollections.histogram;
 
 public final class SelectExpansion
 {
@@ -62,7 +61,7 @@ public final class SelectExpansion
         List<TAliasedRelation> ret = new ArrayList<>();
         AtomicInteger numAnon = new AtomicInteger(0);
 
-        Map<String, Long> tableNameCounts = new HashMap<>();
+        Map<String, Integer> tableNameCounts = new HashMap<>();
         relations.forEach(r -> r.accept(new TraversalTNodeVisitor<Void, Void>()
         {
             @Override
@@ -76,41 +75,31 @@ public final class SelectExpansion
 
         Map<String, Integer> dupeTableNameCounts = new HashMap<>();
 
-        TNodeRewriter<Void> rewriter = new TNodeRewriter<Void>()
+        TNodeVisitor<TRelation, Void> rewriter = new TNodeVisitor<TRelation, Void>()
         {
-            private void add(TAliasedRelation ar)
-            {
-                checkState(!seen.contains(ar.getAlias()));
-                seen.add(ar.getAlias());
-                ret.add(ar);
-            }
-
-            private void add(TAliasableRelation r, String alias)
-            {
-                add(new TAliasedRelation(r, alias));
-            }
-
             @Override
-            public TNode visitAliasedRelation(TAliasedRelation node, Void context)
+            public TRelation visitAliasedRelation(TAliasedRelation node, Void context)
             {
                 return node;
             }
 
             @Override
-            public TNode visitJoinRelation(TJoinRelation node, Void context)
+            public TRelation visitJoinRelation(TJoinRelation node, Void context)
             {
-                throw new IllegalStateException();
+                return new TJoinRelation(
+                        process(node.getLeft(), context),
+                        process(node.getRight(), context),
+                        node.getCondition());
             }
 
             @Override
-            public TNode visitSubqueryRelation(TSubqueryRelation node, Void context)
+            public TRelation visitSubqueryRelation(TSubqueryRelation node, Void context)
             {
-                add(node, "_" + numAnon.getAndIncrement());
-                return null;
+                return new TAliasedRelation(node, "_" + numAnon.getAndIncrement());
             }
 
             @Override
-            public TNode visitTableNameRelation(TTableNameRelation node, Void context)
+            public TRelation visitTableNameRelation(TTableNameRelation node, Void context)
             {
                 String name = node.getQualifiedName().getLast();
                 String alias;
@@ -122,8 +111,7 @@ public final class SelectExpansion
                 else {
                     alias = name;
                 }
-                add(node, alias);
-                return null;
+                return new TAliasedRelation(node, alias);
             }
         };
         relations.forEach(r -> r.accept(rewriter, null));
@@ -133,17 +121,22 @@ public final class SelectExpansion
 
     private static List<TSelectItem> addItemLabels(
             List<TSelectItem> items,
-            List<TAliasedRelation> relations,
+            List<TRelation> relations,
             Map<TNode, Set<String>> fieldSetsByNode)
     {
         Set<String> seen = new HashSet<>();
         List<TSelectItem> ret = new ArrayList<>();
         int numAnon = 0;
 
-        Map<String, Long> relationFieldCounts = histogram(relations.stream()
-                .map(TAliasedRelation::getRelation)
-                .map(fieldSetsByNode::get)
-                .flatMap(Set::stream));
+        Map<String, Long> relationFieldCounts = new HashMap<>();
+        relations.forEach(r -> r.accept(new TraversalTNodeVisitor<Void, Void>()
+        {
+
+        }, null));
+
+            // .map(TAliasedRelation::getRelation)
+            // .map(fieldSetsByNode::get)
+            // .flatMap(Set::stream));
 
         for (TSelectItem item : items) {
             if (item instanceof TAllSelectItem) {
