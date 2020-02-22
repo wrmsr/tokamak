@@ -50,7 +50,6 @@ import java.util.stream.Stream;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
-import static com.wrmsr.tokamak.util.MoreCollections.histogram;
 import static com.wrmsr.tokamak.util.MoreCollections.immutableMapOfSame;
 import static java.util.stream.Collectors.groupingBy;
 
@@ -169,10 +168,6 @@ public final class SelectExpansion
             List<TRelation> relations,
             ParsingContext parsingContext)
     {
-        Set<String> seen = new HashSet<>();
-        List<TSelectItem> ret = new ArrayList<>();
-        int numAnon = 0;
-
         Map<TNode, Map<String, Integer>> fieldHistogramsByNode = buildFieldHistogramsByNode(relations, parsingContext);
         Set<String> uniqueFields = fieldHistogramsByNode.values().stream()
                 .map(Map::entrySet)
@@ -182,14 +177,45 @@ public final class SelectExpansion
                 .map(Map.Entry::getKey)
                 .collect(toImmutableSet());
 
+        Set<String> seen = new HashSet<>();
+        List<TSelectItem> ret = new ArrayList<>();
+        int numAnon = 0;
+
         for (TSelectItem item : items) {
             if (item instanceof TAllSelectItem) {
                 Map<String, Integer> dupeCounts = new HashMap<>();
                 for (TRelation relation : relations) {
+                    relation.accept(new TraversalTNodeVisitor<Void, Void>()
+                    {
+                        @Override
+                        public Void visitAliasedRelation(TAliasedRelation node, Void context)
+                        {
+                            return super.visitAliasedRelation(node, context);
+                        }
+
+                        @Override
+                        public Void visitJoinRelation(TJoinRelation node, Void context)
+                        {
+                            return super.visitJoinRelation(node, context);
+                        }
+
+                        @Override
+                        public Void visitSubqueryRelation(TSubqueryRelation node, Void context)
+                        {
+                            return super.visitSubqueryRelation(node, context);
+                        }
+
+                        @Override
+                        public Void visitTableNameRelation(TTableNameRelation node, Void context)
+                        {
+                            return super.visitTableNameRelation(node, context);
+                        }
+                    }, null);
+
                     Set<String> relationFields = fieldHistogramsByNode.get(relation).keySet();
                     for (String relationField : relationFields) {
                         String label;
-                        if (relationFieldCounts.get(relationField) > 1) {
+                        if (!uniqueFields.contains(relationField)) {
                             int num = dupeCounts.getOrDefault(relationField, 0);
                             dupeCounts.put(relationField, num + 1);
                             label = relationField + '_' + num;
