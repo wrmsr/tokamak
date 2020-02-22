@@ -173,7 +173,8 @@ public final class SelectExpansion
         List<TSelectItem> ret = new ArrayList<>();
         int numAnon = 0;
 
-        Set<String> uniqueFields = buildFieldHistogramsByNode(relations, parsingContext).values().stream()
+        Map<TNode, Map<String, Integer>> fieldHistogramsByNode = buildFieldHistogramsByNode(relations, parsingContext);
+        Set<String> uniqueFields = fieldHistogramsByNode.values().stream()
                 .map(Map::entrySet)
                 .flatMap(Set::stream)
                 .collect(groupingBy(Map.Entry::getKey)).entrySet().stream()
@@ -185,7 +186,7 @@ public final class SelectExpansion
             if (item instanceof TAllSelectItem) {
                 Map<String, Integer> dupeCounts = new HashMap<>();
                 for (TRelation relation : relations) {
-                    Set<String> relationFields = fieldSetsByNode.get(relation);
+                    Set<String> relationFields = fieldHistogramsByNode.get(relation).keySet();
                     for (String relationField : relationFields) {
                         String label;
                         if (relationFieldCounts.get(relationField) > 1) {
