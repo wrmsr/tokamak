@@ -43,12 +43,14 @@ import com.wrmsr.tokamak.core.tree.node.TComparisonExpression;
 import com.wrmsr.tokamak.core.tree.node.TExpression;
 import com.wrmsr.tokamak.core.tree.node.TExpressionSelectItem;
 import com.wrmsr.tokamak.core.tree.node.TFunctionCallExpression;
+import com.wrmsr.tokamak.core.tree.node.TJoinRelation;
 import com.wrmsr.tokamak.core.tree.node.TNode;
 import com.wrmsr.tokamak.core.tree.node.TNumberLiteral;
 import com.wrmsr.tokamak.core.tree.node.TQualifiedName;
 import com.wrmsr.tokamak.core.tree.node.TQualifiedNameExpression;
 import com.wrmsr.tokamak.core.tree.node.TSelect;
 import com.wrmsr.tokamak.core.tree.node.TSelectItem;
+import com.wrmsr.tokamak.core.tree.node.TSubqueryRelation;
 import com.wrmsr.tokamak.core.tree.node.TTableNameRelation;
 import com.wrmsr.tokamak.core.tree.node.visitor.TNodeVisitor;
 import com.wrmsr.tokamak.core.type.Types;
@@ -57,6 +59,7 @@ import com.wrmsr.tokamak.core.util.annotation.AnnotationCollectionMap;
 import com.wrmsr.tokamak.util.NameGenerator;
 import com.wrmsr.tokamak.util.Pair;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -187,20 +190,6 @@ public class TreePlanner
         return rootTreeNode.accept(new TNodeVisitor<PNode, SymbolScope>()
         {
             @Override
-            public PNode visitAliasedRelation(TAliasedRelation treeNode, SymbolScope context)
-            {
-                PNode scanNode = process(treeNode.getRelation(), symbolAnalysis.getSymbolScope(treeNode).get());
-                return new PProject(
-                        nameGenerator.get("aliasedRelationProject"),
-                        AnnotationCollection.of(),
-                        AnnotationCollectionMap.of(),
-                        scanNode,
-                        new PProjection(
-                                scanNode.getFields().getNames().stream()
-                                        .collect(toImmutableMap(f -> treeNode.getAlias() + "." + f, VNodes::field))));
-            }
-
-            @Override
             public PNode visitSelect(TSelect treeNode, SymbolScope context)
             {
                 Map<String, VNode> projection = new LinkedHashMap<>();
@@ -233,10 +222,40 @@ public class TreePlanner
                     }
                 }
 
-                List<PNode> sources = immutableMapItems(treeNode.getRelations(), r -> r.accept(new TNodeVisitor<PNode, SymbolScope>()
+                List<PNode> sources = new ArrayList<>();
+                treeNode.getRelations().forEach(r -> checkState(!r.accept(new TNodeVisitor<Optional<PNode>, SymbolScope>()
                 {
                     @Override
-                    public PNode visitTableNameRelation(TTableNameRelation treeNode, SymbolScope context)
+                    public Optional<PNode> visitAliasedRelation(TAliasedRelation treeNode, SymbolScope context)
+                    {
+                        PNode scanNode = process(treeNode.getRelation(), symbolAnalysis.getSymbolScope(treeNode).get()).get();
+                        sources.add(new PProject(
+                                nameGenerator.get("aliasedRelationProject"),
+                                AnnotationCollection.of(),
+                                AnnotationCollectionMap.of(),
+                                scanNode,
+                                new PProjection(
+                                        scanNode.getFields().getNames().stream()
+                                                .collect(toImmutableMap(f -> treeNode.getAlias() + "." + f, VNodes::field)))));
+                        return Optional.empty();
+                    }
+
+                    @Override
+                    public Optional<PNode> visitJoinRelation(TJoinRelation node, SymbolScope context)
+                    {
+                        checkState(!process(node.getLeft(), context).isPresent());
+                        checkState(!process(node.getRight(), context).isPresent());
+                        return Optional.empty();
+                    }
+
+                    @Override
+                    public Optional<PNode> visitSubqueryRelation(TSubqueryRelation node, SymbolScope context)
+                    {
+                        throw new IllegalStateException();
+                    }
+
+                    @Override
+                    public Optional<PNode> visitTableNameRelation(TTableNameRelation treeNode, SymbolScope context)
                     {
                         SchemaTable schemaTable = treeNode.getQualifiedName().toSchemaTable(parsingContext.getDefaultSchema());
 
@@ -252,15 +271,15 @@ public class TreePlanner
                             }
                         });
 
-                        return new PScan(
+                        return Optional.of(new PScan(
                                 nameGenerator.get("scan"),
                                 AnnotationCollection.of(),
                                 AnnotationCollectionMap.of(),
                                 schemaTable,
                                 columns.stream().collect(toImmutableMap(identity(), table.getRowLayout().getFields()::getType)),
-                                PInvalidations.empty());
+                                PInvalidations.empty()));
                     }
-                }, context));
+                }, context).isPresent()));
 
                 // checks unique
                 Map<String, PNode> sourcesByField = sources.stream()
