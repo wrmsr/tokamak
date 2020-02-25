@@ -28,8 +28,8 @@ selectItem
     ;
 
 relation
-    : left=relation JOIN right=relation (ON criteria=booleanExpression)  #joinRelation
-    | aliasedRelation                                                    #singleRelation
+    : left=relation JOIN right=relation (ON criteria=booleanExpression)?  #joinRelation
+    | aliasedRelation                                                     #singleRelation
     ;
 
 aliasedRelation

@@ -13,7 +13,6 @@
  */
 package com.wrmsr.tokamak.core.tree.transform;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.core.catalog.Table;
@@ -24,7 +23,6 @@ import com.wrmsr.tokamak.core.tree.node.TExpression;
 import com.wrmsr.tokamak.core.tree.node.TExpressionSelectItem;
 import com.wrmsr.tokamak.core.tree.node.TJoinRelation;
 import com.wrmsr.tokamak.core.tree.node.TNode;
-import com.wrmsr.tokamak.core.tree.node.TQualifiedName;
 import com.wrmsr.tokamak.core.tree.node.TQualifiedNameExpression;
 import com.wrmsr.tokamak.core.tree.node.TRelation;
 import com.wrmsr.tokamak.core.tree.node.TSelect;
@@ -128,7 +126,7 @@ public final class SelectExpansion
     {
         Map<TNode, Map<String, Integer>> ret = new HashMap<>();
 
-        relations.forEach(r -> r.accept(new CachingTNodeVisitor<Map<String, Integer>, Void>(ret)
+        relations.forEach(r -> new CachingTNodeVisitor<Map<String, Integer>, Void>(ret)
         {
             @Override
             public Map<String, Integer> visitAliasedRelation(TAliasedRelation node, Void context)
@@ -158,7 +156,7 @@ public final class SelectExpansion
                 Table table = parsingContext.getCatalog().get().getSchemaTable(schemaTable);
                 return immutableMapOfSame(table.getRowLayout().getFields().getNames(), 1);
             }
-        }, null));
+        }.process(r, null));
 
         return ImmutableMap.copyOf(ret);
     }
@@ -169,7 +167,8 @@ public final class SelectExpansion
             ParsingContext parsingContext)
     {
         Map<TNode, Map<String, Integer>> fieldHistogramsByNode = buildFieldHistogramsByNode(relations, parsingContext);
-        Set<String> uniqueFields = fieldHistogramsByNode.values().stream()
+        Set<String> uniqueFields = relations.stream()
+                .map(fieldHistogramsByNode::get)
                 .map(Map::entrySet)
                 .flatMap(Set::stream)
                 .collect(groupingBy(Map.Entry::getKey)).entrySet().stream()
@@ -226,12 +225,13 @@ public final class SelectExpansion
 
                         checkState(!seen.contains(label));
                         seen.add(label);
-                        ret.add(
-                                new TExpressionSelectItem(
-                                        new TQualifiedNameExpression(
-                                                new TQualifiedName(
-                                                        ImmutableList.of(relation.getAlias(), relationField))),
-                                        Optional.of(label)));
+                        // ret.add(
+                        //         new TExpressionSelectItem(
+                        //                 new TQualifiedNameExpression(
+                        //                         new TQualifiedName(
+                        //                                 ImmutableList.of(relation.getAlias(), relationField))),
+                        //                 Optional.of(label)));
+                        throw new IllegalStateException();
                     }
                 }
             }
