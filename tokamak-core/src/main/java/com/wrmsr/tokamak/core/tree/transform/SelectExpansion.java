@@ -295,7 +295,7 @@ public final class SelectExpansion
 
                 TSelect ret = new TSelect(
                         items,
-                        relations.stream().map(TAliasedRelation.class::cast).collect(toImmutableList()),
+                        relations,
                         treeNode.getWhere().map(w -> (TExpression) process(w, context)));
 
                 fieldSetsByNode.put(ret, fields);
