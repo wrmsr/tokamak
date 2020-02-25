@@ -191,7 +191,7 @@ public final class SelectExpansion
                         @Override
                         public Void visitAliasedRelation(TAliasedRelation node, Optional<String> context)
                         {
-                            process(node, Optional.of(node.getAlias()));
+                            process(node.getRelation(), Optional.of(node.getAlias()));
                             return null;
                         }
 
