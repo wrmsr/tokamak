@@ -231,7 +231,10 @@ public final class SymbolAnalysis
             @Override
             public SymbolScope visitJoinRelation(TJoinRelation node, SymbolScope context)
             {
-                throw new IllegalStateException();
+                context.enclosedNodes.add(node);
+                process(node.getLeft(), context);
+                process(node.getRight(), context);
+                return null;
             }
 
             @Override
