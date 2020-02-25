@@ -233,7 +233,34 @@ public class TreePlanner
                     }
                 }
 
-                List<PNode> sources = immutableMapItems(treeNode.getRelations(), r -> process(r, null));
+                List<PNode> sources = immutableMapItems(treeNode.getRelations(), r -> r.accept(new TNodeVisitor<PNode, SymbolScope>()
+                {
+                    @Override
+                    public PNode visitTableNameRelation(TTableNameRelation treeNode, SymbolScope context)
+                    {
+                        SchemaTable schemaTable = treeNode.getQualifiedName().toSchemaTable(parsingContext.getDefaultSchema());
+
+                        Table table = parsingContext.getCatalog().get().getSchemaTable(schemaTable);
+
+                        Set<String> columns = new LinkedHashSet<>();
+
+                        context.getSymbols().forEach(s -> {
+                            checkState(table.getRowLayout().getFields().contains(s.getName().get()));
+                            Set<SymbolRef> srs = symbolAnalysis.getResolutions().getSymbolRefs().get(s);
+                            if (srs != null) {
+                                columns.add(s.getName().get());
+                            }
+                        });
+
+                        return new PScan(
+                                nameGenerator.get("scan"),
+                                AnnotationCollection.of(),
+                                AnnotationCollectionMap.of(),
+                                schemaTable,
+                                columns.stream().collect(toImmutableMap(identity(), table.getRowLayout().getFields()::getType)),
+                                PInvalidations.empty());
+                    }
+                }, context));
 
                 // checks unique
                 Map<String, PNode> sourcesByField = sources.stream()
@@ -267,32 +294,6 @@ public class TreePlanner
                         AnnotationCollectionMap.of(),
                         source,
                         new PProjection(projection));
-            }
-
-            @Override
-            public PNode visitTableNameRelation(TTableNameRelation treeNode, SymbolScope context)
-            {
-                SchemaTable schemaTable = treeNode.getQualifiedName().toSchemaTable(parsingContext.getDefaultSchema());
-
-                Table table = parsingContext.getCatalog().get().getSchemaTable(schemaTable);
-
-                Set<String> columns = new LinkedHashSet<>();
-
-                context.getSymbols().forEach(s -> {
-                    checkState(table.getRowLayout().getFields().contains(s.getName().get()));
-                    Set<SymbolRef> srs = symbolAnalysis.getResolutions().getSymbolRefs().get(s);
-                    if (srs != null) {
-                        columns.add(s.getName().get());
-                    }
-                });
-
-                return new PScan(
-                        nameGenerator.get("scan"),
-                        AnnotationCollection.of(),
-                        AnnotationCollectionMap.of(),
-                        schemaTable,
-                        columns.stream().collect(toImmutableMap(identity(), table.getRowLayout().getFields()::getType)),
-                        PInvalidations.empty());
             }
         }, null);
     }
