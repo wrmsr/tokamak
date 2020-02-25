@@ -13,6 +13,7 @@
  */
 package com.wrmsr.tokamak.core.tree.transform;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.wrmsr.tokamak.api.SchemaTable;
 import com.wrmsr.tokamak.core.catalog.Table;
@@ -23,6 +24,7 @@ import com.wrmsr.tokamak.core.tree.node.TExpression;
 import com.wrmsr.tokamak.core.tree.node.TExpressionSelectItem;
 import com.wrmsr.tokamak.core.tree.node.TJoinRelation;
 import com.wrmsr.tokamak.core.tree.node.TNode;
+import com.wrmsr.tokamak.core.tree.node.TQualifiedName;
 import com.wrmsr.tokamak.core.tree.node.TQualifiedNameExpression;
 import com.wrmsr.tokamak.core.tree.node.TRelation;
 import com.wrmsr.tokamak.core.tree.node.TSelect;
@@ -184,55 +186,56 @@ public final class SelectExpansion
             if (item instanceof TAllSelectItem) {
                 Map<String, Integer> dupeCounts = new HashMap<>();
                 for (TRelation relation : relations) {
-                    relation.accept(new TraversalTNodeVisitor<Void, Void>()
+                    relation.accept(new TNodeVisitor<Void, Optional<String>>()
                     {
                         @Override
-                        public Void visitAliasedRelation(TAliasedRelation node, Void context)
+                        public Void visitAliasedRelation(TAliasedRelation node, Optional<String> context)
                         {
-                            return super.visitAliasedRelation(node, context);
+                            process(node, Optional.of(node.getAlias()));
+                            return null;
                         }
 
                         @Override
-                        public Void visitJoinRelation(TJoinRelation node, Void context)
+                        public Void visitJoinRelation(TJoinRelation node, Optional<String> context)
                         {
-                            return super.visitJoinRelation(node, context);
+                            process(node.getLeft(), context);
+                            process(node.getRight(), context);
+                            return null;
                         }
 
                         @Override
-                        public Void visitSubqueryRelation(TSubqueryRelation node, Void context)
+                        public Void visitSubqueryRelation(TSubqueryRelation node, Optional<String> context)
                         {
-                            return super.visitSubqueryRelation(node, context);
+                            throw new IllegalStateException();
                         }
 
                         @Override
-                        public Void visitTableNameRelation(TTableNameRelation node, Void context)
+                        public Void visitTableNameRelation(TTableNameRelation node, Optional<String> context)
                         {
-                            return super.visitTableNameRelation(node, context);
-                        }
-                    }, null);
+                            Set<String> relationFields = fieldHistogramsByNode.get(node).keySet();
+                            for (String relationField : relationFields) {
+                                String label;
+                                if (!uniqueFields.contains(relationField)) {
+                                    int num = dupeCounts.getOrDefault(relationField, 0);
+                                    dupeCounts.put(relationField, num + 1);
+                                    label = relationField + '_' + num;
+                                }
+                                else {
+                                    label = relationField;
+                                }
 
-                    Set<String> relationFields = fieldHistogramsByNode.get(relation).keySet();
-                    for (String relationField : relationFields) {
-                        String label;
-                        if (!uniqueFields.contains(relationField)) {
-                            int num = dupeCounts.getOrDefault(relationField, 0);
-                            dupeCounts.put(relationField, num + 1);
-                            label = relationField + '_' + num;
+                                checkState(!seen.contains(label));
+                                seen.add(label);
+                                ret.add(
+                                        new TExpressionSelectItem(
+                                                new TQualifiedNameExpression(
+                                                        new TQualifiedName(
+                                                                ImmutableList.of(context.get(), relationField))),
+                                                Optional.of(label)));
+                            }
+                            return null;
                         }
-                        else {
-                            label = relationField;
-                        }
-
-                        checkState(!seen.contains(label));
-                        seen.add(label);
-                        // ret.add(
-                        //         new TExpressionSelectItem(
-                        //                 new TQualifiedNameExpression(
-                        //                         new TQualifiedName(
-                        //                                 ImmutableList.of(relation.getAlias(), relationField))),
-                        //                 Optional.of(label)));
-                        throw new IllegalStateException();
-                    }
+                    }, Optional.empty());
                 }
             }
 
