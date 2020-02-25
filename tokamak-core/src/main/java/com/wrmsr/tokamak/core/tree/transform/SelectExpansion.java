@@ -274,7 +274,7 @@ public final class SelectExpansion
             @Override
             public TNode visitSelect(TSelect treeNode, Void context)
             {
-                List<TAliasedRelation> relations = addRelationAliases(
+                List<TRelation> relations = addRelationAliases(
                         treeNode.getRelations().stream()
                                 .map(r -> (TRelation) process(r, context))
                                 .collect(toImmutableList()));
@@ -282,7 +282,7 @@ public final class SelectExpansion
                 List<TSelectItem> items = addItemLabels(
                         treeNode.getItems(),
                         relations,
-                        fieldSetsByNode);
+                        parsingContext);
 
                 Set<String> fields = items.stream()
                         .map(TExpressionSelectItem.class::cast)
@@ -313,4 +313,4 @@ public final class SelectExpansion
             }
         }, null);
     }
-
+}
