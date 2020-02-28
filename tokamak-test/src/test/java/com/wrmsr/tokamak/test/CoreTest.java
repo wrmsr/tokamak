@@ -392,6 +392,8 @@ public class CoreTest
         TpchUtils.setupCatalog(shell.getRootCatalog(), url);
 
         for (String sql : new String[] {
+                "select N_NAME, N_REGIONKEY, R_NAME from NATION join REGION on N_REGIONKEY = R_REGIONKEY",
+
                 "select N_NAME, N_REGIONKEY, N_COMMENT, R_NAME from NATION, REGION where N_REGIONKEY = R_REGIONKEY",
 
                 "select L_QUANTITY, O_ORDERKEY, O_ORDERSTATUS, P_NAME, S_NAME " +
