@@ -234,6 +234,7 @@ public final class SymbolAnalysis
                 context.enclosedNodes.add(node);
                 process(node.getLeft(), context);
                 process(node.getRight(), context);
+                node.getCondition().ifPresent(cond -> process(cond, context));
                 return null;
             }
 

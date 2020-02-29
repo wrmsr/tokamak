@@ -92,6 +92,7 @@ public class TraversalTNodeVisitor<R, C>
         C traversedContext = traverseContext(node, context);
         process(node.getLeft(), traversedContext);
         process(node.getRight(), traversedContext);
+        node.getCondition().ifPresent(cond -> process(cond, traversedContext));
 
         return super.visitJoinRelation(node, context);
     }
