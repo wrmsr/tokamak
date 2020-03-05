@@ -14,9 +14,14 @@
 
 package com.wrmsr.tokamak.test;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.io.ByteStreams;
+import com.google.common.io.CharStreams;
+import com.wrmsr.tokamak.util.Jdk;
+import com.wrmsr.tokamak.util.java.compile.javac.InProcJavaCompiler;
 
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -36,6 +41,9 @@ public class LoomTest
 
     static {
         try {
+            System.setProperty("java.lang.Continuation.trace", "true");
+            System.setProperty("java.lang.Continuation.debug", "true");
+
             continuationScopeCls = Class.forName("java.lang.ContinuationScope");
             continuationScopeClsCtor = continuationScopeCls.getDeclaredConstructor(String.class);
             continuationCls = Class.forName("java.lang.Continuation");
@@ -123,6 +131,15 @@ public class LoomTest
     public static void main(String[] args)
             throws Exception
     {
-        EchoServerLoom.main(args);
+        String src = CharStreams.toString(new InputStreamReader(LoomTest.class.getResourceAsStream("/com/wrmsr/tokamak/test/LoomTest15.java.txt")));
+        Class<?> cls = InProcJavaCompiler.compileAndLoad(
+                src,
+                "com.wrmsr.tokamak.test.LoomTest15",
+                "LoomTest15",
+                ImmutableList.of("-classpath", Jdk.getClasspath()),
+                LoomTest.class.getClassLoader());
+        cls.getDeclaredMethod("main", String[].class).invoke(null, new Object[] {args});
+
+        // EchoServerLoom.main(args);
     }
 }

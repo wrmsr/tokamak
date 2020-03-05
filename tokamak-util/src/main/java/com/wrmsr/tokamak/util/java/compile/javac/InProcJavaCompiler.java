@@ -13,19 +13,25 @@
  */
 package com.wrmsr.tokamak.util.java.compile.javac;
 
+import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableList;
 
 import javax.tools.DiagnosticCollector;
 import javax.tools.JavaCompiler;
+import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardJavaFileManager;
 import javax.tools.Tool;
 import javax.tools.ToolProvider;
 
 import java.io.File;
-import java.util.Arrays;
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.wrmsr.tokamak.util.MoreFiles.writeTempFile;
+import static com.wrmsr.tokamak.util.MorePreconditions.checkSingle;
 
 public final class InProcJavaCompiler
 {
@@ -54,6 +60,29 @@ public final class InProcJavaCompiler
         javac.run(null, null, null, args.toArray(new String[args.size()]));
     }
 
+    private static void compileInner(
+            JavaCompiler compiler,
+            JavaFileManager fileManager,
+            DiagnosticCollector<JavaFileObject> diagnostics,
+            List<String> options,
+            Iterable<JavaFileObject> scriptSources)
+    {
+        JavaCompiler.CompilationTask task = compiler.getTask(
+                null,
+                fileManager,
+                diagnostics,
+                options,
+                null,
+                scriptSources);
+
+        if (!task.call()) {
+            String message = diagnostics.getDiagnostics().stream()
+                    .map(d -> d.toString())
+                    .collect(Collectors.joining("\n"));
+            throw new RuntimeException(message);
+        }
+    }
+
     public static Class<?> compileAndLoad(
             String script,
             String fullClassName,
@@ -64,24 +93,53 @@ public final class InProcJavaCompiler
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
         DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
         StandardJavaFileManager standardFileManager = compiler.getStandardFileManager(diagnostics, null, null);
-        MemoryFileManager memoryFileManager = new MemoryFileManager(standardFileManager);
 
+        MemoryFileManager memoryFileManager = new MemoryFileManager(standardFileManager);
         JavaFileObject scriptSource = memoryFileManager.createSourceFileObject(null, simpleClassName, script);
 
-        JavaCompiler.CompilationTask task = compiler.getTask(
-                null,
+        compileInner(
+                compiler,
                 memoryFileManager,
                 diagnostics,
                 options,
-                null,
-                Arrays.asList(scriptSource));
+                ImmutableList.of(scriptSource));
 
-        if (!task.call()) {
-            String message = diagnostics.getDiagnostics().stream()
-                    .map(d -> d.toString())
-                    .collect(Collectors.joining("\n"));
-            throw new RuntimeException(message);
+        ClassLoader classLoader = memoryFileManager.createMemoryClassLoader(parentClassLoader);
+        try {
+            return classLoader.loadClass(fullClassName);
         }
+        catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static Class<?> compileAndLoadFromTempFile(
+            String script,
+            String fullClassName,
+            String simpleClassName,
+            List<String> options,
+            ClassLoader parentClassLoader)
+    {
+        JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+        DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
+        StandardJavaFileManager standardFileManager = compiler.getStandardFileManager(diagnostics, null, null);
+
+        Path sourceFilePath;
+        try {
+            sourceFilePath = writeTempFile(simpleClassName + ".java", script.getBytes(Charsets.UTF_8));
+        }
+        catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        JavaFileObject scriptSource = checkSingle(standardFileManager.getJavaFileObjects(sourceFilePath.toFile()));
+
+        compileInner(
+                compiler,
+                standardFileManager,
+                diagnostics,
+                options,
+                ImmutableList.of(scriptSource));
 
         ClassLoader classLoader = memoryFileManager.createMemoryClassLoader(parentClassLoader);
         try {
