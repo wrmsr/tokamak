@@ -136,7 +136,7 @@ public class LoomTest
                 src,
                 "com.wrmsr.tokamak.test.LoomTest15",
                 "LoomTest15",
-                ImmutableList.of("-classpath", Jdk.getClasspath()),
+                ImmutableList.of("-classpath", Jdk.getClasspath(), "-g:lines,source,vars"),
                 LoomTest.class.getClassLoader());
         cls.getDeclaredMethod("main", String[].class).invoke(null, new Object[] {args});
 

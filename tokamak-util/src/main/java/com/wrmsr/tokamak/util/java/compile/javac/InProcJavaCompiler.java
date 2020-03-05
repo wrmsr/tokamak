@@ -44,6 +44,7 @@ public final class InProcJavaCompiler
     /*
     http://www.javased.com/?api=javax.tools.ToolProvider
     https://www.programcreek.com/java-api-examples/?class=javax.tools.ToolProvider&method=getSystemJavaCompiler
+    G
     */
 
     // public static void compile(List<JavacOption> options, List<File> sourceFiles)
@@ -112,7 +113,7 @@ public final class InProcJavaCompiler
 
         ClassLoader classLoader = memoryFileManager.createMemoryClassLoader(parentClassLoader);
         try {
-            return classLoader.loadClass(fullClassName);
+            return Class.forName(fullClassName, true, classLoader);
         }
         catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
@@ -163,7 +164,7 @@ public final class InProcJavaCompiler
             throw new RuntimeException(e);
         }
         try {
-            return classLoader.loadClass(fullClassName);
+            return Class.forName(fullClassName, true, classLoader);
         }
         catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
