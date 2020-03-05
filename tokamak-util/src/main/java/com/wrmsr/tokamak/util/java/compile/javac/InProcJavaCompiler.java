@@ -26,6 +26,8 @@ import javax.tools.ToolProvider;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -77,7 +79,7 @@ public final class InProcJavaCompiler
 
         if (!task.call()) {
             String message = diagnostics.getDiagnostics().stream()
-                    .map(d -> d.toString())
+                    .map(Object::toString)
                     .collect(Collectors.joining("\n"));
             throw new RuntimeException(message);
         }
@@ -141,7 +143,13 @@ public final class InProcJavaCompiler
                 options,
                 ImmutableList.of(scriptSource));
 
-        ClassLoader classLoader = memoryFileManager.createMemoryClassLoader(parentClassLoader);
+        ClassLoader classLoader;
+        try {
+            classLoader = new URLClassLoader(new URL[] {sourceFilePath.getParent().getFileName().toUri().toURL()}, parentClassLoader);
+        }
+        catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         try {
             return classLoader.loadClass(fullClassName);
         }

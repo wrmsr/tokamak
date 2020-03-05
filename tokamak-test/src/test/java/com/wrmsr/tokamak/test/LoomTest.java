@@ -132,7 +132,7 @@ public class LoomTest
             throws Exception
     {
         String src = CharStreams.toString(new InputStreamReader(LoomTest.class.getResourceAsStream("/com/wrmsr/tokamak/test/LoomTest15.java.txt")));
-        Class<?> cls = InProcJavaCompiler.compileAndLoad(
+        Class<?> cls = InProcJavaCompiler.compileAndLoadFromTempFile(
                 src,
                 "com.wrmsr.tokamak.test.LoomTest15",
                 "LoomTest15",
