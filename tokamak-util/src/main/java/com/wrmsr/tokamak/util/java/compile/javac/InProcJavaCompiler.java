@@ -17,16 +17,15 @@ import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
+import com.wrmsr.tokamak.util.lazy.SupplierLazyValue;
 
 import javax.tools.DiagnosticCollector;
 import javax.tools.JavaCompiler;
 import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardJavaFileManager;
-import javax.tools.Tool;
 import javax.tools.ToolProvider;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -36,10 +35,11 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.wrmsr.tokamak.util.MoreFiles.createTempDirectory;
-import static com.wrmsr.tokamak.util.MorePreconditions.checkSingle;
+import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 
-public final class InProcJavaCompiler
+public abstract class InProcJavaCompiler
 {
     /*
     http://www.javased.com/?api=javax.tools.ToolProvider
@@ -47,46 +47,122 @@ public final class InProcJavaCompiler
     https://stackoverflow.com/a/11024944/246071
     */
 
-    // public static void compile(List<JavacOption> options, List<File> sourceFiles)
-    // {
-    //     List<String> args = ImmutableList.<String>builder()
-    //             .addAll(options.stream().map(JavacOption::getArgs).flatMap(List::stream).iterator())
-    //             .addAll(sourceFiles.stream().map(File::getPath).iterator())
-    //             .build();
-    //     Tool javac = ToolProvider.getSystemJavaCompiler();
-    //     javac.run(null, null, null, args.toArray(new String[args.size()]));
-    // }
+    protected final String source;
+    protected final String fullClassName;
+    protected final String simpleClassName;
+    protected final List<String> explicitOptions;
 
-    public static void compile(List<String> options, List<File> sourceFiles)
+    protected final DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
+
+    protected InProcJavaCompiler(
+            String source,
+            String fullClassName,
+            String simpleClassName,
+            Iterable<String> explicitOptions)
     {
-        List<String> args = ImmutableList.<String>builder()
-                .addAll(options)
-                .addAll(sourceFiles.stream().map(File::getPath).iterator())
-                .build();
-        Tool javac = ToolProvider.getSystemJavaCompiler();
-        javac.run(null, null, null, args.toArray(new String[args.size()]));
+        this.source = checkNotEmpty(source);
+        this.fullClassName = checkNotEmpty(fullClassName);
+        this.simpleClassName = checkNotEmpty(simpleClassName);
+        this.explicitOptions = ImmutableList.copyOf(explicitOptions);
     }
 
-    private static void compileInner(
-            JavaCompiler compiler,
-            JavaFileManager fileManager,
-            DiagnosticCollector<JavaFileObject> diagnostics,
-            List<String> options,
-            Iterable<JavaFileObject> scriptSources)
+    private final SupplierLazyValue<JavaCompiler> compiler = new SupplierLazyValue<>();
+
+    protected final JavaCompiler getCompiler()
     {
-        JavaCompiler.CompilationTask task = compiler.getTask(
+        return compiler.get(() -> ToolProvider.getSystemJavaCompiler());
+    }
+
+    private final SupplierLazyValue<StandardJavaFileManager> standardFileManager = new SupplierLazyValue<>();
+
+    public StandardJavaFileManager getStandardFileManager()
+    {
+        return standardFileManager.get(() -> getCompiler().getStandardFileManager(diagnostics, null, null));
+    }
+
+    protected JavaFileManager getFileManager()
+    {
+        return getStandardFileManager();
+    }
+
+    protected List<String> getOptions()
+    {
+        return explicitOptions;
+    }
+
+    protected abstract Iterable<JavaFileObject> getSourceFiles();
+
+    protected abstract ClassLoader getClassLoader();
+
+    protected final Class<?> compileAndLoad()
+    {
+        JavaCompiler.CompilationTask task = getCompiler().getTask(
                 null,
-                fileManager,
+                getFileManager(),
                 diagnostics,
-                options,
+                getOptions(),
                 null,
-                scriptSources);
+                getSourceFiles());
 
         if (!task.call()) {
             String message = diagnostics.getDiagnostics().stream()
                     .map(Object::toString)
                     .collect(Collectors.joining("\n"));
             throw new RuntimeException(message);
+        }
+
+        try {
+            return Class.forName(fullClassName, true, getClassLoader());
+        }
+        catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static class MemoryImpl
+            extends InProcJavaCompiler
+    {
+        private final ClassLoader parentClassLoader;
+
+        public MemoryImpl(
+                String source,
+                String fullClassName,
+                String simpleClassName,
+                Iterable<String> explicitOptions,
+                ClassLoader parentClassLoader)
+        {
+            super(source, fullClassName, simpleClassName, explicitOptions);
+
+            this.parentClassLoader = checkNotNull(parentClassLoader);
+        }
+
+        private final SupplierLazyValue<MemoryFileManager> fileManager = new SupplierLazyValue<>();
+
+        @Override
+        protected MemoryFileManager getFileManager()
+        {
+            return fileManager.get(() -> new MemoryFileManager(getStandardFileManager()));
+        }
+
+        private final SupplierLazyValue<JavaFileObject> sourceFiles = new SupplierLazyValue<>();
+
+        protected JavaFileObject getSourceFile()
+        {
+            return sourceFiles.get(() -> getFileManager().createSourceFileObject(null, simpleClassName, source));
+        }
+
+        @Override
+        protected Iterable<JavaFileObject> getSourceFiles()
+        {
+            return ImmutableList.of(getSourceFile());
+        }
+
+        private final SupplierLazyValue<ClassLoader> classloader = new SupplierLazyValue<>();
+
+        @Override
+        protected ClassLoader getClassLoader()
+        {
+            return classloader.get(() -> getFileManager().createMemoryClassLoader(parentClassLoader));
         }
     }
 
@@ -97,26 +173,80 @@ public final class InProcJavaCompiler
             List<String> options,
             ClassLoader parentClassLoader)
     {
-        JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-        DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
-        StandardJavaFileManager standardFileManager = compiler.getStandardFileManager(diagnostics, null, null);
+        return new MemoryImpl(script, fullClassName, simpleClassName, options, parentClassLoader).compileAndLoad();
+    }
 
-        MemoryFileManager memoryFileManager = new MemoryFileManager(standardFileManager);
-        JavaFileObject scriptSource = memoryFileManager.createSourceFileObject(null, simpleClassName, script);
-
-        compileInner(
-                compiler,
-                memoryFileManager,
-                diagnostics,
-                options,
-                ImmutableList.of(scriptSource));
-
-        ClassLoader classLoader = memoryFileManager.createMemoryClassLoader(parentClassLoader);
-        try {
-            return Class.forName(fullClassName, true, classLoader);
+    private static abstract class AbstractTempFile
+            extends InProcJavaCompiler
+    {
+        public AbstractTempFile(
+                String source,
+                String fullClassName,
+                String simpleClassName,
+                Iterable<String> explicitOptions)
+        {
+            super(source, fullClassName, simpleClassName, explicitOptions);
         }
-        catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
+
+        private final SupplierLazyValue<Path> tempDir = new SupplierLazyValue<>();
+
+        public Path getTempDir()
+        {
+            return tempDir.get(() -> {
+                try {
+                    Path tempDir = createTempDirectory();
+                    tempDir.toFile().deleteOnExit();
+                    return tempDir;
+                }
+                catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+        }
+
+        private final SupplierLazyValue<Path> sourceFile = new SupplierLazyValue<>();
+
+        public Path getSourceFile()
+        {
+            return sourceFile.get(() -> {
+                try {
+                    List<String> parts = Splitter.on('.').splitToList(fullClassName);
+                    Path pkgDir = Files.createDirectories(
+                            Paths.get(getTempDir().toString() + "/" + Joiner.on('/').join(parts.subList(0, parts.size() - 1))));
+                    Path sourceFile = pkgDir.resolve(simpleClassName + ".java");
+                    Files.write(sourceFile, source.getBytes(Charsets.UTF_8));
+                    return sourceFile;
+                }
+                catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+        }
+
+        @Override
+        protected Iterable<JavaFileObject> getSourceFiles()
+        {
+            return ImmutableList.copyOf(getStandardFileManager().getJavaFileObjects(getSourceFile().toFile()));
+        }
+
+        protected URL getClassLoaderUrl()
+        {
+            try {
+                return new URL("file://" + getTempDir().toAbsolutePath().toString() + "/");
+            }
+            catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        protected abstract ClassLoader newClassLoader();
+
+        private final SupplierLazyValue<ClassLoader> classloader = new SupplierLazyValue<>();
+
+        @Override
+        protected ClassLoader getClassLoader()
+        {
+            return classloader.get(this::newClassLoader);
         }
     }
 
@@ -127,47 +257,36 @@ public final class InProcJavaCompiler
             List<String> options,
             ClassLoader parentClassLoader)
     {
-        JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-        DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
-        StandardJavaFileManager standardFileManager = compiler.getStandardFileManager(diagnostics, null, null);
+        return new AbstractTempFile(script, fullClassName, simpleClassName, options)
+        {
+            @Override
+            protected ClassLoader newClassLoader()
+            {
+                return new URLClassLoader(new URL[] {getClassLoaderUrl()}, parentClassLoader);
+            }
+        }.compileAndLoad();
+    }
 
-        Path tempDir;
-        Path sourceFilePath;
-        try {
-            tempDir = createTempDirectory();
-            tempDir.toFile().deleteOnExit();
-            List<String> parts = Splitter.on('.').splitToList(fullClassName);
-            Path pkgDir = Files.createDirectories(
-                    Paths.get(tempDir.toString() + "/" + Joiner.on('/').join(parts.subList(0, parts.size() - 1))));
-            sourceFilePath = pkgDir.resolve(simpleClassName + ".java");
-            Files.write(sourceFilePath, script.getBytes(Charsets.UTF_8));
-        }
-        catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        JavaFileObject scriptSource = checkSingle(standardFileManager.getJavaFileObjects(sourceFilePath.toFile()));
-
-        compileInner(
-                compiler,
-                standardFileManager,
-                diagnostics,
-                options,
-                ImmutableList.of(scriptSource));
-
-        ClassLoader classLoader;
-        try {
-            URL url = new URL("file://" + tempDir.toAbsolutePath().toString() + "/");
-            classLoader = new URLClassLoader(new URL[] {url}, parentClassLoader);
-        }
-        catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        try {
-            return Class.forName(fullClassName, true, classLoader);
-        }
-        catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
+    public static Class<?> compileAndLoadFromTempFileAndInjet(
+            String script,
+            String fullClassName,
+            String simpleClassName,
+            List<String> options,
+            URLClassLoader urlClassLoader)
+    {
+        return new AbstractTempFile(script, fullClassName, simpleClassName, options)
+        {
+            @Override
+            protected ClassLoader newClassLoader()
+            {
+                try {
+                    URLClassLoader.class.getDeclaredMethod("addURL", URL.class).invoke(urlClassLoader, getClassLoaderUrl());
+                    return urlClassLoader;
+                }
+                catch (ReflectiveOperationException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }.compileAndLoad();
     }
 }
