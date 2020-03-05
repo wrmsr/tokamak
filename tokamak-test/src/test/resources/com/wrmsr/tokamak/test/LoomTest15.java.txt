@@ -60,8 +60,8 @@ public class LoomTest15
                     ByteStreams.readFully(in, output);
                 }
 
-                Continuation currentContinuation = Continuation.getCurrentContinuation(EchoServerLoom.scope);
-                currentContinuation.yield(EchoServerLoom.scope);
+                // Continuation currentContinuation = Continuation.getCurrentContinuation(EchoServerLoom.scope);
+                // currentContinuation.yield(EchoServerLoom.scope);
 
                 PrintWriter writer = new PrintWriter(client.getOutputStream(), true);
                 writer.println("[echo] " + Arrays.toString(output));

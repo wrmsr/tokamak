@@ -27,6 +27,7 @@ import javax.tools.StandardJavaFileManager;
 import javax.tools.ToolProvider;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Files;
@@ -42,6 +43,7 @@ import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 public abstract class InProcJavaCompiler
 {
     /*
+    dbg option: "-g:lines,source,vars"
     http://www.javased.com/?api=javax.tools.ToolProvider
     https://www.programcreek.com/java-api-examples/?class=javax.tools.ToolProvider&method=getSystemJavaCompiler
     https://stackoverflow.com/a/11024944/246071
@@ -267,7 +269,7 @@ public abstract class InProcJavaCompiler
         }.compileAndLoad();
     }
 
-    public static Class<?> compileAndLoadFromTempFileAndInjet(
+    public static Class<?> compileAndLoadFromTempFileAndInject(
             String script,
             String fullClassName,
             String simpleClassName,
@@ -280,7 +282,9 @@ public abstract class InProcJavaCompiler
             protected ClassLoader newClassLoader()
             {
                 try {
-                    URLClassLoader.class.getDeclaredMethod("addURL", URL.class).invoke(urlClassLoader, getClassLoaderUrl());
+                    Method addUrl = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
+                    addUrl.setAccessible(true);
+                    addUrl.invoke(urlClassLoader, getClassLoaderUrl());
                     return urlClassLoader;
                 }
                 catch (ReflectiveOperationException e) {

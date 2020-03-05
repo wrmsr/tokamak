@@ -26,6 +26,8 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.Arrays;
 
 public class LoomTest
@@ -130,13 +132,16 @@ public class LoomTest
     public static void main(String[] args)
             throws Exception
     {
+        URLClassLoader urlClassLoader = new URLClassLoader(new URL[]{}, Thread.currentThread().getContextClassLoader());
+        Thread.currentThread().setContextClassLoader(urlClassLoader);
+
         String src = CharStreams.toString(new InputStreamReader(LoomTest.class.getResourceAsStream("/com/wrmsr/tokamak/test/LoomTest15.java.txt")));
-        Class<?> cls = InProcJavaCompiler.compileAndLoadFromTempFile(
+        Class<?> cls = InProcJavaCompiler.compileAndLoadFromTempFileAndInject(
                 src,
                 "com.wrmsr.tokamak.test.LoomTest15",
                 "LoomTest15",
                 ImmutableList.of("-classpath", Jdk.getClasspath(), "-g:lines,source,vars"),
-                LoomTest.class.getClassLoader());
+                urlClassLoader);
         cls.getDeclaredMethod("main", String[].class).invoke(null, new Object[] {args});
 
         // EchoServerLoom.main(args);
