@@ -14,6 +14,8 @@
 package com.wrmsr.tokamak.util.java.compile.javac;
 
 import com.google.common.base.Charsets;
+import com.google.common.base.Joiner;
+import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 
 import javax.tools.DiagnosticCollector;
@@ -28,11 +30,13 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.wrmsr.tokamak.util.MoreFiles.writeTempFile;
+import static com.wrmsr.tokamak.util.MoreFiles.createTempDirectory;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkSingle;
 
 public final class InProcJavaCompiler
@@ -126,9 +130,16 @@ public final class InProcJavaCompiler
         DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
         StandardJavaFileManager standardFileManager = compiler.getStandardFileManager(diagnostics, null, null);
 
+        Path tempDir;
         Path sourceFilePath;
         try {
-            sourceFilePath = writeTempFile(simpleClassName + ".java", script.getBytes(Charsets.UTF_8));
+            tempDir = createTempDirectory();
+            tempDir.toFile().deleteOnExit();
+            List<String> parts = Splitter.on('.').splitToList(fullClassName);
+            Path pkgDir = Files.createDirectories(
+                    Paths.get(tempDir.toString() + "/" + Joiner.on('/').join(parts.subList(0, parts.size() - 1))));
+            sourceFilePath = pkgDir.resolve(simpleClassName + ".java");
+            Files.write(sourceFilePath, script.getBytes(Charsets.UTF_8));
         }
         catch (IOException e) {
             throw new RuntimeException(e);
@@ -145,7 +156,8 @@ public final class InProcJavaCompiler
 
         ClassLoader classLoader;
         try {
-            classLoader = new URLClassLoader(new URL[] {sourceFilePath.getParent().getFileName().toUri().toURL()}, parentClassLoader);
+            URL url = new URL("file://" + tempDir.toAbsolutePath().toString() + "/");
+            classLoader = new URLClassLoader(new URL[] {url}, parentClassLoader);
         }
         catch (IOException e) {
             throw new RuntimeException(e);
