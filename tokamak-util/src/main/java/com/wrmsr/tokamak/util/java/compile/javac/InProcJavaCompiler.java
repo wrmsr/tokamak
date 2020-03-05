@@ -44,7 +44,7 @@ public final class InProcJavaCompiler
     /*
     http://www.javased.com/?api=javax.tools.ToolProvider
     https://www.programcreek.com/java-api-examples/?class=javax.tools.ToolProvider&method=getSystemJavaCompiler
-    G
+    https://stackoverflow.com/a/11024944/246071
     */
 
     // public static void compile(List<JavacOption> options, List<File> sourceFiles)
