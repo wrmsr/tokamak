@@ -35,6 +35,8 @@ public class MatchTest
         Match<Integer> match = new DefaultMatcher().match(pattern, 5);
 
         System.out.println(match);
+
+        assert match.getCaptures().get(capture) == 5;
     }
 
     private static final class IntLink
