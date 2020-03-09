@@ -2,7 +2,7 @@
    (‾‾)   /\   _                 (
     \ |  (  \ ( \.(               )                      _____
   \  \ \  `  `   ) \             (  ___                 / _   \
- (_`    \+   . x  ( .\            \/   \____-----------/ (<a href="https://engineering.fb.com/data-infrastructure/dragon-a-distributed-graph-query-engine/" title="☢️">☢️</a>))   \_
+ (_`    \+   . x  ( .\            \/   \____-----------/ (<a href="https://engineering.fb.com/data-infrastructure/dragon-a-distributed-graph-query-engine/" title="☢️">☢️</a>)   \_
 - .-               \+  ;          (  O                           \____
 (                       )          \_____________  `              \   /
 (__                +- .( -'.- <. - _  VVVVVVV VV V\                 \/
