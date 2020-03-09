@@ -16,4 +16,4 @@
 
 [🚧 Heavily WIP 🚧]
 
-This code is hackathon-quality and its structure continues to evolve. It *is* intended to ultimately be production worthy but it will be a long time before it is useful to anybody. That said it is, already, alive breathing.
+This code is hackathon-quality and its structure continues to evolve. It *is* intended to ultimately be production worthy but it will be a long time before it is useful to anybody. That said it is, already, alive and breathing.
