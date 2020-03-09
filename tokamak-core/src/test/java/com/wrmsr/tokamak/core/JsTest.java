@@ -34,6 +34,24 @@ import static com.wrmsr.tokamak.util.MoreFiles.createTempDirectory;
 public class JsTest
         extends TestCase
 {
+    /*
+    <dependency>
+        <groupId>org.graalvm.js</groupId>
+        <artifactId>js</artifactId>
+        <version>20.0.0</version>
+    </dependency>
+    <dependency>
+        <groupId>org.graalvm.js</groupId>
+        <artifactId>js-scriptengine</artifactId>
+        <version>20.0.0</version>
+    </dependency>
+
+    new ScriptEngineManager().getEngineByName("JavaScript");
+
+    Map object = (Map) engine.eval("Object");
+    Function<Object[], Object> method = (Function<Object[], Object>) object.get("assign");
+    */
+
     public void testJs()
             throws Throwable
     {

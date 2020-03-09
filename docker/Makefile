@@ -1,6 +1,7 @@
 DOCKER_USER=wrmsr
 
-DOCKER_DB_IMAGES:= \
+DOCKER_IMAGES:= \
+	tokamak-dev \
 	tokamak-elasticsearch \
 	tokamak-kafka \
 	tokamak-memcached \
@@ -10,11 +11,8 @@ DOCKER_DB_IMAGES:= \
 	tokamak-redis \
 	tokamak-zookeeper \
 
-DOCKER_IMAGES:= \
-	$(DOCKER_DB_IMAGES) \
+DOCKER_COMPOSE_SERVICES:= \
 	tokamak-dev \
-
-DOCKER_COMPOSE_DB_SERVICES:= \
 	tokamak-elasticsearch \
 	tokamak-kafka \
 	tokamak-memcached \
@@ -26,12 +24,8 @@ DOCKER_COMPOSE_DB_SERVICES:= \
 	tokamak-redis \
 	tokamak-zookeeper \
 
-DOCKER_COMPOSE_SERVICES:= \
-	$(DOCKER_COMPOSE_DB_SERVICES) \
-	tokamak-dev \
-
 .PHONY: all
-all: clean dev-images
+all: clean images
 
 .PHONY: pull
 pull:
@@ -45,15 +39,11 @@ push:
 		docker push "$(DOCKER_USER)/$$IMG" ; \
 	done
 
-.PHONY: db-images
-db-images:
-	for IMG in $(DOCKER_DB_IMAGES) ; do \
+.PHONY: images
+images:
+	for IMG in $(DOCKER_IMAGES) ; do \
 		(cd .. && docker build --tag "$(DOCKER_USER)/$$IMG" -f "docker/$$IMG/Dockerfile" .) ; \
 	done
-
-.PHONY: dev-images
-dev-images: db-images
-	(cd .. && docker build --tag "$(DOCKER_USER)/tokamak-dev" -f docker/tokamak-dev/Dockerfile .)
 
 .PHONY: stop
 stop:
@@ -65,16 +55,16 @@ clean: stop
 		docker-compose rm -fv "$$SVC" ; \
 	done
 
-.PHONY: dev-start
-dev-start: dev-images
-	docker-compose start $(DOCKER_COMPOSE_DB_SERVICES) tokamak-dev
+.PHONY: start
+start: images
+	docker-compose start $(DOCKER_COMPOSE_SERVICES)
 
-.PHONY: dev-up
-dev-up: dev-images
-	docker-compose up $(DOCKER_COMPOSE_DB_SERVICES) tokamak-dev
+.PHONY: up
+up: images
+	docker-compose up $(DOCKER_COMPOSE_SERVICES)
 
-.PHONY: dev-reup
-dev-reup: clean dev-up
+.PHONY: reup
+reup: clean up
 
 .PHONY: enable-ptrace
 enable-ptrace:
