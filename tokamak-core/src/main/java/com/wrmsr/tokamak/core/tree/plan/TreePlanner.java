@@ -71,7 +71,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
-import static com.wrmsr.tokamak.util.MoreCollections.immutableMapItems;
 import static com.wrmsr.tokamak.util.MoreCollectors.toImmutableMap;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkSingle;
 import static java.util.function.Function.identity;
@@ -187,6 +186,8 @@ public class TreePlanner
                 .collect(toImmutableSet());
         NameGenerator nameGenerator = new NameGenerator(allSymbolNames, Plan.NAME_GENERATOR_PREFIX);
 
+        BuiltinExecutor be = (BuiltinExecutor) checkNotNull(parsingContext.getCatalog().get().getExecutorsByName().get("builtin"));
+
         return rootTreeNode.accept(new TNodeVisitor<PNode, SymbolScope>()
         {
             @Override
@@ -223,6 +224,7 @@ public class TreePlanner
                 }
 
                 List<PNode> sources = new ArrayList<>();
+                List<TExpression> joinConditions = new ArrayList<>();
                 treeNode.getRelations().forEach(r -> checkState(!r.accept(new TNodeVisitor<Optional<PNode>, SymbolScope>()
                 {
                     @Override
@@ -245,6 +247,7 @@ public class TreePlanner
                     {
                         checkState(!process(node.getLeft(), context).isPresent());
                         checkState(!process(node.getRight(), context).isPresent());
+                        node.getCondition().ifPresent(joinConditions::add);
                         return Optional.empty();
                     }
 
@@ -303,8 +306,25 @@ public class TreePlanner
                             PJoin.Mode.FULL);
                 }
 
-                if (treeNode.getWhere().isPresent()) {
-                    source = buildFilter(source, buildValueNode(treeNode.getWhere().get()), nameGenerator, "selectWhere");
+                List<TExpression> conditions = new ArrayList<>();
+                conditions.addAll(joinConditions);
+                treeNode.getWhere().ifPresent(conditions::add);
+                if (!conditions.isEmpty()) {
+                    List<VNode> vconditions = conditions.stream().map(TreePlanner.this::buildValueNode).collect(toImmutableList());
+                    VNode vcondition;
+                    if (vconditions.size() > 1) {
+                        vcondition = VNodes.function(
+                                PFunction.of(be.getExecutable(BUILTIN_NAMES_BY_BOOLEAN_OP.get(TBooleanExpression.Op.AND))),
+                                vconditions.toArray(new VNode[] {}));
+                    }
+                    else {
+                        vcondition = checkSingle(vconditions);
+                    }
+                    source = buildFilter(
+                            source,
+                            vcondition,
+                            nameGenerator,
+                            "selectCondition");
                 }
 
                 return new PProject(
