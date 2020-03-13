@@ -40,6 +40,11 @@ public final class BuiltinFunctions
         return left == right;
     }
 
+    public static boolean longGt(long left, long right)
+    {
+        return left > right;
+    }
+
     public static boolean logicalAnd(boolean left, boolean right)
     {
         return left && right;
@@ -84,6 +89,21 @@ public final class BuiltinFunctions
                             ),
                             Purity.PURE)
             );
+
+            executor.register(
+                    Reflection.reflect(
+                            BuiltinFunctions.class.getDeclaredMethod("longGt", long.class, long.class),
+                            "gt",
+                            new FunctionType(
+                                    Types.Boolean(),
+                                    ImmutableList.of(
+                                            Types.Long(),
+                                            Types.Long()
+                                    )
+                            ),
+                            Purity.PURE)
+            );
+
 
             executor.register(
                     Reflection.reflect(
