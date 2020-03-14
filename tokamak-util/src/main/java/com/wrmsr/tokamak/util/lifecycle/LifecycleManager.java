@@ -96,6 +96,7 @@ public final class LifecycleManager
             depEntry.dependants.add(entry);
         }
 
+        // FIXME: reverse for shutdown
         LifecycleController controller = entry.controller;
         checkState(controller.getState().getPhase() < LifecycleState.STOPPING.getPhase() && !controller.getState().isFailed());
         while (controller.getState().getPhase() < getState().getPhase()) {
