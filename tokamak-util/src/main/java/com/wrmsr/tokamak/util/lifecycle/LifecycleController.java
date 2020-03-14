@@ -52,10 +52,11 @@ public final class LifecycleController
         return state;
     }
 
-    public void addListener(LifecycleListener listener)
+    public LifecycleController addListener(LifecycleListener listener)
     {
         checkNotNull(listener);
         listeners.add(listener);
+        return this;
     }
 
     @Override
