@@ -443,8 +443,6 @@ public final class OriginAnalysis
             }
         }, null);
 
-        return new
-
-                OriginAnalysis(originations, plan.getToposortIndicesByNode());
+        return new OriginAnalysis(originations, plan.getToposortIndicesByNode());
     }
 }

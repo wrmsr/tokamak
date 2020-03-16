@@ -13,6 +13,8 @@
  */
 package com.wrmsr.tokamak.core.plan.analysis.origin;
 
+import java.util.Objects;
+
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public abstract class OriginGenesis
@@ -31,8 +33,38 @@ public abstract class OriginGenesis
         return false;
     }
 
-    public static final class Direct
+    @Override
+    public int hashCode()
+    {
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        throw new IllegalStateException();
+    }
+
+    private static abstract class Nullary
             extends OriginGenesis
+    {
+        @Override
+        public boolean equals(Object o)
+        {
+            if (this == o) { return true; }
+            if (o == null || getClass() != o.getClass()) { return false; }
+            return true;
+        }
+
+        @Override
+        public int hashCode()
+        {
+            return Objects.hash(getClass());
+        }
+    }
+
+    public static final class Direct
+            extends Nullary
     {
         private static final Direct INSTANCE = new Direct();
 
@@ -47,7 +79,7 @@ public abstract class OriginGenesis
     }
 
     public static final class Constant
-            extends OriginGenesis
+            extends Nullary
     {
         private static final Constant INSTANCE = new Constant();
 
@@ -68,7 +100,7 @@ public abstract class OriginGenesis
     }
 
     public static final class External
-            extends OriginGenesis
+            extends Nullary
     {
         private static final External INSTANCE = new External();
 
@@ -95,7 +127,7 @@ public abstract class OriginGenesis
     }
 
     public static final class Scan
-            extends OriginGenesis
+            extends Nullary
     {
         private static final Scan INSTANCE = new Scan();
 
@@ -116,7 +148,7 @@ public abstract class OriginGenesis
     }
 
     public static final class Values
-            extends OriginGenesis
+            extends Nullary
     {
         private static final Values INSTANCE = new Values();
 
@@ -159,6 +191,21 @@ public abstract class OriginGenesis
         {
             return mode;
         }
+
+        @Override
+        public boolean equals(Object o)
+        {
+            if (this == o) { return true; }
+            if (o == null || getClass() != o.getClass()) { return false; }
+            Join join = (Join) o;
+            return mode == join.mode;
+        }
+
+        @Override
+        public int hashCode()
+        {
+            return Objects.hash(mode);
+        }
     }
 
     public static Join join(Join.Mode mode)
@@ -167,7 +214,7 @@ public abstract class OriginGenesis
     }
 
     public static final class Group
-            extends OriginGenesis
+            extends Nullary
     {
         private static final Group INSTANCE = new Group();
 
@@ -195,6 +242,21 @@ public abstract class OriginGenesis
         {
             return sinkSubfield;
         }
+
+        @Override
+        public boolean equals(Object o)
+        {
+            if (this == o) { return true; }
+            if (o == null || getClass() != o.getClass()) { return false; }
+            Nested nested = (Nested) o;
+            return Objects.equals(sinkSubfield, nested.sinkSubfield);
+        }
+
+        @Override
+        public int hashCode()
+        {
+            return Objects.hash(sinkSubfield);
+        }
     }
 
     public static Nested nested(String sinkSubfield)
@@ -215,6 +277,21 @@ public abstract class OriginGenesis
         public String getSourceSubfield()
         {
             return sourceSubfield;
+        }
+
+        @Override
+        public boolean equals(Object o)
+        {
+            if (this == o) { return true; }
+            if (o == null || getClass() != o.getClass()) { return false; }
+            Unnested unnested = (Unnested) o;
+            return Objects.equals(sourceSubfield, unnested.sourceSubfield);
+        }
+
+        @Override
+        public int hashCode()
+        {
+            return Objects.hash(sourceSubfield);
         }
     }
 
@@ -237,6 +314,21 @@ public abstract class OriginGenesis
         public boolean isDeterministic()
         {
             return isDeterministic;
+        }
+
+        @Override
+        public boolean equals(Object o)
+        {
+            if (this == o) { return true; }
+            if (o == null || getClass() != o.getClass()) { return false; }
+            Function function = (Function) o;
+            return isDeterministic == function.isDeterministic;
+        }
+
+        @Override
+        public int hashCode()
+        {
+            return Objects.hash(isDeterministic);
         }
     }
 

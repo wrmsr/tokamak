@@ -66,6 +66,10 @@ up: images
 .PHONY: reup
 reup: clean up
 
+.PHONY: down
+down:
+	docker-compose down
+
 .PHONY: enable-ptrace
 enable-ptrace:
 	docker run --privileged -it alpine:3.7 sh -c 'echo 0 > /proc/sys/kernel/yama/ptrace_scope'
