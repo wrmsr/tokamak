@@ -15,6 +15,7 @@ package com.wrmsr.tokamak.core.plan.analysis.origin;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.wrmsr.tokamak.core.plan.Plan;
 import com.wrmsr.tokamak.core.plan.node.PCache;
@@ -122,7 +123,7 @@ public final class OriginAnalysis
 
             snkOrisByField.forEach((snkField, snkOris) -> {
                 checkNotEmpty(snkOris);
-                if (snkOris.stream().anyMatch(o -> o.genesis.isLeaf())) {
+                if (snkOris.stream().anyMatch(o -> o.geneses.stream().anyMatch(OriginGenesis::isLeaf))) {
                     checkSingle(snkOris);
                 }
             });
@@ -189,7 +190,7 @@ public final class OriginAnalysis
             {
                 node.getFields().getNames().forEach(f ->
                         originations.add(new Origination(
-                                PNodeField.of(node, f), PNodeField.of(node.getSource(), f), OriginGenesis.direct())));
+                                PNodeField.of(node, f), PNodeField.of(node.getSource(), f), ImmutableSet.of(OriginGenesis.direct()))));
             }
 
             @Override
@@ -223,7 +224,7 @@ public final class OriginAnalysis
                 originations.add(new Origination(
                         PNodeField.of(node, node.getListField()), OriginGenesis.group()));
                 node.getKeyFields().forEach(gf -> originations.add(new Origination(
-                        PNodeField.of(node, gf), PNodeField.of(node.getSource(), gf), OriginGenesis.direct())));
+                        PNodeField.of(node, gf), PNodeField.of(node.getSource(), gf), ImmutableSet.of(OriginGenesis.direct()))));
 
                 return null;
             }
@@ -248,7 +249,7 @@ public final class OriginAnalysis
                     }
 
                     b.getNode().getFields().getNames().forEach(f -> {
-                        originations.add(new Origination(PNodeField.of(node, f), PNodeField.of(b.getNode(), f), gen));
+                        originations.add(new Origination(PNodeField.of(node, f), PNodeField.of(b.getNode(), f), ImmutableSet.of(gen)));
                     });
 
                     node.getBranches().forEach(ob -> {
@@ -257,7 +258,7 @@ public final class OriginAnalysis
                             for (int i = 0; i < b.getFields().size(); ++i) {
                                 String kf = b.getFields().get(i);
                                 String okf = ob.getFields().get(i);
-                                originations.add(new Origination(PNodeField.of(node, kf), PNodeField.of(ob.getNode(), okf), gen));
+                                originations.add(new Origination(PNodeField.of(node, kf), PNodeField.of(ob.getNode(), okf), ImmutableSet.of(gen)));
                             }
                         }
                     });
@@ -270,9 +271,9 @@ public final class OriginAnalysis
             public Void visitLookup(PLookup node, Void context)
             {
                 node.getSource().getFields().getNames().forEach(f -> originations.add(new Origination(
-                        PNodeField.of(node, f), PNodeField.of(node.getSource(), f), OriginGenesis.direct())));
+                        PNodeField.of(node, f), PNodeField.of(node.getSource(), f), ImmutableSet.of(OriginGenesis.direct()))));
                 node.getBranches().forEach(b -> b.getFields().forEach(f -> originations.add(new Origination(
-                        PNodeField.of(node, f), PNodeField.of(b.getNode(), f), OriginGenesis.join(OriginGenesis.Join.Mode.LOOKUP)))));
+                        PNodeField.of(node, f), PNodeField.of(b.getNode(), f), ImmutableSet.of(OriginGenesis.join(OriginGenesis.Join.Mode.LOOKUP))))));
 
                 return null;
             }
@@ -309,7 +310,7 @@ public final class OriginAnalysis
 
                 else if (value instanceof VField) {
                     return ImmutableList.of(new Origination(
-                            sink, PNodeField.of(source, ((VField) value).getField()), OriginGenesis.direct()));
+                            sink, PNodeField.of(source, ((VField) value).getField()), ImmutableSet.of(OriginGenesis.direct())));
                 }
 
                 else if (value instanceof VFunction) {
@@ -331,7 +332,7 @@ public final class OriginAnalysis
                     }
                     else {
                         return argOriginations.stream()
-                                .map(o -> new Origination(sink, o.source, OriginGenesis.function(isDeterministic)))
+                                .map(o -> new Origination(sink, o.source, ImmutableSet.of(OriginGenesis.function(isDeterministic))))
                                 .collect(toImmutableList());
                     }
                 }

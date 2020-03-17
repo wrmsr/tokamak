@@ -13,47 +13,75 @@
  */
 package com.wrmsr.tokamak.core.plan.analysis.origin;
 
+import com.google.common.collect.ImmutableSet;
 import com.wrmsr.tokamak.core.plan.node.PNodeField;
+import com.wrmsr.tokamak.util.Pair;
 
 import javax.annotation.concurrent.Immutable;
 
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.collect.ImmutableSet.toImmutableSet;
+import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
+import static com.wrmsr.tokamak.util.MorePreconditions.checkSingle;
 
 @Immutable
 public final class Origination
 {
     final PNodeField sink;
     final Optional<PNodeField> source;
-    final OriginGenesis genesis;
+    final Set<OriginGenesis> geneses;
 
-    Origination(PNodeField sink, Optional<PNodeField> source, OriginGenesis genesis)
+    Origination(PNodeField sink, Optional<PNodeField> source, Set<OriginGenesis> geneses)
     {
         this.sink = checkNotNull(sink);
         this.source = checkNotNull(source);
-        this.genesis = checkNotNull(genesis);
+        this.geneses = checkNotEmpty(ImmutableSet.copyOf(geneses));
         if (source.isPresent()) {
             PNodeField src = source.get();
             checkState(src != sink);
             checkState(sink.getNode().getSources().contains(src.getNode()));
-            checkArgument(!genesis.isLeaf());
+            this.geneses.forEach(g -> checkArgument(!g.isLeaf()));
         }
         else {
-            checkArgument(genesis.isLeaf());
+            this.geneses.forEach(g -> checkArgument(g.isLeaf()));
         }
     }
 
-    Origination(PNodeField sink, PNodeField source, OriginGenesis genesis)
+    Origination(PNodeField sink, PNodeField source, Set<OriginGenesis> geneses)
     {
-        this(sink, Optional.of(source), genesis);
+        this(sink, Optional.of(source), geneses);
     }
 
     Origination(PNodeField sink, OriginGenesis genesis)
     {
-        this(sink, Optional.empty(), genesis);
+        this(sink, Optional.empty(), ImmutableSet.of(genesis));
+    }
+
+    @Override
+    public boolean equals(Object o)
+    {
+        if (this == o) { return true; }
+        if (o == null || getClass() != o.getClass()) { return false; }
+        Origination that = (Origination) o;
+        return Objects.equals(sink, that.sink) &&
+                Objects.equals(source, that.source) &&
+                Objects.equals(geneses, that.geneses);
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return Objects.hash(sink, source, geneses);
     }
 
     @Override
@@ -62,7 +90,7 @@ public final class Origination
         return "Origination{" +
                 "sink=" + sink +
                 ", source=" + source +
-                ", genesis=" + genesis +
+                ", geneses=" + geneses +
                 '}';
     }
 
@@ -76,8 +104,31 @@ public final class Origination
         return source;
     }
 
+    public Set<OriginGenesis> getGeneses()
+    {
+        return geneses;
+    }
+
     public OriginGenesis getGenesis()
     {
-        return genesis;
+        return checkSingle(geneses);
+    }
+
+    public static Set<Origination> merge(Iterable<Origination> originations)
+    {
+        return merge(originations.iterator());
+    }
+
+    public static Set<Origination> merge(Iterator<Origination> originations)
+    {
+        Map<Pair<PNodeField, Optional<PNodeField>>, Set<OriginGenesis>> genesisSetsByPair = new LinkedHashMap<>();
+        while (originations.hasNext()) {
+            Origination origination = checkNotNull(originations.next());
+            genesisSetsByPair.computeIfAbsent(Pair.immutable(origination.sink, origination.source), p -> new LinkedHashSet<>())
+                    .addAll(origination.geneses);
+        }
+        return genesisSetsByPair.entrySet().stream()
+                .map(p -> new Origination(p.getKey().getFirst(), p.getKey().getSecond(), p.getValue()))
+                .collect(toImmutableSet());
     }
 }
