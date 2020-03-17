@@ -22,6 +22,7 @@ import javax.annotation.concurrent.Immutable;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -30,7 +31,7 @@ import java.util.Set;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.collect.ImmutableSet.toImmutableSet;
+import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkNotEmpty;
 import static com.wrmsr.tokamak.util.MorePreconditions.checkSingle;
 
@@ -114,12 +115,12 @@ public final class Origination
         return checkSingle(geneses);
     }
 
-    public static Set<Origination> merge(Iterable<Origination> originations)
+    public static List<Origination> merge(Iterable<Origination> originations)
     {
         return merge(originations.iterator());
     }
 
-    public static Set<Origination> merge(Iterator<Origination> originations)
+    public static List<Origination> merge(Iterator<Origination> originations)
     {
         Map<Pair<PNodeField, Optional<PNodeField>>, Set<OriginGenesis>> genesisSetsByPair = new LinkedHashMap<>();
         while (originations.hasNext()) {
@@ -129,6 +130,6 @@ public final class Origination
         }
         return genesisSetsByPair.entrySet().stream()
                 .map(p -> new Origination(p.getKey().getFirst(), p.getKey().getSecond(), p.getValue()))
-                .collect(toImmutableSet());
+                .collect(toImmutableList());
     }
 }

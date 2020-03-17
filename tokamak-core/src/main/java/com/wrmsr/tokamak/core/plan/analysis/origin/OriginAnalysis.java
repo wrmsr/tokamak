@@ -72,6 +72,7 @@ import static com.wrmsr.tokamak.util.MorePreconditions.checkSingle;
 public final class OriginAnalysis
         implements StreamableIterable<Origination>
 {
+    final List<Origination> originalOriginations;
     final List<Origination> originations;
     final Map<PNode, Integer> toposortIndicesByNode;
 
@@ -83,7 +84,8 @@ public final class OriginAnalysis
 
     private OriginAnalysis(List<Origination> originations, Map<PNode, Integer> toposortIndicesByNode)
     {
-        this.originations = ImmutableList.copyOf(originations);
+        this.originalOriginations = ImmutableList.copyOf(originations);
+        this.originations = ImmutableList.copyOf(Origination.merge(originalOriginations));
         this.toposortIndicesByNode = ImmutableMap.copyOf(toposortIndicesByNode);
 
         Map<PNodeField, Set<Origination>> originationSetsBySink = new LinkedHashMap<>();

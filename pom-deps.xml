@@ -244,13 +244,13 @@
             <dependency>
                 <groupId>io.netty</groupId>
                 <artifactId>netty-all</artifactId>
-                <version>4.1.45.Final</version>
+                <version>4.1.47.Final</version>
             </dependency>
 
             <dependency>
                 <groupId>io.netty</groupId>
                 <artifactId>netty-codec-http</artifactId>
-                <version>4.1.45.Final</version>
+                <version>4.1.47.Final</version>
             </dependency>
 
             <dependency>
@@ -600,7 +600,7 @@
             <dependency>
                 <groupId>io.reactivex.rxjava3</groupId>
                 <artifactId>rxjava</artifactId>
-                <version>3.0.0</version>
+                <version>3.0.1</version>
             </dependency>
 
             <dependency>
