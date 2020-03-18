@@ -17,6 +17,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
+import com.wrmsr.tokamak.core.exec.Purity;
 import com.wrmsr.tokamak.core.plan.Plan;
 import com.wrmsr.tokamak.core.plan.node.PCache;
 import com.wrmsr.tokamak.core.plan.node.PExtract;
@@ -327,14 +328,29 @@ public final class OriginAnalysis
                     argOriginations.forEach(o -> checkState(o.sink == sink));
                     argOriginations.forEach(o -> o.source.ifPresent(osource -> checkState(osource.getNode() == source)));
 
-                    boolean isDeterministic = fn.getFunction().getPurity().isDeterministic();
                     if (argOriginations.isEmpty()) {
+                        switch (fn.getFunction().getPurity()) {
+                            case CONST:
+                                return ImmutableList.of(new Origination(
+                                        sink, OriginGenesis.constant()));
+                            case EXTERNAL:
+                                return ImmutableList.of(new Origination(
+                                        sink, OriginGenesis.external()));
+                            default:
+                                throw new IllegalStateException();
+                        }
+                    }
+                    else if (fn.getFunction().getPurity() == Purity.IDENTITY || fn.getFunction().getPurity() == Purity.TRANSMUTATION) {
                         return ImmutableList.of(new Origination(
-                                sink, isDeterministic ? OriginGenesis.external() : OriginGenesis.constant()));
+                                sink, checkSingle(argOriginations)
+
+                        ))
+
                     }
                     else {
                         return argOriginations.stream()
-                                .map(o -> new Origination(sink, o.source, ImmutableSet.of(OriginGenesis.function(isDeterministic))))
+                                .map(o -> new Origination(
+                                        sink, o.source, ImmutableSet.of(OriginGenesis.function(fn.getFunction().getPurity().isDeterministic()))))
                                 .collect(toImmutableList());
                     }
                 }
