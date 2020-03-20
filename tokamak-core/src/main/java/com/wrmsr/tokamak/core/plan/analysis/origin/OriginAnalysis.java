@@ -342,10 +342,7 @@ public final class OriginAnalysis
                     }
                     else if (fn.getFunction().getPurity() == Purity.IDENTITY || fn.getFunction().getPurity() == Purity.TRANSMUTATION) {
                         return ImmutableList.of(new Origination(
-                                sink, checkSingle(argOriginations)
-
-                        ))
-
+                                sink, checkSingle(argOriginations).source, ImmutableSet.of(OriginGenesis.direct())));
                     }
                     else {
                         return argOriginations.stream()

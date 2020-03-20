@@ -42,7 +42,7 @@ public final class Origination
     final Optional<PNodeField> source;
     final Set<OriginGenesis> geneses;
 
-    Origination(PNodeField sink, Optional<PNodeField> source, Set<OriginGenesis> geneses)
+    Origination(PNodeField sink, Optional<PNodeField> source, Iterable<OriginGenesis> geneses)
     {
         this.sink = checkNotNull(sink);
         this.source = checkNotNull(source);
@@ -58,7 +58,7 @@ public final class Origination
         }
     }
 
-    Origination(PNodeField sink, PNodeField source, Set<OriginGenesis> geneses)
+    Origination(PNodeField sink, PNodeField source, Iterable<OriginGenesis> geneses)
     {
         this(sink, Optional.of(source), geneses);
     }
