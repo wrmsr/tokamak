@@ -19,6 +19,7 @@ import com.wrmsr.tokamak.core.catalog.Table;
 import com.wrmsr.tokamak.core.plan.Plan;
 import com.wrmsr.tokamak.core.plan.analysis.id.entry.IdAnalysisEntry;
 import com.wrmsr.tokamak.core.plan.analysis.id.part.IdAnalysisPart;
+import com.wrmsr.tokamak.core.plan.analysis.origin.OriginAnalysis;
 import com.wrmsr.tokamak.core.plan.node.PCache;
 import com.wrmsr.tokamak.core.plan.node.PFilter;
 import com.wrmsr.tokamak.core.plan.node.PGroup;
@@ -82,6 +83,8 @@ public final class IdAnalysis
 
     public static IdAnalysis analyze(Plan plan, Optional<Catalog> catalog)
     {
+        OriginAnalysis originAnalysis = OriginAnalysis.analyze(plan);
+
         Map<PNode, IdAnalysisEntry> entriesByNode = new LinkedHashMap<>();
 
         PNodeVisitors.postWalk(plan.getRoot(), new CachingPNodeVisitor<IdAnalysisEntry, Void>(entriesByNode)
