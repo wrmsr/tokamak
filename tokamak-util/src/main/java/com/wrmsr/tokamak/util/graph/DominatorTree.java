@@ -42,6 +42,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class DominatorTree<V, E>
 {
     /*
+    FIXME:
+     - IDOMCOMP MUTATES DFS INTERNALS (semi+label). copy.
     TODO:
      - DIY?
     */
