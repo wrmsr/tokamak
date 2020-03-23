@@ -140,6 +140,7 @@ public final class IdAnalysis
             {
                 IdAnalysisEntry source = process(node.getSource(), context);
 
+                // FIXME: values lols
                 List<Set<String>> sets = source.getParts().stream()
                         .map(p -> p.getFields().stream()
                                 .map(node.getProjection().getOutputSetsByInputField()::get)
