@@ -1,63 +1,67 @@
 grammar Json;
 
+
 json
-   : value
-   ;
+    : value
+    ;
 
 obj
-   : '{' pair (',' pair)* '}'
-   | '{' '}'
-   ;
+    : '{' pair (',' pair)* '}'
+    | '{' '}'
+    ;
 
 pair
-   : STRING ':' value
-   ;
+    : STRING ':' value
+    ;
 
 array
-   : '[' value (',' value)* ']'
-   | '[' ']'
-   ;
+    : '[' value (',' value)* ']'
+    | '[' ']'
+    ;
 
 value
-   : STRING
-   | NUMBER
-   | obj
-   | array
-   | 'true'
-   | 'false'
-   | 'null'
-   ;
+    : STRING
+    | NUMBER
+    | obj
+    | array
+    | 'true'
+    | 'false'
+    | 'null'
+    ;
 
 STRING
-   : '"' (ESC | SAFECODEPOINT)* '"'
-   ;
+    : '"' (ESC | SAFECODEPOINT)* '"'
+    ;
 
 fragment ESC
-   : '\\' (["\\/bfnrt] | UNICODE)
-   ;
+    : '\\' (["\\/bfnrt] | UNICODE)
+    ;
+
 fragment UNICODE
-   : 'u' HEX HEX HEX HEX
-   ;
+    : 'u' HEX HEX HEX HEX
+    ;
+
 fragment HEX
-   : [0-9a-fA-F]
-   ;
+    : [0-9a-fA-F]
+    ;
+
 fragment SAFECODEPOINT
-   : ~ ["\\\u0000-\u001F]
-   ;
+    : ~ ["\\\u0000-\u001F]
+    ;
 
 NUMBER
-   : '-'? INT ('.' [0-9] +)? EXP?
-   ;
+    : '-'? INT ('.' [0-9] +)? EXP?
+    ;
 
 fragment INT
-   : '0'
-   | [1-9] [0-9]*
-   ;
+    : '0'
+    | [1-9] [0-9]*
+    ;
 
 fragment EXP
-   : [Ee] [+\-]? INT
-   ;
+    : [Ee] [+\-]? INT
+    ;
 
 WS
-   : [ \t\n\r] + -> skip
-   ;
+    : [ \t\n\r] + -> skip
+    ;

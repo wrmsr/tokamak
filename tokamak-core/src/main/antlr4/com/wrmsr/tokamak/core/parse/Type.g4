@@ -1,5 +1,6 @@
 grammar Type;
 
+
 singleType
     : type EOF
     ;

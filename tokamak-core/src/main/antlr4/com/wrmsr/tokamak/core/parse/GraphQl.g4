@@ -23,187 +23,188 @@ THE SOFTWARE.
 
 GraphQL grammar derived from:
 
-    GraphQL Draft Specification - July 2015
+     GraphQL Draft Specification - July 2015
 
-    http://facebook.github.io/graphql/
-    https://github.com/facebook/graphql
+     http://facebook.github.io/graphql/
+     https://github.com/facebook/graphql
   AB:10-dep19: replaced type with type_ to resolve conflict for golang generator
 */
 grammar GraphQl;
 
+
 document
-   : definition+
-   ;
+    : definition+
+    ;
 
 definition
-   : operationDefinition
-   | fragmentDefinition
-   ;
+    : operationDefinition
+    | fragmentDefinition
+    ;
 
 operationDefinition
-   : selectionSet
-   | operationType NAME variableDefinitions? directives? selectionSet
-   ;
+    : selectionSet
+    | operationType NAME variableDefinitions? directives? selectionSet
+    ;
 
 selectionSet
-   : '{' selection ( ','? selection )* '}'
-   ;
+    : '{' selection ( ','? selection )* '}'
+    ;
 
 operationType
-   : 'query'
-   | 'mutation'
-   ;
+    : 'query'
+    | 'mutation'
+    ;
 
 selection
-   : field
-   | fragmentSpread
-   | inlineFragment
-   ;
+    : field
+    | fragmentSpread
+    | inlineFragment
+    ;
 
 field
-   : fieldName arguments? directives? selectionSet?
-   ;
+    : fieldName arguments? directives? selectionSet?
+    ;
 
 fieldName
-   : alias
-   | NAME
-   ;
+    : alias
+    | NAME
+    ;
 
 alias
-   : NAME ':' NAME
-   ;
+    : NAME ':' NAME
+    ;
 
 arguments
-   : '(' argument ( ',' argument )* ')'
-   ;
+    : '(' argument ( ',' argument )* ')'
+    ;
 
 argument
-   : NAME ':' valueOrVariable
-   ;
+    : NAME ':' valueOrVariable
+    ;
 
 fragmentSpread
-   : '...' fragmentName directives?
-   ;
+    : '...' fragmentName directives?
+    ;
 
 inlineFragment
-   : '...' 'on' typeCondition directives? selectionSet
-   ;
+    : '...' 'on' typeCondition directives? selectionSet
+    ;
 
 fragmentDefinition
-   : 'fragment' fragmentName 'on' typeCondition directives? selectionSet
-   ;
+    : 'fragment' fragmentName 'on' typeCondition directives? selectionSet
+    ;
 
 fragmentName
-   : NAME
-   ;
+    : NAME
+    ;
 
 directives
-   : directive+
-   ;
+    : directive+
+    ;
 
 directive
-   : '@' NAME ':' valueOrVariable
-   | '@' NAME
-   | '@' NAME '(' argument ')'
-   ;
+    : '@' NAME ':' valueOrVariable
+    | '@' NAME
+    | '@' NAME '(' argument ')'
+    ;
 
 typeCondition
-   : typeName
-   ;
+    : typeName
+    ;
 
 variableDefinitions
-   : '(' variableDefinition ( ',' variableDefinition )* ')'
-   ;
+    : '(' variableDefinition ( ',' variableDefinition )* ')'
+    ;
 
 variableDefinition
-   : variable ':' type_ defaultValue?
-   ;
+    : variable ':' type_ defaultValue?
+    ;
 
 variable
-   : '$' NAME
-   ;
+    : '$' NAME
+    ;
 
 defaultValue
-   : '=' value
-   ;
+    : '=' value
+    ;
 
 valueOrVariable
-   : value
-   | variable
-   ;
+    : value
+    | variable
+    ;
 
 value
-   : STRING   #stringValue
-   | NUMBER   #numberValue
-   | BOOLEAN  #booleanValue
-   | array    #arrayValue
-   ;
+    : STRING    #stringValue
+    | NUMBER    #numberValue
+    | BOOLEAN  #booleanValue
+    | array     #arrayValue
+    ;
 
 type_
-   : typeName nonNullType?
-   | listType nonNullType?
-   ;
+    : typeName nonNullType?
+    | listType nonNullType?
+    ;
 
 typeName
-   : NAME
-   ;
+    : NAME
+    ;
 
 listType
-   : '[' type_ ']'
-   ;
+    : '[' type_ ']'
+    ;
 
 nonNullType
-   : '!'
-   ;
+    : '!'
+    ;
 
 array
-   : '[' value ( ',' value )* ']'
-   | '[' ']'
-   ;
+    : '[' value ( ',' value )* ']'
+    | '[' ']'
+    ;
 
 NAME
-   : [_A-Za-z] [_0-9A-Za-z]*
-   ;
+    : [_A-Za-z] [_0-9A-Za-z]*
+    ;
 
 STRING
-   : '"' ( ESC | ~ ["\\] )* '"'
-   ;
+    : '"' ( ESC | ~ ["\\] )* '"'
+    ;
 
 BOOLEAN
-   : 'true' | 'false'
-   ;
+    : 'true' | 'false'
+    ;
 
 fragment ESC
-   : '\\' ( ["\\/bfnrt] | UNICODE )
-   ;
+    : '\\' ( ["\\/bfnrt] | UNICODE )
+    ;
 
 fragment UNICODE
-   : 'u' HEX HEX HEX HEX
-   ;
+    : 'u' HEX HEX HEX HEX
+    ;
 
 fragment HEX
-   : [0-9a-fA-F]
-   ;
+    : [0-9a-fA-F]
+    ;
 
 NUMBER
-   : '-'? INT '.' [0-9]+ EXP?
-   | '-'? INT EXP
-   | '-'? INT
-   ;
+    : '-'? INT '.' [0-9]+ EXP?
+    | '-'? INT EXP
+    | '-'? INT
+    ;
 
 fragment INT
-   : '0'
-   | [1-9] [0-9]*
-   ;
+    : '0'
+    | [1-9] [0-9]*
+    ;
 
 // no leading zeros
 
 fragment EXP
-   : [Ee] [+\-]? INT
-   ;
+    : [Ee] [+\-]? INT
+    ;
 
 // \- since - means "range" inside [...]
 
 WS
-   : [ \t\n\r]+ -> skip
-   ;
+    : [ \t\n\r]+ -> skip
+    ;

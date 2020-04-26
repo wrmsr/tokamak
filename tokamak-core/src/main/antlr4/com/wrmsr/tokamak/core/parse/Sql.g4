@@ -1,5 +1,6 @@
 grammar Sql;
 
+
 tokens {
     DELIMITER
 }
@@ -155,19 +156,19 @@ fragment LETTER
     ;
 
 NUMBER
-   : '-'? INTEGER '.' [0-9]+ EXPONENT?
-   | '-'? INTEGER EXPONENT
-   | '-'? INTEGER
-   ;
+    : '-'? INTEGER '.' [0-9]+ EXPONENT?
+    | '-'? INTEGER EXPONENT
+    | '-'? INTEGER
+    ;
 
 INTEGER
-   : '0'
-   | [1-9] [0-9]*
-   ;
+    : '0'
+    | [1-9] [0-9]*
+    ;
 
 fragment EXPONENT
-   : [Ee] [+\-]? INTEGER
-   ;
+    : [Ee] [+\-]? INTEGER
+    ;
 
 SIMPLE_COMMENT
     : ('--' | '//') ~[\r\n]* '\r'? '\n'? -> channel(2)
