@@ -24,6 +24,7 @@ public class ParseTest
             throws Throwable
     {
         for (String src : new String[] {
+                "foo[0:10:]",
                 "a",
                 "[0]",
                 "[0].a",

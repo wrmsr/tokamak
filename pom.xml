@@ -27,8 +27,8 @@
         <protobuf.output.directory>${project.build.directory}/generated-sources</protobuf.output.directory>
 
         <dep.antlr4.version>4.8-1</dep.antlr4.version>
-        <dep.guice.version>4.2.2</dep.guice.version>
-        <dep.jackson.version>2.11.0</dep.jackson.version>
+        <dep.guice.version>5.0.1</dep.guice.version>
+        <dep.jackson.version>2.12.2</dep.jackson.version>
         <dep.jersey.version>2.30.1</dep.jersey.version>
         <dep.protobuf.version>3.11.4</dep.protobuf.version>
 
@@ -190,25 +190,25 @@
             <dependency>
                 <groupId>org.apache.logging.log4j</groupId>
                 <artifactId>log4j-core</artifactId>
-                <version>2.13.2</version>
+                <version>2.14.1</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.logging.log4j</groupId>
                 <artifactId>log4j-slf4j-impl</artifactId>
-                <version>2.13.2</version>
+                <version>2.14.1</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.logging.log4j</groupId>
                 <artifactId>log4j-jul</artifactId>
-                <version>2.13.2</version>
+                <version>2.14.1</version>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.logging.log4j</groupId>
                 <artifactId>log4j-web</artifactId>
-                <version>2.13.2</version>
+                <version>2.14.1</version>
             </dependency>
 
             <dependency>
@@ -228,12 +228,6 @@
             <dependency>
                 <groupId>com.google.inject</groupId>
                 <artifactId>guice</artifactId>
-                <version>${dep.guice.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.google.inject.extensions</groupId>
-                <artifactId>guice-multibindings</artifactId>
                 <version>${dep.guice.version}</version>
             </dependency>
 
@@ -260,7 +254,7 @@
             <dependency>
                 <groupId>org.mariadb.jdbc</groupId>
                 <artifactId>mariadb-java-client</artifactId>
-                <version>2.6.0</version>
+                <version>2.7.2</version>
             </dependency>
 
             <dependency>
@@ -352,7 +346,7 @@
             <dependency>
                 <groupId>info.picocli</groupId>
                 <artifactId>picocli</artifactId>
-                <version>4.2.0</version>
+                <version>4.6.1</version>
             </dependency>
 
             <dependency>
@@ -404,7 +398,7 @@
             <dependency>
                 <groupId>org.mozilla</groupId>
                 <artifactId>rhino</artifactId>
-                <version>1.7.12</version>
+                <version>1.7.13</version>
             </dependency>
 
             <!-- Spark -->
@@ -474,7 +468,7 @@
             <dependency>
                 <groupId>org.rocksdb</groupId>
                 <artifactId>rocksdbjni</artifactId>
-                <version>6.7.3</version>
+                <version>6.15.5</version>
             </dependency>
 
             <dependency>
@@ -562,13 +556,13 @@
             <dependency>
                 <groupId>org.xerial.snappy</groupId>
                 <artifactId>snappy-java</artifactId>
-                <version>1.1.7.3</version>
+                <version>1.1.8.4</version>
             </dependency>
 
             <dependency>
                 <groupId>com.github.luben</groupId>
                 <artifactId>zstd-jni</artifactId>
-                <version>1.4.4-9</version>
+                <version>1.4.9-2</version>
             </dependency>
 
             <dependency>
@@ -594,7 +588,7 @@
             <dependency>
                 <groupId>org.jgrapht</groupId>
                 <artifactId>jgrapht-core</artifactId>
-                <version>1.4.0</version>
+                <version>1.5.1</version>
             </dependency>
 
             <dependency>
@@ -636,13 +630,13 @@
             <dependency>
                 <groupId>com.github.jasync-sql</groupId>
                 <artifactId>jasync-mysql</artifactId>
-                <version>1.0.14</version>
+                <version>1.1.7</version>
             </dependency>
 
             <dependency>
                 <groupId>com.github.jasync-sql</groupId>
                 <artifactId>jasync-postgresql</artifactId>
-                <version>1.0.14</version>
+                <version>1.1.7</version>
             </dependency>
 
             <dependency>
@@ -672,19 +666,19 @@
             <dependency>
                 <groupId>com.facebook.presto</groupId>
                 <artifactId>presto-bytecode</artifactId>
-                <version>0.234.1</version>
+                <version>0.249.1</version>
             </dependency>
 
             <dependency>
                 <groupId>com.esotericsoftware</groupId>
                 <artifactId>kryo</artifactId>
-                <version>5.0.0-RC5</version>
+                <version>5.0.4</version>
             </dependency>
 
             <dependency>
                 <groupId>com.github.java-json-tools</groupId>
                 <artifactId>json-patch</artifactId>
-                <version>1.12</version>
+                <version>1.13</version>
             </dependency>
 
             <dependency>
@@ -702,7 +696,7 @@
             <dependency>
                 <groupId>com.netflix.governator</groupId>
                 <artifactId>governator</artifactId>
-                <version>1.17.10</version>
+                <version>1.17.11</version>
             </dependency>
 
             <dependency>
